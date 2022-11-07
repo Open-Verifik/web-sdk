@@ -2,7 +2,7 @@ export var Config = (function () {
 
     var DeviceKeyIdentifier = "dSIbWmqD0mIiN3UU6wC1WrHO20v1dCKk";
 
-    var token = process.env.TOKEN;//TOKEN
+    var token = "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGllbnRJZCI6IjYxM2EyOGVhNjRmYzQxNDBiZDhjNTFlMCIsImRvY3VtZW50VHlwZSI6IkNDIiwiZG9jdW1lbnROdW1iZXIiOiI0NTQ1NDU0MSIsInYiOjEsInJvbGUiOiJjbGllbnQiLCJzdWJzY3JpcHRpb25QbGFuIjpudWxsLCJpYXQiOjE2NjUxODc4MjV9.sDJI_OcNs2Uukqtm2r96JuVnA6MZJLHN1BrIA7xoOX8";//TOKEN
    
     var BaseURL = "https://staging-api.verifik.co/v2/biometrics";
 
