@@ -1,12 +1,10 @@
-require('dotenv').config()
-
 export var Config = (function () {
 
-    var DeviceKeyIdentifier = process.env.DEVICE_KEY;
+    var DeviceKeyIdentifier = "dSIbWmqD0mIiN3UU6wC1WrHO20v1dCKk";
 
-    var token = process.env.TOKEN;//TOKEN
+    var token = "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGllbnRJZCI6IjYxYTZkYmFhZTcyZTJhYjRmYmI0ZGVlOSIsImRvY3VtZW50VHlwZSI6IkNDIiwiZG9jdW1lbnROdW1iZXIiOiIxMjEyMTIxMjQ1OCIsInYiOjEsInJvbGUiOiJjbGllbnQiLCJpYXQiOjE2NjUxNzg2NTJ9.4zoryowY6qERZbLwSKRN9oKF57ewS8duVCb38MWY0vs";//TOKEN
    
-    var BaseURL = process.env.URL;
+    var BaseURL = "https://staging-app.verifik.co/v2/biometrics";
 
     var PublicFaceScanEncryptionKey =
         "-----BEGIN PUBLIC KEY-----\n" +
