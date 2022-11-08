@@ -147,7 +147,6 @@ SampleApp = (function () {
                 }
                 SampleAppUtilities.hideLoadingSessionToken();
                 sessionTokenCallback(sessionToken);
-                console.log({sessionToken})
             }
         };
         // Wait 3s, if the request is not completed yet, show the session token loading screen
