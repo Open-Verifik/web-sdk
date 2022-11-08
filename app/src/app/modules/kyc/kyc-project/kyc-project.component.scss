@@ -1,0 +1,158 @@
+$maxExtraSmall: 595px;
+$minSmall: 600px;
+$medium: 768px;
+$large: 889px;
+$computers: 1200px;
+$mainColor: #01236D;
+
+.verifikH1 {
+    color: $mainColor !important;
+    font-weight: 600;
+    margin-bottom: 0px !important;
+}
+
+.verifikH3 {
+    color: $mainColor !important;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 28px;
+    padding-bottom: 5px;
+}
+
+.verifikH4 {
+    color: $mainColor !important;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+}
+
+.primaryColor {
+    color: #01236D !important;
+}
+
+.primaryBg {
+    background-color: $mainColor !important;
+    color: white !important;
+}
+
+.divider-height {
+    width: 2px;
+    background-color: rgba(128, 128, 128, 0.431);
+    height: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.secondaryVerifikLabel {
+    background: #E5EBFD;
+    padding: 8px;
+    margin: 6px;
+    color: #0036E7;
+    font-weight: 600;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.secondaryVerifikButton {
+    background-color: #E5EBFD !important;
+    color: #0036E7 !important;
+    font-weight: 400;
+}
+
+.deleteVerifikButton {
+    background-color: #dc354594 !important;
+    color: #ffffff !important;
+    font-weight: 400;
+}
+
+.mainVerifikButton {
+    background-color: #0036E7 !important;
+    color: white !important;
+}
+
+/* For extremely small screen devices (595px and below) */
+@media only screen and (max-width: $maxExtraSmall) {
+    .verifikH1 {
+        font-size: 20px;
+    }
+
+    .xs-mt16 {
+        margin-top: 16px;
+    }
+
+    .main-card {
+        width: 100% !important;
+    }
+}
+
+/* Small screen devices (600px and above) */
+@media only screen and (min-width: $minSmall) {
+    .verifikH1 {
+        font-size: 26px;
+    }
+
+    .main-card {
+        width: 100% !important;
+    }
+}
+
+/* Medium screen devices (768px and above) */
+@media only screen and (min-width: $medium) {
+    .verifikH1 {
+        font-size: 30px;
+    }
+
+    .main-card {
+        width: 500px !important;
+    }
+}
+
+/* Big screen devices (889px and above) */
+@media only screen and (min-width: $large) {
+    .verifikH1 {
+        font-size: 34px;
+    }
+
+    .main-card {
+        width: 500px !important;
+    }
+}
+
+/* Extra big screen devices (1200px and above) */
+@media only screen and (min-width: $computers) {
+    .verifikH1 {
+        font-size: 36px;
+    }
+
+    .main-card {
+        width: 500px !important;
+    }
+}
+
+
+.white-background {
+    background-color: white !important;
+}
+
+.border-right {
+    border-right: 1px solid #80808030;
+}
+
+.content-background {
+    background-color: #F9F9FF !important;
+}
+
+.big-stepper {
+    background-color: $mainColor !important;
+    color: white !important
+}
+.mat-tab-label-container{
+    display:none !important;
+}
+mat-tab-header{
+    display:none !important;
+}
+:host ::ng-deep .mat-tab-header {
+    display:none !important;
+}

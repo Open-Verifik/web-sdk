@@ -1,0 +1,77 @@
+<!-- <fuse-loading-bar></fuse-loading-bar> -->
+<!-- Navigation -->
+<!-- Loading bar -->
+<style>
+    .icon-filter {
+        filter: invert(13%) sepia(98%) saturate(7493%) hue-rotate(233deg) brightness(90%) contrast(104%);
+    }
+</style>
+<fuse-vertical-navigation class="dark bg-gray-900 print:hidden" [appearance]="navigationAppearance"
+    [mode]="isScreenSmall ? 'over' : 'side'" [name]="'mainNavigation'" [navigation]="navigation.default"
+    [opened]="!isScreenSmall">
+    <!-- Navigation header hook -->
+    <ng-container fuseVerticalNavigationContentHeader>
+        <!-- Logo -->
+        <!-- <div class="flex items-center justify-center h-20">
+            <img class="w-16" src="https://cdn.gomat.co/verifik/logo-nbg.png" alt="Logo image">
+            <img *ngIf="!isScreenSmall" class="w-16" src="https://cdn.gomat.co/verifik/newverifiklogo.png" alt="Logo image">
+        </div> -->
+    </ng-container>
+</fuse-vertical-navigation>
+
+<!-- Wrapper -->
+<div class="flex flex-col flex-auto w-full min-w-0">
+    <!-- Header -->
+    <div
+        class="relative flex flex-0 items-center w-full h-16 px-4 md:px-6 z-49 shadow dark:shadow-none dark:border-b bg-card dark:bg-transparent print:hidden">
+
+        <div class="flex items-center pr-2 space-x-2">
+            <!-- Navigation toggle button -->
+            <button mat-icon-button (click)="toggleNavigation('mainNavigation')">
+                <mat-icon class="icon-filter" [svgIcon]="'heroicons_outline:menu'"></mat-icon>
+            </button>
+            <!-- Navigation appearance toggle button -->
+            <button class="hidden md:inline-flex icon-filter" mat-icon-button (click)="toggleNavigationAppearance()">
+                <mat-icon class="icon-filter" [svgIcon]="'heroicons_outline:switch-horizontal'"></mat-icon>
+            </button>
+        </div>
+        <!-- Components -->
+        <div class="flex items-center pl-2 ml-auto space-x-0.5 sm:space-x-2">
+            <button (click)="openWhatsapp()">
+                <img src="https://cdn.verifik.co/ICONS/whatsapp-svgrepo-com.svg" class="w-6 icon-filter">
+            </button>
+
+            <languages></languages>
+
+            <button mat-icon-button (click)="getRed()">
+                <mat-icon class="icon-filter"> bar_chart</mat-icon>
+            </button>
+
+            <shortcuts></shortcuts>
+
+            <app-billing></app-billing>
+
+            <!-- <search [appearance]="'bar'"></search>
+            <shortcuts></shortcuts>
+            <messages></messages>
+            <notifications></notifications> -->
+
+            <user></user>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex flex-col flex-auto">
+        <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
+             Otherwise, layout changes won't be registered and the view won't be updated! -->
+        <router-outlet *ngIf="true"></router-outlet>
+    </div>
+
+    <!-- Footer -->
+    <div
+        class="relative flex flex-0 items-center justify-start w-full h-14 px-4 md:px-6 z-49 border-t bg-card dark:bg-transparent print:hidden">
+        <span class="font-medium text-secondary">Verifik &copy; {{ currentYear }}</span>
+        <span class="font-medium text-secondary m-2">
+            Producto de MAT Enterprises</span>
+    </div>
+</div>

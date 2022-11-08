@@ -1,0 +1,147 @@
+<div class="flex-auto overflow-y-auto mx-auto" cdkScrollable>
+    <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 overflow-hidden">
+        <h1 class="verifikH1">
+            {{ 'kyc.steps.title_1' | transloco }}
+        </h1>
+
+        <p>
+            {{ 'kyc.steps.description_1' | transloco }}
+        </p>
+    </div>
+
+    <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6">
+
+        <form class="mt-7" [formGroup]="basicInformationForm">
+            
+            <div class="grid grid-cols-2">
+                <mat-form-field class="w-full fuse-mat-dense">
+                    <mat-label class="primaryColor">{{ 'kyc.basic.first_name' | transloco }}</mat-label>
+                    <input id="firstName" autocomplete="chrome-off" matInput [formControlName]="'firstName'" required>
+                </mat-form-field>
+
+                <mat-form-field class="w-full fuse-mat-dense ml-2">
+                    <mat-label class="primaryColor">{{ 'kyc.basic.last_name' | transloco }}</mat-label>
+                    <input id="lastName" autocomplete="chrome-off" matInput [formControlName]="'lastName'" required>
+                </mat-form-field>
+            </div>
+            
+
+            <mat-form-field class="fuse-mat-no-subscript mb-2" *ngIf="groupFields.dateOfBirth">
+                <mat-label>{{ 'kyc.basic.dateOfBirth' | transloco }}</mat-label>
+                <mat-icon
+                    matPrefix
+                    class="hidden sm:flex icon-size-5"
+                    [svgIcon]="'heroicons_solid:cake'"></mat-icon>
+                <input
+                    matInput
+                    [matDatepicker]="birthdayDatepicker"
+                    [formControlName]="'dateOfBirth'"
+                    [placeholder]="'Birthday'">
+                <mat-datepicker-toggle
+                    matSuffix
+                    [for]="birthdayDatepicker">
+                </mat-datepicker-toggle>
+                <mat-datepicker #birthdayDatepicker></mat-datepicker>
+            </mat-form-field>
+
+
+            <div class="grid grid-cols-2">
+                <mat-form-field class="fuse-mat-dense mr-1.5" *ngIf="groupFields.age">
+                    <mat-label class="primaryColor">
+                        {{ 'kyc.basic.age' | transloco }}
+                    </mat-label>
+                    <input id="age" matInput [formControlName]="'age'" type="number">
+                </mat-form-field>
+
+                <mat-form-field class="fuse-mat-dense" *ngIf="groupFields.gender">
+                    <mat-label class="primaryColor">
+                        {{ 'kyc.basic.gender' | transloco }}
+                    </mat-label>
+
+                    <mat-select class="mr-1.5" [formControl]="basicInformationForm.get('gender')" matPrefix>
+                        <mat-select-trigger>
+                            <span class="flex items-center">
+                                <span
+                                    class="sm:mx-0.5 font-medium text-default">{{ basicInformationForm.get('gender').value | transloco }}</span>
+                            </span>
+                        </mat-select-trigger>
+                        <ng-container *ngFor="let gender of [
+                        {code: 'M', name: 'male'}, 
+                        { code: 'F', name: 'female'}
+                        ];">
+                            <mat-option [value]="gender.code">
+                                <span class="flex items-center">
+                                    <span class="ml-2">{{ gender.name | transloco }}</span>
+                                </span>
+                            </mat-option>
+                        </ng-container>
+                    </mat-select>
+
+                </mat-form-field>
+            </div>
+
+            <div class="grid grid-cols-2" *ngIf="groupFields.address">
+                <mat-form-field class="fuse-mat-dense mr-1.5">
+                    <mat-label class="primaryColor">
+                        {{ 'kyc.basic.address' | transloco }}
+                    </mat-label>
+                    <input id="address" matInput [formControlName]="'address'">
+                </mat-form-field>
+
+                <mat-form-field class="fuse-mat-dense">
+                    <mat-label class="primaryColor">
+                        {{ 'kyc.basic.city' | transloco }}
+                    </mat-label>
+                    <input id="city" matInput [formControlName]="'city'">
+                </mat-form-field>
+            </div>
+
+
+            <div class="grid grid-cols-2" *ngIf="groupFields.postalCode">
+                <mat-form-field class="fuse-mat-dense mr-1.5">
+                    <mat-label class="primaryColor">
+                        {{ 'kyc.basic.postalCode' | transloco }}
+                    </mat-label>
+                    <input id="postalCode" matInput [formControlName]="'postalCode'">
+                </mat-form-field>    
+            </div>
+
+            <div class="grid grid-cols-3" *ngIf="groupFields.documentNumber">
+                <!-- documentType -->
+                <mat-form-field class="w-full">
+                    <mat-label> {{ 'start.document_type' | transloco}}</mat-label>
+                    <mat-select *ngIf="documentTypes" class="mr-1.5" [formControlName]="'documentType'"
+                        matPrefix>
+                        <mat-select-trigger>
+                            <span class="flex items-center">
+                                <span
+                                    class="sm:mx-0.5 font-medium text-default">{{ basicInformationForm.get('documentType').value }}</span>
+                            </span>
+                        </mat-select-trigger>
+                        <ng-container *ngFor="let documentType of documentTypes;">
+                            <mat-option [value]="documentType.code">
+                                <span class="flex items-center">
+                                    <span class="ml-2">
+                                        {{documentType.name | transloco }}
+                                    </span>
+                                </span>
+                            </mat-option>
+                        </ng-container>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- documentNumber -->
+                <mat-form-field class="w-full col-span-2 ml-1 mr-1" *ngIf="groupFields.documentNumber">
+                    <mat-label> {{ 'start.document_number' | transloco}}</mat-label>
+                    <input id="documentNumber" matInput [formControlName]="'documentNumber'">
+                    <mat-error *ngIf="basicInformationForm.get('documentNumber').hasError('required')">
+                        {{ 'start.required_document_number' | transloco}}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,45 @@
+$maxExtraSmall: 595px;
+$minSmall: 600px;
+$medium: 768px;
+$large: 889px;
+$computers: 1280px;
+$mainColor: #01236D;
+
+@media only screen and (min-width: $computers) {
+    .float {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 99;
+    }
+}
+
+@media only screen and (max-width: $computers) {
+    .float {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 99;
+    }
+}
+
+.primaryBg {
+    background-color: $mainColor !important;
+    color: white !important;
+}
+
+::ng-deep .redError {
+    color: rgba(242, 5, 5, 1) !important;
+    border-color: rgba(242, 5, 5, 1) !important;
+    border: 2px solid !important;
+    font-size: 20px !important;
+    background: rgba(242, 5, 5, 0.08) !important;
+}
+
+::ng-deep .blueSuccess {
+    color: rgba(0, 54, 231, 1) !important;
+    font-size: 20px !important;
+    border-color: rgba(0, 54, 231, 1) !important;
+    border: 2px solid !important;
+    background: rgba(229, 235, 253, 1) !important;
+}

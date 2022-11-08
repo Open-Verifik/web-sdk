@@ -1,10 +1,9 @@
 //
-// Welcome to the annotated FaceTec Device SDK core code for performing secure Enrollment.
-//
-//
-// This is an example self-contained class to perform Enrollment with the FaceTec SDK.
+// Welcome to the annotated Device SDK core code for performing secure Enrollment.
+// This is an example self-contained class to perform Enrollment with the SDK.
 // You may choose to further componentize parts of this in your own Apps based on your specific requirements.
-//
+// 
+
 var EnrollmentProcessor = /** @class */ (function () {
     function EnrollmentProcessor(sessionToken, sampleAppControllerReference) {
         var _this = this;
@@ -23,7 +22,7 @@ var EnrollmentProcessor = /** @class */ (function () {
                 faceScanResultCallback.cancel();
                 return;
             }
-            // IMPORTANT:  FaceTecSDK.FaceTecSessionStatus.SessionCompletedSuccessfully DOES NOT mean the Enrollment was Successful.
+            // IMPORTANT:  FaceTecSessionStatus.SessionCompletedSuccessfully DOES NOT mean the Enrollment was Successful.
             // It simply means the User completed the Session and a 3D FaceScan was created.  You still need to perform the Enrollment on your Servers.
             //
             // Part 4:  Get essential data off the FaceTecSessionResult

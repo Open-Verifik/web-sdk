@@ -1,0 +1,30 @@
+<button class="fuse-mat-button-large w-auto px-6 mt-6 main float primaryBg" mat-flat-button
+    [matMenuTriggerFor]="mockMenu" *ngIf="isDemo">
+    <span *ngIf="!codeError">{{ 'start.test_button' | transloco }}</span>
+
+    <span *ngIf="codeError" class="flex flex-row flex-auto items-center gap-2">
+        <mat-icon svgIcon="heroicons_outline:badge-check"></mat-icon> {{ 'mockApi.' + codeError | transloco }}
+    </span>
+</button>
+
+<mat-menu #mockMenu="matMenu">
+    <div *ngFor="let errorCode of menuErrors">
+        <button mat-menu-item *ngIf="errorCode" (click)="mockApi(errorCode);">
+            <mat-icon svgIcon="mat_solid:error_outline"></mat-icon>
+            {{ 'mockApi.' + errorCode | transloco }}
+        </button>
+        <mat-divider *ngIf="!errorCode"></mat-divider>
+
+    </div>
+    <!-- <div class="flex flex-column w-full ">
+        <mat-divider class="w-full"></mat-divider> 
+        <div class="flex justify-center relative z-10 -top-6 px-3">or</div> 
+    </div> -->
+
+    <mat-divider></mat-divider>
+
+    <button (click)="mockApi('success');" mat-menu-item>
+        <mat-icon svgIcon="mat_solid:done_outline"></mat-icon>
+        {{ 'mockApi.success' | transloco }}
+    </button>
+</mat-menu>

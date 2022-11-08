@@ -9,7 +9,7 @@ SampleApp = (function () {
         // Set a the directory path for other FaceTec Browser SDK Resources.
         FaceTecSDK.setResourceDirectory("../../core-sdk/sdk/resources");
         // Set the directory path for required FaceTec Browser SDK images.
-        FaceTecSDK.setImagesDirectory("../../core-sdk/FaceTec_images");
+        FaceTecSDK.setImagesDirectory("../../core-sdk/images");
         // Set your FaceTec Device SDK Customizations.
         ThemeHelpers.setAppTheme(ThemeHelpers.getCurrentTheme());
         // Initialize FaceTec Browser SDK and configure the UI features.
@@ -44,6 +44,7 @@ SampleApp = (function () {
     }
     // Perform 3D to 3D Authentication against the Enrollment previously performed.
     function onAuthenticateUserPressed() {
+        latestEnrollmentIdentifier = "browser_sample_app_" + SampleAppUtilities.generateUUId();
         // For demonstration purposes, verify that we have an enrollmentIdentifier to Authenticate against.
         if (latestEnrollmentIdentifier.length === 0) {
             SampleAppUtilities.displayStatus("Please enroll first before trying authentication.");

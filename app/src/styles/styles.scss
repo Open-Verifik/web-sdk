@@ -1,0 +1,13 @@
+:root{
+    --k-text-primary: #01236D;
+}
+
+.k-text-primary{
+    color: var(--k-text-primary);
+}
+
+@for $i from 1 through 10 {
+    .fw-#{$i}00{
+        font-weight: $i*100 !important;
+    }
+}

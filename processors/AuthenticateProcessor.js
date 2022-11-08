@@ -1,8 +1,8 @@
 //
-// Welcome to the annotated FaceTec Device SDK core code for performing secure Authentication against a previously enrolled user.
+// Welcome to the annotated Device SDK core code for performing secure Authentication against a previously enrolled user.
 //
 //
-// This is an example self-contained class to perform Authentication with the FaceTec SDK.
+// This is an example self-contained class to perform Authentication with the SDK.
 // You may choose to further componentize parts of this in your own Apps based on your specific requirements.
 //
 var AuthenticateProcessor = /** @class */ (function () {
@@ -10,12 +10,12 @@ var AuthenticateProcessor = /** @class */ (function () {
         var _this = this;
         this.latestNetworkRequest = new XMLHttpRequest();
         //
-        // Part 10:  This function gets called after the FaceTec SDK is completely done.  There are no parameters because you have already been passed all data in the processSessionWhileFaceTecSDKWaits function and have already handled all of your own results.
+        // Part 10:  This function gets called after the SDK is completely done.  There are no parameters because you have already been passed all data in the processSessionWhileFaceTecSDKWaits function and have already handled all of your own results.
         //
         this.onFaceTecSDKCompletelyDone = function () {
             //
-            // DEVELOPER NOTE:  onFaceTecSDKCompletelyDone() is called after you signal the FaceTec SDK with success() or cancel().
-            // Calling a custom function on the Sample App Controller is done for demonstration purposes to show you that here is where you get control back from the FaceTec SDK.
+            // DEVELOPER NOTE:  onFaceTecSDKCompletelyDone() is called after you signal the SDK with success() or cancel().
+            // Calling a custom function on the Sample App Controller is done for demonstration purposes to show you that here is where you get control back from the SDK.
             //
             _this.success = _this.latestSessionResult.isCompletelyDone;
             _this.sampleAppControllerReference.onComplete(_this.latestSessionResult, null, _this.latestNetworkRequest.status);
