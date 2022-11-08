@@ -7,7 +7,7 @@ SampleApp = (function () {
     window.onload = function () {
         SampleAppUtilities.formatUIForDevice();
         // Set a the directory path for other FaceTec Browser SDK Resources.
-        FaceTecSDK.setResourceDirectory("../../core-sdk/FaceTecSDK.js/resources");
+        FaceTecSDK.setResourceDirectory("../../core-sdk/sdk/resources");
         // Set the directory path for required FaceTec Browser SDK images.
         FaceTecSDK.setImagesDirectory("../../core-sdk/FaceTec_images");
         // Set your FaceTec Device SDK Customizations.

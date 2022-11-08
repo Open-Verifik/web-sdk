@@ -1,11 +1,6 @@
- <!-- Welcome to the FaceTec Browser Sample App
-
- This sample demonstrates Initialization, Liveness Check, Enrollment, Authentication, Photo ID Match, Customizing the UX, and Getting Audit Trail Images.
-
- Please use our technical support form to submit questions and issue reports:  https://dev.facetec.com/support -->
 <!DOCTYPE html>
 <head>
-  <title>Browser SDK - Sample App</title>
+  <title>Verifik Client SDK</title>
   <meta charset="utf-8" />
   <link rel="icon" href="./sample-app-resources/images/favicon.ico">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -23,13 +18,13 @@
 		window.Config = Config;
 	</script>
 	<script>
-		fetch('../../sample-app-resources/FaceTec_OCR_Customization.json')
+		fetch('../../sample-app-resources/OCR_Customization.json')
 		.then(response => {
 				return response.json();
 		})
 		.then(data => window.ocrLocalizationJSON = data);
 	</script>
-	<script src="../../core-sdk/FaceTecSDK.js/FaceTecSDK.js"></script>
+	<script src="../../core-sdk/sdk/sdk.js"></script>
 	<script type="text/javascript" src="./processors/AuthenticateProcessor.js"></script>
 	<script type="text/javascript" src="./processors/EnrollmentProcessor.js"></script>
 	<script type="text/javascript" src="./processors/LivenessCheckProcessor.js"></script>
@@ -79,17 +74,13 @@
       </div>
     </div>
     <div id="custom-logo-container">
-      <img src="../../sample-app-resources/images/FaceTec_Logo.png">
+      <img src="https://uploads-ssl.webflow.com/632b30f3d66eda509a29cad7/634f4a1772aa1a5b16652e77_verifik.svg">
     </div>
   </div>
   <footer>
-    <span id="copy-right-section">
-      <p id="copy-right" class="footer-element-margin">&copy; 2022 FaceTec, Inc. &thinsp;&middot;&thinsp; Multiple US & International Patents Granted&thinsp;&middot;&thinsp; All Rights Reserved</p>
-      <hr class="hr display-none footer-element-margin"></hr>
-      <p class="footer-element-margin"><a href="https://dev.facetec.com/policies/terms.html" target="_blank">Terms &amp; Conditions</a>&thinsp;&middot;&thinsp; <a href="https://dev.facetec.com/policies/privacy_site.html" target="_blank">Site Privacy Policy</a>&thinsp;&middot;&thinsp; <a href=https://dev.facetec.com/policies/privacy_sdk.html target="_blank">SDK Privacy Policy</a></p>
-    </span>
+   
   </footer>
-  <div id="copy-right-length">&copy; 2022 FaceTec, Inc. &thinsp;&middot;&thinsp; Multiple US & International Patents Granted&thinsp;&middot;&thinsp; All Rights Reserved</div>
+  
   <div class = "loading-session-token-container">
     <p id="loading-session-token-text">Network Connection Slow...</p>
   </div>
