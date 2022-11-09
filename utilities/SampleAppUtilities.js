@@ -206,17 +206,7 @@ SampleAppUtilities = (function () {
             if (windowWidth <= 360) {
                 footerFontSize = "7px";
             }
-            (0, SampleAppUIFunctions)("footer").css({
-                "font-size": footerFontSize,
-                "line-height": "9px"
-            });
-            (0, SampleAppUIFunctions)("footer span p").css({ "font-size": "inherit" });
-            (0, SampleAppUIFunctions)("footer span, footer span p").css({ margin: 0 });
-            document.querySelector("hr").classList.remove("display-none");
-            var computedFooterFontSize = window.getComputedStyle(document.querySelector("footer span p")).fontSize;
-            (0, SampleAppUIFunctions)("#copy-right-length").css({ "font-size": computedFooterFontSize });
-            var copyRightStringLength = document.getElementById("copy-right-length").clientWidth;
-            (0, SampleAppUIFunctions)("hr").css({ width: copyRightStringLength + "px" });
+           
             // Allow time for the UI to fully load before fading in the body
             requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
