@@ -87,7 +87,7 @@ SampleAppUtilities = (function () {
     }
     function fadeInMainUIControls(callback) {
         if (isLikelyMobileDevice()) {
-            (0, SampleAppUIFunctions)("footer").fadeIn(800);
+            // (0, SampleAppUIFunctions)("footer").fadeIn(800);
             (0, SampleAppUIFunctions)("#custom-logo-container").fadeIn(800);
             (0, SampleAppUIFunctions)("#vocal-icon-container").fadeIn(800);
         }
@@ -103,7 +103,7 @@ SampleAppUtilities = (function () {
     function fadeOutMainUIAndPrepareForSession() {
         disableControlButtons();
         if (isLikelyMobileDevice()) {
-            (0, SampleAppUIFunctions)("footer").fadeOut(800);
+            // (0, SampleAppUIFunctions)("footer").fadeOut(800);
             (0, SampleAppUIFunctions)("#custom-logo-container").fadeOut(800);
             (0, SampleAppUIFunctions)("#vocal-icon-container").fadeOut(800);
             disableVocalGuidanceButtons();
@@ -206,6 +206,8 @@ SampleAppUtilities = (function () {
             if (windowWidth <= 360) {
                 footerFontSize = "7px";
             }
+
+            console.log('mobile view');
            
             // Allow time for the UI to fully load before fading in the body
             requestAnimationFrame(function () {
@@ -222,7 +224,7 @@ SampleAppUtilities = (function () {
         document.querySelectorAll("button").forEach(function (element) {
             element.classList.add("button-transitions");
         });
-        (0, SampleAppUIFunctions)("footer").fadeIn(800);
+        // (0, SampleAppUIFunctions)("footer").fadeIn(800);
         (0, SampleAppUIFunctions)("body").fadeIn(800);
     }
     function disableVocalGuidanceButtons() {
