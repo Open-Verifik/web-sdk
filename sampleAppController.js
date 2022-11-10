@@ -35,34 +35,40 @@ SampleApp = (function () {
     }
     // Initiate a 3D Liveness Check, then storing the 3D FaceMap in the Database, also known as "Enrollment".  A random enrollmentIdentifier is generated each time to guarantee uniqueness.
     function onEnrollUserPressed() {
+        latestEnrollmentIdentifier = prompt("Please enter your ExternalId:", "browser_sample_app_" + SampleAppUtilities.generateUUId());
+        if (!latestEnrollmentIdentifier) {
+            return
+        }
+
         SampleAppUtilities.fadeOutMainUIAndPrepareForSession();
         // Get a Session Token from the FaceTec SDK, then start the Enrollment.
         getSessionToken(function (sessionToken) {
-            latestEnrollmentIdentifier = "browser_sample_app_" + SampleAppUtilities.generateUUId();
             latestProcessor = new EnrollmentProcessor(sessionToken, SampleApp);
         });
     }
     // Perform 3D to 3D Authentication against the Enrollment previously performed.
     function onAuthenticateUserPressed() {
-        latestEnrollmentIdentifier = "browser_sample_app_" + SampleAppUtilities.generateUUId();
-        // For demonstration purposes, verify that we have an enrollmentIdentifier to Authenticate against.
-        if (latestEnrollmentIdentifier.length === 0) {
-            SampleAppUtilities.displayStatus("Please enroll first before trying authentication.");
+        latestEnrollmentIdentifier = prompt("Please enter your ExternalId:", latestEnrollmentIdentifier??'');
+        if (!latestEnrollmentIdentifier) {
+            return
         }
-        else {
-            SampleAppUtilities.fadeOutMainUIAndPrepareForSession();
-            // Get a Session Token from the FaceTec SDK, then start the 3D to 3D Matching.
-            getSessionToken(function (sessionToken) {
-                latestProcessor = new AuthenticateProcessor(sessionToken, SampleApp);
-            });
-        }
+
+        SampleAppUtilities.fadeOutMainUIAndPrepareForSession();
+        // Get a Session Token from the FaceTec SDK, then start the 3D to 3D Matching.
+        getSessionToken(function (sessionToken) {
+            latestProcessor = new AuthenticateProcessor(sessionToken, SampleApp);
+        });
     }
     // Perform a 3D Liveness Check, then an ID Scan, then Match the 3D FaceMap to the ID Scan.
     function onPhotoIDMatchPressed() {
+        latestEnrollmentIdentifier = prompt("Please enter your ExternalId:", "browser_sample_app_" + SampleAppUtilities.generateUUId());
+        if (!latestEnrollmentIdentifier) {
+            return
+        }
+
         SampleAppUtilities.fadeOutMainUIAndPrepareForSession();
         // Get a Session Token from the FaceTec SDK, then start the 3D Liveness Check.  On Success, ID Scanning will start automatically.
         getSessionToken(function (sessionToken) {
-            latestEnrollmentIdentifier = "browser_sample_app_" + SampleAppUtilities.generateUUId();
             latestProcessor = new PhotoIDMatchProcessor(sessionToken, SampleApp);
         });
     }
@@ -71,7 +77,6 @@ SampleApp = (function () {
         SampleAppUtilities.fadeOutMainUIAndPrepareForSession();
         // Get a Session Token from the FaceTec SDK, then start the 3D Liveness Check.  On Success, ID Scanning will start automatically.
         getSessionToken(function (sessionToken) {
-            latestEnrollmentIdentifier = "browser_sample_app_" + SampleAppUtilities.generateUUId();
             latestProcessor = new PhotoIDScanProcessor(sessionToken, SampleApp);
         });
     }
@@ -98,6 +103,7 @@ SampleApp = (function () {
     function onDesignShowcasePressed() {
         ThemeHelpers.showNewTheme();
     }
+
     function onVocalGuidanceSettingsButtonPressed() {
         SampleAppUtilities.setVocalGuidanceMode();
     }
@@ -125,22 +131,19 @@ SampleApp = (function () {
                             sessionTokenErrorHasBeenHandled = true;
                             if (isNetworkResponseServerIsOffline(XHR.status)) {
                                 showAdditionalScreensServerIsDown();
-                            }
-                            else {
+                            } else {
                                 onServerSessionTokenError();
                             }
                         }
                         return;
                     }
-                }
-                catch (_a) {
+                } catch (_a) {
                     // Something went wrong in parsing the response. Return an error.
                     if (sessionTokenErrorHasBeenHandled === false) {
                         sessionTokenErrorHasBeenHandled = true;
                         if (isNetworkResponseServerIsOffline(XHR.status)) {
                             showAdditionalScreensServerIsDown();
-                        }
-                        else {
+                        } else {
                             onServerSessionTokenError();
                         }
                     }
@@ -162,17 +165,18 @@ SampleApp = (function () {
                 sessionTokenErrorHasBeenHandled = true;
                 if (isNetworkResponseServerIsOffline(XHR.status)) {
                     showAdditionalScreensServerIsDown();
-                }
-                else {
+                } else {
                     onServerSessionTokenError();
                 }
             }
         };
         XHR.send();
     }
+
     function showAdditionalScreensServerIsDown() {
         AdditionalScreens.showServerUpGradeView();
     }
+
     function onServerSessionTokenError() {
         SampleAppUtilities.handleErrorGettingServerSessionToken();
     }
@@ -182,6 +186,7 @@ SampleApp = (function () {
     var clearLatestEnrollmentIdentifier = function () {
         latestEnrollmentIdentifier = "";
     };
+
     function exitAdditionalScreen() {
         AdditionalScreens.exitAdditionalScreen(SampleAppUtilities.showMainUI);
     }

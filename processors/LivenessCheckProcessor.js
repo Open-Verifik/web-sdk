@@ -39,7 +39,7 @@ var LivenessCheckProcessor = /** @class */ (function () {
             // Part 5:  Make the Networking Call to Your Servers.  Below is just example code, you are free to customize based on how your own API works.
             //
             _this.latestNetworkRequest = new XMLHttpRequest();
-            _this.latestNetworkRequest.open("POST", Config.BaseURL + "/liveness-3d");
+            _this.latestNetworkRequest.open("POST", Config.BaseURL + "/liveness");
             _this.latestNetworkRequest.setRequestHeader("Content-Type", "application/json");
             _this.latestNetworkRequest.setRequestHeader("Authorization", Config.token);
             _this.latestNetworkRequest.setRequestHeader("X-User-Agent", FaceTecSDK.createFaceTecAPIUserAgentString(sessionResult.sessionId));

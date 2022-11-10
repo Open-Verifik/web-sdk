@@ -33,7 +33,7 @@ var EnrollmentProcessor = /** @class */ (function () {
                 lowQualityAuditTrailImage: sessionResult.lowQualityAuditTrail[0],
                 sessionId: sessionResult.sessionId,
                 externalDatabaseRefID: _this.sampleAppControllerReference.getLatestEnrollmentIdentifier(),
-                group: "demoApp"
+                // group: "demoApp"
             };
             //
             // Part 5:  Make the Networking Call to Your Servers.  Below is just example code, you are free to customize based on how your own API works.
