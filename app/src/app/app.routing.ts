@@ -3,25 +3,17 @@
 import {
     Route
 } from '@angular/router';
-import {
-    AuthGuard
-} from 'app/core/auth/guards/auth.guard';
-import {
-    NoAuthGuard
-} from 'app/core/auth/guards/noAuth.guard';
+
 import {
     LayoutComponent
 } from 'app/layout/layout.component';
-import {
-    InitialDataResolver
-} from 'app/app.resolvers';
-import { environment } from 'environments/environment';
 
-// @formatter:off
-// tslint:disable:max-line-length
 export const appRoutes: Route[] = [
-    // Redirect empty path to '/login'
-    {path: '', pathMatch : 'full', redirectTo: `passwordless/auth/${environment.projectId}`},
+    {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: `tutorials`
+    },
 
     // Auth routes for guests
     {
@@ -31,11 +23,16 @@ export const appRoutes: Route[] = [
             layout: 'empty'
         },
         children: [{
-            path: 'kyc',
-            loadChildren: () => import('app/modules/kyc/kyc.module').then(m => m.KycModule),
-        }, {
-            path: 'passwordless',
-            loadChildren: () => import('app/modules/passwordless/passwordless.module').then(m => m.PasswordlessModule),
-        }]
+                path: 'kyc',
+                loadChildren: () => import('app/modules/kyc/kyc.module').then(m => m.KycModule),
+            }, {
+                path: 'passwordless',
+                loadChildren: () => import('app/modules/passwordless/passwordless.module').then(m => m.PasswordlessModule),
+            },
+            {
+                path: 'tutorials',
+                loadChildren: () => import('app/modules/tutorials/tutorials.module').then(m => m.TutorialsModule),
+            }
+        ]
     },
 ];

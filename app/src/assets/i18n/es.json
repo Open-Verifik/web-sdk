@@ -164,5 +164,88 @@
         "cc": "Cédula de ciudadanía (Colombia)",
         "passport": "Pasaporte",
         "ccve": "Cédula de ciudadanía (Venezuela)"
+    },
+    "tutorials": {
+        "title": "Tutoriales de Verifik",
+        "h1_title": "Qué quieres aprender hoy?",
+        "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",
+        "tutorial_button": "Ver tutorial",
+        "titles": {
+            "liveness_detection": "Detección de vida",
+            "enroll_face": "Registra tu biometría",
+            "authenticate_face": "Inicia sesión con tu biometría",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Escaneo de documento & Extracción de datos"
+        },
+        "descriptions": {
+            "liveness_detection": "Realiza una verificación de vida en el escaneo facial",
+            "enroll_face": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
+            "authenticate_face": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo."
+        },
+        "liveness_detection": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba la detección de vida",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "enroll_face": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el registro de biometría",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "authenticate_face": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el inicio de sesión con biometría",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "match_face_to_id": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba la comparación de tu biometría con un Documento legal",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "scan_ocr_id": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el escaneo de documento & extracción de datos",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "categories": {
+            "biometrics": "Biométrica"
+        }
     }
 }
