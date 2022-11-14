@@ -1,1 +1,80 @@
-<p>tutorial-results-step works!</p>
+<div class="flex-auto overflow-y-auto mx-auto" cdkScrollable>
+    <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 overflow-hidden">
+        <h1 class="verifikH1">
+            {{ 'results.title' | transloco }}
+        </h1>
+
+        <p>
+            {{ 'results.description' | transloco }}
+        </p>
+    </div>
+    <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
+
+            <fuse-card *ngIf="ocrData"
+                class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2 flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden"
+                #fuseCard>
+                <div class="text-lg font-bold">
+                    {{ 'kyc.identity_validation.information' | transloco }}
+                </div>
+                <div class="mt-5"><b>{{'kyc.identity_validation.document'| transloco }}:</b> {{ocrData.document}}</div>
+
+                <div><b>{{'kyc.basic.first_name'| transloco }}:</b> {{ocrData.userInfo.firstName}}</div>
+                <div><b>{{'kyc.basic.last_name'| transloco }}:</b> {{ocrData.userInfo.lastName}}</div>
+                <div><b>{{'kyc.basic.dateOfBirth'| transloco }}:</b> {{ocrData.userInfo.dateOfBirth}}</div>
+
+            </fuse-card>
+            <fuse-card *ngIf="results?.idScanUrl"
+                class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" [flippable]="true" #documentScan>
+                <!-- Front -->
+                <ng-container fuseCardFront>
+                    <div class="flex flex-col px-8 py-6 pb-3">
+                        <div class="text-lg font-bold">
+                            {{ 'kyc.identity_validation.front' | transloco }}
+                        </div>
+
+                        <img class="w-full" src="{{results.idScanUrl}}frontCrop">
+
+                        <div class="mt-3 -mx-3 self-end">
+                            <button mat-icon-button [color]="'primary'" (click)="documentScan.face = 'back'">
+                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-right'"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Back -->
+                <ng-container fuseCardBack>
+                    <div class="flex flex-col flex-auto px-8 py-6 pt-3">
+                        <div class="text-lg font-bold">
+                            {{ 'kyc.identity_validation.back' | transloco }}
+                        </div>
+
+                        <img class="w-full" src="{{results.idScanUrl}}backCrop">
+                        <div class="mb-2 -mx-3">
+                            <button mat-icon-button [color]="'primary'" (click)="documentScan.face = 'front'">
+                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </ng-container>
+            </fuse-card>
+            <fuse-card *ngIf="results?.faceUrl"
+                class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" #fuseCard>
+                <div class="flex items-start justify-between  px-8 py-6 pb-3">
+                    <div class="flex flex-col items-center mt-2">
+                        <div class="text-lg font-medium tracking-tight leading-6 truncate">
+                            {{ 'kyc.identity_validation.biometric' | transloco }}
+                        </div>
+                        <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
+                            <img src="{{results.faceUrl}}">
+                        </div>
+
+                    </div>
+                </div>
+            </fuse-card>
+        </div>
+        <textarea fuse-highlight lang="JSON" code="{{resultstxt}}">
+        </textarea>
+    </div>
+</div>

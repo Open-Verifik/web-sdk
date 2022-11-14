@@ -262,16 +262,70 @@ export class KycService {
         return this._httpWrapper.sendRequest('put', `${this.baseUrl}v2/app-registrations/${appRegistrationId}`, data);
     }
 
-    getBiometrics(): Observable < any > {
-        return this._httpWrapper.sendRequest('get', `${this.baseUrl}v2/projects/biometrics`, {}, {})
-    }
-
     getForm(data: any): Observable < any > {
         return this._httpWrapper.sendRequest('get', `${this.baseUrl}v2/forms`, data)
     }
 
     postSubmitionForm(data: any): Observable < any > {
         return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/form-submitions`, data)
+    }
+
+    getBiometricsV2(): Observable < any > {
+        return this._httpWrapper.sendRequest('get', `${this.baseUrl}v2/biometrics/config`, {}, {})
+    }
+
+    getSessionV2(agent): Observable < any > {
+        return this._httpWrapper.sendRequest('get', `${this.baseUrl}v2/biometrics/session`, {}, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
+
+    enrollmentV2(agent: string, body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/enroll`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
+
+    photoIDMatchV2(agent: string, body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/projects/match-idscan`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+
+    }
+
+    authenticateV2(agent: string, body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/authenticate`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
+
+    idScanV2(agent: string, body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/idscan`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+
+    }
+
+    livenessV2(agent: string, body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/liveness`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
+
+    getBiometrics(): Observable < any > {
+        return this._httpWrapper.sendRequest('get', `${this.baseUrl}v2/projects/biometrics`, {}, {})
     }
 
     getSession(agent): Observable < any > {
@@ -290,7 +344,7 @@ export class KycService {
         })
     }
 
-    photoIDMatch(agent: string, body: any): Observable < any > {        
+    photoIDMatch(agent: string, body: any): Observable < any > {
         return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/projects/photo-id`, body, {
             headers: {
                 'X-User-Agent': agent
@@ -299,7 +353,7 @@ export class KycService {
 
     }
 
-    authenticate(projectId:string, agent: string, body: any): Observable < any > {
+    authenticate(projectId: string, agent: string, body: any): Observable < any > {
         body.id = projectId
 
         return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/projects/biometrics/sign-in`, body, {

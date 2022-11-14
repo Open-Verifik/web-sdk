@@ -55,12 +55,15 @@ import {
 import {
   RouterModule
 } from '@angular/router';
+import {
+  FuseCardModule
+} from '@fuse/components/card';
 import { TranslocoModule } from '@ngneat/transloco';
 import { TutorialInstructionsStepComponent } from './tutorial-instructions-step/tutorial-instructions-step.component';
 import { TutorialCredentialsStepComponent } from './tutorial-credentials-step/tutorial-credentials-step.component';
 import { TutorialDemoStepComponent } from './tutorial-demo-step/tutorial-demo-step.component';
 import { TutorialResultsStepComponent } from './tutorial-results-step/tutorial-results-step.component';
-
+import { FuseHighlightModule } from '@fuse/components/highlight';
 @NgModule({
   declarations: [
     TutorialsListComponent,
@@ -86,7 +89,9 @@ import { TutorialResultsStepComponent } from './tutorial-results-step/tutorial-r
     MatTooltipModule,
     FuseFindByKeyPipeModule,
     SharedModule,
-    MatTabsModule
+    MatTabsModule,
+    FuseHighlightModule,
+    FuseCardModule
   ]
 })
 export class TutorialsModule {}
