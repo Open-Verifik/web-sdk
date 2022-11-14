@@ -14,7 +14,7 @@ export class TutorialsService {
     tutorials: Array < any > ;
     tutorialsMapping: any;
     navData: any = {
-        currentStep: 0,
+        currentStep: 2,
     };
 
     /**
@@ -66,6 +66,7 @@ export class TutorialsService {
         this.tutorialsMapping = {
             'tutorials.titles.liveness_detection': {
                 route: 'liveness',
+                params:{},
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.liveness.steps.title_1',
@@ -87,6 +88,10 @@ export class TutorialsService {
             },
             'tutorials.titles.enroll_face': {
                 route: 'enroll_face',
+                params:{
+                    externalId:true,
+                    group: true
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.enroll_face.steps.title_1',
@@ -107,6 +112,9 @@ export class TutorialsService {
             },
             'tutorials.titles.authenticate_face': {
                 route: 'authenticate_face',
+                params:{
+                    externalId:true
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.authenticate_face.steps.title_1',
@@ -127,6 +135,10 @@ export class TutorialsService {
             },
             'tutorials.titles.match_face_to_id': {
                 route: 'match_face_to_id',
+                params:{
+                    externalId:true,
+                    group:true
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.match_face_to_id.steps.title_1',
@@ -147,6 +159,7 @@ export class TutorialsService {
             },
             'tutorials.titles.scan_ocr_id': {
                 route: 'scan_ocr_id',
+                params:{},
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.scan_ocr_id.steps.title_1',

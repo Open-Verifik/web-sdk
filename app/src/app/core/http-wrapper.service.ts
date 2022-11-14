@@ -59,7 +59,7 @@ export class HttpWrapperService {
     sendRequest(method: string, url: string, params: any = {}, options: any = {}) {
         method = method.toLocaleLowerCase();
 
-        const authToken: string = localStorage.getItem('accessToken');
+        const authToken: string = localStorage.getItem('accessToken')??localStorage.getItem('clientToken');
 
         let headers = {
             ...options.headers,

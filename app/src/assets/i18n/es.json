@@ -72,7 +72,7 @@
             "only_liveness_title": "Verificación de detección de vida con biometría",
             "only_liveness_description": "Vamos a asegurarnos de que tu eres una persona real haciendo el registro, no se pueden hacer más de un registro con la misma biometría entonces con esto nos aseguramos que nadie te robará la identidad por medio de Verifik."
         },
-        "forms":{
+        "forms": {
             "title": "Queremos saber un poco más de ti",
             "error": "Es necesario contestar esta pregunta."
         }
@@ -136,7 +136,7 @@
         "email_cannot_be_registered": "Correo electrónico no puede registrarse, por favor contactar al equipo de soporte",
         "phone_cannot_be_registered": "Teléfono no puede registrarse, por favor contactar al equipo de soporte"
     },
-    "mockApi":{
+    "mockApi": {
         "Record_not_found": "Sin Registrar",
         "Fail_login_biometrics": "Biometricos incorrectos",
         "BiometricValiation_failed": "Biometricos incorrectos",
@@ -250,5 +250,19 @@
         "instructions": {
             "liveness": "<p classs='red'> RED </p>  <h1> blue </h1>"
         }
+    },
+    "demo": {
+        "title": "Pruebas",
+        "description": "Se realizara una prueba del servicio",
+        "camera_permission": "Asegurate de asignar los permisos correspondientes.Te recomendamos usar tu telefono para tener mejores resultados",
+        "start": "Iniciar",
+        "external_id_description": "UID para identificar el usuario",
+        "external_id": "UID",
+        "group_description": "El grupo te permite agrupar registros de usuarios para no duplicar datos biometricos en ese grupo, si el grupo es omitido se permitiran registros duplicados de biometricos",
+        "group": "Grupo"
+    },
+    "results": {
+        "title": "Ultimo resultado del demo",
+        "description": "Se muestra la ultima informacion proporcionada por el servicio en esta dispositivo"
     }
 }

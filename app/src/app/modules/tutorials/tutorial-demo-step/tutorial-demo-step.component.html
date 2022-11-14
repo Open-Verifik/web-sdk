@@ -1,1 +1,53 @@
-<p>tutorial-demo-step works!</p>
+<div class="flex-auto overflow-y-auto mx-auto" cdkScrollable>
+    <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 overflow-hidden">
+        <h1 class="verifikH1">
+            {{ 'demo.title' | transloco }}
+        </h1>
+
+        <p>
+            {{ 'demo.description' | transloco }}
+        </p>
+    </div>
+    <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6">
+        <div class="flex flex-row items-center">
+            <mat-icon svgIcon="feather:camera" class="min-w-36 max-w-36 min-h-30 max-h-30"></mat-icon>
+            <p>
+                {{ 'demo.camera_permission' | transloco }}
+            </p>
+        </div>
+        <div class="flex flex-col items-center" *ngIf="tutorial?.params.externalId">
+            <p>
+                {{ 'demo.external_id_description' | transloco }}
+            </p>
+            <mat-form-field class="w-full fuse-mat-dense ml-2" appearance="fill">
+                <mat-label class="primaryColor">{{ 'demo.external_id' | transloco }}</mat-label>
+                <input id="externalId" autocomplete="chrome-off" [(ngModel)]="externalId" (ngModelChange)="onChangeInput('externalId', externalId)" matInput required>
+                <button matSuffix mat-icon-button aria-label="Clear" (click)="onChangeInput('externalId',null)">
+                    <mat-icon>sync</mat-icon>
+                  </button>
+            </mat-form-field>
+        </div>
+        <div class="flex flex-col items-center" *ngIf="tutorial?.params.group">
+            <p>
+                {{ 'demo.group_description' | transloco }}
+            </p>
+            <mat-form-field class="w-full fuse-mat-dense ml-2">
+                <mat-label class="primaryColor">{{ 'demo.group' | transloco }}</mat-label>
+                <input id="group" autocomplete="chrome-off" matInput [(ngModel)]="group" (ngModelChange)="onChangeInput('group', group)">
+            </mat-form-field>
+        </div>
+
+        <div class="flex flex-col items-center">
+            <button class="fuse-mat-button-large mt-6 px-12 main primaryBg" mat-flat-button
+                [disabled]="!biometricsReady" (click)="startBiometrics()">
+
+                <span *ngIf="biometricsReady">
+                    {{ 'demo.start' | transloco }}
+                </span>
+
+                <mat-progress-spinner *ngIf="!biometricsReady" [diameter]="24" [mode]="'indeterminate'">
+                </mat-progress-spinner>
+            </button>
+        </div>
+    </div>
+</div>
