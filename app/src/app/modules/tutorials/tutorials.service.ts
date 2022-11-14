@@ -82,7 +82,8 @@ export class TutorialsService {
                     order: 3,
                     title: 'tutorials.liveness.steps.title_4',
                     subtitle: 'tutorials.liveness.steps.description_4',
-                }, ]
+                }, ],
+                instructions: 'tutorials.instructions.liveness',
             },
             'tutorials.titles.enroll_face': {
                 route: 'enroll_face',

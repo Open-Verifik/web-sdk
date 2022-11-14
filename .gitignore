@@ -1,3 +1,7 @@
 node_modules
 .env
 app/node_modules
+.DS_Store
+/**/.DS_Store
+**/.DS_Store
+**/**/.DS_Store

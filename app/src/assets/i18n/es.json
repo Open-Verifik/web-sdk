@@ -246,6 +246,9 @@
         },
         "categories": {
             "biometrics": "Biométrica"
+        },
+        "instructions": {
+            "liveness": "<p classs='red'> RED </p>  <h1> blue </h1>"
         }
     }
 }

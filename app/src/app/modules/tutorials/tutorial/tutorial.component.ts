@@ -66,10 +66,6 @@ export class TutorialComponent implements OnInit {
         private translocoService: TranslocoService
     ) {
         this.navData = this._tutorialService.navData;
-
-        console.log({
-            currentStep: this.navData.currentStep
-        });
     }
 
     ngOnInit(): void {
