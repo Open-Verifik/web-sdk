@@ -74,7 +74,7 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
         for (let index = 0; index < this.tutorial.requiredFields.length; index++) {
             const requiredField = this.tutorial.requiredFields[index];
 
-            this.groupFields[requiredField.key] = ['', Validators.required];
+            this.groupFields[requiredField.key] = [localStorage.getItem(requiredField.key), Validators.required];
         }
 
         this.credentialsForm = this._formBuilder.group(this.groupFields);
