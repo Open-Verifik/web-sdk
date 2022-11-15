@@ -17,9 +17,7 @@ import {
 import {
     catchError
 } from 'rxjs/operators';
-import {
-    ButtonMockService
-} from '../button-mock/button-mock.service';
+
 import {
     appRegistrationFake,
     keyMapInformation
@@ -34,7 +32,7 @@ export class KycResolver implements Resolve < boolean > {
      */
     constructor(private _router: Router,
         private _kycService: KycService,
-        private _buttonMockService: ButtonMockService
+       
     ) {
 
     }
@@ -43,7 +41,7 @@ export class KycResolver implements Resolve < boolean > {
         if (route.queryParams.demo) {
             localStorage.clear()
 
-            this._buttonMockService.isDemo = true
+            // this._buttonMockService.isDemo = true
             appRegistrationFake.email = route.queryParams.email
             appRegistrationFake.phone = route.queryParams.phone
             for (const key in route.queryParams) {
