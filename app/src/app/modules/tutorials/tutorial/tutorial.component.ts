@@ -2,7 +2,8 @@ import {
     Component,
     OnInit,
     ViewChild,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    OnDestroy
 } from '@angular/core';
 import {
     MatTabGroup
@@ -38,7 +39,7 @@ import {
     templateUrl: './tutorial.component.html',
     styleUrls: ['./tutorial.component.scss']
 })
-export class TutorialComponent implements OnInit {
+export class TutorialComponent implements OnInit, OnDestroy {
     @ViewChild('projectSteps', {
         static: true
     }) projectSteps: MatTabGroup;
@@ -92,6 +93,17 @@ export class TutorialComponent implements OnInit {
                 this._changeDetectorRef.markForCheck();
             });
     }
+
+    ngOnDestroy(): void {
+        this._unsubscribeAll.next(null);
+        
+        this._tutorialService.navData = {
+            currentStep: 0
+        };
+
+        this._tutorialService.undefineNavigation();
+    }
+
 
     async _getTutorial(): Promise < any > {
         const routeParams = await this._route.params['_value'];

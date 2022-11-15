@@ -7,6 +7,7 @@
     "male": "Hombre",
     "female": "Mujer",
     "change_language": "Cambiar idioma",
+    
     "start": {
         "title": "Crea una nueva cuenta",
         "existing_account_label": "Ya estás registrado?",
@@ -166,6 +167,7 @@
         "ccve": "Cédula de ciudadanía (Venezuela)"
     },
     "tutorials": {
+        "go_back": "Lista de tutoriales",
         "title": "Tutoriales de Verifik",
         "h1_title": "Qué quieres aprender hoy?",
         "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",

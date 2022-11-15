@@ -255,6 +255,10 @@ export class TutorialsService {
         return null;
     }
 
+    undefineNavigation(): void {
+        this._navigationHandler = new BehaviorSubject(null);
+    }
+
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
     // -----------------------------------------------------------------------------------------------------

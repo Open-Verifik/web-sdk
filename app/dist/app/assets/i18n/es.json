@@ -7,6 +7,7 @@
     "male": "Hombre",
     "female": "Mujer",
     "change_language": "Cambiar idioma",
+    
     "start": {
         "title": "Crea una nueva cuenta",
         "existing_account_label": "Ya estás registrado?",
@@ -72,7 +73,7 @@
             "only_liveness_title": "Verificación de detección de vida con biometría",
             "only_liveness_description": "Vamos a asegurarnos de que tu eres una persona real haciendo el registro, no se pueden hacer más de un registro con la misma biometría entonces con esto nos aseguramos que nadie te robará la identidad por medio de Verifik."
         },
-        "forms":{
+        "forms": {
             "title": "Queremos saber un poco más de ti",
             "error": "Es necesario contestar esta pregunta."
         }
@@ -136,7 +137,7 @@
         "email_cannot_be_registered": "Correo electrónico no puede registrarse, por favor contactar al equipo de soporte",
         "phone_cannot_be_registered": "Teléfono no puede registrarse, por favor contactar al equipo de soporte"
     },
-    "mockApi":{
+    "mockApi": {
         "Record_not_found": "Sin Registrar",
         "Fail_login_biometrics": "Biometricos incorrectos",
         "BiometricValiation_failed": "Biometricos incorrectos",
@@ -164,5 +165,111 @@
         "cc": "Cédula de ciudadanía (Colombia)",
         "passport": "Pasaporte",
         "ccve": "Cédula de ciudadanía (Venezuela)"
+    },
+    "tutorials": {
+        "go_back": "Lista de tutoriales",
+        "title": "Tutoriales de Verifik",
+        "h1_title": "Qué quieres aprender hoy?",
+        "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",
+        "tutorial_button": "Ver tutorial",
+        "titles": {
+            "liveness_detection": "Detección de vida",
+            "enroll_face": "Registra tu biometría",
+            "authenticate_face": "Inicia sesión con tu biometría",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Escaneo de documento & Extracción de datos"
+        },
+        "descriptions": {
+            "liveness_detection": "Realiza una verificación de vida en el escaneo facial",
+            "enroll_face": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
+            "authenticate_face": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo."
+        },
+        "liveness": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba la detección de vida",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "enroll_face": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el registro de biometría",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "authenticate_face": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el inicio de sesión con biometría",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "match_face_to_id": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba la comparación de tu biometría con un Documento legal",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "scan_ocr_id": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el escaneo de documento & extracción de datos",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "categories": {
+            "biometrics": "Biométrica"
+        },
+        "instructions": {
+            "liveness": {}
+        },
+        "credentials": {
+            "client_token": "Llave secreta API",
+            "external_database_ref_id": "Identificador único (Teléfono, email)",
+            "group": "Grupo (para agrupar las caras regitradas 1:N)"
+        }
+    },
+    "demo": {
+        "title": "Pruebas",
+        "description": "Se realizara una prueba del servicio",
+        "camera_permission": "Asegurate de asignar los permisos correspondientes.Te recomendamos usar tu telefono para tener mejores resultados",
+        "start": "Iniciar",
+        "external_id_description": "UID para identificar el usuario",
+        "external_id": "UID",
+        "group_description": "El grupo te permite agrupar registros de usuarios para no duplicar datos biometricos en ese grupo, si el grupo es omitido se permitiran registros duplicados de biometricos",
+        "group": "Grupo"
+    },
+    "results": {
+        "title": "Ultimo resultado del demo",
+        "description": "Se muestra la ultima informacion proporcionada por el servicio en esta dispositivo"
     }
 }

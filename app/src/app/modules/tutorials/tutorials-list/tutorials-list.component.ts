@@ -45,7 +45,7 @@ export class TutorialsListComponent implements OnInit {
         private _router: Router,
         private _tutorialService: TutorialsService
     ) {
-
+        this._tutorialService.navData.currentStep = 0;
     }
 
     // -----------------------------------------------------------------------------------------------------
