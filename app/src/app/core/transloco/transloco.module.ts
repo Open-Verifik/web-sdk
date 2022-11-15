@@ -50,7 +50,14 @@ import {
             provide: APP_INITIALIZER,
             deps: [TranslocoService],
             useFactory: (translocoService: TranslocoService): any => (): Promise < Translation > => {
-                const defaultLang = localStorage.getItem('lang') || translocoService.getDefaultLang();
+                const _lang = localStorage.getItem('lang');
+                const defaultLang = _lang || translocoService.getDefaultLang();
+
+                if (!_lang) localStorage.setItem('lang', defaultLang);
+
+                console.log({
+                    lang: localStorage.getItem('lang'),
+                })
 
                 translocoService.setActiveLang(defaultLang);
 
