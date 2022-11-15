@@ -4,6 +4,10 @@ import {
 import {
     HttpClient
 } from '@angular/common/http';
+import {
+    BehaviorSubject,
+    Observable
+} from 'rxjs';
 
 
 @Injectable({
@@ -14,8 +18,10 @@ export class TutorialsService {
     tutorials: Array < any > ;
     tutorialsMapping: any;
     navData: any = {
-        currentStep: 2,
+        currentStep: 0,
     };
+
+    private _navigationHandler: BehaviorSubject < any | null > = new BehaviorSubject(null);
 
     /**
      * Constructor
@@ -66,7 +72,7 @@ export class TutorialsService {
         this.tutorialsMapping = {
             'tutorials.titles.liveness_detection': {
                 route: 'liveness',
-                params:{},
+                params: {},
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.liveness.steps.title_1',
@@ -85,11 +91,16 @@ export class TutorialsService {
                     subtitle: 'tutorials.liveness.steps.description_4',
                 }, ],
                 instructions: 'tutorials.instructions.liveness',
+                requiredFields: [{
+                    key: 'clientToken',
+                    label: 'tutorials.credentials.client_token',
+                    type: 'textarea',
+                }, ],
             },
             'tutorials.titles.enroll_face': {
                 route: 'enroll_face',
-                params:{
-                    externalId:true,
+                params: {
+                    externalId: true,
                     group: true
                 },
                 sideMenuSteps: [{
@@ -108,12 +119,28 @@ export class TutorialsService {
                     order: 3,
                     title: 'tutorials.enroll_face.steps.title_4',
                     subtitle: 'tutorials.enroll_face.steps.description_4',
-                }, ]
+                }, ],
+                requiredFields: [{
+                        key: 'clientToken',
+                        label: 'tutorials.credentials.client_token',
+                        type: 'textarea',
+                    },
+                    {
+                        key: 'externalDatabaseRefId',
+                        label: 'tutorials.credentials.external_database_ref_id',
+                        type: 'input',
+                    },
+                    {
+                        key: 'group',
+                        label: 'tutorials.credentials.group',
+                        type: 'input',
+                    },
+                ],
             },
             'tutorials.titles.authenticate_face': {
                 route: 'authenticate_face',
-                params:{
-                    externalId:true
+                params: {
+                    externalId: true
                 },
                 sideMenuSteps: [{
                     order: 0,
@@ -131,13 +158,24 @@ export class TutorialsService {
                     order: 3,
                     title: 'tutorials.authenticate_face.steps.title_4',
                     subtitle: 'tutorials.authenticate_face.steps.description_4',
-                }, ]
+                }, ],
+                requiredFields: [{
+                        key: 'clientToken',
+                        label: 'tutorials.credentials.client_token',
+                        type: 'textarea',
+                    },
+                    {
+                        key: 'externalDatabaseRefId',
+                        label: 'tutorials.credentials.external_database_ref_id',
+                        type: 'input',
+                    }
+                ],
             },
             'tutorials.titles.match_face_to_id': {
                 route: 'match_face_to_id',
-                params:{
-                    externalId:true,
-                    group:true
+                params: {
+                    externalId: true,
+                    group: true
                 },
                 sideMenuSteps: [{
                     order: 0,
@@ -155,11 +193,22 @@ export class TutorialsService {
                     order: 3,
                     title: 'tutorials.match_face_to_id.steps.title_4',
                     subtitle: 'tutorials.match_face_to_id.steps.description_4',
-                }, ]
+                }, ],
+                requiredFields: [{
+                        key: 'clientToken',
+                        label: 'tutorials.credentials.client_token',
+                        type: 'textarea',
+                    },
+                    {
+                        key: 'externalDatabaseRefId',
+                        label: 'tutorials.credentials.external_database_ref_id',
+                        type: 'input',
+                    }
+                ],
             },
             'tutorials.titles.scan_ocr_id': {
                 route: 'scan_ocr_id',
-                params:{},
+                params: {},
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.scan_ocr_id.steps.title_1',
@@ -176,9 +225,24 @@ export class TutorialsService {
                     order: 3,
                     title: 'tutorials.scan_ocr_id.steps.title_4',
                     subtitle: 'tutorials.scan_ocr_id.steps.description_4',
-                }, ]
+                }, ],
+                requiredFields: [{
+                    key: 'clientToken',
+                    label: 'tutorials.credentials.client_token',
+                    type: 'textarea',
+                }, ],
             },
         }
+    }
+
+    get navigationHandler$(): Observable < any > {
+        return this._navigationHandler.asObservable();
+    }
+
+    navigationChange(changes: any): void {
+        if (!changes) return;
+
+        this._navigationHandler.next(changes);
     }
 
     getTutorial(route: string): any {

@@ -1,10 +1,60 @@
 <div class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6" *ngIf="tutorial">
     <ng-container *ngIf="tutorial.route === 'liveness'">
 
-        <div>
-            <img class="alignnone" src="https://link.storjshare.io/jvchyrakg4wx4o4tt4fwtkxbcx7q/verifik%2Fsecurity.png" alt="#trueliveness">
-        </div>
+        <h1>
+            {{ 'tutorials.titles.liveness_detection' | transloco }}
+        </h1>
 
+        <p>
+            {{ 'tutorials.descriptions.liveness_detection' | transloco }}
+        </p>
+
+        <h3>
+            Parámetros
+        </h3>
+
+        <p>
+            -- -- -- - - -- -
+        </p>
+
+        <h3>Criterios de éxito</h3>
+
+        <p>
+            la respuesta exitosa es verdadera si TODO lo siguiente es verdadero:
+        </p>
+
+        <p>
+            1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.
+        </p>
+
+        <p>
+            2. El token de sesión era válido y no estaba vencido.
+        </p>
 
     </ng-container>
+
+    <ng-container *ngIf="tutorial.route === 'enroll_face'">
+        <h1>
+            {{ 'tutorials.titles.enroll_face' | transloco }}
+        </h1>
+    </ng-container>
+
+    <ng-container *ngIf="tutorial.route === 'authenticate_face'">
+        <h1>
+            {{ 'tutorials.titles.authenticate_face' | transloco }}
+        </h1>
+    </ng-container>
+    
+    <ng-container *ngIf="tutorial.route === 'match_face_to_id'">
+        <h1>
+            {{ 'tutorials.titles.match_face_to_id' | transloco }}
+        </h1>
+    </ng-container>
+   
+    <ng-container *ngIf="tutorial.route === 'scan_ocr_id'">
+        <h1>
+            {{ 'tutorials.titles.scan_ocr_id' | transloco }}
+        </h1>
+    </ng-container>
+
 </div>

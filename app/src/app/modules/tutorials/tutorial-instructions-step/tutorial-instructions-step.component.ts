@@ -1,5 +1,6 @@
 import {
     Component,
+    OnDestroy,
     OnInit
 } from '@angular/core';
 import {
@@ -9,6 +10,12 @@ import {
     TranslocoService
 } from '@ngneat/transloco';
 import {
+    Subject
+} from 'rxjs';
+import {
+    takeUntil
+} from 'rxjs/operators';
+import {
     TutorialsService
 } from '../tutorials.service';
 
@@ -17,21 +24,29 @@ import {
     templateUrl: './tutorial-instructions-step.component.html',
     styleUrls: ['./tutorial-instructions-step.component.scss']
 })
-export class TutorialInstructionsStepComponent implements OnInit {
+export class TutorialInstructionsStepComponent implements OnInit, OnDestroy {
     navData: any;
+    step = 0;
     tutorial: any;
     instructions: any;
+    private _unsubscribeAll: Subject < any > = new Subject < any > ();
 
     constructor(
         private _route: ActivatedRoute,
         private _tutorialService: TutorialsService,
         private translocoService: TranslocoService
     ) {
-        
+        this.navData = this._tutorialService.navData;
     }
 
     ngOnInit(): void {
+        this._observeNavigationChanges();
+
         this._getTutorial();
+    }
+
+    ngOnDestroy(): void {
+        this._unsubscribeAll.next(null);
     }
 
     async _getTutorial(): Promise < any > {
@@ -40,8 +55,19 @@ export class TutorialInstructionsStepComponent implements OnInit {
         this.tutorial = this._tutorialService.getTutorial(routeParams.id);
 
         this.instructions = this.translocoService.translate(this.tutorial.instructions);
-
-        console.log({tutorial: this.instructions});
     }
 
+    _observeNavigationChanges(): void {
+        this._tutorialService.navigationHandler$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((changes: any) => {
+                console.log({
+                    changes
+                });
+
+                if (!changes || this.navData.currentStep !== this.step) return;
+
+                this.navData.currentStep += changes.variable;
+            });
+    }
 }

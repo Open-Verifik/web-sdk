@@ -184,7 +184,7 @@
             "match_face_to_id": "Compara tu biometría con un Documento",
             "scan_ocr_id": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo."
         },
-        "liveness_detection": {
+        "liveness": {
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
@@ -248,7 +248,12 @@
             "biometrics": "Biométrica"
         },
         "instructions": {
-            "liveness": "<p classs='red'> RED </p>  <h1> blue </h1>"
+            "liveness": {}
+        },
+        "credentials": {
+            "client_token": "Llave secreta API",
+            "external_database_ref_id": "Identificador único (Teléfono, email)",
+            "group": "Grupo (para agrupar las caras regitradas 1:N)"
         }
     },
     "demo": {
