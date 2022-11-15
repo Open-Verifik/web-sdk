@@ -15,27 +15,6 @@
                 {{ 'demo.camera_permission' | transloco }}
             </p>
         </div>
-        <div class="flex flex-col items-center" *ngIf="tutorial?.params.externalId">
-            <p>
-                {{ 'demo.external_id_description' | transloco }}
-            </p>
-            <mat-form-field class="w-full fuse-mat-dense ml-2" appearance="fill">
-                <mat-label class="primaryColor">{{ 'demo.external_id' | transloco }}</mat-label>
-                <input id="externalId" autocomplete="chrome-off" [(ngModel)]="externalId" (ngModelChange)="onChangeInput('externalId', externalId)" matInput required>
-                <button matSuffix mat-icon-button aria-label="Clear" (click)="onChangeInput('externalId',null)">
-                    <mat-icon>sync</mat-icon>
-                  </button>
-            </mat-form-field>
-        </div>
-        <div class="flex flex-col items-center" *ngIf="tutorial?.params.group">
-            <p>
-                {{ 'demo.group_description' | transloco }}
-            </p>
-            <mat-form-field class="w-full fuse-mat-dense ml-2">
-                <mat-label class="primaryColor">{{ 'demo.group' | transloco }}</mat-label>
-                <input id="group" autocomplete="chrome-off" matInput [(ngModel)]="group" (ngModelChange)="onChangeInput('group', group)">
-            </mat-form-field>
-        </div>
 
         <div class="flex flex-col items-center">
             <button class="fuse-mat-button-large mt-6 px-12 main primaryBg" mat-flat-button

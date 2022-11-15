@@ -38,7 +38,7 @@ import {
 } from 'app/app.routing';
 import { FuseMockApiModule } from '@fuse/lib/mock-api';
 import { mockApiServices } from './mock-api';
-import { ButtonMockModule } from './modules/button-mock/button-mock.module';
+// import { ButtonMockModule } from './modules/button-mock/button-mock.module';
 
 const routerConfig: ExtraOptions = {
     preloadingStrategy: PreloadAllModules,
@@ -67,7 +67,7 @@ const routerConfig: ExtraOptions = {
 
         // 3rd party modules that require global configuration via forRoot
         MarkdownModule.forRoot({}),
-        ButtonMockModule
+        // ButtonMockModule
     ],
     bootstrap: [
         AppComponent
