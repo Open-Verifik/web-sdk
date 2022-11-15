@@ -14,9 +14,6 @@ import {
     takeUntil
 } from 'rxjs/operators';
 import {
-    ButtonMockService
-} from 'app/modules/button-mock/button-mock.service';
-import {
     environment
 } from 'environments/environment';
 
@@ -34,20 +31,7 @@ export class HttpWrapperService {
         return !!this.tail.length;
     }
 
-    constructor(private _http: HttpClient, private _buttonMockService: ButtonMockService) {
-
-        this._buttonMockService.isDemo$
-            .pipe(filter(params => params != null))
-            .subscribe(isDemo => {
-                this.isDemo = isDemo
-            })
-
-        this._buttonMockService.codeError$
-            .pipe(filter(params => params != null))
-            .subscribe(codeError => {
-                this.codeError = codeError
-            })
-    }
+    constructor(private _http: HttpClient) {}
     /**
      * send request
      * @param method - to determinate which function we will be using
@@ -59,7 +43,7 @@ export class HttpWrapperService {
     sendRequest(method: string, url: string, params: any = {}, options: any = {}) {
         method = method.toLocaleLowerCase();
 
-        const authToken: string = localStorage.getItem('accessToken')??localStorage.getItem('clientToken');
+        const authToken: string = localStorage.getItem('accessToken') ?? localStorage.getItem('clientToken');
 
         let headers = {
             ...options.headers,
@@ -75,7 +59,7 @@ export class HttpWrapperService {
         if (this.isDemo && !this.omitDemoUrl.some(path => this._baseUrl + path === url)) {
             url = url.replace(this._baseUrl, 'mockApi/')
             params.codeError = this.codeError
-            // console.log("fakeData", method, url, params.codeError)
+           
         }
 
         switch (method) {
@@ -108,13 +92,13 @@ export class HttpWrapperService {
 
     private request(a: Observable < any > ): Observable < any > {
         this.tail.push(a);
-        // console.log('queue',this.tail);
+
         return a.pipe(
             retry(0),
             finalize(() => {
                 const index = this.tail.indexOf(a);
                 this.tail.splice(index, 1);
-                // console.log('queue',this.tail)
+
             })
         );
     }

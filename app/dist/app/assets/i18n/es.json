@@ -1,0 +1,275 @@
+{
+    "phoneValidation_has_expired": "El código de verificación ha expirado (teléfono)",
+    "emailValidation_has_expired": "El código de verificación ha expirado (correo electrónico)",
+    "AppRegistration_status_is_not_ongoing": "Ya se encuentra una cuenta registrada con algunos de tus datos",
+    "M": "Hombre",
+    "F": "Mujer",
+    "male": "Hombre",
+    "female": "Mujer",
+    "change_language": "Cambiar idioma",
+    
+    "start": {
+        "title": "Crea una nueva cuenta",
+        "existing_account_label": "Ya estás registrado?",
+        "login_here_link": "Inicia sesión aquí",
+        "name": "Nombre completo",
+        "first_name": "Nombre",
+        "last_name": "Apellidos",
+        "email": "Correo electrónico",
+        "email_otp": "Código de verificación (Correo)",
+        "country_code": "País",
+        "phone": "Teléfono",
+        "phone_otp": "Código de verificación (Teléfono)",
+        "send_otp_button": "Enviar",
+        "terms_1": "Acepto los",
+        "terms_2": "terminos y condiciones",
+        "terms_3": "y las",
+        "terms_4": "políticas de privacidad",
+        "create_account_button": "Crear cuenta",
+        "code_is_required": "Código de seguridad es requerido",
+        "invalid_email": "Escribe un correo válido",
+        "required_email": "Correo es requerido",
+        "invalid_phone": "Escribe un teléfono",
+        "required_phone": "Teléfono es requerido",
+        "required_first_name": "Nombres requeridos",
+        "required_last_name": "Apellidos requeridos",
+        "document_type": "Tipo de documento",
+        "document_number": "Número de documento",
+        "test_button": "Modo de prueba"
+    },
+    "kyc": {
+        "steps": {
+            "title_1": "Información básica",
+            "description_1": "Confirma tu información básica como nombre, edad, etc",
+            "title_2": "Validación de identidad",
+            "description_2": "Valida tu documento de identidad y tu rostro para comprobar la biométrica en nuestro sistema",
+            "title_2_qr": "Usa tu celular",
+            "description_2_qr": "Escanea este código QR para tener una mejor experiencia de escaneo y biométricas desde un celular",
+            "description_2_qr_continue": "Continuar con este dispositivo",
+            "title_3": "Información adicional",
+            "description_3": "Llena un pequeño formulario con información extra que requerímos de tu perfil para completar el registro",
+            "identityValidated": "Identidad validada exitosamente",
+            "biometricValidated": "Biometricos",
+            "documentValidated": "Documento"
+        },
+        "basic": {
+            "title": "Tu Información básica",
+            "first_name": "Nombre",
+            "last_name": "Apellidos",
+            "age": "Edad",
+            "gender": "Genero",
+            "city": "Ciudad",
+            "address": "Dirección",
+            "postalCode": "Código postal",
+            "dateOfBirth": "Fecha de nacimiento"
+        },
+        "identity_validation": {
+            "validate_button": "Validar identidad",
+            "front": "Frente del documento",
+            "back": "Dorso del documento",
+            "information": "Informacion del documento",
+            "document": "Documento #",
+            "biometric": "Biometricos",
+            "only_liveness_title": "Verificación de detección de vida con biometría",
+            "only_liveness_description": "Vamos a asegurarnos de que tu eres una persona real haciendo el registro, no se pueden hacer más de un registro con la misma biometría entonces con esto nos aseguramos que nadie te robará la identidad por medio de Verifik."
+        },
+        "forms": {
+            "title": "Queremos saber un poco más de ti",
+            "error": "Es necesario contestar esta pregunta."
+        }
+    },
+    "login": {
+        "title_1": "Bienvenido",
+        "title_2": "Inicia sesión",
+        "no_account": "No tienes una cuenta?",
+        "register_here_link": "Registrate aquí",
+        "email": "Correo electrónico",
+        "country_code": "País",
+        "phone": "Teléfono",
+        "email_otp": "Código de verificación (Correo)",
+        "phone_otp": "Código de verificación (Teléfono)",
+        "code_is_required": "Código de seguridad es requerido",
+        "invalid_email": "Escribe un correo válido",
+        "required_email": "Correo es requerido",
+        "invalid_phone": "Escribe un correo válido",
+        "required_phone": "Teléfono es requerido",
+        "required_first_name": "Nombres requeridos",
+        "required_last_name": "Apellidos requeridos",
+        "use_biometrics_button": "Usar biométricos",
+        "login_button": "Iniciar sesión",
+        "send_otp": "Enviar código de seguridad",
+        "two_factor_title": "Habilitar la verificación de dos factores",
+        "two_factor_second_time_title": "Verificación de dos factores",
+        "two_factor_second_time_description": "Escribe los 6 dígitos de tu aplicación para iniciar sesión",
+        "two_factor_description_1": "Escanee este código QR o copie los 16 caracteres en la aplicación. Para mejorar aún más la seguridad de su cuenta. Instalar ",
+        "two_factor_description_2": "u otro proveedor de preferencia para habilitar el 2FA",
+        "two_factor_label": "código de autenticación (6 dígitos)",
+        "required_authenticator_otp": "código de autenticación es requerido"
+    },
+    "errors": {
+        "incorrect_document_information": "La informacion de tu documento es incorrecta.",
+        "Record_not_found": "Registro no encontrado en el sistema.",
+        "Fail_login_biometrics": "Tus biometricos no coinciden.",
+        "Featured_disabled": "Esta funcionalidad no esta disponible.",
+        "Session_end": "La sesion de biometricos ha caducado.",
+        "BiometricValiation_failed": "Fallo coincidencia de biometricos",
+        "Camera_error": "Problemas con la camara",
+        "Cancel_biometrics": "Biometricos cancelados",
+        "Last_name_match": "No coincide el nombre",
+        "First_name_match": "No coincide los apellidos",
+        "Full_name_match": "El nombre completo no coincide",
+        "email_could_not_be_validated": "Email no encontrado en el sistema.",
+        "phone_could_not_be_validated": "Telefono no encontrado en el sistema.",
+        "Document_invalid": "El documento seleccionado no es el mismo al escaneado.",
+        "otp_does_not_match": "El OTP es incorrecto.",
+        "Already_exists": "Ya esta registrado en el sistema.",
+        "authenticator_otp_does_not_match": "El codigo 2FA es incorrecto.",
+        "Record not found.": "Registro no encontrado en el sistema.",
+        "Bad Request": "Datos incorrectos.",
+        "project_not_found": "Registro no encontrado en el sistema.",
+        "emailValidation_has_expired": "El OTP ha expirado.",
+        "EmailValidation_not_found": "Registro no encontrado en el sistema.",
+        "phoneValidation_has_expired": "El OTP ha expirado.",
+        "phone_validation_not_found": "Registro no encontrado en el sistema.",
+        "phoneValidation_not_found": "Registro no encontrado en el sistema, intente de nuevo por favor",
+        "Fail_register_biometrics": "Problemas al registrar su datos.",
+        "notification_prefix": "Respuesta",
+        "email_cannot_be_registered": "Correo electrónico no puede registrarse, por favor contactar al equipo de soporte",
+        "phone_cannot_be_registered": "Teléfono no puede registrarse, por favor contactar al equipo de soporte"
+    },
+    "mockApi": {
+        "Record_not_found": "Sin Registrar",
+        "Fail_login_biometrics": "Biometricos incorrectos",
+        "BiometricValiation_failed": "Biometricos incorrectos",
+        "email_could_not_be_validated": "Correo electrónico equivocado",
+        "phone_could_not_be_validated": "teléfono equivocado",
+        "Document_invalid": "Documento invalido",
+        "otp_does_not_match": "Código de verificación incorrecto",
+        "Already_exists": "Cuenta duplicada",
+        "authenticator_otp_does_not_match": "Fallo 2FA",
+        "Record not found.": "Sin Registrar",
+        "Bad Request": "Datos incorrectos",
+        "project_not_found": "Registro no encontrado en el sistema.",
+        "emailValidation_has_expired": "Código expirado [correo]",
+        "EmailValidation_not_found": "Correo sin registrar",
+        "phoneValidation_has_expired": "Código expirado [teléfono]",
+        "phone_validation_not_found": "Telefono sin registrar",
+        "Fail_register_biometrics": "Problemas al registrar su datos",
+        "success": "Modo demo [Exitoso]",
+        "code_error_invalid_success": "El codigo no es para esta accion, se uso por default: Exitoso",
+        "Validate_backend": "biometricos registrados",
+        "notification_prefix": "Respuesta",
+        "restart_demo": "Reiniciar DEMO"
+    },
+    "document_types": {
+        "cc": "Cédula de ciudadanía (Colombia)",
+        "passport": "Pasaporte",
+        "ccve": "Cédula de ciudadanía (Venezuela)"
+    },
+    "tutorials": {
+        "go_back": "Lista de tutoriales",
+        "title": "Tutoriales de Verifik",
+        "h1_title": "Qué quieres aprender hoy?",
+        "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",
+        "tutorial_button": "Ver tutorial",
+        "titles": {
+            "liveness_detection": "Detección de vida",
+            "enroll_face": "Registra tu biometría",
+            "authenticate_face": "Inicia sesión con tu biometría",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Escaneo de documento & Extracción de datos"
+        },
+        "descriptions": {
+            "liveness_detection": "Realiza una verificación de vida en el escaneo facial",
+            "enroll_face": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
+            "authenticate_face": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo."
+        },
+        "liveness": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba la detección de vida",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "enroll_face": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el registro de biometría",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "authenticate_face": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el inicio de sesión con biometría",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "match_face_to_id": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba la comparación de tu biometría con un Documento legal",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "scan_ocr_id": {
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Prueba el escaneo de documento & extracción de datos",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            }
+        },
+        "categories": {
+            "biometrics": "Biométrica"
+        },
+        "instructions": {
+            "liveness": {}
+        },
+        "credentials": {
+            "client_token": "Llave secreta API",
+            "external_database_ref_id": "Identificador único (Teléfono, email)",
+            "group": "Grupo (para agrupar las caras regitradas 1:N)"
+        }
+    },
+    "demo": {
+        "title": "Pruebas",
+        "description": "Se realizara una prueba del servicio",
+        "camera_permission": "Asegurate de asignar los permisos correspondientes.Te recomendamos usar tu telefono para tener mejores resultados",
+        "start": "Iniciar",
+        "external_id_description": "UID para identificar el usuario",
+        "external_id": "UID",
+        "group_description": "El grupo te permite agrupar registros de usuarios para no duplicar datos biometricos en ese grupo, si el grupo es omitido se permitiran registros duplicados de biometricos",
+        "group": "Grupo"
+    },
+    "results": {
+        "title": "Ultimo resultado del demo",
+        "description": "Se muestra la ultima informacion proporcionada por el servicio en esta dispositivo"
+    }
+}
