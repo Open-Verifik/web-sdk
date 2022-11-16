@@ -1,4 +1,5 @@
 import {
+    ChangeDetectorRef,
     Component,
     OnDestroy,
     OnInit
@@ -18,12 +19,16 @@ import {
     Subject
 } from 'rxjs';
 import {
+    skip,
     takeUntil
 } from 'rxjs/operators';
 import {
     TutorialsService
 } from '../tutorials.service';
 
+import {
+    v4 as uuidv4
+} from 'uuid';
 @Component({
     selector: 'app-tutorial-credentials-step',
     templateUrl: './tutorial-credentials-step.component.html',
@@ -44,6 +49,7 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
         private _tutorialService: TutorialsService,
         private translocoService: TranslocoService,
         private _formBuilder: FormBuilder,
+        private _changeDetectorRef: ChangeDetectorRef,
     ) {
         this.navData = this._tutorialService.navData;
     }
@@ -67,30 +73,33 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
     }
 
     _initForm(): void {
-        this.groupFields = {
+        this.groupFields = {};
 
-        };
+        for (let index = 0; index < this.tutorial.fields.length; index++) {
+            const field = this.tutorial.fields[index];
 
-        for (let index = 0; index < this.tutorial.requiredFields.length; index++) {
-            const requiredField = this.tutorial.requiredFields[index];
-
-            this.groupFields[requiredField.key] = [localStorage.getItem(requiredField.key), Validators.required];
+            this.groupFields[field.key] = [localStorage.getItem(field.key), field.required ? Validators.required : null];
         }
 
         this.credentialsForm = this._formBuilder.group(this.groupFields);
     }
 
+    generateUID(): void {
+        this.credentialsForm.controls.externalDatabaseRefId.setValue(uuidv4());
+    }
+
     _observeNavigationChanges(): void {
         this._tutorialService.navigationHandler$
             .pipe(takeUntil(this._unsubscribeAll))
+            .pipe(skip(1))
             .subscribe((changes: any) => {
-                if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm ||  !this.credentialsForm.valid) return;
+                if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm || (!this.credentialsForm.valid && changes === 1)) return;
 
                 const keys = Object.keys(this.credentialsForm.value);
 
                 for (let index = 0; index < keys.length; index++) {
                     const key = keys[index];
-                    
+
                     localStorage.setItem(key, this.credentialsForm.value[key]);
                 }
 

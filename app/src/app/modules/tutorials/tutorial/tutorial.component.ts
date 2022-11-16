@@ -114,16 +114,12 @@ export class TutorialComponent implements OnInit, OnDestroy {
     }
 
     goToNextStep(): void {
-        console.log('+1');
-
         if (this.navData.currentStep < this.tutorial.sideMenuSteps.length -1) this._tutorialService.navigationChange({
             variable: +1,
         });
     }
 
-    goToPreviousStep(): void {
-        console.log('-1');
-        
+    goToPreviousStep(): void {        
         if (this.navData.currentStep > 0) this._tutorialService.navigationChange({
             variable: -1,
         });

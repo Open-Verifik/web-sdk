@@ -72,7 +72,6 @@ export class TutorialsService {
         this.tutorialsMapping = {
             'tutorials.titles.liveness_detection': {
                 route: 'liveness',
-                params: {},
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.liveness.steps.title_1',
@@ -91,18 +90,15 @@ export class TutorialsService {
                     subtitle: 'tutorials.liveness.steps.description_4',
                 }, ],
                 instructions: 'tutorials.instructions.liveness',
-                requiredFields: [{
+                fields: [{
                     key: 'clientToken',
                     label: 'tutorials.credentials.client_token',
                     type: 'textarea',
+                    required: true,
                 }, ],
             },
             'tutorials.titles.enroll_face': {
                 route: 'enroll_face',
-                params: {
-                    externalId: true,
-                    group: true
-                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.enroll_face.steps.title_1',
@@ -120,15 +116,17 @@ export class TutorialsService {
                     title: 'tutorials.enroll_face.steps.title_4',
                     subtitle: 'tutorials.enroll_face.steps.description_4',
                 }, ],
-                requiredFields: [{
+                fields: [{
                         key: 'clientToken',
                         label: 'tutorials.credentials.client_token',
                         type: 'textarea',
+                        required: true,
                     },
                     {
                         key: 'externalDatabaseRefId',
                         label: 'tutorials.credentials.external_database_ref_id',
                         type: 'input',
+                        required: true,
                     },
                     {
                         key: 'group',
@@ -139,9 +137,6 @@ export class TutorialsService {
             },
             'tutorials.titles.authenticate_face': {
                 route: 'authenticate_face',
-                params: {
-                    externalId: true
-                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.authenticate_face.steps.title_1',
@@ -159,24 +154,22 @@ export class TutorialsService {
                     title: 'tutorials.authenticate_face.steps.title_4',
                     subtitle: 'tutorials.authenticate_face.steps.description_4',
                 }, ],
-                requiredFields: [{
+                fields: [{
                         key: 'clientToken',
                         label: 'tutorials.credentials.client_token',
                         type: 'textarea',
+                        required: true,
                     },
                     {
                         key: 'externalDatabaseRefId',
                         label: 'tutorials.credentials.external_database_ref_id',
                         type: 'input',
+                        required: true,
                     }
                 ],
             },
             'tutorials.titles.match_face_to_id': {
                 route: 'match_face_to_id',
-                params: {
-                    externalId: true,
-                    group: true
-                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.match_face_to_id.steps.title_1',
@@ -194,15 +187,17 @@ export class TutorialsService {
                     title: 'tutorials.match_face_to_id.steps.title_4',
                     subtitle: 'tutorials.match_face_to_id.steps.description_4',
                 }, ],
-                requiredFields: [{
+                fields: [{
                         key: 'clientToken',
                         label: 'tutorials.credentials.client_token',
                         type: 'textarea',
+                        required: true,
                     },
                     {
                         key: 'externalDatabaseRefId',
                         label: 'tutorials.credentials.external_database_ref_id',
                         type: 'input',
+                        required: true,
                     }
                 ],
             },
@@ -226,10 +221,11 @@ export class TutorialsService {
                     title: 'tutorials.scan_ocr_id.steps.title_4',
                     subtitle: 'tutorials.scan_ocr_id.steps.description_4',
                 }, ],
-                requiredFields: [{
+                fields: [{
                     key: 'clientToken',
                     label: 'tutorials.credentials.client_token',
                     type: 'textarea',
+                    required: true,
                 }, ],
             },
         }

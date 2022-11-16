@@ -24,9 +24,6 @@ import {
     Subject
 } from 'rxjs';
 
-import {
-    v4 as uuidv4
-} from 'uuid';
 @Component({
     selector: 'app-tutorial-demo-step',
     templateUrl: './tutorial-demo-step.component.html',
@@ -35,6 +32,8 @@ import {
 export class TutorialDemoStepComponent implements OnInit {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
 
+    navData: any;
+    step = 2
     token: string;
     biometricsReady: boolean
     tutorial: any;
@@ -53,21 +52,24 @@ export class TutorialDemoStepComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        this.navData = this._tutorialService.navData;
+
         this.biometricsReady = false
-        
+
         this.token = localStorage.getItem('clientToken')
-        
-        this.externalId = localStorage.getItem('externalDatabaseRefId') ?? uuidv4();
+
+        this.externalId = localStorage.getItem('externalDatabaseRefId');
 
         this.group = localStorage.getItem('group');
 
         if (!this.token) {
             this._tutorialService.navData.currentStep = 1;
-            
             return
         }
 
         this._getTutorial()
+
+        this._observeNavigationChanges()
 
         this._biometric = new BiometricV2(this._KycService, (isBiometricLibReady) => {
             if (isBiometricLibReady && this._biometric) {
@@ -83,20 +85,13 @@ export class TutorialDemoStepComponent implements OnInit {
         this._biometric.error$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((error) => {
                 this.errorLogin(error);
-
                 this.biometricsReady = false;
-
                 this._biometric.startSession();
             });
 
         const success = (response) => {
             localStorage.setItem(this.tutorial.route, JSON.stringify(response, null, 2))
-
             this._tutorialService.navData.currentStep = 3
-
-            this.biometricsReady = false;
-
-            this._biometric.startSession();
         }
 
         this._biometric.onboardingBiometric$
@@ -117,7 +112,6 @@ export class TutorialDemoStepComponent implements OnInit {
     }
 
     ngOnDestroy(): void {
-
         this._unsubscribeAll.next(null);
     }
 
@@ -127,17 +121,11 @@ export class TutorialDemoStepComponent implements OnInit {
         this.tutorial = this._tutorialService.getTutorial(routeParams.id);
     }
 
-    onChangeInput(key, value): void {
-        this[key] = value ?? uuidv4();
-
-        localStorage.setItem(key, this[key])
-    }
-
     startBiometrics(): void {
         switch (this.tutorial.route) {
             case 'liveness':
                 this._biometric.startLiveness();
-                
+
                 break;
             case 'enroll_face':
                 this._biometric.startEnrollmentBiometrics(this.externalId, this.group);
@@ -145,15 +133,15 @@ export class TutorialDemoStepComponent implements OnInit {
                 break;
             case 'authenticate_face':
                 this._biometric.startAuth(this.externalId)
-                
+
                 break;
             case 'match_face_to_id':
                 this._biometric.startEnrollmentDocument(this.externalId)
-                
+
                 break;
             case 'scan_ocr_id':
                 this._biometric.startIdScan()
-                
+
                 break;
 
         }
@@ -166,7 +154,7 @@ export class TutorialDemoStepComponent implements OnInit {
         };
 
         this.showAlert = true;
-        
+
         this._changeDetectorRef.detectChanges();
 
         setTimeout(() => {
@@ -174,6 +162,17 @@ export class TutorialDemoStepComponent implements OnInit {
 
             this._changeDetectorRef.detectChanges();
         }, 10000);
+    }
+
+    _observeNavigationChanges(): void {
+        this._tutorialService.navigationHandler$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .pipe(skip(1))
+            .subscribe((changes: any) => {
+                if (!changes || this.navData.currentStep !== this.step) return;
+
+                this.navData.currentStep += changes.variable;
+            });
     }
 
 }

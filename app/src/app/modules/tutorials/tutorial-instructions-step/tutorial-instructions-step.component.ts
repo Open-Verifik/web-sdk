@@ -13,6 +13,7 @@ import {
     Subject
 } from 'rxjs';
 import {
+    skip,
     takeUntil
 } from 'rxjs/operators';
 import {
@@ -60,12 +61,9 @@ export class TutorialInstructionsStepComponent implements OnInit, OnDestroy {
     _observeNavigationChanges(): void {
         this._tutorialService.navigationHandler$
             .pipe(takeUntil(this._unsubscribeAll))
+            .pipe(skip(1))
             .subscribe((changes: any) => {
-                console.log({
-                    changes
-                });
-
-                if (!changes || this.navData.currentStep !== this.step) return;
+                if (!changes || this.navData.currentStep !== this.step || changes.variable === -1) return;
 
                 this.navData.currentStep += changes.variable;
             });
