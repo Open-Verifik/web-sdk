@@ -59,7 +59,7 @@ export class TutorialDemoStepComponent implements OnInit {
         this.token = localStorage.getItem('clientToken')
 
         this.externalId = localStorage.getItem('externalDatabaseRefId');
-
+        console.log(this.externalId)
         this.group = localStorage.getItem('group');
 
         if (!this.token) {

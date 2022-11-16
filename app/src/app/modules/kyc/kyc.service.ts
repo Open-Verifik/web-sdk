@@ -291,7 +291,7 @@ export class KycService {
     }
 
     photoIDMatchV2(agent: string, body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/projects/match-idscan`, body, {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-idscan`, body, {
             headers: {
                 'X-User-Agent': agent
             }

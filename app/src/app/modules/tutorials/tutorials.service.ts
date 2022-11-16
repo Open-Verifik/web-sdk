@@ -198,7 +198,12 @@ export class TutorialsService {
                         label: 'tutorials.credentials.external_database_ref_id',
                         type: 'input',
                         required: true,
-                    }
+                    },
+                    {
+                        key: 'group',
+                        label: 'tutorials.credentials.group',
+                        type: 'input',
+                    },
                 ],
             },
             'tutorials.titles.scan_ocr_id': {

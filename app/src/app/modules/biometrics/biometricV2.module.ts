@@ -380,7 +380,7 @@ class BiometricProcessor implements FaceTecFaceScanProcessor {
             externalDatabaseRefID: this.config.externalDatabaseRefId,
         };
 
-        if(this.config.group){
+        if (this.config.group) {
             parameters.group = this.config.group
         }
 
@@ -460,13 +460,17 @@ class PhotoIDProcessor implements FaceTecFaceScanProcessor, FaceTecIDScanProcess
             return faceScanResultCallback.cancel();
         }
 
-        const parameters = {
+        const parameters: any = {
             faceScan: sessionResult.faceScan,
             auditTrailImage: sessionResult.auditTrail[0],
             lowQualityAuditTrailImage: sessionResult.lowQualityAuditTrail[0],
             sessionId: sessionResult.sessionId,
-            externalDatabaseRefId: this.config.externalDatabaseRefId
+            externalDatabaseRefID: this.config.externalDatabaseRefId
         };
+
+        if (this.config.group) {
+            parameters.group = this.config.group
+        }
 
         const agent = FaceTecSDK.createFaceTecAPIUserAgentString(sessionResult.sessionId as string);
 
@@ -482,7 +486,7 @@ class PhotoIDProcessor implements FaceTecFaceScanProcessor, FaceTecIDScanProcess
             faceScanResultCallback.cancel()
         }
 
-        this._KycService.enrollment(agent, parameters).subscribe(_success, _errorCatch);
+        this._KycService.enrollmentV2(agent, parameters).subscribe(_success, _errorCatch);
 
     }
 
@@ -497,6 +501,7 @@ class PhotoIDProcessor implements FaceTecFaceScanProcessor, FaceTecIDScanProcess
         var parameters: any = {
             idScan: idScanResult.idScan,
             sessionId: idScanResult.sessionId,
+            externalDatabaseRefID: this.config.externalDatabaseRefId
         };
 
         if (idScanResult.frontImages && idScanResult.frontImages[0]) {
