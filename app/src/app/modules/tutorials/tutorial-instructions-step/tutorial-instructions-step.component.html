@@ -1,4 +1,5 @@
-<div class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6" *ngIf="tutorial">
+<div class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6"
+    *ngIf="tutorial">
     <ng-container *ngIf="tutorial.route === 'liveness'">
 
         <h1>
@@ -10,25 +11,46 @@
         </p>
 
         <h3>
-            Parámetros
+            {{ 'tutorials.parameters' | transloco }}
+        </h3>
+
+        <p innerHTML="{{ 'tutorials.liveness.instructions.description_1' | transloco }}">
+
+        </p>
+
+        <p>
+            <a href="https://api.verifik.co/v2/biometrics/liveness">https://api.verifik.co/v2/biometrics/liveness</a>
+        </p>
+
+        <p>
+            {{ 'tutorials.liveness.instructions.description_2' | transloco }}
+        </p>
+
+        <pre class="language-javascript line-numbers">
+            <code class="language-javascript">{{ livenessVariables | json}}</code>
+        </pre>
+
+        <p>
+            {{ 'tutorials.liveness.instructions.description_3' | transloco }} 
+        </p>
+
+        <p innerHTML="{{ 'tutorials.liveness.instructions.description_4' | transloco }}">
+        </p>
+
+        <h3>
+            {{ 'tutorials.liveness.instructions.success_1' | transloco }}
         </h3>
 
         <p>
-            -- -- -- - - -- -
-        </p>
-
-        <h3>Criterios de éxito</h3>
-
-        <p>
-            la respuesta exitosa es verdadera si TODO lo siguiente es verdadero:
+            {{ 'tutorials.liveness.instructions.success_2' | transloco }}
         </p>
 
         <p>
-            1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.
+            {{ 'tutorials.liveness.instructions.success_3' | transloco }}
         </p>
 
         <p>
-            2. El token de sesión era válido y no estaba vencido.
+            {{ 'tutorials.liveness.instructions.success_4' | transloco }}
         </p>
 
     </ng-container>
@@ -37,24 +59,236 @@
         <h1>
             {{ 'tutorials.titles.enroll_face' | transloco }}
         </h1>
+
+        <p>
+            {{ 'tutorials.descriptions.enroll_face' | transloco }}
+        </p>
+
+        <h3>
+            {{ 'tutorials.parameters' | transloco }}
+        </h3>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.description_1' | transloco }}
+        </p>
+
+        <p>
+            <a href="https://api.verifik.co/v2/biometrics/enroll">https://api.verifik.co/v2/biometrics/enroll</a>
+        </p>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.description_2' | transloco }}
+        </p>
+
+        <pre class="language-javascript line-numbers">
+            <code class="language-javascript">{{ enrollFaceVariables | json}}</code>
+        </pre>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.description_3' | transloco }}
+        </p>
+
+        <h3>
+            {{ 'tutorials.enroll_face.instructions.description_4' | transloco }}
+        </h3>
+
+        <p innerHTML="{{ 'tutorials.enroll_face.instructions.description_5' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.enroll_face.instructions.description_6' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.enroll_face.instructions.description_7' | transloco }}"></p>
+
+        <h3>
+            {{ 'tutorials.enroll_face.instructions.success_1' | transloco }}
+        </h3>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.success_2' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.success_3' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.success_4' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.success_5' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.enroll_face.instructions.success_6' | transloco }}
+        </p>
+
     </ng-container>
 
     <ng-container *ngIf="tutorial.route === 'authenticate_face'">
         <h1>
             {{ 'tutorials.titles.authenticate_face' | transloco }}
         </h1>
+
+        <p>
+            {{ 'tutorials.descriptions.authenticate_face' | transloco }}
+        </p>
+
+        <h3>
+            {{ 'tutorials.parameters' | transloco }}
+        </h3>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.description_1' | transloco }}
+        </p>
+
+        <p>
+            <a href="https://api.verifik.co/v2/biometrics/authenticate">https://api.verifik.co/v2/biometrics/authenticate</a>
+        </p>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.description_2' | transloco }}
+        </p>
+
+        <pre class="language-javascript line-numbers">
+            <code class="language-javascript">{{ authenticateVariables | json}}</code>
+        </pre>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.description_3' | transloco }}
+        </p>
+
+        <h3>
+            {{ 'tutorials.authenticate_face.instructions.description_4' | transloco }}
+        </h3>
+
+        <p innerHTML="{{ 'tutorials.authenticate_face.instructions.description_5' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.authenticate_face.instructions.description_6' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.authenticate_face.instructions.description_7' | transloco }}"></p>
+
+        <h3>
+            {{ 'tutorials.authenticate_face.instructions.success_1' | transloco }}
+        </h3>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.success_2' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.success_3' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.success_4' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.success_5' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.success_6' | transloco }}
+        </p>
+
+        <p>
+            {{ 'tutorials.authenticate_face.instructions.success_7' | transloco }}
+        </p>
+
     </ng-container>
-    
+
     <ng-container *ngIf="tutorial.route === 'match_face_to_id'">
         <h1>
             {{ 'tutorials.titles.match_face_to_id' | transloco }}
         </h1>
+
+        <p>
+            {{ 'tutorials.descriptions.match_face_to_id' | transloco }}
+        </p>
+
+        <h3>
+            {{ 'tutorials.parameters' | transloco }}
+        </h3>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_1' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_2' | transloco }}"></p>
+
+        <p>
+            <a href="https://api.verifik.co/v2/biometrics/match-idscan">https://api.verifik.co/v2/biometrics/match-idscan</a>
+        </p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_3' | transloco }}"></p>
+
+        <pre class="language-javascript line-numbers">
+            <code class="language-javascript">{{ matchFaceToIDVariables | json}}</code>
+        </pre>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_4' | transloco }}"></p>
+        
+        <h3 innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_5' | transloco }}"></h3>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_6' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_7' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.description_8' | transloco }}"></p>
+
+        <!--  -->
+        <!--  -->
+
+        <h3 innerHTML="{{ 'tutorials.match_face_to_id.instructions.success_1' | transloco }}"></h3>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.success_2' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.success_3' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.success_4' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.success_5' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.match_face_to_id.instructions.success_6' | transloco }}"></p>
+
     </ng-container>
-   
+
     <ng-container *ngIf="tutorial.route === 'scan_ocr_id'">
         <h1>
             {{ 'tutorials.titles.scan_ocr_id' | transloco }}
         </h1>
+
+        <p>
+            {{ 'tutorials.descriptions.scan_ocr_id' | transloco }}
+        </p>
+
+        <h3>
+            {{ 'tutorials.parameters' | transloco }}
+        </h3>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.description_1' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.description_2' | transloco }}"></p>
+
+        <p>
+            <a href="https://api.verifik.co/v2/biometrics/idscan">https://api.verifik.co/v2/biometrics/idscan</a>
+        </p>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.description_3' | transloco }}"></p>
+
+        <pre class="language-javascript line-numbers">
+            <code class="language-javascript">{{ OCRVariables | json}}</code>
+        </pre>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.description_4' | transloco }}"></p>
+
+        <!--  -->
+
+        <h3 innerHTML="{{ 'tutorials.scan_ocr_id.instructions.success_1' | transloco }}"></h3>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.success_2' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.success_3' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.scan_ocr_id.instructions.success_4' | transloco }}"></p>
     </ng-container>
 
 </div>

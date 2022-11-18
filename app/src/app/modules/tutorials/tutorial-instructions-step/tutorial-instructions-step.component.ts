@@ -31,6 +31,11 @@ export class TutorialInstructionsStepComponent implements OnInit, OnDestroy {
     tutorial: any;
     instructions: any;
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
+    livenessVariables: any;
+    enrollFaceVariables: any;
+    authenticateVariables: any;
+    matchFaceToIDVariables: any;
+    OCRVariables: any;
 
     constructor(
         private _route: ActivatedRoute,
@@ -56,6 +61,46 @@ export class TutorialInstructionsStepComponent implements OnInit, OnDestroy {
         this.tutorial = this._tutorialService.getTutorial(routeParams.id);
 
         this.instructions = this.translocoService.translate(this.tutorial.instructions);
+
+        switch (this.tutorial.route) {
+            case 'liveness':
+                this.livenessVariables = {
+                    "faceScan": "...",
+                    "auditTrailImage": "...",
+                    "lowQualityAuditTrailImage": "..."
+                };
+                break;
+            case 'enroll_face':
+                this.enrollFaceVariables = {
+                    "faceScan": "...",
+                    "auditTrailImage": "...",
+                    "lowQualityAuditTrailImage": "..."
+                };
+                break;
+            case 'authenticate_face':
+                this.authenticateVariables = {
+                    "faceScan": "...",
+                    "auditTrailImage": "...",
+                    "lowQualityAuditTrailImage": "..."
+                };
+
+                break;
+            case 'match_face_to_id': 
+                this.matchFaceToIDVariables = {
+                    "idScan": "...",
+                    "idScanFrontImage": "...",
+                    "idScanBackImage": "...",
+                };
+            case 'scan_ocr_id': 
+                this.OCRVariables = {
+                    "idScan": "...",
+                    "idScanFrontImage": "...",
+                    "idScanBackImage": "...",
+                };
+            break;
+            default:
+                break;
+        }
     }
 
     _observeNavigationChanges(): void {
