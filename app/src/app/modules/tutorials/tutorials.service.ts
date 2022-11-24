@@ -59,10 +59,27 @@ export class TutorialsService {
             progress: {
                 completed: true,
             },
-        }, {
+        },
+         {
             category: 'tutorials.categories.biometrics',
             title: 'tutorials.titles.scan_ocr_id',
             description: 'tutorials.descriptions.scan_ocr_id',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        },{
+            category: 'tutorials.categories.passwordless',
+            title: 'tutorials.titles.passwordless',
+            description: 'tutorials.descriptions.passwordless',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        },{
+            category: 'tutorials.categories.kyc',
+            title: 'tutorials.titles.kyc',
+            description: 'tutorials.descriptions.kyc',
             duration: 10,
             progress: {
                 completed: true,
@@ -233,6 +250,25 @@ export class TutorialsService {
                     required: true,
                 }, ],
             },
+            'tutorials.titles.passwordless': {
+                route: 'passwordless',
+                params: {},
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.passwordless.steps.title_1',
+                    subtitle: 'tutorials.passwordless.steps.description_1',
+                }],
+            },
+            'tutorials.titles.kyc': {
+                route: 'kyc',
+                params: {},
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.kyc.steps.title_1',
+                    subtitle: 'tutorials.kyc.steps.description_1',
+                }],
+            },
+
         }
     }
 
