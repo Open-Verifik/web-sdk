@@ -95,13 +95,6 @@ export class TutorialsService {
                 route: 'match_image',
             },
             {
-                category: 'biometrics',
-                route: 'scan_ocr_id',
-                duration: 10,
-                progress: {
-                    completed: true,
-                },
-            }, {
                 category: 'passwordless',
                 route: 'passwordless',
                 duration: 10,
