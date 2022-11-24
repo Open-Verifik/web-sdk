@@ -4,17 +4,12 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {
-    BehaviorSubject,
     Subject,
-    combineLatest
 } from 'rxjs';
 import {
     ActivatedRoute,
     Router
 } from '@angular/router';
-import {
-    takeUntil
-} from 'rxjs/operators';
 import {
     MatSelectChange
 } from '@angular/material/select';
@@ -24,7 +19,6 @@ import {
 import {
     TutorialsService
 } from '../tutorials.service';
-import { textBiometrics } from 'app/modules/biometrics/biometrics.es';
 
 @Component({
     selector: 'app-tutorials-list',
@@ -57,6 +51,10 @@ export class TutorialsListComponent implements OnInit {
      */
     ngOnInit(): void {
         this.tutorials = this._tutorialService.tutorials;
+
+        console.log({
+            tutorials: this.tutorials,
+        });
     }
 
     /**

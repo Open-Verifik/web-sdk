@@ -1,7 +1,7 @@
 <div *ngIf="tutorial"
     class="prose prose-sm max-w-3xl mx-auto sm:my-2 lg:mt-4 p-6 rounded-2xl shadow overflow-hidden bg-card mt-6">
 
-    <ng-container>
+    <ng-container *ngIf="tutorial.route !== 'passwordless' && tutorial.route !== 'kyc' ">
         <h1> {{ 'tutorials.' + tutorial.route + '.title' | transloco }} </h1>
 
         <p innerHTML="{{ 'tutorials.' + tutorial.route + '.description' | transloco }}"> </p>
@@ -44,6 +44,99 @@
 
         <p innerHTML="{{ instructions.success_7 }}"></p>
 
+    </ng-container>
+    
+    <ng-container *ngIf="tutorial.route === 'passwordless'">
+        <h1>
+            {{ 'tutorials.titles.passwordless' | transloco }}
+        </h1>
+
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_1' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_2' | transloco }}"></p>
+
+        <img src="https://cdn.verifik.co/start.png" alt="">
+        
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_3' | transloco }}"></p>
+        
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_4' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_5' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-1.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_6' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-2.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_7' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-3.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_8' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_9' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-4.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_10' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-5.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_11' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.list_1' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.list_2' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_12' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-6.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_13' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-7.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_14' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_15' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/pw-8.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_16' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/logs.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_17' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_18' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_19' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/logs-2.png" alt="">
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_20' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.description_21' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.example' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.demo' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.passwordless.instructions.production' | transloco }}"></p>
+    </ng-container>
+    <ng-container *ngIf="tutorial.route === 'kyc'">
+        <h1>
+            {{ 'tutorials.titles.kyc' | transloco }}
+        </h1>
+
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_1' | transloco }}"></p>
+
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_2' | transloco }}"></p>
+
+        <img src="https://cdn.verifik.co/start.png" alt="">
+        
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_3' | transloco }}"></p>
+        
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_4' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_5' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-1.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_6' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-2.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_7' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-3.png" alt="">
+
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_8' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-4.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_9' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-5.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_10' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-6.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_11' | transloco }}"></p>
+      
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_12' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-7.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_13' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/kyc-8.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_14' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/logs.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_15' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_16' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_17' | transloco }}"></p>
+        <img src="https://cdn.verifik.co/logs-2.png" alt="">
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_18' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.description_19' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.example' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.demo' | transloco }}"></p>
+        <p innerHTML="{{ 'tutorials.kyc.instructions.production' | transloco }}"></p>
     </ng-container>
 
 </div>

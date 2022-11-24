@@ -28,76 +28,95 @@ export class TutorialsService {
      */
     constructor(private _httpClient: HttpClient) {
         this.tutorials = [{
-            category: 'biometrics',
-            route: 'liveness',
-            duration: 10,
-            progress: {
-                completed: true,
+                category: 'biometrics',
+                route: 'liveness',
+                duration: 10,
+                progress: {
+                    completed: true,
+                }
+            }, {
+                category: 'biometrics',
+                route: 'enroll_face',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'authenticate_face',
+                duration: 5,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'match_face_to_id',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'scan_ocr_id',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'estimate_age_image',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'liveness_image',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'match_2_image',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'estimate_age',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'biometrics',
+                route: 'match_image',
+            },
+            {
+                category: 'biometrics',
+                route: 'scan_ocr_id',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'passwordless',
+                route: 'passwordless',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
+            }, {
+                category: 'kyc',
+                route: 'kyc',
+                duration: 10,
+                progress: {
+                    completed: true,
+                },
             }
-        }, {
-            category: 'biometrics',
-            route: 'enroll_face',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'authenticate_face',
-            duration: 5,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'match_face_to_id',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'scan_ocr_id',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'estimate_age_image',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'liveness_image',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'match_2_image',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'estimate_age',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }, {
-            category: 'biometrics',
-            route: 'match_image',
-            duration: 10,
-            progress: {
-                completed: true,
-            },
-        }];
+        ];
 
         this.tutorialsMapping = {
             'tutorials.titles.liveness_detection': {
@@ -395,7 +414,7 @@ export class TutorialsService {
                     label: 'tutorials.credentials.client_token',
                     type: 'textarea',
                     required: true,
-                },{
+                }, {
                     key: 'minMatchLevel',
                     label: 'tutorials.credentials.min_match_level',
                     type: 'input',
@@ -405,7 +424,7 @@ export class TutorialsService {
                     key: 'image0',
                     label: 'tutorials.credentials.image0',
                     required: true,
-                },{
+                }, {
                     key: 'image1',
                     label: 'tutorials.credentials.image1',
                     required: true,
@@ -498,6 +517,25 @@ export class TutorialsService {
                     required: true,
                 }]
             },
+            'tutorials.titles.passwordless': {
+                route: 'passwordless',
+                params: {},
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.passwordless.steps.title_1',
+                    subtitle: 'tutorials.passwordless.steps.description_1',
+                }],
+            },
+            'tutorials.titles.kyc': {
+                route: 'kyc',
+                params: {},
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.kyc.steps.title_1',
+                    subtitle: 'tutorials.kyc.steps.description_1',
+                }],
+            },
+
         }
     }
 
