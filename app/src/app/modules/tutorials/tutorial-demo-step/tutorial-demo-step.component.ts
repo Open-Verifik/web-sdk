@@ -111,19 +111,27 @@ export class TutorialDemoStepComponent implements OnInit {
 
         this._biometric.onboardingBiometric$
         .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-        .subscribe(this.successDemo);
+        .subscribe(response => {
+            this.successDemo(response)
+        });
 
         this._biometric.onboardingScan$
         .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-        .subscribe(this.successDemo);
+        .subscribe(response => {
+            this.successDemo(response)
+        });
 
         this._biometric.liveness$
         .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-        .subscribe(this.successDemo);
+        .subscribe(response => {
+            this.successDemo(response)
+        });
 
         this._biometric.auth$
         .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-        .subscribe(this.successDemo);
+        .subscribe(response => {
+            this.successDemo(response)
+        });
     }
 
     startBiometrics(): void {
@@ -147,6 +155,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 break;
             case 'scan_ocr_id':
                 this._biometric.startIdScan()
+                break;
 
             case 'match_image':
                 parameters = {
@@ -160,7 +169,6 @@ export class TutorialDemoStepComponent implements OnInit {
                 }, (err) => {
                     console.error(err)
                 });
-
                 break;
 
             case 'match_2_image':
@@ -175,7 +183,6 @@ export class TutorialDemoStepComponent implements OnInit {
                 }, (err) => {
                     console.error(err)
                 });
-
                 break;
             case 'liveness_image':
                 parameters = {
@@ -187,7 +194,6 @@ export class TutorialDemoStepComponent implements OnInit {
                 }, (err) => {
                     console.error(err)
                 });
-
                 break;
 
             case 'estimate_age_image':
@@ -201,7 +207,6 @@ export class TutorialDemoStepComponent implements OnInit {
                 }, (err) => {
                     console.error(err)
                 });
-
                 break;
 
             case 'estimate_age':
@@ -214,7 +219,6 @@ export class TutorialDemoStepComponent implements OnInit {
                 }, (err) => {
                     console.error(err)
                 });
-
                 break;
 
         }

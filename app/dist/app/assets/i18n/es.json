@@ -175,6 +175,24 @@
         "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",
         "tutorial_button": "Ver tutorial",
         "parameters": "Parámetros",
+        "titles": {
+            "liveness_detection": "Detección de vida",
+            "enroll_face": "Registro biométrico",
+            "authenticate_face": "Inicia sesión con biometría",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Escaneo de documento & Extracción de datos",
+            "passwordless": "Inicio de sesion sin contraseña",
+            "kyc": "Conoce a tus clientes"
+        },
+        "descriptions": {
+            "liveness_detection": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
+            "enroll_face": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
+            "authenticate_face": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
+            "match_face_to_id": "Compara tu biometría con un Documento",
+            "scan_ocr_id": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo.",
+            "passwordless": "Inicia sesion sin contraseña, utilizando codigos de un solo uso, olvidate de contraseñas vulnerables.",
+            "kyc": "Lleva a cargo el registro de tus nuevos usuarios de manera inteligente, sin codificacion"
+        },
         "liveness": {
             "title": "Detección de vida",
             "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
@@ -432,8 +450,78 @@
                 "success_3": "2. Los parámetros enviados en el Body son los requeridos."
             }
         },
+        "kyc": {
+            "title": "Conoce a tus clientes",
+            "description": "Lleva a cargo el registro de tus nuevos usuarios de manera inteligente, sin codificacion",
+            "steps": {
+                "title_1": "Configuracion",
+                "description_1": "Configura todo el kyc para comenzar a usarlo"
+            },
+            "instructions": {
+                "description_1": "Realiza el registro de un nuevo usuario de la manera más versátil, sin necesidad de que manejes la información, déjanos manejarla por ti.",
+                "description_2": "Necesitamos primero iniciar sesión con tu cuenta Verifik en <a href='www.app.verifik.co'>www.app.verifik.co</a>, donde crearemos un proyecto el cual configuraras a tus necesidades.",
+                "description_3": "Al ingresar a la opción de “Onboarding” tendremos un listado de nuestros proyectos ( en caso de tener alguno) y la opción de crear un proyecto.",
+                "description_4": "En esta lista podremos acceder a las configuraciones de los proyectos previamente configurado, así como las métricas del uso de este servicio.",
+                "description_5": "Ahora creamos un proyecto nuevo.",
+                "description_6": "Tendremos que configurar 6 pasos para poder comenzar a usar nuestro servicio de KYC (conoce tu cliente), el primer paso será llenar la información básica relevante a tu proyecto, sea el nombre, el bloqueo regional con ip, etc.",
+                "description_7": "En el segundo paso se seleccionara la información básica requerida para el registro, al seleccionarla el nuevo usuario deberá ingresar y validar esa información.<p>Ejemplo: al ingresar un numero telefonico, el nuevo usuario recibira un codigo de un solo uso que deberá ingresar para continuar con el registro, de igual manera con el correo electrónico.</p>",
+                "description_8": "En el tercer paso podemos configurar la validación de identidad por medios biométricos, sea solamente una biometría del rostro o agregarle la lectura de un documento oficial y la comparación con la imagen del rostro, además de poder seleccionar la consulta a una fuente policial por medio de nuestros endponts Verifik, para revisar algún historial criminal.",
+                "description_9": "En el cuarto paso tendremos la opción de configurar un formulario que el nuevo usuario deberá contestar en caso de que el formulario sea configurado, este paso es opcional.",
+                "description_10": "Para crear un formulario deberas hacer click en el boton de “Nuevo Formulario”<p>Ejemplo de creación de un formulario:</p>",
+                "description_11": "<p>La quinta sección, es opcional.</p><p>En esta sección nos toparemos con la configuración de una lista negra, para que ciertos usuarios no puedan hacer uso de este servicio. Para crear la lista negral existen 2 opciones:</p><p>-Usar un url para consultar la identidad del usuario.</p><p>-Definir una lista de usuarios que no podrán utilizar el sistema.</p>",
+                "description_12": "Si se usa un url de identidad, deberás proporcionar un endpoint, donde responderá con la información del usuario, validando su restricción en tu sistema.",
+                "description_13": "En la sexta y última sección podremos encontrar un resumen, y personalizar la apariencia de tu pantalla de registro.",
+                "description_14": "Al final de este paso nos encontramos con la parte de configurar el api para los logs y el url de redireccionamiento:",
+                "description_15": "El “API para los logs” es un endpoint tuyo donde recibirás un post por parte de verifik con la información del usuario autenticado, ya sea una validación por telefono, validación por correo electrónico o validación por biometría.",
+                "description_16": "El “link de redireccionamiento” es el cual al momento de terminar de hacer el inicio de sesion, redireccionará tu navegador a ese url, con tu token de sesión.",
+                "description_17": "Cuando tu recibas el token tu puedes consultar por medio de un post a <a href='https://app.verifik.co/v2/app-registrations/session'>'https://app.verifik.co/v2/app-registrations/session'</a> con el parametro de “?token=TUTOKEN” y si el token existe o no ha pasado más de 30 minutos de su creación, obtendrás la sesión del usuario autenticado.",
+                "description_18": "Por último puedes ver el demo de la pantalla de registro y publicar el proyecto.",
+                "description_19": "Ahora podrás cambiar el url de tu signup/registro (en tu pagina/aplicación) a el url que te aparece en la página cuando das click en ver demo.",
+                "example": "Ejemplo",
+                "demo": "Demo: <a href='https://kyc.verifik.co/kyc/start/637ea5d51be8b077dc1b18d8?demo=1'>  https://kyc.verifik.co/kyc/start/637ea5d51be8b077dc1b18d8?demo=1</a>",
+                "production": "Uso Produccion <a href='https://kyc.verifik.co/kyc/start/637ea5d51be8b077dc1b18d8'>  https://kyc.verifik.co/kyc/start/637ea5d51be8b077dc1b18d8</a>"
+            }
+        },
+        "passwordless": {
+            "title": "Inicio de sesion sin contraseña",
+            "description" : "Inicia sesion sin contraseña, utilizando codigos de un solo uso, olvidate de contraseñas vulnerables.",
+            "steps": {
+                "title_1": "Configuracion",
+                "description_1": "Configura el inicio de sesion sin contraseña para comenzar a usarlo"
+            },
+            "instructions": {
+                "description_1": "Realiza inicios de sesión de la manera mas versátil, sin necesidad de recordar una tediosa contraseña la cual puede ser vulnerada por los más básicos ataques de hacking.",
+                "description_2": "Necesitamos primero iniciar sesión con tu cuenta Verifik en <a href='www.app.verifik.co'>www.app.verifik.co</a>, donde crearemos un proyecto el cual configuraras a tus necesidades.",
+                "description_3": "Al ingresar a la opción de “Login +” tendremos un listado de nuestros proyectos ( en caso de tener alguno) y la opción de crear un proyecto.",
+                "description_4": "En esta lista podremos acceder a las configuraciones de los proyectos previamente configurado, así como las métricas del uso de este servicio.",
+                "description_5": "Ahora creamos un proyecto nuevo.",
+                "description_6": "Tendremos que configurar 4 pasos para poder comenzar a usar nuestro servicio de passwordless logins, el primer paso sera llenar la información básica relevante a tu proyecto, sea el nombre, el bloqueo regional con ip, etc.",
+                "description_7": "A continuación un ejemplo de como seria el llenado del formulario.",
+                "description_8": "Para continuar con el paso dos hay que darle click en el botón de “siguiente” en la parte inferior central.",
+                "description_9": "En el paso 2, configuraremos todas las opciones que pueden ser utilizadas para realizar el inicio de sesión sin contraseña.",
+                "description_10": "Al hacer click en el icono, se hará la selección de este método de login, al elegir telefono podras preferir si recibir un codigo de un solo uso por whatsapp o sms",
+                "description_11": "En la seccion 3 de configuracion nos toparemos con la configuración de una lista blanca, para que los usuarios puedan hacer uso de este servicio, en la cual existen 2 opciones:",
+                "list_1": "-Usar un url para consultar la identidad del usuario.",
+                "list_2": "-Definir una lista de usuarios que utilizaran el sistema.",
+                "description_12": "Si se usa un url de identidad, deberás proporcionar un endpoint, donde responderá con la información del usuario, validando su existencia en tu sistema.",
+                "description_13": "Usando la opción de la lista agregaremos cada uno de los usuarios que queramos integrar.",
+                "description_14": "Con esto finalizamos la tercera sección y continuamos con el resumen.",
+                "description_15": "En este paso podremos encontrar un resumen, y personalizar la apariencia de tu pantalla de login.",
+                "description_16": "Al final de este paso nos encontramos con la parte de configurar el api para los logs y el url de redireccionamiento:",
+                "description_17": "El “API para los logs” es un endpoint tuyo donde recibirás un post por parte de verifik con la información del usuario autenticado, ya sea una validación por telefono, validación por correo electrónico o validación por biometría.",
+                "description_18": "El “link de redireccionamiento” es el cual al momento de terminar de hacer el inicio de sesion, redireccionará tu navegador a ese url, con tu token de sesión.",
+                "description_19": "Cuando tu recibas el token tu puedes consultar por medio de un post a <a href='https://app.verifik.co/v2/app-logins/session'>“https://app.verifik.co/v2/app-logins/session”</a> con el parametro de “?token=TUTOKEN” y si el token existe o no ha pasado mas de 30 minutos de su creación, obtendrás la sesión del usuario autenticado.",
+                "description_20": "Por último puedes ver el demo del inicio de sesión y publicar el proyecto.",
+                "description_21": "Ahora podrás cambiar el url de tu login (en tu pagina/aplicación) a el url que te aparece en la pagina cuando das click en ver demo.",
+                "example": "Ejemplo",
+                "demo": "Demo: <a href='https://auth.verifik.co/passwordless/auth/637ea5d51be8b077dc1b18d8?demo=1'>  https://auth.verifik.co/passwordless/auth/637ea5d51be8b077dc1b18d8?demo=1</a>",
+                "production": "Uso Produccion <a href='https://auth.verifik.co/passwordless/auth/637ea5d51be8b077dc1b18d8'>  https://auth.verifik.co/passwordless/auth/637ea5d51be8b077dc1b18d8</a>"
+            }
+        },
         "categories": {
-            "biometrics": "Biométrica"
+            "biometrics": "Biométrica",
+            "kyc": "Conoce a tu cliente",
+            "passwordless": "Sin contraseñas"
         },
         "credentials": {
             "client_token": "Llave secreta API",
