@@ -58,6 +58,9 @@ import {
 import {
   FuseCardModule
 } from '@fuse/components/card';
+import {
+  MatProgressSpinnerModule
+} from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@ngneat/transloco';
 import { TutorialInstructionsStepComponent } from './tutorial-instructions-step/tutorial-instructions-step.component';
 import { TutorialCredentialsStepComponent } from './tutorial-credentials-step/tutorial-credentials-step.component';
@@ -91,7 +94,8 @@ import { FuseHighlightModule } from '@fuse/components/highlight';
     SharedModule,
     MatTabsModule,
     FuseHighlightModule,
-    FuseCardModule
+    FuseCardModule,
+    MatProgressSpinnerModule
   ]
 })
 export class TutorialsModule {}

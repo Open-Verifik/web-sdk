@@ -70,6 +70,8 @@
             "information": "Informacion del documento",
             "document": "Documento #",
             "biometric": "Biometricos",
+            "biometricImage": "Imagen Biometrica",
+            "biometricImage2": "Segunda Imagen Biometrica",
             "only_liveness_title": "Verificación de detección de vida con biometría",
             "only_liveness_description": "Vamos a asegurarnos de que tu eres una persona real haciendo el registro, no se pueden hacer más de un registro con la misma biometría entonces con esto nos aseguramos que nadie te robará la identidad por medio de Verifik."
         },
@@ -173,21 +175,9 @@
         "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",
         "tutorial_button": "Ver tutorial",
         "parameters": "Parámetros",
-        "titles": {
-            "liveness_detection": "Detección de vida",
-            "enroll_face": "Registro biométrico",
-            "authenticate_face": "Inicia sesión con biometría",
-            "match_face_to_id": "Compara tu biometría con un Documento",
-            "scan_ocr_id": "Escaneo de documento & Extracción de datos"
-        },
-        "descriptions": {
-            "liveness_detection": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
-            "enroll_face": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
-            "authenticate_face": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
-            "match_face_to_id": "Compara tu biometría con un Documento",
-            "scan_ocr_id": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo."
-        },
         "liveness": {
+            "title": "Detección de vida",
+            "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
@@ -199,10 +189,10 @@
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
             },
             "instructions": {
-                "description_1": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
-                "description_2": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
-                "description_3": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
-                "description_4": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos esto solo es una descripción básica a la hora de implementarlo en un proyecto real.",
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
+                "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
+                "description_4": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
+                "description_5": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos esto solo es una descripción básica a la hora de implementarlo en un proyecto real.",
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
                 "success_3": "2. El token de sesión era válido y no estaba vencido.",
@@ -210,6 +200,8 @@
             }
         },
         "enroll_face": {
+            "title": "Registro biométrico",
+            "description": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
@@ -221,13 +213,13 @@
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
             },
             "instructions": {
-                "description_1": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint:",
-                "description_2": "Debes enviar los siguientes parámetros en el body en formato JSON",
-                "description_3": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
-                "description_4": "Parámetros adicionales",
-                "description_5": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realice, Se cuenta con la opción de correo o de número telefónico.",
-                "description_6": "<strong>sessionId</strong>: Este token se obtiene haciendo consulta al siguiente endpoint → <a href='https://api.verifik.co/v2/biometrics/session'><strong>https://api.verifik.co/v2/biometrics/session</strong></a>, por cada uso que se haga de este servicio es necesario solicitar y añadir un sessionId como parámetro.",
-                "description_7": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos con información real.",
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint:",
+                "description_3": "Debes enviar los siguientes parámetros en el body en formato JSON",
+                "description_4": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
+                "description_5": "<h3>Parámetros adicionales</h3>",
+                "description_6": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realice, Se cuenta con la opción de correo o de número telefónico.",
+                "description_7": "<strong>sessionId</strong>: Este token se obtiene haciendo consulta al siguiente endpoint → <a href='https://api.verifik.co/v2/biometrics/session'><strong>https://api.verifik.co/v2/biometrics/session</strong></a>, por cada uso que se haga de este servicio es necesario solicitar y añadir un sessionId como parámetro.",
+                "description_8": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos con información real.",
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
                 "success_3": "2. El token de sesión era válido y no estaba vencido.",
@@ -237,6 +229,8 @@
             }
         },
         "authenticate_face": {
+            "title": "Inicia sesión con biometría",
+            "description": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
@@ -248,13 +242,13 @@
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
             },
             "instructions": {
-                "description_1": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint: ",
-                "description_2": "Debes enviar los siguientes parámetros en el body en formato JSON",
-                "description_3": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
-                "description_4": "Parámetros adicionales",
-                "description_5": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realice, Se cuenta con la opción de correo o de número telefónico.",
-                "description_6": "<strong>sessionId</strong>: Este token se obtiene haciendo consulta al siguiente endpoint → <a href='https://api.verifik.co/v2/biometrics/session'><strong>https://api.verifik.co/v2/biometrics/session</strong></a>, por cada uso que se haga de este servicio es necesario solicitar y añadir un sessionId como parámetro.",
-                "description_7": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos con información real",
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint: ",
+                "description_3": "Debes enviar los siguientes parámetros en el body en formato JSON",
+                "description_4": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
+                "description_5": "<h3>Parámetros adicionales</h3>",
+                "description_6": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realice, Se cuenta con la opción de correo o de número telefónico.",
+                "description_7": "<strong>sessionId</strong>: Este token se obtiene haciendo consulta al siguiente endpoint → <a href='https://api.verifik.co/v2/biometrics/session'><strong>https://api.verifik.co/v2/biometrics/session</strong></a>, por cada uso que se haga de este servicio es necesario solicitar y añadir un sessionId como parámetro.",
+                "description_8": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos con información real",
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
                 "success_3": "2. El token de sesión era válido y no estaba vencido.",
@@ -266,6 +260,8 @@
             }
         },
         "match_face_to_id": {
+            "title": "Compara tu biometría con un Documento",
+            "description": "Compara tu biometría con un Documento.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
@@ -281,7 +277,7 @@
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint:",
                 "description_3": "Debes enviar los siguientes parámetros en el body en formato JSON",
                 "description_4": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
-                "description_5": "Parámetros adicionales",
+                "description_5": "<h3>Parámetros adicionales</h3>",
                 "description_6": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realice, Se cuenta con la opción de correo o de número telefónico.",
                 "description_7": "<strong>sessionId</strong>: Este token se obtiene haciendo consulta al siguiente endpoint → <a href='https://api.verifik.co/v2/biometrics/session'><strong>https://api.verifik.co/v2/biometrics/session</strong></a>, por cada uso que se haga de este servicio es necesario solicitar y añadir un sessionId como parámetro.",
                 "description_8": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos con información real",
@@ -294,6 +290,8 @@
             }
         },
         "scan_ocr_id": {
+            "title": "Escaneo de documento & Extracción de datos",
+            "description": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
@@ -305,26 +303,148 @@
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
             },
             "instructions": {
-                "description_1": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint: ",
-                "description_2": "Debes enviar los siguientes parámetros en el body en formato JSON",
-                "description_3": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
-                "description_4": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos esto solo es una descripción básica a la hora de implementarlo en un proyecto real.",
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el método POST al siguiente endpoint: ",
+                "description_3": "Debes enviar los siguientes parámetros en el body en formato JSON",
+                "description_4": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
+                "description_5": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos esto solo es una descripción básica a la hora de implementarlo en un proyecto real.",
                 "success_1": "Criterios de éxito",
                 "success_2": "El documento escaneado es real y coincide con el país o servicio seleccionado para ello.",
                 "success_3": "El token de sesión era válido y no estaba vencido.",
                 "success_4": "Los parámetros enviados en el Body coinciden con los que genera el SDK del Proyecto (No aplica para el Demo)."
             }
         },
+        "match_image": {
+            "title": "Compara tu biometría con una imagen",
+            "description": "Compara tu biometría con una imagen.",
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "La comparación de tu biometría con una imagen",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            },
+            "instructions": {
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
+                "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
+                "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
+                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_6": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
+
+                "success_1": "Criterios de éxito",
+                "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
+                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+            }
+        },
+        "estimate_age": {
+            "title": "Estimar edad de un registro de biometria",
+            "description": "Obtiene la edad de un registro de biometria",
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Obtener la edad de un registro de biometria",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            },
+            "instructions": {
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
+                "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
+                "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
+
+                "success_1": "Criterios de éxito",
+                "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
+                "success_3": "2. Los parámetros enviados en el Body son los requeridos."
+            }
+        },
+        "match_2_image": {
+            "title": "Compara 2 imagenes",
+            "description": "Compara los biometricos de 2 imagenes",
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Comparar 2 biometricos de imagenes",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            },
+            "instructions": {
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
+                "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
+                "description_4": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_5": "<strong>image0:</strong> Este parámetro es una imagen del rostro en base64.",
+                "description_6": "<strong>image1:</strong> Este parámetro es una imagen del rostro en base64.",
+
+                "success_1": "Criterios de éxito",
+                "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
+                "success_3": "2. Los parámetros enviados en el Body son los requeridos."
+            }
+        },
+        "liveness_image": {
+            "title": "Deteccion de vida en una imagen",
+            "description": "Deteccion de vida en una imagen.",
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Deteccion de vida en una imagen",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            },
+            "instructions": {
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
+                "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
+                "description_4": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
+
+                "success_1": "Criterios de éxito",
+                "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
+                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+            }
+        },
+        "estimate_age_image": {
+            "title": "Estimar edad de una imagen",
+            "description": "Obtiene la edad de una imagen",
+            "steps": {
+                "title_1": "Introducción",
+                "description_1": "Introduciendo como funciona el SDK",
+                "title_2": "Integración con Verifik",
+                "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
+                "title_3": "Demo!",
+                "description_3": "Obtener la edad de una imagen",
+                "title_4": "Resultados",
+                "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
+            },
+            "instructions": {
+                "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
+                "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
+                "description_4": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
+
+                "success_1": "Criterios de éxito",
+                "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
+                "success_3": "2. Los parámetros enviados en el Body son los requeridos."
+            }
+        },
         "categories": {
             "biometrics": "Biométrica"
-        },
-        "instructions": {
-            "liveness": {}
         },
         "credentials": {
             "client_token": "Llave secreta API",
             "external_database_ref_id": "Identificador único (Teléfono, email)",
-            "group": "Grupo (para agrupar las caras regitradas 1:N)"
+            "group": "Grupo (para agrupar las caras regitradas 1:N)",
+            "image": "Imagen",
+            "image0": "Imagen base",
+            "image1": "Imagen a comparar",
+            "min_match_level": "Minimo de coincidencia entre biometricos",
+
+            "uploadImage": "Subir Imagen"
         }
     },
     "demo": {

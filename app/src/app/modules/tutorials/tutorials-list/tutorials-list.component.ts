@@ -109,8 +109,8 @@ export class TutorialsListComponent implements OnInit {
         return item.id || index;
     }
 
-    seeTutorial(code: string): void {
-        this._router.navigate(['tutorials', `${this._tutorialService.tutorialsMapping[code].route}`]);
+    seeTutorial(route: string): void {
+        this._router.navigate(['tutorials', route]);
     }
 
 }

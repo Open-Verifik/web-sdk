@@ -324,6 +324,26 @@ export class KycService {
         })
     }
 
+    matchImage(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-image`, body, {})
+    }
+
+    match2Image(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-2-image`, body, {})
+    }
+
+    livenessImage(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/liveness-image`, body, {})
+    }
+
+    estimatedAgeImage(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/estimate-age-image`, body, {})
+    }
+
+    estimatedAge(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/estimate-age`, body, {})
+    }
+
     getBiometrics(): Observable < any > {
         return this._httpWrapper.sendRequest('get', `${this.baseUrl}v2/projects/biometrics`, {}, {})
     }

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectorRef,
     Component,
     OnDestroy,
     OnInit
@@ -40,7 +41,9 @@ export class TutorialInstructionsStepComponent implements OnInit, OnDestroy {
     constructor(
         private _route: ActivatedRoute,
         private _tutorialService: TutorialsService,
-        private translocoService: TranslocoService
+        private translocoService: TranslocoService,
+        private _changeDetectorRef: ChangeDetectorRef,
+
     ) {
         this.navData = this._tutorialService.navData;
     }
@@ -60,47 +63,8 @@ export class TutorialInstructionsStepComponent implements OnInit, OnDestroy {
 
         this.tutorial = this._tutorialService.getTutorial(routeParams.id);
 
-        this.instructions = this.translocoService.translate(this.tutorial.instructions);
-
-        switch (this.tutorial.route) {
-            case 'liveness':
-                this.livenessVariables = {
-                    "faceScan": "...",
-                    "auditTrailImage": "...",
-                    "lowQualityAuditTrailImage": "..."
-                };
-                break;
-            case 'enroll_face':
-                this.enrollFaceVariables = {
-                    "faceScan": "...",
-                    "auditTrailImage": "...",
-                    "lowQualityAuditTrailImage": "..."
-                };
-                break;
-            case 'authenticate_face':
-                this.authenticateVariables = {
-                    "faceScan": "...",
-                    "auditTrailImage": "...",
-                    "lowQualityAuditTrailImage": "..."
-                };
-
-                break;
-            case 'match_face_to_id': 
-                this.matchFaceToIDVariables = {
-                    "idScan": "...",
-                    "idScanFrontImage": "...",
-                    "idScanBackImage": "...",
-                };
-            case 'scan_ocr_id': 
-                this.OCRVariables = {
-                    "idScan": "...",
-                    "idScanFrontImage": "...",
-                    "idScanBackImage": "...",
-                };
-            break;
-            default:
-                break;
-        }
+        this.instructions = this.translocoService.translateObject(`tutorials.${this.tutorial.route}.instructions`);
+        
     }
 
     _observeNavigationChanges(): void {

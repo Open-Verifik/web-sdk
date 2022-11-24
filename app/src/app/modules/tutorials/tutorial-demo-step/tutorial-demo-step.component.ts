@@ -59,7 +59,7 @@ export class TutorialDemoStepComponent implements OnInit {
         this.token = localStorage.getItem('clientToken')
 
         this.externalId = localStorage.getItem('externalDatabaseRefId');
-        console.log(this.externalId)
+
         this.group = localStorage.getItem('group');
 
         if (!this.token) {
@@ -70,6 +70,26 @@ export class TutorialDemoStepComponent implements OnInit {
         this._getTutorial()
 
         this._observeNavigationChanges()
+    }
+
+    ngOnDestroy(): void {
+        this._unsubscribeAll.next(null);
+    }
+
+    successDemo(response) {
+        localStorage.setItem(this.tutorial.route, JSON.stringify(response, null, 2))
+        this._tutorialService.navData.currentStep = 3
+    }
+
+    async _getTutorial(): Promise < any > {
+        const routeParams = await this._route.params['_value'];
+
+        this.tutorial = this._tutorialService.getTutorial(routeParams.id);
+
+        if (this.tutorial.onlyEndpoint) {
+            this.biometricsReady = true;
+            return
+        }
 
         this._biometric = new BiometricV2(this._KycService, (isBiometricLibReady) => {
             if (isBiometricLibReady && this._biometric) {
@@ -78,50 +98,36 @@ export class TutorialDemoStepComponent implements OnInit {
         });
 
         this._biometric.session$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((isSuccess) => {
-                this.biometricsReady = isSuccess;
-            });
+        .subscribe((isSuccess) => {
+            this.biometricsReady = isSuccess;
+        });
 
         this._biometric.error$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((error) => {
-                this.errorLogin(error);
-                this.biometricsReady = false;
-                this._biometric.startSession();
-            });
-
-        const success = (response) => {
-            localStorage.setItem(this.tutorial.route, JSON.stringify(response, null, 2))
-            this._tutorialService.navData.currentStep = 3
-        }
+        .subscribe((error) => {
+            this.errorLogin(error);
+            this.biometricsReady = false;
+            this._biometric.startSession();
+        });
 
         this._biometric.onboardingBiometric$
-            .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-            .subscribe(success);
+        .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
+        .subscribe(this.successDemo);
 
         this._biometric.onboardingScan$
-            .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-            .subscribe(success);
+        .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
+        .subscribe(this.successDemo);
 
         this._biometric.liveness$
-            .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-            .subscribe(success);
+        .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
+        .subscribe(this.successDemo);
 
         this._biometric.auth$
-            .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-            .subscribe(success);
-    }
-
-    ngOnDestroy(): void {
-        this._unsubscribeAll.next(null);
-    }
-
-    async _getTutorial(): Promise < any > {
-        const routeParams = await this._route.params['_value'];
-
-        this.tutorial = this._tutorialService.getTutorial(routeParams.id);
+        .pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
+        .subscribe(this.successDemo);
     }
 
     startBiometrics(): void {
+        let parameters: any = {}
         switch (this.tutorial.route) {
             case 'liveness':
                 this._biometric.startLiveness();
@@ -141,6 +147,73 @@ export class TutorialDemoStepComponent implements OnInit {
                 break;
             case 'scan_ocr_id':
                 this._biometric.startIdScan()
+
+            case 'match_image':
+                parameters = {
+                    externalDatabaseRefID: this.externalId,
+                    image: localStorage.getItem('image'),
+                    minMatchLevel: localStorage.getItem('minMatchLevel')
+                };
+
+                this._KycService.matchImage(parameters).subscribe(response =>{
+                    this.successDemo(response.data)
+                }, (err) => {
+                    console.error(err)
+                });
+
+                break;
+
+            case 'match_2_image':
+                parameters = {
+                    image0: localStorage.getItem('image0'),
+                    image1: localStorage.getItem('image1'),
+                    minMatchLevel: localStorage.getItem('minMatchLevel')
+                };
+
+                this._KycService.match2Image(parameters).subscribe(response =>{
+                    this.successDemo(response.data)
+                }, (err) => {
+                    console.error(err)
+                });
+
+                break;
+            case 'liveness_image':
+                parameters = {
+                    image: localStorage.getItem('image')
+                };
+
+                this._KycService.livenessImage(parameters).subscribe(response =>{
+                    this.successDemo(response.data)
+                }, (err) => {
+                    console.error(err)
+                });
+
+                break;
+
+            case 'estimate_age_image':
+                parameters = {
+                    image: localStorage.getItem('image')
+                };
+
+                this._KycService.estimatedAgeImage(parameters).subscribe(response =>{
+                    console.log(response.data)
+                    this.successDemo(response.data)
+                }, (err) => {
+                    console.error(err)
+                });
+
+                break;
+
+            case 'estimate_age':
+                parameters = {
+                    externalDatabaseRefID: this.externalId,
+                };
+
+                this._KycService.estimatedAge(parameters).subscribe(response =>{
+                    this.successDemo(response.data)
+                }, (err) => {
+                    console.error(err)
+                });
 
                 break;
 

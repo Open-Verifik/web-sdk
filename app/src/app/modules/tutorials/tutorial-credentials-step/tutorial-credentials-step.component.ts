@@ -43,6 +43,8 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
     step = 1;
 
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
+    previewImg: boolean;
+    images: any[] = [];
 
     constructor(
         private _route: ActivatedRoute,
@@ -74,11 +76,19 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
 
     _initForm(): void {
         this.groupFields = {};
-
+        const needsGetLocalstorageData = !['enroll_face','match_face_to_id'].includes(this.tutorial.route)
         for (let index = 0; index < this.tutorial.fields.length; index++) {
             const field = this.tutorial.fields[index];
+            const dataFromStorage = needsGetLocalstorageData || field.key === 'clientToken'?localStorage.getItem(field.key):undefined
+            this.groupFields[field.key] = [ dataFromStorage, field.required ? Validators.required : null];
+        }
 
-            this.groupFields[field.key] = [localStorage.getItem(field.key), field.required ? Validators.required : null];
+        for (let index = 0; index < this.tutorial.images?.length; index++) {
+            const image = this.tutorial.images[index];
+
+            this.groupFields[image.key] = [, image.required ? Validators.required : null];
+
+            this.images[image.key] = './assets/images/camera.png';
         }
 
         this.credentialsForm = this._formBuilder.group(this.groupFields);
@@ -93,7 +103,7 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this._unsubscribeAll))
             .pipe(skip(1))
             .subscribe((changes: any) => {
-                if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm || (!this.credentialsForm.valid && changes === 1)) return;
+                if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm || (!this.credentialsForm.valid && changes.variable === 1)) return;
 
                 const keys = Object.keys(this.credentialsForm.value);
 
@@ -105,5 +115,25 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
 
                 this.navData.currentStep += changes.variable;
             });
+    }
+
+    fileChange(file, key): void {
+        const reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onloadend = (e) => {
+            let data = reader.result.toString();
+
+            this.images[key] = data
+
+            this.credentialsForm.controls[key].setValue(data.split('base64,')[1])
+
+            this._changeDetectorRef.markForCheck();
+        };
+    }
+
+    click(key): void {
+        document.getElementById(key).click()
     }
 }

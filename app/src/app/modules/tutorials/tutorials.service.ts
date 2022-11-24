@@ -28,41 +28,71 @@ export class TutorialsService {
      */
     constructor(private _httpClient: HttpClient) {
         this.tutorials = [{
-            category: 'tutorials.categories.biometrics',
-            title: 'tutorials.titles.liveness_detection',
-            description: 'tutorials.descriptions.liveness_detection',
+            category: 'biometrics',
+            route: 'liveness',
             duration: 10,
             progress: {
                 completed: true,
             }
         }, {
-            category: 'tutorials.categories.biometrics',
-            title: 'tutorials.titles.enroll_face',
-            description: 'tutorials.descriptions.enroll_face',
+            category: 'biometrics',
+            route: 'enroll_face',
             duration: 10,
             progress: {
                 completed: true,
             },
         }, {
-            category: 'tutorials.categories.biometrics',
-            title: 'tutorials.titles.authenticate_face',
-            description: 'tutorials.descriptions.authenticate_face',
+            category: 'biometrics',
+            route: 'authenticate_face',
             duration: 5,
             progress: {
                 completed: true,
             },
         }, {
-            category: 'tutorials.categories.biometrics',
-            title: 'tutorials.titles.match_face_to_id',
-            description: 'tutorials.descriptions.match_face_to_id',
+            category: 'biometrics',
+            route: 'match_face_to_id',
             duration: 10,
             progress: {
                 completed: true,
             },
         }, {
-            category: 'tutorials.categories.biometrics',
-            title: 'tutorials.titles.scan_ocr_id',
-            description: 'tutorials.descriptions.scan_ocr_id',
+            category: 'biometrics',
+            route: 'scan_ocr_id',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        }, {
+            category: 'biometrics',
+            route: 'estimate_age_image',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        }, {
+            category: 'biometrics',
+            route: 'liveness_image',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        }, {
+            category: 'biometrics',
+            route: 'match_2_image',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        }, {
+            category: 'biometrics',
+            route: 'estimate_age',
+            duration: 10,
+            progress: {
+                completed: true,
+            },
+        }, {
+            category: 'biometrics',
+            route: 'match_image',
             duration: 10,
             progress: {
                 completed: true,
@@ -72,6 +102,12 @@ export class TutorialsService {
         this.tutorialsMapping = {
             'tutorials.titles.liveness_detection': {
                 route: 'liveness',
+                endpoint: 'https://api.verifik.co/v2/biometrics/liveness',
+                parameters: {
+                    "faceScan": "...",
+                    "auditTrailImage": "...",
+                    "lowQualityAuditTrailImage": "..."
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.liveness.steps.title_1',
@@ -99,6 +135,12 @@ export class TutorialsService {
             },
             'tutorials.titles.enroll_face': {
                 route: 'enroll_face',
+                endpoint: 'https://api.verifik.co/v2/biometrics/enroll',
+                parameters: {
+                    "faceScan": "...",
+                    "auditTrailImage": "...",
+                    "lowQualityAuditTrailImage": "..."
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.enroll_face.steps.title_1',
@@ -137,6 +179,12 @@ export class TutorialsService {
             },
             'tutorials.titles.authenticate_face': {
                 route: 'authenticate_face',
+                endpoint: 'https://api.verifik.co/v2/biometrics/authenticate',
+                parameters: {
+                    "faceScan": "...",
+                    "auditTrailImage": "...",
+                    "lowQualityAuditTrailImage": "..."
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.authenticate_face.steps.title_1',
@@ -170,6 +218,12 @@ export class TutorialsService {
             },
             'tutorials.titles.match_face_to_id': {
                 route: 'match_face_to_id',
+                endpoint: 'https://api.verifik.co/v2/biometrics/match-idscan',
+                parameters: {
+                    "idScan": "...",
+                    "idScanFrontImage": "...",
+                    "idScanBackImage": "...",
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.match_face_to_id.steps.title_1',
@@ -208,7 +262,12 @@ export class TutorialsService {
             },
             'tutorials.titles.scan_ocr_id': {
                 route: 'scan_ocr_id',
-                params: {},
+                endpoint: 'https://api.verifik.co/v2/biometrics/idscan',
+                parameters: {
+                    "idScan": "...",
+                    "idScanFrontImage": "...",
+                    "idScanBackImage": "...",
+                },
                 sideMenuSteps: [{
                     order: 0,
                     title: 'tutorials.scan_ocr_id.steps.title_1',
@@ -232,6 +291,212 @@ export class TutorialsService {
                     type: 'textarea',
                     required: true,
                 }, ],
+            },
+            'tutorials.titles.estimate_age_image': {
+                route: 'estimate_age_image',
+                onlyEndpoint: true,
+                endpoint: 'https://api.verifik.co/v2/biometrics/estimate-age-image',
+                parameters: {
+                    "image": "...",
+                },
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.estimate_age_image.steps.title_1',
+                    subtitle: 'tutorials.estimate_age_image.steps.description_1',
+                }, {
+                    order: 1,
+                    title: 'tutorials.estimate_age_image.steps.title_2',
+                    subtitle: 'tutorials.estimate_age_image.steps.description_2',
+                }, {
+                    order: 2,
+                    title: 'tutorials.estimate_age_image.steps.title_3',
+                    subtitle: 'tutorials.estimate_age_image.steps.description_3',
+                }, {
+                    order: 3,
+                    title: 'tutorials.estimate_age_image.steps.title_4',
+                    subtitle: 'tutorials.estimate_age_image.steps.description_4',
+                }, ],
+                fields: [{
+                    key: 'clientToken',
+                    label: 'tutorials.credentials.client_token',
+                    type: 'textarea',
+                    required: true,
+                }, ],
+                images: [{
+                    key: 'image',
+                    label: 'tutorials.credentials.image',
+                    required: true,
+                }]
+            },
+            'tutorials.titles.liveness_image': {
+                route: 'liveness_image',
+                onlyEndpoint: true,
+                endpoint: 'https://api.verifik.co/v2/biometrics/liveness-image',
+                parameters: {
+                    "image": "...",
+                },
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.liveness_image.steps.title_1',
+                    subtitle: 'tutorials.liveness_image.steps.description_1',
+                }, {
+                    order: 1,
+                    title: 'tutorials.liveness_image.steps.title_2',
+                    subtitle: 'tutorials.liveness_image.steps.description_2',
+                }, {
+                    order: 2,
+                    title: 'tutorials.liveness_image.steps.title_3',
+                    subtitle: 'tutorials.liveness_image.steps.description_3',
+                }, {
+                    order: 3,
+                    title: 'tutorials.liveness_image.steps.title_4',
+                    subtitle: 'tutorials.liveness_image.steps.description_4',
+                }, ],
+                fields: [{
+                    key: 'clientToken',
+                    label: 'tutorials.credentials.client_token',
+                    type: 'textarea',
+                    required: true,
+                }, ],
+                images: [{
+                    key: 'image',
+                    label: 'tutorials.credentials.image',
+                    required: true,
+                }]
+            },
+            'tutorials.titles.match_2_image': {
+                route: 'match_2_image',
+                onlyEndpoint: true,
+                endpoint: 'https://api.verifik.co/v2/biometrics/match-2-image',
+                parameters: {
+                    "image0": "...",
+                    "image1": "...",
+                    "minMatchLevel": "...",
+                },
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.match_2_image.steps.title_1',
+                    subtitle: 'tutorials.match_2_image.steps.description_1',
+                }, {
+                    order: 1,
+                    title: 'tutorials.match_2_image.steps.title_2',
+                    subtitle: 'tutorials.match_2_image.steps.description_2',
+                }, {
+                    order: 2,
+                    title: 'tutorials.match_2_image.steps.title_3',
+                    subtitle: 'tutorials.match_2_image.steps.description_3',
+                }, {
+                    order: 3,
+                    title: 'tutorials.match_2_image.steps.title_4',
+                    subtitle: 'tutorials.match_2_image.steps.description_4',
+                }, ],
+                fields: [{
+                    key: 'clientToken',
+                    label: 'tutorials.credentials.client_token',
+                    type: 'textarea',
+                    required: true,
+                },{
+                    key: 'minMatchLevel',
+                    label: 'tutorials.credentials.min_match_level',
+                    type: 'input',
+                    required: false,
+                }, ],
+                images: [{
+                    key: 'image0',
+                    label: 'tutorials.credentials.image0',
+                    required: true,
+                },{
+                    key: 'image1',
+                    label: 'tutorials.credentials.image1',
+                    required: true,
+                }]
+            },
+            'tutorials.titles.estimate_age': {
+                route: 'estimate_age',
+                onlyEndpoint: true,
+                endpoint: 'https://api.verifik.co/v2/biometrics/estimate-age',
+                parameters: {
+                    "externalDatabaseRefID": "...",
+                },
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.estimate_age.steps.title_1',
+                    subtitle: 'tutorials.estimate_age.steps.description_1',
+                }, {
+                    order: 1,
+                    title: 'tutorials.estimate_age.steps.title_2',
+                    subtitle: 'tutorials.estimate_age.steps.description_2',
+                }, {
+                    order: 2,
+                    title: 'tutorials.estimate_age.steps.title_3',
+                    subtitle: 'tutorials.estimate_age.steps.description_3',
+                }, {
+                    order: 3,
+                    title: 'tutorials.estimate_age.steps.title_4',
+                    subtitle: 'tutorials.estimate_age.steps.description_4',
+                }, ],
+                fields: [{
+                    key: 'clientToken',
+                    label: 'tutorials.credentials.client_token',
+                    type: 'textarea',
+                    required: true,
+                }, {
+                    key: 'externalDatabaseRefId',
+                    label: 'tutorials.credentials.external_database_ref_id',
+                    type: 'input',
+                    required: true,
+                }, ],
+            },
+            'tutorials.titles.match_image': {
+                route: 'match_image',
+                onlyEndpoint: true,
+                endpoint: 'https://api.verifik.co/v2/biometrics/match-image',
+                parameters: {
+                    "externalDatabaseRefID": "...",
+                    "image": "...",
+                    "minMatchLevel": "...",
+                },
+                sideMenuSteps: [{
+                    order: 0,
+                    title: 'tutorials.match_image.steps.title_1',
+                    subtitle: 'tutorials.match_image.steps.description_1',
+                }, {
+                    order: 1,
+                    title: 'tutorials.match_image.steps.title_2',
+                    subtitle: 'tutorials.match_image.steps.description_2',
+                }, {
+                    order: 2,
+                    title: 'tutorials.match_image.steps.title_3',
+                    subtitle: 'tutorials.match_image.steps.description_3',
+                }, {
+                    order: 3,
+                    title: 'tutorials.match_image.steps.title_4',
+                    subtitle: 'tutorials.match_image.steps.description_4',
+                }, ],
+                fields: [{
+                        key: 'clientToken',
+                        label: 'tutorials.credentials.client_token',
+                        type: 'textarea',
+                        required: true,
+                    },
+                    {
+                        key: 'externalDatabaseRefId',
+                        label: 'tutorials.credentials.external_database_ref_id',
+                        type: 'input',
+                        required: true,
+                    },
+                    {
+                        key: 'minMatchLevel',
+                        label: 'tutorials.credentials.min_match_level',
+                        type: 'input',
+                        required: false,
+                    },
+                ],
+                images: [{
+                    key: 'image',
+                    label: 'tutorials.credentials.image',
+                    required: true,
+                }]
             },
         }
     }

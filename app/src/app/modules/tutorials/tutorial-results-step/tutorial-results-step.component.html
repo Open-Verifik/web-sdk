@@ -17,15 +17,16 @@
                 <div class="text-lg font-bold">
                     {{ 'kyc.identity_validation.information' | transloco }}
                 </div>
-                <div class="mt-5"><b>{{'kyc.identity_validation.document'| transloco }}:</b> {{ocrData.idInfo.idNumber}}</div>
+                <div class="mt-5"><b>{{'kyc.identity_validation.document'| transloco }}:</b> {{ocrData.idInfo.idNumber}}
+                </div>
 
                 <div><b>{{'kyc.basic.first_name'| transloco }}:</b> {{ocrData.userInfo.firstName}}</div>
                 <div><b>{{'kyc.basic.last_name'| transloco }}:</b> {{ocrData.userInfo.lastName}}</div>
                 <div><b>{{'kyc.basic.dateOfBirth'| transloco }}:</b> {{ocrData.userInfo.dateOfBirth}}</div>
 
             </fuse-card>
-            <fuse-card *ngIf="results?.idScanUrl"
-                class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" [flippable]="true" #documentScan>
+            <fuse-card *ngIf="results?.idScanUrl" class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2"
+                [flippable]="true" #documentScan>
                 <!-- Front -->
                 <ng-container fuseCardFront>
                     <div class="flex flex-col px-8 py-6 pb-3">
@@ -59,20 +60,55 @@
                     </div>
                 </ng-container>
             </fuse-card>
-            <fuse-card *ngIf="results?.faceUrl"
-                class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" #fuseCard>
-                <div class="flex items-start justify-between  px-8 py-6 pb-3">
-                    <div class="flex flex-col items-center mt-2">
-                        <div class="text-lg font-medium tracking-tight leading-6 truncate">
-                            {{ 'kyc.identity_validation.biometric' | transloco }}
+            <div
+                *ngIf="['estimateAgeImage','livenessImage','match2Image', 'matchImage'].includes(results?.type); then thenBlock else elseBlock">
+            </div>
+            <ng-template #thenBlock>
+                <fuse-card class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" #fuseCard>
+                    <div class="flex items-start justify-between  px-8 py-6 pb-3">
+                        <div class="flex flex-col items-center mt-2">
+                            <div class="text-lg font-medium tracking-tight leading-6 truncate">
+                                {{ 'kyc.identity_validation.biometricImage' | transloco }}
+                            </div>
+                            <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
+                                <img src="{{results.faceUrl}}{{results.faceUrl.at(-1) === '=' ? 'source' : ''}}">
+                            </div>
+                            <div class="text-lg font-medium tracking-tight leading-6 truncate" *ngIf="results.ageEstimateGroup">
+                                {{ results.ageEstimateGroup | transloco }}
+                            </div>
                         </div>
-                        <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
-                            <img src="{{results.faceUrl}}">
-                        </div>
-
                     </div>
-                </div>
-            </fuse-card>
+                </fuse-card>
+                <fuse-card *ngIf="results.type === 'match2Image'"
+                    class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" #fuseCard2>
+                    <div class="flex items-start justify-between  px-8 py-6 pb-3">
+                        <div class="flex flex-col items-center mt-2">
+                            <div class="text-lg font-medium tracking-tight leading-6 truncate">
+                                {{ 'kyc.identity_validation.biometricImage2' | transloco }}
+                            </div>
+                            <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
+                                <img src="{{results.faceUrl}}target">
+                            </div>
+                        </div>
+                    </div>
+                </fuse-card>
+            </ng-template>
+
+            <ng-template #elseBlock>
+                <fuse-card *ngIf="results?.faceUrl" class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2"
+                    #fuseCard>
+                    <div class="flex items-start justify-between  px-8 py-6 pb-3">
+                        <div class="flex flex-col items-center mt-2">
+                            <div class="text-lg font-medium tracking-tight leading-6 truncate">
+                                {{ 'kyc.identity_validation.biometric' | transloco }}
+                            </div>
+                            <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
+                                <img src="{{results.faceUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </fuse-card>
+            </ng-template>
         </div>
         <textarea fuse-highlight lang="JSON" code="{{resultstxt}}">
         </textarea>

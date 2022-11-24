@@ -110,6 +110,10 @@ export class TutorialComponent implements OnInit, OnDestroy {
 
         this.tutorial = this._tutorialService.getTutorial(routeParams.id);
 
+        if(!this.tutorial){
+            return
+        }
+
         this.sideMenuSteps = this.tutorial.sideMenuSteps;
     }
 
