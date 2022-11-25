@@ -61,6 +61,10 @@ import {
 import {
   MatProgressSpinnerModule
 } from '@angular/material/progress-spinner';
+
+import {
+  FuseAlertModule
+} from '@fuse/components/alert';
 import { TranslocoModule } from '@ngneat/transloco';
 import { TutorialInstructionsStepComponent } from './tutorial-instructions-step/tutorial-instructions-step.component';
 import { TutorialCredentialsStepComponent } from './tutorial-credentials-step/tutorial-credentials-step.component';
@@ -95,7 +99,8 @@ import { FuseHighlightModule } from '@fuse/components/highlight';
     MatTabsModule,
     FuseHighlightModule,
     FuseCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    FuseAlertModule,
   ]
 })
 export class TutorialsModule {}

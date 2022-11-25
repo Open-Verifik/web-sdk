@@ -23,11 +23,13 @@ import {
 import {
     Subject
 } from 'rxjs';
+import { fuseAnimations } from '@fuse/animations';
 
 @Component({
     selector: 'app-tutorial-demo-step',
     templateUrl: './tutorial-demo-step.component.html',
-    styleUrls: ['./tutorial-demo-step.component.scss']
+    styleUrls: ['./tutorial-demo-step.component.scss'],
+    animations   : fuseAnimations
 })
 export class TutorialDemoStepComponent implements OnInit {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
@@ -104,7 +106,7 @@ export class TutorialDemoStepComponent implements OnInit {
 
         this._biometric.error$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
         .subscribe((error) => {
-            this.errorLogin(error);
+            this.errorDemo(error);
             this.biometricsReady = false;
             this._biometric.startSession();
         });
@@ -181,7 +183,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.match2Image(parameters).subscribe(response =>{
                     this.successDemo(response.data)
                 }, (err) => {
-                    console.error(err)
+                    this.errorDemo(err);
                 });
                 break;
             case 'liveness_image':
@@ -192,7 +194,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.livenessImage(parameters).subscribe(response =>{
                     this.successDemo(response.data)
                 }, (err) => {
-                    console.error(err)
+                    this.errorDemo(err);
                 });
                 break;
 
@@ -205,7 +207,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     console.log(response.data)
                     this.successDemo(response.data)
                 }, (err) => {
-                    console.error(err)
+                    this.errorDemo(err);
                 });
                 break;
 
@@ -217,14 +219,14 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.estimatedAge(parameters).subscribe(response =>{
                     this.successDemo(response.data)
                 }, (err) => {
-                    console.error(err)
+                    this.errorDemo(err);
                 });
                 break;
 
         }
     }
 
-    errorLogin(error: string) {
+    errorDemo(error: string) {
         this.alert = {
             type: 'error',
             message: error,
