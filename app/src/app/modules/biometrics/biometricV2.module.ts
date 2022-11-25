@@ -25,6 +25,7 @@ import {
     FaceTecSessionResult
 } from 'assets/biometricsV2/sdk/FaceTecPublicApi';
 
+const cacheKeys = ['ft.fsh', 'ft.ic', 'zoom.installationID', 'zoom.lk']
 
 export class BiometricV2 {
     private _session: BehaviorSubject < boolean > = new BehaviorSubject(null);
@@ -73,7 +74,12 @@ export class BiometricV2 {
         return this
     }
 
+
     _loadConfig(callback: any): void {
+        cacheKeys.forEach(key => {
+            localStorage.removeItem(key)
+        })
+
         this._service.getBiometricsV2().subscribe((response: any) => {
             const config: Array < any > = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
 
