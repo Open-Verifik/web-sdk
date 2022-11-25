@@ -137,7 +137,10 @@
         "Fail_register_biometrics": "Problemas al registrar su datos.",
         "notification_prefix": "Respuesta",
         "email_cannot_be_registered": "Correo electrónico no puede registrarse, por favor contactar al equipo de soporte",
-        "phone_cannot_be_registered": "Teléfono no puede registrarse, por favor contactar al equipo de soporte"
+        "phone_cannot_be_registered": "Teléfono no puede registrarse, por favor contactar al equipo de soporte",
+        "Already_exists_externalDatabaseRefID":"El externalDatabaseRefID ya esta registrado",
+        "externalDatabaseRefID_not_found":"El externalDatabaseRefID no fue encontrado",
+        "Face_already_exists": "Los biometricos ya estan registrados en el grupo"
     },
     "mockApi": {
         "Record_not_found": "Sin Registrar",
