@@ -8,6 +8,7 @@ import {
     BehaviorSubject,
     Observable
 } from 'rxjs';
+import { Router } from '@angular/router';
 
 
 @Injectable({
@@ -22,32 +23,38 @@ export class TutorialsService {
     };
 
     private _navigationHandler: BehaviorSubject < any | null > = new BehaviorSubject(null);
+    activeTut: any;
 
     /**
      * Constructor
      */
-    constructor(private _httpClient: HttpClient) {
+    constructor(private _httpClient: HttpClient,
+                private _router: Router,
+        ) {
         this.tutorials = [{
                 category: 'biometrics',
                 route: 'liveness',
                 duration: 10,
                 progress: {
                     completed: true,
-                }
+                },
+                steps: 4
             }, {
                 category: 'biometrics',
                 route: 'enroll_face',
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, 
+                steps:4
             }, {
                 category: 'biometrics',
                 route: 'authenticate_face',
                 duration: 5,
                 progress: {
                     completed: true,
-                },
+                }, 
+                steps:4
             }, {
                 category: 'biometrics',
                 route: 'match_face_to_id',
@@ -55,44 +62,50 @@ export class TutorialsService {
                 progress: {
                     completed: true,
                 },
+                steps:4
             }, {
                 category: 'biometrics',
                 route: 'scan_ocr_id',
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, 
+                step:4
             }, {
                 category: 'biometrics',
                 route: 'estimate_age_image',
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, 
+                step:4
             }, {
                 category: 'biometrics',
                 route: 'liveness_image',
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, step:4
             }, {
                 category: 'biometrics',
                 route: 'match_2_image',
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, 
+                step:4
             }, {
                 category: 'biometrics',
                 route: 'estimate_age',
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, 
+                step:4
             }, {
                 category: 'biometrics',
-                route: 'match_image',
+                route: 'match_image', 
+                step:4
             },
             {
                 category: 'biometrics',
@@ -100,7 +113,8 @@ export class TutorialsService {
                 duration: 10,
                 progress: {
                     completed: true,
-                },
+                }, 
+                step:4
             }, {
                 category: 'passwordless',
                 route: 'passwordless',
@@ -108,6 +122,7 @@ export class TutorialsService {
                 progress: {
                     completed: true,
                 },
+                steps:1
             }, {
                 category: 'kyc',
                 route: 'kyc',
@@ -115,6 +130,7 @@ export class TutorialsService {
                 progress: {
                     completed: true,
                 },
+                steps:1
             }
         ];
 
@@ -546,6 +562,10 @@ export class TutorialsService {
     navigationChange(changes: any): void {
         if (!changes) return;
 
+        if(this.navData.currentStep +1 === this.activeTut.sideMenuSteps.length){
+            this._router.navigate(['/'])
+            return;  
+        }
         this._navigationHandler.next(changes);
     }
 
@@ -553,9 +573,11 @@ export class TutorialsService {
         for (const title in this.tutorialsMapping) {
             const tutorial = this.tutorialsMapping[title];
 
-            if (tutorial.route === route) return tutorial;
+            if (tutorial.route === route) {
+                this.activeTut =  tutorial;
+                return tutorial;
+            }
         }
-
         return null;
     }
 

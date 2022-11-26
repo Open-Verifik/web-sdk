@@ -7,7 +7,11 @@
     "male": "Hombre",
     "female": "Mujer",
     "change_language": "Cambiar idioma",
-
+    "previous": "Previo",
+    "next": "Siguiente",
+    "error":{
+        "credentials": "Llene las propiedades requeridas, para continuar con el tutorial"
+    },
     "start": {
         "title": "Crea una nueva cuenta",
         "existing_account_label": "Ya estás registrado?",

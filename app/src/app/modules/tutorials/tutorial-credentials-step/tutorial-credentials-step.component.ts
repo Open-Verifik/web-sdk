@@ -25,10 +25,12 @@ import {
 import {
     TutorialsService
 } from '../tutorials.service';
+import { errorHandlerComponent } from '../error-handler.component';
 
 import {
     v4 as uuidv4
 } from 'uuid';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
     selector: 'app-tutorial-credentials-step',
     templateUrl: './tutorial-credentials-step.component.html',
@@ -45,12 +47,14 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
     previewImg: boolean;
     images: any[] = [];
+    lang: string;
 
     constructor(
         private _route: ActivatedRoute,
         private _tutorialService: TutorialsService,
         private translocoService: TranslocoService,
         private _formBuilder: FormBuilder,
+        private _snackBar: MatSnackBar,
         private _changeDetectorRef: ChangeDetectorRef,
     ) {
         this.navData = this._tutorialService.navData;
@@ -64,6 +68,21 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this._unsubscribeAll.next(null);
+    }
+
+    errorHandler(message, type, timer = 2000): void {
+        this._snackBar.openFromComponent(errorHandlerComponent, {
+            data: message,
+            duration: timer,
+            panelClass: [type === 'error' ? 'redError' : 'blueSuccess']
+        });
+    }
+
+    _langObserver():void{
+        this.translocoService.langChanges$.pipe(takeUntil(this._unsubscribeAll))
+			.subscribe((result)=>{
+				this.lang = result;
+        })
     }
 
     async _getTutorial(): Promise < any > {
@@ -103,7 +122,10 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this._unsubscribeAll))
             .pipe(skip(1))
             .subscribe((changes: any) => {
-                if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm || (!this.credentialsForm.valid && changes.variable === 1)) return;
+                if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm || (!this.credentialsForm.valid && changes.variable === 1)){
+                    this.errorHandler(this.translocoService.translate(`error.credentials`, {}, this.lang), 'error', 5000);
+                    return;
+                } 
 
                 const keys = Object.keys(this.credentialsForm.value);
 
