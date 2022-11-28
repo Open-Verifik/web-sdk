@@ -85,6 +85,7 @@ import {
 import {
   FuseHighlightModule
 } from '@fuse/components/highlight';
+import { LanguagesModule } from 'app/layout/common/languages/languages.module';
 @NgModule({
   declarations: [
     TutorialsListComponent,
@@ -115,7 +116,8 @@ import {
     FuseCardModule,
     MatProgressSpinnerModule,
     FuseAlertModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    LanguagesModule
   ]
 })
 export class TutorialsModule {}
