@@ -4,7 +4,7 @@
 
 export const environment = {
     production: false,
-    baseUrl: 'http://localhost:3003/',
+    baseUrl: 'http://localhost:3001/',
     projectId: '6266193db77ccc8111730c90',
 };
 

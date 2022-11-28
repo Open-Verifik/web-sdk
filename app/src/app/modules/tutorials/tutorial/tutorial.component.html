@@ -105,7 +105,7 @@
                     <div class="flex items-center justify-center mx-auto p-2 rounded-full shadow-lg bg-primary">
                         <button class="flex-0" mat-flat-button [color]="'primary'" (click)="goToPreviousStep()">
                             <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-narrow-left'"></mat-icon>
-                            <span class="mr-1">Prev</span>
+                            <span class="mr-1">{{ 'previous' | transloco}}</span>
                         </button>
                         <div class="flex items-center justify-center mx-2.5 font-medium leading-5 text-on-primary">
                             <span>{{navData.currentStep + 1}}</span>
@@ -113,7 +113,7 @@
                             <span>{{sideMenuSteps.length}}</span>
                         </div>
                         <button class="flex-0" mat-flat-button [color]="'primary'" (click)="goToNextStep()">
-                            <span class="ml-1">Next</span>
+                            <span class="ml-1">{{ 'next' | transloco}}</span>
                             <mat-icon class="ml-2" [svgIcon]="'heroicons_outline:arrow-narrow-right'"></mat-icon>
                         </button>
                     </div>

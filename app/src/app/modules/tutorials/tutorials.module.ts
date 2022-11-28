@@ -61,16 +61,30 @@ import {
 import {
   MatProgressSpinnerModule
 } from '@angular/material/progress-spinner';
-
 import {
   FuseAlertModule
 } from '@fuse/components/alert';
-import { TranslocoModule } from '@ngneat/transloco';
-import { TutorialInstructionsStepComponent } from './tutorial-instructions-step/tutorial-instructions-step.component';
-import { TutorialCredentialsStepComponent } from './tutorial-credentials-step/tutorial-credentials-step.component';
-import { TutorialDemoStepComponent } from './tutorial-demo-step/tutorial-demo-step.component';
-import { TutorialResultsStepComponent } from './tutorial-results-step/tutorial-results-step.component';
-import { FuseHighlightModule } from '@fuse/components/highlight';
+import {
+  MatSnackBarModule
+} from '@angular/material/snack-bar';
+import {
+  TranslocoModule
+} from '@ngneat/transloco';
+import {
+  TutorialInstructionsStepComponent
+} from './tutorial-instructions-step/tutorial-instructions-step.component';
+import {
+  TutorialCredentialsStepComponent
+} from './tutorial-credentials-step/tutorial-credentials-step.component';
+import {
+  TutorialDemoStepComponent
+} from './tutorial-demo-step/tutorial-demo-step.component';
+import {
+  TutorialResultsStepComponent
+} from './tutorial-results-step/tutorial-results-step.component';
+import {
+  FuseHighlightModule
+} from '@fuse/components/highlight';
 @NgModule({
   declarations: [
     TutorialsListComponent,
@@ -101,6 +115,7 @@ import { FuseHighlightModule } from '@fuse/components/highlight';
     FuseCardModule,
     MatProgressSpinnerModule,
     FuseAlertModule,
+    MatSnackBarModule
   ]
 })
 export class TutorialsModule {}
