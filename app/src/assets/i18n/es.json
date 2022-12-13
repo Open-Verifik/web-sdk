@@ -113,6 +113,7 @@
         "required_authenticator_otp": "código de autenticación es requerido"
     },
     "errors": {
+        "imageToBig": "La imagen es muy grande",
         "incorrect_document_information": "La informacion de tu documento es incorrecta.",
         "Record_not_found": "Registro no encontrado en el sistema.",
         "Fail_login_biometrics": "Tus biometricos no coinciden.",

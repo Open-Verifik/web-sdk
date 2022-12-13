@@ -131,8 +131,13 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
 
                 for (let index = 0; index < keys.length; index++) {
                     const key = keys[index];
-                    if( this.credentialsForm.value[key] &&  !['undefined', 'null'].includes(this.credentialsForm.value[key]) ){
-                        localStorage.setItem(key, this.credentialsForm.value[key]);
+                    if( this.credentialsForm.value[key] &&  !['undefined', 'null', null, undefined].includes(this.credentialsForm.value[key]) ){
+                        try {
+                            localStorage.setItem(key, this.credentialsForm.value[key]);
+                        } catch (error) {
+                            this.errorHandler(this.translocoService.translate(`errors.imageToBig`, {}, this.lang), 'error', 5000)
+                            return
+                        }
                     }else{
                         localStorage.removeItem(key);
                     }

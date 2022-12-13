@@ -57,6 +57,16 @@ export class TutorialResultsStepComponent implements OnInit {
 
     this.resultstxt = localStorage.getItem(this.tutorial.route)
 
+    this.tutorial.fields.forEach(field => {
+      if(['externalDatabaseRefId','clientToken'].includes(field.key) ){
+        return
+      }
+
+      localStorage.removeItem(field.key)
+    });
+
+    localStorage.removeItem(this.tutorial.route)
+
     if (!this.resultstxt) {
       this._tutorialService.navData.currentStep = 2
       return
