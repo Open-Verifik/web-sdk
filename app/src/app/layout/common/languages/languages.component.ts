@@ -52,12 +52,13 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 
         // Subscribe to language changes
         this._translocoService.langChanges$.subscribe((activeLang) => {
-
             // Get the active lang
             this.activeLang = activeLang;
 
             // Update the navigation
-            this._updateNavigation(activeLang);
+            // this._updateNavigation(activeLang);
+
+            // this._changeDetectorRef.markForCheck();
         });
 
         // Set the country iso codes for languages for flags
@@ -83,9 +84,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
      */
     setActiveLang(lang: string): void {
         // Set the active lang
-        localStorage.setItem('lang', 'en');
+        localStorage.setItem('lang', lang);
 
-        this._translocoService.setActiveLang('en');
+        this._translocoService.setActiveLang(lang);
     }
 
     /**
@@ -119,9 +120,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
         // Get the component -> navigation data -> item
         const navComponent = this._fuseNavigationService.getComponent < FuseVerticalNavigationComponent > ('mainNavigation');
 
-        console.log({
-            navComponent
-        });
+        // console.log({
+        //     navComponent
+        // });
 
         // Return if the navigation component does not exist
         if (!navComponent) {

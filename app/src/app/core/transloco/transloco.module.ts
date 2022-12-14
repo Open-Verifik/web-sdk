@@ -54,10 +54,6 @@ import {
 
                 translocoService.setActiveLang(defaultLang);
 
-                console.log({
-                    defaultLang
-                });
-
                 return translocoService.load(defaultLang).toPromise();
             },
             multi: true
