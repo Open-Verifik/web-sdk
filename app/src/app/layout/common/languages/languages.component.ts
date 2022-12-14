@@ -83,9 +83,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
      */
     setActiveLang(lang: string): void {
         // Set the active lang
-        localStorage.setItem('lang', lang);
- 
-        this._translocoService.setActiveLang(lang);
+        localStorage.setItem('lang', 'en');
+
+        this._translocoService.setActiveLang('en');
     }
 
     /**
@@ -118,6 +118,10 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 
         // Get the component -> navigation data -> item
         const navComponent = this._fuseNavigationService.getComponent < FuseVerticalNavigationComponent > ('mainNavigation');
+
+        console.log({
+            navComponent
+        });
 
         // Return if the navigation component does not exist
         if (!navComponent) {

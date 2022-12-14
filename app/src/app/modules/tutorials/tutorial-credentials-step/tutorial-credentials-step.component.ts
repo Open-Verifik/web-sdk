@@ -45,9 +45,10 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
     step = 1;
 
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
+    
     previewImg: boolean;
+
     images: any[] = [];
-    lang: string;
 
     constructor(
         private _route: ActivatedRoute,
@@ -76,13 +77,6 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
             duration: timer,
             panelClass: [type === 'error' ? 'redError' : 'blueSuccess']
         });
-    }
-
-    _langObserver():void{
-        this.translocoService.langChanges$.pipe(takeUntil(this._unsubscribeAll))
-			.subscribe((result)=>{
-				this.lang = result;
-        })
     }
 
     async _getTutorial(): Promise < any > {
@@ -123,7 +117,7 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
             .pipe(skip(1))
             .subscribe((changes: any) => {
                 if (!changes || this.navData.currentStep !== this.step || !this.credentialsForm || (!this.credentialsForm.valid && changes.variable === 1)){
-                    this.errorHandler(this.translocoService.translate(`error.credentials`, {}, this.lang), 'error', 5000);
+                    this.errorHandler(this.translocoService.translate(`error.credentials`, {}), 'error', 5000);
                     return;
                 } 
 
@@ -135,7 +129,7 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
                         try {
                             localStorage.setItem(key, this.credentialsForm.value[key]);
                         } catch (error) {
-                            this.errorHandler(this.translocoService.translate(`errors.imageToBig`, {}, this.lang), 'error', 5000)
+                            this.errorHandler(this.translocoService.translate(`errors.imageToBig`, {}), 'error', 5000)
                             return
                         }
                     }else{
