@@ -200,6 +200,16 @@
             "passwordless": "Log in using OTPs, ditch vulnerable passwords for ever.",
             "kyc": "Handle the registration of your new users in an intelligent way, no-code solution"
         },
+        "integration_steps": {
+            "how_to_start": "How to get started?",
+            "step_1_title": "Step 1",
+            "step_1_content": "Verifik is a platform that sells Verification, Authentication and Data Verification services. By combining all Verifik services you can have a complete solution. Create an account within <a href='https://verifik.co'> <strong>https://verifik.co </strong> </a> to start enjoying our services in an easy and simple way to integrate.",
+            "step_2_title": "Step 2",
+            "step_2_content": "Go to your dashboard at <a href='https://app.verifik.co'> <strong>https://app.verifik.co </strong> </a> and you will find at the end of the page your private key (JWT) to copy, in it we have your necessary information to validate your permissions and available credits to use the logic in this tutorial.",
+            "step_3_title": "Private key & required params",
+            "step_3_content": "The private key needs to be fully pasted here in order to execute the code correctly.",
+            "jwt_key": "Private key (JWT)"
+        },
         "liveness": {
             "title": "Liveness Check",
             "description": "Perform a liveness check in the user's FaceScan in order to identify if the person is who they claim to be and if they are present at the time of validation",
@@ -412,7 +422,7 @@
             }
         },
         "liveness_image": {
-            "title": "Liveness Detection",
+            "title": "Image Liveness Detection",
             "description": "Detect liveness or humanity off an image.",
             "steps": {
               "title_1": "Introduction",
@@ -531,7 +541,7 @@
             "passwordless": "Passwordless Logins"
         },
         "credentials": {
-            "client_token": "Client Token API",
+            "client_token": "Private key (JWT)",
             "external_database_ref_id": "Unique identifier (Telephone, email)",
             "group": "Group (for grouping the 1:N registered faces)",
             "image": "Image",

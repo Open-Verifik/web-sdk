@@ -201,6 +201,16 @@
             "passwordless": "Inicia sesion sin contraseña, utilizando codigos de un solo uso, olvidate de contraseñas vulnerables.",
             "kyc": "Lleva a cargo el registro de tus nuevos usuarios de manera inteligente, sin codificacion"
         },
+        "integration_steps": {
+            "how_to_start": "¿Cómo empezar?",
+            "step_1_title": "Paso 1",
+            "step_1_content": "Verifik es una plataforma que vende servicios de Verificación , autenticación y comprobación de datos. Al combinar todos los los servicios de Verifik puedes tener una solución completa. Crea una cuenta dentro de <a href='https://verifik.co'> <strong>https://verifik.co </strong> </a> para empezar a disfrutar de nuestros servicios de una manera fácil y sencilla de integrar.",
+            "step_2_title": "Paso 2",
+            "step_2_content": "Ve a tu dashboard en <a href='https://app.verifik.co'> <strong>https://app.verifik.co </strong> </a> y encontrarás en la parte final de la página tu llave a copiar, en ella tenemos tu información necesaria para validar tus permisos y créditos disponibles para utilizar la lógica en este tutorial.",
+            "step_3_title": "Llave secreta & propiedades requeridas",
+            "step_3_content": "La llave secreta la necesitas pegar por completo aquí para poder ejecutar el código de manera correcta.",
+            "jwt_key": "Llave privada (JWT)"
+        },
         "liveness": {
             "title": "Detección de vida",
             "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
@@ -532,14 +542,13 @@
             "passwordless": "Sin contraseñas"
         },
         "credentials": {
-            "client_token": "Llave secreta API",
+            "client_token": "Llave secreta (JWT)",
             "external_database_ref_id": "Identificador único (Teléfono, email)",
             "group": "Grupo (para agrupar las caras regitradas 1:N)",
             "image": "Imagen",
             "image0": "Imagen base",
             "image1": "Imagen a comparar",
             "min_match_level": "Minimo de coincidencia entre biometricos",
-
             "uploadImage": "Subir Imagen"
         }
     },
