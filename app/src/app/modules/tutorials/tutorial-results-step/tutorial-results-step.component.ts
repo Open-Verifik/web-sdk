@@ -65,7 +65,7 @@ export class TutorialResultsStepComponent implements OnInit {
       localStorage.removeItem(field.key)
     });
 
-    localStorage.removeItem(this.tutorial.route)
+    // localStorage.removeItem(this.tutorial.route)
 
     if (!this.resultstxt) {
       this._tutorialService.navData.currentStep = 2

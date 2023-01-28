@@ -283,7 +283,7 @@ export class KycService {
     }
 
     enrollmentV2(agent: string, body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/enroll`, body, {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/enrollment-3d`, body, {
             headers: {
                 'X-User-Agent': agent
             }
@@ -291,7 +291,7 @@ export class KycService {
     }
 
     photoIDMatchV2(agent: string, body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-idscan`, body, {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-3d-2d-idscan`, body, {
             headers: {
                 'X-User-Agent': agent
             }
@@ -300,7 +300,7 @@ export class KycService {
     }
 
     authenticateV2(agent: string, body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/authenticate`, body, {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-3d-3d`, body, {
             headers: {
                 'X-User-Agent': agent
             }
@@ -308,7 +308,7 @@ export class KycService {
     }
 
     idScanV2(agent: string, body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/idscan`, body, {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/idscan-only`, body, {
             headers: {
                 'X-User-Agent': agent
             }
@@ -317,31 +317,39 @@ export class KycService {
     }
 
     livenessV2(agent: string, body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/liveness`, body, {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/liveness-3d`, body, {
             headers: {
                 'X-User-Agent': agent
             }
         })
     }
 
-    matchImage(body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-image`, body, {})
+    match3d2d(body: any, service): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/${service}`, body, {})
     }
 
-    match2Image(body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-2-image`, body, {})
+    match2d2d(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/match-2d-2d`, body, {})
     }
 
-    livenessImage(body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/liveness-image`, body, {})
+    liveness2d(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/liveness-2d`, body, {})
     }
 
-    estimatedAgeImage(body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/estimate-age-image`, body, {})
+    estimatedAge2d(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/estimate-age-2d`, body, {})
     }
 
-    estimatedAge(body: any): Observable < any > {
-        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/estimate-age`, body, {})
+    checkAge2d(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/check-age-2d`, body, {})
+    }
+
+    estimatedAge3d(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/estimate-age-3d`, body, {})
+    }
+
+    checkAge3d(body: any): Observable < any > {
+        return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/biometrics/check-age-3d`, body, {})
     }
 
     getBiometrics(): Observable < any > {

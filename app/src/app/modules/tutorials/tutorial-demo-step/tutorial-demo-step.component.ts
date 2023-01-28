@@ -23,13 +23,15 @@ import {
 import {
     Subject
 } from 'rxjs';
-import { fuseAnimations } from '@fuse/animations';
+import {
+    fuseAnimations
+} from '@fuse/animations';
 
 @Component({
     selector: 'app-tutorial-demo-step',
     templateUrl: './tutorial-demo-step.component.html',
     styleUrls: ['./tutorial-demo-step.component.scss'],
-    animations   : fuseAnimations
+    animations: fuseAnimations
 })
 export class TutorialDemoStepComponent implements OnInit {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
@@ -139,71 +141,74 @@ export class TutorialDemoStepComponent implements OnInit {
     startBiometrics(): void {
         let parameters: any = {}
         switch (this.tutorial.route) {
-            case 'liveness':
+            case 'liveness-3d':
                 this._biometric.startLiveness();
 
                 break;
-            case 'enroll_face':
+            case 'enrollment-3d':
                 this._biometric.startEnrollmentBiometrics(this.externalId, this.group);
 
                 break;
-            case 'authenticate_face':
+            case 'match-3d-3d':
                 this._biometric.startAuth(this.externalId)
 
                 break;
-            case 'match_face_to_id':
+            case 'match-3d-2d-idscan':
                 this._biometric.startEnrollmentDocument(this.externalId)
 
                 break;
-            case 'scan_ocr_id':
-                this._biometric.startIdScan()
+            case 'idscan-only':
+                this._biometric.startIdScan(this.externalId)
                 break;
 
-            case 'match_image':
+            case 'match-3d-2d-profile-pic':
+            case 'match-3d-2d-face-portrait':
+            case 'match-3d-2d-3rdparty-idphoto':
+            case 'match-3d-2d-3rdparty-idphoto-low-quality':
                 parameters = {
                     externalDatabaseRefID: this.externalId,
                     image: localStorage.getItem('image'),
                     minMatchLevel: localStorage.getItem('minMatchLevel')
                 };
 
-                this._KycService.matchImage(parameters).subscribe(response =>{
+                this._KycService.match3d2d(parameters, this.tutorial.route).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     console.error(err)
                 });
                 break;
 
-            case 'match_2_image':
+            case 'match-2d-2d':
                 parameters = {
                     image0: localStorage.getItem('image0'),
                     image1: localStorage.getItem('image1'),
                     minMatchLevel: localStorage.getItem('minMatchLevel')
                 };
 
-                this._KycService.match2Image(parameters).subscribe(response =>{
+                this._KycService.match2d2d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err);
                 });
                 break;
-            case 'liveness_image':
+            case 'liveness-2d':
                 parameters = {
                     image: localStorage.getItem('image')
                 };
 
-                this._KycService.livenessImage(parameters).subscribe(response =>{
+                this._KycService.liveness2d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err);
                 });
                 break;
 
-            case 'estimate_age_image':
+            case 'estimate-age-2d':
                 parameters = {
                     image: localStorage.getItem('image')
                 };
 
-                this._KycService.estimatedAgeImage(parameters).subscribe(response =>{
+                this._KycService.estimatedAge2d(parameters).subscribe(response => {
                     console.log(response.data)
                     this.successDemo(response.data)
                 }, (err) => {
@@ -211,17 +216,44 @@ export class TutorialDemoStepComponent implements OnInit {
                 });
                 break;
 
-            case 'estimate_age':
+            case 'estimate-age-3d':
                 parameters = {
                     externalDatabaseRefID: this.externalId,
                 };
 
-                this._KycService.estimatedAge(parameters).subscribe(response =>{
+                this._KycService.estimatedAge3d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err);
                 });
                 break;
+            case 'check-age-2d':
+                parameters = {
+                    image: localStorage.getItem('image'),
+                    age: localStorage.getItem('age'),
+                };
+
+                this._KycService.checkAge2d(parameters).subscribe(response => {
+                    console.log(response.data)
+                    this.successDemo(response.data)
+                }, (err) => {
+                    this.errorDemo(err);
+                });
+                break;
+
+            case 'check-age-3d':
+                parameters = {
+                    externalDatabaseRefID: this.externalId,
+                    age: localStorage.getItem('age'),
+                };
+
+                this._KycService.checkAge3d(parameters).subscribe(response => {
+                    this.successDemo(response.data)
+                }, (err) => {
+                    this.errorDemo(err);
+                });
+                break;
+
 
         }
     }

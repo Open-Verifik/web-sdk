@@ -28,10 +28,10 @@
 
 # Demo Verifik
 
-El proyecto es una demostracion de los servicios de biometria en Verifica.co
-## Ejecutar
+The project is a demonstration of biometrics services in Verifik.co
+## Run
 
-Para ejecutar el proyecto necesitas tener instalado:
+To run the project you need to have installed:
 
 - Angular
 ```bash
@@ -40,22 +40,22 @@ npm install -g @angular/cli
 
 - NodeJs
 
-Clona el siguiente proyecto
+Clone the following project:
 ```bash
 git clone https://gitlab.com/gomat/biometrics-javascript-sdk.git
 ```
 
-Entra a la carpeta del proyecto
+Go to the project folder
 ```bash
 cd biometrics-javascript-sdk/app
 ```
 
-Instalar las dependencias del proyecto
+Install project dependencies
 ```bash
 npm install
 ```
 
-Inicia el proyecto de angular
+Start the angular project
 ```bash
 ng serve
 ```

@@ -213,7 +213,7 @@ export class BiometricV2 {
 
     }
 
-    startIdScan() {
+    startIdScan(externalDatabaseRefId) {
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
@@ -223,6 +223,7 @@ export class BiometricV2 {
         // console.groupEnd();
 
         new ScanIDProcessor({
+            externalDatabaseRefId,
             token: this._sessionToken,
             callback: (error, response) => {
                 this._sessionToken = null
@@ -569,6 +570,7 @@ class ScanIDProcessor implements FaceTecIDScanProcessor {
         }
 
         var parameters: any = {
+            externalDatabaseRefID: this.config.externalDatabaseRefId,
             idScan: idScanResult.idScan,
         };
 

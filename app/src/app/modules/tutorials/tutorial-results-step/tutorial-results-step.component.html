@@ -61,7 +61,7 @@
                 </ng-container>
             </fuse-card>
             <div
-                *ngIf="['estimateAgeImage','livenessImage','match2Image', 'matchImage'].includes(results?.type); then thenBlock else elseBlock">
+                *ngIf="['estimateAge2d', 'checkAge2d','liveness2d','match2d2d',  'match3d2dProfilePic', 'match3d2dFacePortrait', 'match3d2d3rdpartyIdphoto', 'match3d2d3rdpartyIdphotoLowQuality'].includes(results?.type); then thenBlock else elseBlock">
             </div>
             <ng-template #thenBlock>
                 <fuse-card class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" #fuseCard>
@@ -71,7 +71,7 @@
                                 {{ 'kyc.identity_validation.biometricImage' | transloco }}
                             </div>
                             <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
-                                <img src="{{results.faceUrl}}{{results.faceUrl.at(-1) === '=' ? 'source' : ''}}">
+                                <img src="{{results.faceUrl}}">
                             </div>
                             <div class="text-lg font-medium tracking-tight leading-6 truncate" *ngIf="results.ageEstimateGroup">
                                 {{ results.ageEstimateGroup | transloco }}
@@ -79,7 +79,7 @@
                         </div>
                     </div>
                 </fuse-card>
-                <fuse-card *ngIf="results.type === 'match2Image'"
+                <fuse-card *ngIf="results.type === 'match2d2d'"
                     class="flex flex-col sm:col-span-2 md:col-span-4 lg:col-span-2" #fuseCard2>
                     <div class="flex items-start justify-between  px-8 py-6 pb-3">
                         <div class="flex flex-col items-center mt-2">
@@ -87,7 +87,7 @@
                                 {{ 'kyc.identity_validation.biometricImage2' | transloco }}
                             </div>
                             <div class="flex items-center justify-center w-full h-80 rounded-full overflow-hidden">
-                                <img src="{{results.faceUrl}}target">
+                                <img src="{{results.faceUrl2}}">
                             </div>
                         </div>
                     </div>

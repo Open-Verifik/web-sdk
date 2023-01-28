@@ -90,7 +90,7 @@ export class TutorialCredentialsStepComponent implements OnInit, OnDestroy {
     _initForm(): void {
         this.groupFields = {};
         
-        const needsGetLocalstorageData = !['enroll_face','match_face_to_id'].includes(this.tutorial.route);
+        const needsGetLocalstorageData = !['enrollment-3d','match-3d-2d-idscan'].includes(this.tutorial.route);
 
         for (let index = 0; index < this.tutorial.fields.length; index++) {
             const field = this.tutorial.fields[index];
