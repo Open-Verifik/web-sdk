@@ -236,7 +236,7 @@
             }
         },
         "enrollment-3d": {
-            "title": "Registro biométrico",
+            "title": "Registro biométrico (3D)",
             "description": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
             "steps": {
                 "title_1": "Introducción",
@@ -296,7 +296,7 @@
             }
         },
         "match-3d-2d-idscan": {
-            "title": "Compara tu biometría con un Documento",
+            "title": "Compara tu biometría (3D) con un Documento (2D)",
             "description": "Compara tu biometría con un Documento.",
             "steps": {
                 "title_1": "Introducción",
