@@ -212,7 +212,7 @@
             "jwt_key": "Llave privada (JWT)"
         },
         "liveness-3d": {
-            "title": "Detección de vida",
+            "title": "Detección de vida (3D)",
             "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
             "steps": {
                 "title_1": "Introducción",
@@ -265,7 +265,7 @@
             }
         },
         "match-3d-3d": {
-            "title": "Inicia sesión con biometría",
+            "title": "Inicia sesión con biometría (3D)",
             "description": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
             "steps": {
                 "title_1": "Introducción",
@@ -522,7 +522,7 @@
         },
         "liveness-2d": {
             "title": "Deteccion de vida en una imagen",
-            "description": "Detecta si el rostro de la imagen tiene vida.",
+            "description": "Detecta si el rostro de la imagen corresponde a una persona real y no ha sido alterado.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
