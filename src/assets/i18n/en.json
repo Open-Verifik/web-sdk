@@ -473,6 +473,30 @@
                 "success_3": "2. The parameters sent in the Body are as required."
             }
         },
+        "check-age-3d": {
+            "title": "Check age from Biometrics record (3D)",
+            "description": "It validates if the biometrics record saved is between an age range",
+            "steps": {
+                "title_1": "Introduction",
+                "description_1": "Intro - How the SDK works",
+                "title_2": "Integrate with Verifik",
+                "description_2": "Write the parameters requested and continue to test mode.",
+                "title_3": "Demo!",
+                "description_3": "Try passwordless logins with biometrics",
+                "title_4": "Results",
+                "description_4": "Check the SDK's return and use it accordingly"
+            },
+            "instructions": {
+                "description_1": "To make this service work, you need to send a request with the <strong>POST</strong> method to the following endpoint:",
+                "description_2": "Additionally, you must send the following parameters to the body in JSON format:",
+                "description_3": "<strong>externalDatabaseRefID:</strong> This parameter is a unique identifier which is to be associated to the the FaceScan performed. There is an option of email or telephone number.",
+                "description_4": "<strong>age:</strong> This parameter is an ENUM: <br> 0 -> 13+<br>  1 ->16+<br>  2 -> 18+<br>  3 -> 21+<br>  4 -> 25+<br>",
+
+                "success_1": "Success Criteria",
+                "success_2": "1. The FaceScan came from a live human and was checked for vitality.",
+                "success_3": "2. The parameters sent in the Body are as required."
+            }
+        },
         "match-2d-2d": {
             "title": "2D Image Matching",
             "description": "Compare the data of two 2D images and returns if it corresponds to the same person or not",
