@@ -174,7 +174,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.match3d2d(parameters, this.tutorial.route).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
 
@@ -188,7 +188,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.match2d2d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
             case 'liveness-2d':
@@ -199,7 +199,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.liveness2d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
 
@@ -212,7 +212,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     console.log(response.data)
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
 
@@ -224,7 +224,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.estimatedAge3d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
             case 'check-age-2d':
@@ -237,7 +237,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     console.log(response.data)
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
 
@@ -250,7 +250,7 @@ export class TutorialDemoStepComponent implements OnInit {
                 this._KycService.checkAge3d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
-                    this.errorDemo(err.error);
+                    this.errorDemo(err.error.message);
                 });
                 break;
 
@@ -259,7 +259,6 @@ export class TutorialDemoStepComponent implements OnInit {
     }
 
     errorDemo(error: string) {
-        console.log(error)
         this.alert = {
             type: 'error',
             message: error,

@@ -145,7 +145,12 @@
         "phone_cannot_be_registered": "Teléfono no puede registrarse, por favor contactar al equipo de soporte",
         "Already_exists_externalDatabaseRefID":"El externalDatabaseRefID ya esta registrado",
         "externalDatabaseRefID_not_found":"El externalDatabaseRefID no fue encontrado",
-        "Face_already_exists": "Los biometricos ya estan registrados en el grupo"
+        "Face_already_exists": "Los biometricos ya estan registrados en el grupo",
+        "minMatchLevel maximum is: 5\n": "El valor maximo para minMatchLevel es 5",
+        "minMatchLevel maximum is: 6\n": "El valor maximo para minMatchLevel es 6",
+        "minMatchLevel maximum is: 7\n": "El valor maximo para minMatchLevel es 7",
+        "minMatchLevel maximum is: 9\n": "El valor maximo para minMatchLevel es 9"
+
     },
     "mockApi": {
         "Record_not_found": "Sin Registrar",
