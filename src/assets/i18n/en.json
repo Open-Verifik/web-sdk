@@ -144,7 +144,11 @@
         "phone_cannot_be_registered": "Phone cannot be registered, please contact support team",
         "Already_exists_externalDatabaseRefID": "The externalDatabaseRefID already exists",
         "externalDatabaseRefID_not_found": "The externalDatabaseRefID was not found",
-        "Face_already_exists": "This biometric already exist"
+        "Face_already_exists": "This biometric already exist",
+        "minMatchLevel maximum is: 5\n": "The value for maximun for minMatchLevel is 5",
+        "minMatchLevel maximum is: 6\n": "The value for maximun for minMatchLevel is 6",
+        "minMatchLevel maximum is: 7\n": "The value for maximun for minMatchLevel is 7",
+        "minMatchLevel maximum is: 9\n": "The value for maximun for minMatchLevel is 9"
     },
     "mockApi": {
         "Record_not_found": "Not registered",
