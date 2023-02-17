@@ -216,7 +216,7 @@
         },
         "liveness-3d": {
             "title": "Liveness Check (3D)",
-            "description": "Perform a liveness check in the user's FaceScan in order to identify if the person is who they claim to be and if they are present at the time of validation",
+            "description": "Perform a FaceScan in order to identify if the person is who they claim to be and if they are present at the time of validation.",
             "steps": {
                 "title_1": "Introduction",
                 "description_1": "Intro - How the SDK works",
@@ -456,7 +456,7 @@
         },
         "estimate-age-3d": {
             "title": "Age Estimation",
-            "description": "Estimate age from a biometric record (FaceScan)",
+            "description": "Estimate age from a biometric record (FaceScan).",
             "steps": {
                 "title_1": "Introduction",
                 "description_1": "Intro - How the SDK works",
@@ -479,7 +479,7 @@
         },
         "check-age-3d": {
             "title": "Check age from Biometrics record (3D)",
-            "description": "It validates if the biometrics record saved is between an age range",
+            "description": "It validates if the biometrics record saved is between an age range.",
             "steps": {
                 "title_1": "Introduction",
                 "description_1": "Intro - How the SDK works",
@@ -503,7 +503,7 @@
         },
         "match-2d-2d": {
             "title": "2D Image Matching",
-            "description": "Compare the data of two 2D images and returns if it corresponds to the same person or not",
+            "description": "Compare the data of two 2D images and returns if it corresponds to the same person or not.",
             "steps": {
                 "title_1": "Introduction",
                 "description_1": "Intro - How the SDK works",
@@ -551,7 +551,7 @@
         },
         "estimate-age-2d": {
             "title": "Image Age Estimator",
-            "description": "Obtain an age estimate of a human image",
+            "description": "Obtain an age estimate of a human image.",
             "steps": {
                 "title_1": "Introduction",
                 "description_1": "Intro - How the SDK works",
@@ -574,7 +574,7 @@
         },
         "check-age-2d": {
             "title": "Check the age of a face in an image",
-            "description": "Validate if a face in an image is in the age range",
+            "description": "Validate if a face in an image is in the age range.",
             "steps": {
                 "title_1": "Introduction",
                 "description_1": "Intro - How the SDK works",
