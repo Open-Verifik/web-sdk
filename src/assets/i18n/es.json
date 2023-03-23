@@ -189,8 +189,8 @@
         "tutorial_button": "Ver tutorial",
         "parameters": "Parámetros",
         "titles": {
-            "liveness_detection": "Detección de vida",
-            "enroll_face": "Registro biométrico",
+            "liveness_detection": "3D Detección de vida",
+            "enroll_face": "3D Registro",
             "authenticate_face": "Inicia sesión con biometría",
             "match_face_to_id": "Compara tu biometría con un Documento",
             "scan_ocr_id": "Escaneo de documento & Extracción de datos",
@@ -217,7 +217,7 @@
             "jwt_key": "Llave privada (JWT)"
         },
         "liveness-3d": {
-            "title": "Detección de vida (3D)",
+            "title": "3D Detección de vida",
             "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación.",
             "steps": {
                 "title_1": "Introducción",
@@ -241,7 +241,7 @@
             }
         },
         "enrollment-3d": {
-            "title": "Registro biométrico (3D)",
+            "title": "3D Registro",
             "description": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
             "steps": {
                 "title_1": "Introducción",
@@ -270,7 +270,7 @@
             }
         },
         "match-3d-3d": {
-            "title": "Inicia sesión con biometría (3D)",
+            "title": "3D:3D Autenticación",
             "description": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
             "steps": {
                 "title_1": "Introducción",
@@ -301,7 +301,7 @@
             }
         },
         "match-3d-2d-idscan": {
-            "title": "Compara tu biometría (3D) con un Documento (2D)",
+            "title": "3D:2D Coincidencia Facial + Documento Legal",
             "description": "Compara tu biometría con un Documento.",
             "steps": {
                 "title_1": "Introducción",
@@ -331,7 +331,7 @@
             }
         },
         "idscan-only": {
-            "title": "Escaneo de documento & Extracción de datos",
+            "title": "OCR - Escaneo & Extracción de datos",
             "description": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo.",
             "steps": {
                 "title_1": "Introducción",
@@ -355,7 +355,7 @@
             }
         },
         "match-3d-2d-profile-pic": {
-            "title": "Compara tu biometría con una imagen de alguna red social",
+            "title": "3D:2D Coincidencial Facial + Foto Perfil",
             "description": "Compara tu biometría con una imagen.",
             "steps": {
                 "title_1": "Introducción",
@@ -380,7 +380,7 @@
             }
         },
         "match-3d-2d-3rdparty-idphoto": {
-            "title": "Compara tu biometría (3D) con una imagen de tu documento de identidad con foto (2D)",
+            "title": "3D:2D Coincidencial Facial + Documento 3ros",
             "description": "Valida si el rostro del documento de identidad coincide con el de el registro biométrico.",
             "steps": {
                 "title_1": "Introducción",
@@ -405,7 +405,7 @@
             }
         },
         "match-3d-2d-3rdparty-idphoto-low-quality": {
-            "title": "Compara tu biometría (3D) con una imagen de tu documento de identidad con foto (2D) (baja calidad de imagen)",
+            "title": "3D:2D Coincidencial Facial + Documento 3ros (baja calidad)",
             "description": "Valida si el rostro del documento de identidad coincide con el de el registro biométrico (baja calidad de imagen).",
             "steps": {
                 "title_1": "Introducción",
@@ -430,7 +430,7 @@
             }
         },
         "match-3d-2d-face-portrait": {
-            "title": "Compara tu biometría con un retrato",
+            "title": "3D:2D Coincidencial Facial + Retrato",
             "description": "Compara tu biometría con un retrato.",
             "steps": {
                 "title_1": "Introducción",
@@ -455,7 +455,7 @@
             }
         },
         "estimate-age-3d": {
-            "title": "Estimar edad de un registro de biometría",
+            "title": "3D Estimación de edad",
             "description": "Obtiene la edad de un registro de biometría.",
             "steps": {
                 "title_1": "Introducción",
@@ -478,7 +478,7 @@
             }
         },
         "check-age-3d": {
-            "title": "Verificar la edad de un registro de biometría",
+            "title": "3D Rango de Edad",
             "description": "Valida si un registro de biometría esta en el rango de edad.",
             "steps": {
                 "title_1": "Introducción",
@@ -501,7 +501,7 @@
             }
         },
         "match-2d-2d": {
-            "title": "Comparación de rostros en 2 imágenes",
+            "title": "2D:2D Autenticación",
             "description": "Compara el rostro de una persona en la imagen de origen con la imagen de destino.",
             "steps": {
                 "title_1": "Introducción",
@@ -526,7 +526,7 @@
             }
         },
         "liveness-2d": {
-            "title": "Detección de vida en una imagen",
+            "title": "2D Detección de vida",
             "description": "Detecta si el rostro de la imagen corresponde a una persona real y no ha sido alterado.",
             "steps": {
                 "title_1": "Introducción",
@@ -534,7 +534,7 @@
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
                 "title_3": "¡Demo!",
-                "description_3": "Detección de vida en una imagen",
+                "description_3": "2D Detección de vida",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
             },
@@ -549,7 +549,7 @@
             }
         },
         "estimate-age-2d": {
-            "title": "Estimar edad de un rostro en una imagen",
+            "title": "2D Estimación de edad",
             "description": "Se obtiene el rango de la edad del rostro en la imagen.",
             "steps": {
                 "title_1": "Introducción",
@@ -572,7 +572,7 @@
             }
         },
         "check-age-2d": {
-            "title": "Verificar la edad de un rostro en una imagen",
+            "title": "2D Rango de edad",
             "description": "Valida si un rostro en una imagen esta en el rango de edad.",
             "steps": {
                 "title_1": "Introducción",

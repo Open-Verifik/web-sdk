@@ -184,13 +184,13 @@
     "tutorials": {
         "go_back": "Lista de tutoriales",
         "title": "Tutoriales de Verifik",
-        "h1_title": "Qué quieres aprender hoy?",
-        "description": "Tenemos varios tutoriales para que pruebes nuestra lógica de nuestros servicios de manera sencilla en modo de ejemplos",
+        "h1_title": "¿Qué quieres aprender hoy?",
+        "description": "Tenemos varios tutoriales para que pruebes la lógica de nuestros servicios de manera sencilla en modo de ejemplos.",
         "tutorial_button": "Ver tutorial",
         "parameters": "Parámetros",
         "titles": {
-            "liveness_detection": "Detección de vida",
-            "enroll_face": "Registro biométrico",
+            "liveness_detection": "3D Detección de vida",
+            "enroll_face": "3D Registro",
             "authenticate_face": "Inicia sesión con biometría",
             "match_face_to_id": "Compara tu biometría con un Documento",
             "scan_ocr_id": "Escaneo de documento & Extracción de datos",
@@ -217,14 +217,14 @@
             "jwt_key": "Llave privada (JWT)"
         },
         "liveness-3d": {
-            "title": "Detección de vida (3D)",
-            "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación",
+            "title": "3D Detección de vida",
+            "description": "Realiza una verificación de vida en el escaneo facial, con el fin de identificar si la persona es quien dice ser y está presente al momento de la validación.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Prueba la detección de vida",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -241,14 +241,14 @@
             }
         },
         "enrollment-3d": {
-            "title": "Registro biométrico (3D)",
+            "title": "3D Registro",
             "description": "Realiza una verificación de vida en el escaneo facial y almacena el mapa facial 3D resultante en la base de datos en caso de éxito.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Prueba el registro de biometría",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -270,14 +270,14 @@
             }
         },
         "match-3d-3d": {
-            "title": "Inicia sesión con biometría (3D)",
+            "title": "3D:3D Autenticación",
             "description": "Procesa un escaneo facial en busca de vida y lo compara con un mapa facial 3D de vida comprobada.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Prueba el inicio de sesión con biometría",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -296,19 +296,19 @@
                 "success_4": "3. Los parámetros enviados en el Body coinciden con los que genera el SDK del Proyecto (No aplica para el Demo).",
                 "success_5": "4. El Parametro externalDatabaseRefID se encuentra actualmente en la base de datos.",
                 "success_6": "5. El escaneo realizado coincide con el que se encuentra en la base de datos asociado con externalDatabaseRefID.",
-                "success_7": "Se utilizó un sessionId nuevo."
+                "success_7": "6. Se utilizó un sessionId nuevo."
 
             }
         },
         "match-3d-2d-idscan": {
-            "title": "Compara tu biometría (3D) con un Documento (2D)",
+            "title": "3D:2D Coincidencia Facial + Documento Legal",
             "description": "Compara tu biometría con un Documento.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Prueba la comparación de tu biometría con un Documento legal",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -331,14 +331,14 @@
             }
         },
         "idscan-only": {
-            "title": "Escaneo de documento & Extracción de datos",
+            "title": "OCR - Escaneo & Extracción de datos",
             "description": "Procesa un escaneo de ID. Solo funciona con la sesión de escaneo de ID del SDK del dispositivo.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Prueba el escaneo de documento & extracción de datos",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -349,20 +349,20 @@
                 "description_4": "Estos parámetros te los entrega el SDK que se implementa en tu proyecto.",
                 "description_5": "<strong>Nota:</strong> Al ser esto un demo no es necesario ingresar ninguno de estos datos esto solo es una descripción básica a la hora de implementarlo en un proyecto real.",
                 "success_1": "Criterios de éxito",
-                "success_2": "El documento escaneado es real y coincide con el país o servicio seleccionado para ello.",
-                "success_3": "El token de sesión era válido y no estaba vencido.",
-                "success_4": "Los parámetros enviados en el Body coinciden con los que genera el SDK del Proyecto (No aplica para el Demo)."
+                "success_2": "1. El documento escaneado es real y coincide con el país o servicio seleccionado para ello.",
+                "success_3": "2. El token de sesión era válido y no estaba vencido.",
+                "success_4": "3. Los parámetros enviados en el Body coinciden con los que genera el SDK del Proyecto (No aplica para el Demo)."
             }
         },
         "match-3d-2d-profile-pic": {
-            "title": "Compara tu biometría con una imagen de alguna red social",
+            "title": "3D:2D Coincidencial Facial + Foto Perfil",
             "description": "Compara tu biometría con una imagen.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "La comparación de tu biometría con una imagen",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -371,23 +371,23 @@
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
                 "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
                 "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
-                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un número del 1 al 6, este número indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
                 "description_6": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
 
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
-                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+                "success_4": "2. Los parámetros enviados en el Body son los requeridos."
             }
         },
         "match-3d-2d-3rdparty-idphoto": {
-            "title": "Compara tu biometría con una imagen de tu documento de identidad con foto",
-            "description": "Valida si es el rostro del documento de identidad es el mismo con el registro de biometricos.",
+            "title": "3D:2D Coincidencial Facial + Documento 3ros",
+            "description": "Valida si el rostro del documento de identidad coincide con el de el registro biométrico.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "La comparación de tu biometría con una imagen",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -396,23 +396,23 @@
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
                 "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
                 "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
-                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un número del 1 al 6, este número indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
                 "description_6": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
 
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
-                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+                "success_4": "2. Los parámetros enviados en el Body son los requeridos."
             }
         },
         "match-3d-2d-3rdparty-idphoto-low-quality": {
-            "title": "Compara tu biometría con una imagen de tu documento de identidad con foto(baja calidad de imagen)",
-            "description": "Valida si es el rostro del documento de identidad es el mismo con el registro de biometricos.(baja calidad de imagen).",
+            "title": "3D:2D Coincidencial Facial + Documento 3ros (baja calidad)",
+            "description": "Valida si el rostro del documento de identidad coincide con el de el registro biométrico (baja calidad de imagen).",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "La comparación de tu biometría con una imagen",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -421,23 +421,23 @@
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
                 "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
                 "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
-                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un número del 1 al 6, este número indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
                 "description_6": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
 
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
-                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+                "success_4": "2. Los parámetros enviados en el Body son los requeridos."
             }
         },
         "match-3d-2d-face-portrait": {
-            "title": "Compara tu biometría con un retrato",
+            "title": "3D:2D Coincidencial Facial + Retrato",
             "description": "Compara tu biometría con un retrato.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "La comparación de tu biometría con un retrato",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -446,23 +446,23 @@
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
                 "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
                 "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
-                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_5": "<strong>minMatchLevel:</strong> Este parámetro es un número del 1 al 6, este número indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
                 "description_6": "<strong>image:</strong> Este parámetro es una imagen del rostro en base64.",
 
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
-                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+                "success_4": "2. Los parámetros enviados en el Body son los requeridos."
             }
         },
         "estimate-age-3d": {
-            "title": "Estimar edad de un registro de biometria",
-            "description": "Obtiene la edad de un registro de biometria",
+            "title": "3D Estimación de edad",
+            "description": "Obtiene la edad de un registro de biometría.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Obtener la edad de un registro de biometria",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -478,14 +478,14 @@
             }
         },
         "check-age-3d": {
-            "title": "Verificar la edad de un registro de biometria",
-            "description": "Valida si un registro de biometria esta en el rango de edad",
+            "title": "3D Rango de Edad",
+            "description": "Valida si un registro de biometría esta en el rango de edad.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Obtener la edad de un registro de biometria",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -501,14 +501,14 @@
             }
         },
         "match-2d-2d": {
-            "title": "Comparación de rostros en 2 imágenes",
+            "title": "2D:2D Autenticación",
             "description": "Compara el rostro de una persona en la imagen de origen con la imagen de destino.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Comparar 2 biometricos de imagenes",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -516,7 +516,7 @@
             "instructions": {
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
                 "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
-                "description_4": "<strong>minMatchLevel:</strong> Este parámetro es un numero del 1 al 6, este numero indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
+                "description_4": "<strong>minMatchLevel:</strong> Este parámetro es un número del 1 al 6, este número indica el minimo de coincidencia entre las imagenes, siendo 6 el mas alto.",
                 "description_5": "<strong>image0:</strong> Este parámetro es una imagen del rostro en base64.",
                 "description_6": "<strong>image1:</strong> Este parámetro es una imagen del rostro en base64.",
 
@@ -526,15 +526,15 @@
             }
         },
         "liveness-2d": {
-            "title": "Deteccion de vida en una imagen",
+            "title": "2D Detección de vida",
             "description": "Detecta si el rostro de la imagen corresponde a una persona real y no ha sido alterado.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
-                "description_3": "Deteccion de vida en una imagen",
+                "title_3": "¡Demo!",
+                "description_3": "2D Detección de vida",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
             },
@@ -545,18 +545,18 @@
 
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
-                "success_4": "3. Los parámetros enviados en el Body son los requeridos."
+                "success_4": "2. Los parámetros enviados en el Body son los requeridos."
             }
         },
         "estimate-age-2d": {
-            "title": "Estimar edad de un rostro en una imagen",
-            "description": "Se obtiene el rango de la edad del rostro en la imagen",
+            "title": "2D Estimación de edad",
+            "description": "Se obtiene el rango de la edad del rostro en la imagen.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Obtener la edad de una imagen",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -572,14 +572,14 @@
             }
         },
         "check-age-2d": {
-            "title": "Verificar la edad de un rostro en una image",
-            "description": "Valida si un rostro en una imagen esta en el rango de edad",
+            "title": "2D Rango de edad",
+            "description": "Valida si un rostro en una imagen esta en el rango de edad.",
             "steps": {
                 "title_1": "Introducción",
                 "description_1": "Introduciendo como funciona el SDK",
                 "title_2": "Integración con Verifik",
                 "description_2": "Escribe los parámetros requerídos por nosotros para continuar al paso de pruebas",
-                "title_3": "Demo!",
+                "title_3": "¡Demo!",
                 "description_3": "Obtener la edad de un registro de biometria",
                 "title_4": "Resultados",
                 "description_4": "Mira lo que te regresamos del SDK para usarlo en tu código"
@@ -588,7 +588,7 @@
                 "description_2": "Para dar funcionamiento de este servicio es necesario que envíes un request con el metodo <strong>POST</strong> al siguiente endpoint:",
                 "description_3": "Adicional debes enviar los siguientes parámetros en el body en formato JSON:",
                 "description_4": "<strong>externalDatabaseRefID:</strong> Este parámetro es un Identificador único al cual se va a asociar el escaneo biométrico que se realizo, Se cuenta con la opción de correo o de número telefónico.",
-                "description_5": "<1>age:</1> este parametro es un enum: <br> 0 -> 13+<br>  1 ->16+<br>  2 -> 18+<br>  3 -> 21+<br>  4 -> 25+<br>",
+                "description_5": "<strong>age:</strong> este parametro es un enum: <br> 0 -> 13+<br>  1 ->16+<br>  2 -> 18+<br>  3 -> 21+<br>  4 -> 25+<br>",
                 "success_1": "Criterios de éxito",
                 "success_2": "1. El escaneo facial provino de un ser humano vivo y se comprobó la vitalidad.",
                 "success_3": "2. Los parámetros enviados en el Body son los requeridos."
@@ -596,7 +596,7 @@
         },
         "kyc": {
             "title": "Conoce a tus clientes",
-            "description": "Lleva a cargo el registro de tus nuevos usuarios de manera inteligente, sin codificacion",
+            "description": "Lleva a cargo el registro de tus nuevos usuarios de manera inteligente, sin codificación.",
             "steps": {
                 "title_1": "Configuracion",
                 "description_1": "Configura todo el kyc para comenzar a usarlo"
@@ -608,7 +608,7 @@
                 "description_4": "En esta lista podremos acceder a las configuraciones de los proyectos previamente configurado, así como las métricas del uso de este servicio.",
                 "description_5": "Ahora creamos un proyecto nuevo.",
                 "description_6": "Tendremos que configurar 6 pasos para poder comenzar a usar nuestro servicio de KYC (conoce tu cliente), el primer paso será llenar la información básica relevante a tu proyecto, sea el nombre, el bloqueo regional con ip, etc.",
-                "description_7": "En el segundo paso se seleccionara la información básica requerida para el registro, al seleccionarla el nuevo usuario deberá ingresar y validar esa información.<p>Ejemplo: al ingresar un numero telefonico, el nuevo usuario recibira un codigo de un solo uso que deberá ingresar para continuar con el registro, de igual manera con el correo electrónico.</p>",
+                "description_7": "En el segundo paso se seleccionara la información básica requerida para el registro, al seleccionarla el nuevo usuario deberá ingresar y validar esa información.<p>Ejemplo: al ingresar un número telefonico, el nuevo usuario recibira un codigo de un solo uso que deberá ingresar para continuar con el registro, de igual manera con el correo electrónico.</p>",
                 "description_8": "En el tercer paso podemos configurar la validación de identidad por medios biométricos, sea solamente una biometría del rostro o agregarle la lectura de un documento oficial y la comparación con la imagen del rostro, además de poder seleccionar la consulta a una fuente policial por medio de nuestros endponts Verifik, para revisar algún historial criminal.",
                 "description_9": "En el cuarto paso tendremos la opción de configurar un formulario que el nuevo usuario deberá contestar en caso de que el formulario sea configurado, este paso es opcional.",
                 "description_10": "Para crear un formulario deberas hacer click en el boton de “Nuevo Formulario”<p>Ejemplo de creación de un formulario:</p>",
@@ -627,8 +627,8 @@
             }
         },
         "passwordless": {
-            "title": "Inicio de sesion sin contraseña",
-            "description" : "Inicia sesion sin contraseña, utilizando codigos de un solo uso, olvidate de contraseñas vulnerables.",
+            "title": "Inicio de sesión sin contraseña",
+            "description" : "Inicia sesión sin contraseña, utilizando códigos de un solo uso, olvídate de contraseñas vulnerables.",
             "steps": {
                 "title_1": "Configuracion",
                 "description_1": "Configura el inicio de sesion sin contraseña para comenzar a usarlo"
@@ -682,7 +682,7 @@
     "demo": {
         "title": "Pruebas",
         "description": "Se realizara una prueba del servicio",
-        "camera_permission": "Asegurate de asignar los permisos correspondientes.Te recomendamos usar tu telefono para tener mejores resultados",
+        "camera_permission": "Asegurate de asignar los permisos correspondientes.Te recomendamos usar tu telefono para obtener mejores resultados.",
         "start": "Iniciar",
         "external_id_description": "UID para identificar el usuario",
         "external_id": "UID",
@@ -691,6 +691,6 @@
     },
     "results": {
         "title": "Ultimo resultado del demo",
-        "description": "Se muestra la ultima informacion proporcionada por el servicio en esta dispositivo"
+        "description": "Se muestra la ultima informacion proporcionada por el servicio en este dispositivo."
     }
 }

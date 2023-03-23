@@ -215,7 +215,7 @@
             "jwt_key": "Private key (JWT)"
         },
         "liveness-3d": {
-            "title": "Liveness Check (3D)",
+            "title": "3D Liveness check",
             "description": "Perform a FaceScan in order to identify if the person is who they claim to be and if they are present at the time of validation.",
             "steps": {
                 "title_1": "Introduction",
@@ -239,7 +239,7 @@
             }
         },
         "enrollment-3d": {
-            "title": "Biometric Registration (3D)",
+            "title": "3D Onboarding",
             "description": "Perform a lifeness check and if successful store the resulting 3D face map in the database.",
             "steps": {
                 "title_1": "Introduction",
@@ -268,7 +268,7 @@
             }
         },
         "match-3d-3d": {
-            "title": "Biometrics Login (3D)",
+            "title": "3D:3D Authentication",
             "description": "Process a lifeness check on a user and compare it with the it's previously stored FaceMap.",
             "steps": {
                 "title_1": "Introduction",
@@ -299,7 +299,7 @@
             }
         },
         "match-3d-2d-idscan": {
-            "title": "Match biometrics (3D) with a legal document (2D)",
+            "title": "3D:2D Face Matching + Legal Document",
             "description": "Compare your facescan with a government issues ID.",
             "steps": {
                 "title_1": "Introduction",
@@ -329,7 +329,7 @@
             }
         },
         "idscan-only": {
-            "title": "Scan document & extract information",
+            "title": "OCR - Scan & Extract Data",
             "description": "Process OCR after an ID scan. Only compatible with Device SDK ID scan session.",
             "steps": {
                 "title_1": "Introduction",
@@ -353,7 +353,7 @@
             }
         },
         "match-3d-2d-profile-pic": {
-            "title": "Compare FaceScan with a profile picture",
+            "title": "3D:2D Face Match + Profile Pic",
             "description": "Compare the biometric FaceScan with a 2D image.",
             "steps": {
                 "title_1": "Introduction",
@@ -378,7 +378,7 @@
             }
         },
         "match-3d-2d-3rdparty-idphoto": {
-            "title": "Match Biometrics (3D) with a 3rd party ID Photo (2D)",
+            "title": "3D:2D Face Match + 3rd Party Document",
             "description": "Processes 2D Image of an ID Photo of unknown source against a previously-processed 3D FaceMap.",
             "steps": {
                 "title_1": "Introduction",
@@ -405,7 +405,7 @@
             }
         },
         "match-3d-2d-3rdparty-idphoto-low-quality": {
-            "title": "Match Biometrics (3D) with a legal document (Low quality image)",
+            "title": "3D:2D Face Match + 3rd Party Document (Low quality image)",
             "description": "Valid if the face of the identity document is the same with the biometric record (low image quality).",
             "steps": {
                 "title_1": "Introduction",
@@ -430,7 +430,7 @@
             }
         },
         "match-3d-2d-face-portrait": {
-            "title": "Compare your biometrics with a portrait",
+            "title": "3D:2D Face Match + Portrait",
             "description": "Compare your biometrics with a portrait.",
             "steps": {
                 "title_1": "Introduction",
@@ -455,7 +455,7 @@
             }
         },
         "estimate-age-3d": {
-            "title": "Age Estimation",
+            "title": "3D Age estimation",
             "description": "Estimate age from a biometric record (FaceScan).",
             "steps": {
                 "title_1": "Introduction",
@@ -478,7 +478,7 @@
             }
         },
         "check-age-3d": {
-            "title": "Check age from Biometrics record (3D)",
+            "title": "3D Age check",
             "description": "It validates if the biometrics record saved is between an age range.",
             "steps": {
                 "title_1": "Introduction",
@@ -502,7 +502,7 @@
             }
         },
         "match-2d-2d": {
-            "title": "2D Image Matching",
+            "title": "2D:2D Face Match",
             "description": "Compare the data of two 2D images and returns if it corresponds to the same person or not.",
             "steps": {
                 "title_1": "Introduction",
@@ -527,7 +527,7 @@
             }
         },
         "liveness-2d": {
-            "title": "Image Liveness Detection",
+            "title": "2D Liveness Check",
             "description": "Detect liveness or humanity off an image.",
             "steps": {
                 "title_1": "Introduction",
@@ -550,7 +550,7 @@
             }
         },
         "estimate-age-2d": {
-            "title": "Image Age Estimator",
+            "title": "2D Age estimation",
             "description": "Obtain an age estimate of a human image.",
             "steps": {
                 "title_1": "Introduction",
@@ -573,7 +573,7 @@
             }
         },
         "check-age-2d": {
-            "title": "Check the age of a face in an image",
+            "title": "2D Age range estimation",
             "description": "Validate if a face in an image is in the age range.",
             "steps": {
                 "title_1": "Introduction",
