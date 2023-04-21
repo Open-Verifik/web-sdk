@@ -11,11 +11,9 @@ import {
     Router
 } from '@angular/router';
 import {
-    BiometricV2
-} from 'app/modules/biometrics/biometricV2.module';
-import {
-    KycService
-} from 'app/modules/kyc/kyc.service';
+    Biometric
+} from 'app/modules/biometrics/biometric.module';
+
 import {
     skip,
     takeUntil
@@ -26,6 +24,9 @@ import {
 import {
     fuseAnimations
 } from '@fuse/animations';
+import {
+    BiometricService
+} from 'app/modules/biometrics/biometric.service';
 
 @Component({
     selector: 'app-tutorial-demo-step',
@@ -45,14 +46,15 @@ export class TutorialDemoStepComponent implements OnInit {
         type: string;message: string;
     };
     showAlert: boolean;
-    private _biometric: BiometricV2;
     externalId: any;
     group: string;
     constructor(
-        private _KycService: KycService,
+        private _BiometricService: BiometricService,
         private _tutorialService: TutorialsService,
         private _route: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
+        private _biometric: Biometric,
+
     ) {}
 
     ngOnInit(): void {
@@ -95,8 +97,9 @@ export class TutorialDemoStepComponent implements OnInit {
             return
         }
 
-        this._biometric = new BiometricV2(this._KycService, (isBiometricLibReady) => {
-            if (isBiometricLibReady && this._biometric) {
+        this._biometric.isReady$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
+        .subscribe((isSuccess) => {
+            if (isSuccess) {
                 this._biometric.startSession()
             }
         });
@@ -171,7 +174,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     minMatchLevel: localStorage.getItem('minMatchLevel')
                 };
 
-                this._KycService.match3d2d(parameters, this.tutorial.route).subscribe(response => {
+                this._BiometricService.match3d2d(parameters, this.tutorial.route).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err.error.message);
@@ -185,7 +188,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     minMatchLevel: localStorage.getItem('minMatchLevel')
                 };
 
-                this._KycService.match2d2d(parameters).subscribe(response => {
+                this._BiometricService.match2d2d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err.error.message);
@@ -196,7 +199,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     image: localStorage.getItem('image')
                 };
 
-                this._KycService.liveness2d(parameters).subscribe(response => {
+                this._BiometricService.liveness2d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err.error.message);
@@ -208,7 +211,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     image: localStorage.getItem('image')
                 };
 
-                this._KycService.estimatedAge2d(parameters).subscribe(response => {
+                this._BiometricService.estimatedAge2d(parameters).subscribe(response => {
                     console.log(response.data)
                     this.successDemo(response.data)
                 }, (err) => {
@@ -221,7 +224,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     externalDatabaseRefID: this.externalId,
                 };
 
-                this._KycService.estimatedAge3d(parameters).subscribe(response => {
+                this._BiometricService.estimatedAge3d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err.error.message);
@@ -233,7 +236,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     age: localStorage.getItem('age'),
                 };
 
-                this._KycService.checkAge2d(parameters).subscribe(response => {
+                this._BiometricService.checkAge2d(parameters).subscribe(response => {
                     console.log(response.data)
                     this.successDemo(response.data)
                 }, (err) => {
@@ -247,7 +250,7 @@ export class TutorialDemoStepComponent implements OnInit {
                     age: localStorage.getItem('age'),
                 };
 
-                this._KycService.checkAge3d(parameters).subscribe(response => {
+                this._BiometricService.checkAge3d(parameters).subscribe(response => {
                     this.successDemo(response.data)
                 }, (err) => {
                     this.errorDemo(err.error.message);

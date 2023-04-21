@@ -22,13 +22,7 @@ export const appRoutes: Route[] = [
         data: {
             layout: 'empty'
         },
-        children: [{
-                path: 'kyc',
-                loadChildren: () => import('app/modules/kyc/kyc.module').then(m => m.KycModule),
-            }, {
-                path: 'passwordless',
-                loadChildren: () => import('app/modules/passwordless/passwordless.module').then(m => m.PasswordlessModule),
-            },
+        children: [
             {
                 path: 'tutorials',
                 loadChildren: () => import('app/modules/tutorials/tutorials.module').then(m => m.TutorialsModule),
