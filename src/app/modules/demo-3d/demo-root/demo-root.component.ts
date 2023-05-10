@@ -31,6 +31,7 @@ import {
 import {
     DemoBiometric
 } from 'app/modules/biometrics/demo-biometric.module';
+import { Biometric } from 'app/modules/biometrics/biometric.module';
 @Component({
     selector: 'app-demo-root',
     templateUrl: './demo-root.component.html',
@@ -38,6 +39,7 @@ import {
 })
 export class DemoRootComponent implements OnInit {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
+    private _biometric: DemoBiometric
     biometricLoaded: Boolean;
 
     contactForm: FormGroup;
@@ -66,11 +68,28 @@ export class DemoRootComponent implements OnInit {
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
-        // private _service: BiometricService,
-        private _biometric: DemoBiometric,
+        private _service: BiometricService,
+        // private _biometric: DemoBiometric,
         private _demoService: DemoService,
     ) {
-        
+        console.log(localStorage);
+        if(localStorage.accessToken){
+            this.loadBiometrics()
+        }
+     
+
+        this.countries = this._countries.countryCodes;
+        this.initForm()
+    }
+    
+    loadBiometrics():void{
+
+        this._biometric = new DemoBiometric(this._service, (isReady) => {
+            if (isReady) {
+                this._biometric.startSession()
+            }
+        })
+
         this._biometric.isReady$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
         .subscribe((isSuccess) => {
             if (isSuccess) {
@@ -111,6 +130,7 @@ export class DemoRootComponent implements OnInit {
 
         this._biometric.auth$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
+                console.log('started')
                 if (response.success) {
 
                     //COMPLETED ALL SERVICES
@@ -125,9 +145,6 @@ export class DemoRootComponent implements OnInit {
                 this._biometric.startSession()
             });
 
-
-        this.countries = this._countries.countryCodes;
-        this.initForm()
     }
 
     ngOnInit(): void {
@@ -199,6 +216,10 @@ export class DemoRootComponent implements OnInit {
                 console.log(result);
                 localStorage.setItem('accessToken', result.data.token)
                 localStorage.setItem('expiresAt', result.data.tokenExpiresAt)
+                if(result.data.accessToken && localStorage.accessToken){
+                    console.log('here')
+                    this.loadBiometrics();
+                }
                 // const token = result.data.token
             }
         )
