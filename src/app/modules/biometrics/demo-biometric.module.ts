@@ -77,7 +77,6 @@ export class DemoBiometric {
 
     constructor(
         private _service: BiometricService,
-        callback:any
     ) {
         const status = FaceTecSDK.getStatus()
 

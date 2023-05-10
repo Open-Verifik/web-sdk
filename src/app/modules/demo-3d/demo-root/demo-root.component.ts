@@ -72,10 +72,9 @@ export class DemoRootComponent implements OnInit {
         // private _biometric: DemoBiometric,
         private _demoService: DemoService,
     ) {
-        console.log(localStorage);
-        if(localStorage.accessToken){
-            this.loadBiometrics()
-        }
+        // if(localStorage.accessToken){
+        //     this.loadBiometrics()
+        // }
      
 
         this.countries = this._countries.countryCodes;
@@ -84,17 +83,11 @@ export class DemoRootComponent implements OnInit {
     
     loadBiometrics():void{
 
-        this._biometric = new DemoBiometric(this._service, (isReady) => {
-            if (isReady) {
-                this._biometric.startSession()
-            }
-        })
+        this._biometric = new DemoBiometric(this._service)
 
         this._biometric.isReady$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
         .subscribe((isSuccess) => {
-            if (isSuccess) {
-                this._biometric.startSession()
-            }
+            console.log({isSuccess})
         });
 
         this._biometric.session$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
@@ -130,7 +123,6 @@ export class DemoRootComponent implements OnInit {
 
         this._biometric.auth$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
-                console.log('started')
                 if (response.success) {
 
                     //COMPLETED ALL SERVICES
@@ -170,26 +162,35 @@ export class DemoRootComponent implements OnInit {
     }
 
     startBiometric(): void {
-        console.log(this.selectedFeature)
+
         if (this.selectedFeature == 'liveness') {
             this._biometric.startAuth()
             return
         }
-        console.log('enrollmentDocument');
+
         this._biometric.startEnrollmentDocument()
     }
 
 
     initForm(): void {
         this.contactForm = this._formBuilder.group({
-            'companyName': [, [Validators.required]],
-            'name': [, [Validators.required]],
-            'website': [, [Validators.required]],
-            'jobFunction': [, [Validators.required]],
-            'email': [, [Validators.required, Validators.email]],
-            'countryCode': [, [Validators.required]],
-            'phone': [, [Validators.required]],
+            'companyName': ['verifik', [Validators.required]],
+            'name': ['angel ortiz', [Validators.required]],
+            'website': ['verifik.co', [Validators.required]],
+            'jobFunction': ['delete databases', [Validators.required]],
+            'email': ['angel@verifik.co', [Validators.required, Validators.email]],
+            'countryCode': ['+52', [Validators.required]],
+            'phone': ['9541607442', [Validators.required]],
         });
+        // this.contactForm = this._formBuilder.group({
+        //     'companyName': [, [Validators.required]],
+        //     'name': [, [Validators.required]],
+        //     'website': [, [Validators.required]],
+        //     'jobFunction': [, [Validators.required]],
+        //     'email': [, [Validators.required, Validators.email]],
+        //     'countryCode': [, [Validators.required]],
+        //     'phone': [, [Validators.required]],
+        // });
     }
 
     changeSelection(data): void {
@@ -202,6 +203,7 @@ export class DemoRootComponent implements OnInit {
             this.reviewForm();
             // return;
         }
+        this._biometric.startSession()
 
         this.currentStep = data;
         this._changeDetectorRef.markForCheck();
@@ -213,10 +215,9 @@ export class DemoRootComponent implements OnInit {
         }
         this._demoService.postForm(this.contactForm.value).subscribe(
             result => {
-                console.log(result);
                 localStorage.setItem('accessToken', result.data.token)
                 localStorage.setItem('expiresAt', result.data.tokenExpiresAt)
-                if(result.data.accessToken && localStorage.accessToken){
+                if( result.data.token){
                     console.log('here')
                     this.loadBiometrics();
                 }
