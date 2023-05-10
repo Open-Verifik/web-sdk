@@ -72,6 +72,9 @@ export class DemoRootComponent implements OnInit {
     matchLevel: number;
     jsonData: { type: string; fraudData: any[]; _id: string; deleted: boolean; externalDatabaseRefID: string; success: boolean; faceUrl: string; ageEstimateGroup: string; updatedAt: string; createdAt: string; __v: number; details: { platform: string; deviceModel: string; liveness: boolean; }; scanResultBlob: string; wasProcessed: boolean; };
     previewDialog: any;
+    maxMatchLevel: any;
+    faceScan: any;
+    idScan: any;
 
     constructor(
         private _formBuilder: FormBuilder,
@@ -168,12 +171,23 @@ export class DemoRootComponent implements OnInit {
                 if (response.success) {
                     console.log("auth");
                     console.log(response);
+                    this.scannedData = {
+                        ...response['details']['scannedValues']['addressInfo'],
+                        ...response['details']['scannedValues']['idInfo'],
+                        ...response['details']['scannedValues']['userInfo']
+                    };
+                    this.matchLevel = response.details['matchLevel'];
+                    this.maxMatchLevel = response.details['maxMatchLevel'];
+                    this.jsonData = response;
+                    this.faceScan = response.enrollUrl || response.faceScanUrl
+                    this.idScan = response.idScanUrl
                     //COMPLETED ALL SERVICES
                     console.log("COMPLETED ALL SERVICES")
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
+                    this.changeStep('finish')
                     this._changeDetectorRef.markForCheck()
-
+                    
                 }
 
                 this.biometricLoaded = false;
