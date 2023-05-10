@@ -465,7 +465,7 @@
              <ng-container *ngIf="currentStep == 'result'">
                 <div class="w-full grid grid-cols-3 mt-6">
                     <div>
-                        <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                        <mat-icon (click)="changeStep('instructions')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
                     </div>
                     <div></div>
@@ -480,27 +480,119 @@
                     </span>
                 </div>
 
+                <!-- <div *ngIf="selectedFeature === 'ocr'" class="w-full mt-4"> -->
                 <div class="w-full mt-4">
                     <div class="mx-4 card-shadow rounded-2xl">
 
-                        <div class="w-full flex justify-center">
-                            face verification
+                        <div class="w-full flex justify-center text-sm py-4 font-700">
+                            <ng-container *ngIf="selectedFeature == 'ocr'">
+                                Face Verification
+                            </ng-container>
+                            <ng-container *ngIf="selectedFeature == 'liveness'">
+                                Face Trust
+                            </ng-container>
                         </div>
-                        <div class="w-full grid grid-cols-2">
-                            <div class="mx-4">
-                                <img src="assets/images/demo/man.png" alt="">
+                        <ng-container *ngIf="selectedFeature == 'ocr'">
+                            <div class="w-full grid grid-cols-2">
+                                <div class="mx-4">
+                                    <div class="absolute enlarge w-6 h-6 mt-2 ml-2">
+                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog('assets/images/demo/man.png', 'none')"></mat-icon>
+                                    </div>
+                                    <img src="assets/images/demo/man.png" alt="">
+                                </div>
+                                <div class="mx-4">
+                                    <div class="absolute enlarge w-6 h-6 mt-2 ml-2">
+                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog('assets/images/demo/man.png', 'none')"></mat-icon>
+                                    </div>
+                                    <img src="assets/images/demo/man.png" alt="">
+                                </div>
                             </div>
-                            <div class="mx-4">
-                                <img src="assets/images/demo/man.png" alt="">
+                        </ng-container>
+                        <ng-container *ngIf="selectedFeature == 'liveness'">
+                            <div class="w-full flex justify-center px-4">
+                                <div class="absolute enlarge w-6 h-6 mt-2 -ml-26">
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog('assets/images/demo/man.png', 'none')"></mat-icon>
+                                </div>
+                                <img class="w-36" src="assets/images/demo/man.png" alt="">
                             </div>
+                        </ng-container>
+                        
+                        
+                        <div class="my-4 w-full flex justify-center px-4">
+                            <mat-progress-bar
+                                [ngClass]="{'starter': matchLevel === 4 , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{matchLevel*100 / 7}}" [bufferValue]="75">
+                            </mat-progress-bar>
                         </div>
-
-                        <div class="mt-4 flex justify-center">
-                            bar
+                        <div class="w-full grid grid-cols-2 pb-4">
+                            
+                            <div class="mx-4 flex justify-center">
+                                23  
+                            </div>                                
+                            <div class="mx-4 flex justify-center">
+                                Male
+                            </div>
+                            <div class="mx-4 flex justify-center">                                
+                                Estimate Age
+                            </div>
+                            <div class="mx-4 flex justify-center">
+                                Gender
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="w-full mt-4" *ngIf="selectedFeature == 'ocr' ">
+                    <div class="mx-4 card-shadow rounded-2xl">
+
+                        <div class="w-full flex justify-center">
+                            Document Verification
+                        </div>
+                        <div class="w-full">
+                           
+                        </div>
+                        <div class="w-full px-4">
+                            <div class="w-full grid grid-cols-2 title-table">
+                                <div class="mx-4 flex items-center justify-center">                                
+                                    Field
+                                </div>
+                                <div class="mx-4 flex items-center justify-center">
+                                    OCR Result
+                                </div>
+                                <!-- <div class="mx-4 flex items-center justify-center">
+                                    
+                                </div> -->
+                            </div>
+                            <div *ngFor="let data of objectKeys(scannedData); let i = index" 
+                                [ngClass]="{ 'even-table': i % 2 === 0, 'odd-table': i % 2 !== 0 }"
+                                class="w-full grid grid-cols-2 title-table truncate">
+                                <div class="mx-1 w-full flex items-center justify-center truncate">                                
+                                    {{data}}
+                                </div>
+                                <div class="mx-1 w-full flex items-center justify-center truncate">
+                                    {{scannedData[data]}}
+                                </div>
+                                <!-- <div class="mx-1 w-full flex items-center justify-center truncate">
+                                    
+                                </div> -->
+                            </div>
+                            
+                        </div>
+                        <div class="h-4"></div>
+                    </div>
+                </div>
+                <div class="w-full my-8 px-4">
+                    <div class="code-area rounded-xl font-700 text-sm ">
+                        <div class="flex justify-center my-2">
+                            Code
+                        </div>
+                        <pre class="code-area rounded-xl">
+                            &#013;{{jsonData|json}}
+                        </pre>
+                    </div>
+                </div>
              </ng-container>
+             <ng-container *ngIf="currentStep == 'end'"></ng-container>
 
         </ng-container>
     </div>

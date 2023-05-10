@@ -32,6 +32,10 @@ import {
     DemoBiometric
 } from 'app/modules/biometrics/demo-biometric.module';
 import { Biometric } from 'app/modules/biometrics/biometric.module';
+import { ProfilePreviewComponent } from './profile-preview/profile-preview.component';
+import {
+	MatDialog
+} from '@angular/material/dialog';
 @Component({
     selector: 'app-demo-root',
     templateUrl: './demo-root.component.html',
@@ -50,7 +54,8 @@ export class DemoRootComponent implements OnInit {
     laptopMode: boolean;
     phoneMode: boolean;
     bigScreenMode: boolean;
-    selectedFeature: any = 'liveness';
+    selectedFeature: any;
+    // selectedFeature: any = 'ocr';
     currentStep: any = 'start';
     // currentStep: any = 'result';
     baseColor: any = '#0036E7'
@@ -62,11 +67,17 @@ export class DemoRootComponent implements OnInit {
         'facetec',
         'result',
     ]
+    scannedData:any;
+    objectKeys = Object.keys;
+    matchLevel: number;
+    jsonData: { type: string; fraudData: any[]; _id: string; deleted: boolean; externalDatabaseRefID: string; success: boolean; faceUrl: string; ageEstimateGroup: string; updatedAt: string; createdAt: string; __v: number; details: { platform: string; deviceModel: string; liveness: boolean; }; scanResultBlob: string; wasProcessed: boolean; };
+    previewDialog: any;
 
     constructor(
         private _formBuilder: FormBuilder,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _changeDetectorRef: ChangeDetectorRef,
+        public dialog: MatDialog,
         private _countries: CountriesService,
         private _service: BiometricService,
         // private _biometric: DemoBiometric,
@@ -75,14 +86,44 @@ export class DemoRootComponent implements OnInit {
         // if(localStorage.accessToken){
         //     this.loadBiometrics()
         // }
+
+        this.scannedData = {
+                "firstName": "ANGEL",
+                "middleName": "ORTIZ",
+                "lastName": "ORTIZ OLIVERA",
+                "dateOfBirth": "29/10/1993",
+                "idNumber": "226310541",
+                "idNumber2": "010A931029HOCRLN00",
+                "dateOfExpiration": "31 DEC 2032",
+                "mrzLine1": "IDMEX2263105418<<0219090916453",
+                "mrzLine2": "9310298H3212312MEX<01<<02101<0",
+                "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
+            }
+        this.matchLevel = 7;
      
+        this.jsonData = {
+            "type": "enrollment3d",
+            "fraudData": [],
+            "_id": "6459f4b9df220dca858e5681",
+            "deleted": false,
+            "externalDatabaseRefID": "lead_9541607442_angel@verifik.co",
+            "success": true,
+            "faceUrl": "https://app.verifik.co/api/liveness/image?tid=49221632-7559-4cca-a01b-9c5fb8bc9ca5",
+            "ageEstimateGroup": "Age Over 30",
+            "updatedAt": "2023-05-09T07:22:33.870Z",
+            "createdAt": "2023-05-09T07:22:33.870Z",
+            "__v": 0,
+            "details": { "platform": "web", "deviceModel": "Ubuntu", "liveness": true },
+            "scanResultBlob": "AAEAAABTAAAAAAAAALr5TZZNu6MHQBsdyBrfZXyQ6e7Fa6KTA4utBICs7PKAMwxeV581yDCV46RnLpD8JhnWjWTgP9xoKJImj9+jvb9+sTue7WgPHBNRJ2g/Ty9W93R1",
+            "wasProcessed": true
+        };
 
         this.countries = this._countries.countryCodes;
         this.initForm()
     }
     
     loadBiometrics():void{
-
+        console.log('initialize')
         this._biometric = new DemoBiometric(this._service)
 
         this._biometric.isReady$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
@@ -108,9 +149,10 @@ export class DemoRootComponent implements OnInit {
         this._biometric.onboardingScan$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
                 if (response.success) {
-
+                    console.log("onbarding");
+                    console.log(response);
                     //COMPLETED ALL SERVICES
-                    console.log("COMPLETED ALL SERVICES")
+                    console.log("COMPLETED ALL SERVICES");
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
                     this._changeDetectorRef.markForCheck()
@@ -124,7 +166,8 @@ export class DemoRootComponent implements OnInit {
         this._biometric.auth$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
                 if (response.success) {
-
+                    console.log("auth");
+                    console.log(response);
                     //COMPLETED ALL SERVICES
                     console.log("COMPLETED ALL SERVICES")
                     // this.screenStatus = 'ending'
@@ -171,6 +214,23 @@ export class DemoRootComponent implements OnInit {
         this._biometric.startEnrollmentDocument()
     }
 
+    profilePreviewDialog(object, part): boolean {
+		this.previewDialog = this.dialog.open(ProfilePreviewComponent, {
+			data: {
+				document: {url:object},
+				scan: part
+			}
+		});
+
+		this.previewDialog.afterClosed().subscribe(result => {
+			if (result == "aceptar") {
+
+			}
+		});
+		this._changeDetectorRef.markForCheck();
+
+		return false;
+	}
 
     initForm(): void {
         this.contactForm = this._formBuilder.group({
@@ -199,24 +259,32 @@ export class DemoRootComponent implements OnInit {
     }
 
     changeStep(data): void {
-        if (this.currentStep === 'form') {
+
+        console.log(data);
+        if (data === 'select') {
             this.reviewForm();
             // return;
         }
-        this._biometric.startSession()
+        if (data === 'instructions'){
+            
+            console.log('we are starting a session')
+            this._biometric.startSession()
+        }
 
         this.currentStep = data;
         this._changeDetectorRef.markForCheck();
     }
 
     reviewForm(): Boolean {
-        if (!this.contactForm.valid) {
+        if(!this.contactForm.valid) {
             return false;
         }
+
         this._demoService.postForm(this.contactForm.value).subscribe(
             result => {
                 localStorage.setItem('accessToken', result.data.token)
                 localStorage.setItem('expiresAt', result.data.tokenExpiresAt)
+                console.log(result.data)
                 if( result.data.token){
                     console.log('here')
                     this.loadBiometrics();

@@ -70,10 +70,11 @@ import {
 import {
   DemoRoutes
 } from './demo-routing';
-
+import { ProfilePreviewComponent } from './demo-root/profile-preview/profile-preview.component';
 @NgModule({
   declarations: [
-    DemoRootComponent
+    DemoRootComponent,
+    ProfilePreviewComponent
   ],
   imports: [
     RouterModule.forChild(DemoRoutes),

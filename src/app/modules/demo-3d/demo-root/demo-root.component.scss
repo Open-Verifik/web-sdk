@@ -2,6 +2,38 @@ body {
     overflow: hidden !important;
 }
 
+.starter .mat-progress-bar-fill::after {
+    background-color: #EAB417 !important;
+    color: #EAB417 !important;
+}
+
+.failedOTl .mat-progress-bar-fill::after {
+    background-color: #F20505 !important;
+    color: #F20505 !important;
+}
+
+.finishOtl .mat-progress-bar-fill::after {
+    background-color: green !important;
+    color: green !important;
+}
+
+.text-code-area{
+    color: rgba(52, 79, 138, 1);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.03em;
+    text-align: left;
+}
+.enlarge{
+    background: rgba(255, 255, 255, 0.75);
+}
+.code-area{
+    height: 14rem !important;
+    background-color: rgba(1, 35, 109, 1) !important;
+    color: white !important;
+}
+
 .background-gradient {
     height: 100vh;
     width: 100%;
@@ -283,4 +315,31 @@ body {
 }
 .card-shadow{
     box-shadow: 1px 4px 8px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-table{
+    font-weight: 600;
+    font-size: 9px;
+    line-height: 12px;
+    background: rgba(0, 54, 231, 0.25);
+    color: #01236D;
+    height: 28px;
+}
+
+.even-table{
+    background: white;
+    color: #01236D;
+    font-weight: 400;
+    font-size: 9px;
+    line-height: 12px;
+    height: 28px;
+}
+
+.odd-table{
+    background: rgba(0, 54, 231, 0.1);
+    color: #01236D;
+    font-weight: 400;
+    font-size: 9px;
+    line-height: 12px;
+    height: 28px;
 }
