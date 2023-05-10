@@ -1,5 +1,6 @@
 export type Layout =
     | 'empty'
+    | 'demo'
     // Horizontal
     | 'centered'
     | 'enterprise'

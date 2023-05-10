@@ -18,7 +18,7 @@ import {
 })
 export class BiometricService {
     baseUrl: String = environment.biometricUrl;
-
+    
     constructor(private _http: HttpClient) {}
 
     sendRequest(method: string, url: string, params: any = {}, options: any = {}) {
@@ -144,5 +144,17 @@ export class BiometricService {
 
     checkAge3d(body: any): Observable < any > {
         return this.sendRequest('post', `${this.baseUrl}v2/biometrics/check-age-3d`, body, {})
+    }
+
+    matchDemo(agent: string,body: any): Observable < any > {
+        return this.sendRequest('post', `${this.baseUrl}v2/leads/match-3d-3d`, body, { headers: {
+            'X-User-Agent': agent
+        }})
+    }
+
+    idscanDemo(agent: string,body: any): Observable < any > {
+        return this.sendRequest('post', `${this.baseUrl}v2/leads/idscan`, body, { headers: {
+            'X-User-Agent': agent
+        }})
     }
 }

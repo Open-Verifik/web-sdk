@@ -29,4 +29,17 @@ export const appRoutes: Route[] = [
             }
         ]
     },
+    {
+        path: '',
+        component: LayoutComponent,
+        data: {
+            layout: 'demo'
+        },
+        children: [
+            {
+                path: 'demo',
+                loadChildren: () => import('app/modules/demo-3d/demo-3d.module').then(m => m.Demo3dModule),
+            }
+        ]
+    },
 ];
