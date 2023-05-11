@@ -233,9 +233,9 @@ export class DemoRootComponent implements OnInit {
                     //COMPLETED ALL SERVICES
 
                     this.scannedData = {
-                        ...response['details']['scannedValues']['addressInfo'],
-                        ...response['details']['scannedValues']['idInfo'],
-                        ...response['details']['scannedValues']['userInfo']
+                        ...response['details']['documentData']['userConfirmedValues']['idInfo'] || response['details']['documentData']['scannedValues']['idInfo'],
+                        ...response['details']['documentData']['userConfirmedValues']['addressInfo'] || response['details']['documentData']['scannedValues']['addressInfo'],
+                        ...response['details']['documentData']['userConfirmedValues']['userInfo'] || response['details']['documentData']['scannedValues']['userInfo'] 
                     };
                     this.matchLevel = response.details['matchLevel'];
                     this.maxMatchLevel = response.details['maxMatchLevel'];
