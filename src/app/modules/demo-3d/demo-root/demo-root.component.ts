@@ -263,6 +263,12 @@ export class DemoRootComponent implements OnInit {
                    
                     //COMPLETED ALL SERVICES
                     console.log("COMPLETED ALL SERVICES")
+                    this.matchLevel = response.details['matchLevel'];
+                    this.maxMatchLevel = response.details['maxMatchLevel'];
+                    this.jsonData = response;
+                    this.faceScan = response.enrollUrl || response.faceScanUrl
+                    this.idScan = response.idScanUrl;
+                    this.ageEstimate = response.ageEstimateGroup
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
                     this.changeStep('result')
