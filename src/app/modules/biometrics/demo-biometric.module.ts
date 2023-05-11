@@ -90,6 +90,7 @@ export class DemoBiometric {
         cacheKeys.forEach(key => {
             localStorage.removeItem(key)
         })
+        FaceTecSDK.setResourceDirectory('/assets/core/sdk/resources');
 
         this._service.getConfig().subscribe((response: any) => {
             const config: Array < any > = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
