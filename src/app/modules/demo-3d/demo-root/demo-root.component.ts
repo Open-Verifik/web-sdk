@@ -245,7 +245,7 @@ export class DemoRootComponent implements OnInit {
                     console.log("COMPLETED ALL SERVICES");
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
-                    this.changeStep('finish')
+                    this.changeStep('result')
 
                     this._changeDetectorRef.markForCheck()
 
@@ -265,7 +265,7 @@ export class DemoRootComponent implements OnInit {
                     console.log("COMPLETED ALL SERVICES")
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
-                    this.changeStep('finish')
+                    this.changeStep('result')
                     this._changeDetectorRef.markForCheck()
                     
                 }
