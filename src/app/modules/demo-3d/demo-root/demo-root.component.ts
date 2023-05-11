@@ -77,6 +77,7 @@ export class DemoRootComponent implements OnInit {
     faceScan: any;
     idScan: any;
     currentImg:any;
+    ageEstimate: any;
 
     constructor(
         private _formBuilder: FormBuilder,
