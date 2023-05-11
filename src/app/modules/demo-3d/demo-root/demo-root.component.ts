@@ -54,9 +54,9 @@ export class DemoRootComponent implements OnInit {
     laptopMode: boolean;
     phoneMode: boolean;
     bigScreenMode: boolean;
-    selectedFeature: any;
-    // selectedFeature: any = 'ocr';
-    currentStep: any = 'start';
+    // selectedFeature: any; 
+    selectedFeature: any = 'ocr';
+    currentStep: any = 'result';
     // currentStep: any = 'result';
     baseColor: any = '#0036E7'
     mapSteps: any = [
@@ -66,15 +66,17 @@ export class DemoRootComponent implements OnInit {
         'instructions',
         'facetec',
         'result',
-    ]
+    ];
+    idScanCrops:any;
     scannedData:any;
     objectKeys = Object.keys;
     matchLevel: number;
-    jsonData: { type: string; fraudData: any[]; _id: string; deleted: boolean; externalDatabaseRefID: string; success: boolean; faceUrl: string; ageEstimateGroup: string; updatedAt: string; createdAt: string; __v: number; details: { platform: string; deviceModel: string; liveness: boolean; }; scanResultBlob: string; wasProcessed: boolean; };
+    jsonData:any;
     previewDialog: any;
     maxMatchLevel: any;
     faceScan: any;
     idScan: any;
+    currentImg:any;
 
     constructor(
         private _formBuilder: FormBuilder,
@@ -86,40 +88,113 @@ export class DemoRootComponent implements OnInit {
         // private _biometric: DemoBiometric,
         private _demoService: DemoService,
     ) {
+        
         // if(localStorage.accessToken){
         //     this.loadBiometrics()
         // }
 
-        this.scannedData = {
-                "firstName": "ANGEL",
-                "middleName": "ORTIZ",
-                "lastName": "ORTIZ OLIVERA",
-                "dateOfBirth": "29/10/1993",
-                "idNumber": "226310541",
-                "idNumber2": "010A931029HOCRLN00",
-                "dateOfExpiration": "31 DEC 2032",
-                "mrzLine1": "IDMEX2263105418<<0219090916453",
-                "mrzLine2": "9310298H3212312MEX<01<<02101<0",
-                "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
-            }
-        this.matchLevel = 7;
+        // this.scannedData = {
+        //         "firstName": "ANGEL",
+        //         "middleName": "ORTIZ",
+        //         "lastName": "ORTIZ OLIVERA",
+        //         "dateOfBirth": "29/10/1993",
+        //         "idNumber": "226310541",
+        //         "idNumber2": "010A931029HOCRLN00",
+        //         "dateOfExpiration": "31 DEC 2032",
+        //         "mrzLine1": "IDMEX2263105418<<0219090916453",
+        //         "mrzLine2": "9310298H3212312MEX<01<<02101<0",
+        //         "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
+        //     }
+        // this.matchLevel = 7;
      
+        // this.jsonData = {
+        //     "type": "enrollment3d",
+        //     "fraudData": [],
+        //     "_id": "6459f4b9df220dca858e5681",
+        //     "deleted": false,
+        //     "externalDatabaseRefID": "lead_9541607442_angel@verifik.co",
+        //     "success": true,
+        //     "faceUrl": "https://app.verifik.co/api/liveness/image?tid=49221632-7559-4cca-a01b-9c5fb8bc9ca5",
+        //     "ageEstimateGroup": "Age Over 30",
+        //     "updatedAt": "2023-05-09T07:22:33.870Z",
+        //     "createdAt": "2023-05-09T07:22:33.870Z",
+        //     "__v": 0,
+        //     "details": { "platform": "web", "deviceModel": "Ubuntu", "liveness": true },
+        //     "scanResultBlob": "AAEAAABTAAAAAAAAALr5TZZNu6MHQBsdyBrfZXyQ6e7Fa6KTA4utBICs7PKAMwxeV581yDCV46RnLpD8JhnWjWTgP9xoKJImj9+jvb9+sTue7WgPHBNRJ2g/Ty9W93R1",
+        //     "wasProcessed": true
+        // };
+
         this.jsonData = {
-            "type": "enrollment3d",
+            "type": "match3d2dIdscan",
             "fraudData": [],
-            "_id": "6459f4b9df220dca858e5681",
+            "_id": "6459f8b03a11e5d54bff90d9",
             "deleted": false,
             "externalDatabaseRefID": "lead_9541607442_angel@verifik.co",
+            "lead": "6459ed0a902e52a966151421",
             "success": true,
-            "faceUrl": "https://app.verifik.co/api/liveness/image?tid=49221632-7559-4cca-a01b-9c5fb8bc9ca5",
-            "ageEstimateGroup": "Age Over 30",
-            "updatedAt": "2023-05-09T07:22:33.870Z",
-            "createdAt": "2023-05-09T07:22:33.870Z",
+            "enrollUrl": "https://app.verifik.co/api/liveness/image?tid=b855a9f9-64e1-499d-97de-5f202a8ecc59",
+            "idScanUrl": "https://app.verifik.co/api/idCheckImage?tid=a62d1a8e-fb5d-4dee-83de-dc6bf65e7de2&idCheckImageType=",
+            "updatedAt": "2023-05-09T07:39:29.046Z",
+            "createdAt": "2023-05-09T07:39:29.046Z",
             "__v": 0,
-            "details": { "platform": "web", "deviceModel": "Ubuntu", "liveness": true },
-            "scanResultBlob": "AAEAAABTAAAAAAAAALr5TZZNu6MHQBsdyBrfZXyQ6e7Fa6KTA4utBICs7PKAMwxeV581yDCV46RnLpD8JhnWjWTgP9xoKJImj9+jvb9+sTue7WgPHBNRJ2g/Ty9W93R1",
+            "details": {
+              "platform": "web",
+              "deviceModel": "Ubuntu",
+              "matchLevel": 7,
+              "documentData": {
+                "templateInfo": {
+                  "templateName": "Mexico - ID Card (Voter) - 2020_UC - Horizontal",
+                  "templateType": "Government Issued Photo ID"
+                },
+                "scannedValues": {
+                  "userInfo": {
+                    "firstName": "ANGEL",
+                    "middleName": "ORTIZ",
+                    "lastName": "ORTIZ OLIVERA",
+                    "dateOfBirth": "29/10/1993"
+                  },
+                  "idInfo": {
+                    "idNumber": "226310541",
+                    "idNumber2": "010A931029HOCRLN00",
+                    "dateOfExpiration": "31 DEC 2032",
+                    "mrzLine1": "IDMEX2263105418<<0219090916453",
+                    "mrzLine2": "9310298H3212312MEX<01<<02101<0",
+                    "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
+                  }
+                },
+                "userConfirmedValues": {
+                  "userInfo": {
+                    "firstName": "ANGEL",
+                    "middleName": "ORTIZ",
+                    "lastName": "ORTIZ OLIVERA",
+                    "dateOfBirth": "29/10/1993"
+                  },
+                  "idInfo": {
+                    "idNumber": "226310541",
+                    "idNumber2": "010A931029HOCRLN00",
+                    "dateOfExpiration": "31 DEC 2032",
+                    "mrzLine1": "IDMEX2263105418<<0219090916453",
+                    "mrzLine2": "9310298H3212312MEX<01<<02101<0",
+                    "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
+                  }
+                }
+              },
+              "maxMatchLevel": 7
+            },
+            "scanResultBlob": "AAEAAAAUAQAAAAAAAHX7QsE7x/Cu0esZGxfK8F60yEDEgj9NxaeHz9C/cBSbdI38iK0YpQBui2R+NowkflD2RvepxJ+LAOlePQhdCGybFo9zKKYeDtjtwBLH0BTqxmdMnA5ODvzH29d19Zpzm5T5MJyIvFDP/uoU6x0pd46BY5IX7Wn5yk6IL10RerPDRs66NsYGbBWCY6ZZxRO/BHY9qUAaZbJHsV6uSDrz4uLDhZrFW0qQ42Msik/8U403N58qatdHs/05vR3a5U3SgfKJnEjZZmYIGFQKA1Tj53hZcqtoCcXCq4WKjgq2sK4bDVViKIZsO+L6vRVwUkFrWltvQm6gk5tFoKMlNc5ihUtpdONXPv4AMZVLhXtOb9q6BQGNxQ==",
             "wasProcessed": true
+          }
+
+          this.scannedData = {
+            ...this.jsonData['details']['documentData']['scannedValues']['addressInfo'],
+            ...this.jsonData['details']['documentData']['scannedValues']['idInfo'],
+            ...this.jsonData['details']['documentData']['scannedValues']['userInfo']
         };
+        this.matchLevel = this.jsonData.details['matchLevel'];
+        this.maxMatchLevel = this.jsonData.details['maxMatchLevel'];
+        this.jsonData = this.jsonData;
+        this.faceScan = this.jsonData.enrollUrl || this.jsonData.faceUrl
+        this.idScan = this.jsonData.idScanUrl
 
         this.countries = this._countries.countryCodes;
         this.initForm()
@@ -155,9 +230,23 @@ export class DemoRootComponent implements OnInit {
                     console.log("onbarding");
                     console.log(response);
                     //COMPLETED ALL SERVICES
+
+                    this.scannedData = {
+                        ...response['details']['scannedValues']['addressInfo'],
+                        ...response['details']['scannedValues']['idInfo'],
+                        ...response['details']['scannedValues']['userInfo']
+                    };
+                    this.matchLevel = response.details['matchLevel'];
+                    this.maxMatchLevel = response.details['maxMatchLevel'];
+                    this.jsonData = response;
+                    this.faceScan = response.enrollUrl || response.faceScanUrl
+                    this.idScan = response.idScanUrl
+
                     console.log("COMPLETED ALL SERVICES");
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
+                    this.changeStep('finish')
+
                     this._changeDetectorRef.markForCheck()
 
                 }
@@ -171,16 +260,7 @@ export class DemoRootComponent implements OnInit {
                 if (response.success) {
                     console.log("auth");
                     console.log(response);
-                    this.scannedData = {
-                        ...response['details']['scannedValues']['addressInfo'],
-                        ...response['details']['scannedValues']['idInfo'],
-                        ...response['details']['scannedValues']['userInfo']
-                    };
-                    this.matchLevel = response.details['matchLevel'];
-                    this.maxMatchLevel = response.details['maxMatchLevel'];
-                    this.jsonData = response;
-                    this.faceScan = response.enrollUrl || response.faceScanUrl
-                    this.idScan = response.idScanUrl
+                   
                     //COMPLETED ALL SERVICES
                     console.log("COMPLETED ALL SERVICES")
                     // this.screenStatus = 'ending'
@@ -197,7 +277,14 @@ export class DemoRootComponent implements OnInit {
     }
 
     ngOnInit(): void {
-
+        this.idScanCrops= [
+            'frontCrop',
+            'backScan'
+        ]
+        this.currentImg =  {
+            crop: this.idScanCrops[0],
+            index: 0
+        }
         this._fuseMediaWatcherService.onMediaChange$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe(({
@@ -229,10 +316,12 @@ export class DemoRootComponent implements OnInit {
     }
 
     profilePreviewDialog(object, part): boolean {
+        console.log(object)
+        console.log(part != 'none' ? object + part : object)
 		this.previewDialog = this.dialog.open(ProfilePreviewComponent, {
 			data: {
-				document: {url:object},
-				scan: part
+				document: {url: part != 'none' ? object + part : object},
+				scan: 'none'
 			}
 		});
 
@@ -270,6 +359,36 @@ export class DemoRootComponent implements OnInit {
     changeSelection(data): void {
         this.selectedFeature = data;
         this._changeDetectorRef.markForCheck();
+    }
+
+    changeId(displacement):void{
+        if(displacement ==='back'){
+            if(this.currentImg.index == 0){
+                this.currentImg = {
+                    crop: this.idScanCrops[this.idScanCrops.length - 1],
+                    index: this.idScanCrops.length - 1
+                }
+                return;
+            }
+            this.currentImg = {
+                crop: this.idScanCrops[this.currentImg.index - 1],
+                index: this.currentImg.index - 1
+            }
+            return
+        }
+        if(displacement ==='front'){
+            if(this.currentImg.index == this.idScanCrops.length - 1){
+                this.currentImg = {
+                    crop: this.idScanCrops[0],
+                    index: 0
+                }
+                return;
+            }
+            this.currentImg = {
+                crop: this.idScanCrops[this.currentImg.index + 1],
+                index: this.currentImg.index + 1
+            }
+        }
     }
 
     changeStep(data): void {

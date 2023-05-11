@@ -496,24 +496,24 @@
                             <div class="w-full grid grid-cols-2">
                                 <div class="mx-4">
                                     <div class="absolute enlarge w-6 h-6 mt-2 ml-2">
-                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog('assets/images/demo/man.png', 'none')"></mat-icon>
+                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
                                     </div>
-                                    <img src="assets/images/demo/man.png" alt="">
+                                    <img src="{{faceScan}}" alt="">
                                 </div>
                                 <div class="mx-4">
                                     <div class="absolute enlarge w-6 h-6 mt-2 ml-2">
-                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog('assets/images/demo/man.png', 'none')"></mat-icon>
+                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
                                     </div>
-                                    <img src="assets/images/demo/man.png" alt="">
+                                    <img src="{{idScan +'faceCrop'}}" alt="">
                                 </div>
                             </div>
                         </ng-container>
                         <ng-container *ngIf="selectedFeature == 'liveness'">
                             <div class="w-full flex justify-center px-4">
                                 <div class="absolute enlarge w-6 h-6 mt-2 -ml-26">
-                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog('assets/images/demo/man.png', 'none')"></mat-icon>
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(faceScan, 'none')"></mat-icon>
                                 </div>
-                                <img class="w-36" src="assets/images/demo/man.png" alt="">
+                                <img class="w-36" src="{{faceScan}}" alt="">
                             </div>
                         </ng-container>
                         
@@ -548,8 +548,14 @@
                         <div class="w-full flex justify-center">
                             Document Verification
                         </div>
-                        <div class="w-full">
-                           
+                        <div (click)="changeId('back')" class="relative flex justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
+                            <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-left"></mat-icon>
+                        </div>
+                        <div (click)="changeId('front')" class="relative flex justify-center w-7 h-7 rounded-full top-20" style="left:92%; background-color: #01236D;">
+                            <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-right"></mat-icon>
+                        </div>
+                        <div class="w-full flex justify-center mb-6 -mt-8">
+                            <img class="px-4" src="{{idScan + currentImg.crop}}" alt="">
                         </div>
                         <div class="w-full px-4">
                             <div class="w-full grid grid-cols-2 title-table">
