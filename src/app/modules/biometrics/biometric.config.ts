@@ -5,7 +5,6 @@ export const config = {
 export const setConfig = (FaceTecSDK): void => {
   const sdkImageDirectory = "/assets/core/images/";
 
-  FaceTecSDK.setResourceDirectory('/assets/core/sdk/resources');
   FaceTecSDK.setImagesDirectory(sdkImageDirectory);
 
   // For Color Customization
