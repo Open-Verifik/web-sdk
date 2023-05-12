@@ -299,7 +299,7 @@
                     <div class="flex justify-center mt-6">
                         <div [ngClass]="{'selected-option ':selectedFeature ==='ocr' ? true : false}"
                             (click)="changeSelection('ocr')"
-                            class="selectable-feature  cursor-pointerflex justify-center items-center flex-row">
+                            class="selectable-feature  cursor-pointer flex justify-center items-center flex-row">
                             <div class="mx-5">
                                 <p class="selectable-title mb-2">
                                     Onboarding 3D <br>+<br> Legal Document
@@ -484,7 +484,7 @@
                 <div class="w-full mt-4">
                     <div class="mx-4 card-shadow rounded-2xl">
 
-                        <div class="w-full flex justify-center text-sm py-4 font-700">
+                        <div class="w-full document-title flex justify-center text-sm py-4 font-700">
                             <ng-container *ngIf="selectedFeature == 'ocr'">
                                 Face Verification
                             </ng-container>
@@ -494,17 +494,17 @@
                         </div>
                         <ng-container *ngIf="selectedFeature == 'ocr'">
                             <div class="w-full grid grid-cols-2">
-                                <div class="mx-4">
-                                    <div class="absolute enlarge w-6 h-6 mt-2 ml-2">
+                                <div class="flex justify-center mx-4">
+                                    <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
                                         <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
                                     </div>
-                                    <img src="{{faceScan}}" alt="">
+                                    <img class="h-40" src="{{faceScan}}" alt="">
                                 </div>
-                                <div class="mx-4">
-                                    <div class="absolute enlarge w-6 h-6 mt-2 ml-2">
+                                <div class="flex justify-center mx-4">
+                                    <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
                                         <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
                                     </div>
-                                    <img src="{{idScan +'faceCrop'}}" alt="">
+                                    <img class="h-40" src="{{idScan +'faceCrop'}}" alt="">
                                 </div>
                             </div>
                         </ng-container>
@@ -545,24 +545,27 @@
                 <div class="w-full mt-4" *ngIf="selectedFeature == 'ocr' ">
                     <div class="mx-4 card-shadow rounded-2xl">
 
-                        <div class="w-full flex justify-center">
+                        <div class="w-full flex justify-center document-title">
                             Document Verification
                         </div>
-                        <div (click)="changeId('back')" class="relative flex justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
+                        <div (click)="changeId('back')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
                             <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-left"></mat-icon>
                         </div>
-                        <div (click)="changeId('front')" class="relative flex justify-center w-7 h-7 rounded-full top-20" style="left:92%; background-color: #01236D;">
+                        <div (click)="changeId('front')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-20" style="left:92%; background-color: #01236D;">
                             <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-right"></mat-icon>
                         </div>
                         <div class="w-full flex justify-center mb-6 -mt-8">
+                            <div class="absolute enlarge w-6 h-6 mt-2 -ml-52">
+                                <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan + currentImg.crop, 'none')"></mat-icon>
+                            </div>
                             <img class="px-4" src="{{idScan + currentImg.crop}}" alt="">
                         </div>
                         <div class="w-full px-4">
                             <div class="w-full grid grid-cols-2 title-table">
-                                <div class="mx-4 flex items-center justify-center">                                
+                                <div class="ml-2 flex items-center justify-start">                                
                                     Field
                                 </div>
-                                <div class="mx-4 flex items-center justify-center">
+                                <div class="mr-2 flex items-center justify-end">
                                     OCR Result
                                 </div>
                                 <!-- <div class="mx-4 flex items-center justify-center">
@@ -572,11 +575,13 @@
                             <div *ngFor="let data of objectKeys(scannedData); let i = index" 
                                 [ngClass]="{ 'even-table': i % 2 === 0, 'odd-table': i % 2 !== 0 }"
                                 class="w-full grid grid-cols-2 title-table truncate">
-                                <div class="mx-1 w-full flex items-center justify-center truncate">                                
+                                <div class="ml-2 w-full flex items-center justify-start truncate">                                
                                     {{data}}
                                 </div>
-                                <div class="mx-1 w-full flex items-center justify-center truncate">
-                                    {{scannedData[data]}}
+                                <div class="w-full flex items-center justify-end">
+                                    <span class="mr-2">
+                                        {{scannedData[data]}}
+                                    </span>
                                 </div>
                                 <!-- <div class="mx-1 w-full flex items-center justify-center truncate">
                                     
@@ -597,8 +602,51 @@
                         </pre>
                     </div>
                 </div>
+
+                <div class="flex justify-center w-full my-8 pt-4">
+                    <button (click)="changeStep('end')" class="verifik-start-phone px-10">
+                        Finish
+                    </button>
+                </div>
              </ng-container>
-             <ng-container *ngIf="currentStep == 'end'"></ng-container>
+             <ng-container *ngIf="currentStep == 'end'">
+                <div class="w-full grid grid-cols-3 mt-6">
+                    <div>
+                        <mat-icon (click)="changeStep('result')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </div>
+                    <div></div>
+                    <div class="flex justify-end w-full pr-6">
+                        <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                </div>
+                <div class="flex w-full mt-36 justify-center">
+                    <img class="w-40 h-40" src="assets/images/demo/end.svg" alt="">
+                </div>
+                <div class="flex justify-center w-full mt-4 px-8">
+                    <div class="verifik-welcome-phone w-full">
+                        Integrate 3D Liveness!                    </div>
+                </div>
+                <div class="flex justify-center w-full mt-8 px-4">
+                    <div class="verifik-description-phone text-sm mx-12">
+                        Integrate 3D liveness on your onboarding process starting at just $0.99 USD per monthly active user (infinite sessions per month).                    
+                    </div>
+                </div>
+                <div class="flex justify-center w-full mt-8">
+                    <button (click)="goToVk()" class="verifik-end-phone px-10">
+                        Sign Up
+                    </button>
+                </div>
+                <div class="flex justify-center w-full mt-8">
+                    <button (click)="changeDemo()" class="verifik-end-phone change-demo px-10">
+                        Change Demo
+                    </button>
+                </div>
+                <!-- <div class="flex justify-center w-full fixed bottom-5">
+                    <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
+                </div> -->
+
+             </ng-container>
 
         </ng-container>
     </div>
