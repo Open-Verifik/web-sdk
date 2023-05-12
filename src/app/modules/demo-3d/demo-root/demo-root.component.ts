@@ -432,7 +432,7 @@ export class DemoRootComponent implements OnInit {
     }
 
     changeStep(data): void {
-        if (data === 'select') {
+        if (data === 'select' && this.currentStep != 'instructions') {
             this.reviewForm();
             return;
         }
