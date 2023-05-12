@@ -1,7 +1,10 @@
 import {
-    Component,
-    ChangeDetectorRef,
-    OnInit
+    ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	OnDestroy,
+	OnInit,
+	ViewEncapsulation
 } from '@angular/core';
 import {
     FormBuilder,
@@ -43,10 +46,19 @@ import {
     MatDialog
 } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+	environment
+} from 'environments/environment';
+import {
+	TranslocoService
+} from '@ngneat/transloco';
+
 @Component({
     selector: 'app-demo-root',
     templateUrl: './demo-root.component.html',
-    styleUrls: ['./demo-root.component.scss']
+    styleUrls: ['./demo-root.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DemoRootComponent implements OnInit {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
@@ -61,9 +73,9 @@ export class DemoRootComponent implements OnInit {
     laptopMode: boolean;
     phoneMode: boolean;
     bigScreenMode: boolean;
-    // selectedFeature: any; 
-    selectedFeature: any = 'ocr';
-    currentStep: any = 'result';
+    selectedFeature: any; 
+    // selectedFeature: any = 'ocr';
+    currentStep: any = 'start';
     // currentStep: any = 'result';
     baseColor: any = '#0036E7'
     mapSteps: any = [
@@ -86,21 +98,31 @@ export class DemoRootComponent implements OnInit {
     idScan: any;
     currentImg: any;
     ageEstimate: any;
+    qrText: string;
 
     constructor(
         private _formBuilder: FormBuilder,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _changeDetectorRef: ChangeDetectorRef,
         public dialog: MatDialog,
+        private translocoService: TranslocoService,
         private _countries: CountriesService,
         private _service: BiometricService,
         private _snackBar: MatSnackBar,
         private _demoService: DemoService,
     ) {
 
-        // if(localStorage.accessToken){
-        //     this.loadBiometrics()
-        // }
+        this.translocoService.setActiveLang('en');
+        this._demoService.navigationHandler$.subscribe(
+            result=>{
+                if(result && result.hasToken){
+                    this.loadBiometrics()
+                    this.currentStep = 'select'
+                    this._changeDetectorRef.markForCheck();
+                }
+                console.log(result);
+            }
+        )
 
         // this.scannedData = {
         //         "firstName": "ANGEL",
@@ -133,84 +155,90 @@ export class DemoRootComponent implements OnInit {
         //     "wasProcessed": true
         // };
 
-        this.jsonData = {
-            "type": "match3d2dIdscan",
-            "fraudData": [],
-            "_id": "6459f8b03a11e5d54bff90d9",
-            "deleted": false,
-            "externalDatabaseRefID": "lead_9541607442_angel@verifik.co",
-            "lead": "6459ed0a902e52a966151421",
-            "success": true,
-            "enrollUrl": "https://app.verifik.co/api/liveness/image?tid=b855a9f9-64e1-499d-97de-5f202a8ecc59",
-            "idScanUrl": "https://app.verifik.co/api/idCheckImage?tid=a62d1a8e-fb5d-4dee-83de-dc6bf65e7de2&idCheckImageType=",
-            "updatedAt": "2023-05-09T07:39:29.046Z",
-            "createdAt": "2023-05-09T07:39:29.046Z",
-            "__v": 0,
-            "details": {
-              "platform": "web",
-              "deviceModel": "Ubuntu",
-              "matchLevel": 7,
-              "documentData": {
-                "templateInfo": {
-                  "templateName": "Mexico - ID Card (Voter) - 2020_UC - Horizontal",
-                  "templateType": "Government Issued Photo ID"
-                },
-                "scannedValues": {
-                  "userInfo": {
-                    "firstName": "ANGEL",
-                    "middleName": "ORTIZ",
-                    "lastName": "ORTIZ OLIVERA",
-                    "dateOfBirth": "29/10/1993"
-                  },
-                  "idInfo": {
-                    "idNumber": "226310541",
-                    "idNumber2": "010A931029HOCRLN00",
-                    "dateOfExpiration": "31 DEC 2032",
-                    "mrzLine1": "IDMEX2263105418<<0219090916453",
-                    "mrzLine2": "9310298H3212312MEX<01<<02101<0",
-                    "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
-                  }
-                },
-                "userConfirmedValues": {
-                  "userInfo": {
-                    "firstName": "ANGEL",
-                    "middleName": "ORTIZ",
-                    "lastName": "ORTIZ OLIVERA",
-                    "dateOfBirth": "29/10/1993"
-                  },
-                  "idInfo": {
-                    "idNumber": "226310541",
-                    "idNumber2": "010A931029HOCRLN00",
-                    "dateOfExpiration": "31 DEC 2032",
-                    "mrzLine1": "IDMEX2263105418<<0219090916453",
-                    "mrzLine2": "9310298H3212312MEX<01<<02101<0",
-                    "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
-                  }
-                }
-              },
-              "maxMatchLevel": 7
-            },
-            "scanResultBlob": "AAEAAAAUAQAAAAAAAHX7QsE7x/Cu0esZGxfK8F60yEDEgj9NxaeHz9C/cBSbdI38iK0YpQBui2R+NowkflD2RvepxJ+LAOlePQhdCGybFo9zKKYeDtjtwBLH0BTqxmdMnA5ODvzH29d19Zpzm5T5MJyIvFDP/uoU6x0pd46BY5IX7Wn5yk6IL10RerPDRs66NsYGbBWCY6ZZxRO/BHY9qUAaZbJHsV6uSDrz4uLDhZrFW0qQ42Msik/8U403N58qatdHs/05vR3a5U3SgfKJnEjZZmYIGFQKA1Tj53hZcqtoCcXCq4WKjgq2sK4bDVViKIZsO+L6vRVwUkFrWltvQm6gk5tFoKMlNc5ihUtpdONXPv4AMZVLhXtOb9q6BQGNxQ==",
-            "wasProcessed": true
-          }
+        // this.jsonData = {
+        //     "type": "match3d2dIdscan",
+        //     "fraudData": [],
+        //     "_id": "6459f8b03a11e5d54bff90d9",
+        //     "deleted": false,
+        //     "externalDatabaseRefID": "lead_9541607442_angel@verifik.co",
+        //     "lead": "6459ed0a902e52a966151421",
+        //     "success": true,
+        //     "enrollUrl": "https://app.verifik.co/api/liveness/image?tid=b855a9f9-64e1-499d-97de-5f202a8ecc59",
+        //     "idScanUrl": "https://app.verifik.co/api/idCheckImage?tid=a62d1a8e-fb5d-4dee-83de-dc6bf65e7de2&idCheckImageType=",
+        //     "updatedAt": "2023-05-09T07:39:29.046Z",
+        //     "createdAt": "2023-05-09T07:39:29.046Z",
+        //     "__v": 0,
+        //     "details": {
+        //       "platform": "web",
+        //       "deviceModel": "Ubuntu",
+        //       "matchLevel": 7,
+        //       "documentData": {
+        //         "templateInfo": {
+        //           "templateName": "Mexico - ID Card (Voter) - 2020_UC - Horizontal",
+        //           "templateType": "Government Issued Photo ID"
+        //         },
+        //         "scannedValues": {
+        //           "userInfo": {
+        //             "firstName": "ANGEL",
+        //             "middleName": "ORTIZ",
+        //             "lastName": "ORTIZ OLIVERA",
+        //             "dateOfBirth": "29/10/1993"
+        //           },
+        //           "idInfo": {
+        //             "idNumber": "226310541",
+        //             "idNumber2": "010A931029HOCRLN00",
+        //             "dateOfExpiration": "31 DEC 2032",
+        //             "mrzLine1": "IDMEX2263105418<<0219090916453",
+        //             "mrzLine2": "9310298H3212312MEX<01<<02101<0",
+        //             "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
+        //           }
+        //         },
+        //         "userConfirmedValues": {
+        //           "userInfo": {
+        //             "firstName": "ANGEL",
+        //             "middleName": "ORTIZ",
+        //             "lastName": "ORTIZ OLIVERA",
+        //             "dateOfBirth": "29/10/1993"
+        //           },
+        //           "idInfo": {
+        //             "idNumber": "226310541",
+        //             "idNumber2": "010A931029HOCRLN00",
+        //             "dateOfExpiration": "31 DEC 2032",
+        //             "mrzLine1": "IDMEX2263105418<<0219090916453",
+        //             "mrzLine2": "9310298H3212312MEX<01<<02101<0",
+        //             "mrzLine3": "ORTIZ<OLIVERA<<ANGEL<<<<<<<<<<"
+        //           }
+        //         }
+        //       },
+        //       "maxMatchLevel": 7
+        //     },
+        //     "scanResultBlob": "AAEAAAAUAQAAAAAAAHX7QsE7x/Cu0esZGxfK8F60yEDEgj9NxaeHz9C/cBSbdI38iK0YpQBui2R+NowkflD2RvepxJ+LAOlePQhdCGybFo9zKKYeDtjtwBLH0BTqxmdMnA5ODvzH29d19Zpzm5T5MJyIvFDP/uoU6x0pd46BY5IX7Wn5yk6IL10RerPDRs66NsYGbBWCY6ZZxRO/BHY9qUAaZbJHsV6uSDrz4uLDhZrFW0qQ42Msik/8U403N58qatdHs/05vR3a5U3SgfKJnEjZZmYIGFQKA1Tj53hZcqtoCcXCq4WKjgq2sK4bDVViKIZsO+L6vRVwUkFrWltvQm6gk5tFoKMlNc5ihUtpdONXPv4AMZVLhXtOb9q6BQGNxQ==",
+        //     "wasProcessed": true
+        // }
 
-          this.scannedData = {
-            ...this.jsonData['details']['documentData']['scannedValues']['addressInfo'],
-            ...this.jsonData['details']['documentData']['scannedValues']['idInfo'],
-            ...this.jsonData['details']['documentData']['scannedValues']['userInfo']
-        };
-        this.matchLevel = this.jsonData.details['matchLevel'];
-        this.maxMatchLevel = this.jsonData.details['maxMatchLevel'];
-        this.jsonData = this.jsonData;
-        this.faceScan = this.jsonData.enrollUrl || this.jsonData.faceUrl
-        this.idScan = this.jsonData.idScanUrl
-
+        // this.scannedData = {
+        //     ...this.jsonData['details']['documentData']['scannedValues']['addressInfo'],
+        //     ...this.jsonData['details']['documentData']['scannedValues']['idInfo'],
+        //     ...this.jsonData['details']['documentData']['scannedValues']['userInfo']
+        // };
+        // this.matchLevel =this.jsonData.details['matchLevel'];
+        // this.maxMatchLevel = this.jsonData.details['maxMatchLevel'];
+        // this.jsonData = this.jsonData;
+        // this.faceScan = this.jsonData.enrollUrl || this.jsonData.faceUrl
+        // this.idScan = this.jsonData.idScanUrl
+        // this.ageEstimate = this.jsonData.ageEstimateGroup || null
+        // console.log(
+        //     {match: this.matchLevel,
+        //     max: this.maxMatchLevel
+        //         }
+        // )
+        this._changeDetectorRef.markForCheck()
         this.countries = this._countries.countryCodes;
         this.initForm()
     }
 
     loadBiometrics(): void {
-        console.log('initialize')
+        // console.log('initialize')
         this._biometric = new DemoBiometric(this._service)
 
         this._biometric.isReady$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
@@ -238,8 +266,6 @@ export class DemoRootComponent implements OnInit {
         this._biometric.onboardingScan$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
                 if (response.success) {
-                    console.log("onbarding");
-                    console.log(response);
                     //COMPLETED ALL SERVICES
 
                     this.scannedData = {
@@ -253,7 +279,6 @@ export class DemoRootComponent implements OnInit {
                     this.faceScan = response.enrollUrl || response.faceScanUrl
                     this.idScan = response.idScanUrl
 
-                    console.log("COMPLETED ALL SERVICES");
                     // this.screenStatus = 'ending'
                     // this.step = 'finish'
                     this.changeStep('result')
@@ -269,11 +294,9 @@ export class DemoRootComponent implements OnInit {
         this._biometric.auth$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
                 if (response.success) {
-                    console.log("auth");
-                    console.log(response);
+
 
                     //COMPLETED ALL SERVICES
-                    console.log("COMPLETED ALL SERVICES")
                     this.matchLevel = response.details['matchLevel'];
                     this.maxMatchLevel = response.details['maxMatchLevel'];
                     this.jsonData = response;
@@ -333,8 +356,6 @@ export class DemoRootComponent implements OnInit {
     }
 
     profilePreviewDialog(object, part): boolean {
-        console.log(object)
-        console.log(part != 'none' ? object + part : object)
         this.previewDialog = this.dialog.open(ProfilePreviewComponent, {
             data: {
                 document: {
@@ -411,15 +432,12 @@ export class DemoRootComponent implements OnInit {
     }
 
     changeStep(data): void {
-
-        console.log(data);
         if (data === 'select') {
             this.reviewForm();
             return;
         }
         if (data === 'instructions') {
 
-            console.log('we are starting a session')
             this._biometric.startSession()
         }
 
@@ -436,10 +454,11 @@ export class DemoRootComponent implements OnInit {
         this._demoService.postForm(this.contactForm.value).subscribe(
             result => {
                 localStorage.setItem('accessToken', result.data.token)
+                
                 localStorage.setItem('expiresAt', result.data.tokenExpiresAt)
                 console.log(result.data)
                 if (result.data.token) {
-                    console.log('here')
+                    this.qrText = `${environment.redirectUrl + 'demo/' + result.data.token}`
                     this.loadBiometrics();
                     this.currentStep = 'select';
                     this._changeDetectorRef.markForCheck();

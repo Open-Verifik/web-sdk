@@ -8,7 +8,7 @@
         <!-- =====DESKTOP======= -->
         <ng-container *ngIf="!phoneMode">
 
-            <ng-container *ngIf="false">
+            <ng-container *ngIf="currentStep == 'start'">
 
                 <div class="flex justify-center w-full mt-8">
                     <img class="home-image" src="assets/images/demo/PcNaveHome.svg" alt="">
@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8">
-                    <button class="verifik-start-desktop">
+                    <button (click)="changeStep('form')" class="verifik-start-desktop">
                         Start
                     </button>
                 </div>
@@ -34,7 +34,7 @@
             </ng-container>
 
 
-            <ng-container *ngIf="false">
+            <ng-container *ngIf="currentStep == 'form'">
                 <div class="flex justify-end relative -top-10">
                     <img class="h-80 w-80" src="assets/images/demo/PcNaveForm.svg" alt="">
                 </div>
@@ -122,7 +122,7 @@
                                 </mat-form-field>
                             </div>
                             <div class="w-full col-span-3 flex justify-center">
-                                <button class="verifik-start-desktop">
+                                <button (click)="changeStep('select')" class="verifik-start-desktop">
                                     Start
                                 </button>
                             </div>
@@ -132,9 +132,21 @@
 
             </ng-container>
 
-            <ng-container>
-                <div class="h-full relative right-0">
-                    <img class="h-full" src="assets/images/demo/PcNaveQR.svg" alt="">
+            <ng-container *ngIf="currentStep == 'select' || currentStep == 'instructions' || currentStep == 'result' || currentStep == 'end'">
+                <div class="flex flex-col w-full h-full items-center justify-center">
+                    <div class="scan-txt">
+                        Scan the next QR to continue with the DEMO in your cellphone
+                    </div>
+                    <qrcode *ngIf="qrText" [qrdata]="qrText" [imageHeight]="75" [imageWidth]="75" [imageSrc]="'assets/images/demo/k.svg'" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+                    <div class="flex justify-center w-full mt-8">
+                        <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                </div>
+                <div class="h-full absolute left-0 top-0">
+                    <img class="h-full" src="assets/images/demo/FondoIzq.svg" alt="">
+                </div>
+                <div class="h-full absolute right-0 bottom-0">
+                    <img class="h-full" src="assets/images/demo/FondoDer.svg" alt="">
                 </div>
             </ng-container>
         </ng-container>
@@ -454,7 +466,7 @@
                     <button (click)="startBiometric()" class="flex p-2 mx-4 justify-center border-solid border-2 rounded-full"
                         [style.background-color]=" baseColor">
                         <span [style.color]="'white'">
-                            {{'otl.starter.start' | transloco}}
+                            Start
                         </span>
                     </button>
                 </div>
@@ -517,27 +529,35 @@
                             </div>
                         </ng-container>
                         
-                        
-                        <div class="my-4 w-full flex justify-center px-4">
-                            <mat-progress-bar
-                                [ngClass]="{'starter': matchLevel === 4 , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }"
+                        <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'ocr'" 
+                        [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }">
+                            Match Level {{matchLevel}} / {{maxMatchLevel}}
+                        </div>
+                        <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'liveness'"
+                        [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }">
+                            {{ jsonData.details.liveness ? 'Liveness Confirmed' : 'Liveness Failed'}}
+                        </div>
+                        <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
+                            <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }"
                                 class="w-full" [mode]="'determined'"
-                                value="{{matchLevel*100 / 7}}" [bufferValue]="75">
+                                value="{{matchLevel*100 / maxMatchLevel}}" [bufferValue]="75">
                             </mat-progress-bar>
                         </div>
-                        <div class="w-full grid grid-cols-2 pb-4">
+                        <div *ngIf="selectedFeature ==='liveness'" class="pb-4 w-full flex justify-center px-4">
+                            <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{jsonData.details.liveness ? 100 :  2 }}" [bufferValue]="75">
+                            </mat-progress-bar>
+                        </div>
+                        <div *ngIf="selectedFeature ==='liveness'" class="w-full grid grid-cols-1 pb-4">
                             
-                            <div class="mx-4 flex justify-center">
-                                23  
+                            <div class="mx-4 flex justify-center age-estimate">
+                                {{ageEstimate}}  
                             </div>                                
-                            <div class="mx-4 flex justify-center">
-                                Male
-                            </div>
-                            <div class="mx-4 flex justify-center">                                
+                            <div class="mx-4 flex justify-center estimate-txt">                                
                                 Estimate Age
-                            </div>
-                            <div class="mx-4 flex justify-center">
-                                Gender
                             </div>
                         </div>
                     </div>

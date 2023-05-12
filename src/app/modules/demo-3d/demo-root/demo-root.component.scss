@@ -8,13 +8,49 @@ body {
 }
 
 .failedOTl .mat-progress-bar-fill::after {
-    background-color: #F20505 !important;
+    background-color: rgba(235, 23, 23, 1) !important;
     color: #F20505 !important;
 }
 
 .finishOtl .mat-progress-bar-fill::after {
-    background-color: green !important;
-    color: green !important;
+    background-color: rgba(26, 183, 0, 1) !important;
+    color: rgba(26, 183, 0, 1)  !important;
+}
+
+.scan-txt{
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 20px;
+    text-align: center;
+    letter-spacing: 0.001em;
+    color: #01236D;
+    max-width: 293px;
+}
+
+.over-progress{
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+    letter-spacing: 0.001em;
+}
+
+.age-estimate{
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+    letter-spacing: 0.001em;
+    color: #01236D;
+}
+
+.estimate-txt{
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 20px;
+    text-align: center;
+    letter-spacing: 0.001em;
+    color: #AEAEAE;
 }
 
 .text-code-area{

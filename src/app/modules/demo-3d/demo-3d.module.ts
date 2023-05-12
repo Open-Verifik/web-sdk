@@ -71,6 +71,8 @@ import {
   DemoRoutes
 } from './demo-routing';
 import { ProfilePreviewComponent } from './demo-root/profile-preview/profile-preview.component';
+import { QRCodeModule } from 'angularx-qrcode';
+
 @NgModule({
   declarations: [
     DemoRootComponent,
@@ -97,7 +99,8 @@ import { ProfilePreviewComponent } from './demo-root/profile-preview/profile-pre
     MatProgressSpinnerModule,
     FuseAlertModule,
     MatSnackBarModule,
-    LanguagesModule
+    LanguagesModule,
+    QRCodeModule
   ]
 })
 export class Demo3dModule {}
