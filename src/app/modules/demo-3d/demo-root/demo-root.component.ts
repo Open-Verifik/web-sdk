@@ -1,19 +1,59 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from "@angular/forms";
-import { CountriesService } from "app/modules/countries/countries.service";
-import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
-import { Subject } from "rxjs";
-import { skip, takeUntil } from "rxjs/operators";
-import { DemoService } from "../demo.service";
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	OnDestroy,
+	OnInit,
+	ViewEncapsulation
+} from "@angular/core";
+import {
+	FormBuilder,
+	FormGroup,
+	Validators,
+	ValidatorFn,
+	AbstractControl
+} from "@angular/forms";
+import {
+	CountriesService
+} from "app/modules/countries/countries.service";
+import {
+	FuseMediaWatcherService
+} from "@fuse/services/media-watcher";
+import {
+	Subject
+} from "rxjs";
+import {
+	skip,
+	takeUntil
+} from "rxjs/operators";
+import {
+	DemoService
+} from "../demo.service";
 
-import { BiometricService } from "app/modules/biometrics/biometric.service";
-import { DemoBiometric } from "app/modules/biometrics/demo-biometric.module";
-import { Biometric } from "app/modules/biometrics/biometric.module";
-import { ProfilePreviewComponent } from "./profile-preview/profile-preview.component";
-import { MatDialog } from "@angular/material/dialog";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { environment } from "environments/environment";
-import { TranslocoService } from "@ngneat/transloco";
+import {
+	BiometricService
+} from "app/modules/biometrics/biometric.service";
+import {
+	DemoBiometric
+} from "app/modules/biometrics/demo-biometric.module";
+import {
+	Biometric
+} from "app/modules/biometrics/biometric.module";
+import {
+	ProfilePreviewComponent
+} from "./profile-preview/profile-preview.component";
+import {
+	MatDialog
+} from "@angular/material/dialog";
+import {
+	MatSnackBar
+} from "@angular/material/snack-bar";
+import {
+	environment
+} from "environments/environment";
+import {
+	TranslocoService
+} from "@ngneat/transloco";
 
 @Component({
 	selector: "app-demo-root",
@@ -23,7 +63,7 @@ import { TranslocoService } from "@ngneat/transloco";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DemoRootComponent implements OnInit {
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	private _unsubscribeAll: Subject < any > = new Subject < any > ();
 	private _biometric: DemoBiometric;
 	biometricLoaded: Boolean;
 
@@ -74,13 +114,13 @@ export class DemoRootComponent implements OnInit {
 		});
 
 		if (localStorage.accessToken) {
-            console.log(localStorage.accessToken);
 			this._demoService.getLead().subscribe((lead) => {
-				console.log(lead);
 				this.loadBiometrics();
 				this.currentStep = "select";
 				this._changeDetectorRef.markForCheck();
-			},error => console.log({error}));
+			}, error => console.log({
+				error
+			}));
 		}
 
 		this._changeDetectorRef.markForCheck();
@@ -96,7 +136,7 @@ export class DemoRootComponent implements OnInit {
 			.pipe(takeUntil(this._unsubscribeAll))
 			.subscribe((isSuccess) => {
 				console.log({
-					isSuccess,
+					biometricsReady: isSuccess,
 				});
 			});
 
@@ -177,7 +217,9 @@ export class DemoRootComponent implements OnInit {
 			crop: this.idScanCrops[0],
 			index: 0,
 		};
-		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
+		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({
+			matchingAliases
+		}) => {
 			this.isScreenSmall = Boolean(!matchingAliases.includes("lg") && matchingAliases.includes("md"));
 			this.lgScreen = matchingAliases.includes("lg");
 			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
@@ -210,8 +252,7 @@ export class DemoRootComponent implements OnInit {
 		});
 
 		this.previewDialog.afterClosed().subscribe((result) => {
-			if (result == "aceptar") {
-			}
+			if (result == "aceptar") {}
 		});
 		this._changeDetectorRef.markForCheck();
 
@@ -289,7 +330,7 @@ export class DemoRootComponent implements OnInit {
 				localStorage.setItem("accessToken", result.data.token);
 
 				localStorage.setItem("expiresAt", result.data.tokenExpiresAt);
-				console.log(result.data);
+
 				if (result.data.token) {
 					this.qrText = `${environment.redirectUrl + "demo/" + result.data.token}`;
 					this.loadBiometrics();
@@ -301,7 +342,9 @@ export class DemoRootComponent implements OnInit {
 				// const token = result.data.token
 			},
 			(err) => {
-				console.log(err);
+				console.log({
+					err
+				});
 				this.openSnackBar(err);
 			}
 		);
@@ -334,11 +377,10 @@ export class DemoRootComponent implements OnInit {
 		} | null => {
 			const phoneNumberPattern = /^[0-9]{10}$/; // Assuming 10-digit phone number
 			const isValid = phoneNumberPattern.test(control.value);
-			return isValid
-				? null
-				: {
-						invalidPhoneNumber: true,
-				  };
+			return isValid ?
+				null : {
+					invalidPhoneNumber: true,
+				};
 		};
 	}
 }
