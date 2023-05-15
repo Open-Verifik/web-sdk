@@ -12,7 +12,7 @@ export const appRoutes: Route[] = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: `tutorials`
+        redirectTo: `demo`
     },
 
     // Auth routes for guests
