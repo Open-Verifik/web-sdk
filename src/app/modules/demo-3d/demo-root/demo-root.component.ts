@@ -92,6 +92,7 @@ export class DemoRootComponent implements OnInit {
 	currentImg: any;
 	ageEstimate: any;
 	qrText: string;
+	intervalHideSnackBar: any;
 
 	constructor(
 		private _formBuilder: FormBuilder,
@@ -366,6 +367,14 @@ export class DemoRootComponent implements OnInit {
 
 	openSnackBar(message: string) {
 		this._snackBar.open(message);
+
+		if(this.intervalHideSnackBar){
+			clearTimeout(this.intervalHideSnackBar)
+		}
+
+		this.intervalHideSnackBar = setTimeout(() => {
+			this._snackBar.dismiss();
+		}, 5000);
 	}
 
 	phoneNumberValidator(): ValidatorFn {
