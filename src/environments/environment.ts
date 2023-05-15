@@ -4,9 +4,9 @@
 
 export const environment = {
     production: false,
-    baseUrl: 'http://localhost:3003/',
+    baseUrl: 'http://localhost:3001/',
     projectId: '6332941ccde4f719d9c00f9e',
-    biometricUrl: 'http://localhost:3003/',
+    biometricUrl: 'http://localhost:3001/',
     redirectUrl: 'http://localhost:5666/'
     // biometricUrl: 'https://api.verifik.co/'
     // projectId: '6266193db77ccc8111730c90',
