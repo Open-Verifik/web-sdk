@@ -34,8 +34,6 @@ export class DemoResolver implements Resolve < boolean > {
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable < any > {
         localStorage.clear();
         if (route.params.id) {
-
-            console.log(route.params.id)
             localStorage.setItem('accessToken', route.params.id)
             return this._demoService.getLead().pipe(
                 tap((response:any)=>{
