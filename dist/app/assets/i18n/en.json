@@ -12,6 +12,7 @@
     "error": {
         "credentials": "Fill in the required info, to continue with the tutorial."
     },
+
     "start": {
         "title": "Create a new account",
         "existing_account_label": "already registered?",
@@ -40,6 +41,25 @@
         "document_type": "Type of Doc",
         "document_number": "Number of Doc",
         "test_button": "Test Mode"
+    },
+    "otl":{
+        "starter":{
+            "welcome": "Hola! Este link nos ayudara a verificar tu identidad y asi proteger tu seguridad.",
+            "welcome_1" :"Hola",
+            "welcome_2":"Este link nos ayudara a verificar tu identidad y asi proteger tu seguridad.",
+            "description": "A continuación realizarás un proceso que nos ayudara a verificar tu identidad y proteger tu información.",
+            "instruction":"Vamos a realizar el siguiente proceso:",
+            "bullet1": "1. Face Scanning Biometric",
+            "description1":"Perform a facial scan in order to compare your biometrics with the information on your document.",
+            "bullet2": "Document scanning",
+            "description2":"Scan your document to extract the corresponding information and image.",
+            "bullet3": "Results and completion",
+            "description3":"Once you have completed and fulfilled the validation process, you can view the results and close the window.",
+            "start":"Empezar",
+            "begining": "Comienzo",
+            "validation": "Validación",
+            "completed": "Completado"          
+        }
     },
     "kyc": {
         "steps": {
@@ -681,6 +701,8 @@
         }
     },
     "demo": {
+        "liveness": "Liveness Check",
+        "OCR": "Onboarding 3D:2D",
         "title": "Tests",
         "description": "Let's do a test of the service",
         "camera_permission": "Be sure to assign the appropriate permissions, we recommend using your phone for best results.",
