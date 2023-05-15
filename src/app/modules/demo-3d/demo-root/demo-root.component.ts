@@ -77,8 +77,8 @@ export class DemoRootComponent implements OnInit {
 	bigScreenMode: boolean;
 	selectedFeature: any;
 	// selectedFeature: any = 'ocr';
-	currentStep: any = "start";
-	// currentStep: any = 'result';
+	currentStep: any = "end";
+	// currentStep: any = 'end';
 	baseColor: any = "#0036E7";
 	mapSteps: any = ["start", "form", "select", "instructions", "facetec", "result", "end"];
 	idScanCrops: any;
@@ -362,6 +362,14 @@ export class DemoRootComponent implements OnInit {
 
 	goToVk(): void {
 		window.location.href = "https://auth.verifik.co/kyc/start/6332941ccde4f719d9c00f9e"; // Replace with the URL of the external webpage
+	}
+    
+	talkToSales(): void {
+        let url = "https://meetings.hubspot.com/lina-yepes"
+        if(this.translocoService.getActiveLang() == 'en'){
+            url = "https://meetings.hubspot.com/johan-castellanos"
+        }
+        window.location.href = url;
 	}
 
 	openSnackBar(message: string) {
