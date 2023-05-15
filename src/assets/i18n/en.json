@@ -710,7 +710,8 @@
         "external_id_description": "UID to identify the user",
         "external_id": "UID",
         "group_description": "The Group allows you to group user records to hinder duplicates of biometric data off your users, if the Group is omitted duplicates of biometric records will be allowed.",
-        "group": "Group"
+        "group": "Group",
+        "form_title": "Please complete the next form to continue with the Demo"
     },
     "results": {
         "title": "Demo's final result",
