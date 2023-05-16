@@ -701,7 +701,9 @@
     "demo": {
         "finish": "Finalizar",
         "home_title": "Bienvenido a la Demo de Verifik",
-        "home_subtitle": "En esta Demo puedes probar dos de nuestras características relacionadas con la verificación de vida y la integración 3D:2D",
+        "home_subtitle": "En esta demo podrás probar 2 de las 11 características ofrecidas en la solución de verificación de vida:",
+        "home_1": "Verificación de vida 3D",
+        "home_2": "Integración 3D:2D",
         "liveness": "Verificación de Vida",
         "OCR": "Integración 3D:2D",
         "title": "Pruebas",

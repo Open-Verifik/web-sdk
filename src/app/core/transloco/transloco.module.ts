@@ -34,7 +34,7 @@ import {
                         label: 'English'
                     },
                 ],
-                defaultLang: 'es',
+                defaultLang: 'en',
                 fallbackLang: 'es',
                 reRenderOnLangChange: true,
                 prodMode: environment.production
@@ -53,6 +53,8 @@ import {
                 const defaultLang = localStorage.getItem('lang') || translocoService.getDefaultLang();
 
                 translocoService.setActiveLang(defaultLang);
+                
+                localStorage.setItem('lang', defaultLang)
 
                 return translocoService.load(defaultLang).toPromise();
             },

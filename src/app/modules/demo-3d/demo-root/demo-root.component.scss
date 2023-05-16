@@ -121,6 +121,27 @@ body {
     z-index: 10;
 }
 
+.list-feature {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: 0.001em;
+    color: #01236D;
+}
+
+.text-align-center{
+    text-align: center;
+}
+
+.list-feature-pc{
+    max-width: 462px !important;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 18px;
+    letter-spacing: 0.001em;
+    color: #01236D;
+}
+
 @media screen and (min-height: 850px) {
 
     .home-image {

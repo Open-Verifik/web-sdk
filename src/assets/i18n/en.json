@@ -703,7 +703,9 @@
     "demo": {
         "finish": "finish",
         "home_title": "Welcome to the Verifik Demo",
-        "home_subtitle": "In this Demo you can test two of our features related to Liveness check and Onboarding 3D:2D",
+        "home_subtitle": "In this demo you will be able to test 2 out of 11 features offered in the liveness solution:",
+        "home_1": "3D Liveness check",
+        "home_2": "Onboarding 3D:2D",
         "liveness": "Liveness Check",
         "OCR": "Onboarding 3D:2D",
         "title": "Tests",

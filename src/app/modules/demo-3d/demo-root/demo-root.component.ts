@@ -105,7 +105,7 @@ export class DemoRootComponent implements OnInit {
 		private _snackBar: MatSnackBar,
 		private _demoService: DemoService
 	) {
-		this.translocoService.setActiveLang("en");
+		// this.translocoService.setActiveLang("en");
 		this._demoService.navigationHandler$.subscribe((result) => {
 			if (result && result.hasToken) {
 				this.loadBiometrics();
@@ -192,8 +192,8 @@ export class DemoRootComponent implements OnInit {
 					this.matchLevel = response.details["matchLevel"];
 					this.maxMatchLevel = response.details["maxMatchLevel"];
 					this.jsonData = response;
-					this.faceScan = response.enrollUrl || response.faceScanUrl;
-					this.idScan = response.idScanUrl;
+					this.faceScan = response.faceUrl || response.enrollUrl ;
+					// this.idScan = response.idScanUrl;
 					this.ageEstimate = response.ageEstimateGroup;
 					// this.screenStatus = 'ending'
 					// this.step = 'finish'

@@ -7,7 +7,9 @@
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
         <ng-container *ngIf="!phoneMode">
-
+            <div class="absolute left-0 mt-8 ml-8">
+                <languages [type]="'fab'"></languages>
+            </div>
             <ng-container *ngIf="currentStep == 'start'">
 
                 <div class="flex justify-center w-full mt-8">
@@ -15,17 +17,27 @@
                 </div>
                 <div class="flex justify-center w-full-mt-4">
                     <div class="verifik-welcome-desktop">
-                        {{'home_title' | transloco}}
+                        {{'demo.home_title' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8">
-                    <div class="verifik-description-desktop">
-                        {{'home_subtitle' | transloco}}
+                    <div class="list-feature-pc text-align-center">
+                        {{'demo.home_subtitle' | transloco}}
                     </div>
                 </div>
+
+                <div class="flex justify-center w-full mt-8 ml-10 px-4">
+                    <div class="list-feature-pc">
+                        <ul style="list-style:disc !important">
+                            <li>{{ 'demo.home_1' | transloco}}</li>
+                            <li>{{ 'demo.home_2' | transloco}}</li>
+                        </ul>
+                    </div>
+                </div>
+                
                 <div class="flex justify-center w-full mt-8">
                     <button (click)="changeStep('form')" class="verifik-start-desktop">
-                        Start
+                        {{'demo.start' | transloco}}
                     </button>
                 </div>
                 <div class="flex justify-center w-full mt-8">
@@ -128,7 +140,7 @@
                             </div>
                             <div class="w-full col-span-3 flex justify-center">
                                 <button (click)="changeStep('select')" class="verifik-start-desktop">
-                                    Start
+                                    {{'demo.start' | transloco}}
                                 </button>
                             </div>
                         </div>
@@ -157,9 +169,11 @@
         </ng-container>
 
         <ng-container *ngIf="phoneMode">
-
             <ng-container *ngIf="currentStep == 'start'">
-
+                <div class="absolute right-0 mt-4 mr-4">
+                    <languages [type]="'fab'"></languages>
+                </div>
+                
                 <div class="flex justify-center w-full">
                     <img class="w-full" src="assets/images/demo/CelNaveHome.svg" alt="">
                 </div>
@@ -169,16 +183,26 @@
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8 px-4">
-                    <div class="verifik-description-phone">
+                    <div class="list-feature w-56">
                         {{ 'demo.home_subtitle' | transloco}}
                     </div>
+                    
                 </div>
+                <div class="flex justify-start w-full mt-8 ml-10 px-4">
+                    <div class="list-feature">
+                        <ul style="list-style:disc !important">
+                            <li>{{ 'demo.home_1' | transloco}}</li>
+                            <li>{{ 'demo.home_2' | transloco}}</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div class="flex justify-center w-full mt-8">
-                    <button (click)="changeStep('form')" class="verifik-start-phone px-10">
+                    <button (click)="changeStep('form')" class="verifik-start-phone">
                         {{ 'demo.start' | transloco}}
                     </button>
                 </div>
-                <div class="flex justify-center w-full fixed bottom-5">
+                <div class="flex justify-center w-full my-8">
                     <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
                 </div>
             </ng-container>
@@ -360,8 +384,11 @@
                     </div>
                 </div>
                 <div class="flex justify-center mb-1">
-                    <p class="mt-40 text-2xl font-700" [style.color]=" baseColor">
-                        {{selectedFeature  === 'liveness'? 'demo.liveness' : 'demo.OCR' |transloco}}
+                    <p *ngIf="selectedFeature  === 'liveness'" class="mt-20 text-2xl font-700" [style.color]="baseColor">
+                        {{'demo.liveness' | transloco }}
+                    </p>
+                    <p *ngIf="selectedFeature  !== 'liveness'" class="mt-20 text-2xl font-700" [style.color]="baseColor">
+                        {{ 'demo.OCR' | transloco }}
                     </p>
                 </div>
                 <div class="mt-4 instructions-link-phone mx-4">
@@ -549,7 +576,12 @@
                         </div>
                         <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'liveness'"
                         [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }">
-                            {{ jsonData.details.liveness ? 'liveness_w' : 'liveness_f' | transloco}}
+                            <span *ngIf="jsonData.details.liveness">
+                                {{'liveness_w' | transloco}}
+                            </span>
+                            <span *ngIf="!jsonData.details.liveness">
+                                {{'liveness_f' | transloco}}
+                            </span>
                         </div>
                         <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
                             <mat-progress-bar *ngIf="matchLevel"
