@@ -77,7 +77,7 @@ export class DemoRootComponent implements OnInit {
 	bigScreenMode: boolean;
 	selectedFeature: any;
 	// selectedFeature: any = 'ocr';
-	currentStep: any = "end";
+	currentStep: any = "start";
 	// currentStep: any = 'end';
 	baseColor: any = "#0036E7";
 	mapSteps: any = ["start", "form", "select", "instructions", "facetec", "result", "end"];

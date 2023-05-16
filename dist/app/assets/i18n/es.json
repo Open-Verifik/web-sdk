@@ -717,7 +717,7 @@
         "select_title": "Selecciona el tipo de demo",
         "liveness_title": "Verificación de Vida",
         "liveness_subtitle": "Realiza un escaneo facial para identificar si la persona es quien dice ser y si está presente en el momento de la validación.",
-        "ocr_title": "Integración 3D <br>+<br> Documento Legal",
+        "ocr_title": "Integración 3D + escaneo de Documento Legal",
         "ocr_subtitle": "Compara tu escaneo facial con un documento emitido por el gobierno.",
         "completed": "Proceso Completado",
         "verification": "Verificación Facial",

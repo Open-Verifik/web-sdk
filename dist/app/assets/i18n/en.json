@@ -719,7 +719,7 @@
         "select_title": "Select the type of demo",
         "liveness_title": "Liveness Check",
         "liveness_subtitle": "Perform a FaceScan in order to identify if the person is who they claim to be and if they are present at the time of validation.",
-        "ocr_title":"Onboarding 3D <br>+<br> Legal Document",
+        "ocr_title":"Onboarding 3D + Legal Document",
         "ocr_subtitle":"Compare your FaceScan with a government issued ID.",
         "completed": "Process Completed",
         "verification": "Face Verification",         
