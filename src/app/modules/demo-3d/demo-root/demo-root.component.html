@@ -7,7 +7,7 @@
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
         <ng-container *ngIf="!phoneMode">
-            <div class="absolute left-0 mt-8 ml-8">
+            <div class="absolute left-0 mt-8 ml-8" style="z-index:99;">
                 <languages [type]="'fab'"></languages>
             </div>
             <ng-container *ngIf="currentStep == 'start'">
@@ -638,15 +638,15 @@
                                     
                                 </div> -->
                             </div>
-                            <div *ngFor="let data of objectKeys(scannedData); let i = index" 
+                            <div *ngFor="let data of scannedData | keyvalue; let i = index" 
                                 [ngClass]="{ 'even-table': i % 2 === 0, 'odd-table': i % 2 !== 0 }"
                                 class="w-full grid grid-cols-2 title-table truncate">
                                 <div class="ml-2 w-full flex items-center justify-start truncate">                                
-                                    {{data}}
+                                    {{data.key}}
                                 </div>
                                 <div class="w-full flex items-center justify-end">
                                     <span class="mr-2">
-                                        {{scannedData[data]}}
+                                        {{data.value}}
                                     </span>
                                 </div>
                                 <!-- <div class="mx-1 w-full flex items-center justify-center truncate">
