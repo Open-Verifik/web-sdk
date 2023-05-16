@@ -49,6 +49,7 @@ class configBiometricProcessor {
 })
 export class DemoBiometric {
     private _isReady: BehaviorSubject < boolean > = new BehaviorSubject(null);
+    currentLanguage: string;
     get isReady$(): Observable < boolean > {
         return this._isReady.asObservable();
     }
@@ -113,7 +114,18 @@ export class DemoBiometric {
         });
     }
 
+    startLanguage() {
+        
+        const lang = localStorage.getItem('lang') || 'es'
+        if(this.currentLanguage !== lang){
+            this.currentLanguage = lang
+            FaceTecSDK.configureLocalization(languages[lang]);
+        }
+    }
+
     startSession() {
+        this.startLanguage()
+
         const agent = FaceTecSDK.createFaceTecAPIUserAgentString('');
 
         this._service.getSession(agent).subscribe((response: any) => {
@@ -126,6 +138,8 @@ export class DemoBiometric {
     }
 
     startAuth() {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
@@ -149,6 +163,8 @@ export class DemoBiometric {
     }
 
     startEnrollmentDocument() {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }

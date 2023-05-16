@@ -84,7 +84,7 @@ export class Biometric {
     }
 
     private _sessionToken: string;
-
+    private currentLanguage
     constructor(
         private _service: BiometricService,
     ) {
@@ -114,9 +114,8 @@ export class Biometric {
                 // console.groupEnd();
 
                 if (isBiometricLibReady) {
-                    const lang = localStorage.getItem('lang') || 'es'
-                    FaceTecSDK.configureLocalization(languages[lang]);
-
+                    this.currentLanguage = localStorage.getItem('lang') || 'es'
+                    FaceTecSDK.configureLocalization(languages[this.currentLanguage]);
                 }
 
                 this._isReady.next(isBiometricLibReady);
@@ -124,7 +123,16 @@ export class Biometric {
         });
     }
 
+    startLanguage() {
+        const lang = localStorage.getItem('lang') || 'es'
+        if(this.currentLanguage !== lang){
+            this.currentLanguage = lang
+            FaceTecSDK.configureLocalization(languages[lang]);
+        }
+    }
+
     startSession() {
+        this.startLanguage()
         const agent = FaceTecSDK.createFaceTecAPIUserAgentString('');
 
         this._service.getSession(agent).subscribe((response: any) => {
@@ -137,6 +145,8 @@ export class Biometric {
     }
 
     startAuth(externalDatabaseRefId) {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
@@ -161,6 +171,8 @@ export class Biometric {
     }
 
     startLiveness() {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
@@ -184,6 +196,8 @@ export class Biometric {
     }
 
     startEnrollmentBiometrics(externalDatabaseRefId, group) {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
@@ -208,6 +222,8 @@ export class Biometric {
     }
 
     startEnrollmentDocument(externalDatabaseRefId) {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
@@ -232,6 +248,8 @@ export class Biometric {
     }
 
     startIdScan(externalDatabaseRefId) {
+        this.startLanguage()
+
         if (!this._sessionToken) {
             throw new Error('First_start_session')
         }
