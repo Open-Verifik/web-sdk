@@ -168,7 +168,10 @@
         "minMatchLevel maximum is: 5\n": "The value for maximun for minMatchLevel is 5",
         "minMatchLevel maximum is: 6\n": "The value for maximun for minMatchLevel is 6",
         "minMatchLevel maximum is: 7\n": "The value for maximun for minMatchLevel is 7",
-        "minMatchLevel maximum is: 9\n": "The value for maximun for minMatchLevel is 9"
+        "minMatchLevel maximum is: 9\n": "The value for maximun for minMatchLevel is 9",
+
+        "required_inputs": "Fill all required form inputs",
+        "email_or_phone_is_registered": "The email or phone number is already registered."
     },
     "mockApi": {
         "Record_not_found": "Not registered",

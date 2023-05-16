@@ -572,15 +572,15 @@
                         
                         <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'ocr'" 
                         [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }">
-                            {{'match' | transloco }} {{matchLevel}} / {{maxMatchLevel}}
+                            {{'demo.match' | transloco }} {{matchLevel}} / {{maxMatchLevel}}
                         </div>
                         <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'liveness'"
                         [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }">
                             <span *ngIf="jsonData.details.liveness">
-                                {{'liveness_w' | transloco}}
+                                {{'demo.liveness_w' | transloco}}
                             </span>
                             <span *ngIf="!jsonData.details.liveness">
-                                {{'liveness_f' | transloco}}
+                                {{'demo.liveness_f' | transloco}}
                             </span>
                         </div>
                         <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
@@ -603,7 +603,7 @@
                                 {{ageEstimate}}  
                             </div>                                
                             <div class="mx-4 flex justify-center estimate-txt">                                
-                                {{'ageEstimate' | transloco}}
+                                {{'demo.ageEstimate' | transloco}}
                             </div>
                         </div>
                     </div>

@@ -1,59 +1,19 @@
-import {
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	Component,
-	OnDestroy,
-	OnInit,
-	ViewEncapsulation
-} from "@angular/core";
-import {
-	FormBuilder,
-	FormGroup,
-	Validators,
-	ValidatorFn,
-	AbstractControl
-} from "@angular/forms";
-import {
-	CountriesService
-} from "app/modules/countries/countries.service";
-import {
-	FuseMediaWatcherService
-} from "@fuse/services/media-watcher";
-import {
-	Subject
-} from "rxjs";
-import {
-	skip,
-	takeUntil
-} from "rxjs/operators";
-import {
-	DemoService
-} from "../demo.service";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
+import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from "@angular/forms";
+import { CountriesService } from "app/modules/countries/countries.service";
+import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
+import { Subject } from "rxjs";
+import { skip, takeUntil } from "rxjs/operators";
+import { DemoService } from "../demo.service";
 
-import {
-	BiometricService
-} from "app/modules/biometrics/biometric.service";
-import {
-	DemoBiometric
-} from "app/modules/biometrics/demo-biometric.module";
-import {
-	Biometric
-} from "app/modules/biometrics/biometric.module";
-import {
-	ProfilePreviewComponent
-} from "./profile-preview/profile-preview.component";
-import {
-	MatDialog
-} from "@angular/material/dialog";
-import {
-	MatSnackBar
-} from "@angular/material/snack-bar";
-import {
-	environment
-} from "environments/environment";
-import {
-	TranslocoService
-} from "@ngneat/transloco";
+import { BiometricService } from "app/modules/biometrics/biometric.service";
+import { DemoBiometric } from "app/modules/biometrics/demo-biometric.module";
+import { Biometric } from "app/modules/biometrics/biometric.module";
+import { ProfilePreviewComponent } from "./profile-preview/profile-preview.component";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { environment } from "environments/environment";
+import { TranslocoService } from "@ngneat/transloco";
 
 @Component({
 	selector: "app-demo-root",
@@ -63,7 +23,7 @@ import {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DemoRootComponent implements OnInit {
-	private _unsubscribeAll: Subject < any > = new Subject < any > ();
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
 	private _biometric: DemoBiometric;
 	biometricLoaded: Boolean;
 
@@ -115,12 +75,15 @@ export class DemoRootComponent implements OnInit {
 		});
 
 		if (localStorage.accessToken) {
-			this._demoService.getLead().subscribe((lead) => {
-                this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
-				this.loadBiometrics();
-				this.currentStep = "select";
-				this._changeDetectorRef.markForCheck();
-			},error => localStorage.removeItem('accessToken'));
+			this._demoService.getLead().subscribe(
+				(lead) => {
+					this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
+					this.loadBiometrics();
+					this.currentStep = "select";
+					this._changeDetectorRef.markForCheck();
+				},
+				(error) => localStorage.removeItem("accessToken")
+			);
 		}
 
 		this._changeDetectorRef.markForCheck();
@@ -163,16 +126,21 @@ export class DemoRootComponent implements OnInit {
 				if (response.success) {
 					//COMPLETED ALL SERVICES
 
-                    this.scannedData = response['details']['documentData']['userConfirmedValues'] ? {
-                        ...response['details']['documentData']['userConfirmedValues']
-                    }: {
-                        ...response['details']['documentData']['scannedValues']
-                    };
-                    this.matchLevel = response.details['matchLevel'];
-                    this.maxMatchLevel = response.details['maxMatchLevel'];
-                    this.jsonData = response;
-                    this.faceScan = response.enrollUrl || response.faceScanUrl
-                    this.idScan = response.idScanUrl
+					this.scannedData = response["details"]["documentData"]["userConfirmedValues"] ? {
+								...response["details"]["documentData"]["userConfirmedValues"]["idInfo"],
+								...response["details"]["documentData"]["userConfirmedValues"]["addressInfo"],
+								...response["details"]["documentData"]["userConfirmedValues"]["userInfo"],
+						  } : {
+								...response["details"]["documentData"]["scannedValues"]["idInfo"],
+								...response["details"]["documentData"]["scannedValues"]["addressInfo"],
+								...response["details"]["documentData"]["scannedValues"]["userInfo"],
+						  };
+
+					this.matchLevel = response.details["matchLevel"];
+					this.maxMatchLevel = response.details["maxMatchLevel"];
+					this.jsonData = response;
+					this.faceScan = response.enrollUrl || response.faceScanUrl;
+					this.idScan = response.idScanUrl;
 
 					this.changeStep("result");
 
@@ -192,7 +160,7 @@ export class DemoRootComponent implements OnInit {
 					this.matchLevel = response.details["matchLevel"];
 					this.maxMatchLevel = response.details["maxMatchLevel"];
 					this.jsonData = response;
-					this.faceScan = response.faceUrl || response.enrollUrl ;
+					this.faceScan = response.faceUrl || response.enrollUrl;
 					// this.idScan = response.idScanUrl;
 					this.ageEstimate = response.ageEstimateGroup;
 					// this.screenStatus = 'ending'
@@ -212,9 +180,7 @@ export class DemoRootComponent implements OnInit {
 			crop: this.idScanCrops[0],
 			index: 0,
 		};
-		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({
-			matchingAliases
-		}) => {
+		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
 			this.isScreenSmall = Boolean(!matchingAliases.includes("lg") && matchingAliases.includes("md"));
 			this.lgScreen = matchingAliases.includes("lg");
 			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
@@ -247,7 +213,8 @@ export class DemoRootComponent implements OnInit {
 		});
 
 		this.previewDialog.afterClosed().subscribe((result) => {
-			if (result == "aceptar") {}
+			if (result == "aceptar") {
+			}
 		});
 		this._changeDetectorRef.markForCheck();
 
@@ -316,7 +283,7 @@ export class DemoRootComponent implements OnInit {
 
 	reviewForm(): Boolean {
 		if (!this.contactForm.valid) {
-			this.openSnackBar("Fill all required form inputs!");
+			this.openSnackBar("required_inputs");
 			return false;
 		}
 
@@ -338,9 +305,9 @@ export class DemoRootComponent implements OnInit {
 			},
 			(err) => {
 				console.log({
-					err
+					err,
 				});
-				this.openSnackBar(err);
+				this.openSnackBar(err.error.message);
 			}
 		);
 	}
@@ -359,20 +326,21 @@ export class DemoRootComponent implements OnInit {
 	goToVk(): void {
 		window.location.href = "https://auth.verifik.co/kyc/start/6332941ccde4f719d9c00f9e"; // Replace with the URL of the external webpage
 	}
-    
+
 	talkToSales(): void {
-        let url = "https://meetings.hubspot.com/lina-yepes"
-        if(this.translocoService.getActiveLang() == 'en'){
-            url = "https://meetings.hubspot.com/johan-castellanos"
-        }
-        window.location.href = url;
+		let url = "https://meetings.hubspot.com/lina-yepes";
+		if (this.translocoService.getActiveLang() == "en") {
+			url = "https://meetings.hubspot.com/johan-castellanos";
+		}
+		window.location.href = url;
 	}
 
-	openSnackBar(message: string) {
+	openSnackBar(code: string) {
+		const message = this.translocoService.translate(`errors.${code}`, {}) ?? code;
 		this._snackBar.open(message);
 
-		if(this.intervalHideSnackBar){
-			clearTimeout(this.intervalHideSnackBar)
+		if (this.intervalHideSnackBar) {
+			clearTimeout(this.intervalHideSnackBar);
 		}
 
 		this.intervalHideSnackBar = setTimeout(() => {
@@ -388,10 +356,11 @@ export class DemoRootComponent implements OnInit {
 		} | null => {
 			const phoneNumberPattern = /^[0-9]{10}$/; // Assuming 10-digit phone number
 			const isValid = phoneNumberPattern.test(control.value);
-			return isValid ?
-				null : {
-					invalidPhoneNumber: true,
-				};
+			return isValid
+				? null
+				: {
+						invalidPhoneNumber: true,
+				  };
 		};
 	}
 }
