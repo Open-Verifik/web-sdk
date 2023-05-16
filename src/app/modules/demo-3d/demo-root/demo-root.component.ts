@@ -297,6 +297,7 @@ export class DemoRootComponent implements OnInit {
 				if (result.data.token) {
 					this.qrText = `${environment.redirectUrl + "demo/" + result.data.token}`;
 					this.loadBiometrics();
+                    // this.postToHubspot(this.contactForm.value);
 					this.currentStep = "select";
 					this._changeDetectorRef.markForCheck();
 					return;
@@ -312,6 +313,58 @@ export class DemoRootComponent implements OnInit {
 			}
 		);
 	}
+
+    postToHubspot(form):void{
+        this._demoService.postHubspot({
+            "fields":[
+                {
+                    "objectTypeId": "0-1",
+                    "name": "company",
+                    "value": form.companyName
+                },
+                {
+                    "objectTypeId": "0-1",
+                    "name": "firstname",
+                    "value": form.names,
+                },
+                {
+                    "objectTypeId": "0-1",
+                    "name": "job_function",
+                    "value": form.jobFunction
+                },
+                {
+                    "objectTypeId": "0-1",
+                    "name": "email",
+                    "value": form.email
+                },
+                {   
+                    "objectTypeId": "0-1",
+                    "name": "phone",
+                    "value": form.phone
+                }
+            ],
+            // "context": {
+            //   "hutk": ":hutk", // include this parameter and set it to the hubspotutk cookie value to enable cookie tracking on your submission
+            //   "pageUri": "www.example.com/page",
+            //   "pageName": "Example page"
+            // },
+            // "legalConsentOptions": {
+            //   "consent": { // Include this object when GDPR options are enabled
+            //     "consentToProcess": true,
+            //     "text": "I agree to allow Example Company to store and process my personal data.",
+            //     "communications": [
+            //       {
+            //         "value": true,
+            //         "subscriptionTypeId": 999,
+            //         "text": "I agree to receive marketing communications from Example Company."
+            //       }
+            //     ]
+            //   }
+            // }
+        }).subscribe(result =>{
+            console.log(result);
+        })
+    }
 
 	changeDemo(): void {
 		this.currentStep = "select";

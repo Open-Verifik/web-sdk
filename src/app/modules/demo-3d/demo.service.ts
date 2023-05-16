@@ -61,4 +61,8 @@ export class DemoService {
 		return this._httpWrapper.sendRequest('post', `${this.baseUrl}v2/leads`, data)
 	}
 
+	postHubspot(data: any): Observable < any > {
+		return this._httpWrapper.sendRequest('post', `https://api.hsforms.com/submissions/v3/integration/submit/22733348/5d95b7db-79d7-47dc-a338-82f1b22a4a98`, data)
+	}
+
 }
