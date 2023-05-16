@@ -103,7 +103,7 @@ export class DemoBiometric {
                 // console.groupEnd();
 
                 if (isBiometricLibReady) {
-                    const lang = localStorage.getItem('lang') || 'es'
+                    const lang = localStorage.getItem('lang') || 'en'
                     FaceTecSDK.configureLocalization(languages[lang]);
 
                 }

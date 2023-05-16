@@ -163,22 +163,17 @@ export class DemoRootComponent implements OnInit {
 				if (response.success) {
 					//COMPLETED ALL SERVICES
 
-					this.scannedData = {
-						...(response["details"]["documentData"]["userConfirmedValues"]["idInfo"] ||
-							response["details"]["documentData"]["scannedValues"]["idInfo"]),
-						...(response["details"]["documentData"]["userConfirmedValues"]["addressInfo"] ||
-							response["details"]["documentData"]["scannedValues"]["addressInfo"]),
-						...(response["details"]["documentData"]["userConfirmedValues"]["userInfo"] ||
-							response["details"]["documentData"]["scannedValues"]["userInfo"]),
-					};
-					this.matchLevel = response.details["matchLevel"];
-					this.maxMatchLevel = response.details["maxMatchLevel"];
-					this.jsonData = response;
-					this.faceScan = response.enrollUrl || response.faceScanUrl;
-					this.idScan = response.idScanUrl;
+                    this.scannedData = response['details']['documentData']['userConfirmedValues'] ? {
+                        ...response['details']['documentData']['userConfirmedValues']
+                    }: {
+                        ...response['details']['documentData']['scannedValues']
+                    };
+                    this.matchLevel = response.details['matchLevel'];
+                    this.maxMatchLevel = response.details['maxMatchLevel'];
+                    this.jsonData = response;
+                    this.faceScan = response.enrollUrl || response.faceScanUrl
+                    this.idScan = response.idScanUrl
 
-					// this.screenStatus = 'ending'
-					// this.step = 'finish'
 					this.changeStep("result");
 
 					this._changeDetectorRef.markForCheck();

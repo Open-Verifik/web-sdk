@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    Input,
     OnDestroy,
     OnInit,
     ViewEncapsulation
@@ -26,6 +27,7 @@ import {
     exportAs: 'languages'
 })
 export class LanguagesComponent implements OnInit, OnDestroy {
+    @Input() type: string =  'normal';
     availableLangs: AvailableLangs;
     activeLang: string;
     flagCodes: any;
