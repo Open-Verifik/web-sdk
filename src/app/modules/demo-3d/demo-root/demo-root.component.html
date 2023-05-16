@@ -15,12 +15,12 @@
                 </div>
                 <div class="flex justify-center w-full-mt-4">
                     <div class="verifik-welcome-desktop">
-                        Welcome to the Verifik Demo
+                        {{'home_title' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8">
                     <div class="verifik-description-desktop">
-                        In this Demo you can test two of our features related to Liveness check and Onboarding 3D:2D
+                        {{'home_subtitle' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8">
@@ -50,40 +50,40 @@
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Company Name</mat-label>
+                                    <mat-label>{{ 'demo.form.company' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'companyName'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Names</mat-label>
+                                    <mat-label>{{ 'demo.form.names' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'name'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Website</mat-label>
+                                    <mat-label>{{ 'demo.form.website' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'website'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Job Function</mat-label>
+                                    <mat-label>{{ 'demo.form.job' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'jobFunction'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>{{ 'start.email' | transloco}}</mat-label>
+                                    <mat-label>{{ 'demo.form.email' | transloco}}</mat-label>
 
                                     <input id="email" matInput [formControlName]="'email'">
 
                                     <mat-error *ngIf="contactForm.get('email').hasError('required')" class="p-1">
-                                        {{ 'start.required_email' | transloco}}
+                                        {{ 'demo.form.required_email' | transloco}}
                                     </mat-error>
 
                                     <mat-error *ngIf="contactForm.get('email').hasError('email')" class="p-1">
-                                        {{ 'start.invalid_email' | transloco}}
+                                        {{ 'demo.form.invalid_email' | transloco}}
                                     </mat-error>
 
                                 </mat-form-field>
@@ -92,7 +92,7 @@
                         <div class="grid-cols-3 grid gap-2 mx-4">
                             <div class="w-full col-span-1">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>{{ 'start.country_code' | transloco}}</mat-label>
+                                    <mat-label>{{ 'demo.form.country_code' | transloco}}</mat-label>
                                     <mat-select *ngIf="countries" [formControl]="contactForm.get('countryCode')"
                                         [(ngModel)]="country" matPrefix>
                                         <mat-select-trigger>
@@ -114,15 +114,15 @@
                             </div>
                             <div class="w-full col-span-2">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>{{ 'start.phone' | transloco}}</mat-label>
+                                    <mat-label>{{ 'demo.form.phone' | transloco}}</mat-label>
                                     <input id="phone" matInput [formControlName]="'phone'">
 
                                     <mat-error *ngIf="contactForm.get('phone').hasError('required')" class="p-1">
-                                        {{ 'start.required_phone' | transloco}}
+                                        {{ 'demo.form.required_phone' | transloco}}
                                     </mat-error>
 
                                     <mat-error *ngIf="contactForm.get('phone').hasError('phone')" class="p-1">
-                                        {{ 'start.invalid_phone' | transloco}}
+                                        {{ 'demo.form.invalid_phone' | transloco}}
                                     </mat-error>
                                 </mat-form-field>
                             </div>
@@ -140,7 +140,7 @@
             <ng-container *ngIf="currentStep == 'select' || currentStep == 'instructions' || currentStep == 'result' || currentStep == 'end'">
                 <div class="flex flex-col w-full h-full items-center justify-center">
                     <div class="scan-txt mb-4">
-                        Scan the next QR to continue with the DEMO in your cellphone
+                        {{ 'demo.scan_qr' | transloco}}
                     </div>
                     <qrcode *ngIf="qrText" [qrdata]="qrText" [imageHeight]="75" [imageWidth]="75" [imageSrc]="'assets/images/demo/k.svg'" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
                     <div class="flex justify-center w-full mt-8">
@@ -165,17 +165,17 @@
                 </div>
                 <div class="flex justify-center w-full mt-4 px-8">
                     <div class="verifik-welcome-phone w-full">
-                        Welcome to the Verifik Demo
+                        {{ 'demo.home_title' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8 px-4">
                     <div class="verifik-description-phone">
-                        In this Demo you can test two of our features related to Liveness check and Onboarding 3D:2D
+                        {{ 'demo.home_subtitle' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-8">
                     <button (click)="changeStep('form')" class="verifik-start-phone px-10">
-                        Start
+                        {{ 'demo.start' | transloco}}
                     </button>
                 </div>
                 <div class="flex justify-center w-full fixed bottom-5">
@@ -184,54 +184,57 @@
             </ng-container>
 
             <ng-container *ngIf="currentStep == 'form'">
-                <div class="flex justify-end mt-8 mr-8 mb-8">
-                    <img class="w-8 h-8" src="assets/images/demo/k.svg" alt="">
+                <div class="absolute right-0 mt-4 mr-4">
+                    <languages [type]="'fab'"></languages>
+                </div>
+                <div class="flex justify-center mt-4 mb-8">
+                    <img class="w-12 h-12" src="assets/images/demo/k.svg" alt="">
                 </div>
                 <div class="flex justify-center overflow-auto">
                     <form class="w-full px-4" [formGroup]="contactForm">
                         <div class="flex justify-center mx-8 mb-8">
                             <span class="verifik-form-text-phone">
-                                Please complete the next form to continue with the Demo
+                                {{ 'demo.form_title' | transloco}}
                             </span>
                         </div>
                         <!-- email -->
                         <div class="grid-cols-3 grid mx-4">
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Company Name</mat-label>
+                                    <mat-label>{{ 'demo.form.company' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'companyName'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Names</mat-label>
+                                    <mat-label>{{ 'demo.form.names' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'name'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Website</mat-label>
+                                    <mat-label>{{ 'demo.form.website' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'website'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>Job Function</mat-label>
+                                    <mat-label>{{ 'demo.form.job' | transloco}}</mat-label>
                                     <input matInput type="text" [formControlName]="'jobFunction'">
                                 </mat-form-field>
                             </div>
                             <div class="col-span-3">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>{{ 'start.email' | transloco}}</mat-label>
+                                    <mat-label>{{ 'demo.form.email' | transloco}}</mat-label>
 
                                     <input id="email" matInput [formControlName]="'email'">
 
                                     <mat-error *ngIf="contactForm.get('email').hasError('required')" class="p-1">
-                                        {{ 'start.required_email' | transloco}}
+                                        {{ 'demo.form.required_email' | transloco}}
                                     </mat-error>
 
                                     <mat-error *ngIf="contactForm.get('email').hasError('email')" class="p-1">
-                                        {{ 'start.invalid_email' | transloco}}
+                                        {{ 'demo.form.invalid_email' | transloco}}
                                     </mat-error>
 
                                 </mat-form-field>
@@ -240,7 +243,7 @@
                         <div class="grid-cols-3 grid gap-2 mx-4">
                             <div class="w-full col-span-1">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>{{ 'start.country_code' | transloco}}</mat-label>
+                                    <mat-label>{{ 'demo.form.country_code' | transloco}}</mat-label>
                                     <mat-select *ngIf="countries" [formControl]="contactForm.get('countryCode')"
                                         [(ngModel)]="country" matPrefix>
                                         <mat-select-trigger>
@@ -262,21 +265,21 @@
                             </div>
                             <div class="w-full col-span-2">
                                 <mat-form-field class="fuse-mat-dense w-full">
-                                    <mat-label>{{ 'start.phone' | transloco}}</mat-label>
+                                    <mat-label>{{ 'demo.form.phone' | transloco}}</mat-label>
                                     <input id="phone" matInput [formControlName]="'phone'">
 
                                     <mat-error *ngIf="contactForm.get('phone').hasError('required')" class="p-1">
-                                        {{ 'start.required_phone' | transloco}}
+                                        {{ 'demo.form.required_phone' | transloco}}
                                     </mat-error>
 
                                     <mat-error *ngIf="contactForm.get('phone').hasError('phone')" class="p-1">
-                                        {{ 'start.invalid_phone' | transloco}}
+                                        {{ 'demo.form.invalid_phone' | transloco}}
                                     </mat-error>
                                 </mat-form-field>
                             </div>
                             <div class="w-full col-span-3 flex justify-center mb-8">
                                 <button (click)="changeStep('select')" class="verifik-start-phone">
-                                    continue
+                                    {{ 'demo.continue' | transloco}}
                                 </button>
                             </div>
                         </div>
@@ -286,12 +289,15 @@
             </ng-container>
 
             <ng-container *ngIf="currentStep == 'select'">
-                <div class="flex justify-end mt-8 mr-8 mb-8">
-                    <img class="w-8 h-8" src="assets/images/demo/k.svg" alt="">
+                <div class="absolute right-0 mt-4 mr-4">
+                    <languages [type]="'fab'"></languages>
+                </div>
+                <div class="flex justify-center mt-4 mb-8">
+                    <img class="w-12 h-12" src="assets/images/demo/k.svg" alt="">
                 </div>
                 <div class="flex justify-center mx-8 mb-8">
                     <span class="verifik-form-text-phone">
-                        Select the type of demo
+                        {{ 'demo.select_title' | transloco}}
                     </span>
                 </div>
                 <div class="w-full">
@@ -302,12 +308,11 @@
                             class="selectable-feature cursor-pointer flex justify-center items-center flex-row">
                             <div class="mx-5">
                                 <p class="selectable-title mb-2">
-                                    Liveness Check
+                                    {{ 'demo.liveness_title' | transloco}}
                                 </p>
                                 <p class="selectable-description">
-                                    Perform a FaceScan in order to identify if the person is who they claim to be and if
-                                    they
-                                    are present at the time of validation.
+                                    {{ 'demo.liveness_subtitle' | transloco}}
+                                    
                                 </p>
                             </div>
                         </div>
@@ -319,10 +324,10 @@
                             class="selectable-feature  cursor-pointer flex justify-center items-center flex-row">
                             <div class="mx-5">
                                 <p class="selectable-title mb-2">
-                                    Onboarding 3D <br>+<br> Legal Document
+                                    {{ 'demo.ocr_title' | transloco}}
                                 </p>
                                 <p class="selectable-description">
-                                    Compare your FaceScan with a government issued ID.
+                                    {{ 'demo.ocr_subtitle' | transloco}}
                                 </p>
                             </div>
                         </div>
@@ -331,7 +336,7 @@
                 </div>
                 <div class="w-full flex justify-center my-8">
                     <button (click)="changeStep('instructions')" class="verifik-start-phone">
-                        continue
+                        {{ 'demo.continue' | transloco}}
                     </button>
                 </div>
 
@@ -343,13 +348,15 @@
 
             <ng-container *ngIf="currentStep == 'instructions'">
                 <div class="w-full grid grid-cols-3 mt-6">
-                    <div>
+                    <div class="pt-3">
                         <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
                     </div>
-                    <div></div>
-                    <div class="flex justify-end w-full pr-6">
+                    <div class="flex justify-center w-full">
                         <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
                     </div>
                 </div>
                 <div class="flex justify-center mb-1">
@@ -372,10 +379,10 @@
                             <div class="li-flex pb-4 borderb-steps">
                                 <div class="mt-4">
                                     <span class="font-700">
-                                        {{'otl.starter.bullet1' | transloco}}
+                                        {{'demo.starter.bullet1' | transloco}}
                                     </span>
                                     <div class="font-500 ">
-                                        {{'otl.starter.description1' | transloco}}
+                                        {{'demo.starter.description1' | transloco}}
                                     </div>
                                 </div>
                             </div>
@@ -430,10 +437,10 @@
                             <div class="li-flex mb-4" *ngIf="selectedFeature === 'ocr'">
                                 <div class="mt-4">
                                     <span class="font-700">
-                                        2. {{'otl.starter.bullet2' | transloco}}
+                                        2. {{'demo.starter.bullet2' | transloco}}
                                     </span>
                                     <div class="font-500 ">
-                                        {{'otl.starter.description2' | transloco}}
+                                        {{'demo.starter.description2' | transloco}}
 
                                         <!-- {{ 'otl.biometrics.description.' + currentService.code | transloco}} -->
                                     </div>
@@ -458,20 +465,20 @@
                             <div class="mt-4">
                                 <span class="font-700">
                                     {{ selectedFeature  === 'ocr' ? '3.' : '2.'}}
-                                    {{'otl.starter.bullet3' | transloco}}
+                                    {{'demo.starter.bullet3' | transloco}}
                                 </span>
                                 <div class="font-500 ">
-                                    {{'otl.starter.description3' | transloco}}
+                                    {{'demo.starter.description3' | transloco}}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="mt-2 flex justify-center">
-                    <button (click)="startBiometric()" class="flex p-2 mx-4 justify-center border-solid border-2 rounded-full"
+                    <button (click)="startBiometric()" class="flex p-2 mx-4 w-20 justify-center border-solid border-2 rounded-full"
                         [style.background-color]=" baseColor">
                         <span [style.color]="'white'">
-                            Start
+                            {{'demo.start' | transloco}}
                         </span>
                     </button>
                 </div>
@@ -481,19 +488,21 @@
              <ng-container *ngIf="currentStep == 'facetec'"></ng-container>
              <ng-container *ngIf="currentStep == 'result'">
                 <div class="w-full grid grid-cols-3 mt-6">
-                    <div>
-                        <mat-icon (click)="changeStep('instructions')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                    <div class="pt-3">
+                        <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
                     </div>
-                    <div></div>
-                    <div class="flex justify-end w-full pr-6">
+                    <div class="flex justify-center w-full">
                         <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
                     </div>
                 </div>
 
                 <div class="w-full flex mt-4 justify-center">
                     <span class="text-xl font-700">
-                        Process Completed
+                        {{'demo.completed' | transloco}}
                     </span>
                 </div>
 
@@ -503,10 +512,10 @@
 
                         <div class="w-full document-title flex justify-center text-sm py-4 font-700">
                             <ng-container *ngIf="selectedFeature == 'ocr'">
-                                Face Verification
+                                {{'demo.verification' | transloco}}
                             </ng-container>
                             <ng-container *ngIf="selectedFeature == 'liveness'">
-                                Face Trust
+                                {{'demo.trust' | transloco}}
                             </ng-container>
                         </div>
                         <ng-container *ngIf="selectedFeature == 'ocr'">
@@ -536,11 +545,11 @@
                         
                         <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'ocr'" 
                         [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }">
-                            Match Level {{matchLevel}} / {{maxMatchLevel}}
+                            {{'match' | transloco }} {{matchLevel}} / {{maxMatchLevel}}
                         </div>
                         <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'liveness'"
                         [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }">
-                            {{ jsonData.details.liveness ? 'Liveness Confirmed' : 'Liveness Failed'}}
+                            {{ jsonData.details.liveness ? 'liveness_w' : 'liveness_f' | transloco}}
                         </div>
                         <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
                             <mat-progress-bar *ngIf="matchLevel"
@@ -562,7 +571,7 @@
                                 {{ageEstimate}}  
                             </div>                                
                             <div class="mx-4 flex justify-center estimate-txt">                                
-                                Estimate Age
+                                {{'ageEstimate' | transloco}}
                             </div>
                         </div>
                     </div>
@@ -571,7 +580,7 @@
                     <div class="mx-4 card-shadow rounded-2xl">
 
                         <div class="w-full flex justify-center document-title">
-                            Document Verification
+                            {{'demo.documentVerification' | transloco}}
                         </div>
                         <div (click)="changeId('back')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
                             <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-left"></mat-icon>
@@ -588,10 +597,10 @@
                         <div class="w-full px-4">
                             <div class="w-full grid grid-cols-2 title-table">
                                 <div class="ml-2 flex items-center justify-start">                                
-                                    Field
+                                    {{'demo.field' | transloco}}
                                 </div>
                                 <div class="mr-2 flex items-center justify-end">
-                                    OCR Result
+                                    {{'demo.ocrResult' | transloco}}
                                 </div>
                                 <!-- <div class="mx-4 flex items-center justify-center">
                                     
@@ -620,7 +629,7 @@
                 <div class="w-full my-8 px-4">
                     <div class="code-area rounded-xl font-700 text-sm ">
                         <div class="flex justify-center my-2">
-                            Code
+                            {{'demo.code' | transloco}}
                         </div>
                         <pre class="code-area rounded-xl">
                             &#013;{{jsonData|json}}
@@ -630,19 +639,21 @@
 
                 <div class="flex justify-center w-full my-8 pt-4">
                     <button (click)="changeStep('end')" class="verifik-start-phone px-10">
-                        Finish
+                        {{'demo.finish' | transloco}}
                     </button>
                 </div>
              </ng-container>
              <ng-container *ngIf="currentStep == 'end'">
                 <div class="w-full grid grid-cols-3 mt-6">
-                    <div>
-                        <mat-icon (click)="changeStep('result')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                    <div class="pt-3">
+                        <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
                     </div>
-                    <div></div>
-                    <div class="flex justify-end w-full pr-6">
+                    <div class="flex justify-center w-full">
                         <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
                     </div>
                 </div>
                 <div class="flex w-full mt-20 justify-center">
@@ -650,26 +661,27 @@
                 </div>
                 <div class="flex justify-center w-full mt-4 px-8">
                     <div class="verifik-welcome-phone w-full">
-                        Integrate 3D Liveness!                    </div>
+                        {{'demo.result_title' | transloco}}
+                    </div>
                 </div>
                 <div class="flex justify-center w-full mt-8 px-4">
                     <div class="verifik-description-phone text-sm mx-12">
-                        Integrate 3D liveness on your onboarding process starting at just $0.99 USD per monthly active user (infinite sessions per month).                    
+                        {{'demo.result_description' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-4">
                     <button (click)="goToVk()" class="verifik-end-phone px-10">
-                        Sign Up
+                        {{'demo.result_signup' | transloco}}
                     </button>
                 </div>
                 <div class="flex justify-center w-full mt-4">
                     <button (click)="changeDemo()" class="verifik-end-phone change-demo px-10">
-                        Change Demo
+                        {{'demo.result_change' | transloco}}
                     </button>
                 </div>
                 <div class="flex justify-center w-full mt-4">
                     <button (click)="talkToSales()" class="verifik-end-phone change-demo px-10">
-                        Talk To Sales
+                        {{'demo.talk_sales' | transloco}}
                     </button>
                 </div>
                 <!-- <div class="flex justify-center w-full fixed bottom-5">
