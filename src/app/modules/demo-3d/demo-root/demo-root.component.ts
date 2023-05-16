@@ -37,7 +37,7 @@ export class DemoRootComponent implements OnInit {
 	bigScreenMode: boolean;
 	selectedFeature: any;
 	// selectedFeature: any = 'ocr';
-	currentStep: any = "start";
+	currentStep: any = "result";
 	// currentStep: any = 'end';
 	baseColor: any = "#0036E7";
 	mapSteps: any = ["start", "form", "select", "instructions", "facetec", "result", "end"];
@@ -230,6 +230,7 @@ export class DemoRootComponent implements OnInit {
 			email: [, [Validators.required, Validators.email]],
 			countryCode: [, [Validators.required]],
 			phone: [, [Validators.required, this.phoneNumberValidator()]],
+            legalAgreement: [,[Validators.required]],
 		});
 	}
 
@@ -347,6 +348,10 @@ export class DemoRootComponent implements OnInit {
 			this._snackBar.dismiss();
 		}, 5000);
 	}
+
+    openConditions():void{
+        window.open('https://docs.verifik.co/docs/terminos-condiciones/ftxz1gulcjg3y-manual-de-politicas-de-privacidad-y-procedimientos-para-la-proteccion-tratamiento-de-datos-personales-y-atencion-de-solicitudes-consultas-y-reclamos', '_blank')
+    }
 
 	phoneNumberValidator(): ValidatorFn {
 		return (

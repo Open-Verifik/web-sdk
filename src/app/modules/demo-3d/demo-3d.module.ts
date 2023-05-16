@@ -72,6 +72,7 @@ import {
 } from './demo-routing';
 import { ProfilePreviewComponent } from './demo-root/profile-preview/profile-preview.component';
 import { QRCodeModule } from 'angularx-qrcode';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -100,7 +101,8 @@ import { QRCodeModule } from 'angularx-qrcode';
     FuseAlertModule,
     MatSnackBarModule,
     LanguagesModule,
-    QRCodeModule
+    QRCodeModule,
+    MatCheckboxModule
   ]
 })
 export class Demo3dModule {}

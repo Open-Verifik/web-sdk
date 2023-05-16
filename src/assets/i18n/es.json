@@ -169,7 +169,7 @@
         "minMatchLevel maximum is: 6\n": "El valor maximo para minMatchLevel es 6",
         "minMatchLevel maximum is: 7\n": "El valor maximo para minMatchLevel es 7",
         "minMatchLevel maximum is: 9\n": "El valor maximo para minMatchLevel es 9",
-
+        "needs_accept_agreements": "Necesitas aceptar el acuerdo de tratamiento de datos para usar este demo",
         "required_inputs": "Ingrese todos los valores requeridos",
         "email_or_phone_is_registered": "El correo electrónico o telefono ya estan registrados"
     },
@@ -740,6 +740,7 @@
         "result_change": "Cambiar Demo",        
         "continue": "continuar",
         "talk_sales": "Hablar con ventas",
+        "needs_accept_agreements": "Necesitas aceptar el acuerdo de tratamiento de datos para usar este demo",
         "starter": {
             "description": "A continuación realizarás un proceso que nos ayudará a verificar tu identidad y proteger tu información.",
             "instruction": "Realizaremos el siguiente proceso:",
@@ -780,7 +781,9 @@
             "invalid_email": "Escribe un correo electrónico válido",
             "required_email": "Correo electrónico requerido",
             "invalid_phone": "Escribe un número de teléfono",
-            "required_phone": "Teléfono requerido"
+            "required_phone": "Teléfono requerido",
+            "terms_1": "Para utilizar esta Demo, debe aceptar nuestro ",
+            "terms_2": "acuerdo de tratamiento de datos."
         }
     },
     "results": {

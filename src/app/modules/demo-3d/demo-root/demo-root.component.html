@@ -138,6 +138,14 @@
                                     </mat-error>
                                 </mat-form-field>
                             </div>
+                            <div class="w-full col-span-3">
+                                <mat-checkbox [color]="'primary'" [formControlName]="'legalAgreement'">
+                                    <span>{{ 'demo.form.terms_1' | transloco}}</span>
+                                    <a class="ml-1 text-primary-500 hover:underline"
+                                        (click)="openConditions()">{{ 'demo.form.terms_2' | transloco}}
+                                    </a>
+                                </mat-checkbox>
+                            </div>
                             <div class="w-full col-span-3 flex justify-center">
                                 <button (click)="changeStep('select')" class="verifik-start-desktop">
                                     {{'demo.start' | transloco}}
@@ -300,6 +308,14 @@
                                         {{ 'demo.form.invalid_phone' | transloco}}
                                     </mat-error>
                                 </mat-form-field>
+                            </div>
+                            <div class="w-full col-span-3">
+                                <mat-checkbox [color]="'primary'" [formControlName]="'legalAgreement'">
+                                    <span>{{ 'demo.form.terms_1' | transloco}}</span>
+                                    <a class="ml-1 text-primary-500 hover:underline"
+                                        (click)="openConditions()">{{ 'demo.form.terms_2' | transloco}}
+                                    </a>
+                                </mat-checkbox>
                             </div>
                             <div class="w-full col-span-3 flex justify-center mb-8">
                                 <button (click)="changeStep('select')" class="verifik-start-phone">
@@ -670,7 +686,7 @@
                 </div>
 
                 <div class="flex justify-center w-full my-8 pt-4">
-                    <button (click)="changeStep('end')" class="verifik-start-phone px-10">
+                    <button (click)="changeStep('end')" class="verifik-start-phone">
                         {{'demo.finish' | transloco}}
                     </button>
                 </div>
@@ -711,7 +727,7 @@
                         {{'demo.result_change' | transloco}}
                     </button>
                 </div>
-                <div class="flex justify-center w-full mt-4">
+                <div class="flex justify-center w-full my-4">
                     <button (click)="talkToSales()" class="verifik-end-phone change-demo px-10">
                         {{'demo.talk_sales' | transloco}}
                     </button>
