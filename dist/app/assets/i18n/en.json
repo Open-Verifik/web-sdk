@@ -169,7 +169,7 @@
         "minMatchLevel maximum is: 6\n": "The value for maximun for minMatchLevel is 6",
         "minMatchLevel maximum is: 7\n": "The value for maximun for minMatchLevel is 7",
         "minMatchLevel maximum is: 9\n": "The value for maximun for minMatchLevel is 9",
-
+        "needs_accept_agreements": "You need to accept the data treatment agreement to use this demo.",
         "required_inputs": "Fill all required form inputs",
         "email_or_phone_is_registered": "The email or phone number is already registered."
     },
@@ -704,7 +704,7 @@
         }
     },
     "demo": {
-        "finish": "finish",
+        "finish": "Finish",
         "home_title": "Welcome to the Verifik Demo",
         "home_subtitle": "In this demo you will be able to test 2 out of 11 features offered in the liveness solution:",
         "home_1": "3D Liveness check",
@@ -743,6 +743,7 @@
         "result_change": "Change Demo",
         "continue": "Continue",
         "talk_sales": "Talk to sales",
+        "needs_accept_agreements": "You need to accept the data treatment agreement to use this demo.",
         "starter":{
             "description": "A continuación realizarás un proceso que nos ayudara a verificar tu identidad y proteger tu información.",
             "instruction":"Vamos a realizar el siguiente proceso:",
@@ -783,7 +784,9 @@
             "invalid_email": "Write a valid email",
             "required_email": "Email required",
             "invalid_phone": "Write a phone number",
-            "required_phone": "Phone is required"
+            "required_phone": "Phone is required",
+            "terms_1": "To use this Demo, you must accept our",
+            "terms_2": " data treatment agreement."
         }
     },
     "results": {
