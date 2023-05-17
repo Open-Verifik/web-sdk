@@ -211,7 +211,7 @@
                         {{ 'demo.start' | transloco}}
                     </button>
                 </div>
-                <div class="flex justify-center w-full mt-8  pb-8">
+                <div class="flex justify-center w-full mt-8  pb-12">
                     <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
                 </div>
             </ng-container>
@@ -324,7 +324,7 @@
                                     </a>
                                 </mat-checkbox>
                             </div>
-                            <div class="w-full col-span-3 flex justify-center mb-8">
+                            <div class="w-full col-span-3 flex justify-center pb-16 ">
                                 <button (click)="changeStep('select')" class="verifik-start-phone">
                                     {{ 'demo.continue' | transloco}}
                                 </button>
@@ -393,7 +393,7 @@
                     </button>
                 </div>
 
-                <div class="flex justify-center w-full py-8">
+                <div class="flex justify-center w-full py-12">
                     <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
                 </div>
 
@@ -530,7 +530,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-2 flex justify-center py-8">
+                <div class="mt-2 flex justify-center py-12">
                     <button (click)="startBiometric()" class="flex p-2 mx-4 w-20 justify-center border-solid border-2 rounded-full"
                         [style.background-color]=" baseColor">
                         <span [style.color]="'white'">
@@ -591,10 +591,12 @@
                             </div>
                         </ng-container>
                         <ng-container *ngIf="selectedFeature == 'liveness'">
-                            <div class="w-full flex justify-center px-4">
-                                <div class="absolute enlarge w-6 h-6 mt-2 -ml-26">
+                            <div class="w-full">
+                                <div class="relative flex justify-center enlarge w-6 h-6 ml-20 mt-2 z-10">
                                     <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(faceScan, 'none')"></mat-icon>
                                 </div>
+                            </div>
+                            <div class="w-full flex justify-center -mt-10 px-4 z-0">
                                 <img class="w-36" src="{{faceScan}}" alt="">
                             </div>
                         </ng-container>
@@ -709,7 +711,7 @@
                     </div>
                 </div>
 
-                <div class="flex justify-center w-full my-8 py-6">
+                <div class="flex justify-center w-full my-8 pt-8 pb-16">
                     <button (click)="changeStep('end')" class="verifik-start-phone">
                         {{'demo.finish' | transloco}}
                     </button>
@@ -718,7 +720,7 @@
              <ng-container *ngIf="currentStep == 'end'">
                 <div class="w-full grid grid-cols-3 pt-4">
                     <div class="pt-3">
-                        <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                        <mat-icon (click)="changeStep('result')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
                     </div>
                     <div class="flex justify-center w-full">

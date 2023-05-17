@@ -79,7 +79,7 @@ export class DemoRootComponent implements OnInit {
     phoneMode: boolean;
     bigScreenMode: boolean;
     selectedFeature: any;
-    // selectedFeature: any = 'ocr';
+    // selectedFeature: any = 'liveness';
     currentStep: any = "start";
     // currentStep: any = 'end';
     baseColor: any = "#0036E7";
@@ -169,6 +169,36 @@ export class DemoRootComponent implements OnInit {
         // this.faceScan = this.response.enrollUrl || this.response.faceScanUrl;
         // this.idScan = this.response.idScanUrl;
         // this.translocoService.setActiveLang("en");
+
+        // ===LIVENESS===
+
+        // this.response = {
+        //     "type": "enrollment3d",
+        //     "fraudData": [],
+        //     "_id": "6464118541fcdc622aa4f169",
+        //     "deleted": false,
+        //     "externalDatabaseRefID": "lead_8333114822_mmmfi@gmail.com",
+        //     "lead": "6464116933fb84b229614940",
+        //     "success": true,
+        //     "faceUrl": "https://app.verifik.co/api/liveness/image?tid=98cc093a-0b47-4edf-82f1-d18ace141134",
+        //     "ageEstimateGroup": "Age Over 30",
+        //     "updatedAt": "2023-05-16T23:28:05.230Z",
+        //     "createdAt": "2023-05-16T23:28:05.230Z",
+        //     "__v": 0,
+        //     "details": {
+        //       "platform": "web",
+        //       "deviceModel": "iPhoneX",
+        //       "liveness": true
+        //     },
+        //     "wasProcessed": true
+        //   }
+        //   this.matchLevel = this.response.details["matchLevel"];
+        //   this.maxMatchLevel = this.response.details["maxMatchLevel"];
+        //   this.jsonData = this.response;
+        //   this.faceScan = this.response.faceUrl || this.response.enrollUrl;
+        //   // this.idScan = response.idScanUrl;
+        //   this.ageEstimate = this.response.ageEstimateGroup;
+
         this._demoService.navigationHandler$.subscribe((result) => {
             if (result && result.hasToken) {
                 this.loadBiometrics();
