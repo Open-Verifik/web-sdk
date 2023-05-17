@@ -79,7 +79,7 @@ export class DemoRootComponent implements OnInit {
     phoneMode: boolean;
     bigScreenMode: boolean;
     selectedFeature: any;
-    // selectedFeature: any = 'liveness';
+    // selectedFeature: any = 'ocr';
     currentStep: any = "start";
     // currentStep: any = 'end';
     baseColor: any = "#0036E7";
@@ -168,7 +168,7 @@ export class DemoRootComponent implements OnInit {
         // this.jsonData = this.response;
         // this.faceScan = this.response.enrollUrl || this.response.faceScanUrl;
         // this.idScan = this.response.idScanUrl;
-        // this.translocoService.setActiveLang("en");
+        this.translocoService.setActiveLang("en");
 
         // ===LIVENESS===
 

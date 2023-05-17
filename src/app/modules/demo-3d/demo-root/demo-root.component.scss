@@ -1,11 +1,12 @@
 body {
-    overflow: hidden !important;
 }
 
 .mat-select-panel{
     border-radius: 25px !important;
 }
-
+app-demo-root{
+overflow: hidden;
+}
 .starter .mat-progress-bar-fill::after {
     background-color: #EAB417 !important;
     color: #EAB417 !important;
@@ -116,7 +117,20 @@ body {
 
 .demo-canvas {
     // overflow: auto;
-    // height: calc(100% - 120px);
+    height: 100%;
+    // width: calc(100% - 80px);
+    // position: absolute;
+    // top: 50%;
+    // left: 50%;
+    // transform: translate(-50%, -50%);
+    margin: 30px;
+    border-radius: 25px;
+    background-color: white;
+    z-index: 10;
+}
+.demo-canvas-phone{
+    // overflow: auto;
+    // height: 100%;
     // width: calc(100% - 80px);
     // position: absolute;
     // top: 50%;

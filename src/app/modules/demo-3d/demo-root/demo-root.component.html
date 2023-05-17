@@ -1,14 +1,13 @@
 <div class="down-gradient"></div>
 <div class="top-gradient"></div>
-<div #myDiv class="background-gradient">
+<div class="background-gradient">
 
-    <div class="demo-canvas">
-        <div ></div>
+    <div #myDiv class="demo-canvas" *ngIf="!phoneMode">
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
         <ng-container *ngIf="!phoneMode">
-            <div class="absolute left-0 mt-8 ml-8" style="z-index:99;">
+            <div class="absolute left-0 mt-8 ml-16" style="z-index:99;">
                 <languages [type]="'fab'"></languages>
             </div>
             <ng-container *ngIf="currentStep == 'start'">
@@ -176,7 +175,9 @@
                 </div>
             </ng-container>
         </ng-container>
+    </div>
 
+    <div #myDiv  class="demo-canvas-phone" *ngIf="phoneMode">
         <ng-container *ngIf="phoneMode">
             <ng-container *ngIf="currentStep == 'start'">
                 <div class="absolute right-0 mt-4 mr-12">
@@ -197,7 +198,7 @@
                     </div>
                     
                 </div>
-                <div class="flex justify-start w-full mt-8 ml-10 px-4">
+                <div class="flex justify-start w-full mt-8 ml-20 px-4">
                     <div class="list-feature">
                         <ul style="list-style:disc !important">
                             <li>{{ 'demo.home_1' | transloco}}</li>
