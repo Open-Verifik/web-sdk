@@ -78,9 +78,9 @@ export class DemoRootComponent implements OnInit {
     laptopMode: boolean;
     phoneMode: boolean;
     bigScreenMode: boolean;
-    selectedFeature: any;
-    // selectedFeature: any = 'ocr';
-    currentStep: any = "start";
+    // selectedFeature: any;
+    selectedFeature: any = 'ocr';
+    currentStep: any = "result";
     // currentStep: any = 'end';
     baseColor: any = "#0036E7";
     mapSteps: any = ["start", "form", "select", "instructions", "facetec", "result", "end"];
@@ -163,11 +163,50 @@ export class DemoRootComponent implements OnInit {
         //     ...this.response["details"]["documentData"]["scannedValues"]["userInfo"],
         // };
 
-        // this.matchLevel = this.response.details["matchLevel"];
-        // this.maxMatchLevel = this.response.details["maxMatchLevel"];
-        // this.jsonData = this.response;
-        // this.faceScan = this.response.enrollUrl || this.response.faceScanUrl;
-        // this.idScan = this.response.idScanUrl;
+        this.response = {
+            "type": "match3d2dIdscan",
+            "fraudData": [],
+            "_id": "646514f002f1ac626c793b13",
+            "deleted": false,
+            "externalDatabaseRefID": "lead_715382944_Sdf@jdk.df",
+            "lead": "6465143c9f5b351297f541a7",
+            "success": true,
+            "enrollUrl": "https://app.verifik.co/api/liveness/image?tid=d1c79423-28a1-4d68-bc3f-7a4dd6ed1d4f",
+            "idScanUrl": "https://app.verifik.co/api/idCheckImage?tid=f5c26ad2-3eda-467b-b465-c59d44c7a9d1&idCheckImageType=",
+            "updatedAt": "2023-05-17T17:54:56.904Z",
+            "createdAt": "2023-05-17T17:54:56.904Z",
+            "__v": 0,
+            "details": {
+              "platform": "web",
+              "deviceModel": "K",
+              "matchLevel": 5,
+              "documentData": {
+                "templateInfo": {
+                  "templateName": "Colombia - National ID Card - 2017 - Horizontal",
+                  "templateType": "Government Issued Photo ID"
+                },
+                "scannedValues": {
+                  "userInfo": {
+                    "firstName": "CAMILO JOSE",
+                    "lastName": "ZAMBRANO GUEVARA CAE",
+                    "dateOfBirth": "04-ENE-2000"
+                  },
+                  "idInfo": {
+                    "idNumber": "1.018.515.203",
+                    "dateOfIssue": ""
+                  }
+                }
+              },
+              "maxMatchLevel": 7
+            },
+            "wasProcessed": true
+          }
+
+        this.matchLevel = this.response.details["matchLevel"];
+        this.maxMatchLevel = this.response.details["maxMatchLevel"];
+        this.jsonData = this.response;
+        this.faceScan = this.response.enrollUrl || this.response.faceScanUrl;
+        this.idScan = this.response.idScanUrl;
         this.translocoService.setActiveLang("en");
 
         // ===LIVENESS===
@@ -199,25 +238,25 @@ export class DemoRootComponent implements OnInit {
         //   // this.idScan = response.idScanUrl;
         //   this.ageEstimate = this.response.ageEstimateGroup;
 
-        this._demoService.navigationHandler$.subscribe((result) => {
-            if (result && result.hasToken) {
-                this.loadBiometrics();
-                this.currentStep = "select";
-                this._changeDetectorRef.markForCheck();
-            }
-        });
+        // this._demoService.navigationHandler$.subscribe((result) => {
+        //     if (result && result.hasToken) {
+        //         this.loadBiometrics();
+        //         this.currentStep = "select";
+        //         this._changeDetectorRef.markForCheck();
+        //     }
+        // });
 
-        if (localStorage.accessToken) {
-            this._demoService.getLead().subscribe(
-                (lead) => {
-                    this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
-                    this.loadBiometrics();
-                    this.currentStep = "select";
-                    this._changeDetectorRef.markForCheck();
-                },
-                (error) => localStorage.removeItem("accessToken")
-            );
-        }
+        // if (localStorage.accessToken) {
+        //     this._demoService.getLead().subscribe(
+        //         (lead) => {
+        //             this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
+        //             this.loadBiometrics();
+        //             this.currentStep = "select";
+        //             this._changeDetectorRef.markForCheck();
+        //         },
+        //         (error) => localStorage.removeItem("accessToken")
+        //     );
+        // }
 
         this._changeDetectorRef.markForCheck();
         this.countries = this._countries.countryCodes;
