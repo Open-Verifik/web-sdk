@@ -1,323 +1,432 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from "@angular/forms";
-import { CountriesService } from "app/modules/countries/countries.service";
-import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
-import { Subject } from "rxjs";
-import { skip, takeUntil } from "rxjs/operators";
-import { DemoService } from "../demo.service";
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    OnInit,
+    ViewEncapsulation,
+    ElementRef,
+    ViewChild
+} from "@angular/core";
+import {
+    FormBuilder,
+    FormGroup,
+    Validators,
+    ValidatorFn,
+    AbstractControl
+} from "@angular/forms";
+import {
+    CountriesService
+} from "app/modules/countries/countries.service";
+import {
+    FuseMediaWatcherService
+} from "@fuse/services/media-watcher";
+import {
+    Subject
+} from "rxjs";
+import {
+    skip,
+    takeUntil
+} from "rxjs/operators";
+import {
+    DemoService
+} from "../demo.service";
 
-import { BiometricService } from "app/modules/biometrics/biometric.service";
-import { DemoBiometric } from "app/modules/biometrics/demo-biometric.module";
-import { Biometric } from "app/modules/biometrics/biometric.module";
-import { ProfilePreviewComponent } from "./profile-preview/profile-preview.component";
-import { MatDialog } from "@angular/material/dialog";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { environment } from "environments/environment";
-import { TranslocoService } from "@ngneat/transloco";
+import {
+    BiometricService
+} from "app/modules/biometrics/biometric.service";
+import {
+    DemoBiometric
+} from "app/modules/biometrics/demo-biometric.module";
+import {
+    Biometric
+} from "app/modules/biometrics/biometric.module";
+import {
+    ProfilePreviewComponent
+} from "./profile-preview/profile-preview.component";
+import {
+    MatDialog
+} from "@angular/material/dialog";
+import {
+    MatSnackBar
+} from "@angular/material/snack-bar";
+import {
+    environment
+} from "environments/environment";
+import {
+    TranslocoService
+} from "@ngneat/transloco";
 
 @Component({
-	selector: "app-demo-root",
-	templateUrl: "./demo-root.component.html",
-	styleUrls: ["./demo-root.component.scss"],
-	encapsulation: ViewEncapsulation.None,
-	changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: "app-demo-root",
+    templateUrl: "./demo-root.component.html",
+    styleUrls: ["./demo-root.component.scss"],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DemoRootComponent implements OnInit {
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
-	private _biometric: DemoBiometric;
-	biometricLoaded: Boolean;
+    private _unsubscribeAll: Subject < any > = new Subject < any > ();
+    @ViewChild('myDiv') myDiv: ElementRef;
+    private _biometric: DemoBiometric;
+    biometricLoaded: Boolean;
 
-	contactForm: FormGroup;
-	countries: any;
-	isScreenSmall: boolean;
-	lgScreen: boolean;
-	tabletMode: boolean;
-	laptopMode: boolean;
-	phoneMode: boolean;
-	bigScreenMode: boolean;
-	selectedFeature: any;
-	// selectedFeature: any = 'ocr';
-	currentStep: any = "start";
-	// currentStep: any = 'end';
-	baseColor: any = "#0036E7";
-	mapSteps: any = ["start", "form", "select", "instructions", "facetec", "result", "end"];
-	idScanCrops: any;
-	scannedData: any;
-	matchLevel: number;
-	jsonData: any;
-	previewDialog: any;
-	maxMatchLevel: any;
-	faceScan: any;
-	idScan: any;
-	currentImg: any;
-	ageEstimate: any;
-	qrText: string;
-	intervalHideSnackBar: any;
+    contactForm: FormGroup;
+    countries: any;
+    isScreenSmall: boolean;
+    lgScreen: boolean;
+    tabletMode: boolean;
+    laptopMode: boolean;
+    phoneMode: boolean;
+    bigScreenMode: boolean;
+    selectedFeature: any;
+    // selectedFeature: any = 'ocr';
+    currentStep: any = "start";
+    // currentStep: any = 'end';
+    baseColor: any = "#0036E7";
+    mapSteps: any = ["start", "form", "select", "instructions", "facetec", "result", "end"];
+    idScanCrops: any;
+    scannedData: any;
+    matchLevel: number;
+    jsonData: any;
+    previewDialog: any;
+    maxMatchLevel: any;
+    faceScan: any;
+    idScan: any;
+    currentImg: any;
+    ageEstimate: any;
+    qrText: string;
+    intervalHideSnackBar: any;
+    response: any;
 
-	constructor(
-		private _formBuilder: FormBuilder,
-		private _fuseMediaWatcherService: FuseMediaWatcherService,
-		private _changeDetectorRef: ChangeDetectorRef,
-		public dialog: MatDialog,
-		private translocoService: TranslocoService,
-		private _countries: CountriesService,
-		private _service: BiometricService,
-		private _snackBar: MatSnackBar,
-		private _demoService: DemoService
-	) {
-		// this.translocoService.setActiveLang("en");
-		this._demoService.navigationHandler$.subscribe((result) => {
-			if (result && result.hasToken) {
-				this.loadBiometrics();
-				this.currentStep = "select";
-				this._changeDetectorRef.markForCheck();
-			}
-		});
+    constructor(
+        private _formBuilder: FormBuilder,
+        private _fuseMediaWatcherService: FuseMediaWatcherService,
+        private _changeDetectorRef: ChangeDetectorRef,
+        public dialog: MatDialog,
+        private translocoService: TranslocoService,
+        private _countries: CountriesService,
+        private _service: BiometricService,
+        private _snackBar: MatSnackBar,
+        private _demoService: DemoService
+    ) {
+        // this.response = {"type": "match3d2dIdscan",
+        // "fraudData": [],
+        // "_id": "646412991f5f5862237baf51",
+        // "deleted": false,
+        // "externalDatabaseRefID": "lead_8333114822_mmmfi@gmail.com",
+        // "lead": "6464116933fb84b229614940",
+        // "success": true,
+        // "enrollUrl": "https://app.verifik.co/api/liveness/image?tid=98cc093a-0b47-4edf-82f1-d18ace141134",
+        // "idScanUrl": "https://app.verifik.co/api/idCheckImage?tid=bd008a0e-f8dd-47e8-87a6-ddff6e918946&idCheckImageType=",
+        // "updatedAt": "2023-05-16T23:32:41.232Z",
+        // "createdAt": "2023-05-16T23:32:41.232Z",
+        // "__v": 0,
+        // "details": {
+        //   "platform": "web",
+        //   "deviceModel": "iPhoneX",
+        //   "matchLevel": 7,
+        //   "documentData": {
+        //     "templateInfo": {
+        //       "templateName": "Mexico - ID Card (Voter) - 2013 - Horizontal",
+        //       "templateType": "Government Issued Photo ID"
+        //     },
+        //     "scannedValues": {
+        //       "userInfo": {
+        //         "firstName": "DANIEL",
+        //         "middleName": "GALLARDO",
+        //         "lastName": "CARRILLO"
+        //       },
+        //       "idInfo": {
+        //         "idNumber": "1228082103918",
+        //         "idNumber2": "GACD930715HTSLRN02",
+        //         "dateOfIssue": "2013",
+        //         "dateOfExpiration": "2023"
+        //       },
+        //       "addressInfo": {
+        //         "address1": "C MEXICO 805",
+        //         "address2": "COL PETROLERA 89110",
+        //         "address3": "TAMPICO TAMPS"
+        //       }
+        //     }
+        //   },
+        //   "maxMatchLevel": 7
+        // },
+        // "wasProcessed": true
+        // }
+        // this.scannedData = this.response["details"]["documentData"]["userConfirmedValues"] ? {
+        //     ...this.response["details"]["documentData"]["userConfirmedValues"]["idInfo"],
+        //     ...this.response["details"]["documentData"]["userConfirmedValues"]["addressInfo"],
+        //     ...this.response["details"]["documentData"]["userConfirmedValues"]["userInfo"],
+        // } : {
+        //     ...this.response["details"]["documentData"]["scannedValues"]["idInfo"],
+        //     ...this.response["details"]["documentData"]["scannedValues"]["addressInfo"],
+        //     ...this.response["details"]["documentData"]["scannedValues"]["userInfo"],
+        // };
 
-		if (localStorage.accessToken) {
-			this._demoService.getLead().subscribe(
-				(lead) => {
-					this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
-					this.loadBiometrics();
-					this.currentStep = "select";
-					this._changeDetectorRef.markForCheck();
-				},
-				(error) => localStorage.removeItem("accessToken")
-			);
-		}
+        // this.matchLevel = this.response.details["matchLevel"];
+        // this.maxMatchLevel = this.response.details["maxMatchLevel"];
+        // this.jsonData = this.response;
+        // this.faceScan = this.response.enrollUrl || this.response.faceScanUrl;
+        // this.idScan = this.response.idScanUrl;
+        // this.translocoService.setActiveLang("en");
+        this._demoService.navigationHandler$.subscribe((result) => {
+            if (result && result.hasToken) {
+                this.loadBiometrics();
+                this.currentStep = "select";
+                this._changeDetectorRef.markForCheck();
+            }
+        });
 
-		this._changeDetectorRef.markForCheck();
-		this.countries = this._countries.countryCodes;
-		this.initForm();
-	}
+        if (localStorage.accessToken) {
+            this._demoService.getLead().subscribe(
+                (lead) => {
+                    this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
+                    this.loadBiometrics();
+                    this.currentStep = "select";
+                    this._changeDetectorRef.markForCheck();
+                },
+                (error) => localStorage.removeItem("accessToken")
+            );
+        }
 
-	loadBiometrics(): void {
-		this._biometric = new DemoBiometric(this._service);
+        this._changeDetectorRef.markForCheck();
+        this.countries = this._countries.countryCodes;
+        this.initForm();
+    }
 
-		this._biometric.isReady$
-			.pipe(skip(1))
-			.pipe(takeUntil(this._unsubscribeAll))
-			.subscribe((isSuccess) => {
-				console.log({
-					biometricsReady: isSuccess,
-				});
-			});
+    loadBiometrics(): void {
+        this._biometric = new DemoBiometric(this._service);
 
-		this._biometric.session$
-			.pipe(skip(1))
-			.pipe(takeUntil(this._unsubscribeAll))
-			.subscribe((isSuccess) => {
-				this.biometricLoaded = isSuccess;
-				this._changeDetectorRef.detectChanges();
-			});
+        this._biometric.isReady$
+            .pipe(skip(1))
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((isSuccess) => {
+                console.log({
+                    biometricsReady: isSuccess,
+                });
+            });
 
-		this._biometric.error$
-			.pipe(skip(1))
-			.pipe(takeUntil(this._unsubscribeAll))
-			.subscribe((error) => {
-				this.biometricLoaded = false;
-				this._biometric.startSession();
-			});
+        this._biometric.session$
+            .pipe(skip(1))
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((isSuccess) => {
+                this.biometricLoaded = isSuccess;
+                this._changeDetectorRef.detectChanges();
+            });
 
-		this._biometric.onboardingScan$
-			.pipe(skip(1))
-			.pipe(takeUntil(this._unsubscribeAll))
-			.subscribe((response) => {
-				if (response.success) {
-					//COMPLETED ALL SERVICES
+        this._biometric.error$
+            .pipe(skip(1))
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((error) => {
+                this.biometricLoaded = false;
+                this._biometric.startSession();
+            });
 
-					this.scannedData = response["details"]["documentData"]["userConfirmedValues"] ? {
-								...response["details"]["documentData"]["userConfirmedValues"]["idInfo"],
-								...response["details"]["documentData"]["userConfirmedValues"]["addressInfo"],
-								...response["details"]["documentData"]["userConfirmedValues"]["userInfo"],
-						  } : {
-								...response["details"]["documentData"]["scannedValues"]["idInfo"],
-								...response["details"]["documentData"]["scannedValues"]["addressInfo"],
-								...response["details"]["documentData"]["scannedValues"]["userInfo"],
-						  };
+        this._biometric.onboardingScan$
+            .pipe(skip(1))
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((response) => {
+                if (response.success) {
+                    //COMPLETED ALL SERVICES
 
-					this.matchLevel = response.details["matchLevel"];
-					this.maxMatchLevel = response.details["maxMatchLevel"];
-					this.jsonData = response;
-					this.faceScan = response.enrollUrl || response.faceScanUrl;
-					this.idScan = response.idScanUrl;
+                    this.scannedData = response["details"]["documentData"]["userConfirmedValues"] ? {
+                        ...response["details"]["documentData"]["userConfirmedValues"]["idInfo"],
+                        ...response["details"]["documentData"]["userConfirmedValues"]["addressInfo"],
+                        ...response["details"]["documentData"]["userConfirmedValues"]["userInfo"],
+                    } : {
+                        ...response["details"]["documentData"]["scannedValues"]["idInfo"],
+                        ...response["details"]["documentData"]["scannedValues"]["addressInfo"],
+                        ...response["details"]["documentData"]["scannedValues"]["userInfo"],
+                    };
 
-					this.changeStep("result");
+                    this.matchLevel = response.details["matchLevel"];
+                    this.maxMatchLevel = response.details["maxMatchLevel"];
+                    this.jsonData = response;
+                    this.faceScan = response.enrollUrl || response.faceScanUrl;
+                    this.idScan = response.idScanUrl;
 
-					this._changeDetectorRef.markForCheck();
-				}
+                    this.changeStep("result");
 
-				this.biometricLoaded = false;
-				this._biometric.startSession();
-			});
+                    this._changeDetectorRef.markForCheck();
+                }
 
-		this._biometric.auth$
-			.pipe(skip(1))
-			.pipe(takeUntil(this._unsubscribeAll))
-			.subscribe((response) => {
-				if (response.success) {
-					//COMPLETED ALL SERVICES
-					this.matchLevel = response.details["matchLevel"];
-					this.maxMatchLevel = response.details["maxMatchLevel"];
-					this.jsonData = response;
-					this.faceScan = response.faceUrl || response.enrollUrl;
-					// this.idScan = response.idScanUrl;
-					this.ageEstimate = response.ageEstimateGroup;
-					// this.screenStatus = 'ending'
-					// this.step = 'finish'
-					this.changeStep("result");
-					this._changeDetectorRef.markForCheck();
-				}
+                this.biometricLoaded = false;
+                this._biometric.startSession();
+            });
 
-				this.biometricLoaded = false;
-				this._biometric.startSession();
-			});
-	}
+        this._biometric.auth$
+            .pipe(skip(1))
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((response) => {
+                if (response.success) {
+                    //COMPLETED ALL SERVICES
+                    this.matchLevel = response.details["matchLevel"];
+                    this.maxMatchLevel = response.details["maxMatchLevel"];
+                    this.jsonData = response;
+                    this.faceScan = response.faceUrl || response.enrollUrl;
+                    // this.idScan = response.idScanUrl;
+                    this.ageEstimate = response.ageEstimateGroup;
+                    // this.screenStatus = 'ending'
+                    // this.step = 'finish'
+                    this.changeStep("result");
+                    this._changeDetectorRef.markForCheck();
+                }
 
-	ngOnInit(): void {
-		this.idScanCrops = ["frontCrop", "backScan"];
-		this.currentImg = {
-			crop: this.idScanCrops[0],
-			index: 0,
-		};
-		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
-			this.isScreenSmall = Boolean(!matchingAliases.includes("lg") && matchingAliases.includes("md"));
-			this.lgScreen = matchingAliases.includes("lg");
-			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
-			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
-			this.laptopMode = Boolean(!matchingAliases.includes("lg") && matchingAliases.includes("md") && matchingAliases.includes("sm"));
-			this.bigScreenMode = Boolean(matchingAliases.includes("lg") && matchingAliases.includes("md") && matchingAliases.includes("sm"));
+                this.biometricLoaded = false;
+                this._biometric.startSession();
+            });
+    }
 
-			// Mark for check
-			this._changeDetectorRef.markForCheck();
-		});
-	}
+    ngOnInit(): void {
+        this.idScanCrops = ["frontCrop", "backScan"];
+        this.currentImg = {
+            crop: this.idScanCrops[0],
+            index: 0,
+        };
+        this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({
+            matchingAliases
+        }) => {
+            this.isScreenSmall = Boolean(!matchingAliases.includes("lg") && matchingAliases.includes("md"));
+            this.lgScreen = matchingAliases.includes("lg");
+            this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
+            this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
+            this.laptopMode = Boolean(!matchingAliases.includes("lg") && matchingAliases.includes("md") && matchingAliases.includes("sm"));
+            this.bigScreenMode = Boolean(matchingAliases.includes("lg") && matchingAliases.includes("md") && matchingAliases.includes("sm"));
 
-	startBiometric(): void {
-		if (this.selectedFeature == "liveness") {
-			this._biometric.startAuth();
-			return;
-		}
+            // Mark for check
+            this._changeDetectorRef.markForCheck();
+        });
+    }
 
-		this._biometric.startEnrollmentDocument();
-	}
+    startBiometric(): void {
+        if (this.selectedFeature == "liveness") {
+            this._biometric.startAuth();
+            return;
+        }
 
-	profilePreviewDialog(object, part): boolean {
-		this.previewDialog = this.dialog.open(ProfilePreviewComponent, {
-			data: {
-				document: {
-					url: part != "none" ? object + part : object,
-				},
-				scan: "none",
-			},
-		});
+        this._biometric.startEnrollmentDocument();
+    }
 
-		this.previewDialog.afterClosed().subscribe((result) => {
-			if (result == "aceptar") {
-			}
-		});
-		this._changeDetectorRef.markForCheck();
+    profilePreviewDialog(object, part): boolean {
+        this.previewDialog = this.dialog.open(ProfilePreviewComponent, {
+            data: {
+                document: {
+                    url: part != "none" ? object + part : object,
+                },
+                scan: "none",
+            },
+        });
 
-		return false;
-	}
+        this.previewDialog.afterClosed().subscribe((result) => {
+            if (result == "aceptar") {}
+        });
+        this._changeDetectorRef.markForCheck();
 
-	initForm(): void {
-		this.contactForm = this._formBuilder.group({
-			companyName: [, [Validators.required]],
-			name: [, [Validators.required]],
-			website: [, [Validators.required]],
-			jobFunction: [, [Validators.required]],
-			email: [, [Validators.required, Validators.email]],
-			countryCode: [, [Validators.required]],
-			phone: [, [Validators.required, this.phoneNumberValidator()]],
-            legalAgreement: [,[Validators.required]],
-		});
-	}
+        return false;
+    }
 
-	changeSelection(data): void {
-		this.selectedFeature = data;
-		this._changeDetectorRef.markForCheck();
-	}
+    initForm(): void {
+        this.contactForm = this._formBuilder.group({
+            companyName: [, [Validators.required]],
+            name: [, [Validators.required]],
+            website: [, [Validators.required]],
+            jobFunction: [, [Validators.required]],
+            email: [, [Validators.required, Validators.email]],
+            countryCode: [, [Validators.required]],
+            phone: [, [Validators.required, this.phoneNumberValidator()]],
+            legalAgreement: [, [Validators.required]],
+        });
+    }
 
-	changeId(displacement): void {
-		if (displacement === "back") {
-			if (this.currentImg.index == 0) {
-				this.currentImg = {
-					crop: this.idScanCrops[this.idScanCrops.length - 1],
-					index: this.idScanCrops.length - 1,
-				};
-				return;
-			}
-			this.currentImg = {
-				crop: this.idScanCrops[this.currentImg.index - 1],
-				index: this.currentImg.index - 1,
-			};
-			return;
-		}
-		if (displacement === "front") {
-			if (this.currentImg.index == this.idScanCrops.length - 1) {
-				this.currentImg = {
-					crop: this.idScanCrops[0],
-					index: 0,
-				};
-				return;
-			}
-			this.currentImg = {
-				crop: this.idScanCrops[this.currentImg.index + 1],
-				index: this.currentImg.index + 1,
-			};
-		}
-	}
+    changeSelection(data): void {
+        this.selectedFeature = data;
+        this._changeDetectorRef.markForCheck();
+    }
 
-	changeStep(data): void {
-		if (data === "select" && this.currentStep != "instructions") {
-			this.reviewForm();
-			return;
-		}
-		if (data === "instructions") {
-			this._biometric.startSession();
-		}
+    changeId(displacement): void {
+        if (displacement === "back") {
+            if (this.currentImg.index == 0) {
+                this.currentImg = {
+                    crop: this.idScanCrops[this.idScanCrops.length - 1],
+                    index: this.idScanCrops.length - 1,
+                };
+                return;
+            }
+            this.currentImg = {
+                crop: this.idScanCrops[this.currentImg.index - 1],
+                index: this.currentImg.index - 1,
+            };
+            return;
+        }
+        if (displacement === "front") {
+            if (this.currentImg.index == this.idScanCrops.length - 1) {
+                this.currentImg = {
+                    crop: this.idScanCrops[0],
+                    index: 0,
+                };
+                return;
+            }
+            this.currentImg = {
+                crop: this.idScanCrops[this.currentImg.index + 1],
+                index: this.currentImg.index + 1,
+            };
+        }
+    }
 
-		this.currentStep = data;
-		this._changeDetectorRef.markForCheck();
-	}
+    changeStep(data): void {
+        if (data === "select" && this.currentStep != "instructions") {
+            this.reviewForm();
+            return;
+        }
+        if (data === "instructions") {
+            this._biometric.startSession();
+        }
 
-	reviewForm(): Boolean {
-		if (!this.contactForm.valid) {
-			this.openSnackBar("required_inputs");
-			return false;
-		}
+        this.currentStep = data;
+        // if (this.myDiv && this.myDiv.nativeElement) {
+        //     this.myDiv.nativeElement.scrollIntoView({
+        //         behavior: 'smooth',
+        //         block: 'start'
+        //     });
+        // }
+        this._changeDetectorRef.markForCheck();
+    }
 
-		this._demoService.postForm(this.contactForm.value).subscribe(
-			(result) => {
-				localStorage.setItem("accessToken", result.data.token);
+    reviewForm(): Boolean {
+        if (!this.contactForm.valid) {
+            this.openSnackBar("required_inputs");
+            return false;
+        }
 
-				localStorage.setItem("expiresAt", result.data.tokenExpiresAt);
+        this._demoService.postForm(this.contactForm.value).subscribe(
+            (result) => {
+                localStorage.setItem("accessToken", result.data.token);
 
-				if (result.data.token) {
-					this.qrText = `${environment.redirectUrl + "demo/" + result.data.token}`;
-					this.loadBiometrics();
+                localStorage.setItem("expiresAt", result.data.tokenExpiresAt);
+
+                if (result.data.token) {
+                    this.qrText = `${environment.redirectUrl + "demo/" + result.data.token}`;
+                    this.loadBiometrics();
                     // this.postToHubspot(this.contactForm.value);
-					this.currentStep = "select";
-					this._changeDetectorRef.markForCheck();
-					return;
-				}
-				this.openSnackBar("Error!");
-				// const token = result.data.token
-			},
-			(err) => {
-				console.log({
-					err,
-				});
-				this.openSnackBar(err.error.message);
-			}
-		);
-	}
+                    this.currentStep = "select";
+                    this._changeDetectorRef.markForCheck();
+                    return;
+                }
+                this.openSnackBar("Error!");
+                // const token = result.data.token
+            },
+            (err) => {
+                console.log({
+                    err,
+                });
+                this.openSnackBar(err.error.message);
+            }
+        );
+    }
 
-    postToHubspot(form):void{
+    postToHubspot(form): void {
         this._demoService.postHubspot({
-            "fields":[
-                {
+            "fields": [{
                     "objectTypeId": "0-1",
                     "name": "company",
                     "value": form.companyName
@@ -337,7 +446,7 @@ export class DemoRootComponent implements OnInit {
                     "name": "email",
                     "value": form.email
                 },
-                {   
+                {
                     "objectTypeId": "0-1",
                     "name": "phone",
                     "value": form.phone
@@ -361,64 +470,64 @@ export class DemoRootComponent implements OnInit {
             //     ]
             //   }
             // }
-        }).subscribe(result =>{
+        }).subscribe(result => {
             console.log(result);
         })
     }
 
-	changeDemo(): void {
-		this.currentStep = "select";
-		this.scannedData = undefined;
-		this.matchLevel = undefined;
-		this.maxMatchLevel = undefined;
-		this.jsonData = undefined;
-		this.faceScan = undefined;
-		this.idScan = undefined;
-		this._changeDetectorRef.markForCheck();
-	}
+    changeDemo(): void {
+        this.currentStep = "select";
+        this.scannedData = undefined;
+        this.matchLevel = undefined;
+        this.maxMatchLevel = undefined;
+        this.jsonData = undefined;
+        this.faceScan = undefined;
+        this.idScan = undefined;
+        this._changeDetectorRef.markForCheck();
+    }
 
-	goToVk(): void {
-		window.location.href = "https://auth.verifik.co/kyc/start/6332941ccde4f719d9c00f9e"; // Replace with the URL of the external webpage
-	}
+    goToVk(): void {
+        window.location.href = "https://auth.verifik.co/kyc/start/6332941ccde4f719d9c00f9e"; // Replace with the URL of the external webpage
+    }
 
-	talkToSales(): void {
-		let url = "https://meetings.hubspot.com/lina-yepes";
-		if (this.translocoService.getActiveLang() == "en") {
-			url = "https://meetings.hubspot.com/johan-castellanos";
-		}
-		window.location.href = url;
-	}
+    talkToSales(): void {
+        let url = "https://meetings.hubspot.com/lina-yepes";
+        if (this.translocoService.getActiveLang() == "en") {
+            url = "https://meetings.hubspot.com/johan-castellanos";
+        }
+        window.location.href = url;
+    }
 
-	openSnackBar(code: string) {
-		const message = this.translocoService.translate(`errors.${code}`, {}) ?? code;
-		this._snackBar.open(message);
+    openSnackBar(code: string) {
+        const message = this.translocoService.translate(`errors.${code}`, {}) ?? code;
+        this._snackBar.open(message);
 
-		if (this.intervalHideSnackBar) {
-			clearTimeout(this.intervalHideSnackBar);
-		}
+        if (this.intervalHideSnackBar) {
+            clearTimeout(this.intervalHideSnackBar);
+        }
 
-		this.intervalHideSnackBar = setTimeout(() => {
-			this._snackBar.dismiss();
-		}, 5000);
-	}
+        this.intervalHideSnackBar = setTimeout(() => {
+            this._snackBar.dismiss();
+        }, 5000);
+    }
 
-    openConditions():void{
+    openConditions(): void {
         window.open('https://docs.verifik.co/docs/terminos-condiciones/ftxz1gulcjg3y-manual-de-politicas-de-privacidad-y-procedimientos-para-la-proteccion-tratamiento-de-datos-personales-y-atencion-de-solicitudes-consultas-y-reclamos', '_blank')
     }
 
-	phoneNumberValidator(): ValidatorFn {
-		return (
-			control: AbstractControl
-		): {
-			[key: string]: any;
-		} | null => {
-			const phoneNumberPattern = /^[0-9]{10}$/; // Assuming 10-digit phone number
-			const isValid = phoneNumberPattern.test(control.value);
-			return isValid
-				? null
-				: {
-						invalidPhoneNumber: true,
-				  };
-		};
-	}
+    phoneNumberValidator(): ValidatorFn {
+        return (
+            control: AbstractControl
+        ): {
+            [key: string]: any;
+        } | null => {
+            const phoneNumberPattern = /^\d{8,}$/; // Assuming 10-digit phone number
+            const isValid = phoneNumberPattern.test(control.value);
+            return isValid ?
+                null :
+                {
+                    invalidPhoneNumber: true,
+                };
+        };
+    }
 }

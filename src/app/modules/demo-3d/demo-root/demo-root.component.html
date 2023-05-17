@@ -3,6 +3,7 @@
 <div class="background-gradient">
 
     <div class="demo-canvas">
+        <div #myDiv></div>
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
@@ -562,14 +563,14 @@
                             </ng-container>
                         </div>
                         <ng-container *ngIf="selectedFeature == 'ocr'">
-                            <div class="w-full grid grid-cols-2">
-                                <div class="flex justify-center mx-4">
+                            <div class="w-full grid grid-cols-2 gap-1 px-4">
+                                <div class="flex justify-center ">
                                     <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
                                         <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
                                     </div>
                                     <img class="h-40" src="{{faceScan}}" alt="">
                                 </div>
-                                <div class="flex justify-center mx-4">
+                                <div class="flex justify-center ">
                                     <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
                                         <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
                                     </div>
@@ -608,6 +609,11 @@
                         </div>
                         <div *ngIf="selectedFeature ==='liveness'" class="pb-4 w-full flex justify-center px-4">
                             <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{jsonData.details.liveness ? 100 :  2 }}" [bufferValue]="75">
+                            </mat-progress-bar>
+                            <mat-progress-bar *ngIf="!matchLevel && jsonData.details.liveness"
                                 [ngClass]="{'finishOtl': jsonData.details.liveness == true , 'failedOTl': jsonData.details.liveness == false }"
                                 class="w-full" [mode]="'determined'"
                                 value="{{jsonData.details.liveness ? 100 :  2 }}" [bufferValue]="75">
@@ -676,7 +682,10 @@
                 </div>
                 <div class="w-full my-8 px-4">
                     <div class="code-area rounded-xl font-700 text-sm ">
-                        <div class="flex justify-center my-2">
+                        <div class="flex justify-center h-5 mb-2 py-4"
+                        style="font-weight: 700;
+                        font-size: 14px;
+                        line-height: 20px;">
                             {{'demo.code' | transloco}}
                         </div>
                         <pre class="code-area rounded-xl">

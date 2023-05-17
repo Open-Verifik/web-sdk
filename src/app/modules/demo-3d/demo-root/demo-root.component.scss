@@ -2,6 +2,10 @@ body {
     overflow: hidden !important;
 }
 
+.mat-select-panel{
+    border-radius: 25px !important;
+}
+
 .starter .mat-progress-bar-fill::after {
     background-color: #EAB417 !important;
     color: #EAB417 !important;
@@ -424,7 +428,7 @@ body {
 
 
 .verifik-end-phone {
-    width: 180px;
+    width: 200px;
     height: 40px;
     background: #0036E7;
     border-radius: 100px;
