@@ -1,9 +1,9 @@
 <div class="down-gradient"></div>
 <div class="top-gradient"></div>
-<div class="background-gradient">
+<div #myDiv class="background-gradient">
 
     <div class="demo-canvas">
-        <div #myDiv></div>
+        <div ></div>
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
         <!-- =====DESKTOP======= -->
@@ -179,7 +179,7 @@
 
         <ng-container *ngIf="phoneMode">
             <ng-container *ngIf="currentStep == 'start'">
-                <div class="absolute right-0 mt-4 mr-4">
+                <div class="absolute right-0 mt-4 mr-12">
                     <languages [type]="'fab'"></languages>
                 </div>
                 
@@ -211,17 +211,23 @@
                         {{ 'demo.start' | transloco}}
                     </button>
                 </div>
-                <div class="flex justify-center w-full my-8">
+                <div class="flex justify-center w-full mt-8  pb-8">
                     <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
                 </div>
             </ng-container>
 
             <ng-container *ngIf="currentStep == 'form'">
-                <div class="absolute right-0 mt-4 mr-4">
-                    <languages [type]="'fab'"></languages>
-                </div>
-                <div class="flex justify-center mt-4 mb-8">
-                    <img class="w-12 h-12" src="assets/images/demo/k.svg" alt="">
+                <div class="w-full grid grid-cols-3 pt-4">
+                    <div class="pt-3">
+                        <!-- <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon> -->
+                    </div>
+                    <div class="flex justify-center w-full">
+                        <img class="w-10" src="assets/images/demo/k.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
+                    </div>
                 </div>
                 <div class="flex justify-center overflow-auto">
                     <form class="w-full px-4" [formGroup]="contactForm">
@@ -330,13 +336,19 @@
             </ng-container>
 
             <ng-container *ngIf="currentStep == 'select'">
-                <div class="absolute right-0 mt-4 mr-4">
-                    <languages [type]="'fab'"></languages>
+                <div class="w-full grid grid-cols-3 pt-4">
+                    <div class="pt-3">
+                        <!-- <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon> -->
+                    </div>
+                    <div class="flex justify-center w-full">
+                        <img class="w-10" src="assets/images/demo/k.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
+                    </div>
                 </div>
-                <div class="flex justify-center mt-4 mb-8">
-                    <img class="w-12 h-12" src="assets/images/demo/k.svg" alt="">
-                </div>
-                <div class="flex justify-center mx-8 mb-8">
+                <div class="flex justify-center mx-8 py-4">
                     <span class="verifik-form-text-phone">
                         {{ 'demo.select_title' | transloco}}
                     </span>
@@ -381,14 +393,14 @@
                     </button>
                 </div>
 
-                <div class="flex justify-center w-full my-8">
+                <div class="flex justify-center w-full py-8">
                     <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
                 </div>
 
             </ng-container>
 
             <ng-container *ngIf="currentStep == 'instructions'">
-                <div class="w-full grid grid-cols-3 mt-6">
+                <div class="w-full grid grid-cols-3 pt-4">
                     <div class="pt-3">
                         <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
@@ -518,7 +530,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-2 flex justify-center">
+                <div class="mt-2 flex justify-center py-8">
                     <button (click)="startBiometric()" class="flex p-2 mx-4 w-20 justify-center border-solid border-2 rounded-full"
                         [style.background-color]=" baseColor">
                         <span [style.color]="'white'">
@@ -531,7 +543,7 @@
 
              <ng-container *ngIf="currentStep == 'facetec'"></ng-container>
              <ng-container *ngIf="currentStep == 'result'">
-                <div class="w-full grid grid-cols-3 mt-6">
+                <div class="w-full grid grid-cols-3 pt-4">
                     <div class="pt-3">
                         <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
@@ -564,17 +576,17 @@
                         </div>
                         <ng-container *ngIf="selectedFeature == 'ocr'">
                             <div class="w-full grid grid-cols-2 gap-1 px-4">
-                                <div class="flex justify-center ">
-                                    <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
-                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
-                                    </div>
-                                    <img class="h-40" src="{{faceScan}}" alt="">
+                                <div class="relative enlarge w-6 h-6 ml-2 z-10">
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
                                 </div>
-                                <div class="flex justify-center ">
-                                    <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
-                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
-                                    </div>
-                                    <img class="h-40" src="{{idScan +'faceCrop'}}" alt="">
+                                <div class="relative enlarge w-6 h-6 ml-2 z-10">
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
+                                </div>
+                                <div class="flex justify-center -mt-10 z-0">
+                                    <img class="" src="{{faceScan}}" alt="">
+                                </div>
+                                <div class="flex justify-center -mt-10 z-0">
+                                    <img class="" src="{{idScan +'faceCrop'}}" alt="">
                                 </div>
                             </div>
                         </ng-container>
@@ -636,17 +648,20 @@
                         <div class="w-full flex justify-center document-title">
                             {{'demo.documentVerification' | transloco}}
                         </div>
-                        <div (click)="changeId('back')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
-                            <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-left"></mat-icon>
-                        </div>
-                        <div (click)="changeId('front')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-20" style="left:92%; background-color: #01236D;">
-                            <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-right"></mat-icon>
-                        </div>
-                        <div class="w-full flex justify-center mb-6 -mt-8">
-                            <div class="absolute enlarge w-6 h-6 mt-2 -ml-52">
+                        <div class="-mt-8">
+
+                            <div (click)="changeId('back')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
+                                <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-left"></mat-icon>
+                            </div>
+                            <div (click)="changeId('front')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-20" style="left:92%; background-color: #01236D;">
+                                <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-right"></mat-icon>
+                            </div>
+                            <div class="flex justify-start relative ml-6 enlarge w-6 h-6 z-10">
                                 <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan + currentImg.crop, 'none')"></mat-icon>
                             </div>
-                            <img class="px-4" src="{{idScan + currentImg.crop}}" alt="">
+                            <div class="w-full flex justify-center mb-6 -mt-8 z-0">
+                                <img class="px-4" src="{{idScan + currentImg.crop}}" alt="">
+                            </div>
                         </div>
                         <div class="w-full px-4">
                             <div class="w-full grid grid-cols-2 title-table">
@@ -694,14 +709,14 @@
                     </div>
                 </div>
 
-                <div class="flex justify-center w-full my-8 pt-4">
+                <div class="flex justify-center w-full my-8 py-6">
                     <button (click)="changeStep('end')" class="verifik-start-phone">
                         {{'demo.finish' | transloco}}
                     </button>
                 </div>
              </ng-container>
              <ng-container *ngIf="currentStep == 'end'">
-                <div class="w-full grid grid-cols-3 mt-6">
+                <div class="w-full grid grid-cols-3 pt-4">
                     <div class="pt-3">
                         <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
                             svgIcon="heroicons_outline:arrow-left"></mat-icon>
@@ -736,8 +751,8 @@
                         {{'demo.result_change' | transloco}}
                     </button>
                 </div>
-                <div class="flex justify-center w-full my-4">
-                    <button (click)="talkToSales()" class="verifik-end-phone change-demo px-10">
+                <div class="flex justify-center w-full my-4 pb-8">
+                    <button (click)="talkToSales()" class="verifik-end-phone change-demo px-10 ">
                         {{'demo.talk_sales' | transloco}}
                     </button>
                 </div>

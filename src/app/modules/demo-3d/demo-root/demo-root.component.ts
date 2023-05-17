@@ -378,17 +378,25 @@ export class DemoRootComponent implements OnInit {
             this.reviewForm();
             return;
         }
+        if(data === "instructions" && !this.selectedFeature){
+            this.openSnackBar('required_feature');
+            return;
+        }
+
         if (data === "instructions") {
             this._biometric.startSession();
         }
 
         this.currentStep = data;
-        // if (this.myDiv && this.myDiv.nativeElement) {
-        //     this.myDiv.nativeElement.scrollIntoView({
-        //         behavior: 'smooth',
-        //         block: 'start'
-        //     });
-        // }
+        if (this.myDiv && this.myDiv.nativeElement) {
+            console.log('scrolling');
+            this.myDiv.nativeElement.scrollTo({
+                behavior: 'smooth',
+                // block: 'start',
+                top: 0
+            });
+            this._changeDetectorRef.markForCheck();
+        }
         this._changeDetectorRef.markForCheck();
     }
 
@@ -508,7 +516,7 @@ export class DemoRootComponent implements OnInit {
 
         this.intervalHideSnackBar = setTimeout(() => {
             this._snackBar.dismiss();
-        }, 5000);
+        }, 3500);
     }
 
     openConditions(): void {

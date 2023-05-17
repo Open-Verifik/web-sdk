@@ -171,7 +171,8 @@
         "minMatchLevel maximum is: 9\n": "The value for maximun for minMatchLevel is 9",
         "needs_accept_agreements": "You need to accept the data treatment agreement to use this demo.",
         "required_inputs": "Fill all required form inputs",
-        "email_or_phone_is_registered": "The email or phone number is already registered."
+        "email_or_phone_is_registered": "The email or phone number is already registered.",
+        "required_feature": "Select a feature to continue."
     },
     "mockApi": {
         "Record_not_found": "Not registered",
