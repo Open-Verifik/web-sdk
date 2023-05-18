@@ -11,11 +11,11 @@
                 <languages [type]="'fab'"></languages>
             </div>
             <ng-container *ngIf="currentStep == 'start'">
-                <div class="pb-8">
-                    <div class="flex justify-center w-full mt-8">
+                <div class="pb-8" style="height: 100vh;">
+                    <div class="flex justify-center w-full pt-12 mt-8">
                         <img class="home-image" src="assets/images/demo/PcNaveHome.svg" alt="">
                     </div>
-                    <div class="flex justify-center w-full-mt-4">
+                    <div class="flex justify-center w-full mt-8">
                         <div class="verifik-welcome-desktop">
                             {{'demo.home_title' | transloco}}
                         </div>
@@ -35,12 +35,12 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-center w-full mt-8">
+                    <div class="flex justify-center w-full mt-12">
                         <button (click)="changeStep('form')" class="verifik-start-desktop">
                             {{'demo.start' | transloco}}
                         </button>
                     </div>
-                    <div class="flex justify-center items-end w-full mt-8">
+                    <div class="flex justify-center items-end w-full mt-16">
                         <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
                     </div>
                 </div>
@@ -688,12 +688,12 @@
                             </div>
                             <div *ngFor="let data of scannedData | keyvalue; let i = index" 
                                 [ngClass]="{ 'even-table': i % 2 === 0, 'odd-table': i % 2 !== 0 }"
-                                class="w-full grid grid-cols-2 title-table truncate">
+                                class="w-full grid grid-cols-2 title-table">
                                 <div class="ml-2 w-full flex items-center justify-start truncate">                                
                                     {{data.key}}
                                 </div>
-                                <div class="w-full flex items-center justify-end">
-                                    <span class="mr-2">
+                                <div class="w-full flex items-center justify-end ">
+                                    <span class="mr-2 overflow-auto">
                                         {{data.value}}
                                     </span>
                                 </div>
