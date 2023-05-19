@@ -12,7 +12,6 @@
     "error": {
         "credentials": "Fill in the required info, to continue with the tutorial."
     },
-
     "start": {
         "title": "Create a new account",
         "existing_account_label": "already registered?",
@@ -778,7 +777,7 @@
             "names": "Full name *",
             "website": "Website (https://example.com, verifik.co) *",
             "job": "Job function *",
-            "email": "Email (gmail, hotmail, outlook not accepted) *",
+            "email": "Email (NO gmail, hotmail, outlook) *",
             "country_code": "Country *",
             "phone": "Phone *",
             "code_is_required": "Verification code required",

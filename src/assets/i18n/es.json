@@ -775,7 +775,7 @@
             "names": "Nombre completo *",
             "website": "Sitio web (https://ejemplo.com, verifik.co) *",
             "job": "Cargo en la empresa *",
-            "email": "Correo electrónico (gmail, hotmail, outlook no permitidos) *",
+            "email": "Correo electrónico (NO gmail, hotmail, outlook) *",
             "country_code": "País *",
             "phone": "Teléfono *",
             "code_is_required": "Código de verificación requerido",
