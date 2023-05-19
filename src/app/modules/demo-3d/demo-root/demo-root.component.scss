@@ -4,6 +4,12 @@
 app-demo-root{
 overflow: hidden;
 }
+
+button:disabled {
+    background: #0036e787 !important;
+    cursor: not-allowed;
+}
+
 .starter .mat-progress-bar-fill::after {
     background-color: #EAB417 !important;
     color: #EAB417 !important;

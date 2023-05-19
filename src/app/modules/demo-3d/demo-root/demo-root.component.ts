@@ -110,7 +110,7 @@ export class DemoRootComponent implements OnInit {
         private _demoService: DemoService
     ) {
         this.translocoService.setActiveLang("en");
-       
+
         this._demoService.navigationHandler$.subscribe((result) => {
             if (result && result.hasToken) {
                 this.loadBiometrics();
@@ -269,15 +269,28 @@ export class DemoRootComponent implements OnInit {
 
     initForm(): void {
         this.contactForm = this._formBuilder.group({
-            companyName: [, [Validators.required]],
-            name: [, [Validators.required]],
-            website: [, [Validators.required]],
-            jobFunction: [, [Validators.required]],
-            email: [, [Validators.required, Validators.email]],
+            companyName: [, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
+            name: [, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
+            website: [, [Validators.required, Validators.pattern('^(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+(-?[a-zA-Z0-9])*\\.)+\\w{2,}(\\/?|\\/\\w*)$')]],
+            jobFunction: [, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
+            email: [, [Validators.required, Validators.email, this.companyEmailValidator()]],
             countryCode: [, [Validators.required]],
             phone: [, [Validators.required, this.phoneNumberValidator()]],
             legalAgreement: [, [Validators.required]],
         });
+    }
+
+    companyEmailValidator(): ValidatorFn {
+        return (control: AbstractControl): {
+            [key: string]: any
+        } | null => {
+            const forbidden = /.*@(gmail\.com|hotmail\.com|outlook\.com)$/.test(control.value);
+            return forbidden ? {
+                'forbiddenEmail': {
+                    value: control.value
+                }
+            } : null;
+        };
     }
 
     changeSelection(data): void {
@@ -320,7 +333,7 @@ export class DemoRootComponent implements OnInit {
             this.reviewForm();
             return;
         }
-        if(data === "instructions" && !this.selectedFeature){
+        if (data === "instructions" && !this.selectedFeature) {
             this.openSnackBar('required_feature');
             return;
         }
@@ -449,7 +462,7 @@ export class DemoRootComponent implements OnInit {
     }
 
     openSnackBar(code: string) {
-        const message = this.translocoService.translate(`errors.${code}`, {}) ?? code;
+        const message = this.translocoService.translate(`errors.${code}`, {}) || code;
         this._snackBar.open(message);
 
         if (this.intervalHideSnackBar) {
@@ -474,8 +487,7 @@ export class DemoRootComponent implements OnInit {
             const phoneNumberPattern = /^\d{8,}$/; // Assuming 10-digit phone number
             const isValid = phoneNumberPattern.test(control.value);
             return isValid ?
-                null :
-                {
+                null : {
                     invalidPhoneNumber: true,
                 };
         };

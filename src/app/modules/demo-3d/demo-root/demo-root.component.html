@@ -36,7 +36,7 @@
                     </div>
                     
                     <div class="flex justify-center w-full mt-12">
-                        <button (click)="changeStep('form')" class="verifik-start-desktop">
+                        <button (click)="changeStep('form')" class="verifik-start-desktop" >
                             {{'demo.start' | transloco}}
                         </button>
                     </div>
@@ -149,7 +149,7 @@
                                     </mat-checkbox>
                                 </div>
                                 <div class="w-full col-span-3 relative top-12 flex justify-center">
-                                    <button (click)="changeStep('select')" class="verifik-start-desktop">
+                                    <button (click)="changeStep('select')" class="verifik-start-desktop" [disabled]="contactForm.invalid">
                                         {{'demo.start' | transloco}}
                                     </button>
                                 </div>
@@ -331,8 +331,9 @@
                                     </a>
                                 </mat-checkbox>
                             </div>
+                           
                             <div class="w-full col-span-3 flex justify-center pb-16 ">
-                                <button (click)="changeStep('select')" class="verifik-start-phone">
+                                <button (click)="changeStep('select')" class="verifik-start-phone" [disabled]="contactForm.invalid">
                                     {{ 'demo.continue' | transloco}}
                                 </button>
                             </div>
