@@ -54,13 +54,12 @@ export class TutorialDemoStepComponent implements OnInit {
         private _route: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
         private _biometric: Biometric,
-
     ) {}
 
     ngOnInit(): void {
         this.navData = this._tutorialService.navData;
 
-        this.biometricsReady = false
+        this.biometricsReady = this._biometric.getStatus()
 
         this.token = localStorage.getItem('clientToken')
 

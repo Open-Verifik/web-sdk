@@ -107,7 +107,7 @@ export class DemoRootComponent implements OnInit {
         private _countries: CountriesService,
         private _service: BiometricService,
         private _snackBar: MatSnackBar,
-        private _demoService: DemoService
+        private _demoService: DemoService,
     ) {
         this.translocoService.setActiveLang("en");
 

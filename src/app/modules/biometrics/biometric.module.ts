@@ -25,6 +25,7 @@ import {
 } from '@angular/core';
 
 const cacheKeys = ['ft.fsh', 'ft.ic', 'zoom.installationID', 'zoom.lk']
+const databaseName = "FTIDB"
 
 const messageError = {
     [FaceTecSDK.FaceTecSessionStatus.CameraNotEnabled]: "Camera_error",
@@ -83,13 +84,19 @@ export class Biometric {
         if (!status) {
             this._loadConfig();
         }
+        
         return this
+    }
+
+    getStatus():boolean {
+        return FaceTecSDK.getStatus()
     }
 
     _loadConfig(): void {
         cacheKeys.forEach(key => {
             localStorage.removeItem(key)
         })
+        indexedDB.deleteDatabase(databaseName);
 
         FaceTecSDK.setResourceDirectory('/assets/core/sdk/resources');
 

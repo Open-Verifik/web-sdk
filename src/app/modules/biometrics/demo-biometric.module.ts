@@ -113,6 +113,10 @@ export class DemoBiometric {
         }
     }
 
+    getStatus():boolean {
+        return FaceTecSDK.getStatus()
+    }
+
     private async _startSession():Promise<string> {
         this.startLanguage()
         const agent = FaceTecSDK.createFaceTecAPIUserAgentString('');
