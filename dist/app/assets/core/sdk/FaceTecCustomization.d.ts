@@ -488,7 +488,7 @@ export declare class FaceTecCustomization {
     exitAnimationCustomization: FaceTecExitAnimationCustomization;
     /** Customize the FaceTec Browser SDK Cancel Button. */
     cancelButtonCustomization: FaceTecCancelButtonCustomization;
-    /** DEPRECATED - Customize the time after which the FaceTec Browser SDK Session should timeout. */
+    /** DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK. */
     sessionTimerCustomization: FaceTecSessionTimerCustomization;
     /** Customize the loading spinner and the text shown to the user while the camera loads. */
     initialLoadingAnimationCustomization: FaceTecInitialLoadingAnimationCustomization;
@@ -567,19 +567,19 @@ export declare class FaceTecCustomization {
     }[] | boolean | FaceTecVocalGuidanceCustomization | FaceTecSecurityWatermarkCustomization | FaceTecEnterFullScreenCustomization | FaceTecOCRConfirmationCustomization | FaceTecIDScanCustomization | FaceTecOvalCustomization | FaceTecFeedbackBarCustomization | FaceTecFrameCustomization | FaceTecExitAnimationCustomization | FaceTecCancelButtonCustomization | FaceTecSessionTimerCustomization | FaceTecInitialLoadingAnimationCustomization | FaceTecGuidanceCustomization | FaceTecOverlayCustomization | FaceTecResultScreenCustomization | string;
 }
 /**
- * DEPRECATED
+ * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
  */
 export declare class FaceTecSessionTimerCustomization {
     /**
-     * DEPRECATED
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
      */
     maxTimeBeforeCameraPermissionsError: number;
     /**
-     * DEPRECATED
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
      */
     livenessCheckNoInteractionTimeout: number;
     /**
-     * DEPRECATED
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
      */
     idScanNoInteractionTimeout: number;
     /** Constructor for FaceTecSessionTimerCustomization object. */
@@ -1441,12 +1441,18 @@ export declare class FaceTecIDScanCustomization {
      * This only applies to desktop browsers.
      * Default is configured to use image named 'FaceTec_id_card_placeholder_front' located in '/FaceTec_images/' directory (or custom configured default directory for FaceTec Browser SDK images).
      */
+    /**
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
+     */
     captureScreenIDFrontPlaceHolderImage: string;
     /**
      * Image displayed below the FaceTec Browser SDK Frame during Photo ID Match when the Identity Document Type selected is an ID Card.
      * This image acts as a placeholder to show a status of incomplete for capturing the ID Card's back side.
      * This only applies to desktop browsers.
      * Default is configured to use image named 'FaceTec_id_card_placeholder_back' located in '/FaceTec_images/' directory (or custom configured default directory for FaceTec Browser SDK images).
+     */
+    /**
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
      */
     captureScreenIDBackPlaceHolderImage: string;
     /**
@@ -1455,12 +1461,18 @@ export declare class FaceTecIDScanCustomization {
      * This only applies to desktop browsers.
      * Default is configured to use image named 'FaceTec_passport_placeholder' located in '/FaceTec_images/' directory (or custom configured default directory for FaceTec Browser SDK images).
      */
+    /**
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
+     */
     captureScreenPassportPlaceholderImage: string;
     /**
      * Image displayed below the FaceTec Browser SDK Frame during Photo ID Match when the Identity Document Type selected is an ID Card.
      * This image acts as a placeholder to show a status of complete for capturing the ID Card's front side.
      * This only applies to desktop browsers.
      * Default is configured to use image named 'FaceTec_id_front_checkmark' located in '/FaceTec_images/' directory (or custom configured default directory for FaceTec Browser SDK images).
+     */
+    /**
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
      */
     captureScreenIDFrontCheckmarkImage: string;
     /**
@@ -1469,12 +1481,18 @@ export declare class FaceTecIDScanCustomization {
      * This only applies to desktop browsers.
      * Default is configured to use image named 'FaceTec_id_back_checkmark' located in '/FaceTec_images/' directory (or custom configured default directory for FaceTec Browser SDK images).
      */
+    /**
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
+     */
     captureScreenIDBackCheckmarkImage: string;
     /**
      * Image displayed below the FaceTec Browser SDK Frame during Photo ID Match when the Identity Document Type selected is a Passport.
      * This image acts as a placeholder to show a status of complete for capturing the Passport.
      * This only applies to desktop browsers.
      * Default is configured to use image named 'FaceTec_passport_checkmark' located in '/FaceTec_images/' directory (or custom configured default directory for FaceTec Browser SDK images).
+     */
+    /**
+     * DEPRECATED - This API method is deprecated and will be removed in an upcoming release of the Browser SDK.
      */
     captureScreenPassportCheckmarkImage: string;
     /**

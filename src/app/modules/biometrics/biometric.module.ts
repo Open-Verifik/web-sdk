@@ -1,8 +1,4 @@
 import {
-    FaceTecSDK
-} from 'assets/core/sdk/FaceTecSDK';
-
-import {
     languages,
     setConfig
 } from './biometric.config';
@@ -53,11 +49,6 @@ export class Biometric {
         return this._isReady.asObservable();
     }
 
-    private _session: BehaviorSubject < boolean > = new BehaviorSubject(null);
-    get session$(): Observable < boolean > {
-        return this._session.asObservable();
-    }
-
     private _auth: BehaviorSubject < any > = new BehaviorSubject(null);
     get auth$(): Observable < any > {
         return this._auth.asObservable();
@@ -83,7 +74,6 @@ export class Biometric {
         return this._error.asObservable();
     }
 
-    private _sessionToken: string;
     private currentLanguage
     constructor(
         private _service: BiometricService,
@@ -131,25 +121,18 @@ export class Biometric {
         }
     }
 
-    startSession() {
+    private async _startSession():Promise<string> {
         this.startLanguage()
         const agent = FaceTecSDK.createFaceTecAPIUserAgentString('');
 
-        this._service.getSession(agent).subscribe((response: any) => {
-            // console.group('==== Biometrics ====');
-            // console.info("session")
-            // console.groupEnd();
-            this._sessionToken = response.data
-            this._session.next(true);
-        }, err => this._session.next(false))
+        return await new Promise((resolve, reject) => {
+            this._service.getSession(agent)
+                .subscribe((response: any) => resolve(response.data), reject)
+        });
     }
 
-    startAuth(externalDatabaseRefId) {
-        this.startLanguage()
-
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
+    async startAuth(externalDatabaseRefId) {
+        const _sessionToken = await this._startSession()
 
         // console.group('==== Biometrics ====');
         // console.info("startAuth")
@@ -158,9 +141,8 @@ export class Biometric {
         new BiometricProcessor({
             externalDatabaseRefId,
             type: 'login',
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }
@@ -170,12 +152,8 @@ export class Biometric {
         }, this._service)
     }
 
-    startLiveness() {
-        this.startLanguage()
-
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
+    async startLiveness() {
+        const _sessionToken = await this._startSession()
 
         // console.group('==== Biometrics ====');
         // console.info("startAuth")
@@ -183,9 +161,8 @@ export class Biometric {
 
         new BiometricProcessor({
             type: 'liveness',
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }
@@ -195,12 +172,9 @@ export class Biometric {
         }, this._service)
     }
 
-    startEnrollmentBiometrics(externalDatabaseRefId, group) {
-        this.startLanguage()
+    async startEnrollmentBiometrics(externalDatabaseRefId, group) {
+        const _sessionToken = await this._startSession()
 
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
         // console.group('==== Biometrics ====');
         // console.info("FaceScan")
         // console.groupEnd();
@@ -209,9 +183,8 @@ export class Biometric {
             externalDatabaseRefId,
             group,
             type: 'onboarding',
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }
@@ -221,12 +194,8 @@ export class Biometric {
         }, this._service)
     }
 
-    startEnrollmentDocument(externalDatabaseRefId) {
-        this.startLanguage()
-
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
+    async startEnrollmentDocument(externalDatabaseRefId) {
+        const _sessionToken = await this._startSession()
 
         // console.group('==== Biometrics ====');
         // console.info("DocumentScan")
@@ -234,9 +203,8 @@ export class Biometric {
 
         new PhotoIDProcessor({
             externalDatabaseRefId,
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }
@@ -247,12 +215,9 @@ export class Biometric {
 
     }
 
-    startIdScan(externalDatabaseRefId) {
-        this.startLanguage()
+    async startIdScan(externalDatabaseRefId) {
+        const _sessionToken = await this._startSession()
 
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
 
         // console.group('==== Biometrics ====');
         // console.info("DocumentScan")
@@ -260,9 +225,8 @@ export class Biometric {
 
         new ScanIDProcessor({
             externalDatabaseRefId,
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }

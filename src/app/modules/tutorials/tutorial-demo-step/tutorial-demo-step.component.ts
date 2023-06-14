@@ -99,21 +99,13 @@ export class TutorialDemoStepComponent implements OnInit {
 
         this._biometric.isReady$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
         .subscribe((isSuccess) => {
-            if (isSuccess) {
-                this._biometric.startSession()
-            }
-        });
-
-        this._biometric.session$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
-        .subscribe((isSuccess) => {
             this.biometricsReady = isSuccess;
         });
+
 
         this._biometric.error$.pipe(skip(1)).pipe(takeUntil(this._unsubscribeAll))
         .subscribe((error) => {
             this.errorDemo(error);
-            this.biometricsReady = false;
-            this._biometric.startSession();
         });
 
         this._biometric.onboardingBiometric$

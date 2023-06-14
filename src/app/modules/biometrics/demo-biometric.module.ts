@@ -1,8 +1,4 @@
 import {
-    FaceTecSDK
-} from 'assets/core/sdk/FaceTecSDK';
-
-import {
     languages,
     setConfig
 } from './biometric.config';
@@ -29,7 +25,7 @@ import {
 } from '@angular/core';
 
 const cacheKeys = ['ft.fsh', 'ft.ic', 'zoom.installationID', 'zoom.lk']
-
+const databaseName = "FTIDB"
 const messageError = {
     [FaceTecSDK.FaceTecSessionStatus.CameraNotEnabled]: "Camera_error",
     [FaceTecSDK.FaceTecSessionStatus.CameraNotRunning]: "Camera_error",
@@ -54,11 +50,6 @@ export class DemoBiometric {
         return this._isReady.asObservable();
     }
 
-    private _session: BehaviorSubject < boolean > = new BehaviorSubject(null);
-    get session$(): Observable < boolean > {
-        return this._session.asObservable();
-    }
-
     private _auth: BehaviorSubject < any > = new BehaviorSubject(null);
     get auth$(): Observable < any > {
         return this._auth.asObservable();
@@ -73,8 +64,6 @@ export class DemoBiometric {
     get error$(): Observable < string > {
         return this._error.asObservable();
     }
-
-    private _sessionToken: string;
 
     constructor(
         private _service: BiometricService,
@@ -91,6 +80,8 @@ export class DemoBiometric {
         cacheKeys.forEach(key => {
             localStorage.removeItem(key)
         })
+        indexedDB.deleteDatabase(databaseName);
+        
         FaceTecSDK.setResourceDirectory('/assets/core/sdk/resources');
 
         this._service.getConfig().subscribe((response: any) => {
@@ -115,7 +106,6 @@ export class DemoBiometric {
     }
 
     startLanguage() {
-        
         const lang = localStorage.getItem('lang') || 'es'
         if(this.currentLanguage !== lang){
             this.currentLanguage = lang
@@ -123,26 +113,18 @@ export class DemoBiometric {
         }
     }
 
-    startSession() {
+    private async _startSession():Promise<string> {
         this.startLanguage()
-
         const agent = FaceTecSDK.createFaceTecAPIUserAgentString('');
 
-        this._service.getSession(agent).subscribe((response: any) => {
-            // console.group('==== Biometrics ====');
-            // console.info("session")
-            // console.groupEnd();
-            this._sessionToken = response.data
-            this._session.next(true);
-        }, err => this._session.next(false))
+        return await new Promise((resolve, reject) => {
+            this._service.getSession(agent)
+                .subscribe((response: any) => resolve(response.data), reject)
+        });
     }
 
-    startAuth() {
-        this.startLanguage()
-
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
+    async startAuth() {
+        const _sessionToken = await this._startSession()
 
         // console.group('==== Biometrics ====');
         // console.info("startAuth")
@@ -150,9 +132,8 @@ export class DemoBiometric {
 
         new BiometricProcessor({
             type: 'login',
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }
@@ -162,21 +143,16 @@ export class DemoBiometric {
         }, this._service)
     }
 
-    startEnrollmentDocument() {
-        this.startLanguage()
-
-        if (!this._sessionToken) {
-            throw new Error('First_start_session')
-        }
+    async startEnrollmentDocument() {
+        const _sessionToken = await this._startSession()
 
         // console.group('==== Biometrics ====');
         // console.info("DocumentScan")
         // console.groupEnd();
 
         new PhotoIDProcessor({
-            token: this._sessionToken,
+            token: _sessionToken,
             callback: (error, response) => {
-                this._sessionToken = null
                 if (error) {
                     return this._error.next(error.message)
                 }

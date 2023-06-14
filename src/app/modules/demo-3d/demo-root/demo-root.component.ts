@@ -148,20 +148,11 @@ export class DemoRootComponent implements OnInit {
                 });
             });
 
-        this._biometric.session$
-            .pipe(skip(1))
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((isSuccess) => {
-                this.biometricLoaded = isSuccess;
-                this._changeDetectorRef.detectChanges();
-            });
-
         this._biometric.error$
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((error) => {
-                this.biometricLoaded = false;
-                this._biometric.startSession();
+                console.error({error})
             });
 
         this._biometric.onboardingScan$
@@ -191,9 +182,6 @@ export class DemoRootComponent implements OnInit {
 
                     this._changeDetectorRef.markForCheck();
                 }
-
-                this.biometricLoaded = false;
-                this._biometric.startSession();
             });
 
         this._biometric.auth$
@@ -213,9 +201,6 @@ export class DemoRootComponent implements OnInit {
                     this.changeStep("result");
                     this._changeDetectorRef.markForCheck();
                 }
-
-                this.biometricLoaded = false;
-                this._biometric.startSession();
             });
     }
 
@@ -336,10 +321,6 @@ export class DemoRootComponent implements OnInit {
         if (data === "instructions" && !this.selectedFeature) {
             this.openSnackBar('required_feature');
             return;
-        }
-
-        if (data === "instructions") {
-            this._biometric.startSession();
         }
 
         this.currentStep = data;

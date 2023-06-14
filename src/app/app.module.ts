@@ -76,3 +76,7 @@ const routerConfig: ExtraOptions = {
     ]
 })
 export class AppModule {}
+
+declare global {
+    var FaceTecSDK: any;
+}

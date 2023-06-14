@@ -53,7 +53,7 @@
                             "src/styles/styles.scss",
                             "src/styles/tailwind.scss"
                         ],
-                        "scripts": []
+                        "scripts": ["src/assets/core/sdk/FaceTecSDK.js"]
                     },
                     "configurations": {
                         "production": {
