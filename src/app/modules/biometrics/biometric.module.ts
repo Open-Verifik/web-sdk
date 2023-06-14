@@ -89,7 +89,11 @@ export class Biometric {
     }
 
     getStatus():boolean {
-        return FaceTecSDK.getStatus()
+        const status = FaceTecSDK.getStatus()
+        console.group('==== Biometrics ====');
+        console.info("status", status)
+        console.groupEnd();
+        return status
     }
 
     _loadConfig(): void {
@@ -106,9 +110,9 @@ export class Biometric {
             setConfig(FaceTecSDK)
 
             FaceTecSDK.initializeInProductionMode(config[0], config[1], config[2], (isBiometricLibReady) => {
-                // console.group('==== Biometrics ====');
-                // console.info("Lib", isBiometricLibReady)
-                // console.groupEnd();
+                console.group('==== Biometrics ====');
+                console.info("LibraryReady", isBiometricLibReady)
+                console.groupEnd();
 
                 if (isBiometricLibReady) {
                     this.currentLanguage = localStorage.getItem('lang') || 'es'
