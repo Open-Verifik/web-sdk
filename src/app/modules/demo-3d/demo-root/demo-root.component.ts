@@ -122,7 +122,7 @@ export class DemoRootComponent implements OnInit {
         if (localStorage.accessToken) {
             this._demoService.getLead().subscribe(
                 (lead) => {
-                    this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessTokenn}`;
+                    this.qrText = `${environment.redirectUrl + "demo/" + localStorage.accessToken}`;
                     this.loadBiometrics();
                     this.currentStep = "select";
                     this._changeDetectorRef.markForCheck();
