@@ -56,6 +56,7 @@ import {
 import {
     TranslocoService
 } from "@ngneat/transloco";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
     selector: "app-demo-root",
@@ -108,6 +109,7 @@ export class DemoRootComponent implements OnInit {
         private _service: BiometricService,
         private _snackBar: MatSnackBar,
         private _demoService: DemoService,
+        private route: ActivatedRoute
     ) {
         this.translocoService.setActiveLang("en");
 
@@ -118,6 +120,12 @@ export class DemoRootComponent implements OnInit {
                 this._changeDetectorRef.markForCheck();
             }
         });
+
+        const name = this.route.snapshot.queryParams?.name; 
+
+        if(name){
+            localStorage.removeItem('accessToken')
+        }
 
         if (localStorage.accessToken) {
             this._demoService.getLead().subscribe(
@@ -252,16 +260,51 @@ export class DemoRootComponent implements OnInit {
         return false;
     }
 
+    private dataLeads = {
+        lina:{
+            name: "Lina Yepes",
+            companyName:"Verifik",
+            website:"verifik.co",
+            jobFunction: "Business Manager",
+            email:"lina@verifik.co",
+            countryCode: "+57",
+            phone:"3507408240",
+            legalAgreement:true
+        },
+        miguel: {
+            name: "Juan Miguel Trevino Morales",
+            companyName:"Verifik",
+            website:"verifik.co",
+            jobFunction: "CTO",
+            email:"miguel@verifik.co",
+            countryCode: "+1",
+            phone:"7809133082",
+            legalAgreement:true
+        },
+        johan: {
+            name: "Johan Sebastian Castellanos Barrera",
+            companyName:"Verifik",
+            website:"verifik.co",
+            jobFunction: "CEO",
+            email:"johan@verifik.co",
+            countryCode: "+507",
+            phone:"63139630",
+            legalAgreement:true
+        }
+    }
+
     initForm(): void {
+        const name = this.route.snapshot.queryParams?.name?.toLocaleLowerCase();  
+        const data = this.dataLeads[name] ?? {}
         this.contactForm = this._formBuilder.group({
-            companyName: [, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
-            name: [, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
-            website: [, [Validators.required, Validators.pattern('^(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+(-?[a-zA-Z0-9])*\\.)+\\w{2,}(\\/?|\\/\\w*)$')]],
-            jobFunction: [, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
-            email: [, [Validators.required, Validators.email, this.companyEmailValidator()]],
-            countryCode: [, [Validators.required]],
-            phone: [, [Validators.required, this.phoneNumberValidator()]],
-            legalAgreement: [, [Validators.required]],
+            companyName: [data.companyName, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
+            name: [data.name, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
+            website: [data.website, [Validators.required, Validators.pattern('^(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+(-?[a-zA-Z0-9])*\\.)+\\w{2,}(\\/?|\\/\\w*)$')]],
+            jobFunction: [data.jobFunction, [Validators.required, Validators.pattern('^[a-zA-Z][a-zA-Z\\s]*$')]],
+            email: [data.email, [Validators.required, Validators.email, this.companyEmailValidator()]],
+            countryCode: [data.countryCode, [Validators.required]],
+            phone: [data.phone, [Validators.required, this.phoneNumberValidator()]],
+            legalAgreement: [data.legalAgreement, [Validators.required]],
         });
     }
 

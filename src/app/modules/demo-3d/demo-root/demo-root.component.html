@@ -107,8 +107,7 @@
                                 <div class="w-full col-span-1">
                                     <mat-form-field class="fuse-mat-dense w-full">
                                         <mat-label>{{ 'demo.form.country_code' | transloco}}</mat-label>
-                                        <mat-select *ngIf="countries" [formControl]="contactForm.get('countryCode')"
-                                            [(ngModel)]="country" matPrefix>
+                                        <mat-select *ngIf="countries" [formControl]="contactForm.get('countryCode')" matPrefix>
                                             <mat-select-trigger>
                                                 <span class="flex items-center">
                                                     <span
