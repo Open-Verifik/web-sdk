@@ -289,8 +289,7 @@
                             <div class="w-full col-span-1">
                                 <mat-form-field class="fuse-mat-dense w-full">
                                     <mat-label>{{ 'demo.form.country_code' | transloco}}</mat-label>
-                                    <mat-select *ngIf="countries" [formControl]="contactForm.get('countryCode')"
-                                        [(ngModel)]="country" matPrefix>
+                                    <mat-select *ngIf="countries" [formControl]="contactForm.get('countryCode')" matPrefix>
                                         <mat-select-trigger>
                                             <span class="flex items-center">
                                                 <span
@@ -540,10 +539,12 @@
                     </div>
                     <div class="mt-2 flex justify-center py-12">
                         <button (click)="startBiometric()" class="flex p-2 mx-4 w-20 justify-center border-solid border-2 rounded-full"
-                            [style.background-color]=" baseColor">
-                            <span [style.color]="'white'">
+                            [style.background-color]=" baseColor" [disabled]="!biometricsReady">
+                            <span [style.color]="'white'" *ngIf="biometricsReady">
                                 {{'demo.start' | transloco}}
                             </span>
+                            <mat-progress-spinner *ngIf="!biometricsReady" [diameter]="24" [mode]="'indeterminate'">
+                            </mat-progress-spinner>
                         </button>
                     </div>
                 </div>
