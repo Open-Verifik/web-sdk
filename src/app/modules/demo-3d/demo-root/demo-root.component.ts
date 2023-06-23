@@ -69,7 +69,7 @@ export class DemoRootComponent implements OnInit {
     private _unsubscribeAll: Subject < any > = new Subject < any > ();
     @ViewChild('myDiv') myDiv: ElementRef;
     private _biometric: DemoBiometric;
-    biometricLoaded: Boolean;
+    biometricsReady: Boolean;
 
     contactForm: FormGroup;
     countries: any;
@@ -151,22 +151,23 @@ export class DemoRootComponent implements OnInit {
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((isSuccess) => {
-                console.log({
-                    biometricsReady: isSuccess,
-                });
+                this.biometricsReady = isSuccess
             });
 
         this._biometric.error$
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((error) => {
-                console.error({error})
+                this.biometricsReady = this._biometric.getStatus()
+                this._changeDetectorRef.markForCheck();
+
             });
 
         this._biometric.onboardingScan$
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
+                this.biometricsReady = this._biometric.getStatus()
                 if (response.success) {
                     //COMPLETED ALL SERVICES
 
@@ -187,15 +188,15 @@ export class DemoRootComponent implements OnInit {
                     this.idScan = response.idScanUrl;
 
                     this.changeStep("result");
-
-                    this._changeDetectorRef.markForCheck();
                 }
+                this._changeDetectorRef.markForCheck();
             });
 
         this._biometric.auth$
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
+                this.biometricsReady = this._biometric.getStatus()
                 if (response.success) {
                     //COMPLETED ALL SERVICES
                     this.matchLevel = response.details["matchLevel"];
@@ -209,6 +210,7 @@ export class DemoRootComponent implements OnInit {
                     this.changeStep("result");
                     this._changeDetectorRef.markForCheck();
                 }
+                this._changeDetectorRef.markForCheck();
             });
     }
 
@@ -234,6 +236,7 @@ export class DemoRootComponent implements OnInit {
     }
 
     startBiometric(): void {
+        this.biometricsReady = false
         if (this.selectedFeature == "liveness") {
             this._biometric.startAuth();
             return;
@@ -289,6 +292,16 @@ export class DemoRootComponent implements OnInit {
             email:"johan@verifik.co",
             countryCode: "+507",
             phone:"63139630",
+            legalAgreement:true
+        },
+        angel: {
+            name: "Angel Ortiz Olivera",
+            companyName:"Verifik",
+            website:"verifik.co",
+            jobFunction: "Develper",
+            email:"angel2@verifik.co",
+            countryCode: "+52",
+            phone:"9541607442",
             legalAgreement:true
         }
     }
