@@ -132,6 +132,7 @@
         "required_authenticator_otp": "authentication code required"
     },
     "errors": {
+        "expired_token": "Your demo has ended. Contact us to finalize a purchase.",
         "incorrect_document_information": "The information on your document is incorrect.",
         "Record_not_found": "Record not found in the system.",
         "Fail_login_biometrics": "Your biometrics do not match.",
