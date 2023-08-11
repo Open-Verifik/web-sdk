@@ -42,4 +42,17 @@ export const appRoutes: Route[] = [
             }
         ]
     },
+    {
+        path: '',
+        component: LayoutComponent,
+        data: {
+            layout: 'demo'
+        },
+        children: [
+            {
+                path: 'new-demo',
+                loadChildren: () => import('app/modules/new-demo/demo-3d.module').then(m => m.Demo3dModule),
+            }
+        ]
+    },
 ];

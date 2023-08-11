@@ -28,6 +28,7 @@ import {
 })
 export class LanguagesComponent implements OnInit, OnDestroy {
     @Input() type: string =  'normal';
+    @Input() size: string =  'mini';
     availableLangs: AvailableLangs;
     activeLang: string;
     flagCodes: any;
@@ -39,7 +40,9 @@ export class LanguagesComponent implements OnInit, OnDestroy {
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseNavigationService: FuseNavigationService,
         private _translocoService: TranslocoService
-    ) {}
+    ) {
+
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks

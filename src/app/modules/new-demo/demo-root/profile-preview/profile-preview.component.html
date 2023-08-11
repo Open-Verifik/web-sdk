@@ -1,0 +1,6 @@
+<div *ngIf="data.scan != 'none'">
+    <img class="w-full mx-2" src="{{data.document.url}}{{data.scan}}">
+</div>
+<div *ngIf="data.scan == 'none'">
+    <img class="w-full" src="{{data.document.url}}">
+</div>

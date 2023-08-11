@@ -67,6 +67,33 @@ export class BiometricService {
     getConfig(): Observable < any > {
         return this.sendRequest('get', `${this.baseUrl}v2/biometrics/config`, {}, {})
     }
+    getProjectConfig(): Observable < any > {
+        return this.sendRequest('get', `${this.baseUrl}v2/projects/biometrics`, {}, {})
+    }
+
+    getProjectSession(agent): Observable < any > {
+        return this.sendRequest('get', `${this.baseUrl}v2/projects/biometrics/session`, {}, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
+    
+    demoLiveness(agent: string, body: any): Observable < any > {
+        return this.sendRequest('post', `${this.baseUrl}v2/demo/liveness`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
+
+    demoScan(agent: string, body: any): Observable < any > {
+        return this.sendRequest('post', `${this.baseUrl}v2/demo/only-scan`, body, {
+            headers: {
+                'X-User-Agent': agent
+            }
+        })
+    }
 
     getSession(agent): Observable < any > {
         return this.sendRequest('get', `${this.baseUrl}v2/biometrics/session`, {}, {

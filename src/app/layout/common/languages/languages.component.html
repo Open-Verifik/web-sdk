@@ -9,8 +9,13 @@
 </button>
 
 <!-- FAB ICON  -->
-<button *ngIf="type == 'fab'"
+<button *ngIf="type == 'fab' && size === 'mini'"
     mat-mini-fab class="overflow-hidden"
+    [matMenuTriggerFor]="languages">
+    <ng-container *ngTemplateOutlet="flagFabImage; context: {$implicit: activeLang}"></ng-container>
+</button>
+<button *ngIf="type == 'fab' && size === 'normal'"
+    mat-fab class="overflow-hidden"
     [matMenuTriggerFor]="languages">
     <ng-container *ngTemplateOutlet="flagFabImage; context: {$implicit: activeLang}"></ng-container>
 </button>
@@ -50,8 +55,12 @@
     #flagFabImage>
     <span class="relative w-18 shadow rounded-sm overflow-hidden">
         <span class="absolute inset-0 ring-1 ring-inset ring-black ring-opacity-10"></span>
-        <img
+        <img *ngIf="size ==='mini'"
             class="w-14 h-12"
+            [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
+            [alt]="'Flag image for ' + lang">
+        <img *ngIf="size ==='normal'"
+            class="w-20 h-20"
             [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
             [alt]="'Flag image for ' + lang">
     </span>

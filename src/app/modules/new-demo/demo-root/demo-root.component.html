@@ -1,0 +1,951 @@
+<div class="down-gradient"></div>
+<div class="top-gradient"></div>
+<div class="background-gradient">
+
+    <div #myDiv class="demo-canvas" *ngIf="!phoneMode">
+        <!-- =====DESKTOP======= -->
+        <!-- =====DESKTOP======= -->
+        <!-- =====DESKTOP======= -->
+        <ng-container *ngIf="!phoneMode">
+            <div class="absolute right-0 mt-8 mr-16" style="z-index:99;">
+                <languages class="w-20 h-20" [type]="'fab'" [size]="'normal'"></languages>
+            </div>
+            <ng-container *ngIf="currentStep == 'start'">
+                <div class="pb-8" style="height: 100vh;">
+                    <div class="flex justify-center w-full ">
+                        <!-- <img class="w-1/2" src="assets/images/demo/PcNaveHome.svg" alt=""> -->
+                        <img class="w-full" src="assets/images/demo/CelNaveHome.svg" alt="">
+                    </div>
+                    <div class="flex justify-center w-full mt-4">
+                        <img class="w-120" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                    <div class="flex justify-center w-full mt-30">
+                        <div class="start-new text-center start-navyblue">
+                            {{'demo_new.home_title' | transloco}}
+                        </div>
+                    </div>                   
+                    
+                    <div class="flex justify-center w-full mt-30">
+                        <button (click)="changeStep('select')" class="verifik-start-desktop" >
+                            {{'demo_new.start' | transloco}}
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+
+
+            <ng-container *ngIf="currentStep == 'select'">
+                <div class="flex justify-end mt-8 mr-8 mb-8">
+                    <!-- <img class="w-8 h-8" src="assets/images/demo/k.svg" alt=""> -->
+                </div>
+                <div class="flex flex-col w-full items-center mx-8 mb-8">
+
+                    <div class="max-60 flex justify-center">
+                        <span class="start-new text-center start-navyblue">
+                            {{'demo_new.welcome' | transloco}}
+                            <ng-container class="start-new start-lightblue">
+                                {{'demo_new.verifik' | transloco}}
+                            </ng-container>
+                        </span>
+                    </div>
+                    <div class="max-60 borderb-steps-xl"></div>
+                    <div class="max-60 flex justify-center">
+                        <span class="start-sub text-center start-navyblue">
+                            {{'demo_new.select_service' | transloco}}
+
+                        </span>
+                    </div>
+                </div>
+                <div class="w-full">
+
+                    <div class="flex justify-center">
+                        <div [ngClass]="{'selected-option ': selectedFeature ==='liveness' ? true : false}"
+                            (click)="changeSelection('liveness')"
+                            class="selectable-feature cursor-pointer flex justify-center items-center flex-row">
+                            <div class="mx-5">
+                                <p class="option-title mb-2">
+                                    {{'demo_new.liveness_title' | transloco}}
+                                </p>
+                                <p class="option-subtitle mb-2">
+                                    {{'demo_new.liveness_subtitle' | transloco}}
+                                </p>
+                                <p class="option-description">
+                                    {{'demo_new.liveness_description' | transloco}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center mt-6">
+                        <div [ngClass]="{'selected-option ':selectedFeature ==='ocr' ? true : false}"
+                            (click)="changeSelection('ocr')"
+                            class="selectable-feature  cursor-pointer flex justify-center items-center flex-row">
+                            <div class="mx-5">
+                                <p class="option-title mb-2">
+                                    {{'demo_new.ocr_title' | transloco}}
+                                </p>
+                                <p class="option-subtitle mb-2">
+                                    {{'demo_new.ocr_subtitle' | transloco}}
+                                </p>
+                                <p class="option-description">
+                                    {{'demo_new.ocr_description' | transloco}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="w-full flex justify-center my-8">
+                    <button (click)="changeStep('instructions')" class="verifik-start-desktop">
+                        {{'demo_new.continue' | transloco}}
+                    </button>
+                </div>
+
+                <div class="flex justify-center w-full my-8">
+                    <img class="w-120 mt-20" src="assets/images/demo/vklogo.svg" alt="">
+                </div>
+
+            </ng-container>
+
+            <ng-container *ngIf="currentStep == 'instructions'">
+                <div class="w-full grid grid-cols-3 mt-6">
+                    <div>
+                        <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(2);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </div>
+                    <div></div>
+                    <div class="flex justify-end w-full pr-6">
+                        <!-- <img class="w-22" src="assets/images/demo/vklogo.svg" alt=""> -->
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <div class="flex flex-col max-70">
+                        <div class="flex justify-center mb-1"
+                        [ngClass]="{'mt-40': selectedFeature === 'liveness'}">
+                            <p class="mt-40 mb-20 start-new start-navyblue text-center">
+                                <ng-container *ngIf="selectedFeature ==='liveness'">
+                                    {{'demo_new.liveness2' |transloco}}
+                                </ng-container>
+                                <ng-container *ngIf="selectedFeature !=='liveness'">
+                                    {{ 'demo_new.OCR2' |transloco}}
+                                </ng-container>
+                            </p>
+                        </div>
+                        <div class="mt-4 instructions-link-phone mx-4">
+                            <div class="flex flex-wrap">
+                                <ng-container>
+                                    <div class="icon-flex pb-4 borderb-steps">
+                                        <div class="center-img">
+                                            <svg class="w-20 h-20" id="Capa_1" data-name="Capa 1"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 305 278.11">
+                                                <path class="cls-1" [style.fill]=" baseColor"
+                                                    d="m305,72.08c.02-8.31-3.08-14.74-9.21-19.12-5.9-4.21-12.56-4.7-17.05-4.7h-45.34c-42.06,0-85.55,0-128.32.06h-.02c-2.15,0-2.78-.39-3.68-2.3-4.77-10.12-10.03-20.78-17.28-30.13-3.78-4.87-8.13-9.83-14.27-13.08-6.37-3.37-12.34-3.7-17.77-.98-4.2,2.11-8.96,4.5-13.19,7.64C14.1,27.87,1.04,52.85.06,83.72c-.68,21.35,4.6,43.06,15.69,64.55,6,11.63,12.74,23.05,19.27,34.09,4.03,6.82,8.2,13.88,12.13,20.9,11.67,20.78,22.64,35.12,35.57,46.49,21.65,19.03,44.24,28.37,68.76,28.37,3.37,0,6.78-.18,10.23-.53,15.35-1.57,29.44-6.72,41.86-15.32,3.65-2.53,6.09-6.32,7.25-11.26,1.9-8.12-.88-15.62-3.11-21.64-3.5-9.43-9-17.78-14.31-25.85-.95-1.45-1.9-2.89-2.84-4.34-2.94-4.54-6.65-8.92-11.02-13-12.03-11.26-25.39-12.87-39.69-4.78-1.72.97-3.42,1.97-5.13,2.97-1.8,1.05-3.6,2.11-5.42,3.13-2.64,1.49-5.08,1.89-7.68,1.27-6.16-1.47-10.69-4.82-13.84-10.23-6.85-11.77-13.67-23.55-20.5-35.33-1.02-1.77-2.06-3.52-3.09-5.28-2.53-4.3-5.15-8.75-7.51-13.21-5.06-9.56-2.57-18.1,6.83-23.42.34-.19.68-.38,1.02-.56.95-.52,1.94-1.05,2.9-1.73,1.51-1.08,2.09-1.29,2.27-1.29,0,0,.33.18.79,1.11.55,1.1,1.5,1.72,2.19,2.18.17.11.34.22.5.35l18.66,14.68c15.7,12.35,31.92,25.12,47.92,37.64,11.76,9.2,24.19,9.18,35.95-.05,14.62-11.47,29.23-22.94,43.84-34.42,15.06-11.83,30.11-23.65,45.18-35.47.02,37.78.02,75.56.02,113.34,0,4.63,0,4.72-4.89,4.72-10.91.01-21.82,0-32.73,0h-16.37c-1.34.02-2.7,0-4.05-.01-3.33-.02-6.78-.03-10.18.06-5.79.15-9.94,3.81-10.34,9.1-.22,2.99.6,5.58,2.38,7.51,1.93,2.08,4.8,3.18,8.31,3.19,20,.03,40.8.04,63.6,0,15.33-.02,24.5-9.24,24.51-24.68,0-14.56,0-29.12,0-43.69v-35.74c-.01-15.15-.02-30.3.02-45.45Zm-134.54,64.71c-7.28-5.7-14.56-11.41-21.84-17.12-14.66-11.5-29.83-23.4-44.78-35.06,2.93-5.14,4.17-10.69,3.69-16.49.34.01.68,0,1.02,0,.17,0,.33,0,.5,0h163.26s-1.36,1.08-1.36,1.08c-4.43,3.5-8.86,6.99-13.3,10.48l-1.18.93c-23.87,18.74-47.74,37.49-71.62,56.21-6.24,4.89-8.12,4.89-14.39-.02Zm-115.8-25.66c-.95,9.1,1.03,17.64,6.05,26.09,6.1,10.28,12.19,20.81,18.07,31,4.01,6.94,8.02,13.89,12.07,20.81,6.82,11.66,17.37,18.32,31.36,19.79,5.33.56,10.73-.66,16.04-3.62.99-.55,1.98-1.1,2.97-1.64,3.32-1.83,6.75-3.72,10.02-5.82,4.08-2.62,7.8-2.36,12.09.83,2.58,1.92,4.8,4.07,6.6,6.39,9.15,11.77,15.33,22.03,19.45,32.31,3.36,8.39,3.28,8.63-4.45,12.95-9.05,5.05-19.62,7.75-32.34,8.25-19.58-.33-37.2-7.28-53.87-21.22-12.3-10.29-22.94-23.8-33.5-42.52-7.24-12.84-14.82-25.76-22.14-38.26l-4.15-7.09c-10.37-17.72-16.34-34.54-18.24-51.41-3.47-30.82,6.02-54.3,29.01-71.76,1.26-.96,2.68-1.77,4.19-2.62,1.37-.78,2.78-1.58,4.12-2.54.64-.46,1.19-.74,1.79-.74.69,0,1.44.37,2.47,1.27,4.47,3.91,8.32,8.78,11.46,14.49.83,1.5,1.67,3,2.51,4.5,4.63,8.23,9.01,16.01,10.94,24.99,1.66,7.74.56,10.26-6.21,14.21-1.84,1.08-3.69,2.14-5.54,3.2-1.77,1.02-3.54,2.03-5.3,3.06-9.08,5.29-14.28,13.73-15.46,25.09Z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="li-flex pb-4 borderb-steps">
+                                        <div class="mt-4">
+                                            <span class="instruction-title">
+                                                {{'otl.starter.bullet1' | transloco}}
+                                            </span>
+                                            <div class="instruction-description">
+                                                {{'otl.starter.description1' | transloco}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="true">
+                                    <div class="icon-flex mb-4" *ngIf="selectedFeature === 'ocr'">
+                                        <div class="center-img">
+                                            <svg id="Capa_1" class="w-20 h-20"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 277.1 199.32">
+                                                <defs>
+                                                    <style>
+                                                        .cls-1 {
+                                                            fill: #0036e7;
+                                                        }
+                                                    </style>
+                                                </defs>
+                                                <path class="cls-1"
+                                                    d="m277.1,178.62c-1.87,6.16-4.73,11.67-10.12,15.56-4.52,3.27-9.54,5.1-15.11,5.1-75.53.03-151.05.05-226.58-.01-13.95-.01-25.26-11.48-25.27-25.4C-.01,124.67,0,75.46.02,26.25.02,11.13,11.2.02,26.39.01,93.89,0,161.4,0,228.9,0c7.12,0,14.24,0,21.36,0,13.04.01,22.35,6.81,26.29,19.17.16.51.37,1.01.55,1.52v157.92Zm-138.75,3.73c37.4,0,74.79,0,112.19,0,6.51,0,9.99-3.45,10.14-9.95,0-.36,0-.72,0-1.08,0-47.76-.04-95.52.05-143.28.01-6.21-2.8-11.21-11.23-11.17-46.41.2-92.81.09-139.22.09-27.84,0-55.69,0-83.53,0-6.56,0-9.98,3.39-10.13,9.94,0,.36,0,.72,0,1.08,0,47.76.04,95.52-.05,143.28-.01,6.18,2.78,11.23,11.23,11.18,36.85-.22,73.71-.09,110.57-.1Z" />
+                                                <path class="cls-1"
+                                                    d="m86.43,164.65c-10.81,0-21.63,0-32.44,0-7.75,0-11.28-3.72-10.57-11.52,1.17-12.86,6.77-23.39,17.04-31.33,3.08-2.38,3.11-2.35,1-5.51-12.14-18.2-1.19-43.08,20.42-46.41,11.86-1.82,23.91,3.71,30.17,13.84,6.45,10.45,6.14,23.43-1.05,33.33-1.39,1.91-1.38,2.62.59,4.07,11.36,8.36,17.53,19.62,18.01,33.78.21,6.23-3.32,9.71-9.63,9.73-11.18.04-22.35.01-33.53.01Zm.03-16.97c7.46,0,14.93-.04,22.39.03,2.08.02,2.51-.51,1.66-2.48-3.98-9.2-13.53-15.34-24.09-15.26-11.11.08-18.83,5.53-23.86,15.21-1.11,2.13-.35,2.56,1.78,2.54,7.37-.09,14.75-.03,22.12-.03Zm13.21-47.64c.14-7.57-5.55-13.6-12.98-13.72-7.16-.12-13.23,5.7-13.37,12.81-.15,7.62,5.45,13.65,12.86,13.86,7.26.2,13.35-5.65,13.49-12.95Z" />
+                                                <path class="cls-1"
+                                                    d="m138.66,51.63c-28.21,0-56.41,0-84.62,0-6.57,0-10.68-3.26-10.69-8.46,0-5.19,4.13-8.51,10.67-8.51,56.41,0,112.83,0,169.24,0,1.17,0,2.36,0,3.5.21,4.31.8,7.34,4.46,7.18,8.54-.16,4.23-3.53,7.71-7.96,8.15-1.07.11-2.16.06-3.24.06-28.03,0-56.05,0-84.08,0Z" />
+                                                <path class="cls-1"
+                                                    d="m195.25,113.02c9.72,0,19.45-.01,29.17,0,5.54,0,9.21,3.06,9.52,7.87.31,4.8-3.25,8.54-8.8,8.95-3.04.23-6.12.1-9.18.1-15.94,0-31.87,0-47.81,0-1.43,0-2.89-.06-4.3-.28-4.81-.76-7.87-4.5-7.47-9,.39-4.44,3.85-7.59,8.62-7.61,10.08-.06,20.17-.02,30.25-.02Z" />
+                                                <path class="cls-1"
+                                                    d="m195,94.95c-10.08,0-20.17.05-30.25-.02-4.69-.03-8.13-3.37-8.38-7.84-.25-4.44,2.85-8.09,7.47-8.73,1.16-.16,2.33-.29,3.49-.29,18.55-.02,37.09-.02,55.64,0,3.9,0,7.63.55,9.83,4.37,3.3,5.71-.73,12.45-7.54,12.5-10.08.08-20.17.02-30.25.02Z" />
+                                                <path class="cls-1"
+                                                    d="m186.65,147.69c7.03,0,14.06-.05,21.08.02,4.28.04,7.35,2.41,8.48,6.25.97,3.33-.32,6.95-3.25,9.04-1.59,1.13-3.41,1.64-5.34,1.64-14.05.02-28.11.06-42.16-.01-5.36-.03-9.21-3.84-9.1-8.66.11-4.76,3.89-8.21,9.22-8.26,7.03-.05,14.05-.01,21.08,0Z" />
+                                            </svg>
+        
+                                            <!-- <svg class="w-8 h-8" id="Capa_1" data-name="Capa 1"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300.24">
+                                                <path [style.fill]=" baseColor"
+                                                    d="m65.97,21.98c-8.8,0-17.59-.04-26.39,0-10.66.05-17.74,7.14-17.77,17.83-.04,17.59-.02,35.19-.01,52.78,0,1.85-.01,3.68-.65,5.47-1.58,4.42-6,7.49-10.53,7.28-4.8-.22-9-3.63-10.03-8.33-.37-1.68-.5-3.44-.51-5.16-.04-17.16-.06-34.32-.01-51.48C.13,17.26,17.12.3,40.27.25c17.16-.04,34.32-.01,51.48,0,1.4,0,2.83.07,4.21.33,5.7,1.05,9.58,5.84,9.2,11.26-.39,5.62-4.95,10.02-10.85,10.09-9.45.12-18.9.03-28.34.03v.02Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m278.19,66.37c0-8.91.04-17.81-.01-26.72-.06-10.47-7.16-17.63-17.61-17.66-18.14-.05-36.27-.02-54.41-.03-4.52,0-7.97-1.97-10.11-5.95-1.97-3.68-1.61-7.34.62-10.81,2.04-3.18,5.18-4.84,8.79-4.83,20.51.05,41.07-1.19,61.53.57,16.31,1.41,30.57,16.47,32.42,32.78,1.01,8.88.39,17.79.49,26.69.12,10.42.04,20.85.02,31.28,0,1.3-.02,2.62-.22,3.89-.95,6.06-5.82,10.17-11.47,9.75-5.69-.42-9.96-5.13-10.01-11.27-.08-9.23-.02-18.46-.02-27.69h0Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m21.8,234.18c0,8.79-.03,17.58,0,26.37.05,10.67,7.12,17.79,17.76,17.81,18.12.05,36.24,0,54.36.03,4.81,0,8.35,2.24,10.32,6.61,1.89,4.21.9,8.08-2.03,11.48-2.29,2.64-5.42,3.59-8.77,3.59-18.45.04-36.9.39-55.34-.09-21.52-.55-37.81-17.45-38.01-38.88-.17-17.9-.09-35.81-.01-53.71.03-8.23,5.87-13.66,12.87-12.21,5.21,1.08,8.76,5.39,8.81,11,.08,9.33.02,18.66.02,28h.01Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m278.21,233.8c0-9.33-.08-18.67.03-28,.07-5.4,3.71-9.59,8.84-10.62,4.66-.94,9.71,1.75,11.72,6.27.85,1.91,1.12,3.95,1.12,6.03,0,17.9.16,35.81-.04,53.71-.25,21.71-17.05,38.59-38.73,38.87-18.01.24-36.03.11-54.04.02-8.8-.04-14.36-7.16-11.62-14.55,1.65-4.47,5.62-7.13,10.96-7.14,17.58-.03,35.16,0,52.74-.02,12.25,0,18.99-6.71,19.01-18.87.01-8.57,0-17.14,0-25.72h.02Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m150.04,224.49c-20.03.03-38.12-6.3-54.77-17.09-4.73-3.06-6.02-9.32-3.27-14.11,2.84-4.94,8.61-6.92,13.76-4.43,4.48,2.17,8.68,4.96,13.21,7.01,23.66,10.7,46.74,9.17,69.18-3.71,1.97-1.13,3.93-2.32,5.99-3.28,5.11-2.38,11.09-.47,13.84,4.31,2.68,4.66,1.59,10.97-2.94,13.95-13.97,9.18-29.08,15.41-45.92,16.87-1.51.13-3.01.38-4.53.46-1.51.08-3.04.02-4.55.02Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m172.37,142.36c-.32,9.51-4.4,16.93-12.75,21.6-6.15,3.44-12.53,6.49-18.9,9.5-5.41,2.56-11.6.34-14.2-4.8-2.69-5.33-.73-11.54,4.75-14.43,5.18-2.74,10.47-5.27,15.7-7.91,3.76-1.9,4.19-2.79,3.15-6.97-3.24-13.05-6.52-26.09-9.78-39.13-.29-1.16-.63-2.31-.83-3.48-1.06-6.31,2.49-11.73,8.47-13,5.5-1.16,10.96,2.36,12.53,8.3,2.02,7.65,3.88,15.35,5.79,23.03,1.68,6.73,3.35,13.47,5.02,20.2.57,2.32,1.15,4.64,1.03,7.08Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m105.19,98.96c0,4.56.07,9.12-.02,13.68-.12,6.02-4.34,10.67-9.84,11.01-6.17.38-11.3-3.43-11.61-9.76-.47-9.75-.45-19.54-.02-29.29.28-6.38,5.48-10.54,11.33-10.15,5.85.39,10.02,5.1,10.15,11.47,0,.22,0,.43,0,.65,0,4.13,0,8.25,0,12.38Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m194.8,99.02c0-4.45-.06-8.9.01-13.35.11-6.16,4.32-10.79,10.07-11.2,5.66-.41,10.91,3.66,11.35,9.78.71,9.95.73,19.98,0,29.93-.46,6.2-5.45,9.84-11.51,9.49-5.5-.32-9.77-4.97-9.89-10.96-.09-4.56-.02-9.12-.02-13.68Z" />
+                                            </svg> -->
+                                        </div>
+                                    </div>
+                                    <div class="li-flex mb-4" *ngIf="selectedFeature === 'ocr'">
+                                        <div class="mt-4">
+                                            <span class="instruction-title">
+                                                2. {{'otl.starter.bullet2' | transloco}}
+                                            </span>
+                                            <div class="instruction-description">
+                                                {{'otl.starter.description2' | transloco}}
+        
+                                                <!-- {{ 'otl.biometrics.description.' + currentService.code | transloco}} -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <div class="icon-flex mb-4 bordert-steps">
+                                    <div class="center-img">
+                                        <!-- <mat-icon style="color:white" svgIcon="endProcess"></mat-icon> -->
+                                        <svg id="Capa_1" class="w-20 h-20" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 300 299.4">
+                                            <path [style.fill]=" baseColor"
+                                                d="m88.27,16.74c6.8.2,13.29,1.95,19.82,3.28,4.98,1.01,9.15.14,12.95-3.4,4.44-4.14,8.88-8.32,13.99-11.69,9.67-6.37,19.38-6.61,29.22-.47,4.94,3.08,9.3,6.93,13.38,11.01,4.36,4.36,9.15,5.91,15.2,4.38,4.82-1.22,9.77-2,14.69-2.77,12.03-1.87,22.17,3.42,27.71,14.27,2.92,5.72,4.62,11.88,6.57,17.94,1.48,4.6,4.27,7.41,8.9,8.78,4.49,1.32,8.94,2.84,13.3,4.56,15.69,6.19,21.43,16.7,18.33,33.32-.73,3.91-1.42,7.84-2.36,11.71-1.25,5.18-.17,9.51,3.59,13.42,3.8,3.95,7.52,7.99,10.69,12.49,2.93,4.14,5.05,8.63,5.6,13.69.65,5.98-1.1,11.42-4.25,16.47-3.29,5.29-7.5,9.85-11.8,14.27-3.93,4.05-5.07,8.5-3.81,13.93,1.16,5.04,2.01,10.15,2.8,15.27,1.86,11.98-3.26,21.88-14.05,27.48-5.8,3.01-12.09,4.69-18.25,6.69-4.48,1.45-7.3,4.14-8.65,8.65-1.35,4.48-2.85,8.93-4.56,13.28-6.24,15.86-16.78,21.59-33.55,18.5-5.19-.96-10.29-2.43-15.59-2.83-2.74-.21-5.12.45-7.2,2.27-2.85,2.5-5.73,4.95-8.57,7.46-2.92,2.58-5.96,5-9.35,6.95-8.95,5.14-17.84,4.98-26.66-.34-5.43-3.27-10.07-7.53-14.59-11.89-4.12-3.98-8.64-5.24-14.2-3.94-5.04,1.18-10.17,2.01-15.29,2.8-11.92,1.85-21.93-3.36-27.49-14.11-2.9-5.62-4.63-11.67-6.49-17.65-1.54-4.97-4.51-7.94-9.48-9.36-4.31-1.23-8.56-2.73-12.74-4.36-15.72-6.11-21.57-16.67-18.5-33.22.76-4.11,1.58-8.21,2.48-12.3,1.03-4.7.25-8.8-3.19-12.4-3.23-3.38-6.27-6.97-9.26-10.57-2.04-2.45-3.83-5.12-5.17-8.03-4.31-9.34-2.71-18.02,2.96-26.26,3.18-4.62,6.97-8.74,10.85-12.75,3.83-3.97,4.98-8.34,3.74-13.67-1.19-5.13-2.11-10.34-2.91-15.55-1.8-11.72,3.47-21.82,14-27.27,5.8-3,12.08-4.72,18.24-6.7,4.59-1.48,7.44-4.22,8.85-8.84,1.57-5.14,3.3-10.25,5.35-15.21,4.54-10.98,12.55-17.22,24.74-17.28Zm27.38,240.4c4.35-.09,10.43,2.24,15.75,6.42,4.47,3.51,8.64,7.39,13.01,11.02,4.89,4.05,6.26,4.06,11.12.03,4.38-3.63,8.54-7.52,13.01-11.03,6.95-5.45,14.89-7.47,23.65-5.94,5.2.91,10.39,1.91,15.59,2.86,6.13,1.13,7.33.49,9.44-5.28,1.95-5.33,3.68-10.75,5.75-16.03,3.11-7.92,8.76-13.47,16.66-16.66,3.33-1.34,6.76-2.43,10.13-3.66,2.81-1.02,5.63-2.03,8.42-3.1,2.32-.89,3.38-2.53,3.19-5.11-.32-4.3-1.21-8.48-2.26-12.63-3.34-13.1-.87-24.64,8.7-34.5,2.78-2.86,5.37-5.91,7.9-8.98,3.25-3.94,3.26-5.82.02-9.73-3.06-3.68-6.3-7.21-9.44-10.82-6.79-7.8-10.03-16.65-8.07-27.05.96-5.09,1.95-10.17,2.86-15.26,1.05-5.82.45-6.95-5.08-9.01-5.42-2.02-10.95-3.75-16.34-5.86-7.93-3.11-13.5-8.73-16.69-16.62-1.16-2.86-2.11-5.8-3.16-8.7-1.19-3.28-2.36-6.56-3.6-9.82-.88-2.32-2.54-3.37-5.12-3.18-4.3.32-8.5,1.21-12.65,2.26-13.25,3.36-24.88.81-34.77-8.91-2.63-2.58-5.49-4.93-8.35-7.27-4.64-3.8-6.26-3.75-10.9.16-4.35,3.66-8.52,7.54-13,11.04-6.95,5.43-14.89,7.48-23.66,5.93-5.2-.92-10.39-1.91-15.59-2.86-6.12-1.12-7.33-.48-9.43,5.3-1.7,4.68-3.27,9.41-4.93,14.1-3.5,9.89-10.37,16.34-20.24,19.73-5.09,1.75-10.17,3.56-15.25,5.34-2.84,1-4.04,2.9-3.71,5.97.42,3.87,1.1,7.71,2.11,11.45,3.63,13.54,1.01,25.4-8.93,35.54-2.86,2.91-5.48,6.07-8.02,9.27-2.68,3.38-2.71,4.88,0,8.23,3.19,3.96,6.61,7.73,9.94,11.57,6.77,7.81,10.02,16.66,8.05,27.06-.96,5.09-1.95,10.17-2.87,15.26-1.04,5.78-.36,7.02,5.1,9,4.97,1.81,10.01,3.4,14.97,5.23,8.71,3.22,14.94,9.08,18.26,17.8,1.91,5.03,3.57,10.14,5.41,15.2,2.2,6.08,3.37,6.65,9.83,5.54,6.87-1.18,13.61-3.21,23.2-3.32Z" />
+                                            <path [style.fill]=" baseColor"
+                                                d="m243.1,149.66c.54,51.18-42.42,93.11-93.08,93.09-51.05-.02-93.25-42.23-93.27-93.04-.02-50.7,42.08-93.04,93.22-93.08,50.99-.05,93.71,42.24,93.14,93.03Zm-21.4-.02c-.66-40.15-32.02-71.47-71.86-71.4-40.04.08-71.56,31.71-71.44,71.66.12,39.91,31.78,71.39,71.87,71.23,40.02-.16,70.9-31.74,71.43-71.49Z" />
+                                            <path [style.fill]=" baseColor"
+                                                d="m98.27,153.08c.03-7.69,9-12.85,16.08-8.66,1.35.8,2.56,1.91,3.69,3.02,4.49,4.4,9.01,8.78,13.32,13.34,1.86,1.97,2.96,1.74,4.77-.08,15.47-15.57,31.02-31.06,46.58-46.54,4.41-4.4,9.74-5.04,14.35-1.87,5.25,3.61,6.23,10.89,2.11,15.76-.58.68-1.23,1.31-1.86,1.94-18.22,18.18-36.43,36.37-54.66,54.55-6.2,6.18-11.88,6.16-18.12-.05-7.49-7.46-14.97-14.94-22.46-22.41-2.36-2.35-3.88-5.04-3.8-8.99Z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="li-flex mb-4 bordert-steps">
+                                    <div class="mt-4">
+                                        <span class="instruction-title">
+                                            {{ selectedFeature  === 'ocr' ? '3.' : '2.'}}
+                                            {{'otl.starter.bullet3' | transloco}}
+                                        </span>
+                                        <div class="instruction-description">
+                                            {{'otl.starter.description3' | transloco}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                 
+                        <div class="mt-20 flex justify-center">
+                            <button (click)="startBiometric()" class="verifik-start-desktop"
+                                [style.background-color]=" baseColor">
+                                <span [style.color]="'white'">
+                                    {{'demo_new.start' | transloco}}
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-center w-full mt-80">
+                            <img class="w-120" src="assets/images/demo/vklogo.svg" alt="">
+                        </div>
+                    </div>
+                </div>
+
+            </ng-container>
+
+            <ng-container *ngIf="currentStep == 'facetec'"></ng-container>
+            <ng-container *ngIf="currentStep == 'result'">
+                <div class="w-full grid grid-cols-3 mt-6">
+                    <div>
+                        <mat-icon (click)="changeStep('instructions')" [style.color]="baseColor" style="transform: scale(2);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </div>
+                    <div></div>
+                    <div class="flex justify-end w-full pr-6">
+                        <!-- <img class="w-22" src="assets/images/demo/vklogo.svg" alt=""> -->
+                    </div>
+                </div>
+
+                <div class="w-full flex mt-4 justify-center">
+                    <span class="start-new start-navyblue">
+                        {{'demo_new.completed' | transloco}}
+                    </span>
+                </div>
+
+                <!-- <div *ngIf="selectedFeature === 'ocr'" class="w-full mt-4"> -->
+                <div class="w-full flex justify-center mt-4">
+                    <div class="max-80 mx-4 card-shadow rounded-2xl" *ngIf="selectedFeature == 'liveness'">
+
+                        <div class="w-full title-result flex justify-center py-4 font-700">
+                            <!-- <ng-container *ngIf="selectedFeature == 'ocr'">
+                                Face Verification
+                            </ng-container> -->
+                            <ng-container *ngIf="selectedFeature == 'liveness'">
+                                {{'demo_new.face_trust' | transloco}}
+                            </ng-container>
+                        </div>
+                        <!-- <ng-container *ngIf="selectedFeature == 'ocr'">
+                            <div class="w-full grid grid-cols-2">
+                                <div class="flex justify-center mx-4">
+                                    <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
+                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
+                                    </div>
+                                    <img class="h-40" src="{{faceScan}}" alt="">
+                                </div>
+                                <div class="flex justify-center mx-4">
+                                    <div class="absolute enlarge w-6 h-6 mt-2 -ml-20">
+                                        <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
+                                    </div>
+                                    <img class="h-40" src="{{idScan +'faceCrop'}}" alt="">
+                                </div>
+                            </div>
+                        </ng-container> -->
+                        <ng-container *ngIf="selectedFeature == 'liveness'">
+                            <div class="w-full flex justify-center px-4">
+                                <div class="absolute enlarge w-12 h-12 mt-2 -ml-60">
+                                    <mat-icon svgIcon="fullscreen" style="margin-top: 0.75rem;transform: scale(3);margin-left: 0.75rem;"
+                                    (click)="profilePreviewDialog(faceScan, 'none')"></mat-icon>
+                                </div>
+                                <img class="w-80" src="{{faceScan}}" alt="">
+                            </div>
+                        </ng-container>
+                        
+                        <div class="pt-4 flex type-result justify-center " *ngIf="selectedFeature == 'ocr'" 
+                        [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }">
+                        {{'demo_new.matchLevel' | transloco}} {{matchLevel}} / {{maxMatchLevel}}
+                        </div>
+                        <div class="pt-4 flex type-result justify-center start-navyblue" *ngIf="selectedFeature == 'liveness'"
+                        [ngClass]="{'finishOtl': jsonData.details.success == true , 'failedOTl': jsonData.details.success == false }">
+                            {{  jsonData.details.success ? 'Liveness Confirmed' : 'Liveness Failed'}}
+                        </div>
+                        <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
+                            <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{matchLevel*100 / maxMatchLevel}}" [bufferValue]="75">
+                            </mat-progress-bar>
+                        </div>
+                        <div *ngIf="selectedFeature ==='liveness'" class="pb-4 w-full flex justify-center px-4">
+                            <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'finishOtl':  jsonData.details.success == true , 'failedOTl':  jsonData.details.success == false }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{ jsonData.details.success ? 100 :  2 }}" [bufferValue]="75">
+                            </mat-progress-bar>
+                        </div>
+                        <div *ngIf="selectedFeature ==='liveness'" class="w-full grid grid-cols-1 pb-4">
+                            
+                            <div class="mx-4 flex type-result justify-center type-result start-navyblue">
+                                {{ageEstimate}}  
+                            </div>                                
+                            <div class="mx-4 flex type-result justify-center type-result type-secondary">                                
+                                {{'demo_new.ageEstimate' | transloco}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full flex justify-center mt-4" *ngIf="selectedFeature == 'ocr' ">
+                    <div class="max-80 mx-4 card-shadow rounded-2xl">
+
+                        <div class="w-full flex justify-center">
+                            <span class="w-full title-result flex justify-center py-4 font-700">
+                                {{'demo_new.doc_verification' | transloco}}
+                            </span>
+                        </div>
+                        <div (click)="changeId('back')" class="relative flex cursor-pointer justify-center w-16 h-16 rounded-full " style="top:18.75rem; background-color: #01236D;">
+                            <mat-icon svgIcon="heroicons_outline:chevron-left"
+                            style="margin-top: 1rem;transform: scale(3); color:white !important;"></mat-icon>
+                        </div>
+                        <div (click)="changeId('front')" class="relative flex cursor-pointer justify-center w-16 h-16 rounded-full top-60" style="left:92%; background-color: #01236D;">
+                            <mat-icon svgIcon="heroicons_outline:chevron-right"
+                            style="margin-top: 1rem;transform: scale(3); color:white !important"></mat-icon>
+                        </div>
+                        <div class="w-full flex justify-center mb-6 -mt-8">
+                            <div class="absolute enlarge w-12 h-12 mt-4 left-44">
+                                <mat-icon svgIcon="fullscreen" style="margin-top: 0.75rem;transform: scale(3);margin-left: 0.75rem;"
+                                (click)="profilePreviewDialog(faceScan, 'none')"></mat-icon>
+                            </div>
+                            <img class="px-4" src="{{idScan + currentImg.crop}}" alt="">
+                        </div>
+                        <div class="w-full px-4">
+                            <div class="w-full grid grid-cols-2 text-code-area">
+                                <div class="ml-2 flex items-center justify-start font-700">                                
+                                    {{'demo_new.field' | transloco}}
+                                </div>
+                                <div class="mr-2 flex items-center justify-end font-700">
+                                    {{'demo_new.ocr_result' | transloco}}
+                                </div>
+                                <!-- <div class="mx-4 flex items-center justify-center">
+                                    
+                                </div> -->
+                            </div>
+                            <ng-container *ngIf="scannedData">
+                                <div *ngFor="let data of scannedData | keyvalue; let i = index" 
+                                    [ngClass]="{ 'even-table': i % 2 === 0, 'odd-table': i % 2 !== 0 }"
+                                    class="w-full grid grid-cols-2 text-code-area font-500 truncate">
+                                    <div class="ml-2 w-full flex items-center justify-start truncate">                                
+                                        {{data.key}}
+                                    </div>
+                                    <div class="w-full flex items-center justify-end">
+                                        <span class="mr-2 overflow-x-auto">
+                                            {{data.value}}
+                                        </span>
+                                    </div>
+                                    <!-- <div class="mx-1 w-full flex items-center justify-center truncate">
+                                        
+                                    </div> -->
+                                </div>
+                            </ng-container>
+                            
+                        </div>
+                        <div class="h-4"></div>
+                    </div>
+                </div>
+                <div class="w-full flex justify-center">
+
+                    <div class="max-80 my-8">
+                        <div class="code-area rounded-xl font-700 text-2xl ">
+                            <div class="flex justify-center my-2">
+                                {{'demo_new.code' | transloco}}
+                            </div>
+                            <pre class="code-area rounded-xl">
+                                &#013;{{jsonData|json}}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center w-full my-8 pt-4">
+                    <button (click)="changeStep('end')" class="verifik-start-desktop px-10">
+                        {{'demo_new.finish' | transloco}}
+                    </button>
+                </div>
+                <div class="flex justify-center w-full mt-20">
+                    <img class="w-120" src="assets/images/demo/vklogo.svg" alt="">
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentStep == 'end'">
+                <div class="w-full grid grid-cols-3 pt-4">
+                    <div class="pt-3">
+                        <mat-icon (click)="changeStep('result')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </div>
+                    <div class="flex justify-center w-full">
+                        <!-- <img class="w-22" src="assets/images/demo/vklogo.svg" alt=""> -->
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
+                    </div>
+                </div>
+                <div class="flex w-full mt-20 justify-center">
+                    <img class="w-120" src="assets/images/demo/end.svg" alt="">
+                </div>
+                <div class="flex justify-center w-full mt-4 px-8">
+                    <div class="start-new text-center">
+                        {{'demo_new.result_title' | transloco}}
+                    </div>
+                </div>
+                <div class="w-full borderb-steps-xl"></div>
+                <div class="flex justify-center w-full mt-8 px-4">
+                    <div class="start-new text-center mx-12">
+                        {{'demo_new.result_description' | transloco}}
+                    </div>
+                </div>
+                <div class="flex justify-center w-full mt-4">
+                    <button (click)="changeDemo()" class="verifik-start-desktop change-demo px-10">
+                        {{'demo_new.result_change' | transloco}}
+                    </button>
+                </div>
+
+                <!-- <div class="flex justify-center w-full fixed bottom-5">
+                    <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
+                </div> -->
+
+             </ng-container>
+
+        </ng-container>
+    </div>
+
+    <div #myDiv  class="demo-canvas-phone" *ngIf="phoneMode">
+        <ng-container *ngIf="phoneMode">
+            <ng-container *ngIf="currentStep == 'start'">
+                <div class="absolute right-0 mt-4 mr-12">
+                    <languages [type]="'fab'"></languages>
+                </div>
+                
+                <div class="flex justify-center w-full">
+                    <img class="w-full" src="assets/images/demo/CelNaveHome.svg" alt="">
+                </div>
+                <div class="flex justify-center w-full mt-4 px-8">
+                    <div class="verifik-welcome-phone w-full">
+                        {{ 'demo_new.home_title' | transloco}}
+                    </div>
+                </div>
+                
+
+                <div class="flex justify-center w-full mt-8">
+                    <button (click)="changeStep('select')" class="verifik-start-phone">
+                        {{ 'demo_new.start' | transloco}}
+                    </button>
+                </div>
+                <div class="flex justify-center w-full mt-8  pb-12">
+                    <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentStep == 'select'">
+                <div class="w-full grid grid-cols-3 py-4">
+                    <div class="pt-3">
+                        <!-- <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon> -->
+                    </div>
+                    <div class="flex justify-center w-full">
+                        <!-- <img class="w-10" src="assets/images/demo/k.svg" alt=""> -->
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'" [size]="'mini'"></languages>
+                    </div>
+                </div>
+                <div class="flex justify-center mx-8 py-4">
+                    <span class="verifik-form-text-phone start-navyblue">
+
+                            {{'demo_new.welcome' | transloco}}
+                            <ng-container class="start-lightblue">
+                                {{'demo_new.verifik' | transloco}}
+                            </ng-container>
+                    </span>
+                </div>
+                <div class="flex justify-center w-full">
+                    <div class="max-60 borderb-steps"></div>
+                </div>
+                <div class="flex justify-center w-full">
+                    <div class="max-60 flex justify-center">
+                        <span class="verifik-form-text-phone text-center start-navyblue">
+                            {{'demo_new.select_service' | transloco}}
+    
+                        </span>
+                    </div>
+                </div>
+                <div class="w-full">
+
+                    <div class="flex justify-center">
+                        <div [ngClass]="{'selected-option ': selectedFeature ==='liveness' ? true : false}"
+                            (click)="changeSelection('liveness')"
+                            class="selectable-feature cursor-pointer flex justify-center items-center flex-row">
+                            <div class="mx-5">
+                                <p class="selectable-title mb-2">
+                                    {{ 'demo_new.liveness_title' | transloco}}
+                                </p>
+                                <p class="selectable-description">
+                                    {{ 'demo_new.liveness_subtitle' | transloco}}
+                                </p>
+                                <p class="selectable-description">
+                                    {{'demo_new.liveness_description' | transloco}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center mt-6">
+                        <div [ngClass]="{'selected-option ':selectedFeature ==='ocr' ? true : false}"
+                            (click)="changeSelection('ocr')"
+                            class="selectable-feature  cursor-pointer flex justify-center items-center flex-row">
+                            <div class="mx-5">
+                                <p class="selectable-title mb-2">
+                                    {{ 'demo_new.ocr_title' | transloco}}
+                                </p>
+                                <p class="selectable-description">
+                                    {{ 'demo_new.ocr_subtitle' | transloco}}
+                                </p>
+                                <p class="selectable-description">
+                                    {{'demo_new.ocr_description' | transloco}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="w-full flex justify-center my-8">
+                    <button (click)="changeStep('instructions')" class="verifik-start-phone">
+                        {{ 'demo_new.continue' | transloco}}
+                    </button>
+                </div>
+
+                <div class="flex justify-center w-full py-12">
+                    <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
+                </div>
+
+            </ng-container>
+
+            <ng-container *ngIf="currentStep == 'instructions'">
+                <div class="w-full flex justify-center" style="height: 100vh;">
+                    <div class="max-80">
+                        <div class="w-full grid grid-cols-3 pt-4">
+                            <div class="pt-3">
+                                <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                                    svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                            </div>
+                            <div class="flex justify-center w-full">
+                                <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                            </div>
+                            <div class="flex justify-end mr-4">
+                                <languages [type]="'fab'" [size]="'mini'"></languages>
+                            </div>
+                        </div>
+                        <div class="flex justify-center mb-1">
+                            <p *ngIf="selectedFeature  === 'liveness'" class="mt-20 text-2xl font-700" [style.color]="baseColor">
+                                {{'demo_new.liveness2' | transloco }}
+                            </p>
+                            <p *ngIf="selectedFeature  !== 'liveness'" class="mt-20 text-2xl font-700" [style.color]="baseColor">
+                                {{ 'demo_new.OCR2' | transloco }}
+                            </p>
+                        </div>
+                        <div class="mt-4 instructions-link-phone mx-4">
+                            <div class="flex flex-wrap">
+                                <ng-container>
+                                    <div class="icon-flex pb-4 borderb-steps">
+                                        <div class="center-img">
+                                            <svg class="w-8 h-8" id="Capa_1" data-name="Capa 1"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 305 278.11">
+                                                <path class="cls-1" [style.fill]=" baseColor"
+                                                    d="m305,72.08c.02-8.31-3.08-14.74-9.21-19.12-5.9-4.21-12.56-4.7-17.05-4.7h-45.34c-42.06,0-85.55,0-128.32.06h-.02c-2.15,0-2.78-.39-3.68-2.3-4.77-10.12-10.03-20.78-17.28-30.13-3.78-4.87-8.13-9.83-14.27-13.08-6.37-3.37-12.34-3.7-17.77-.98-4.2,2.11-8.96,4.5-13.19,7.64C14.1,27.87,1.04,52.85.06,83.72c-.68,21.35,4.6,43.06,15.69,64.55,6,11.63,12.74,23.05,19.27,34.09,4.03,6.82,8.2,13.88,12.13,20.9,11.67,20.78,22.64,35.12,35.57,46.49,21.65,19.03,44.24,28.37,68.76,28.37,3.37,0,6.78-.18,10.23-.53,15.35-1.57,29.44-6.72,41.86-15.32,3.65-2.53,6.09-6.32,7.25-11.26,1.9-8.12-.88-15.62-3.11-21.64-3.5-9.43-9-17.78-14.31-25.85-.95-1.45-1.9-2.89-2.84-4.34-2.94-4.54-6.65-8.92-11.02-13-12.03-11.26-25.39-12.87-39.69-4.78-1.72.97-3.42,1.97-5.13,2.97-1.8,1.05-3.6,2.11-5.42,3.13-2.64,1.49-5.08,1.89-7.68,1.27-6.16-1.47-10.69-4.82-13.84-10.23-6.85-11.77-13.67-23.55-20.5-35.33-1.02-1.77-2.06-3.52-3.09-5.28-2.53-4.3-5.15-8.75-7.51-13.21-5.06-9.56-2.57-18.1,6.83-23.42.34-.19.68-.38,1.02-.56.95-.52,1.94-1.05,2.9-1.73,1.51-1.08,2.09-1.29,2.27-1.29,0,0,.33.18.79,1.11.55,1.1,1.5,1.72,2.19,2.18.17.11.34.22.5.35l18.66,14.68c15.7,12.35,31.92,25.12,47.92,37.64,11.76,9.2,24.19,9.18,35.95-.05,14.62-11.47,29.23-22.94,43.84-34.42,15.06-11.83,30.11-23.65,45.18-35.47.02,37.78.02,75.56.02,113.34,0,4.63,0,4.72-4.89,4.72-10.91.01-21.82,0-32.73,0h-16.37c-1.34.02-2.7,0-4.05-.01-3.33-.02-6.78-.03-10.18.06-5.79.15-9.94,3.81-10.34,9.1-.22,2.99.6,5.58,2.38,7.51,1.93,2.08,4.8,3.18,8.31,3.19,20,.03,40.8.04,63.6,0,15.33-.02,24.5-9.24,24.51-24.68,0-14.56,0-29.12,0-43.69v-35.74c-.01-15.15-.02-30.3.02-45.45Zm-134.54,64.71c-7.28-5.7-14.56-11.41-21.84-17.12-14.66-11.5-29.83-23.4-44.78-35.06,2.93-5.14,4.17-10.69,3.69-16.49.34.01.68,0,1.02,0,.17,0,.33,0,.5,0h163.26s-1.36,1.08-1.36,1.08c-4.43,3.5-8.86,6.99-13.3,10.48l-1.18.93c-23.87,18.74-47.74,37.49-71.62,56.21-6.24,4.89-8.12,4.89-14.39-.02Zm-115.8-25.66c-.95,9.1,1.03,17.64,6.05,26.09,6.1,10.28,12.19,20.81,18.07,31,4.01,6.94,8.02,13.89,12.07,20.81,6.82,11.66,17.37,18.32,31.36,19.79,5.33.56,10.73-.66,16.04-3.62.99-.55,1.98-1.1,2.97-1.64,3.32-1.83,6.75-3.72,10.02-5.82,4.08-2.62,7.8-2.36,12.09.83,2.58,1.92,4.8,4.07,6.6,6.39,9.15,11.77,15.33,22.03,19.45,32.31,3.36,8.39,3.28,8.63-4.45,12.95-9.05,5.05-19.62,7.75-32.34,8.25-19.58-.33-37.2-7.28-53.87-21.22-12.3-10.29-22.94-23.8-33.5-42.52-7.24-12.84-14.82-25.76-22.14-38.26l-4.15-7.09c-10.37-17.72-16.34-34.54-18.24-51.41-3.47-30.82,6.02-54.3,29.01-71.76,1.26-.96,2.68-1.77,4.19-2.62,1.37-.78,2.78-1.58,4.12-2.54.64-.46,1.19-.74,1.79-.74.69,0,1.44.37,2.47,1.27,4.47,3.91,8.32,8.78,11.46,14.49.83,1.5,1.67,3,2.51,4.5,4.63,8.23,9.01,16.01,10.94,24.99,1.66,7.74.56,10.26-6.21,14.21-1.84,1.08-3.69,2.14-5.54,3.2-1.77,1.02-3.54,2.03-5.3,3.06-9.08,5.29-14.28,13.73-15.46,25.09Z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="li-flex pb-4 borderb-steps">
+                                        <div class="mt-4">
+                                            <span class="font-700">
+                                                {{'demo_new.starter.bullet1' | transloco}}
+                                            </span>
+                                            <div class="font-500 ">
+                                                {{'demo_new.starter.description1' | transloco}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="true">
+                                    <div class="icon-flex mb-4" *ngIf="selectedFeature === 'ocr'">
+                                        <div class="center-img">
+                                            <svg id="Capa_1" class="w-8 h-8"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 277.1 199.32">
+                                                <defs>
+                                                    <style>
+                                                        .cls-1 {
+                                                            fill: #0036e7;
+                                                        }
+                                                    </style>
+                                                </defs>
+                                                <path class="cls-1"
+                                                    d="m277.1,178.62c-1.87,6.16-4.73,11.67-10.12,15.56-4.52,3.27-9.54,5.1-15.11,5.1-75.53.03-151.05.05-226.58-.01-13.95-.01-25.26-11.48-25.27-25.4C-.01,124.67,0,75.46.02,26.25.02,11.13,11.2.02,26.39.01,93.89,0,161.4,0,228.9,0c7.12,0,14.24,0,21.36,0,13.04.01,22.35,6.81,26.29,19.17.16.51.37,1.01.55,1.52v157.92Zm-138.75,3.73c37.4,0,74.79,0,112.19,0,6.51,0,9.99-3.45,10.14-9.95,0-.36,0-.72,0-1.08,0-47.76-.04-95.52.05-143.28.01-6.21-2.8-11.21-11.23-11.17-46.41.2-92.81.09-139.22.09-27.84,0-55.69,0-83.53,0-6.56,0-9.98,3.39-10.13,9.94,0,.36,0,.72,0,1.08,0,47.76.04,95.52-.05,143.28-.01,6.18,2.78,11.23,11.23,11.18,36.85-.22,73.71-.09,110.57-.1Z" />
+                                                <path class="cls-1"
+                                                    d="m86.43,164.65c-10.81,0-21.63,0-32.44,0-7.75,0-11.28-3.72-10.57-11.52,1.17-12.86,6.77-23.39,17.04-31.33,3.08-2.38,3.11-2.35,1-5.51-12.14-18.2-1.19-43.08,20.42-46.41,11.86-1.82,23.91,3.71,30.17,13.84,6.45,10.45,6.14,23.43-1.05,33.33-1.39,1.91-1.38,2.62.59,4.07,11.36,8.36,17.53,19.62,18.01,33.78.21,6.23-3.32,9.71-9.63,9.73-11.18.04-22.35.01-33.53.01Zm.03-16.97c7.46,0,14.93-.04,22.39.03,2.08.02,2.51-.51,1.66-2.48-3.98-9.2-13.53-15.34-24.09-15.26-11.11.08-18.83,5.53-23.86,15.21-1.11,2.13-.35,2.56,1.78,2.54,7.37-.09,14.75-.03,22.12-.03Zm13.21-47.64c.14-7.57-5.55-13.6-12.98-13.72-7.16-.12-13.23,5.7-13.37,12.81-.15,7.62,5.45,13.65,12.86,13.86,7.26.2,13.35-5.65,13.49-12.95Z" />
+                                                <path class="cls-1"
+                                                    d="m138.66,51.63c-28.21,0-56.41,0-84.62,0-6.57,0-10.68-3.26-10.69-8.46,0-5.19,4.13-8.51,10.67-8.51,56.41,0,112.83,0,169.24,0,1.17,0,2.36,0,3.5.21,4.31.8,7.34,4.46,7.18,8.54-.16,4.23-3.53,7.71-7.96,8.15-1.07.11-2.16.06-3.24.06-28.03,0-56.05,0-84.08,0Z" />
+                                                <path class="cls-1"
+                                                    d="m195.25,113.02c9.72,0,19.45-.01,29.17,0,5.54,0,9.21,3.06,9.52,7.87.31,4.8-3.25,8.54-8.8,8.95-3.04.23-6.12.1-9.18.1-15.94,0-31.87,0-47.81,0-1.43,0-2.89-.06-4.3-.28-4.81-.76-7.87-4.5-7.47-9,.39-4.44,3.85-7.59,8.62-7.61,10.08-.06,20.17-.02,30.25-.02Z" />
+                                                <path class="cls-1"
+                                                    d="m195,94.95c-10.08,0-20.17.05-30.25-.02-4.69-.03-8.13-3.37-8.38-7.84-.25-4.44,2.85-8.09,7.47-8.73,1.16-.16,2.33-.29,3.49-.29,18.55-.02,37.09-.02,55.64,0,3.9,0,7.63.55,9.83,4.37,3.3,5.71-.73,12.45-7.54,12.5-10.08.08-20.17.02-30.25.02Z" />
+                                                <path class="cls-1"
+                                                    d="m186.65,147.69c7.03,0,14.06-.05,21.08.02,4.28.04,7.35,2.41,8.48,6.25.97,3.33-.32,6.95-3.25,9.04-1.59,1.13-3.41,1.64-5.34,1.64-14.05.02-28.11.06-42.16-.01-5.36-.03-9.21-3.84-9.1-8.66.11-4.76,3.89-8.21,9.22-8.26,7.03-.05,14.05-.01,21.08,0Z" />
+                                            </svg>
+        
+                                            <!-- <svg class="w-8 h-8" id="Capa_1" data-name="Capa 1"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300.24">
+                                                <path [style.fill]=" baseColor"
+                                                    d="m65.97,21.98c-8.8,0-17.59-.04-26.39,0-10.66.05-17.74,7.14-17.77,17.83-.04,17.59-.02,35.19-.01,52.78,0,1.85-.01,3.68-.65,5.47-1.58,4.42-6,7.49-10.53,7.28-4.8-.22-9-3.63-10.03-8.33-.37-1.68-.5-3.44-.51-5.16-.04-17.16-.06-34.32-.01-51.48C.13,17.26,17.12.3,40.27.25c17.16-.04,34.32-.01,51.48,0,1.4,0,2.83.07,4.21.33,5.7,1.05,9.58,5.84,9.2,11.26-.39,5.62-4.95,10.02-10.85,10.09-9.45.12-18.9.03-28.34.03v.02Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m278.19,66.37c0-8.91.04-17.81-.01-26.72-.06-10.47-7.16-17.63-17.61-17.66-18.14-.05-36.27-.02-54.41-.03-4.52,0-7.97-1.97-10.11-5.95-1.97-3.68-1.61-7.34.62-10.81,2.04-3.18,5.18-4.84,8.79-4.83,20.51.05,41.07-1.19,61.53.57,16.31,1.41,30.57,16.47,32.42,32.78,1.01,8.88.39,17.79.49,26.69.12,10.42.04,20.85.02,31.28,0,1.3-.02,2.62-.22,3.89-.95,6.06-5.82,10.17-11.47,9.75-5.69-.42-9.96-5.13-10.01-11.27-.08-9.23-.02-18.46-.02-27.69h0Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m21.8,234.18c0,8.79-.03,17.58,0,26.37.05,10.67,7.12,17.79,17.76,17.81,18.12.05,36.24,0,54.36.03,4.81,0,8.35,2.24,10.32,6.61,1.89,4.21.9,8.08-2.03,11.48-2.29,2.64-5.42,3.59-8.77,3.59-18.45.04-36.9.39-55.34-.09-21.52-.55-37.81-17.45-38.01-38.88-.17-17.9-.09-35.81-.01-53.71.03-8.23,5.87-13.66,12.87-12.21,5.21,1.08,8.76,5.39,8.81,11,.08,9.33.02,18.66.02,28h.01Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m278.21,233.8c0-9.33-.08-18.67.03-28,.07-5.4,3.71-9.59,8.84-10.62,4.66-.94,9.71,1.75,11.72,6.27.85,1.91,1.12,3.95,1.12,6.03,0,17.9.16,35.81-.04,53.71-.25,21.71-17.05,38.59-38.73,38.87-18.01.24-36.03.11-54.04.02-8.8-.04-14.36-7.16-11.62-14.55,1.65-4.47,5.62-7.13,10.96-7.14,17.58-.03,35.16,0,52.74-.02,12.25,0,18.99-6.71,19.01-18.87.01-8.57,0-17.14,0-25.72h.02Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m150.04,224.49c-20.03.03-38.12-6.3-54.77-17.09-4.73-3.06-6.02-9.32-3.27-14.11,2.84-4.94,8.61-6.92,13.76-4.43,4.48,2.17,8.68,4.96,13.21,7.01,23.66,10.7,46.74,9.17,69.18-3.71,1.97-1.13,3.93-2.32,5.99-3.28,5.11-2.38,11.09-.47,13.84,4.31,2.68,4.66,1.59,10.97-2.94,13.95-13.97,9.18-29.08,15.41-45.92,16.87-1.51.13-3.01.38-4.53.46-1.51.08-3.04.02-4.55.02Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m172.37,142.36c-.32,9.51-4.4,16.93-12.75,21.6-6.15,3.44-12.53,6.49-18.9,9.5-5.41,2.56-11.6.34-14.2-4.8-2.69-5.33-.73-11.54,4.75-14.43,5.18-2.74,10.47-5.27,15.7-7.91,3.76-1.9,4.19-2.79,3.15-6.97-3.24-13.05-6.52-26.09-9.78-39.13-.29-1.16-.63-2.31-.83-3.48-1.06-6.31,2.49-11.73,8.47-13,5.5-1.16,10.96,2.36,12.53,8.3,2.02,7.65,3.88,15.35,5.79,23.03,1.68,6.73,3.35,13.47,5.02,20.2.57,2.32,1.15,4.64,1.03,7.08Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m105.19,98.96c0,4.56.07,9.12-.02,13.68-.12,6.02-4.34,10.67-9.84,11.01-6.17.38-11.3-3.43-11.61-9.76-.47-9.75-.45-19.54-.02-29.29.28-6.38,5.48-10.54,11.33-10.15,5.85.39,10.02,5.1,10.15,11.47,0,.22,0,.43,0,.65,0,4.13,0,8.25,0,12.38Z" />
+                                                <path [style.fill]=" baseColor"
+                                                    d="m194.8,99.02c0-4.45-.06-8.9.01-13.35.11-6.16,4.32-10.79,10.07-11.2,5.66-.41,10.91,3.66,11.35,9.78.71,9.95.73,19.98,0,29.93-.46,6.2-5.45,9.84-11.51,9.49-5.5-.32-9.77-4.97-9.89-10.96-.09-4.56-.02-9.12-.02-13.68Z" />
+                                            </svg> -->
+                                        </div>
+                                    </div>
+                                    <div class="li-flex mb-4" *ngIf="selectedFeature === 'ocr'">
+                                        <div class="mt-4">
+                                            <span class="font-700">
+                                                2. {{'demo_new.starter.bullet2' | transloco}}
+                                            </span>
+                                            <div class="font-500 ">
+                                                {{'demo_new.starter.description2' | transloco}}
+        
+                                                <!-- {{ 'otl.biometrics.description.' + currentService.code | transloco}} -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <div class="icon-flex mb-4 bordert-steps">
+                                    <div class="center-img">
+                                        <!-- <mat-icon style="color:white" svgIcon="endProcess"></mat-icon> -->
+                                        <svg id="Capa_1" class="w-8 h-8" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 300 299.4">
+                                            <path [style.fill]=" baseColor"
+                                                d="m88.27,16.74c6.8.2,13.29,1.95,19.82,3.28,4.98,1.01,9.15.14,12.95-3.4,4.44-4.14,8.88-8.32,13.99-11.69,9.67-6.37,19.38-6.61,29.22-.47,4.94,3.08,9.3,6.93,13.38,11.01,4.36,4.36,9.15,5.91,15.2,4.38,4.82-1.22,9.77-2,14.69-2.77,12.03-1.87,22.17,3.42,27.71,14.27,2.92,5.72,4.62,11.88,6.57,17.94,1.48,4.6,4.27,7.41,8.9,8.78,4.49,1.32,8.94,2.84,13.3,4.56,15.69,6.19,21.43,16.7,18.33,33.32-.73,3.91-1.42,7.84-2.36,11.71-1.25,5.18-.17,9.51,3.59,13.42,3.8,3.95,7.52,7.99,10.69,12.49,2.93,4.14,5.05,8.63,5.6,13.69.65,5.98-1.1,11.42-4.25,16.47-3.29,5.29-7.5,9.85-11.8,14.27-3.93,4.05-5.07,8.5-3.81,13.93,1.16,5.04,2.01,10.15,2.8,15.27,1.86,11.98-3.26,21.88-14.05,27.48-5.8,3.01-12.09,4.69-18.25,6.69-4.48,1.45-7.3,4.14-8.65,8.65-1.35,4.48-2.85,8.93-4.56,13.28-6.24,15.86-16.78,21.59-33.55,18.5-5.19-.96-10.29-2.43-15.59-2.83-2.74-.21-5.12.45-7.2,2.27-2.85,2.5-5.73,4.95-8.57,7.46-2.92,2.58-5.96,5-9.35,6.95-8.95,5.14-17.84,4.98-26.66-.34-5.43-3.27-10.07-7.53-14.59-11.89-4.12-3.98-8.64-5.24-14.2-3.94-5.04,1.18-10.17,2.01-15.29,2.8-11.92,1.85-21.93-3.36-27.49-14.11-2.9-5.62-4.63-11.67-6.49-17.65-1.54-4.97-4.51-7.94-9.48-9.36-4.31-1.23-8.56-2.73-12.74-4.36-15.72-6.11-21.57-16.67-18.5-33.22.76-4.11,1.58-8.21,2.48-12.3,1.03-4.7.25-8.8-3.19-12.4-3.23-3.38-6.27-6.97-9.26-10.57-2.04-2.45-3.83-5.12-5.17-8.03-4.31-9.34-2.71-18.02,2.96-26.26,3.18-4.62,6.97-8.74,10.85-12.75,3.83-3.97,4.98-8.34,3.74-13.67-1.19-5.13-2.11-10.34-2.91-15.55-1.8-11.72,3.47-21.82,14-27.27,5.8-3,12.08-4.72,18.24-6.7,4.59-1.48,7.44-4.22,8.85-8.84,1.57-5.14,3.3-10.25,5.35-15.21,4.54-10.98,12.55-17.22,24.74-17.28Zm27.38,240.4c4.35-.09,10.43,2.24,15.75,6.42,4.47,3.51,8.64,7.39,13.01,11.02,4.89,4.05,6.26,4.06,11.12.03,4.38-3.63,8.54-7.52,13.01-11.03,6.95-5.45,14.89-7.47,23.65-5.94,5.2.91,10.39,1.91,15.59,2.86,6.13,1.13,7.33.49,9.44-5.28,1.95-5.33,3.68-10.75,5.75-16.03,3.11-7.92,8.76-13.47,16.66-16.66,3.33-1.34,6.76-2.43,10.13-3.66,2.81-1.02,5.63-2.03,8.42-3.1,2.32-.89,3.38-2.53,3.19-5.11-.32-4.3-1.21-8.48-2.26-12.63-3.34-13.1-.87-24.64,8.7-34.5,2.78-2.86,5.37-5.91,7.9-8.98,3.25-3.94,3.26-5.82.02-9.73-3.06-3.68-6.3-7.21-9.44-10.82-6.79-7.8-10.03-16.65-8.07-27.05.96-5.09,1.95-10.17,2.86-15.26,1.05-5.82.45-6.95-5.08-9.01-5.42-2.02-10.95-3.75-16.34-5.86-7.93-3.11-13.5-8.73-16.69-16.62-1.16-2.86-2.11-5.8-3.16-8.7-1.19-3.28-2.36-6.56-3.6-9.82-.88-2.32-2.54-3.37-5.12-3.18-4.3.32-8.5,1.21-12.65,2.26-13.25,3.36-24.88.81-34.77-8.91-2.63-2.58-5.49-4.93-8.35-7.27-4.64-3.8-6.26-3.75-10.9.16-4.35,3.66-8.52,7.54-13,11.04-6.95,5.43-14.89,7.48-23.66,5.93-5.2-.92-10.39-1.91-15.59-2.86-6.12-1.12-7.33-.48-9.43,5.3-1.7,4.68-3.27,9.41-4.93,14.1-3.5,9.89-10.37,16.34-20.24,19.73-5.09,1.75-10.17,3.56-15.25,5.34-2.84,1-4.04,2.9-3.71,5.97.42,3.87,1.1,7.71,2.11,11.45,3.63,13.54,1.01,25.4-8.93,35.54-2.86,2.91-5.48,6.07-8.02,9.27-2.68,3.38-2.71,4.88,0,8.23,3.19,3.96,6.61,7.73,9.94,11.57,6.77,7.81,10.02,16.66,8.05,27.06-.96,5.09-1.95,10.17-2.87,15.26-1.04,5.78-.36,7.02,5.1,9,4.97,1.81,10.01,3.4,14.97,5.23,8.71,3.22,14.94,9.08,18.26,17.8,1.91,5.03,3.57,10.14,5.41,15.2,2.2,6.08,3.37,6.65,9.83,5.54,6.87-1.18,13.61-3.21,23.2-3.32Z" />
+                                            <path [style.fill]=" baseColor"
+                                                d="m243.1,149.66c.54,51.18-42.42,93.11-93.08,93.09-51.05-.02-93.25-42.23-93.27-93.04-.02-50.7,42.08-93.04,93.22-93.08,50.99-.05,93.71,42.24,93.14,93.03Zm-21.4-.02c-.66-40.15-32.02-71.47-71.86-71.4-40.04.08-71.56,31.71-71.44,71.66.12,39.91,31.78,71.39,71.87,71.23,40.02-.16,70.9-31.74,71.43-71.49Z" />
+                                            <path [style.fill]=" baseColor"
+                                                d="m98.27,153.08c.03-7.69,9-12.85,16.08-8.66,1.35.8,2.56,1.91,3.69,3.02,4.49,4.4,9.01,8.78,13.32,13.34,1.86,1.97,2.96,1.74,4.77-.08,15.47-15.57,31.02-31.06,46.58-46.54,4.41-4.4,9.74-5.04,14.35-1.87,5.25,3.61,6.23,10.89,2.11,15.76-.58.68-1.23,1.31-1.86,1.94-18.22,18.18-36.43,36.37-54.66,54.55-6.2,6.18-11.88,6.16-18.12-.05-7.49-7.46-14.97-14.94-22.46-22.41-2.36-2.35-3.88-5.04-3.8-8.99Z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="li-flex mb-4 bordert-steps">
+                                    <div class="mt-4">
+                                        <span class="font-700">
+                                            {{ selectedFeature  === 'ocr' ? '3.' : '2.'}}
+                                            {{'demo_new.starter.bullet3' | transloco}}
+                                        </span>
+                                        <div class="font-500 ">
+                                            {{'demo_new.starter.description3' | transloco}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex justify-center py-12">
+                            <button (click)="startBiometric()" class="flex p-2 mx-4 w-20 justify-center border-solid border-2 rounded-full"
+                                [style.background-color]=" baseColor" [disabled]="!biometricsReady">
+                                <span [style.color]="'white'" *ngIf="biometricsReady">
+                                    {{'demo_new.start' | transloco}}
+                                </span>
+                                <mat-progress-spinner *ngIf="!biometricsReady" [diameter]="24" [mode]="'indeterminate'">
+                                </mat-progress-spinner>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </ng-container>
+
+             <ng-container *ngIf="currentStep == 'facetec'"></ng-container>
+             <ng-container *ngIf="currentStep == 'result'">
+                <div class="w-full grid grid-cols-3 pt-4">
+                    <div class="pt-3">
+                        <mat-icon (click)="changeStep('select')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </div>
+                    <div class="flex justify-center w-full">
+                        <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
+                    </div>
+                </div>
+
+                <div class="w-full flex mt-4 justify-center">
+                    <span class="text-xl font-700">
+                        {{'demo_new.completed' | transloco}}
+                    </span>
+                </div>
+
+                <!-- <div *ngIf="selectedFeature === 'ocr'" class="w-full mt-4"> -->
+                <div class="w-full mt-4">
+                    <div class="mx-4 card-shadow rounded-2xl">
+
+                        <div class="w-full document-title flex justify-center text-sm py-4 font-700">
+                            <ng-container *ngIf="selectedFeature == 'ocr'">
+                                {{'demo_new.verification' | transloco}}
+                            </ng-container>
+                            <ng-container *ngIf="selectedFeature == 'liveness'">
+                                {{'demo_new.trust' | transloco}}
+                            </ng-container>
+                        </div>
+                        <ng-container *ngIf="selectedFeature == 'ocr'">
+                            <div class="w-full grid grid-cols-2 gap-1 px-4 -mt-12">
+                                <div class="relative enlarge w-6 h-6 ml-2 z-10 top-10">
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog( faceScan, 'none')"></mat-icon>
+                                </div>
+                                <div class="relative enlarge w-6 h-6 ml-2 top-10 z-10">
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan, 'faceCrop')"></mat-icon>
+                                </div>
+                                <div class="flex justify-center items-center z-0">
+                                    <img style="height: 200px; object-fit: cover;" src="{{faceScan}}" alt="">
+                                </div>
+                                <div class="flex justify-center items-center z-0">
+                                    <img style="height: 200px; object-fit: cover;" src="{{idScan +'faceCrop'}}" alt="">
+                                </div>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="selectedFeature == 'liveness'">
+                            <div class="w-full">
+                                <div class="relative flex justify-center enlarge w-6 h-6 ml-20 mt-2 z-10">
+                                    <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(faceScan, 'none')"></mat-icon>
+                                </div>
+                            </div>
+                            <div class="w-full flex justify-center -mt-10 px-4 z-0">
+                                <img class="w-36" src="{{faceScan}}" alt="">
+                            </div>
+                        </ng-container>
+                        
+                        <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'ocr'" 
+                        [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }">
+                            {{'demo_new.match' | transloco }} {{matchLevel}} / {{maxMatchLevel}}
+                        </div>
+                        <div class="pt-4 flex justify-center over-progress" *ngIf="selectedFeature == 'liveness'"
+                        [ngClass]="{'finishOtl':  jsonData.details.success == true , 'failedOTl':  jsonData.details.success == false }">
+                            <span *ngIf=" jsonData.details.success">
+                                {{'demo_new.liveness_w' | transloco}}
+                            </span>
+                            <span *ngIf="! jsonData.details.success">
+                                {{'demo_new.liveness_f' | transloco}}
+                            </span>
+                        </div>
+                        <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
+                            <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'starter': matchLevel == '3' , 'failedOTl': 4 > matchLevel, 'finishOtl': matchLevel > 4 }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{matchLevel*100 / maxMatchLevel}}" [bufferValue]="75">
+                            </mat-progress-bar>
+                        </div>
+                        <div *ngIf="selectedFeature ==='liveness'" class="pb-4 w-full flex justify-center px-4">
+                            <mat-progress-bar *ngIf="matchLevel"
+                                [ngClass]="{'finishOtl':  jsonData.details.success == true , 'failedOTl':  jsonData.details.success == false }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{ jsonData.details.success ? 100 :  2 }}" [bufferValue]="75">
+                            </mat-progress-bar>
+                            <mat-progress-bar *ngIf="!matchLevel &&  jsonData.details.success"
+                                [ngClass]="{'finishOtl':  jsonData.details.success == true , 'failedOTl':  jsonData.details.success == false }"
+                                class="w-full" [mode]="'determined'"
+                                value="{{ jsonData.details.success ? 100 :  2 }}" [bufferValue]="75">
+                            </mat-progress-bar>
+                        </div>
+                        <div *ngIf="selectedFeature ==='liveness'" class="w-full grid grid-cols-1 pb-4">
+                            
+                            <div class="mx-4 flex justify-center age-estimate">
+                                {{ageEstimate}}  
+                            </div>                                
+                            <div class="mx-4 flex justify-center estimate-txt">                                
+                                {{'demo_new.ageEstimate' | transloco}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full mt-4" *ngIf="selectedFeature == 'ocr' ">
+                    <div class="mx-4 card-shadow rounded-2xl">
+
+                        <div class="w-full flex justify-center document-title">
+                            {{'demo_new.documentVerification' | transloco}}
+                        </div>
+                        <div class="-mt-8">
+
+                            <div (click)="changeId('back')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-27" style="top:6.75rem; background-color: #01236D;">
+                                <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-left"></mat-icon>
+                            </div>
+                            <div (click)="changeId('front')" class="relative flex cursor-pointer justify-center w-7 h-7 rounded-full top-20" style="left:92%; background-color: #01236D;">
+                                <mat-icon style="color:white" svgIcon="heroicons_outline:chevron-right"></mat-icon>
+                            </div>
+                            <div class="flex justify-start relative ml-6 enlarge w-6 h-6 z-10">
+                                <mat-icon svgIcon="fullscreen" (click)="profilePreviewDialog(idScan + currentImg.crop, 'none')"></mat-icon>
+                            </div>
+                            <div class="w-full flex justify-center mb-6 -mt-8 z-0">
+                                <img class="px-4" src="{{idScan + currentImg.crop}}" alt="">
+                            </div>
+                        </div>
+                        <div class="w-full px-4">
+                            <div class="w-full grid grid-cols-2 title-table">
+                                <div class="ml-2 flex items-center justify-start">                                
+                                    {{'demo_new.field' | transloco}}
+                                </div>
+                                <div class="mr-2 flex items-center justify-end">
+                                    {{'demo_new.ocrResult' | transloco}}
+                                </div>
+                                <!-- <div class="mx-4 flex items-center justify-center">
+                                    
+                                </div> -->
+                            </div>
+                            <div *ngFor="let data of scannedData | keyvalue; let i = index" 
+                                [ngClass]="{ 'even-table': i % 2 === 0, 'odd-table': i % 2 !== 0 }"
+                                class="w-full grid grid-cols-2 title-table">
+                                <div class="ml-2 w-full flex items-center justify-start truncate">                                
+                                    {{data.key}}
+                                </div>
+                                <div class="w-full flex items-center justify-end ">
+                                    <span class="mr-2 overflow-auto">
+                                        {{data.value}}
+                                    </span>
+                                </div>
+                                <!-- <div class="mx-1 w-full flex items-center justify-center truncate">
+                                    
+                                </div> -->
+                            </div>
+                            
+                        </div>
+                        <div class="h-4"></div>
+                    </div>
+                </div>
+                <div class="w-full my-8 px-4">
+                    <div class="code-area rounded-xl font-700 text-sm ">
+                        <div class="flex justify-center h-5 mb-2 py-4"
+                        style="font-weight: 700;
+                        font-size: 14px;
+                        line-height: 20px;">
+                            {{'demo_new.code' | transloco}}
+                        </div>
+                        <pre class="rounded-xl px-4 max-h-40 mr-4">
+                            &#013;{{jsonData|json}}
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="flex justify-center w-full my-8 pt-8 pb-16">
+                    <button (click)="changeStep('end')" class="verifik-start-phone">
+                        {{'demo_new.finish' | transloco}}
+                    </button>
+                </div>
+             </ng-container>
+             <ng-container *ngIf="currentStep == 'end'">
+                <div class="w-full grid grid-cols-3 pt-4">
+                    <div class="pt-3">
+                        <mat-icon (click)="changeStep('result')" [style.color]="baseColor" style="transform: scale(1.5);" class="ml-8 cursor-pointer"
+                            svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    </div>
+                    <div class="flex justify-center w-full">
+                        <img class="w-22" src="assets/images/demo/vklogo.svg" alt="">
+                    </div>
+                    <div class="flex justify-end mr-4">
+                        <languages [type]="'fab'"></languages>
+                    </div>
+                </div>
+                <div class="flex w-full mt-20 justify-center">
+                    <img class="w-40 h-40" src="assets/images/demo/end.svg" alt="">
+                </div>
+                <div class="flex justify-center w-full mt-4 px-8">
+                    <div class="verifik-welcome-phone w-full">
+                        {{'demo_new.result_title' | transloco}}
+                    </div>
+                </div>
+                <div class="flex justify-center w-full mt-8 px-4">
+                    <div class="verifik-description-phone text-sm mx-12">
+                        {{'demo_new.result_description' | transloco}}
+                    </div>
+                </div>
+
+                <div class="flex justify-center w-full mt-4">
+                    <button (click)="changeDemo()" class="verifik-end-phone change-demo px-10">
+                        {{'demo_new.result_change' | transloco}}
+                    </button>
+                </div>
+
+                <!-- <div class="flex justify-center w-full fixed bottom-5">
+                    <img class="w-40" src="assets/images/demo/vklogo.svg" alt="">
+                </div> -->
+
+             </ng-container>
+
+        </ng-container>
+    </div>
+</div>
