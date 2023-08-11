@@ -127,7 +127,7 @@ export class DemoBiometric {
         });
     }
 
-    async startAuth() {
+    async startLiveness() {
         const _sessionToken = await this._startSession()
         
         console.log(_sessionToken);
@@ -136,7 +136,7 @@ export class DemoBiometric {
         // console.groupEnd();
 
         new BiometricProcessor({
-            type: 'login',
+            type: 'liveness',
             token: _sessionToken,
             callback: (error, response) => {
                 console.log({...error, ...response})
@@ -149,15 +149,15 @@ export class DemoBiometric {
         }, this._service)
     }
 
-    async startEnrollmentDocument() {
+    async startIdScan() {
         const _sessionToken = await this._startSession()
 
-        console.log(_sessionToken);
+        console.log({token:_sessionToken, message:'ocr'});
         // console.group('==== Biometrics ====');
         // console.info("DocumentScan")
         // console.groupEnd();
-
-        new PhotoIDProcessor({
+        
+        new ScanIDProcessor({
             token: _sessionToken,
             callback: (error, response) => {
                 if (error) {
@@ -249,6 +249,69 @@ class BiometricProcessor implements FaceTecFaceScanProcessor {
     }
 }
 
+class ScanIDProcessor implements FaceTecIDScanProcessor {
+    latestIDScanResult: FaceTecIDScanResult | null;
+
+    success: boolean;
+
+    FaceTecIDScanNextStep: FaceTecIDScanNextStep
+    error: any;
+    response: any;
+
+    constructor(private config: configBiometricProcessor, private _service: BiometricService) {
+        new FaceTecSDK.FaceTecSession(
+            this,
+            this.config.token
+        );
+    }
+
+    public processIDScanResultWhileFaceTecSDKWaits(idScanResult: FaceTecIDScanResult, idScanResultCallback: FaceTecIDScanResultCallback) {
+        if (idScanResult.status !== FaceTecSDK.FaceTecIDScanStatus.Success) {
+            idScanResultCallback.cancel();
+            return;
+        }
+        const agent = FaceTecSDK.createFaceTecAPIUserAgentString(idScanResult.sessionId as string);
+
+        var parameters: any = {
+            externalDatabaseRefID: this.config.externalDatabaseRefId,
+            idScan: idScanResult.idScan,
+            agent: agent
+        };
+
+        if (idScanResult.frontImages && idScanResult.frontImages[0]) {
+            parameters.idScanFrontImage = idScanResult.frontImages[0];
+        }
+
+        if (idScanResult.backImages && idScanResult.backImages[0]) {
+            parameters.idScanBackImage = idScanResult.backImages[0];
+        }
+
+        this.error = null
+
+
+        this._service.demoScan(agent, parameters).subscribe((response) => {
+            this.response = response.data
+
+            FaceTecSDK.FaceTecCustomization.setOverrideResultScreenSuccessMessage('');
+
+            return idScanResultCallback.proceedToNextStep(response.data.scanResultBlob);
+
+        }, (err) => {
+            this.error = err.error;
+            idScanResultCallback.cancel()
+        });
+    }
+
+    public onFaceTecSDKCompletelyDone = () => {
+        if (!this.response && !this.error) {
+            this.error = {
+                message: "BiometricValiation_failed"
+            }
+        }
+        this.config.callback(this.error, this.response)
+    }
+
+}
 class PhotoIDProcessor implements FaceTecFaceScanProcessor, FaceTecIDScanProcessor {
     latestSessionResult: FaceTecSessionResult | null;
     latestIDScanResult: FaceTecIDScanResult | null;

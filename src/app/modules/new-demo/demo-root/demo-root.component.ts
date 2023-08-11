@@ -314,11 +314,13 @@ export class DemoRootComponent implements OnInit {
     startBiometric(): void {
         this.biometricsReady = false
         if (this.selectedFeature == "liveness") {
-            this._biometric.startAuth();
+            console.log('we are in liveness')
+            this._biometric.startLiveness();
             return;
         }
+        console.log('we are in ocr')
 
-        this._biometric.startEnrollmentDocument();
+        this._biometric.startIdScan();
     }
 
     profilePreviewDialog(object, part): boolean {
