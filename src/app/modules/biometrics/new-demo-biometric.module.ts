@@ -130,16 +130,16 @@ export class DemoBiometric {
     async startLiveness() {
         const _sessionToken = await this._startSession()
         
-        console.log(_sessionToken);
+        // console.log(_sessionToken);
         // console.group('==== Biometrics ====');
         // console.info("startAuth")
         // console.groupEnd();
 
         new BiometricProcessor({
-            type: 'liveness',
+            type: 'login',
             token: _sessionToken,
             callback: (error, response) => {
-                console.log({...error, ...response})
+                // console.log({...error, ...response})
                 if (error) {
                     return this._error.next(error.message)
                 }
@@ -152,7 +152,7 @@ export class DemoBiometric {
     async startIdScan() {
         const _sessionToken = await this._startSession()
 
-        console.log({token:_sessionToken, message:'ocr'});
+        // console.log({token:_sessionToken, message:'ocr'});
         // console.group('==== Biometrics ====');
         // console.info("DocumentScan")
         // console.groupEnd();
@@ -179,7 +179,7 @@ class BiometricProcessor implements FaceTecFaceScanProcessor {
     response: any;
 
     constructor(private config: configBiometricProcessor, private _service: BiometricService) {
-        console.log(config)
+        // console.log(config)
         new FaceTecSDK.FaceTecSession(
             this,
             config.token
@@ -239,7 +239,7 @@ class BiometricProcessor implements FaceTecFaceScanProcessor {
     }
 
     public onFaceTecSDKCompletelyDone = () => {
-        console.log({})
+        // console.log({})
         if (!this.response && !this.error) {
             this.error = {
                 message: "BiometricValiation_failed"

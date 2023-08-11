@@ -182,7 +182,7 @@ export class DemoRootComponent implements OnInit {
 
             this.jsonData = response;
             this.idScan = response.idScanUrl;
-            console.log(this.scannedData);
+            // console.log(this.scannedData);
             this._changeDetectorRef.markForCheck();
         }
         if(this.selectedFeature === 'liveness'){
@@ -212,7 +212,7 @@ export class DemoRootComponent implements OnInit {
                     this.faceScan = response.faceUrl ;
                     // this.idScan = response.idScanUrl;
                     this.ageEstimate = response.ageEstimateGroup;
-                    console.log(this.jsonData)
+                    // console.log(this.jsonData)
                     this._changeDetectorRef.markForCheck();
         }
     }
@@ -224,7 +224,7 @@ export class DemoRootComponent implements OnInit {
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((isSuccess) => {
-                console.log({success:isSuccess});
+                // console.log({success:isSuccess});
                 this.biometricsReady = isSuccess
             });
 
@@ -232,7 +232,7 @@ export class DemoRootComponent implements OnInit {
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((error) => {
-                console.log({error: error})
+                // console.log({error: error})
                 this.biometricsReady = this._biometric.getStatus()
                 this._changeDetectorRef.markForCheck();
 
@@ -242,7 +242,7 @@ export class DemoRootComponent implements OnInit {
             .pipe(skip(1))
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
-                console.log({response: response})
+                // console.log({response: response})
                 this.biometricsReady = this._biometric.getStatus()
                 if (response.success) {
                     //COMPLETED ALL SERVICES
@@ -314,11 +314,11 @@ export class DemoRootComponent implements OnInit {
     startBiometric(): void {
         this.biometricsReady = false
         if (this.selectedFeature == "liveness") {
-            console.log('we are in liveness')
+            // console.log('we are in liveness')
             this._biometric.startLiveness();
             return;
         }
-        console.log('we are in ocr')
+        // console.log('we are in ocr')
 
         this._biometric.startIdScan();
     }
@@ -343,7 +343,7 @@ export class DemoRootComponent implements OnInit {
 
     changeSelection(data): void {
         this.selectedFeature = data;
-        console.log(data);
+        // console.log(data);
         this._changeDetectorRef.markForCheck();
     }
 
@@ -389,7 +389,7 @@ export class DemoRootComponent implements OnInit {
 
         this.currentStep = data;
         if (this.myDiv && this.myDiv.nativeElement) {
-            console.log('scrolling');
+            // console.log('scrolling');
             this.myDiv.nativeElement.scrollTo({
                 behavior: 'smooth',
                 // block: 'start',
