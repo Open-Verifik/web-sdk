@@ -3,5 +3,5 @@ export const environment = {
     baseUrl: '/',
     projectId: '6332941ccde4f719d9c00f9e',
     redirectUrl: 'https://demo.verifik.co/',
-    biometricUrl: 'https://api.verifik.co/'
+    biometricUrl: '/'
 };

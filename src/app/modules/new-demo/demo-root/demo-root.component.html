@@ -11,22 +11,41 @@
                 <languages class="w-20 h-20" [type]="'fab'" [size]="'normal'"></languages>
             </div>
             <ng-container *ngIf="currentStep == 'start'">
-                <div class="pb-8" style="height: 100vh;">
-                    <div class="flex justify-center w-full ">
+                <div class="pb-8">
+                    <div *ngIf="windowHeigth > 1500"class="flex justify-center w-full ">
                         <!-- <img class="w-1/2" src="assets/images/demo/PcNaveHome.svg" alt=""> -->
                         <img class="w-full" src="assets/images/demo/CelNaveHome.svg" alt="">
                     </div>
-                    <div class="flex justify-center w-full mt-4">
-                        <img class="w-120" src="assets/images/demo/vklogo.svg" alt="">
+                    <div *ngIf="windowHeigth <= 1500" class="flex justify-center w-full pt-12 mt-8">
+                        <img class="w-120" src="assets/images/demo/PcNaveHome.svg" alt="">
+                    </div>
+                    <div class="flex justify-center w-full mt-4"
+                    [ngClass]="{
+                        '-mt-20': windowHeigth > 1500       
+                    }">
+                        <img 
+                        [ngClass]="{
+                            'w-60': windowHeigth <= 1100,
+                            'w-80': windowHeigth <= 1500 && windowHeigth > 1100,
+                            'w-100': windowHeigth > 1500 && windowHeigth < 1650,
+                            'w-120': windowHeigth >= 1650          
+                        }"
+                        class="w-120" src="assets/images/demo/vklogo.svg" alt="">
                     </div>
                     <div class="flex justify-center w-full mt-30">
-                        <div class="start-new text-center start-navyblue">
+                        <div class="start-new text-center start-navyblue"
+                        [ngClass]="{
+                            'text-5xl -mt-15': windowHeigth <= 1400
+                        }">
                             {{'demo_new.home_title' | transloco}}
                         </div>
                     </div>                   
                     
                     <div class="flex justify-center w-full mt-30">
-                        <button (click)="changeStep('select')" class="verifik-start-desktop" >
+                        <button (click)="changeStep('select')" class="verifik-start-desktop" 
+                        [ngClass]="{
+                            '-mt-10': windowHeigth <= 1200      
+                        }">
                             {{'demo_new.start' | transloco}}
                         </button>
                     </div>
@@ -34,23 +53,29 @@
             </ng-container>
 
 
-            <ng-container *ngIf="currentStep == 'select'">
-                <div class="flex justify-end mt-8 mr-8 mb-8">
+            <ng-container *ngIf="currentStep == 'select' && windowHeigth">
+                <div class="flex justify-end mt-8 mr-8 mb-8"
+                [ngClass]="{
+                    '-mt-5': windowHeigth <= 1200     
+                }">
                     <!-- <img class="w-8 h-8" src="assets/images/demo/k.svg" alt=""> -->
                 </div>
-                <div class="flex flex-col w-full items-center mx-8 mb-8">
+                <div class="flex flex-col w-full items-center mb-8">
 
                     <div class="max-60 flex justify-center">
-                        <span class="start-new text-center start-navyblue">
-                            {{'demo_new.welcome' | transloco}}
-                            <ng-container class="start-new start-lightblue">
-                                {{'demo_new.verifik' | transloco}}
-                            </ng-container>
+                        <span class="start-new text-center start-navyblue"
+                        [ngClass]="{
+                            'text-3xl': windowHeigth <= 1200     
+                        }">
+                            {{'demo_new.welcome' | transloco}} {{'demo_new.verifik' | transloco}}
                         </span>
                     </div>
                     <div class="max-60 borderb-steps-xl"></div>
                     <div class="max-60 flex justify-center">
-                        <span class="start-sub text-center start-navyblue">
+                        <span class="start-sub text-center start-navyblue"
+                        [ngClass]="{
+                            'text-xl': windowHeigth <= 1200     
+                        }">
                             {{'demo_new.select_service' | transloco}}
 
                         </span>
@@ -58,18 +83,35 @@
                 </div>
                 <div class="w-full">
 
-                    <div class="flex justify-center">
+                    <div class="flex justify-center"
+                    [ngClass]="{
+                        '-mt-10': windowHeigth <= 1200     
+                    }">
                         <div [ngClass]="{'selected-option ': selectedFeature ==='liveness' ? true : false}"
                             (click)="changeSelection('liveness')"
-                            class="selectable-feature cursor-pointer flex justify-center items-center flex-row">
-                            <div class="mx-5">
-                                <p class="option-title mb-2">
+                            class="selectable-feature cursor-pointer flex justify-center items-center flex-row"
+                            [ngClass]="{
+                                'h-64': windowHeigth <= 1200,     
+                                'h-70': windowHeigth > 1200 && windowHeigth <= 1500,     
+                                'h-80': windowHeigth > 1500     
+                            }">
+                            <div class="mx-5 py-2">
+                                <p class="option-title mb-2"
+                                [ngClass]="{
+                                    'text-3xl': windowHeigth <= 1200     
+                                }">
                                     {{'demo_new.liveness_title' | transloco}}
                                 </p>
-                                <p class="option-subtitle mb-2">
+                                <p class="option-subtitle mb-2"
+                                [ngClass]="{
+                                    'text-2xl': windowHeigth <= 1200     
+                                }">
                                     {{'demo_new.liveness_subtitle' | transloco}}
                                 </p>
-                                <p class="option-description">
+                                <p class="option-description"
+                                [ngClass]="{
+                                    'text-xl': windowHeigth <= 1200     
+                                }">
                                     {{'demo_new.liveness_description' | transloco}}
                                 </p>
                             </div>
@@ -79,15 +121,29 @@
                     <div class="flex justify-center mt-6">
                         <div [ngClass]="{'selected-option ':selectedFeature ==='ocr' ? true : false}"
                             (click)="changeSelection('ocr')"
-                            class="selectable-feature  cursor-pointer flex justify-center items-center flex-row">
-                            <div class="mx-5">
-                                <p class="option-title mb-2">
+                            class="selectable-feature  cursor-pointer flex justify-center items-center flex-row"
+                            [ngClass]="{
+                                'h-64': windowHeigth <= 1200,     
+                                'h-70': windowHeigth > 1200 && windowHeigth <= 1500,     
+                                'h-80': windowHeigth > 1500     
+                            }">>
+                            <div class="mx-5 py-2">
+                                <p class="option-title mb-2"
+                                [ngClass]="{
+                                    'text-3xl': windowHeigth <= 1200     
+                                }">
                                     {{'demo_new.ocr_title' | transloco}}
                                 </p>
-                                <p class="option-subtitle mb-2">
+                                <p class="option-subtitle mb-2"
+                                [ngClass]="{
+                                    'text-2xl': windowHeigth <= 1200     
+                                }">
                                     {{'demo_new.ocr_subtitle' | transloco}}
                                 </p>
-                                <p class="option-description">
+                                <p class="option-description"
+                                [ngClass]="{
+                                    'text-xl': windowHeigth <= 1200     
+                                }">
                                     {{'demo_new.ocr_description' | transloco}}
                                 </p>
                             </div>
@@ -101,8 +157,19 @@
                     </button>
                 </div>
 
-                <div class="flex justify-center w-full my-8">
-                    <img class="w-120 mt-20" src="assets/images/demo/vklogo.svg" alt="">
+                <div class="flex justify-center w-full" 
+                [ngClass]="{
+                    'mt-4': windowHeigth <= 1200,     
+                    'mt-8': windowHeigth>1200 && windowHeigth <= 1400,     
+                    'mt-12': windowHeigth>1400 && windowHeigth <= 1600,     
+                    'mt-20': windowHeigth>1600     
+                }">
+                    <img  [ngClass]="{
+                        'w-60': windowHeigth <= 1200,     
+                        'w-80': windowHeigth>1200 && windowHeigth <= 1400,     
+                        'w-100': windowHeigth>1400 && windowHeigth <= 1600,     
+                        'w-120': windowHeigth>1600     
+                    }"src="assets/images/demo/vklogo.svg" alt="">
                 </div>
 
             </ng-container>
@@ -118,11 +185,17 @@
                         <!-- <img class="w-22" src="assets/images/demo/vklogo.svg" alt=""> -->
                     </div>
                 </div>
-                <div class="flex justify-center">
+                <div class="flex justify-center" *ngIf="windowHeigth">
                     <div class="flex flex-col max-70">
                         <div class="flex justify-center mb-1"
                         [ngClass]="{'mt-40': selectedFeature === 'liveness'}">
-                            <p class="mt-40 mb-20 start-new start-navyblue text-center">
+                            <p class=" mb-20 start-new start-navyblue text-center"
+                            [ngClass]="{
+                                'text-4xl': windowHeigth <= 1200,     
+                                'mt-10': windowHeigth >1200 && windowHeigth <= 1400,     
+                                'mt-30': windowHeigth >1400 && windowHeigth <= 1600,     
+                                'mt-40': windowHeigth >= 1601     
+                            }">
                                 <ng-container *ngIf="selectedFeature ==='liveness'">
                                     {{'demo_new.liveness2' |transloco}}
                                 </ng-container>
@@ -251,7 +324,8 @@
                             </button>
                         </div>
                         
-                        <div class="flex justify-center w-full mt-80">
+                        <div class="flex justify-center w-full mt-80"
+                        *ngIf="windowHeigth > 1600">
                             <img class="w-120" src="assets/images/demo/vklogo.svg" alt="">
                         </div>
                     </div>
@@ -273,7 +347,7 @@
                 </div>
 
                 <div class="w-full flex mt-4 justify-center">
-                    <span class="start-new start-navyblue">
+                    <span class="start-new start-navyblue text-center">
                         {{'demo_new.completed' | transloco}}
                     </span>
                 </div>
@@ -282,7 +356,7 @@
                 <div class="w-full flex justify-center mt-4">
                     <div class="max-80 mx-4 card-shadow rounded-2xl" *ngIf="selectedFeature == 'liveness'">
 
-                        <div class="w-full title-result flex justify-center py-4 font-700">
+                        <div class="w-full title-result flex justify-center py-4 font-700 text-center">
                             <!-- <ng-container *ngIf="selectedFeature == 'ocr'">
                                 Face Verification
                             </ng-container> -->
@@ -308,10 +382,10 @@
                         </ng-container> -->
                         <ng-container *ngIf="selectedFeature == 'liveness'">
                             <div class="w-full flex justify-center px-4">
-                                <div class="absolute enlarge w-12 h-12 mt-2 -ml-60">
+                                <!-- <div class="absolute enlarge w-12 h-12 mt-2 -ml-60">
                                     <mat-icon svgIcon="fullscreen" style="margin-top: 0.75rem;transform: scale(3);margin-left: 0.75rem;"
                                     (click)="profilePreviewDialog(faceScan, 'none')"></mat-icon>
-                                </div>
+                                </div> -->
                                 <img class="w-80" src="{{faceScan}}" alt="">
                             </div>
                         </ng-container>
@@ -322,7 +396,7 @@
                         </div>
                         <div class="pt-4 flex type-result justify-center start-navyblue" *ngIf="selectedFeature == 'liveness'"
                         [ngClass]="{'finishOtl': jsonData.details.success == true , 'failedOTl': jsonData.details.success == false }">
-                            {{  jsonData.details.success ? 'Liveness Confirmed' : 'Liveness Failed'}}
+                            {{  jsonData.details.liveness ? 'Liveness Confirmed' : 'Liveness Failed'}}
                         </div>
                         <div *ngIf="selectedFeature ==='ocr'" class="pb-4 w-full flex justify-center px-4">
                             <mat-progress-bar *ngIf="matchLevel"
@@ -338,7 +412,7 @@
                                 value="{{ jsonData.details.success ? 100 :  2 }}" [bufferValue]="75">
                             </mat-progress-bar>
                         </div>
-                        <div *ngIf="selectedFeature ==='liveness'" class="w-full grid grid-cols-1 pb-4">
+                        <div *ngIf="selectedFeature ==='liveness' && ageEstimate" class="w-full grid grid-cols-1 pb-4">
                             
                             <div class="mx-4 flex type-result justify-center type-result start-navyblue">
                                 {{ageEstimate}}  
@@ -425,8 +499,13 @@
                         {{'demo_new.finish' | transloco}}
                     </button>
                 </div>
-                <div class="flex justify-center w-full mt-20">
-                    <img class="w-120" src="assets/images/demo/vklogo.svg" alt="">
+                <div class="flex justify-center w-full my-20">
+                    <img [ngClass]="{
+                        'w-60': windowHeigth <= 1100,
+                        'w-80': windowHeigth <= 1500 && windowHeigth > 1100,
+                        'w-100': windowHeigth > 1500 && windowHeigth < 1650,
+                        'w-120': windowHeigth >= 1650          
+                    }" src="assets/images/demo/vklogo.svg" alt="">
                 </div>
             </ng-container>
 
@@ -440,25 +519,37 @@
                         <!-- <img class="w-22" src="assets/images/demo/vklogo.svg" alt=""> -->
                     </div>
                     <div class="flex justify-end mr-4">
-                        <languages [type]="'fab'"></languages>
+                        <!-- <languages [type]="'fab'"></languages> -->
                     </div>
                 </div>
                 <div class="flex w-full mt-20 justify-center">
-                    <img class="w-120" src="assets/images/demo/end.svg" alt="">
+                    <img src="assets/images/demo/end.svg" alt=""
+                    [ngClass]="{
+                        'w-100':  windowHeigth <= 1600,
+                        'w-120':  windowHeigth > 1600
+                    }">
                 </div>
                 <div class="flex justify-center w-full mt-4 px-8">
-                    <div class="start-new text-center">
+                    <div class="start-new text-center"
+                    [ngClass]="{
+                        'text-4xl':  windowHeigth <= 1600    
+                    }">
                         {{'demo_new.result_title' | transloco}}
                     </div>
                 </div>
-                <div class="w-full borderb-steps-xl"></div>
+                <div class="w-full flex justify-center">
+                    <div class="max-80 borderb-steps-xl"></div>
+                </div>
                 <div class="flex justify-center w-full mt-8 px-4">
-                    <div class="start-new text-center mx-12">
+                    <div class="start-new text-center mx-12"
+                    [ngClass]="{
+                        'text-4xl':  windowHeigth <= 1600    
+                    }">
                         {{'demo_new.result_description' | transloco}}
                     </div>
                 </div>
                 <div class="flex justify-center w-full mt-4">
-                    <button (click)="changeDemo()" class="verifik-start-desktop change-demo px-10">
+                    <button (click)="changeDemo()" class="verifik-start-desktop">
                         {{'demo_new.result_change' | transloco}}
                     </button>
                 </div>

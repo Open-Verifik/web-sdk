@@ -3,10 +3,12 @@ import {
     ChangeDetectorRef,
     Component,
     OnDestroy,
+    Renderer2,
     OnInit,
     ViewEncapsulation,
     ElementRef,
-    ViewChild
+    ViewChild,
+    HostListener
 } from "@angular/core";
 import {
     FormBuilder,
@@ -80,7 +82,7 @@ export class DemoRootComponent implements OnInit {
     phoneMode: boolean;
     bigScreenMode: boolean;
     selectedFeature: any;
-    // selectedFeature: any = 'ocr';
+    // selectedFeature: any = 'liveness';
     currentStep: any = "start";
     // currentStep: any = 'result';
     baseColor: any = "#0036E7";
@@ -98,6 +100,9 @@ export class DemoRootComponent implements OnInit {
     qrText: string;
     intervalHideSnackBar: any;
     response: any;
+    windowWidth: number;
+    windowHeigth: number;
+
 
     constructor(
         private _formBuilder: FormBuilder,
@@ -111,8 +116,11 @@ export class DemoRootComponent implements OnInit {
         private _demoService: DemoService,
         private route: ActivatedRoute
     ) {
+        this.windowWidth = window.innerWidth; 
+        console.log(this.windowWidth);
+        this.mediaWatchers();
         this.translocoService.setActiveLang("es");
-        // this.init();
+        this.init();
         this._demoService.navigationHandler$.subscribe((result) => {
             if (result && result.hasToken) {
                 this.loadBiometrics();
@@ -121,6 +129,46 @@ export class DemoRootComponent implements OnInit {
             }
         });
         this._changeDetectorRef.markForCheck();
+        
+    }
+
+    @HostListener('window:resize', ['$event']) 
+
+    onResize(event: Event): void {
+        this.windowWidth = (<Window>event.target).innerWidth;
+        this.windowHeigth = (<Window>event.target).innerHeight;
+
+        // Check if the window width has a certain number of pixels
+        if (this.windowWidth >= 768) { // For example, 768 pixels
+        // Perform actions when screen width is greater than or equal to 768 pixels
+        }
+    }
+
+    mediaWatchers():void{
+        this._fuseMediaWatcherService.onMediaChange$
+        .pipe(takeUntil(this._unsubscribeAll))
+        .subscribe(({
+            matchingAliases
+        }) => {
+            // this.windowWidth = (<Window>event.target).innerWidth;
+            this.windowHeigth = window.innerHeight;
+            console.log(this.windowHeigth)
+            this.isScreenSmall = Boolean(!matchingAliases.includes('lg') && matchingAliases.includes('md'));
+            this.lgScreen = matchingAliases.includes('lg');
+            this.phoneMode = Boolean(!matchingAliases.includes('lg') && !matchingAliases.includes('md') && !matchingAliases.includes('sm'));
+            this.tabletMode = Boolean(!matchingAliases.includes('lg') && !matchingAliases.includes('md') && matchingAliases.includes('sm'));
+            this.laptopMode = Boolean(!matchingAliases.includes('lg') && matchingAliases.includes('md') && matchingAliases.includes('sm'));
+            this.bigScreenMode = Boolean(matchingAliases.includes('lg') && matchingAliases.includes('md') && matchingAliases.includes('sm'));
+
+            console.log({
+                phone: this.phoneMode,
+                table: this.tabletMode,
+                laptop: this.laptopMode,
+                bigScreen: this.bigScreenMode
+            })
+            // Mark for check
+            this._changeDetectorRef.markForCheck();
+        });
     }
 
     init():void{
@@ -186,32 +234,29 @@ export class DemoRootComponent implements OnInit {
             this._changeDetectorRef.markForCheck();
         }
         if(this.selectedFeature === 'liveness'){
-            const response ={
-                "faceUrl": "https://app.verifik.co/api/liveness/image?tid=db071b13-e6af-4153-8ffb-bd3ad3a8fc01",
-                details:{
-                    "externalDatabaseRefID": "61a6dbaae72e2ab4fbb4dee9-64c83c8c734d534cbf683ba0",
-                    "retryScreenEnumInt": 0,
-                    "platformTypeEnumInt": 2,
-                    "deviceSDKVersion": "9.6.34",
-                    "scanResultBlob": "AAEAAABTAAAAAAAAAPpLSb641k5JrnD+UxmDXGuivFpBw2koHmVEyaFy8B7coneWcl+XP1dILJYtM7z42/Uq3SkuIrfSui7IY9HoKB5i+XXwyjRhjTKoJSYNQ+nnIKro",
-                    "isLikelyOnFraudList": false,
-                    "isLikelyDuplicate": false,
-                    "enrollForSearchAllUserListResult": false,
-                    "ageV2GroupEnumInt": 5,
-                    "ageEstimateGroupEnumInt": 4,
-                    "ageEstimateGroupV2EnumInt": 5,
+            const response =
+                {
+                    "type": "liveness3d",
+                    "fraudData": [],
+                    "_id": "64d6b8d64a1925dcfbecbf2f",
+                    "deleted": false,
                     "success": true,
-                    "wasProcessed": true,
-                },
-                "ageEstimateGroup": "Age Over 16",
-            }
+                    "faceUrl": "https://app.verifik.co/api/liveness/image?tid=66340d83-31e0-4d65-bfb9-099a0c062379",
+                    "details": {
+                      "platform": "web",
+                      "deviceModel": "iPhoneX",
+                      "liveness": true
+                    },
+                    "scanResultBlob": "AAEAAABTAAAAAAAAAGqQ8vbI1Bm4Y3qh68k7hggcLDuoyrnhVUftgatyFk43/8UVtXLwEoqTPjXPYatpqPMfXJqS70V8uCrk1fMpG5jnei1HmQnJX2anuYdei+/QRy3y",
+                    "wasProcessed": true
+                }
 
             this.matchLevel = response.details["matchLevel"];
                     this.maxMatchLevel = response.details["maxMatchLevel"];
                     this.jsonData = response;
                     this.faceScan = response.faceUrl ;
                     // this.idScan = response.idScanUrl;
-                    this.ageEstimate = response.ageEstimateGroup;
+                    // this.ageEstimate = response.ageEstimateGroup;
                     // console.log(this.jsonData)
                     this._changeDetectorRef.markForCheck();
         }
