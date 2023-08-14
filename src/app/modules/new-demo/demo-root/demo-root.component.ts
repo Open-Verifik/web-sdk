@@ -120,14 +120,14 @@ export class DemoRootComponent implements OnInit {
         console.log(this.windowWidth);
         this.mediaWatchers();
         this.translocoService.setActiveLang("es");
-        this.init();
-        this._demoService.navigationHandler$.subscribe((result) => {
-            if (result && result.hasToken) {
-                this.loadBiometrics();
-                this.currentStep = "select";
-                this._changeDetectorRef.markForCheck();
-            }
-        });
+        // this.init();
+        // this._demoService.navigationHandler$.subscribe((result) => {
+        //     if (result && result.hasToken) {
+        //         this.loadBiometrics();
+        //         this.currentStep = "select";
+        //         this._changeDetectorRef.markForCheck();
+        //     }
+        // });
         this._changeDetectorRef.markForCheck();
         
     }
@@ -152,7 +152,7 @@ export class DemoRootComponent implements OnInit {
         }) => {
             // this.windowWidth = (<Window>event.target).innerWidth;
             this.windowHeigth = window.innerHeight;
-            console.log(this.windowHeigth)
+            // console.log(this.windowHeigth)
             this.isScreenSmall = Boolean(!matchingAliases.includes('lg') && matchingAliases.includes('md'));
             this.lgScreen = matchingAliases.includes('lg');
             this.phoneMode = Boolean(!matchingAliases.includes('lg') && !matchingAliases.includes('md') && !matchingAliases.includes('sm'));
@@ -160,12 +160,12 @@ export class DemoRootComponent implements OnInit {
             this.laptopMode = Boolean(!matchingAliases.includes('lg') && matchingAliases.includes('md') && matchingAliases.includes('sm'));
             this.bigScreenMode = Boolean(matchingAliases.includes('lg') && matchingAliases.includes('md') && matchingAliases.includes('sm'));
 
-            console.log({
-                phone: this.phoneMode,
-                table: this.tabletMode,
-                laptop: this.laptopMode,
-                bigScreen: this.bigScreenMode
-            })
+            // console.log({
+            //     phone: this.phoneMode,
+            //     table: this.tabletMode,
+            //     laptop: this.laptopMode,
+            //     bigScreen: this.bigScreenMode
+            // })
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
