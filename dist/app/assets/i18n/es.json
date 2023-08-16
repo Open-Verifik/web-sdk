@@ -710,6 +710,8 @@
         "home_2": "Integración 3D:2D",
         "liveness": "Verificación de vida",
         "OCR": "Integración 3D:2D",
+        "liveness_title": "Escaneo biometrico",
+        "liveness_description": "Realiza un escaneo facial para generar una validación de vida.",
         "title": "Pruebas",
         "description": "Realicemos una prueba del servicio",
         "camera_permission": "Asegúrate de otorgar los permisos correspondientes, te recomendamos utilizar tu teléfono para obtener mejores resultados.",

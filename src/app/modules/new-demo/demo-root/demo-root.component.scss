@@ -292,7 +292,21 @@ button:disabled {
         letter-spacing: 0.1px;
         color: #FFFFFF;
     }
+    .verifik-start-tablet {
+        width: 160px;
+        height: 49px;
+        background: #0036E7;
+        border-radius: 100px;
+        font-weight: 500;
+        font-size: 26px;
+        line-height: 20px;
+        letter-spacing: 0.1px;
+        color: #FFFFFF;
+    }
 
+    .tablet-line-height{
+        line-height: 35px !important;
+    }
 }
 
 .home-image {

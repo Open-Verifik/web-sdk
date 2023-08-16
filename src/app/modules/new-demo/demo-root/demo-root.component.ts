@@ -422,7 +422,8 @@ export class DemoRootComponent implements OnInit {
         }
     }
 
-    changeStep(data): void {
+    changeStep(data, direction = null): void {
+        if(direction === 'back' && data === 'select') this.selectedFeature = undefined;
         if (data === "select" && this.currentStep != "instructions") {
             this.reviewForm();
             return;
