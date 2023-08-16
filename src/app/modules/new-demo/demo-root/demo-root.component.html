@@ -78,9 +78,9 @@
                             {{'demo_new.welcome' | transloco}} {{'demo_new.verifik' | transloco}}
                         </span>
                     </div>
-                    <div class="max-60 borderb-steps-xl"></div>
+                    <div class="max-60 borderb-steps-xl py-1"></div>
                     <div class="max-60 flex justify-center">
-                        <span class="start-sub text-center start-navyblue"
+                        <span class="start-sub text-center start-navyblue mb-2"
                         [ngClass]="{
                             'text-xl tablet-line-height': windowHeigth <= 1200     
                         }">
@@ -101,14 +101,14 @@
                             [ngClass]="{
                                 'selected-option ':selectedFeature ==='liveness' ? true : false,
                                 'h-64': windowHeigth <= 1200,     
-                                'h-70': windowHeigth > 1200 && windowHeigth <= 1500,     
+                                'h-68': windowHeigth > 1200 && windowHeigth <= 1500,     
                                 'h-80': windowHeigth > 1500     
                             }">
                             <div class="mx-5 py-2">
                                 <p class="option-title mb-2"
                                 [ngClass]="{
                                     'text-2xl': windowHeigth <= 1200,     
-                                    'text-3xl': windowHeigth > 1200 && windowHeigth <1500     
+                                    'text-4xl': windowHeigth > 1200 && windowHeigth <1500     
                                 }">
                                     {{'demo_new.liveness_title' | transloco}}
                                 </p>
@@ -137,14 +137,14 @@
                             [ngClass]="{
                                 'selected-option ':selectedFeature ==='ocr' ? true : false,
                                 'h-64': windowHeigth <= 1200,     
-                                'h-70': windowHeigth > 1200 && windowHeigth <= 1500,     
+                                'h-68': windowHeigth > 1200 && windowHeigth <= 1500,     
                                 'h-80': windowHeigth > 1500    
                             }">
                             <div class="mx-5 py-2">
                                 <p class="option-title mb-2"
                                 [ngClass]="{
                                     'text-2xl': windowHeigth <= 1200,     
-                                    'text-3xl': windowHeigth > 1200 && windowHeigth <1500      
+                                    'text-4xl': windowHeigth > 1200 && windowHeigth <1500      
                                 }">
                                     {{'demo_new.ocr_title' | transloco}}
                                 </p>
@@ -214,8 +214,8 @@
                         }">
                             <p class=" mb-20 start-new start-navyblue text-center"
                             [ngClass]="{
-                                'text-4xl mb-2': windowHeigth <= 1200,     
-                                'mt-15': selectedFeature === 'ocr' && windowHeigth < 1200,
+                                'text-4xl mb-2 line-40': windowHeigth <= 1200,     
+                                'mt-15 line-40': selectedFeature === 'ocr' && windowHeigth < 1200,
                                 'mt-10 mb-6': windowHeigth >1200 && windowHeigth <= 1400,     
                                 'mt-30 mb-10': windowHeigth >1400 && windowHeigth <= 1600,     
                                 'mt-40 mb-20': windowHeigth >= 1601     
@@ -669,10 +669,10 @@
                                 </ng-container>
                         </span>
                     </div>
-                    <div class="flex justify-center w-full">
-                        <div class="max-60 borderb-steps"></div>
+                    <div class="flex justify-center w-full py-1">
+                        <div class="max-60 borderb-steps "></div>
                     </div>
-                    <div class="flex justify-center w-full">
+                    <div class="flex justify-center w-full mb-2">
                         <div class="max-60 flex justify-center">
                             <span class="verifik-form-text-phone text-center start-navyblue">
                                 {{'demo_new.select_service' | transloco}}
@@ -739,7 +739,7 @@
                     </div>
                     <div class="w-full flex justify-center "
                     [ngClass]="{
-                        'mt-8 mb-2': windowHeigth <= 667,
+                        'mt-2 mb-2': windowHeigth <= 667,
                         'mt-12 mb-16': windowHeigth >= 760 && windowHeigth > 667,
                         'mt-18 mb-12': windowHeigth > 1000 && windowHeigth < 760
                     }">
