@@ -806,7 +806,7 @@
         "liveness": "Life Verification",
         "liveness2": "Life Verification Demonstration",
         "OCR": "3D:2D Integration",
-        "OCR2": "3D Enrollment and Legal Document Comparison Demonstration",
+        "OCR2": "OCR Document Scanning and Information Extraction Demonstration",
         "title": "Tests",
         "description": "Let's perform a service test",
         "camera_permission": "Make sure to grant the necessary permissions; we recommend using your phone for better results.",
