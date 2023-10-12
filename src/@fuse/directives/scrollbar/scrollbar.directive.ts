@@ -1,19 +1,19 @@
-import { Directive, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Router } from '@angular/router';
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Platform } from '@angular/cdk/platform';
-import { fromEvent, Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
-import PerfectScrollbar from 'perfect-scrollbar';
-import { merge } from 'lodash-es';
+import { Directive, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Router } from '@angular/router';
 import { ScrollbarGeometry, ScrollbarPosition } from '@fuse/directives/scrollbar/scrollbar.types';
+import { merge } from 'lodash-es';
+import PerfectScrollbar from 'perfect-scrollbar';
+import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
 
 /**
  * Wrapper directive for the Perfect Scrollbar: https://github.com/mdbootstrap/perfect-scrollbar
  */
 @Directive({
-    selector: '[fuseScrollbar]',
-    exportAs: 'fuseScrollbar'
+    selector  : '[fuseScrollbar]',
+    exportAs  : 'fuseScrollbar',
+    standalone: true,
 })
 export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
 {
@@ -35,7 +35,7 @@ export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
     constructor(
         private _elementRef: ElementRef,
         private _platform: Platform,
-        private _router: Router
+        private _router: Router,
     )
     {
     }
@@ -102,11 +102,13 @@ export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
             }
 
             // Destroy and re-init the PerfectScrollbar to update its options
-            setTimeout(() => {
+            setTimeout(() =>
+            {
                 this._destroy();
             });
 
-            setTimeout(() => {
+            setTimeout(() =>
+            {
                 this._init();
             });
         }
@@ -121,10 +123,10 @@ export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
         fromEvent(window, 'resize')
             .pipe(
                 takeUntil(this._unsubscribeAll),
-                debounceTime(150)
+                debounceTime(150),
             )
-            .subscribe(() => {
-
+            .subscribe(() =>
+            {
                 // Update the PerfectScrollbar
                 this.update();
             });
@@ -138,7 +140,7 @@ export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
         this._destroy();
 
         // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next();
+        this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
 
@@ -204,14 +206,14 @@ export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
         {
             scrollbarPosition = new ScrollbarPosition(
                 this._ps.reach.x || 0,
-                this._ps.reach.y || 0
+                this._ps.reach.y || 0,
             );
         }
         else
         {
             scrollbarPosition = new ScrollbarPosition(
                 this._elementRef.nativeElement.scrollLeft,
-                this._elementRef.nativeElement.scrollTop
+                this._elementRef.nativeElement.scrollTop,
             );
         }
 
@@ -389,7 +391,8 @@ export class FuseScrollbarDirective implements OnChanges, OnInit, OnDestroy
 
             const cosParameter = (oldValue - value) / 2;
 
-            const step = (newTimestamp: number): void => {
+            const step = (newTimestamp: number): void =>
+            {
                 scrollCount += Math.PI / (speed / (newTimestamp - oldTimestamp));
                 newValue = Math.round(value + cosParameter + cosParameter * Math.cos(scrollCount));
 

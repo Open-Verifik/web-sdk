@@ -67,7 +67,7 @@ export class AuthUtils
         if ( str.length % 4 === 1 )
         {
             throw new Error(
-                '\'atob\' failed: The string to be decoded is not correctly encoded.'
+                '\'atob\' failed: The string to be decoded is not correctly encoded.',
             );
         }
 
@@ -107,8 +107,8 @@ export class AuthUtils
     {
         return decodeURIComponent(
             Array.prototype.map
-                 .call(this._b64decode(str), (c: any) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                 .join('')
+                .call(this._b64decode(str), (c: any) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join(''),
         );
     }
 

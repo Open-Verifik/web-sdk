@@ -1,4 +1,4 @@
-<div class="fuse-vertical-navigation-wrapper" style="background-color: #01236D !important;">
+<div class="fuse-vertical-navigation-wrapper">
 
     <!-- Header -->
     <div class="fuse-vertical-navigation-header">
@@ -14,11 +14,6 @@
 
         <!-- Content header -->
         <div class="fuse-vertical-navigation-content-header">
-            <div class="flex items-center justify-center h-20">
-                <!-- <img class="w-16" src="https://cdn.gomat.co/verifik/logo-nbg.png" alt="Logo image"> -->
-                <img *ngIf="hover" class="w-20" src="https://cdn.gomat.co/verifik/newverifiklogo.png" alt="Logo image">
-                <img *ngIf="!hover" class="w-20" src="https://cdn.gomat.co/verifik/newverifklogo720.png" alt="Logo image">
-            </div>
             <ng-content select="[fuseVerticalNavigationContentHeader]"></ng-content>
         </div>
 
@@ -26,7 +21,7 @@
         <ng-container *ngFor="let item of navigation; trackBy: trackByFn">
 
             <!-- Skip the hidden items -->
-            <ng-container *ngIf="!item.hidden">
+            <ng-container *ngIf="(item.hidden && !item.hidden(item)) || !item.hidden">
 
                 <!-- Aside -->
                 <ng-container *ngIf="item.type === 'aside'">
@@ -73,9 +68,7 @@
                 <ng-container *ngIf="item.type === 'spacer'">
                     <fuse-vertical-navigation-spacer-item
                         [item]="item"
-                        [name]="name"
-                        [hover]="hover"
-                        class="items-center justify-items-center place-content-center"></fuse-vertical-navigation-spacer-item>
+                        [name]="name"></fuse-vertical-navigation-spacer-item>
                 </ng-container>
 
             </ng-container>

@@ -1,13 +1,4 @@
-:root{
-    --k-text-primary: #01236D;
-}
-
-.k-text-primary{
-    color: var(--k-text-primary);
-}
-
-@for $i from 1 through 10 {
-    .fw-#{$i}00{
-        font-weight: $i*100 !important;
-    }
-}
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */

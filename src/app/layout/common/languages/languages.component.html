@@ -1,23 +1,8 @@
 <!-- Button -->
 <button
-    mat-icon-button *ngIf="type != 'fab'"
+    mat-icon-button
     [matMenuTriggerFor]="languages">
     <ng-container *ngTemplateOutlet="flagImage; context: {$implicit: activeLang}"></ng-container>
-    <span class="ml-2">
-        {{'change_language' | transloco}}
-    </span>
-</button>
-
-<!-- FAB ICON  -->
-<button *ngIf="type == 'fab' && size === 'mini'"
-    mat-mini-fab class="overflow-hidden"
-    [matMenuTriggerFor]="languages">
-    <ng-container *ngTemplateOutlet="flagFabImage; context: {$implicit: activeLang}"></ng-container>
-</button>
-<button *ngIf="type == 'fab' && size === 'normal'"
-    mat-fab class="overflow-hidden"
-    [matMenuTriggerFor]="languages">
-    <ng-container *ngTemplateOutlet="flagFabImage; context: {$implicit: activeLang}"></ng-container>
 </button>
 
 <!-- Language menu -->
@@ -44,23 +29,6 @@
         <span class="absolute inset-0 ring-1 ring-inset ring-black ring-opacity-10"></span>
         <img
             class="w-full"
-            [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
-            [alt]="'Flag image for ' + lang">
-    </span>
-</ng-template>
-
-<!-- Flag FAB image template -->
-<ng-template
-    let-lang
-    #flagFabImage>
-    <span class="relative w-18 shadow rounded-sm overflow-hidden">
-        <span class="absolute inset-0 ring-1 ring-inset ring-black ring-opacity-10"></span>
-        <img *ngIf="size ==='mini'"
-            class="w-14 h-12"
-            [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
-            [alt]="'Flag image for ' + lang">
-        <img *ngIf="size ==='normal'"
-            class="w-20 h-20"
             [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
             [alt]="'Flag image for ' + lang">
     </span>

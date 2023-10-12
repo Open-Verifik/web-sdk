@@ -1,14 +1,16 @@
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { FuseVerticalNavigationComponent } from '@fuse/components/navigation/vertical/vertical.component';
 import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
 import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
+import { FuseVerticalNavigationComponent } from '@fuse/components/navigation/vertical/vertical.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector       : 'fuse-vertical-navigation-divider-item',
     templateUrl    : './divider.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone     : true,
+    imports        : [NgClass],
 })
 export class FuseVerticalNavigationDividerItemComponent implements OnInit, OnDestroy
 {
@@ -23,7 +25,7 @@ export class FuseVerticalNavigationDividerItemComponent implements OnInit, OnDes
      */
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
-        private _fuseNavigationService: FuseNavigationService
+        private _fuseNavigationService: FuseNavigationService,
     )
     {
     }
@@ -42,9 +44,9 @@ export class FuseVerticalNavigationDividerItemComponent implements OnInit, OnDes
 
         // Subscribe to onRefreshed on the navigation component
         this._fuseVerticalNavigationComponent.onRefreshed.pipe(
-            takeUntil(this._unsubscribeAll)
-        ).subscribe(() => {
-
+            takeUntil(this._unsubscribeAll),
+        ).subscribe(() =>
+        {
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
@@ -56,7 +58,7 @@ export class FuseVerticalNavigationDividerItemComponent implements OnInit, OnDes
     ngOnDestroy(): void
     {
         // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next();
+        this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
 }

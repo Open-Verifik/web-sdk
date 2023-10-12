@@ -1,18 +1,29 @@
+import { NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import { FuseFullscreenComponent } from '@fuse/components/fullscreen';
+import { FuseLoadingBarComponent } from '@fuse/components/loading-bar';
 import { FuseNavigationService, FuseVerticalNavigationComponent } from '@fuse/components/navigation';
-import { Navigation } from 'app/core/navigation/navigation.types';
+import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { NavigationService } from 'app/core/navigation/navigation.service';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Navigation } from 'app/core/navigation/navigation.types';
+import { LanguagesComponent } from 'app/layout/common/languages/languages.component';
+import { MessagesComponent } from 'app/layout/common/messages/messages.component';
+import { NotificationsComponent } from 'app/layout/common/notifications/notifications.component';
+import { QuickChatComponent } from 'app/layout/common/quick-chat/quick-chat.component';
+import { SearchComponent } from 'app/layout/common/search/search.component';
+import { ShortcutsComponent } from 'app/layout/common/shortcuts/shortcuts.component';
+import { UserComponent } from 'app/layout/common/user/user.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector     : 'dense-layout',
     templateUrl  : './dense.component.html',
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone   : true,
+    imports      : [FuseLoadingBarComponent, FuseVerticalNavigationComponent, MatButtonModule, MatIconModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, NotificationsComponent, UserComponent, NgIf, RouterOutlet, QuickChatComponent],
 })
 export class DenseLayoutComponent implements OnInit, OnDestroy
 {
@@ -30,14 +41,8 @@ export class DenseLayoutComponent implements OnInit, OnDestroy
         private _navigationService: NavigationService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService,
-        private matIconRegistry: MatIconRegistry,
-        private domSanitizer: DomSanitizer,
     )
     {
-        this.matIconRegistry.addSvgIcon(
-            `newspaper_k`,
-            this.domSanitizer.bypassSecurityTrustResourceUrl(`assets/icons/line.svg`)
-          );
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -64,30 +69,31 @@ export class DenseLayoutComponent implements OnInit, OnDestroy
         // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((navigation: Navigation) => {
+            .subscribe((navigation: Navigation) =>
+            {
                 this.navigation = navigation;
             });
 
         // Subscribe to media changes
         this._fuseMediaWatcherService.onMediaChange$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe(({matchingAliases}) => {
-
+            .subscribe(({matchingAliases}) =>
+            {
                 // Check if the screen is small
                 this.isScreenSmall = !matchingAliases.includes('md');
+
+                // Change the navigation appearance
+                this.navigationAppearance = this.isScreenSmall ? 'default' : 'dense';
             });
     }
 
-    appOnChange(value):void{
-        // this.dashboardService.assignContact(value);
-    }
     /**
      * On destroy
      */
     ngOnDestroy(): void
     {
         // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next();
+        this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
 
@@ -119,12 +125,4 @@ export class DenseLayoutComponent implements OnInit, OnDestroy
     {
         this.navigationAppearance = (this.navigationAppearance === 'default' ? 'dense' : 'default');
     }
-
-    openWhatsapp():void{
-        const url = `https://wa.link/ho3t26`.replace('+', '');
-        window.open(`${url}`, '_blank');
-    }
-    getRed(): void {
-        this._router.navigate(["/red"]);
-      }
 }

@@ -1,14 +1,9 @@
 <!-- Shortcuts toggle -->
-<style>
-    .icon-filter{
-        filter: invert(13%) sepia(98%) saturate(7493%) hue-rotate(233deg) brightness(90%) contrast(104%);
-    }
-</style>
 <button
     mat-icon-button
     (click)="openPanel()"
     #shortcutsOrigin>
-    <mat-icon class="icon-filter" [svgIcon]="'heroicons_outline:bookmark'"></mat-icon>
+    <mat-icon [svgIcon]="'heroicons_outline:squares-plus'"></mat-icon>
 </button>
 
 <!-- Shortcuts panel -->
@@ -16,23 +11,23 @@
     <div class="fixed inset-0 sm:static sm:inset-auto flex flex-col sm:min-w-90 sm:w-90 sm:rounded-2xl overflow-hidden shadow-lg">
 
         <!-- Header -->
-        <div class="flex flex-shrink-0 items-center py-4 pr-4 pl-6 bg-primary text-on-primary">
+        <div class="flex shrink-0 items-center py-4 pr-4 pl-6 bg-primary text-on-primary">
             <div class="sm:hidden -ml-1 mr-3">
                 <button
                     mat-icon-button
                     (click)="closePanel()">
                     <mat-icon
                         class="icon-size-5 text-current"
-                        [svgIcon]="'heroicons_solid:x'"></mat-icon>
+                        [svgIcon]="'heroicons_solid:x-mark'"></mat-icon>
                 </button>
             </div>
             <div class="flex items-center text-lg font-medium leading-10">
-                <span class="">Enlaces</span>
+                <span class="">Shortcuts</span>
                 <ng-container *ngIf="mode !== 'view'">
-                    <!-- <span class="ml-1">
+                    <span class="ml-1">
                         <ng-container *ngIf="mode === 'add'">- Add new</ng-container>
                         <ng-container *ngIf="mode === 'modify' || mode === 'edit'">- Editing</ng-container>
-                    </span> -->
+                    </span>
                 </ng-container>
             </div>
             <div class="ml-auto">
@@ -40,23 +35,23 @@
                 <!-- View mode -->
                 <ng-container *ngIf="mode === 'view'">
                     <!-- Enter 'modify' mode -->
-                    <!-- <button
+                    <button
                         mat-icon-button
                         (click)="changeMode('modify')"
                         [matTooltip]="'Enter edit mode'">
                         <mat-icon
                             class="icon-size-5 text-current"
-                            [svgIcon]="'heroicons_solid:pencil-alt'"></mat-icon>
-                    </button> -->
+                            [svgIcon]="'heroicons_solid:pencil-square'"></mat-icon>
+                    </button>
                     <!-- Enter 'add' mode -->
-                    <!-- <button
+                    <button
                         mat-icon-button
                         (click)="newShortcut()"
                         [matTooltip]="'Add shortcut'">
                         <mat-icon
                             class="icon-size-5 text-current"
                             [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
-                    </button> -->
+                    </button>
                 </ng-container>
 
                 <!-- Modify mode -->
@@ -133,7 +128,7 @@
                             </a>
                             <!-- Link content template -->
                             <ng-template #linkContent>
-                                <div class="relative flex flex-shrink-0 items-center justify-center w-12 h-12 mb-3 rounded-full bg-gray-100 dark:bg-gray-700">
+                                <div class="relative flex shrink-0 items-center justify-center w-12 h-12 mb-3 rounded-full bg-gray-100 dark:bg-gray-700">
                                     <mat-icon
                                         class="absolute opacity-0 group-hover:opacity-100 z-20 icon-size-5"
                                         *ngIf="mode === 'modify'"
@@ -153,9 +148,9 @@
                 <!-- No shortcuts -->
                 <ng-container *ngIf="!shortcuts || !shortcuts.length">
                     <div class="flex flex-col flex-auto items-center justify-center sm:justify-start py-12 px-8">
-                        <div class="flex flex-0 items-center justify-center w-14 h-14 rounded-full bg-primary-100">
+                        <div class="flex flex-0 items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-600">
                             <mat-icon
-                                class="text-primary-500-700"
+                                class="text-primary-700 dark:text-primary-50"
                                 [svgIcon]="'heroicons_outline:bookmark'"></mat-icon>
                         </div>
                         <div class="mt-5 text-2xl font-semibold tracking-tight">No shortcuts</div>

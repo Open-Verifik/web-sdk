@@ -1,7 +1,6 @@
 import { HttpRequest } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { FuseMockApiReplyCallback } from '@fuse/lib/mock-api/mock-api.types';
+import { Observable, of, take, throwError } from 'rxjs';
 
 export class FuseMockApiHandler
 {
@@ -18,7 +17,7 @@ export class FuseMockApiHandler
      */
     constructor(
         public url: string,
-        public delay?: number
+        public delay?: number,
     )
     {
     }
@@ -56,7 +55,7 @@ export class FuseMockApiHandler
         // Execute the reply callback
         const replyResult = this._reply({
             request  : this.request,
-            urlParams: this.urlParams
+            urlParams: this.urlParams,
         });
 
         // If the result of the reply callback is an observable...

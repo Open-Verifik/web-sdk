@@ -1,9 +1,4 @@
 <!-- Button -->
-<style>
-    .icon-filter{
-        filter: invert(13%) sepia(98%) saturate(7493%) hue-rotate(233deg) brightness(90%) contrast(104%);
-    }
-</style>
 <button
     mat-icon-button
     [matMenuTriggerFor]="userActions">
@@ -12,7 +7,7 @@
             class="w-7 h-7 rounded-full"
             *ngIf="showAvatar && user.avatar"
             [src]="user.avatar">
-        <mat-icon class="icon-filter"
+        <mat-icon
             *ngIf="!showAvatar || !user.avatar"
             [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
         <span
@@ -31,35 +26,30 @@
     #userActions="matMenu">
     <button mat-menu-item>
         <span class="flex flex-col leading-none">
-            <span>Hola, bienvenido!</span>
-            <!-- <span class="mt-1.5 text-md font-medium">{{user.name}}</span>
-            <span class="mt-1.5 text-md font-medium">{{user.phone}}</span> -->
+            <span>Signed in as</span>
+            <span class="mt-1.5 text-md font-medium">{{user.email}}</span>
         </span>
     </button>
     <mat-divider class="my-2"></mat-divider>
-    <button mat-menu-item (click)="settings()">
-        <mat-icon [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
-        <span>Perfil</span>
-    </button>
-    <!-- <button mat-menu-item>
+    <button mat-menu-item>
         <mat-icon [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
         <span>Profile</span>
     </button>
     <button mat-menu-item>
-        <mat-icon [svgIcon]="'heroicons_outline:cog'"></mat-icon>
+        <mat-icon [svgIcon]="'heroicons_outline:cog-8-tooth'"></mat-icon>
         <span>Settings</span>
     </button>
     <button
         mat-menu-item
         [matMenuTriggerFor]="userStatus">
-        <mat-icon [svgIcon]="'heroicons_outline:dots-circle-horizontal'"></mat-icon>
+        <mat-icon [svgIcon]="'heroicons_outline:ellipsis-horizontal-circle'"></mat-icon>
         <span>Status</span>
-    </button> -->
+    </button>
     <mat-divider class="my-2"></mat-divider>
     <button
         mat-menu-item
         (click)="signOut()">
-        <mat-icon [svgIcon]="'heroicons_outline:logout'"></mat-icon>
+        <mat-icon [svgIcon]="'heroicons_outline:arrow-right-on-rectangle'"></mat-icon>
         <span>Sign out</span>
     </button>
 </mat-menu>

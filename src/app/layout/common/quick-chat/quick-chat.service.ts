@@ -1,12 +1,9 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
 import { Chat } from 'app/layout/common/quick-chat/quick-chat.types';
+import { BehaviorSubject, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable({providedIn: 'root'})
 export class QuickChatService
 {
     private _chat: BehaviorSubject<Chat> = new BehaviorSubject(null);
@@ -49,9 +46,10 @@ export class QuickChatService
     getChats(): Observable<any>
     {
         return this._httpClient.get<Chat[]>('api/apps/chat/chats').pipe(
-            tap((response: Chat[]) => {
+            tap((response: Chat[]) =>
+            {
                 this._chats.next(response);
-            })
+            }),
         );
     }
 
@@ -63,23 +61,23 @@ export class QuickChatService
     getChatById(id: string): Observable<any>
     {
         return this._httpClient.get<Chat>('api/apps/chat/chat', {params: {id}}).pipe(
-            map((chat) => {
-
+            map((chat) =>
+            {
                 // Update the chat
                 this._chat.next(chat);
 
                 // Return the chat
                 return chat;
             }),
-            switchMap((chat) => {
-
+            switchMap((chat) =>
+            {
                 if ( !chat )
                 {
                     return throwError('Could not found chat with id of ' + id + '!');
                 }
 
                 return of(chat);
-            })
+            }),
         );
     }
 }

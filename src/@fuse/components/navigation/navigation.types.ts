@@ -1,11 +1,10 @@
-import { IsActiveMatchOptions } from '@angular/router';
+import { IsActiveMatchOptions, Params, QueryParamsHandling } from '@angular/router';
 
 export interface FuseNavigationItem
 {
     id?: string;
     title?: string;
     subtitle?: string;
-    code?: string;
     type:
         | 'aside'
         | 'basic'
@@ -13,12 +12,15 @@ export interface FuseNavigationItem
         | 'divider'
         | 'group'
         | 'spacer';
-    hidden?: boolean;
+    hidden?: (item: FuseNavigationItem) => boolean;
     active?: boolean;
     disabled?: boolean;
-    guard?: string;
     tooltip?: string;
     link?: string;
+    fragment?: string;
+    preserveFragment?: boolean;
+    queryParams?: Params | null;
+    queryParamsHandling?: QueryParamsHandling | null;
     externalLink?: boolean;
     target?:
         | '_blank'

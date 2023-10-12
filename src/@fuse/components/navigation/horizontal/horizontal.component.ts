@@ -1,11 +1,13 @@
+import { NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
-import { ReplaySubject, Subject } from 'rxjs';
 import { fuseAnimations } from '@fuse/animations';
-import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
 import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
+import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
 import { FuseUtilsService } from '@fuse/services/utils/utils.service';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { AuthService } from 'app/core/auth/auth.service';
+import { ReplaySubject, Subject } from 'rxjs';
+import { FuseHorizontalNavigationBasicItemComponent } from './components/basic/basic.component';
+import { FuseHorizontalNavigationBranchItemComponent } from './components/branch/branch.component';
+import { FuseHorizontalNavigationSpacerItemComponent } from './components/spacer/spacer.component';
 
 @Component({
     selector       : 'fuse-horizontal-navigation',
@@ -14,13 +16,15 @@ import { AuthService } from 'app/core/auth/auth.service';
     animations     : fuseAnimations,
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    exportAs       : 'fuseHorizontalNavigation'
+    exportAs       : 'fuseHorizontalNavigation',
+    standalone     : true,
+    imports        : [NgFor, NgIf, FuseHorizontalNavigationBasicItemComponent, FuseHorizontalNavigationBranchItemComponent, FuseHorizontalNavigationSpacerItemComponent],
 })
 export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnDestroy
 {
     @Input() name: string = this._fuseUtilsService.randomId();
     @Input() navigation: FuseNavigationItem[];
-    codes: any;
+
     onRefreshed: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -31,14 +35,8 @@ export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnD
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseNavigationService: FuseNavigationService,
         private _fuseUtilsService: FuseUtilsService,
-        private jwtHelper :JwtHelperService,
-        private _authServices: AuthService
     )
     {
-        this.codes = this.jwtHelper.decodeToken(localStorage.getItem('accessToken')).userFeature;
-     
-        this._changeDetectorRef.markForCheck();
-
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -71,14 +69,6 @@ export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnD
             this.name = this._fuseUtilsService.randomId();
         }
 
-        for (let index = 0; index < this.navigation.length; index++) {
-            const navigationLink = this.navigation[index];
-            if(this.codes.includes(navigationLink.code)){
-                navigationLink.hidden = false;
-            }
-            
-        }
-
         // Register the navigation component
         this._fuseNavigationService.registerComponent(this.name, this);
     }
@@ -92,7 +82,7 @@ export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnD
         this._fuseNavigationService.deregisterComponent(this.name);
 
         // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next();
+        this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
 

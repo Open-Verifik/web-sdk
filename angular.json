@@ -17,10 +17,12 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
-                        "outputPath": "dist/app",
+                        "outputPath": "dist/fuse",
                         "index": "src/index.html",
                         "main": "src/main.ts",
-                        "polyfills": "src/polyfills.ts",
+                        "polyfills": [
+                            "zone.js"
+                        ],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
                         "allowedCommonJsDependencies": [
@@ -28,7 +30,9 @@
                             "highlight.js",
                             "crypto-js/enc-utf8",
                             "crypto-js/hmac-sha256",
-                            "crypto-js/enc-base64"
+                            "crypto-js/enc-base64",
+                            "flat",
+                            "quill"
                         ],
                         "assets": [
                             "src/favicon-16x16.png",
@@ -53,7 +57,7 @@
                             "src/styles/styles.scss",
                             "src/styles/tailwind.scss"
                         ],
-                        "scripts": ["src/assets/core/sdk/FaceTecSDK.js"]
+                        "scripts": []
                     },
                     "configurations": {
                         "production": {
@@ -67,12 +71,6 @@
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "75kb",
                                     "maximumError": "90kb"
-                                }
-                            ],
-                            "fileReplacements": [
-                                {
-                                    "replace": "src/environments/environment.ts",
-                                    "with": "src/environments/environment.prod.ts"
                                 }
                             ],
                             "outputHashing": "all"
@@ -109,10 +107,11 @@
                 "test": {
                     "builder": "@angular-devkit/build-angular:karma",
                     "options": {
-                        "main": "src/test.ts",
-                        "polyfills": "src/polyfills.ts",
+                        "polyfills": [
+                            "zone.js",
+                            "zone.js/testing"
+                        ],
                         "tsConfig": "tsconfig.spec.json",
-                        "karmaConfig": "karma.conf.js",
                         "inlineStyleLanguage": "scss",
                         "assets": [
                             "src/favicon-16x16.png",
@@ -124,22 +123,8 @@
                         ],
                         "scripts": []
                     }
-                },
-                "lint": {
-                    "builder": "@angular-eslint/builder:lint",
-                    "options": {
-                        "lintFilePatterns": [
-                            "src/**/*.ts",
-                            "src/**/*.html"
-                        ]
-                    }
                 }
             }
         }
-    },
-    "defaultProject": "fuse",
-    "cli": {
-      "analytics": false,
-        "defaultCollection": "@angular-eslint/schematics"
     }
 }
