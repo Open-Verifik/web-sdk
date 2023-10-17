@@ -9,27 +9,32 @@
 			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action">
 				<img src="https://cdn.verifik.co/demo/handshake@3x.png" class="demo-header-partner-icon" alt="" />
 
-				<span> Partner with us </span>
+				<span fxHide.sm="true" fxHide.xs="true"> Partner with us </span>
 			</div>
 
 			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action">
 				<img src="https://cdn.verifik.co/demo/support_agent@3x.png" class="demo-header-partner-icon" alt="" />
 
-				<span> Talk to sales </span>
+				<span fxHide.sm="true" fxHide.xs="true"> Talk to sales </span>
 			</div>
 
 			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action">
 				<img src="https://cdn.verifik.co/demo/settings@3x.png" class="demo-header-partner-icon" alt="" />
 
-				<span> Settings </span>
+				<span fxHide.sm="true" fxHide.xs="true"> Settings </span>
 			</div>
 		</div>
 	</div>
 	<!-- end of header -->
 
 	<!-- content -->
+	<ng-container class="demo-content">
+		<demo-step-one *ngIf="navigation.currentStep === 1"> </demo-step-one>
+		<demo-step-two *ngIf="navigation.currentStep === 2"> </demo-step-two>
+	</ng-container>
 
-	<demo-step-one></demo-step-one>
+	<!-- <div *ngIf="navigation.currentStep === 1"> -->
+	<!-- </div> -->
 
 	<!-- end of content -->
 </div>

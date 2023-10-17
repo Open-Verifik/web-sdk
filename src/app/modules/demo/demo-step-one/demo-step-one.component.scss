@@ -16,6 +16,10 @@
     width: 100%;
 }
 
+.w-full {
+    width: 100%;
+}
+
 h1 {
     font-size: 35px;
     padding-top: 32px;
@@ -37,9 +41,9 @@ h1 {
 }
 
 .business-woman-image {
-    width: 750px;
+    width: 500px;
     position: absolute;
-    top: 230px;
+    bottom: 60px;
     height: auto;
     z-index: 1;
 }
@@ -53,7 +57,7 @@ h1 {
     background: white;
     border: 1px solid #cccccc65;
     /* Shadow */
-    box-shadow: 3px 3px 3px rgb(0 0 0 / 5%);
+    box-shadow: 3px 3px 3px 3px rgb(0 0 0 / 5%);
 }
 
 .step-one-card-image {
@@ -99,3 +103,130 @@ h3 {
     text-align: center;
 }
 
+.z-index-2 {
+    z-index: 2;
+}
+
+.footer {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    bottom: 0px;
+    background-color: white;
+    box-shadow: 3px 3px 3px rgb(0 0 0 / 5%);
+}
+
+// Extra small screens
+@media (max-width: 599px) {
+    .step-one-main-div {
+        padding-top: 20px;
+    }
+
+    .step-one-logo {
+        width: 150px;
+    }
+
+    .step-one-middle-container {
+        width: 90%;
+        
+        h1 {
+            text-align: center;
+        }
+    }
+
+    .business-woman-image {
+        width: 350px;
+        position: absolute;
+        bottom: 60px;
+        height: auto;
+        z-index: 1;
+        opacity: 0.3;
+    }
+
+    .step-one-card {
+        margin-top: 32px;
+    }
+
+    .accept-terms-container {
+        height: 300px;
+        width: 90%;
+
+        .button {
+            width: 85% !important;
+        }
+    }
+
+    .steps-in-cards {
+        width: 100%;
+        overflow-x: scroll;
+    }
+}
+
+// Small screens
+@media (min-width: 600px) and (max-width: 959px) {
+    .step-one-main-div {
+        padding-top: 40px;
+    }
+
+    .step-one-logo {
+        width: 150px;
+    }
+
+    .step-one-middle-container {
+        width: 90%;
+        
+        h1 {
+            text-align: center;
+        }
+    }
+
+    .start-demo-button {
+        width: 240px !important;
+    }
+    
+
+    .step-one-card {
+        width: 180px;
+        h3 {
+            font-size: 14px;
+        }
+    }
+}
+
+// Medium screens
+@media (min-width: 960px) and (max-width: 1279px) {
+    .step-one-main-div {
+        padding-top: 40px;
+    }
+
+    .step-one-logo {
+        width: 150px;
+    }
+
+    .step-one-middle-container {
+        width: 90%;
+        
+        h1 {
+            text-align: center;
+        }
+    }
+
+    .start-demo-button {
+        width: 280px !important;
+    }
+    
+
+    .step-one-card {
+        width: 200px;
+    }
+}
+
+// Large screens
+@media (min-width: 1280px) and (max-width: 1919px) {
+
+}
+
+// Extra large screens
+@media (min-width: 1920px) {
+
+}

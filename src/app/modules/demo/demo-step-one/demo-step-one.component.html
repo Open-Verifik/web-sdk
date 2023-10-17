@@ -14,9 +14,9 @@
 		<p class="p-2">Discover how Verifik is revolutionizing identity validation security.</p>
 	</div>
 
-	<div class="step-one-woman-and-options" fxLayout="row" fxLayoutAlign="center center">
+	<div class="step-one-woman-and-options" fxLayout="column" fxLayoutAlign="center center">
 		<!-- scanning options -->
-		<div fxLayout="row" fxLayoutAlign="center center">
+		<div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" class="steps-in-cards" fxLayoutWrap="true">
 			<div fxLayout="column" fxLayoutAlign="start center">
 				<div class="step-one-card" fxLayout="column" fxLayoutAlign="start center">
 					<div class="step-one-card-image" fxLayout="row" fxLayoutAlign="center center">
@@ -62,9 +62,23 @@
 				<p class="step-one-circle">4</p>
 			</div>
 		</div>
+
+		<div fxLayout="column" class="accept-terms-container" fxLayoutAlign="center center">
+			<mat-checkbox class="mt-8 z-index-2" [checked]="canStartDemo" (change)="agreeToTerms()"
+				>To use this demo, you must accept our Data Treatment Agreement.</mat-checkbox
+			>
+
+			<button mat-raised-button color="primary" class="mt-4 z-index-2 start-demo-button" [disabled]="!canStartDemo" (click)="startDemo()">
+				Start demo
+			</button>
+		</div>
 	</div>
 	<!-- middle content -->
 	<div></div>
 </div>
 
-<img src="https://cdn.verifik.co/demo/stepone_woman@2x.png" alt="" class="business-woman-image" />
+<img src="https://cdn.verifik.co/demo/stepone_woman@2x.png" alt="" fxHide.xs="true" fxHide.sm="true" fxHide.md="true" class="business-woman-image" />
+
+<div class="footer" fxLayout="row" fxLayoutAlign="center center">
+	<p>Verifik © 2023Producto de MAT Enterprises</p>
+</div>
