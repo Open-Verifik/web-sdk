@@ -4,6 +4,7 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { DemoService } from "../demo.service";
 
 @Component({
 	selector: "id-scanning",
@@ -20,7 +21,7 @@ export class IdScanningComponent implements OnInit {
 	attempts: number;
 	attemptsLimit: number;
 
-	constructor() {
+	constructor(private _demoService: DemoService) {
 		this.attempts = 0;
 		this.attemptsLimit = 3;
 		this.loadingCamera = false;
@@ -66,5 +67,10 @@ export class IdScanningComponent implements OnInit {
 	tryAgain(): void {
 		this.attempts++;
 		// logic todo here
+	}
+
+	restartDemo(): void {
+		// go to step 3 for now
+		this._demoService.moveToStep(3);
 	}
 }

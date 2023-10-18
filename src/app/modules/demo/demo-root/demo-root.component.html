@@ -31,10 +31,12 @@
 	<ng-container class="demo-content">
 		<demo-step-one *ngIf="navigation.currentStep === 1"> </demo-step-one>
 		<demo-step-two *ngIf="navigation.currentStep === 2"> </demo-step-two>
+		<demo-step-three *ngIf="navigation.currentStep === 3"> </demo-step-three>
+		<demo-step-four *ngIf="navigation.currentStep === 4"> </demo-step-four>
 	</ng-container>
 
 	<!-- <div *ngIf="navigation.currentStep === 1"> -->
 	<!-- </div> -->
-
+	<app-demo-footer></app-demo-footer>
 	<!-- end of content -->
 </div>
