@@ -1,0 +1,22 @@
+<div class="id-scanning-main-div" fxLayout="column" fxLayoutAlign="center center">
+	<!-- it doesnt have permissions -->
+	<div *ngIf="!hasCameraPermissions && !loadingCamera" fxLayout="column" fxLayoutAlign="center center">
+		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
+
+		<h1 class="mt-4">A camera has not been found on the device or is momentarily disabled.</h1>
+
+		<p class="mt-4">
+			Please make sure that the device on which you are performing the demonstration has a camera and that you have permissions to access it.
+		</p>
+	</div>
+	<!-- loading camera -->
+	<div *ngIf="loadingCamera" fxLayout="column" fxLayoutAlign="center center">
+		<mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+
+		<h1 class="mt-4">Loading camera</h1>
+	</div>
+
+	<div *ngIf="!loadingCamera && hasCameraPermissions">
+		<video #videoElement width="720" height="480" autoplay></video>
+	</div>
+</div>

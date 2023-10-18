@@ -16,7 +16,7 @@ export class DemoService {
 
 	initNavigation(): any {
 		this.navigation = {
-			currentStep: 1,
+			currentStep: 2,
 			lastStep: 5,
 		};
 	}

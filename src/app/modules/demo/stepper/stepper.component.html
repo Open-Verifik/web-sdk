@@ -1,0 +1,21 @@
+<div class="verifik-stepper" fxLayout="row" fxLayoutAlign="space-between center">
+	<div fxLayout="row" fxLayoutAlign="start center">
+		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 2 }">1</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 2 }"> ID Scanning </span>
+	</div>
+
+	<div fxLayout="row" fxLayoutAlign="start center">
+		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 3 }">2</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 3 }">Document Details</span>
+	</div>
+
+	<div fxLayout="row" fxLayoutAlign="start center">
+		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 4 }">3</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 4 }">Liveness check</span>
+	</div>
+
+	<div fxLayout="row" fxLayoutAlign="start center">
+		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 5 }">4</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 5 }">Results</span>
+	</div>
+</div>
