@@ -16,7 +16,27 @@
 		<h1 class="mt-4">Loading camera</h1>
 	</div>
 
-	<div *ngIf="!loadingCamera && hasCameraPermissions">
-		<video #videoElement width="720" height="480" autoplay></video>
+	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full">
+		<video #videoElement width="720" height="480" autoplay *ngIf="!failedToDetectDocument"></video>
+
+		<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center">
+			<img src="https://cdn.verifik.co/demo/failedtodetectdocument@3x.png" alt="" class="id-scanning-failed-document-img" />
+
+			<h1 class="mt-4">We cant detect the document</h1>
+
+			<p class="mt-4">Please make sure you are scanning an identity document such as an ID card or passport.</p>
+
+			<p class="mt-4">Remaining attempts {{ attemptsLimit - attempts }}</p>
+
+			<button
+				mat-raised-button
+				color="primary"
+				class="mt-4 z-index-2 id-scanning-try-again-button"
+				*ngIf="attemptsLimit - attempts"
+				(click)="tryAgain()"
+			>
+				Try again
+			</button>
+		</div>
 	</div>
 </div>

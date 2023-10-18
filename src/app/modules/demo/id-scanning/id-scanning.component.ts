@@ -16,11 +16,16 @@ export class IdScanningComponent implements OnInit {
 	@ViewChild("videoElement") videoElement: ElementRef;
 	hasCameraPermissions: boolean;
 	loadingCamera: boolean;
+	failedToDetectDocument: boolean;
+	attempts: number;
+	attemptsLimit: number;
 
 	constructor() {
-		this.loadingCamera = true;
-
+		this.attempts = 0;
+		this.attemptsLimit = 3;
+		this.loadingCamera = false;
 		this.hasCameraPermissions = false;
+		this.failedToDetectDocument = false;
 	}
 
 	ngOnInit(): void {
@@ -36,11 +41,16 @@ export class IdScanningComponent implements OnInit {
 				.then((stream) => {
 					this.loadingCamera = false;
 					this.hasCameraPermissions = true;
+					this.attempts++;
 
 					setTimeout(() => {
 						this.videoElement.nativeElement.srcObject = stream;
 						this.videoElement.nativeElement.play();
-					}, 500);
+					}, 1000);
+
+					setTimeout(() => {
+						this.failedToDetectDocument = true;
+					}, 4000);
 				})
 				.catch((error) => {
 					console.error("Error accessing the camera:", error);
@@ -51,5 +61,10 @@ export class IdScanningComponent implements OnInit {
 			console.error("Browser does not support getUserMedia API.");
 			this.hasCameraPermissions = false;
 		}
+	}
+
+	tryAgain(): void {
+		this.attempts++;
+		// logic todo here
 	}
 }
