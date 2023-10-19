@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
 
+let _this = null;
+
 @Injectable({
 	providedIn: "root",
 })
@@ -10,6 +12,8 @@ export class DemoService {
 	constructor() {
 		this.initNavigation();
 		this.initDemoData();
+
+		_this = this;
 	}
 
 	getNavigation(): any {
@@ -30,11 +34,30 @@ export class DemoService {
 	initDemoData(): void {
 		this.demoData = {
 			document: {},
+			generalInformation: [],
+			location: [],
+			extractedData: [],
+			lat: null,
+			lng: null,
 		};
 	}
 
 	setDemoDocument(document: any): void {
 		this.demoData.document = document;
+
+		this.demoData.extractedData.push({ key: "documentType", value: document.documentType });
+
+		this.demoData.extractedData.push({ key: "documentNumber", value: document.documentNumber });
+
+		for (const key in document.OCRExtraction) {
+			if (Object.prototype.hasOwnProperty.call(document.OCRExtraction, key)) {
+				const value = document.OCRExtraction[key];
+
+				if (key === "documentNumber") continue;
+
+				this.demoData.extractedData.push({ key, value });
+			}
+		}
 	}
 
 	moveToStep(step: number): void {
@@ -43,10 +66,6 @@ export class DemoService {
 		if (step <= 0) return;
 
 		this.navigation.currentStep = step;
-
-		console.log({
-			step,
-		});
 	}
 
 	getDeviceDetails(): any {
@@ -83,6 +102,12 @@ export class DemoService {
 			onlineStatus: navigator.onLine ? "Online" : "Offline",
 		};
 
+		this.demoData.generalInformation.push(
+			{ key: "device", value: details.platform },
+			{ key: "language", value: details.language },
+			{ key: "userAgent", value: details.userAgent }
+		);
+
 		this.getLocation();
 
 		return details;
@@ -97,9 +122,10 @@ export class DemoService {
 	}
 
 	showPosition(position) {
-		const latitude = position.coords.latitude;
-		const longitude = position.coords.longitude;
-		console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+		_this.demoData.lat = position?.coords.latitude;
+		_this.demoData.lng = position?.coords.longitude;
+
+		console.log(`Latitude: ${_this.demoData.lat}, Longitude: ${_this.demoData.lng}`);
 	}
 
 	showError(error) {
@@ -127,9 +153,7 @@ export class DemoService {
 
 			const data = await response.json();
 
-			if (data && data.display_name) {
-				return data;
-			}
+			if (data && data.display_name) return data;
 
 			return null;
 		} catch (error) {
