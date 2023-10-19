@@ -6,7 +6,7 @@ import { CommonModule } from "@angular/common";
 @Component({
 	selector: "id-details",
 	templateUrl: "./id-details.component.html",
-	styleUrls: ["./id-details.component.scss"],
+	styleUrls: ["./id-details.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
 	imports: [FlexLayoutModule, CommonModule],
 })
@@ -22,7 +22,23 @@ export class IdDetailsComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		console.log({ demoData: this.demoData });
+		const deviceDetails = this._demoService.getDeviceDetails();
+
+		console.log({ device: deviceDetails, demoData: this.demoData });
+
+		const lat = 8.982045;
+
+		const lng = -79.520774;
+
+		this._demoService.reverseGeocodeWithOSM(lat, lng).then((address) => {
+			if (address) {
+				console.log(`The address is: `, {
+					address,
+				});
+			} else {
+				console.log("Could not determine the address.");
+			}
+		});
 
 		this._changeDetectorRef.markForCheck();
 	}

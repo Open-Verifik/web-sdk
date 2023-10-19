@@ -45,6 +45,10 @@
 	font-weight: 800;
 }
 
+.box-shadow-3px {
+    box-shadow: 3px 3px 3px 3px rgb(0 0 0 / 5%);
+}
+
 // Extra small screens
 @media (max-width: 599px) {
 	.demo-header-logo {

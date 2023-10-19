@@ -1,19 +1,48 @@
 .id-details-second-section {
-	background-color: white;
 	width: 50%;
-	height: 800px;
+	min-height: 500px;
+	padding-left: 32px;
+	padding-right: 1px;
+}
+
+.white-background {
+	width: 50%;
+	background-color: white;
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	left: 50%;
+	height: 100%;
 }
 
 .id-details-first-section {
 	width: 50%;
-	height: 800px;
+	min-height: 1200px;
 }
 
 .id-details-body {
 	padding-top: 2px;
 	padding-bottom: 2px;
 	width: 100%;
-	height: 800px;
+	min-height: 800px;
+
+	h1 {
+		font-size: 30px;
+		font-weight: 800;
+		color: #0036e777;
+	}
+
+	h2 {
+		font-size: 20px;
+		color: black;
+		font-weight: 600;
+	}
+}
+
+.id-details-front-side-doc {
+	img {
+		width: 50%;
+	}
 }
 
 // Extra small screens

@@ -1,5 +1,26 @@
 <div class="id-details-body" fxLayout="row" fxLayoutAlign="start start" *ngIf="demoData.document._id">
-	<div class="id-details-first-section"></div>
+	<!-- first section -->
+	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end">
+		<div fxLayout="column" fxLayoutAlign="start center">
+			<h1 class="mt-4">Document scanned</h1>
 
-	<div class="id-details-second-section"></div>
+			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+				<h2 class="mt-4">Front side</h2>
+
+				<img [src]="demoData.document.url" alt="" class="mt-4 box-shadow-3px" />
+			</div>
+		</div>
+	</div>
+	<!-- end of first section -->
+
+	<div class="id-details-second-section" fxLayout="column" fxLayoutAlign="start start">
+		<h1 class="mt-4">General Information</h1>
+
+		<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.generalInformation">
+			<h3></h3>
+			<p></p>
+		</div>
+	</div>
 </div>
+
+<div class="white-background"></div>
