@@ -1,0 +1,79 @@
+<div
+	class="id-details-body"
+	fxLayout="row"
+	fxLayout.xs="column"
+	fxLayoutAlign="start start"
+	fxLayoutAlign.xs="center center"
+	*ngIf="demoData.document._id"
+>
+	<!-- first section -->
+	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
+		<div fxLayout="column" fxLayoutAlign="start center">
+			<h1 class="mt-4">Selfie</h1>
+
+			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+				<h2 class="mt-4">Front side</h2>
+
+				<img [src]="demoData.document.url" alt="" class="mt-4 box-shadow-3px" />
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start center">
+			<h1 class="mt-4">Document scanned</h1>
+
+			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+				<h2 class="mt-4">Front side</h2>
+
+				<img [src]="demoData.document.url" alt="" class="mt-4 box-shadow-3px" />
+			</div>
+		</div>
+	</div>
+	<!-- end of first section -->
+
+	<div
+		class="id-details-second-section"
+		[ngClass.xs]="{ 'box-shadow-3px': true }"
+		fxLayout="column"
+		fxLayoutAlign="start start"
+		fxLayoutAlign.xs="center center"
+	>
+		<h1 class="mt-4">General Information</h1>
+
+		<div *ngIf="hasGeneralInformation()" class="mt-8">
+			<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.generalInformation" class="id-details-item">
+				<h3>{{ item.key }}</h3>
+				<p>{{ item.value }}</p>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+			<h1 class="mt-4">Extracted information</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.extractedData" class="id-details-item">
+					<h3>{{ item.key }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" *ngIf="hasLocation()" class="w-full">
+			<h1 class="mt-4">User Location</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.location" class="id-details-item">
+					<h3>{{ item.key }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+			<button mat-stroked-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="scanAgain()">Scan again</button>
+
+			<button mat-raised-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="continue()">Continue</button>
+		</div>
+	</div>
+</div>
+
+<div class="white-background" fxHide.xs="true"></div>

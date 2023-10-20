@@ -22,7 +22,7 @@ export class DemoService {
 
 	initNavigation(): void {
 		this.navigation = {
-			currentStep: 3,
+			currentStep: 5,
 			lastStep: 5,
 		};
 	}
