@@ -62,14 +62,12 @@ export const appRoutes: Route[] = [
 	// },
 
 	{
-		path: "demo",
-		loadChildren: () => import("app/modules/demo/demo.routes"),
-
-		// component: LayoutComponent,
-		// data: {
-		// 	layout: "empty",
-		// },
-		// children: [{ path: "demo", loadChildren: () => import("app/modules/demo/demo.routes") }],
+		path: "",
+		component: LayoutComponent,
+		data: {
+			layout: "empty",
+		},
+		children: [{ path: "demo", loadChildren: () => import("app/modules/demo/demo.routes") }],
 	},
 
 	// Admin routes
