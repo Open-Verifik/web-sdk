@@ -1,0 +1,173 @@
+<div class="bg-white h-full flex flex-col items-center justify-center p-1">
+	<div *ngIf="loadingModel" class="scan">
+		<div class="face">
+			<div class="dots"></div>
+		</div>
+		<!-- <h3>Loading</h3> -->
+		<div class="w-full flex items-center justify-center my-4">
+			<h1 class="text-3xl font-bold">{{ "loading_stream" | transloco }}</h1>
+		</div>
+	</div>
+	<!-- <div *ngIf="loadingResults && action !== 'addPerson'" class="w-full h-full flex flex-col items-center justify-center">
+		<div class="w-full flex items-center justify-center my-4">
+			<mat-progress-spinner [diameter]="80" [mode]="'indeterminate'"> </mat-progress-spinner>
+		</div>
+		<div class="w-full flex items-center justify-center my-4">
+			<h1 class="text-3xl font-bold">{{ "loading_response" | transloco }}</h1>
+		</div>
+	</div> -->
+	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
+		<h1 class="text-3xl font-bold">{{ "image_title" | transloco }}</h1>
+		WIDTH:{{WIDTH}} HEIGHT:{{HEIGHT}}
+		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT}">
+			<div class="relative">
+				<video #video [width]="WIDTH" [height]="HEIGHT" autoplay muted class="absolute top-0 left-0 oval-video"></video>
+				<div #canvas class="absolute top-0 left-0 oval-video"></div>
+				<div #mask class="absolute top-0 left-0" [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT}">
+
+				</div>
+			</div>
+		</div>
+
+
+		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
+			<div *ngIf="faceError && !loadingResults">
+				<div class="text-3xl font-bold">{{ faceError.title }}</div>
+				<div class="text-gray-600">{{ faceError.subtitle }}</div>
+			</div>
+			<div *ngIf="loadingResults" class="flex flex-col items-center justify-center">
+				<div class="text-3xl font-bold">{{ "processing_image" | transloco }}</div>
+				<mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"> </mat-progress-spinner>
+			</div>
+		</div>
+	</div>
+
+	<div class="w-3/4 h-full m-5" *ngIf="step === 1">
+		<ng-container>
+			<div *ngIf="action !== 'addPerson'">
+				<div
+					*ngIf="personCreated || personSearch || livenessScore || personsDetect || personVerify"
+					class="text-2xl font-medium tracking-tight leading-6 truncate"
+				>
+					{{ "results" | transloco }}
+				</div>
+
+				<div *ngIf="errorResult" class="flex flex-col items-center justify-center">
+					<pre *ngIf="errorResult" class="max-w-lg">{{ errorResult | json }}</pre>
+				</div>
+			</div>
+		</ng-container>
+
+		<ng-container [ngSwitch]="action">
+			<ng-container *ngSwitchCase="'addPerson'">
+				<div class="w-full flex items-center justify-center my-4">
+					<h1 class="text-3xl font-bold">{{ "fill_info" | transloco }}</h1>
+				</div>
+				<form [formGroup]="personForm" class="h-full w-full" (ngSubmit)="addPerson()">
+					<div class="w-full flex flex-col justify-start items-start">
+						<div class="w-full">
+							<mat-form-field appearance="outline" class="fuse-mat-rounded w-full">
+								<mat-label>{{ "Name" | transloco }}:</mat-label>
+								<input matInput id="name" formControlName="name" class="simplified" />
+								<mat-error *ngIf="personForm.get('name').hasError('required') && personForm.get('name').touched">
+									{{ "nameRequired" | transloco }}.
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="w-full pr-0 sm:pr-2">
+							<mat-form-field appearance="outline" class="fuse-mat-rounded w-full">
+								<mat-label>{{ "Nationality" | transloco }}:</mat-label>
+								<input matInput id="nationality" formControlName="nationality" class="simplified" />
+							</mat-form-field>
+						</div>
+						<div class="w-full pr-0 sm:pr-2">
+							<mat-form-field appearance="outline" class="fuse-mat-rounded w-full">
+								<mat-label>{{ "Birthdate" | transloco }}:</mat-label>
+								<input
+									matInput
+									id="date_of_birth"
+									formControlName="date_of_birth"
+									class="simplified"
+									pattern="\d{4}-\d{2}-\d{2}"
+									placeholder="Ejemplo: 1999-12-30"
+								/>
+								<mat-error *ngIf="personForm.get('date_of_birth').hasError('required') && personForm.get('date_of_birth').touched">
+									{{ "birthdateRequired" | transloco }}.
+								</mat-error>
+							</mat-form-field>
+						</div>
+						<div class="w-full">
+							<mat-form-field appearance="outline" class="fuse-mat-rounded w-full">
+								<mat-label>{{ "Gender" | transloco }}:</mat-label>
+								<mat-select formControlName="gender">
+									<mat-option value="M">{{ "Male" | transloco }}</mat-option>
+									<mat-option value="F">{{ "Female" | transloco }}</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="w-full">
+							<mat-form-field appearance="outline" class="fuse-mat-rounded w-full">
+								<mat-label>{{ "Notes" | transloco }}:</mat-label>
+								<textarea rows="6" matInput formControlName="notes" class="simplified"></textarea>
+							</mat-form-field>
+						</div>
+					</div>
+
+					<!-- <div class="flex flex-row gap-4 w-full items-center">
+	
+						</div> -->
+
+					<div class="w-full flex justify-end items-end">
+						<button class="flex justify-end items-end" type="submit">{{ "Enviar" | transloco }}</button>
+					</div>
+				</form>
+				<div *ngIf="personCreated || errorResult" class="text-lg font-medium tracking-tight leading-6 truncate mt-10">
+					{{ "results" | transloco }}
+				</div>
+				<pre *ngIf="personCreated" class="max-w-lg">{{ personCreated | json }}</pre>
+				<div *ngIf="errorResult" class="flex flex-col items-center justify-center">
+					<pre *ngIf="errorResult" class="max-w-lg">{{ errorResult | json }}</pre>
+				</div>
+			</ng-container>
+			<ng-container *ngSwitchCase="'search'" class="max-w-lg">
+				<pre *ngIf="personSearch" class="max-w-lg">{{ personSearch | json }}</pre>
+			</ng-container>
+
+			<ng-container *ngSwitchCase="'searchLiveFace'" class="max-w-lg">
+				<h1 *ngIf="livenessScore" class="max-w-lg">{{ "liveness" | transloco }} {{ livenessScore }}</h1>
+				<pre *ngIf="personSearch" class="max-w-lg">{{ personSearch | json }}</pre>
+			</ng-container>
+
+			<ng-container *ngSwitchCase="'detect'" class="max-w-lg">
+				<pre *ngIf="personsDetect" class="max-w-lg">{{ personsDetect | json }}</pre>
+			</ng-container>
+
+			<ng-container *ngSwitchCase="'liveness'" class="max-w-lg">
+				<div *ngIf="livenessScore" class="w-full flex flex-col justify-center">
+					<h1 *ngIf="livenessScore" class="max-w-lg text-xl my-2">{{ "liveness" | transloco }} {{ livenessScore }}</h1>
+					<div class="w-full flex justify-center">
+						<mat-progress-bar
+							mode="determinate"
+							[ngClass]="{
+								medium: livenessScore * 100 >= 60 && livenessScore * 100 < 80,
+								good: livenessScore * 100 > 80,
+								failed: livenessScore * 100 < 60
+							}"
+							[value]="livenessScore * 100"
+						></mat-progress-bar>
+					</div>
+				</div>
+			</ng-container>
+
+			<ng-container *ngSwitchCase="'verify'" class="max-w-lg">
+				<pre *ngIf="personVerify" class="max-w-lg">{{ personVerify | json }}</pre>
+			</ng-container>
+
+			<ng-container *ngSwitchDefault> </ng-container>
+		</ng-container>
+	</div>
+	<div *ngIf="loadingResults && action === 'addPerson'" class="w-full flex items-end">
+		<mat-progress-bar mode="query"></mat-progress-bar>
+	</div>
+</div>
