@@ -11,7 +11,7 @@ export default [
 	{
 		path: "start",
 		// component: WebSdkComponent,
-		loadComponent:() => import("../web-sdk/web-sdk.component").then( m => m.WebSdkComponent ),
+		loadComponent: () => import("../web-sdk/web-sdk.component").then((m) => m.WebSdkComponent),
 	},
 	// {
 	// 	path: "card",
@@ -21,6 +21,6 @@ export default [
 	{
 		path: "face",
 		// component: WebSdkComponent,
-		loadComponent:() => import("../web-sdk/face/face.component").then( m => m.FaceComponent ),
+		loadComponent: () => import("../web-sdk/face/face.component").then((m) => m.FaceComponent),
 	},
 ] as Routes;

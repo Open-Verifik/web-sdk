@@ -1,22 +1,18 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
-// import * as faceapi from "face-api.js";
-// const tf = require('@tensorflow/tfjs-node')
-// import * as coco from '@tensorflow-models/coco-ssd';
 import * as faceapi from "@vladmandic/face-api";
 import { Subject } from "rxjs";
 import { FormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { WebSdkService } from "../web-sdk.service";
-import { MatDialogRef, MatDialogModule, MatDialog } from "@angular/material/dialog";
+import { MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule } from "@ngneat/transloco";
 
-
 @Component({
-  selector: 'app-face',
-  standalone: true,
+	selector: "app-face",
+	standalone: true,
 	imports: [CommonModule, FormsModule, MatDialogModule, TranslocoModule],
-  templateUrl: './face.component.html',
-  styleUrls: ['./face.component.scss']
+	templateUrl: "./face.component.html",
+	styleUrls: ["./face.component.scss"],
 })
 export class FaceComponent implements OnInit, OnDestroy {
 	@ViewChild("video", { static: false }) public video: ElementRef;
@@ -114,7 +110,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const payload: any = {
 			image: this.base64Images[0],
 			os: this.osInfo,
-			// collection_id: this.collectionId,
 		};
 
 		this.loadingResults = true;
@@ -241,17 +236,15 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async detectFaces() {
 		await this.setConfigCanvas();
 		this.detectFaceInterval = setInterval(async () => {
-
-
 			const detection = await faceapi
 				.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions())
 				.withFaceLandmarks()
 				.withFaceExpressions()
 				.withAgeAndGender();
 
-
-
 			const context = this.canvas.getContext("2d");
+
+			console.log({ detection });
 
 			if (detection.length > 0) {
 				this.faceError = null;

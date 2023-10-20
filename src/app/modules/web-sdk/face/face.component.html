@@ -1,4 +1,4 @@
-<div class="bg-white h-full flex flex-col items-center justify-center p-1">
+<div class="bg-white w-full h-full flex flex-col items-center justify-center p-1">
 	<div *ngIf="loadingModel" class="scan">
 		<div class="face">
 			<div class="dots"></div>
@@ -11,17 +11,14 @@
 
 	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
 		<h1 class="text-3xl font-bold">{{ "image_title" | transloco }}</h1>
-		WIDTH:{{WIDTH}} HEIGHT:{{HEIGHT}}
-		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT}">
+		WIDTH:{{ WIDTH }} HEIGHT:{{ HEIGHT }}
+		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT }">
 			<div class="relative">
 				<video #video [width]="WIDTH" [height]="HEIGHT" autoplay muted class="absolute top-0 left-0 oval-video"></video>
 				<div #canvas class="absolute top-0 left-0 oval-video"></div>
-				<div #mask class="absolute top-0 left-0" [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT}">
-
-				</div>
+				<div #mask class="absolute top-0 left-0" [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT }"></div>
 			</div>
 		</div>
-
 
 		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
 			<div *ngIf="faceError && !loadingResults">
