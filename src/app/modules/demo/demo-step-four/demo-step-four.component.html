@@ -1,1 +1,11 @@
-<p>demo-step-four works!</p>
+<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+	<app-stepper class="w-full"></app-stepper>
+
+	<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+			<button mat-stroked-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="goBack()">Go Back</button>
+
+			<button mat-raised-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="continue()">Continue</button>
+		</div>
+	</div>
+</div>

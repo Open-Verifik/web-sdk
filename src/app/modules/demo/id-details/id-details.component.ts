@@ -94,4 +94,8 @@ export class IdDetailsComponent implements OnInit {
 			this.locationLoaded = true;
 		});
 	}
+
+	continue(): void {
+		this._demoService.moveToStep(4);
+	}
 }
