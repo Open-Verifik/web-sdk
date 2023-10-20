@@ -1,0 +1,37 @@
+<div class="bg-white h-full flex flex-col items-center justify-center p-1">
+	<div *ngIf="loadingModel" class="scan">
+		<div class="face">
+			<div class="dots"></div>
+		</div>
+		<!-- <h3>Loading</h3> -->
+		<div class="w-full flex items-center justify-center my-4">
+			<h1 class="text-3xl font-bold">{{ "loading_stream" | transloco }}</h1>
+		</div>
+	</div>
+
+	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
+		<h1 class="text-3xl font-bold">{{ "image_title" | transloco }}</h1>
+		WIDTH:{{WIDTH}} HEIGHT:{{HEIGHT}}
+		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT}">
+			<div class="relative">
+				<video #video [width]="WIDTH" [height]="HEIGHT" autoplay muted class="absolute top-0 left-0 oval-video"></video>
+				<div #canvas class="absolute top-0 left-0 oval-video"></div>
+				<div #mask class="absolute top-0 left-0" [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT}">
+
+				</div>
+			</div>
+		</div>
+
+
+		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
+			<div *ngIf="faceError && !loadingResults">
+				<div class="text-3xl font-bold">{{ faceError.title }}</div>
+				<div class="text-gray-600">{{ faceError.subtitle }}</div>
+			</div>
+			<div *ngIf="loadingResults" class="flex flex-col items-center justify-center">
+				<div class="text-3xl font-bold">{{ "processing_image" | transloco }}</div>
+				<mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"> </mat-progress-spinner>
+			</div>
+		</div>
+	</div>
+</div>
