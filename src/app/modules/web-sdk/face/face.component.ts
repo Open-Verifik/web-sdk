@@ -6,11 +6,13 @@ import { FormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms"
 import { WebSdkService } from "../web-sdk.service";
 import { MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule } from "@ngneat/transloco";
+import { MatButtonModule } from "@angular/material/button";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 @Component({
 	selector: "app-face",
 	standalone: true,
-	imports: [CommonModule, FormsModule, MatDialogModule, TranslocoModule],
+	imports: [CommonModule, FormsModule, MatDialogModule, TranslocoModule, MatButtonModule, FlexLayoutModule],
 	templateUrl: "./face.component.html",
 	styleUrls: ["./face.component.scss"],
 })
@@ -84,6 +86,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 					this.isActiveDebug = !this.isActiveDebug;
 
 					localStorage.setItem("isActiveDebug", this.isActiveDebug.toString());
+
 					this._changeDetectorRef.markForCheck();
 				}
 				return this.debugIndex++;
@@ -104,62 +107,17 @@ export class FaceComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	liveness() {
-		if (this.loadingResults) return;
-
-		const payload: any = {
-			image: this.base64Images[0],
-			os: this.osInfo,
-		};
-
-		this.loadingResults = true;
-
-		this._sdkService.livenessDemo(payload).subscribe(
-			(liveness) => {
-				this.livenessScore = liveness.data.liveness_score;
-				this.errorResult = null;
-				this.loadingResults = false;
-				this.completeResults();
-			},
-			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				this.loadingResults = false;
-				console.error("sdkService.liveness");
-				this.completeResults();
-			}
-		);
-	}
-
-	completeResults() {
-		this.faceError = null;
-		this.loadingResults = false;
-		this.base64Images = [];
-
-		if (!this.errorResult && this.config.stopRecord) {
-			this.stopRecord();
-		}
-
-		this._changeDetectorRef.markForCheck();
-	}
-
-	ngOnDestroy(): void {
-		this._unsubscribeAll.next(null);
-		this.loadingStream = false;
-		this.loadingResults = false;
-		this.video = undefined;
-		if (this.detectFaceInterval) {
-			this.stopRecord();
-		}
-	}
 	stopRecord(): void {
 		clearInterval(this.detectFaceInterval);
+
 		this.stream.getTracks().forEach((track) => track.stop());
 	}
 
 	async ngOnInit(): Promise<void> {
+		await this.restart();
+	}
+
+	async restart(): Promise<void> {
 		this.base64Images = [];
 		this.faceError = null;
 
@@ -226,13 +184,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	// async detectObjects() {
-	// 	await this.setConfigCanvas();
-	// 	this.detectFaceInterval = setInterval(async () => {})
-
-	// 	ssdMobilenetv1
-	// }
-
 	async detectFaces() {
 		await this.setConfigCanvas();
 		this.detectFaceInterval = setInterval(async () => {
@@ -243,8 +194,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 				.withAgeAndGender();
 
 			const context = this.canvas.getContext("2d");
-
-			console.log({ detection });
 
 			if (detection.length > 0) {
 				this.faceError = null;
@@ -260,6 +209,10 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 			this._changeDetectorRef.markForCheck();
 		}, 100);
+	}
+
+	manualCapture(): void {
+		this.captureBase64Image();
 	}
 
 	async setConfigCanvas(): Promise<void> {
@@ -335,11 +288,18 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}, 1500);
 
 		const context = this.canvas.getContext("2d");
+
 		context.drawImage(this.videoInput, 0, 0, this.WIDTH, this.HEIGHT);
+
 		const base64Image = this.canvas.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
+
 		this.base64Images.push(base64Image);
+
 		if (this.base64Images.length >= this.config.totalImages) {
 			this.stopRecord();
+
+			console.log({ base64Images: this.base64Images });
+
 			this.liveness();
 		}
 	}
@@ -353,5 +313,59 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 
 		return "DESKTOP";
+	}
+
+	liveness() {
+		if (this.loadingResults) return;
+
+		const payload: any = {
+			image: this.base64Images[0],
+			os: this.osInfo,
+		};
+
+		this.loadingResults = true;
+
+		this._sdkService.livenessDemo(payload).subscribe(
+			(liveness) => {
+				this.livenessScore = liveness.data.liveness_score;
+				this.errorResult = null;
+				this.loadingResults = false;
+
+				console.log({ livenessScore: this.livenessScore });
+
+				// this.completeResults();
+			},
+			(error) => {
+				this.errorResult = {
+					status: error.error?.code,
+					message: error.error?.message,
+				};
+				this.loadingResults = false;
+				console.error("sdkService.liveness");
+				this.completeResults();
+			}
+		);
+	}
+
+	completeResults() {
+		this.faceError = null;
+		this.loadingResults = false;
+		this.base64Images = [];
+
+		if (!this.errorResult && this.config.stopRecord) {
+			this.stopRecord();
+		}
+
+		this._changeDetectorRef.markForCheck();
+	}
+
+	ngOnDestroy(): void {
+		this._unsubscribeAll.next(null);
+		this.loadingStream = false;
+		this.loadingResults = false;
+		this.video = undefined;
+		if (this.detectFaceInterval) {
+			this.stopRecord();
+		}
 	}
 }

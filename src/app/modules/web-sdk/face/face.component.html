@@ -30,5 +30,11 @@
 				<mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"> </mat-progress-spinner>
 			</div>
 		</div>
+
+		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+			<button mat-raised-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="manualCapture()">Manual Capture</button>
+
+			<button mat-raised-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="restart()">Restart</button>
+		</div>
 	</div>
 </div>
