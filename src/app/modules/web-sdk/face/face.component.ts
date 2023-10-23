@@ -37,11 +37,13 @@ export class FaceComponent implements OnInit, OnDestroy {
 	//SIZE OF CANVAS
 	WIDTH = 720;
 	HEIGHT = 1280;
-	videoCenterX = this.WIDTH / 2;
-	videoCenterY = this.HEIGHT / 2;
-	marginX = 10;
-	marginY = 10;
+	videoCenterX;
+	videoCenterY;
+	marginX;
+	marginY;
 
+	//SIZE OVAL
+	OVAL: any = {};
 	faceError: {
 		title: string;
 		subtitle: string;
@@ -132,7 +134,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode: "environment" },
+				video: { facingMode: "environment", height: 720 },
 				audio: false,
 			});
 
@@ -155,6 +157,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this.videoCenterX = this.WIDTH / 2;
 				this.videoCenterY = this.HEIGHT / 2;
 
+				this.marginY = this.HEIGHT * 0.04;
+				this.marginX = this.marginY * 0.4;
+
+				this.OVAL.radiusY = (this.HEIGHT * 0.85) / 2;
+				this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
+
 				this.videoInput = this.video.nativeElement as HTMLVideoElement;
 
 				this.videoInput.srcObject = this.stream;
@@ -167,10 +175,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this.videoInput.addEventListener("play", async () => {
 					this.detectFaces();
 				});
+
 				this._changeDetectorRef.markForCheck();
 			}, 300);
 		} catch (error) {
-			console.log("SHOW ERROR");
+			console.error("SHOW ERROR");
 		}
 	}
 
@@ -227,7 +236,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		if (this.isActiveDebug) {
 			ctx.strokeStyle = "red";
 			ctx.lineWidth = 4;
-			ctx.strokeRect(this.videoCenterX - this.marginX, this.videoCenterY + this.marginY, this.marginX * 2, this.marginY * 3);
+			ctx.strokeRect(this.videoCenterX - this.marginX, this.videoCenterY, this.marginX * 2, this.marginY * 2);
 			// faceapi.draw.drawDetections(this.canvas, resizedDetections);
 			faceapi.draw.drawFaceLandmarks(this.canvas, resizedDetections);
 			faceapi.draw.drawFaceExpressions(this.canvas, resizedDetections);
@@ -241,36 +250,48 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	drawOvalCenterAndMask(ctx): void {
+		//CLEAR CANVAS
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // Color de la máscara
+
+		//OPACITY OUTSIDE THE ELLIPSE
+		ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; // Color de la máscara
 		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		ctx.globalCompositeOperation = "destination-out";
 
+		//DRAW ELIPSE CON RELLENO VACIO
 		ctx.fillStyle = "rgba(255, 255, 255, 1)";
-
-		const radiusX = 160; // Radio horizontal
-		const radiusY = 200; // Radio vertical
-
 		ctx.beginPath();
-		ctx.ellipse(this.videoCenterX, this.videoCenterY, radiusX, radiusY, 0, 0, 2 * Math.PI);
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = "red"; // Color de los contornos del óvalo
+		ctx.ellipse(this.videoCenterX, this.videoCenterY, this.OVAL.radiusX, this.OVAL.radiusY, 0, 0, 2 * Math.PI);
 		ctx.fill();
-		ctx.stroke();
 		ctx.closePath();
 		ctx.globalCompositeOperation = "source-over";
 	}
 
 	drawStatusOval(ctx, isOk?): void {
-		const radiusX = 160; // Radio horizontal
-		const radiusY = 200; // Radio vertical
-
 		ctx.beginPath();
-		ctx.ellipse(this.videoCenterX, this.videoCenterY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+		ctx.ellipse(this.videoCenterX, this.videoCenterY, this.OVAL.radiusX, this.OVAL.radiusY, 0, 0, 2 * Math.PI);
 		ctx.lineWidth = 5;
-		ctx.strokeStyle = isOk ? "green" : "red"; // Color de los contornos del óvalo
+		ctx.strokeStyle = isOk ? "green" : "red";
 		ctx.stroke();
 		ctx.closePath();
+
+		if (!isOk) {
+			ctx.font = "30px Arial"; // Fuente y tamaño
+			ctx.textAlign = "center"; // Alineación del texto (centro)
+			const medidasTexto = ctx.measureText(this.faceError.title);
+
+			const padding = 10; // Espacio adicional alrededor del texto
+			ctx.fillStyle = "black"; // Fondo negro
+			ctx.fillRect(
+				this.videoCenterX - medidasTexto.width / 2 - padding,
+				this.videoCenterY - 30 - padding,
+				medidasTexto.width + 2 * padding,
+				40 + 2 * padding
+			);
+
+			ctx.fillStyle = "white"; // Color del texto
+			ctx.fillText(this.faceError.title, this.videoCenterX, this.videoCenterY);
+		}
 	}
 
 	isFaceCentered(nose): void {
@@ -280,12 +301,20 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const isFaceCentered =
 			faceCenterX > this.videoCenterX - this.marginX &&
 			faceCenterX < this.videoCenterX + this.marginX &&
-			faceCenterY > this.videoCenterY + this.marginY &&
-			faceCenterY < this.videoCenterY + this.marginY * 3;
+			faceCenterY > this.videoCenterY &&
+			faceCenterY < this.videoCenterY + this.marginY * 2;
 
 		if (!isFaceCentered) {
+			let direction = "";
+
+			if (faceCenterX < this.videoCenterX - this.marginX || faceCenterX > this.videoCenterX + this.marginX)
+				direction += ` ${faceCenterX < this.videoCenterX - this.marginX ? "→" : "←"} `;
+
+			if (faceCenterY < this.videoCenterY || faceCenterY > this.videoCenterY + this.marginY * 2)
+				direction += ` ${faceCenterY < this.videoCenterY ? "↑" : "↓"}  `;
+
 			this.faceError = {
-				title: "Centra tu rostro en la pantalla",
+				title: `Centra tu rostro en la pantalla (${direction})`,
 				subtitle: "Por favor, asegúrate de que tu rostro esté centrado.",
 			};
 		}
@@ -297,7 +326,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		const faceProportion = totalFaceArea / totalImageArea;
 
-		const threshold = 0.4;
+		const threshold = 0.3;
+		// console.log(faceProportion, "  ==  " , totalFaceArea,"/",totalImageArea)
 
 		if (faceProportion < threshold) {
 			this.faceError = {
