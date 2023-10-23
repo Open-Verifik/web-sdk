@@ -17,6 +17,7 @@ export class IdDetailsComponent implements OnInit {
 	generalInfoLoaded: boolean;
 	locationLoaded: boolean;
 	locationLoading: boolean;
+	documentId: string;
 
 	constructor(private _demoService: DemoService, private _changeDetectorRef: ChangeDetectorRef) {
 		this.demoData = this._demoService.getDemoData();
@@ -27,38 +28,33 @@ export class IdDetailsComponent implements OnInit {
 
 		this.locationLoading = false;
 
-		if (!this.demoData.document?._id) {
-			this._getDocumentData();
-		}
+		this.documentId = localStorage.getItem("documentId");
 	}
 
 	ngOnInit(): void {
-		this._demoService.getDeviceDetails();
+		if (!this.demoData.document?._id) {
+			if (!this.documentId) this._demoService.moveToStep(1);
 
-		this._changeDetectorRef.markForCheck();
+			this._requestDocument();
+		}
 	}
 
-	_getDocumentData(): void {
-		this._demoService.setDemoDocument({
-			documentType: "CC",
-			status: "ACTIVE_BUT_UNVERIFIED",
-			imageValidated: false,
-			validationMethod: "SCAN_PROMPT",
-			type: "ocr",
-			_id: "6530568940e03c18db76f5cc",
-			deleted: false,
-			documentNumber: "73.180.434",
-			url: "https://cdn.verifik.co/ocr/samples/_cc22.png",
-			OCRExtraction: {
-				firstName: "JOSE ANTONIO",
-				lastName: "GUZMAN VELASQUEZ",
-				fullName: "JOSE ANTONIO GUZMAN VELASQUEZ",
-				documentNumber: "73.180.434",
+	_requestDocument(): void {
+		this._demoService.requestDocument(this.documentId).subscribe(
+			(response) => {
+				this._demoService.setDemoDocument(response.data);
+
+				console.log({ documentRequested: response.data });
+
+				this._demoService.getDeviceDetails();
+
+				this._changeDetectorRef.markForCheck();
 			},
-			updatedAt: "2023-10-18T22:04:57.377Z",
-			createdAt: "2023-10-18T22:04:57.377Z",
-			__v: 0,
-		});
+			(error) => {
+				console.error({ error });
+				this._demoService.moveToStep(1);
+			}
+		);
 	}
 
 	hasGeneralInformation(): boolean {

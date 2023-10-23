@@ -29,6 +29,8 @@
 			<p class="mt-4">Remaining attempts {{ attemptsLimit - attempts }}</p>
 
 			<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="tryAgain()">Try again</button>
+
+			<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="continue()">Fake Continue</button>
 		</div>
 
 		<div *ngIf="failedToDetectDocument && !(attemptsLimit - attempts)" fxLayout="column" fxLayoutAlign="center center">

@@ -20,16 +20,24 @@ export class IdScanningComponent implements OnInit {
 	failedToDetectDocument: boolean;
 	attempts: number;
 	attemptsLimit: number;
+	demoData: any;
+	idToSend: any;
 
 	constructor(private _demoService: DemoService) {
 		this.attempts = 0;
+
 		this.attemptsLimit = 3;
+
 		this.loadingCamera = false;
+
 		this.hasCameraPermissions = false;
+
 		this.failedToDetectDocument = false;
 	}
 
 	ngOnInit(): void {
+		this.demoData = this._demoService.getDemoData();
+
 		this.startCamera();
 	}
 
@@ -70,28 +78,20 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	restartDemo(): void {
-		// go to step 3 for now
-		this._demoService.setDemoDocument({
-			documentType: "CC",
-			status: "ACTIVE_BUT_UNVERIFIED",
-			imageValidated: false,
-			validationMethod: "SCAN_PROMPT",
-			type: "ocr",
-			_id: "6530568940e03c18db76f5cc",
-			deleted: false,
-			documentNumber: "73.180.434",
-			url: "https://cdn.verifik.co/ocr/samples/_cc22.png",
-			OCRExtraction: {
-				firstName: "JOSE ANTONIO",
-				lastName: "GUZMAN VELASQUEZ",
-				fullName: "JOSE ANTONIO GUZMAN VELASQUEZ",
-				documentNumber: "73.180.434",
-			},
-			updatedAt: "2023-10-18T22:04:57.377Z",
-			createdAt: "2023-10-18T22:04:57.377Z",
-			__v: 0,
-		});
+		this._demoService.moveToStep(1);
+	}
 
-		this._demoService.moveToStep(3);
+	continue(): void {
+		this.idToSend = {
+			image: "https://cdn.verifik.co/ocr/samples/_cc20.png",
+		};
+
+		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe((response) => {
+			this._demoService.setDemoDocument(response.data);
+
+			localStorage.setItem("documentId", response.data._id);
+
+			this._demoService.moveToStep(3);
+		});
 	}
 }

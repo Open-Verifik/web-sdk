@@ -5,6 +5,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { RouterLink } from "@angular/router";
 import { StepperComponent } from "../stepper/stepper.component";
 import { IdScanningComponent } from "../id-scanning/id-scanning.component";
+import { DemoService } from "../demo.service";
 
 @Component({
 	selector: "demo-step-two",
@@ -14,7 +15,7 @@ import { IdScanningComponent } from "../id-scanning/id-scanning.component";
 	imports: [FlexLayoutModule, RouterLink, MatCheckboxModule, MatButtonModule, StepperComponent, IdScanningComponent],
 })
 export class DemoStepTwoComponent implements OnInit {
-	constructor() {}
+	constructor(private _demoService: DemoService) {}
 
 	ngOnInit(): void {}
 }

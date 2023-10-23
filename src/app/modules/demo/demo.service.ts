@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
-
+import { Observable } from "rxjs";
+import { HttpWrapperService } from "./http-wrapper.service";
+import { environment } from "environments/environment";
 let _this = null;
 
 @Injectable({
@@ -8,9 +10,13 @@ let _this = null;
 export class DemoService {
 	navigation: any;
 	demoData: any;
+	apiUrl: any;
 
-	constructor() {
+	constructor(private _httpWrapperService: HttpWrapperService) {
+		this.apiUrl = environment.apiUrl;
+
 		this.initNavigation();
+
 		this.initDemoData();
 
 		_this = this;
@@ -22,7 +28,7 @@ export class DemoService {
 
 	initNavigation(): void {
 		this.navigation = {
-			currentStep: 1,
+			currentStep: 3,
 			lastStep: 5,
 		};
 	}
@@ -160,5 +166,14 @@ export class DemoService {
 			console.error("Error during reverse geocoding with OSM:", error);
 			return null;
 		}
+	}
+
+	requestDocument(documentId: string): Observable<any> {
+		return this._httpWrapperService.sendRequest("get", `${this.apiUrl}/v2/document-validations/demo/${documentId}`);
+	}
+
+	// apis to verifik
+	sendDocument(data: any): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/ocr/scan-demo`, data);
 	}
 }
