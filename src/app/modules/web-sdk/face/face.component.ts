@@ -20,12 +20,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 	@ViewChild("video", { static: false }) public video: ElementRef;
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 
-	//DEFAULT CONFIG
-	config = {
-		totalImages: 1,
-		stopRecord: true,
-	};
-
 	loadingResults = false;
 	loading = false;
 	loadingStream = false;
@@ -45,8 +39,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 	HEIGHT = 1280;
 	videoCenterX = this.WIDTH / 2;
 	videoCenterY = this.HEIGHT / 2;
-	marginX = 40;
-	marginY = 80;
+	marginX = 10;
+	marginY = 10;
 
 	faceError: {
 		title: string;
@@ -85,7 +79,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 				if (this.debugIndex === 3) {
 					this.isActiveDebug = !this.isActiveDebug;
 
-					localStorage.setItem("isActiveDebug", this.isActiveDebug.toString());
+					localStorage.setItem("isActiveDebug", this.isActiveDebug ? "true" : "");
 
 					this._changeDetectorRef.markForCheck();
 				}
@@ -114,6 +108,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async ngOnInit(): Promise<void> {
+		await this.loadModels();
+
 		await this.restart();
 	}
 
@@ -121,7 +117,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.base64Images = [];
 		this.faceError = null;
 
-		await this.loadModels();
 		await this.startAsyncVideo();
 	}
 
@@ -144,8 +139,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.loadingModel = false;
 
 			setTimeout(() => {
-				console.log("startAsyncVideo", this.stream, this.canvas, this.video);
-
 				if (!this.video && !this.canvas) {
 					this.stopRecord();
 					return;
@@ -158,9 +151,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 				const { width, height } = settings;
 				this.HEIGHT = height;
 				this.WIDTH = width;
-
-				this.marginX = this.WIDTH * 0.1;
-				this.marginY = this.HEIGHT * 0.1;
 
 				this.videoCenterX = this.WIDTH / 2;
 				this.videoCenterY = this.HEIGHT / 2;
@@ -201,6 +191,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this.drawFaceAndCenter(detection, context);
 				this.isFaceCentered(detection[0].landmarks.getNose()[3]);
 				this.isFaceClose(detection[0].landmarks);
+				// console.log(this.faceError)
+				this.drawStatusOval(context, !this.faceError?.title);
 
 				if (!this.faceError) {
 					this.captureBase64Image();
@@ -212,26 +204,30 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	manualCapture(): void {
-		this.captureBase64Image();
+		this.takePicture();
 	}
 
 	async setConfigCanvas(): Promise<void> {
 		this.canvas = await faceapi.createCanvasFromMedia(this.videoInput);
 		this.canvasEl = this.canvasRef.nativeElement;
 		this.canvasEl.appendChild(this.canvas);
-		this.canvas.setAttribute("id", "canvass");
+		this.canvas.setAttribute("id", "canvas");
 		faceapi.matchDimensions(this.canvas, this.displaySize);
+		const ctx = this.canvas.getContext("2d");
+		this.drawOvalCenterAndMask(ctx);
 	}
 
-	drawFaceAndCenter(detection, context): void {
+	drawFaceAndCenter(detection, ctx): void {
 		const resizedDetections = faceapi.resizeResults(detection, this.displaySize);
 
-		context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		this.drawOvalCenterAndMask(ctx);
+
+		// Restablece la operación de composición
 
 		if (this.isActiveDebug) {
-			context.strokeStyle = "red";
-			context.lineWidth = 0.5;
-			context.strokeRect(this.videoCenterX - this.marginX, this.videoCenterY, this.marginX * 2, this.marginY * 2);
+			ctx.strokeStyle = "red";
+			ctx.lineWidth = 4;
+			ctx.strokeRect(this.videoCenterX - this.marginX, this.videoCenterY + this.marginY, this.marginX * 2, this.marginY * 3);
 			// faceapi.draw.drawDetections(this.canvas, resizedDetections);
 			faceapi.draw.drawFaceLandmarks(this.canvas, resizedDetections);
 			faceapi.draw.drawFaceExpressions(this.canvas, resizedDetections);
@@ -244,6 +240,39 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	drawOvalCenterAndMask(ctx): void {
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // Color de la máscara
+		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		ctx.globalCompositeOperation = "destination-out";
+
+		ctx.fillStyle = "rgba(255, 255, 255, 1)";
+
+		const radiusX = 160; // Radio horizontal
+		const radiusY = 200; // Radio vertical
+
+		ctx.beginPath();
+		ctx.ellipse(this.videoCenterX, this.videoCenterY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "red"; // Color de los contornos del óvalo
+		ctx.fill();
+		ctx.stroke();
+		ctx.closePath();
+		ctx.globalCompositeOperation = "source-over";
+	}
+
+	drawStatusOval(ctx, isOk?): void {
+		const radiusX = 160; // Radio horizontal
+		const radiusY = 200; // Radio vertical
+
+		ctx.beginPath();
+		ctx.ellipse(this.videoCenterX, this.videoCenterY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+		ctx.lineWidth = 5;
+		ctx.strokeStyle = isOk ? "green" : "red"; // Color de los contornos del óvalo
+		ctx.stroke();
+		ctx.closePath();
+	}
+
 	isFaceCentered(nose): void {
 		const faceCenterX = nose.x;
 		const faceCenterY = nose.y;
@@ -251,8 +280,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const isFaceCentered =
 			faceCenterX > this.videoCenterX - this.marginX &&
 			faceCenterX < this.videoCenterX + this.marginX &&
-			faceCenterY > this.videoCenterY &&
-			faceCenterY < this.videoCenterY + this.marginY * 2;
+			faceCenterY > this.videoCenterY + this.marginY &&
+			faceCenterY < this.videoCenterY + this.marginY * 3;
 
 		if (!isFaceCentered) {
 			this.faceError = {
@@ -282,11 +311,18 @@ export class FaceComponent implements OnInit, OnDestroy {
 		if (this.saveImageBase64Intent) {
 			return;
 		}
+		console.log("saveImageBase64Intent", !this.faceError);
 
 		this.saveImageBase64Intent = setTimeout(() => {
-			this.saveImageBase64Intent = clearTimeout(this.saveImageBase64Intent);
+			if (this.faceError) {
+				this.saveImageBase64Intent = clearTimeout(this.saveImageBase64Intent);
+				return console.log("================================", !this.faceError);
+			}
+			this.takePicture();
 		}, 1500);
+	}
 
+	takePicture() {
 		const context = this.canvas.getContext("2d");
 
 		context.drawImage(this.videoInput, 0, 0, this.WIDTH, this.HEIGHT);
@@ -295,14 +331,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.base64Images.push(base64Image);
 
-		if (this.base64Images.length >= this.config.totalImages) {
-			this.stopRecord();
+		this.stopRecord();
 
-			console.log({ base64Images: this.base64Images });
-
-			this.liveness();
-		}
+		this.liveness();
 	}
+
 	detectOS() {
 		const userAgent = window.navigator.userAgent.toLowerCase();
 
@@ -352,7 +385,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.loadingResults = false;
 		this.base64Images = [];
 
-		if (!this.errorResult && this.config.stopRecord) {
+		if (!this.errorResult) {
 			this.stopRecord();
 		}
 
