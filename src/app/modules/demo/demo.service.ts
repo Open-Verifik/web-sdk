@@ -294,7 +294,17 @@ export class DemoService {
 	}
 
 	cleanVariables(): void {
-		const keys = ["documentId", "document", "extractedData", "liveness", "livenessId", "livenessResult", "comparison", "comparisonResult"];
+		const keys = [
+			"documentId",
+			"document",
+			"extractedData",
+			"liveness",
+			"livenessId",
+			"livenessResult",
+			"comparison",
+			"comparisonResult",
+			"comparisonId",
+		];
 
 		for (let index = 0; index < keys.length; index++) {
 			const key = keys[index];
