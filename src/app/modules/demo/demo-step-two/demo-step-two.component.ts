@@ -22,6 +22,6 @@ export class DemoStepTwoComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this._demoService.getAddress(this.demoData.lat, this.demoData.lng);
+		this._demoService.getAddress();
 	}
 }

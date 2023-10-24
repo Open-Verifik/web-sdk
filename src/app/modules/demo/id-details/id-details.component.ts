@@ -80,7 +80,7 @@ export class IdDetailsComponent implements OnInit {
 
 		this.locationLoading = true;
 
-		const location = await this._demoService.getAddress(this.demoData.lat, this.demoData.lng);
+		const location = await this._demoService.getAddress();
 
 		console.log({ location });
 
@@ -89,5 +89,17 @@ export class IdDetailsComponent implements OnInit {
 
 	continue(): void {
 		this._demoService.moveToStep(4);
+	}
+
+	scanAgain(): void {
+		localStorage.removeItem("documentId");
+
+		localStorage.removeItem("document");
+
+		this.demoData.document = null;
+
+		this.demoData.extractedData = [];
+
+		this._demoService.moveToStep(2);
 	}
 }

@@ -33,12 +33,41 @@ import { DemoFooterComponent } from "../demo-footer/demo-footer.component";
 })
 export class DemoRootComponent implements OnInit {
 	navigation: any;
+	requirementsLoaded: boolean;
+	step: number;
+	demoData: any;
 
-	constructor(private demoService: DemoService) {
-		this.navigation = this.demoService.getNavigation();
+	constructor(private _demoService: DemoService) {
+		this.navigation = this._demoService.getNavigation();
+
+		this._demoService.getDeviceDetails();
+
+		this.step = Number(localStorage.getItem("step")) || 1;
 	}
 
-	ngOnInit(): void {
-		console.log({ navigation: this.navigation });
+	async ngOnInit(): Promise<any> {
+		if (this.step > 1) {
+			await this._loadContent();
+
+			this._demoService.moveToStep(this.step);
+
+			return;
+		}
+
+		this._demoService.cleanVariables();
+
+		this.requirementsLoaded = true;
+	}
+
+	async _loadContent(): Promise<any> {
+		this.demoData = this._demoService.getDemoData();
+
+		this._demoService.getDeviceDetails();
+
+		const location = await this._demoService.getAddress();
+
+		console.log({ location });
+
+		this.requirementsLoaded = true;
 	}
 }

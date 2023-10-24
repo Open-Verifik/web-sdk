@@ -28,7 +28,7 @@
 	<!-- end of header -->
 
 	<!-- content -->
-	<ng-container class="demo-content">
+	<ng-container class="demo-content" *ngIf="requirementsLoaded">
 		<demo-step-one *ngIf="navigation.currentStep === 1"> </demo-step-one>
 		<demo-step-two *ngIf="navigation.currentStep === 2"> </demo-step-two>
 		<demo-step-three *ngIf="navigation.currentStep === 3"> </demo-step-three>

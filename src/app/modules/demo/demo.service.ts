@@ -66,6 +66,10 @@ export class DemoService {
 				this.demoData.extractedData.push({ key, value });
 			}
 		}
+
+		localStorage.setItem("document", JSON.stringify(document));
+
+		localStorage.setItem("extractedData", JSON.stringify(this.demoData.extractedData));
 	}
 
 	setDemoLiveness(data: any): void {
@@ -81,7 +85,7 @@ export class DemoService {
 
 		localStorage.setItem("livenessId", data._id);
 
-		console.log({ liveness: this.demoData.liveness });
+		localStorage.setItem("livenessResult", JSON.stringify(this.demoData.livenessResult));
 	}
 
 	moveToStep(step: number): void {
@@ -90,9 +94,13 @@ export class DemoService {
 		if (step <= 0) return;
 
 		this.navigation.currentStep = step;
+
+		localStorage.setItem("step", `${step}`);
 	}
 
 	getDeviceDetails(): any {
+		if (this.demoData.generalInformation.length) return;
+
 		const details = {
 			// Navigator properties
 			userAgent: navigator.userAgent,
@@ -147,7 +155,12 @@ export class DemoService {
 
 	showPosition(position) {
 		_this.demoData.lat = position?.coords.latitude;
+
 		_this.demoData.lng = position?.coords.longitude;
+
+		localStorage.setItem("lat", _this.demoData.lat);
+
+		localStorage.setItem("lng", _this.demoData.lng);
 
 		console.log(`Latitude: ${_this.demoData.lat}, Longitude: ${_this.demoData.lng}`);
 	}
@@ -186,10 +199,23 @@ export class DemoService {
 		}
 	}
 
-	async getAddress(lat, lng): Promise<any> {
+	async getAddress(): Promise<any> {
+		const lat = this.demoData.lat || localStorage.getItem("lat");
+		const lng = this.demoData.lng || localStorage.getItem("lng");
+
+		if (!lat || !lng) return null;
+
 		if (this.demoData.location.length) return this.demoData.location;
 
-		const location = await this.reverseGeocodeWithOSM(this.demoData.lat, this.demoData.lng);
+		let _localLocation = localStorage.getItem("location");
+
+		if (_localLocation) {
+			this.demoData.location = JSON.parse(_localLocation);
+
+			return;
+		}
+
+		const location = await this.reverseGeocodeWithOSM(lat, lng);
 
 		if (!location) return;
 
@@ -200,6 +226,8 @@ export class DemoService {
 				this.demoData.location.push({ key, value });
 			}
 		}
+
+		localStorage.setItem("location", JSON.stringify(this.demoData.location));
 
 		return this.demoData.location;
 	}

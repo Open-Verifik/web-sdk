@@ -17,10 +17,6 @@ export class DemoStepOneComponent {
 	canStartDemo: Boolean;
 
 	constructor(private _demoService: DemoService) {
-		this._demoService.cleanVariables();
-
-		this._demoService.getDeviceDetails();
-
 		this.canStartDemo = false;
 	}
 

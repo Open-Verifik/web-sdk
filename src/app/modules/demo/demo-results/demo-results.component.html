@@ -4,17 +4,17 @@
 	fxLayout.xs="column"
 	fxLayoutAlign="start start"
 	fxLayoutAlign.xs="center center"
-	*ngIf="demoData.document._id"
+	*ngIf="demoData.document._id && demoData.liveness"
 >
 	<!-- first section -->
 	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
-		<div fxLayout="column" fxLayoutAlign="start center">
+		<div fxLayout="column" fxLayoutAlign="start center" *ngIf="demoData.liveness">
 			<h1 class="mt-4">Selfie</h1>
 
 			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
 				<h2 class="mt-4">Front side</h2>
 
-				<img [src]="demoData.document.url" alt="" class="mt-4 box-shadow-3px" />
+				<img [src]="demoData.liveness.images[0]" alt="" class="mt-4 box-shadow-3px" />
 			</div>
 		</div>
 
