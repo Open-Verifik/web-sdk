@@ -85,6 +85,8 @@ export class DemoService {
 
 		localStorage.setItem("livenessId", data._id);
 
+		localStorage.setItem("liveness", JSON.stringify(data));
+
 		localStorage.setItem("livenessResult", JSON.stringify(this.demoData.livenessResult));
 	}
 
@@ -251,6 +253,10 @@ export class DemoService {
 
 	cleanVariables(): void {
 		localStorage.removeItem("documentId");
+		localStorage.removeItem("document");
+		localStorage.removeItem("extractedData");
+		localStorage.removeItem("liveness");
 		localStorage.removeItem("livenessId");
+		localStorage.removeItem("livenessResult");
 	}
 }

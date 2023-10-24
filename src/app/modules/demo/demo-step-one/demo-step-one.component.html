@@ -65,8 +65,9 @@
 
 		<div fxLayout="column" class="accept-terms-container" fxLayoutAlign="start center">
 			<mat-checkbox class="mt-8 z-index-2" [checked]="canStartDemo" (change)="agreeToTerms()"
-				>To use this demo, you must accept our Data Treatment Agreement.</mat-checkbox
-			>
+				>To use this demo, you must accept our
+				<a href="https://docs.verifik.co/docs/terms-conditions/4s01oqa1z6oof-privacy-policy" target="_blank">Data Treatment Agreement.</a>
+			</mat-checkbox>
 
 			<button mat-raised-button color="primary" class="mt-4 z-index-2 start-demo-button" [disabled]="!canStartDemo" (click)="startDemo()">
 				Start demo

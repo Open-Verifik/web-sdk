@@ -32,10 +32,50 @@ export class DemoResultsComponent implements OnInit {
 			this._getDocumentData();
 		}
 
+		if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
+			this._getLivenessData();
+		}
+
+		this._changeDetectorRef.markForCheck();
+
+		console.log("check...");
+
+		if (!this.demoData.liveness?._id || !this.demoData.document?._id) {
+			this._demoService.moveToStep(1);
+
+			return;
+		}
+	}
+
+	_getDocumentData(): void {
+		let document = localStorage.getItem("document");
+
+		if (document) {
+			this.demoData.document = JSON.parse(document);
+
+			this.demoData.extractedData = JSON.parse(localStorage.getItem("extractedData"));
+
+			return;
+		}
+
 		this._changeDetectorRef.markForCheck();
 	}
 
-	_getDocumentData(): void {}
+	_getLivenessData(): void {
+		let liveness = localStorage.getItem("liveness");
+
+		if (liveness) {
+			this.demoData.liveness = JSON.parse(liveness);
+
+			this.demoData.livenessResult = JSON.parse(localStorage.getItem("livenessResult"));
+
+			return;
+		}
+
+		console.log({ liveness });
+
+		this._demoService.moveToStep(1);
+	}
 
 	hasLocation(): boolean {
 		if (this.locationLoaded && this.demoData.lat && this.demoData.lng) return true;
@@ -43,22 +83,6 @@ export class DemoResultsComponent implements OnInit {
 		if (this.locationLoading || !this.demoData.lat || !this.demoData.lng) {
 			return false;
 		}
-
-		this.locationLoading = true;
-
-		this._demoService.reverseGeocodeWithOSM(this.demoData.lat, this.demoData.lng).then((location) => {
-			if (!location) return;
-
-			for (const key in location.address) {
-				if (Object.prototype.hasOwnProperty.call(location.address, key)) {
-					const value = location.address[key];
-
-					this.demoData.location.push({ key, value });
-				}
-			}
-
-			this.locationLoaded = true;
-		});
 	}
 
 	hasGeneralInformation(): boolean {

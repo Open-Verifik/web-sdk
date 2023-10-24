@@ -4,7 +4,7 @@
 	fxLayout.xs="column"
 	fxLayoutAlign="start start"
 	fxLayoutAlign.xs="center center"
-	*ngIf="demoData.document._id && demoData.liveness"
+	*ngIf="demoData.document._id && demoData.liveness._id"
 >
 	<!-- first section -->
 	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
@@ -57,7 +57,7 @@
 			</div>
 		</div>
 
-		<div fxLayout="column" fxLayoutAlign="start start" *ngIf="hasLocation()" class="w-full">
+		<div fxLayout="column" fxLayoutAlign="start start" *ngIf="demoData.location" class="w-full">
 			<h1 class="mt-4">User Location</h1>
 
 			<div class="mt-8 w-full">

@@ -147,6 +147,11 @@ h3 {
 	}
 }
 
+a {
+	text-decoration: underline;
+	font-weight: 800;
+}
+
 // Small screens
 @media (min-width: 600px) and (max-width: 959px) {
 	.step-one-main-div {
