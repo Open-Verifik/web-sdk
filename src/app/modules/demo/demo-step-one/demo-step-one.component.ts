@@ -16,7 +16,11 @@ import { DemoService } from "../demo.service";
 export class DemoStepOneComponent {
 	canStartDemo: Boolean;
 
-	constructor(private demoService: DemoService) {
+	constructor(private _demoService: DemoService) {
+		this._demoService.cleanVariables();
+
+		this._demoService.getDeviceDetails();
+
 		this.canStartDemo = false;
 	}
 
@@ -27,6 +31,6 @@ export class DemoStepOneComponent {
 	startDemo(): void {
 		if (!this.canStartDemo) return;
 
-		this.demoService.moveToStep(2);
+		this._demoService.moveToStep(2);
 	}
 }

@@ -15,7 +15,13 @@ import { DemoService } from "../demo.service";
 	imports: [FlexLayoutModule, RouterLink, MatCheckboxModule, MatButtonModule, StepperComponent, IdScanningComponent],
 })
 export class DemoStepTwoComponent implements OnInit {
-	constructor(private _demoService: DemoService) {}
+	demoData: any;
 
-	ngOnInit(): void {}
+	constructor(private _demoService: DemoService) {
+		this.demoData = this._demoService.getDemoData();
+	}
+
+	ngOnInit(): void {
+		this._demoService.getAddress(this.demoData.lat, this.demoData.lng);
+	}
 }
