@@ -72,11 +72,11 @@ export class IdDetailsComponent implements OnInit {
 	async hasLocation(): Promise<boolean> {
 		if (this.locationLoaded && this.demoData.lat && this.demoData.lng) return true;
 
-		if (this.demoData.location.length) return true;
-
 		if (this.locationLoading || !this.demoData.lat || !this.demoData.lng) {
 			return false;
 		}
+
+		if (this.demoData.location.length) return true;
 
 		this.locationLoading = true;
 
