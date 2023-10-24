@@ -33,7 +33,11 @@ export class IdDetailsComponent implements OnInit {
 
 	ngOnInit(): void {
 		if (!this.demoData.document?._id) {
-			if (!this.documentId) this._demoService.moveToStep(1);
+			if (!this.documentId) {
+				this._demoService.moveToStep(1);
+
+				return;
+			}
 
 			this._requestDocument();
 		}
@@ -45,8 +49,6 @@ export class IdDetailsComponent implements OnInit {
 				this._demoService.setDemoDocument(response.data);
 
 				console.log({ documentRequested: response.data });
-
-				this._demoService.getDeviceDetails();
 
 				this._changeDetectorRef.markForCheck();
 			},
@@ -67,8 +69,10 @@ export class IdDetailsComponent implements OnInit {
 		}
 	}
 
-	hasLocation(): boolean {
+	async hasLocation(): Promise<boolean> {
 		if (this.locationLoaded && this.demoData.lat && this.demoData.lng) return true;
+
+		if (this.demoData.location.length) return true;
 
 		if (this.locationLoading || !this.demoData.lat || !this.demoData.lng) {
 			return false;
@@ -76,19 +80,11 @@ export class IdDetailsComponent implements OnInit {
 
 		this.locationLoading = true;
 
-		this._demoService.reverseGeocodeWithOSM(this.demoData.lat, this.demoData.lng).then((location) => {
-			if (!location) return;
+		const location = await this._demoService.getAddress(this.demoData.lat, this.demoData.lng);
 
-			for (const key in location.address) {
-				if (Object.prototype.hasOwnProperty.call(location.address, key)) {
-					const value = location.address[key];
+		console.log({ location });
 
-					this.demoData.location.push({ key, value });
-				}
-			}
-
-			this.locationLoaded = true;
-		});
+		if (location) this.locationLoaded = true;
 	}
 
 	continue(): void {

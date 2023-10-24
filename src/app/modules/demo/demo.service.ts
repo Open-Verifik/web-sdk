@@ -28,7 +28,7 @@ export class DemoService {
 
 	initNavigation(): void {
 		this.navigation = {
-			currentStep: 4,
+			currentStep: 1,
 			lastStep: 5,
 		};
 	}
@@ -186,6 +186,24 @@ export class DemoService {
 		}
 	}
 
+	async getAddress(lat, lng): Promise<any> {
+		if (this.demoData.location.length) return this.demoData.location;
+
+		const location = await this.reverseGeocodeWithOSM(this.demoData.lat, this.demoData.lng);
+
+		if (!location) return;
+
+		for (const key in location.address) {
+			if (Object.prototype.hasOwnProperty.call(location.address, key)) {
+				const value = location.address[key];
+
+				this.demoData.location.push({ key, value });
+			}
+		}
+
+		return this.demoData.location;
+	}
+
 	requestDocument(documentId: string): Observable<any> {
 		return this._httpWrapperService.sendRequest("get", `${this.apiUrl}/v2/document-validations/demo/${documentId}`);
 	}
@@ -201,5 +219,10 @@ export class DemoService {
 
 	compareDocumentWithSelfie(data): Observable<any> {
 		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/compare/demo`, data);
+	}
+
+	cleanVariables(): void {
+		localStorage.removeItem("documentId");
+		localStorage.removeItem("livenessId");
 	}
 }
