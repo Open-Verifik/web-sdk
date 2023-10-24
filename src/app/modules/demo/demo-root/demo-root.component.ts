@@ -70,4 +70,16 @@ export class DemoRootComponent implements OnInit {
 
 		this.requirementsLoaded = true;
 	}
+
+	talkToSales(): void {
+		const url = "https://meetings.hubspot.com/lina-yepes";
+		window.open(url, "_blank");
+		// https://meetings.hubspot.com/lina-yepes
+	}
+
+	partnerWithUs(): void {
+		const url = "https://verifik.co/en/partners/";
+
+		window.open(url, "_blank");
+	}
 }

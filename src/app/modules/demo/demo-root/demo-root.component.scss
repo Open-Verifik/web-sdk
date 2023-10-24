@@ -73,6 +73,11 @@
 	margin-top: 8px;
 }
 
+.cursor-pointer {
+	cursor: pointer !important;
+	font-weight: 800;
+}
+
 // Extra small screens
 @media (max-width: 599px) {
 	.demo-header-logo {

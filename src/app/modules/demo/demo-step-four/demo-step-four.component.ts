@@ -16,7 +16,15 @@ export class DemoStepFourComponent implements OnInit {
 	demoData: any;
 
 	constructor(private _demoService: DemoService) {
+		localStorage.removeItem("liveness");
+
+		localStorage.removeItem("livenessResult");
+
 		this.demoData = this._demoService.getDemoData();
+
+		this.demoData.liveness = {};
+
+		this.demoData.livenessResult = [];
 	}
 
 	ngOnInit(): void {}

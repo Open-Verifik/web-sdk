@@ -34,6 +34,22 @@ export class DemoService {
 	}
 
 	getDemoData(): any {
+		if (!this.demoData.document?._id && localStorage.getItem("document")) {
+			this.demoData.document = JSON.parse(localStorage.getItem("document"));
+		}
+
+		if (!this.demoData.extractedData.length && localStorage.getItem("extractedData")) {
+			this.demoData.extractedData = JSON.parse(localStorage.getItem("extractedData"));
+		}
+
+		if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
+			this.demoData.liveness = JSON.parse(localStorage.getItem("liveness"));
+		}
+
+		if (!this.demoData.livenessResult.length && localStorage.getItem("livenessResult")) {
+			this.demoData.livenessResult = JSON.parse(localStorage.getItem("livenessResult"));
+		}
+
 		return this.demoData;
 	}
 

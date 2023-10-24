@@ -38,8 +38,6 @@ export class DemoResultsComponent implements OnInit {
 
 		this._changeDetectorRef.markForCheck();
 
-		console.log("check...");
-
 		if (!this.demoData.liveness?._id || !this.demoData.document?._id) {
 			this._demoService.moveToStep(1);
 
