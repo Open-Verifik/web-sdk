@@ -3,13 +3,14 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "../demo.service";
 import { CommonModule } from "@angular/common";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
 	selector: "demo-results",
 	templateUrl: "./demo-results.component.html",
 	styleUrls: ["./demo-results.component.scss", "../demo-root/demo-root.component.scss", "../id-details/id-details.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, MatButtonModule, CommonModule],
+	imports: [FlexLayoutModule, MatButtonModule, CommonModule, MatProgressSpinnerModule],
 })
 export class DemoResultsComponent implements OnInit {
 	demoData: any;
@@ -43,6 +44,8 @@ export class DemoResultsComponent implements OnInit {
 
 			return;
 		}
+
+		console.log({ demoData: this.demoData });
 	}
 
 	_getDocumentData(): void {
@@ -70,8 +73,6 @@ export class DemoResultsComponent implements OnInit {
 			return;
 		}
 
-		console.log({ liveness });
-
 		this._demoService.moveToStep(1);
 	}
 
@@ -94,6 +95,8 @@ export class DemoResultsComponent implements OnInit {
 	}
 
 	restartDemo(): void {
+		this._demoService.cleanVariables();
+
 		this._demoService.moveToStep(1);
 	}
 }

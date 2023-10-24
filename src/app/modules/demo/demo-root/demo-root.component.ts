@@ -66,15 +66,12 @@ export class DemoRootComponent implements OnInit {
 
 		const location = await this._demoService.getAddress();
 
-		console.log({ location });
-
 		this.requirementsLoaded = true;
 	}
 
 	talkToSales(): void {
 		const url = "https://meetings.hubspot.com/lina-yepes";
 		window.open(url, "_blank");
-		// https://meetings.hubspot.com/lina-yepes
 	}
 
 	partnerWithUs(): void {

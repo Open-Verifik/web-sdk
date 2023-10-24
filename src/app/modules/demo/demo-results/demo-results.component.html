@@ -12,8 +12,6 @@
 			<h1 class="mt-4">Selfie</h1>
 
 			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
-				<h2 class="mt-4">Front side</h2>
-
 				<img [src]="demoData.liveness.images[0]" alt="" class="mt-4 box-shadow-3px" />
 			</div>
 		</div>
@@ -46,6 +44,70 @@
 			</div>
 		</div>
 
+		<div fxLayout="column" fxLayoutAlign="start center" class="w-full stats-section">
+			<div fxLayout="row" fxLayoutAlign="start center" class="w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section">
+					<h2 class="liveness-title">Liveness Score</h2>
+
+					<h3 class="stat-percent">{{ demoData.liveness.result.liveness_score * 100 }} %</h3>
+				</div>
+
+				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section">
+					<h2 class="w-50p match-title">Match score</h2>
+
+					<h3 class="stat-percent">{{ demoData.comparison.result.score * 100 }}%</h3>
+				</div>
+			</div>
+			<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+				<div class="w-50p">
+					<mat-progress-spinner
+						class="spinner"
+						[color]="demoData.liveness.result.passed ? 'primary' : 'warn'"
+						mode="determinate"
+						[value]="demoData.liveness.result.liveness_score * 100"
+					>
+					</mat-progress-spinner>
+				</div>
+
+				<div>
+					<mat-progress-spinner
+						class="spinner"
+						[color]="demoData.comparison.result.score < 0.67 ? 'warn' : 'primary'"
+						mode="determinate"
+						[value]="demoData.comparison.result.score * 100"
+					>
+					</mat-progress-spinner>
+				</div>
+			</div>
+
+			<div fxLayout="row" fxLayoutAlign="start center" class="negative-margin-100 w-full">
+				<div class="w-50p" fxLayout="row" fxLayoutAlign="start center">
+					<mat-progress-spinner class="background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
+				</div>
+				<div>
+					<mat-progress-spinner class="background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+			<h1 class="mt-4">Liveness & Match Results</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.livenessResult" class="id-details-item">
+					<h3>{{ item.key }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+
+			<div class="w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.comparisonResult" class="id-details-item">
+					<h3>{{ item.key }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
 		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
 			<h1 class="mt-4">Extracted information</h1>
 
@@ -68,10 +130,8 @@
 			</div>
 		</div>
 
-		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
-			<button mat-stroked-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="scanAgain()">Scan again</button>
-
-			<button mat-raised-button color="primary" class="m-4 z-index-2 start-demo-button" (click)="continue()">Continue</button>
+		<div fxLayout="row" fxLayoutAlign="center center" class="button-section">
+			<button mat-raised-button color="primary" class="m-4 z-index-2 restart-demo-button" (click)="restartDemo()">Restart demo</button>
 		</div>
 	</div>
 </div>

@@ -78,6 +78,32 @@
 	font-weight: 800;
 }
 
+.w-50p {
+	width: 50%;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.margin-left-16 {
+	margin-left: 25px;
+}
+
+h1 {
+	font-size: 35px;
+	padding-top: 32px;
+	font-weight: 700;
+	color: #0036e7;
+}
+
+h2 {
+	font-size: 30px;
+	padding-top: 16px;
+	font-weight: 700;
+	color: #0036e7;
+}
+
 // Extra small screens
 @media (max-width: 599px) {
 	.demo-header-logo {

@@ -63,7 +63,8 @@ export class DemoStepFourComponent implements OnInit {
 			})
 			.subscribe(
 				(compareResponse) => {
-					console.log({ compareResponse });
+					this._demoService.setDemoCompare(compareResponse.data);
+
 					this._demoService.moveToStep(5);
 				},
 				(error) => {}

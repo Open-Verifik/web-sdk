@@ -27,37 +27,9 @@ export class IdDetailsComponent implements OnInit {
 		this.locationLoaded = false;
 
 		this.locationLoading = false;
-
-		this.documentId = localStorage.getItem("documentId");
 	}
 
-	ngOnInit(): void {
-		if (!this.demoData.document?._id) {
-			if (!this.documentId) {
-				this._demoService.moveToStep(1);
-
-				return;
-			}
-
-			this._requestDocument();
-		}
-	}
-
-	_requestDocument(): void {
-		this._demoService.requestDocument(this.documentId).subscribe(
-			(response) => {
-				this._demoService.setDemoDocument(response.data);
-
-				console.log({ documentRequested: response.data });
-
-				this._changeDetectorRef.markForCheck();
-			},
-			(error) => {
-				console.error({ error });
-				this._demoService.moveToStep(1);
-			}
-		);
-	}
+	ngOnInit(): void {}
 
 	hasGeneralInformation(): boolean {
 		if (this.generalInfoLoaded) return true;
@@ -82,8 +54,6 @@ export class IdDetailsComponent implements OnInit {
 
 		const location = await this._demoService.getAddress();
 
-		console.log({ location });
-
 		if (location) this.locationLoaded = true;
 	}
 
@@ -96,7 +66,9 @@ export class IdDetailsComponent implements OnInit {
 
 		localStorage.removeItem("document");
 
-		this.demoData.document = null;
+		localStorage.removeItem("extractedData");
+
+		this.demoData.document = {};
 
 		this.demoData.extractedData = [];
 

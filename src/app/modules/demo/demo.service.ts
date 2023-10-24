@@ -50,6 +50,14 @@ export class DemoService {
 			this.demoData.livenessResult = JSON.parse(localStorage.getItem("livenessResult"));
 		}
 
+		if (!this.demoData.comparison?._id && localStorage.getItem("comparison")) {
+			this.demoData.comparison = JSON.parse(localStorage.getItem("comparison"));
+		}
+
+		if (!this.demoData.comparisonResult.length && localStorage.getItem("comparisonResult")) {
+			this.demoData.comparisonResult = JSON.parse(localStorage.getItem("comparisonResult"));
+		}
+
 		return this.demoData;
 	}
 
@@ -57,7 +65,9 @@ export class DemoService {
 		this.demoData = {
 			document: {},
 			liveness: {},
+			comparison: {},
 			livenessResult: [],
+			comparisonResult: [],
 			generalInformation: [],
 			location: [],
 			extractedData: [],
@@ -96,7 +106,7 @@ export class DemoService {
 		for (const key in data.result) {
 			const value = data.result[key];
 
-			this.demoData.livenessResult.push(key, value);
+			this.demoData.livenessResult.push({ key, value });
 		}
 
 		localStorage.setItem("livenessId", data._id);
@@ -104,6 +114,22 @@ export class DemoService {
 		localStorage.setItem("liveness", JSON.stringify(data));
 
 		localStorage.setItem("livenessResult", JSON.stringify(this.demoData.livenessResult));
+	}
+
+	setDemoCompare(data: any): void {
+		this.demoData.comparison = data;
+
+		for (const key in data.result) {
+			const value = data.result[key];
+
+			this.demoData.comparisonResult.push({ key, value });
+		}
+
+		localStorage.setItem("comparisonId", data._id);
+
+		localStorage.setItem("comparison", JSON.stringify(data));
+
+		localStorage.setItem("comparisonResult", JSON.stringify(this.demoData.comparisonResult));
 	}
 
 	moveToStep(step: number): void {
@@ -268,11 +294,23 @@ export class DemoService {
 	}
 
 	cleanVariables(): void {
-		localStorage.removeItem("documentId");
-		localStorage.removeItem("document");
-		localStorage.removeItem("extractedData");
-		localStorage.removeItem("liveness");
-		localStorage.removeItem("livenessId");
-		localStorage.removeItem("livenessResult");
+		const keys = ["documentId", "document", "extractedData", "liveness", "livenessId", "livenessResult", "comparison", "comparisonResult"];
+
+		for (let index = 0; index < keys.length; index++) {
+			const key = keys[index];
+			localStorage.removeItem(key);
+
+			if (!this.demoData[key]) {
+				continue;
+			}
+
+			if (Array.isArray(this.demoData[key])) {
+				this.demoData[key] = [];
+			} else if (Object.keys(this.demoData[key])) {
+				this.demoData[key] = {};
+			} else {
+				this.demoData[key] = null;
+			}
+		}
 	}
 }
