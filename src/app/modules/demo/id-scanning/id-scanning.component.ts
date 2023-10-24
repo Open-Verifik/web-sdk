@@ -83,7 +83,7 @@ export class IdScanningComponent implements OnInit {
 
 	continue(): void {
 		this.idToSend = {
-			image: "https://cdn.verifik.co/ocr/samples/_cc20.png",
+			image: "https://cdn.verifik.co/ocr/samples/miguel_canadian_passport.pdf",
 		};
 
 		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe((response) => {

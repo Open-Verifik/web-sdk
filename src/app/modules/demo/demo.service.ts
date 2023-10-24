@@ -28,7 +28,7 @@ export class DemoService {
 
 	initNavigation(): void {
 		this.navigation = {
-			currentStep: 3,
+			currentStep: 4,
 			lastStep: 5,
 		};
 	}
@@ -40,6 +40,8 @@ export class DemoService {
 	initDemoData(): void {
 		this.demoData = {
 			document: {},
+			liveness: {},
+			livenessResult: [],
 			generalInformation: [],
 			location: [],
 			extractedData: [],
@@ -64,6 +66,22 @@ export class DemoService {
 				this.demoData.extractedData.push({ key, value });
 			}
 		}
+	}
+
+	setDemoLiveness(data: any): void {
+		this.demoData.liveness = data;
+
+		this.demoData.livenessResult = [];
+
+		for (const key in data.result) {
+			const value = data.result[key];
+
+			this.demoData.livenessResult.push(key, value);
+		}
+
+		localStorage.setItem("livenessId", data._id);
+
+		console.log({ liveness: this.demoData.liveness });
 	}
 
 	moveToStep(step: number): void {
@@ -175,5 +193,13 @@ export class DemoService {
 	// apis to verifik
 	sendDocument(data: any): Observable<any> {
 		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/ocr/scan-demo`, data);
+	}
+
+	sendSelfie(data: any): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/liveness/demo`, data);
+	}
+
+	compareDocumentWithSelfie(data): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/compare/demo`, data);
 	}
 }

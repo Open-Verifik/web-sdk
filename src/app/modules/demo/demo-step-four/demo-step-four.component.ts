@@ -13,7 +13,11 @@ import { FaceComponent } from "app/modules/web-sdk/face/face.component";
 	imports: [FlexLayoutModule, StepperComponent, MatButtonModule, FaceComponent],
 })
 export class DemoStepFourComponent implements OnInit {
-	constructor(private _demoService: DemoService) {}
+	demoData: any;
+
+	constructor(private _demoService: DemoService) {
+		this.demoData = this._demoService.getDemoData();
+	}
 
 	ngOnInit(): void {}
 
@@ -22,6 +26,39 @@ export class DemoStepFourComponent implements OnInit {
 	}
 
 	continue(): void {
-		this._demoService.moveToStep(5);
+		const fakeImage = `https://cdn.verifik.co/caras/0Crle8kqMPSRLHONED.jpg`;
+
+		this._demoService
+			.sendSelfie({
+				os: "DESKTOP",
+				image: fakeImage,
+				// collection_id: "demo",
+			})
+			.subscribe((response) => {
+				if (!response.data.result.passed) {
+					alert("liveness did not pass, score: " + response.data.result.liveness_score);
+					return;
+				}
+
+				this._demoService.setDemoLiveness(response.data);
+
+				this._compareDocument();
+			});
+	}
+
+	_compareDocument(): void {
+		this._demoService
+			.compareDocumentWithSelfie({
+				search_mode: "FAST",
+				gallery: [this.demoData.document.url],
+				probe: [this.demoData.liveness.images[0]],
+			})
+			.subscribe(
+				(compareResponse) => {
+					console.log({ compareResponse });
+					this._demoService.moveToStep(5);
+				},
+				(error) => {}
+			);
 	}
 }
