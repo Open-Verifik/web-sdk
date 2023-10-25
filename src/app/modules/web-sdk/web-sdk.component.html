@@ -8,14 +8,7 @@
 			<h1 class="text-3xl font-bold">{{ "loading_stream" | transloco }}</h1>
 		</div>
 	</div>
-	<!-- <div *ngIf="loadingResults && action !== 'addPerson'" class="w-full h-full flex flex-col items-center justify-center">
-		<div class="w-full flex items-center justify-center my-4">
-			<mat-progress-spinner [diameter]="80" [mode]="'indeterminate'"> </mat-progress-spinner>
-		</div>
-		<div class="w-full flex items-center justify-center my-4">
-			<h1 class="text-3xl font-bold">{{ "loading_response" | transloco }}</h1>
-		</div>
-	</div> -->
+	
 	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
 		<h1 class="text-3xl font-bold">{{ "image_title" | transloco }}</h1>
 		WIDTH:{{WIDTH}} HEIGHT:{{HEIGHT}}

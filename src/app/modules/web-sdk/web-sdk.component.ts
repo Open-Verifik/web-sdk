@@ -457,7 +457,6 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 		await this.setConfigCanvas();
 		this.detectFaceInterval = setInterval(async () => {
 
-
 			const detection = await faceapi
 				.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions())
 				.withFaceLandmarks()
@@ -469,8 +468,6 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 			const context = this.canvas.getContext("2d");
 
 			if (detection.length > 0) {
-				console.log(detection)
-
 				this.faceError = null;
 
 				this.drawFaceAndCenter(detection, context);

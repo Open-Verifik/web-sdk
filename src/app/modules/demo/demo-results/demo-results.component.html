@@ -10,9 +10,8 @@
 	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
 		<div fxLayout="column" fxLayoutAlign="start center" *ngIf="demoData.liveness">
 			<h1 class="mt-4">Selfie</h1>
-
 			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
-				<img [src]="demoData.liveness.images[0]" alt="" class="mt-4 box-shadow-3px" />
+				<img [src]="'data:image/png;base64,' + demoData.liveness.images[0]" alt="" class="mt-4 box-shadow-3px" />
 			</div>
 		</div>
 

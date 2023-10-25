@@ -1,80 +1,88 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import * as faceapi from "@vladmandic/face-api";
 import { Subject } from "rxjs";
-import { FormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { WebSdkService } from "../web-sdk.service";
-import { MatDialogModule } from "@angular/material/dialog";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule } from "@ngneat/transloco";
 import { MatButtonModule } from "@angular/material/button";
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { DemoService } from "app/modules/demo/demo.service";
+import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
+
+import * as faceapi from "@vladmandic/face-api";
 
 @Component({
 	selector: "app-face",
 	standalone: true,
-	imports: [CommonModule, FormsModule, MatDialogModule, TranslocoModule, MatButtonModule, FlexLayoutModule],
+	imports: [CommonModule, MatDialogModule, TranslocoModule, MatButtonModule],
 	templateUrl: "./face.component.html",
 	styleUrls: ["./face.component.scss"],
 })
 export class FaceComponent implements OnInit, OnDestroy {
-	@ViewChild("video", { static: false }) public video: ElementRef;
-	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
-
-	loadingResults = false;
-	loading = false;
-	loadingStream = false;
-	stream: any;
-	detection: any;
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
-
-	// resizedDetections: any;
-	canvas: any;
-	canvasEl: any;
-	displaySize: any;
-	videoInput: HTMLVideoElement; // Explicitly type videoInput as HTMLVideoElement
-	base64Images: any[];
-
-	//SIZE OF CANVAS
-	WIDTH = 720;
-	HEIGHT = 1280;
-	videoCenterX;
-	videoCenterY;
-	marginX;
-	marginY;
-
-	//SIZE OVAL
-	OVAL: any = {};
-	faceError: {
-		title: string;
-		subtitle: string;
-	} | null;
-	detectFaceInterval: any;
-	saveImageBase64Intent: any;
-
-	personForm: FormGroup;
+	private _matDialog: MatDialog = inject(MatDialog);
 
 	//ACTIVE DEBUG GRAPHIC MODE
 	isActiveDebug: Boolean;
 	debugIndex: number;
 	debugText: string = "debug";
 
+	@ViewChild("video", { static: false }) public video: ElementRef;
+	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
+	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
+
+	//
+	canvasEl: any;
+	canvas: any;
+	canvasResult: any;
+	displaySize: any;
+	videoInput: HTMLVideoElement;
+	base64Images: any[];
+
+	//SIZE OF CANVAS
+	WIDTH = 720;
+	HEIGHT = 720;
+	videoCenterX;
+	videoCenterY;
+	marginX;
+	marginY;
+	//SIZE OVAL
+	OVAL: any = {};
+
+	detectFaceInterval: any;
+	saveImageBase64Intent: any;
+
 	osInfo: string;
+	stream: any;
+	loadingResults: boolean = false;
+	loadingModel: boolean = false;
+	lastFace: faceapi.WithAge<
+		faceapi.WithGender<faceapi.WithFaceExpressions<faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>>>
+	>;
+	demoData: any;
 
 	//RESULTS
 	result: any;
 	errorResult: {};
-	loadingModel: boolean;
-	livenessScore: any;
+	errorFace: {
+		title: string;
+		subtitle: string;
+		canvas?: string;
+	} | null;
 
-	constructor(
-		private _changeDetectorRef: ChangeDetectorRef,
-		private _sdkService: WebSdkService,
-		private _formBuilder: FormBuilder // private dialogRef: MatDialogRef<SDK>
-	) {
-		this.debugIndex = 0;
-		this.isActiveDebug = Boolean(localStorage.getItem("isActiveDebug"));
-		this.osInfo = this.detectOS();
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+	constructor(private _changeDetectorRef: ChangeDetectorRef, private _sdkService: WebSdkService, private _demoService: DemoService) {
 		this.loadingModel = true;
+		this.debugIndex = 0;
+		this.osInfo = this.detectOS();
+		this.demoData = this._demoService.getDemoData();
+
+		this.listenModeDebug();
+
+		this._changeDetectorRef.markForCheck();
+	}
+
+	listenModeDebug(): void {
+		this.isActiveDebug = Boolean(localStorage.getItem("isActiveDebug"));
 
 		document.addEventListener("keydown", (event) => {
 			if (this.debugText.charAt(this.debugIndex) === event.key.toLowerCase()) {
@@ -89,36 +97,29 @@ export class FaceComponent implements OnInit, OnDestroy {
 			}
 			this.debugIndex = 0;
 		});
-
-		this._changeDetectorRef.markForCheck();
-	}
-
-	initFormPerson() {
-		this.personForm = this._formBuilder.group({
-			name: ["", Validators.required],
-			nationality: [""],
-			date_of_birth: ["", Validators.required],
-			gender: ["", Validators.required],
-			notes: [""],
-		});
 	}
 
 	stopRecord(): void {
-		clearInterval(this.detectFaceInterval);
+		if (this.detectFaceInterval) {
+			clearInterval(this.detectFaceInterval);
+		}
 
-		this.stream.getTracks().forEach((track) => track.stop());
+		if (this.stream) {
+			this.stream.getTracks().forEach((track) => track.stop());
+		}
 	}
 
 	async ngOnInit(): Promise<void> {
 		await this.loadModels();
 
-		await this.restart();
+		this.base64Images = [];
+		this.errorFace = null;
+
+		await this.startAsyncVideo();
 	}
 
 	async restart(): Promise<void> {
-		this.base64Images = [];
-		this.faceError = null;
-
+		this.completeResults();
 		await this.startAsyncVideo();
 	}
 
@@ -134,7 +135,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode: "environment", height: 720 },
+				video: { height: 720 },
 				audio: false,
 			});
 
@@ -158,7 +159,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this.videoCenterY = this.HEIGHT / 2;
 
 				this.marginY = this.HEIGHT * 0.04;
-				this.marginX = this.marginY * 0.4;
+				this.marginX = this.marginY * 0.8;
 
 				this.OVAL.radiusY = (this.HEIGHT * 0.85) / 2;
 				this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
@@ -179,12 +180,14 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this._changeDetectorRef.markForCheck();
 			}, 300);
 		} catch (error) {
+			alert(`${error.message}`);
 			console.error("SHOW ERROR");
 		}
 	}
 
 	async detectFaces() {
 		await this.setConfigCanvas();
+
 		this.detectFaceInterval = setInterval(async () => {
 			const detection = await faceapi
 				.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions())
@@ -195,15 +198,16 @@ export class FaceComponent implements OnInit, OnDestroy {
 			const context = this.canvas.getContext("2d");
 
 			if (detection.length > 0) {
-				this.faceError = null;
+				this.lastFace = detection[0];
+				this.errorFace = null;
 
 				this.drawFaceAndCenter(detection, context);
-				this.isFaceCentered(detection[0].landmarks.getNose()[3]);
-				this.isFaceClose(detection[0].landmarks);
-				// console.log(this.faceError)
-				this.drawStatusOval(context, !this.faceError?.title);
+				this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
+				this.isFaceClose(this.lastFace.landmarks);
 
-				if (!this.faceError) {
+				this.drawStatusOval(context, !this.errorFace?.title);
+
+				if (!this.errorFace) {
 					this.captureBase64Image();
 				}
 			}
@@ -217,11 +221,16 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async setConfigCanvas(): Promise<void> {
-		this.canvas = await faceapi.createCanvasFromMedia(this.videoInput);
-		this.canvasEl = this.canvasRef.nativeElement;
-		this.canvasEl.appendChild(this.canvas);
-		this.canvas.setAttribute("id", "canvas");
-		faceapi.matchDimensions(this.canvas, this.displaySize);
+		if (!this.canvas) {
+			this.canvas = await faceapi.createCanvasFromMedia(this.videoInput);
+
+			this.canvasEl = this.canvasRef.nativeElement;
+			this.canvasEl.appendChild(this.canvas);
+			this.canvas.setAttribute("id", "canvas");
+
+			faceapi.matchDimensions(this.canvas, this.displaySize);
+		}
+
 		const ctx = this.canvas.getContext("2d");
 		this.drawOvalCenterAndMask(ctx);
 	}
@@ -230,8 +239,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const resizedDetections = faceapi.resizeResults(detection, this.displaySize);
 
 		this.drawOvalCenterAndMask(ctx);
-
-		// Restablece la operación de composición
 
 		if (this.isActiveDebug) {
 			ctx.strokeStyle = "red";
@@ -267,6 +274,21 @@ export class FaceComponent implements OnInit, OnDestroy {
 		ctx.globalCompositeOperation = "source-over";
 	}
 
+	drawText(ctx, text, x, y): void {
+		ctx.font = "30px Arial";
+		ctx.textAlign = "center";
+
+		const medidasTexto = ctx.measureText(text);
+
+		const padding = 10;
+		ctx.fillStyle = "black";
+
+		ctx.fillRect(x - medidasTexto.width / 2, y - 30 - padding, medidasTexto.width + 2, 40 + 2 * padding);
+
+		ctx.fillStyle = "white";
+		ctx.fillText(text, x, y);
+	}
+
 	drawStatusOval(ctx, isOk?): void {
 		ctx.beginPath();
 		ctx.ellipse(this.videoCenterX, this.videoCenterY, this.OVAL.radiusX, this.OVAL.radiusY, 0, 0, 2 * Math.PI);
@@ -276,21 +298,26 @@ export class FaceComponent implements OnInit, OnDestroy {
 		ctx.closePath();
 
 		if (!isOk) {
-			ctx.font = "30px Arial"; // Fuente y tamaño
-			ctx.textAlign = "center"; // Alineación del texto (centro)
-			const medidasTexto = ctx.measureText(this.faceError.title);
+			let positionError = {
+				x: this.videoCenterX,
+				y: this.videoCenterY - this.OVAL.radiusY - 10,
+			};
 
-			const padding = 10; // Espacio adicional alrededor del texto
-			ctx.fillStyle = "black"; // Fondo negro
-			ctx.fillRect(
-				this.videoCenterX - medidasTexto.width / 2 - padding,
-				this.videoCenterY - 30 - padding,
-				medidasTexto.width + 2 * padding,
-				40 + 2 * padding
-			);
+			this.drawText(ctx, this.errorFace.title, positionError.x, positionError.y);
 
-			ctx.fillStyle = "white"; // Color del texto
-			ctx.fillText(this.faceError.title, this.videoCenterX, this.videoCenterY);
+			if (this.errorFace.canvas?.includes("↑")) {
+				this.drawText(ctx, "  ↑  ", this.videoCenterX, this.videoCenterY - 60);
+			}
+			if (this.errorFace.canvas?.includes("↓")) {
+				this.drawText(ctx, "  ↓  ", this.videoCenterX, this.videoCenterY + 60);
+			}
+			if (this.errorFace.canvas?.includes("→")) {
+				this.drawText(ctx, " → ", this.videoCenterX - 60, this.videoCenterY);
+			}
+
+			if (this.errorFace.canvas?.includes("←")) {
+				this.drawText(ctx, " ← ", this.videoCenterX + 60, this.videoCenterY);
+			}
 		}
 	}
 
@@ -313,24 +340,23 @@ export class FaceComponent implements OnInit, OnDestroy {
 			if (faceCenterY < this.videoCenterY || faceCenterY > this.videoCenterY + this.marginY * 2)
 				direction += ` ${faceCenterY < this.videoCenterY ? "↑" : "↓"}  `;
 
-			this.faceError = {
-				title: `Centra tu rostro en la pantalla (${direction})`,
+			this.errorFace = {
+				title: `Centra tu rostro en la pantalla`,
 				subtitle: "Por favor, asegúrate de que tu rostro esté centrado.",
+				canvas: direction,
 			};
 		}
 	}
 
 	isFaceClose(landmarks: faceapi.FaceLandmarks68): void {
 		const totalFaceArea = landmarks.imageHeight * landmarks.imageWidth;
-		const totalImageArea = this.videoInput.width * this.videoInput.height;
-
+		const totalImageArea = 4 * this.OVAL.radiusX * this.videoInput.height;
 		const faceProportion = totalFaceArea / totalImageArea;
 
-		const threshold = 0.3;
-		// console.log(faceProportion, "  ==  " , totalFaceArea,"/",totalImageArea)
+		const threshold = 0.25;
 
 		if (faceProportion < threshold) {
-			this.faceError = {
+			this.errorFace = {
 				title: "Acerca tu rostro",
 				subtitle: "Por favor, acércate un poco más para una mejor detección facial.",
 			};
@@ -341,27 +367,37 @@ export class FaceComponent implements OnInit, OnDestroy {
 		if (this.saveImageBase64Intent) {
 			return;
 		}
-		console.log("saveImageBase64Intent", !this.faceError);
 
 		this.saveImageBase64Intent = setTimeout(() => {
-			if (this.faceError) {
+			if (this.errorFace) {
 				this.saveImageBase64Intent = clearTimeout(this.saveImageBase64Intent);
-				return console.log("================================", !this.faceError);
 			}
 			this.takePicture();
 		}, 1500);
 	}
 
 	takePicture() {
-		const context = this.canvas.getContext("2d");
+		this.stopRecord();
 
-		context.drawImage(this.videoInput, 0, 0, this.WIDTH, this.HEIGHT);
+		const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
+		const widthCut = 2.8 * this.OVAL.radiusX;
 
-		const base64Image = this.canvas.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
+		if(!this.canvasResult){
+			this.canvasResult = document.createElement("canvas");
+			this.canvasResult.width = widthCut;
+			this.canvasResult.height = this.HEIGHT;
+			this.canvasResult.style.marginLeft = `${startX}px`;
+			this.canvasResultRef.nativeElement.appendChild(this.canvasResult);
+
+		}
+
+		const context = this.canvasResult.getContext("2d");
+
+		context.drawImage(this.videoInput, startX, 0, widthCut, this.HEIGHT, 0, 0, widthCut, this.HEIGHT);
+
+		const base64Image = this.canvasResult.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
 
 		this.base64Images.push(base64Image);
-
-		this.stopRecord();
 
 		this.liveness();
 	}
@@ -380,38 +416,83 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	liveness() {
 		if (this.loadingResults) return;
+		this.loadingResults = true;
 
 		const payload: any = {
 			image: this.base64Images[0],
 			os: this.osInfo,
 		};
 
-		this.loadingResults = true;
-
 		this._sdkService.livenessDemo(payload).subscribe(
 			(liveness) => {
-				this.livenessScore = liveness.data.liveness_score;
 				this.errorResult = null;
-				this.loadingResults = false;
 
-				console.log({ livenessScore: this.livenessScore });
+				this._demoService.setDemoLiveness(liveness.data);
 
-				// this.completeResults();
+				this._demoService
+					.compareDocumentWithSelfie({
+						search_mode: "FAST",
+						gallery: [this.demoData.document.url],
+						probe: [this.demoData.liveness.images[0]],
+					})
+					.subscribe(
+						(compareResponse) => {
+							this.completeResults();
+
+							this._demoService.setDemoCompare(compareResponse.data);
+
+							this._demoService.moveToStep(5);
+						},
+						(error) => {}
+					);
 			},
 			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				this.loadingResults = false;
-				console.error("sdkService.liveness");
-				this.completeResults();
+				this.retryLivenessModal(error.error?.message);
 			}
 		);
 	}
 
+	retryLivenessModal(error) {
+		const data = {
+			title: "Liveness Failed",
+			message: `The life check has failed with the following error:<br><strong>"${error}"</strong><br>Do you want to try again?`,
+			icon: {
+				show: true,
+				name: "heroicons_outline:exclamation-triangle",
+				color: "warn",
+			},
+			actions: {
+				confirm: {
+					show: true,
+					label: "Confirm",
+					color: "primary",
+				},
+				cancel: {
+					show: true,
+					label: "Cancel",
+				},
+			},
+			dismissible: false,
+		};
+
+		this._matDialog
+			.open(FuseConfirmationDialogComponent, {
+				autoFocus: false,
+				disableClose: true,
+				panelClass: "fuse-confirmation-dialog-panel",
+				data,
+			})
+			.afterClosed()
+			.subscribe((result) => {
+				if (result === "confirmed") {
+					return this.restart();
+				}
+				alert("pantalla de error")
+				// pantalla de error
+			});
+	}
 	completeResults() {
-		this.faceError = null;
+		this.errorFace = null;
 		this.loadingResults = false;
 		this.base64Images = [];
 
@@ -424,7 +505,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this._unsubscribeAll.next(null);
-		this.loadingStream = false;
 		this.loadingResults = false;
 		this.video = undefined;
 		if (this.detectFaceInterval) {
