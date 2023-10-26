@@ -24,6 +24,7 @@
 						"tsConfig": "tsconfig.app.json",
 						"inlineStyleLanguage": "scss",
 						"allowedCommonJsDependencies": [
+							"leaflet",
 							"apexcharts",
 							"highlight.js",
 							"crypto-js/enc-utf8",
