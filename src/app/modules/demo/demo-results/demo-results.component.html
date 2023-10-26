@@ -2,7 +2,9 @@
 	class="id-details-body"
 	fxLayout="row"
 	fxLayout.xs="column"
+	fxLayout.sm="column"
 	fxLayoutAlign="start start"
+	fxLayoutAlign.sm="center center"
 	fxLayoutAlign.xs="center center"
 	*ngIf="demoData.document._id && demoData.liveness._id"
 >
@@ -42,22 +44,37 @@
 				<p>{{ item.value }}</p>
 			</div>
 		</div>
-
-		<div fxLayout="column" fxLayoutAlign="start center" class="w-full stats-section">
-			<div fxLayout="row" fxLayoutAlign="start center" class="w-full">
-				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section">
+		<!-- stats for sm and plus -->
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start center"
+			class="w-full stats-section"
+			fxLayoutAlign.sm="center center"
+			fxLayoutAlign.xs="center center"
+			fxHide.xs="true"
+		>
+			<div fxLayout="row" fxLayoutAlign="start center" fxLayoutAlign.sm="center center" class="w-full">
+				<!-- liveness chart -->
+				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section" fxLayoutAlign.sm="center center">
 					<h2 class="liveness-title">Liveness Score</h2>
 
-					<h3 class="stat-percent">{{ demoData.liveness.result.liveness_score * 100 }} %</h3>
+					<h3 class="stat-percent" ngClass.xs="small-left-stat-percent">{{ demoData.liveness.result.liveness_score * 100 }} %</h3>
 				</div>
 
-				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section">
-					<h2 class="w-50p match-title">Match score</h2>
+				<div
+					fxLayout="column"
+					fxLayoutAlign="start start"
+					class="w-50p liveness-section"
+					fxLayoutAlign.sm="center center"
+					fxLayoutAlign.xs="center center"
+				>
+					<h2 class="match-title" ngClass.gt-xs="w-50p">Match score</h2>
 
 					<h3 class="stat-percent">{{ demoData.comparison.result.score * 100 }}%</h3>
 				</div>
 			</div>
-			<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+
+			<div fxLayout="row" fxLayoutAlign="start start" fxLayoutAlign.sm="center center" fxLayoutAlign.xs="start start" class="w-full">
 				<div class="w-50p">
 					<mat-progress-spinner
 						class="spinner"
@@ -79,7 +96,14 @@
 				</div>
 			</div>
 
-			<div fxLayout="row" fxLayoutAlign="start center" class="negative-margin-100 w-full">
+			<div
+				fxLayout="row"
+				fxLayoutAlign="start center"
+				class="negative-margin-100 w-full"
+				fxLayoutAlign.sm="center center"
+				fxLayoutAlign.xs="start start"
+			>
+				<!-- ngClass.gt-xs="w-50p" -->
 				<div class="w-50p" fxLayout="row" fxLayoutAlign="start center">
 					<mat-progress-spinner class="background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
 				</div>
@@ -88,8 +112,57 @@
 				</div>
 			</div>
 		</div>
+		<!-- end of stats for sm and plus -->
 
-		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+		<!-- stats for small screen -->
+		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center">
+			<h2 class="mb-4">Liveness score</h2>
+
+			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.liveness.result.liveness_score * 100 }} %</h3>
+
+			<!-- stat for liveness -->
+			<div class="w-full">
+				<mat-progress-spinner
+					class="spinner"
+					[color]="demoData.liveness.result.passed ? 'primary' : 'warn'"
+					mode="determinate"
+					[value]="demoData.liveness.result.liveness_score * 100"
+				>
+				</mat-progress-spinner>
+			</div>
+
+			<div class="w-full">
+				<mat-progress-spinner class="xs-background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
+			</div>
+			<!-- end of stat for liveness -->
+		</div>
+		<!-- end of stats for small screen -->
+
+		<!-- stats for small screen -->
+		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center" class="mt-4">
+			<h2 class="mb-4">Match score</h2>
+
+			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.comparison.result.score * 100 }} %</h3>
+
+			<!-- stat for liveness -->
+			<div class="w-full">
+				<mat-progress-spinner
+					class="spinner"
+					[color]="demoData.comparison.result.score > 0.67 ? 'primary' : 'warn'"
+					mode="determinate"
+					[value]="demoData.comparison.result.score * 100"
+				>
+				</mat-progress-spinner>
+			</div>
+
+			<div class="w-full">
+				<mat-progress-spinner class="xs-background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
+			</div>
+			<!-- end of stat for liveness -->
+		</div>
+		<!-- end of stats for small screen -->
+
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" class="w-full">
 			<h1 class="mt-4">Liveness & Match Results</h1>
 
 			<div class="mt-8 w-full">
@@ -107,7 +180,7 @@
 			</div>
 		</div>
 
-		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+		<div fxLayout="column" fxLayoutAlign="start start" class="w-full" fxLayoutAlign.xs="center center">
 			<h1 class="mt-4">Extracted information</h1>
 
 			<div class="mt-8 w-full">
@@ -118,7 +191,7 @@
 			</div>
 		</div>
 
-		<div fxLayout="column" fxLayoutAlign="start start" *ngIf="demoData.location" class="w-full">
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" *ngIf="demoData.location" class="w-full">
 			<h1 class="mt-4">User Location</h1>
 
 			<div class="mt-8 w-full">
@@ -135,4 +208,4 @@
 	</div>
 </div>
 
-<div class="white-background" fxHide.xs="true"></div>
+<div class="white-background" fxHide.xs="true" fxHide.sm="true"></div>

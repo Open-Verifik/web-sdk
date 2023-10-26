@@ -1,63 +1,128 @@
 .spinner {
-    width: 200px !important; 
-    height: 200px !important;
-    z-index: 2;
+	width: 200px !important;
+	height: 200px !important;
+	z-index: 2;
 }
 
 .background-spinner {
-    position: relative;
-    z-index: 1;
-    bottom: 200px;
-    width: 200px !important; 
-    height: 200px !important;
+	position: relative;
+	z-index: 1;
+	bottom: 200px;
+	width: 200px !important;
+	height: 200px !important;
 }
 
 .negative-margin-100 {
-    margin-bottom: -150px;
+	margin-bottom: -150px;
 }
 
 .stats-section {
-    margin-top: 30px;
+	margin-top: 30px;
 }
 
 .liveness-section {
-    margin-bottom: -40px;
+	margin-bottom: -40px;
 }
 
 .liveness-title {
-    position: relative;
-    left: 30px;
+	position: relative;
+	left: 30px;
 }
 
 .match-title {
-    position: relative;
-    left: 40px;
+	position: relative;
+	left: 40px;
 }
 
 .stat-percent {
-    font-weight: 800;
-    position: relative;
-    z-index: 1;
-    top: 90px;
-    left: 60px;
-    font-size: 40px;
-    color: #0036E7;
+	font-weight: 800;
+	position: relative;
+	z-index: 1;
+	top: 90px;
+	left: 60px;
+	font-size: 40px;
+	color: #0036e7;
 }
 
 .button-section {
-    width: 70%;
+	width: 70%;
 }
 
 .restart-demo-button {
-    width: 60%;
+	width: 60%;
 }
 
 // Extra small screens
 @media (max-width: 599px) {
+	.button-section {
+		width: 100%;
+	}
+
+	.restart-demo-button {
+		width: 60%;
+	}
+
+	.liveness-title {
+		position: relative;
+		left: 35px;
+	}
+
+	.match-title {
+		position: relative;
+		left: 10px;
+	}
+
+	.spinner {
+		width: 180px !important;
+		height: 180px !important;
+		z-index: 2;
+	}
+
+	.xs-background-spinner {
+		position: relative;
+		z-index: 1;
+		bottom: 180px;
+		width: 180px !important;
+		height: 180px !important;
+		margin-bottom: -180px;
+	}
+
+	.small-left-stat-percent {
+		font-weight: 800;
+		position: relative;
+		z-index: 1;
+		margin-bottom: -50px;
+		top: 65px;
+		left: 3px;
+		font-size: 40px;
+		color: #0036e7;
+	}
 }
 
 // Small screens
 @media (min-width: 600px) and (max-width: 959px) {
+	.button-section {
+		width: 100%;
+	}
+
+	.restart-demo-button {
+		width: 60%;
+	}
+
+	.liveness-title {
+		position: relative;
+		left: 5px;
+	}
+
+	.stat-percent {
+		font-weight: 800;
+		position: relative;
+		z-index: 1;
+		top: 90px;
+		left: 10px;
+		font-size: 40px;
+		color: #0036e7;
+	}
 }
 
 // Medium screens
