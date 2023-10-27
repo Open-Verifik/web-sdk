@@ -11,6 +11,7 @@ import { DemoStepThreeComponent } from "../demo-step-three/demo-step-three.compo
 import { DemoStepFourComponent } from "../demo-step-four/demo-step-four.component";
 import { DemoStepFiveComponent } from "../demo-step-five/demo-step-five.component";
 import { DemoFooterComponent } from "../demo-footer/demo-footer.component";
+import { TranslocoModule } from "@ngneat/transloco";
 
 @Component({
 	selector: "app-demo-root",
@@ -29,6 +30,7 @@ import { DemoFooterComponent } from "../demo-footer/demo-footer.component";
 		DemoStepFiveComponent,
 		CommonModule,
 		DemoFooterComponent,
+		TranslocoModule,
 	],
 })
 export class DemoRootComponent implements OnInit {

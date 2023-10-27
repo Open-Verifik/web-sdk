@@ -9,10 +9,11 @@
 	*ngIf="demoData.document._id && demoData.liveness._id"
 >
 	<!-- first section -->
-	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
+	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="end end">
 		<div fxLayout="column" fxLayoutAlign="start center" *ngIf="demoData.liveness">
 			<h1 class="mt-4">{{ "results.selfie" | transloco }}</h1>
-			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+
+			<div class="selfie-photo-div" fxLayout="column" fxLayoutAlign="start center">
 				<img [src]="'data:image/png;base64,' + demoData.liveness.images[0]" alt="" class="mt-4 box-shadow-3px" />
 			</div>
 		</div>

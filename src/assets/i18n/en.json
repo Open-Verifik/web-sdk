@@ -5,6 +5,8 @@
 	"confirm": "Confirm",
 	"cancel": "Cancel",
 	"header": {
+		"partner": "Partner with us",
+		"talk": "Talk to sales",
 		"id": "ID Scanning",
 		"verify_id": "Document details",
 		"liveness": "Liveness check",

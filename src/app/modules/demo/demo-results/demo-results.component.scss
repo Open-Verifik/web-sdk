@@ -52,6 +52,13 @@
 	width: 60%;
 }
 
+.selfie-photo-div {
+	width: 60%;
+	img {
+		width: 100%;
+	}
+}
+
 // Extra small screens
 @media (max-width: 599px) {
 	.button-section {
@@ -97,6 +104,13 @@
 		font-size: 40px;
 		color: #0036e7;
 	}
+
+	.selfie-photo-div {
+		width: 70%;
+		img {
+			width: 100%;
+		}
+	}
 }
 
 // Small screens
@@ -123,6 +137,13 @@
 		font-size: 40px;
 		color: #0036e7;
 	}
+
+	.selfie-photo-div {
+		width: 80%;
+		img {
+			width: 100%;
+		}
+	}
 }
 
 // Medium screens
@@ -131,6 +152,9 @@
 
 // Large screens
 @media (min-width: 1280px) and (max-width: 1919px) {
+	.selfie-photo-div {
+		padding-right: 30px;
+	}
 }
 
 // Extra large screens

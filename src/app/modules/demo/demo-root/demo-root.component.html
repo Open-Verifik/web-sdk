@@ -9,13 +9,13 @@
 			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action">
 				<img src="https://cdn.verifik.co/demo/handshake@3x.png" class="demo-header-partner-icon" alt="" />
 
-				<span fxHide.sm="true" fxHide.xs="true"> Partner with us </span>
+				<span fxHide.sm="true" fxHide.xs="true"> {{ "header.partner" | transloco }} </span>
 			</div>
 
 			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action cursor-pointer" (click)="talkToSales()">
 				<img src="https://cdn.verifik.co/demo/support_agent@3x.png" class="demo-header-partner-icon" alt="" />
 
-				<span fxHide.sm="true" fxHide.xs="true"> Talk to sales </span>
+				<span fxHide.sm="true" fxHide.xs="true">{{ "header.talk" | transloco }}</span>
 			</div>
 
 			<!-- <div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action cursor-pointer">

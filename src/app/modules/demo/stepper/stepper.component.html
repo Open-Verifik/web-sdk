@@ -1,21 +1,21 @@
 <div class="verifik-stepper" fxLayout="row" fxLayoutAlign="space-between center">
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 2 }">1</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 2 }" fxHide.xs="true" fxHide.sm="true"> ID Scanning </span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 2 }" fxHide.xs="true" fxHide.sm="true">{{ "header.id" | transloco }} </span>
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 3 }">2</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 3 }" fxHide.xs="true" fxHide.sm="true">Document Details</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 3 }" fxHide.xs="true" fxHide.sm="true">{{ "header.verify_id" | transloco }}</span>
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 4 }">3</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 4 }" fxHide.xs="true" fxHide.sm="true">Liveness check</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 4 }" fxHide.xs="true" fxHide.sm="true">{{ "header.liveness" | transloco }}</span>
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 5 }">4</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 5 }" fxHide.xs="true" fxHide.sm="true">Results</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 5 }" fxHide.xs="true" fxHide.sm="true">{{ "header.compare" | transloco }}</span>
 	</div>
 </div>
