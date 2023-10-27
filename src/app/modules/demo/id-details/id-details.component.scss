@@ -147,6 +147,10 @@
 			font-weight: 400;
 		}
 	}
+
+	.start-demo-button {
+		width: 40%;
+	}
 }
 
 // Medium screens
@@ -186,12 +190,22 @@
 			font-weight: 400;
 		}
 	}
+
+	.start-demo-button {
+		width: 35%;
+	}
 }
 
 // Large screens
 @media (min-width: 1280px) and (max-width: 1919px) {
+	.start-demo-button {
+		width: 33%;
+	}
 }
 
 // Extra large screens
 @media (min-width: 1920px) {
+	.start-demo-button {
+		width: 25%;
+	}
 }

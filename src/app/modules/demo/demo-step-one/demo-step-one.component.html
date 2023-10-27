@@ -4,14 +4,13 @@
 	<div fxLayout="column" fxLayoutAlign="center center" class="step-one-middle-container">
 		<img src="https://cdn.verifik.co/demo/verifiklogosvgsvg.svg" alt="" class="step-one-logo" />
 
-		<h1>Explore the future of identity validation with Verifik</h1>
+		<h1>{{ "step_one.title" | transloco }}</h1>
 
 		<p class="p-1">
-			We feature cutting-edge services including accurate and fast identification of identity documents using state-of-the-art OCR technology,
-			as well as 3D biometric scans that ensure the authenticity of individuals and prevent impersonation.
+			{{ "step_one.header" | transloco }}
 		</p>
 
-		<p class="p-2">Discover how Verifik is revolutionizing identity validation security.</p>
+		<p class="p-2">{{ "step_one.subtitle" | transloco }}</p>
 	</div>
 
 	<div class="step-one-woman-and-options" fxLayout="column" fxLayoutAlign="center center">
@@ -23,7 +22,7 @@
 						<img src="https://cdn.verifik.co/demo/id_in_card.png" alt="" class="id_in_card_img" />
 					</div>
 
-					<h3 class="mt-4">Scan your ID Document</h3>
+					<h3 class="mt-4">{{ "step_one.cards.id" | transloco }}</h3>
 				</div>
 				<p class="step-one-circle">1</p>
 			</div>
@@ -34,7 +33,7 @@
 						<img src="https://cdn.verifik.co/demo/x2Step2.png" alt="" class="id_in_card_img" />
 					</div>
 
-					<h3 class="mt-4 text-center">Obtain and verify the information extracted</h3>
+					<h3 class="mt-4 text-center">{{ "step_one.cards.verify_id" | transloco }}</h3>
 				</div>
 				<p class="step-one-circle">2</p>
 			</div>
@@ -45,7 +44,7 @@
 						<img src="https://cdn.verifik.co/demo/x2Step3.png" alt="" class="id_in_card_img" />
 					</div>
 
-					<h3 class="mt-4 text-center m-2">Generate a 3D biometric record</h3>
+					<h3 class="mt-4 text-center m-2">{{ "step_one.cards.liveness" | transloco }}</h3>
 				</div>
 				<p class="step-one-circle">3</p>
 			</div>
@@ -56,7 +55,7 @@
 						<img src="https://cdn.verifik.co/demo/x2Step4.png" alt="" class="id_in_card_img" />
 					</div>
 
-					<h3 class="mt-4 text-center m-2">Get your identity authenticated within a minute.</h3>
+					<h3 class="mt-4 text-center m-2">{{ "step_one.cards.compare" | transloco }}</h3>
 				</div>
 
 				<p class="step-one-circle">4</p>
@@ -65,12 +64,14 @@
 
 		<div fxLayout="column" class="accept-terms-container" fxLayoutAlign="start center">
 			<mat-checkbox class="mt-8 z-index-2" [checked]="canStartDemo" (change)="agreeToTerms()"
-				>To use this demo, you must accept our
-				<a href="https://docs.verifik.co/docs/terms-conditions/4s01oqa1z6oof-privacy-policy" target="_blank">Data Treatment Agreement.</a>
+				>{{ "step_one.terms_label" | transloco }}
+				<a href="https://docs.verifik.co/docs/terms-conditions/4s01oqa1z6oof-privacy-policy" target="_blank">{{
+					"step_one.terms_link" | transloco
+				}}</a>
 			</mat-checkbox>
 
 			<button mat-raised-button color="primary" class="mt-4 z-index-2 start-demo-button" [disabled]="!canStartDemo" (click)="startDemo()">
-				Start demo
+				{{ "step_one.start_demo_button" | transloco }}
 			</button>
 		</div>
 	</div>

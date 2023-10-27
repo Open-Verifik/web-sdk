@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
 import { WebSdkService } from "../web-sdk.service";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "app/modules/demo/demo.service";
 import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
@@ -70,7 +70,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-	constructor(private _changeDetectorRef: ChangeDetectorRef, private _sdkService: WebSdkService, private _demoService: DemoService) {
+	constructor(
+		private _changeDetectorRef: ChangeDetectorRef,
+		private _sdkService: WebSdkService,
+		private _demoService: DemoService,
+		private _translocoService: TranslocoService
+	) {
 		this.loadingModel = true;
 		this.debugIndex = 0;
 		this.osInfo = this.detectOS();
@@ -341,8 +346,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 				direction += ` ${faceCenterY < this.videoCenterY ? "↑" : "↓"}  `;
 
 			this.errorFace = {
-				title: `Centra tu rostro en la pantalla`,
-				subtitle: "Por favor, asegúrate de que tu rostro esté centrado.",
+				title: this._translocoService.translate("liveness.center_yor_face"),
+				subtitle: this._translocoService.translate("liveness.center_your_face_subtitle"),
 				canvas: direction,
 			};
 		}
@@ -357,8 +362,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		if (faceProportion < threshold) {
 			this.errorFace = {
-				title: "Acerca tu rostro",
-				subtitle: "Por favor, acércate un poco más para una mejor detección facial.",
+				title: this._translocoService.translate("liveness.get_closer"),
+				subtitle: this._translocoService.translate("liveness.get_closer_subtitle"),
 			};
 		}
 	}
@@ -372,23 +377,23 @@ export class FaceComponent implements OnInit, OnDestroy {
 			if (this.errorFace) {
 				this.saveImageBase64Intent = clearTimeout(this.saveImageBase64Intent);
 			}
+
 			this.takePicture();
 		}, 1500);
 	}
 
-	takePicture() {
+	async takePicture() {
 		this.stopRecord();
 
 		const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
 		const widthCut = 2.8 * this.OVAL.radiusX;
 
-		if(!this.canvasResult){
+		if (!this.canvasResult) {
 			this.canvasResult = document.createElement("canvas");
 			this.canvasResult.width = widthCut;
 			this.canvasResult.height = this.HEIGHT;
 			this.canvasResult.style.marginLeft = `${startX}px`;
 			this.canvasResultRef.nativeElement.appendChild(this.canvasResult);
-
 		}
 
 		const context = this.canvasResult.getContext("2d");
@@ -399,7 +404,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.base64Images.push(base64Image);
 
-		this.liveness();
+		await this.liveness();
 	}
 
 	detectOS() {
@@ -416,6 +421,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	liveness() {
 		if (this.loadingResults) return;
+
 		this.loadingResults = true;
 
 		const payload: any = {
@@ -454,8 +460,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	retryLivenessModal(error) {
 		const data = {
-			title: "Liveness Failed",
-			message: `The life check has failed with the following error:<br><strong>"${error}"</strong><br>Do you want to try again?`,
+			title: this._translocoService.translate("liveness.liveness_failed"),
+			message: this._translocoService.translate("liveness.liveness_error_message", { error }),
 			icon: {
 				show: true,
 				name: "heroicons_outline:exclamation-triangle",
@@ -464,12 +470,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 			actions: {
 				confirm: {
 					show: true,
-					label: "Confirm",
+					label: this._translocoService.translate("confirm"),
 					color: "primary",
 				},
 				cancel: {
 					show: true,
-					label: "Cancel",
+					label: this._translocoService.translate("cancel"),
 				},
 			},
 			dismissible: false,
@@ -487,7 +493,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 				if (result === "confirmed") {
 					return this.restart();
 				}
-				alert("pantalla de error")
+
+				this._demoService.moveToStep(1);
 				// pantalla de error
 			});
 	}

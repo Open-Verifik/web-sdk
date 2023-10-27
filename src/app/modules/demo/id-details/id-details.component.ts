@@ -4,13 +4,14 @@ import { DemoService } from "../demo.service";
 import { CommonModule } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { LeafletModule } from "@asymmetrik/ngx-leaflet";
+import { TranslocoModule } from "@ngneat/transloco";
 
 @Component({
 	selector: "id-details",
 	templateUrl: "./id-details.component.html",
 	styleUrls: ["./id-details.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, CommonModule, MatButtonModule, LeafletModule], // Add this line],
+	imports: [FlexLayoutModule, CommonModule, MatButtonModule, LeafletModule, TranslocoModule], // Add this line],
 })
 export class IdDetailsComponent implements OnInit {
 	demoData: any;
