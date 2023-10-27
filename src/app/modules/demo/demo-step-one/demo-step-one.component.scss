@@ -51,6 +51,10 @@
 	border: 1px solid #cccccc65;
 	/* Shadow */
 	box-shadow: 3px 3px 3px 3px rgb(0 0 0 / 5%);
+
+	h3 {
+		text-align: center;
+	}
 }
 
 .step-one-card-image {
@@ -65,8 +69,6 @@ h3 {
 	font-size: 16px;
 	font-weight: 600;
 }
-
-
 
 .step-one-circle {
 	background: #0036e7;

@@ -1,0 +1,78 @@
+{
+	"go_back": "Volver",
+	"restart": "Reiniciar demo",
+	"continue": "Continuar",
+	"confirm": "Confirmar",
+	"cancel": "Cancelar",
+	"header": {
+		"partner": "Asociarse con nosotros",
+		"talk": "Hablar con ventas",
+		"id": "Escaneo de ID",
+		"verify_id": "Detalles del documento",
+		"liveness": "Verificación de vida",
+		"compare": "Resultados"
+	},
+	"step_one": {
+		"title": "Explora el futuro de la validación de identidad con Verifik",
+		"subtitle": "Descubre cómo Verifik está revolucionando la seguridad en la validación de identidades.",
+		"header": "Ofrecemos servicios de vanguardia, incluyendo la identificación precisa y rápida de documentos de identidad mediante tecnología OCR de última generación, así como escaneos biométricos 3D que aseguran la autenticidad de las personas y evitan la suplantación de identidad.",
+		"cards": {
+			"id": "Escanear tu documento de identidad",
+			"verify_id": "Obtener y verificar la información extraída",
+			"liveness": "Detección de vida",
+			"compare": "Obtén la autenticación de tu identidad en menos de un minuto."
+		},
+		"terms_label": "Para utilizar esta demostración, debes aceptar nuestro",
+		"terms_link": "Acuerdo de Tratamiento de Datos.",
+		"start_demo_button": "Iniciar demo"
+	},
+	"step_three": {
+		"document_scanned": "Documento escaneado",
+		"front_side": "Lado frontal",
+		"general_information": "Información general",
+		"extracted_information": "Información extraída",
+		"user_location": "Ubicación del usuario",
+		"scan_again": "Escanear de nuevo"
+	},
+	"general_information": {
+		"device": "Dispositivo",
+		"language": "Idioma",
+		"userAgent": "Agente de usuario"
+	},
+	"extracted_information": {
+		"documentType": "Tipo de documento",
+		"documentNumber": "Número de documento",
+		"firstName": "Nombre",
+		"lastName": "Apellido",
+		"fullName": "Nombre completo"
+	},
+	"user_location": {
+		"road": "Calle",
+		"neighbourhood": "Barrio",
+		"city": "Ciudad",
+		"county": "Condado",
+		"state": "Estado",
+		"ISO3166-2-lvl4": "Código ISO del país",
+		"postcode": "Código postal",
+		"country": "País",
+		"country_code": "Código de país"
+	},
+	"liveness": {
+		"center_yor_face": "Centra tu rostro en la pantalla",
+		"center_your_face_subtitle": "Asegúrate de que tu rostro esté centrado",
+		"get_closer": "Acércate",
+		"get_closer_subtitle": "Por favor, acércate un poco para una mejor identificación facial.",
+		"liveness_failed": "Fallo en la detección de vida",
+		"liveness_error_message": "La verificación de vida ha fallado con el siguiente error:<br><strong>{{error}}</strong><br>¿Deseas intentarlo de nuevo?",
+		"loading_stream": "Cargando cámara"
+	},
+	"results": {
+		"selfie": "Selfie",
+		"liveness_and_match": "Resultados de Vida y Coincidencia",
+		"match_score": "Puntaje de coincidencia",
+		"liveness_score": "Puntaje de vida",
+		"passed": "Aprobado",
+		"min_score": "Puntaje mínimo",
+		"score": "Puntaje de coincidencia"
+	}
+}

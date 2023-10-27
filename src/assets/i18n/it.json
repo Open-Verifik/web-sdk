@@ -1,0 +1,78 @@
+{
+	"go_back": "Torna indietro",
+	"restart": "Riavvia demo",
+	"continue": "Continua",
+	"confirm": "Conferma",
+	"cancel": "Annulla",
+	"header": {
+		"partner": "Diventa nostro partner",
+		"talk": "Parla con il reparto vendite",
+		"id": "Scansione dell'ID",
+		"verify_id": "Dettagli del documento",
+		"liveness": "Controllo di autenticità",
+		"compare": "Risultati"
+	},
+	"step_one": {
+		"title": "Esplora il futuro della validazione dell'identità con Verifik",
+		"subtitle": "Scopri come Verifik sta rivoluzionando la sicurezza nella validazione dell'identità.",
+		"header": "Offriamo servizi all'avanguardia, compresa l'identificazione precisa e rapida dei documenti di identità utilizzando la tecnologia OCR all'avanguardia, nonché scansioni biometriche 3D che garantiscono l'autenticità delle persone e prevengono l'usurpazione di identità.",
+		"cards": {
+			"id": "Scansiona il tuo documento d'identità",
+			"verify_id": "Ottieni e verifica le informazioni estratte",
+			"liveness": "Rilevamento di autenticità",
+			"compare": "Ottieni l'autenticazione della tua identità in meno di un minuto."
+		},
+		"terms_label": "Per utilizzare questa demo, è necessario accettare il nostro",
+		"terms_link": "Accordo di trattamento dei dati.",
+		"start_demo_button": "Avvia demo"
+	},
+	"step_three": {
+		"document_scanned": "Documento scansionato",
+		"front_side": "Facciata anteriore",
+		"general_information": "Informazioni generali",
+		"extracted_information": "Informazioni estratte",
+		"user_location": "Posizione dell'utente",
+		"scan_again": "Scansiona nuovamente"
+	},
+	"general_information": {
+		"device": "Dispositivo",
+		"language": "Lingua",
+		"userAgent": "Agente utente"
+	},
+	"extracted_information": {
+		"documentType": "Tipo di documento",
+		"documentNumber": "Numero di documento",
+		"firstName": "Nome",
+		"lastName": "Cognome",
+		"fullName": "Nome completo"
+	},
+	"user_location": {
+		"road": "Strada",
+		"neighbourhood": "Quartiere",
+		"city": "Città",
+		"county": "Contea",
+		"state": "Stato",
+		"ISO3166-2-lvl4": "Codice ISO del paese",
+		"postcode": "Codice postale",
+		"country": "Paese",
+		"country_code": "Codice paese"
+	},
+	"liveness": {
+		"center_yor_face": "Centra il tuo volto sullo schermo",
+		"center_your_face_subtitle": "Assicurati che il tuo volto sia centrato",
+		"get_closer": "Avvicinati",
+		"get_closer_subtitle": "Per favore, avvicinati un po' per un riconoscimento facciale migliore.",
+		"liveness_failed": "Controllo di autenticità fallito",
+		"liveness_error_message": "Il controllo di autenticità è fallito con il seguente errore:<br><strong>{{error}}</strong><br>Vuoi provare di nuovo?",
+		"loading_stream": "Caricamento della fotocamera"
+	},
+	"results": {
+		"selfie": "Selfie",
+		"liveness_and_match": "Risultati di autenticità e corrispondenza",
+		"match_score": "Punteggio di corrispondenza",
+		"liveness_score": "Punteggio di autenticità",
+		"passed": "Superato",
+		"min_score": "Punteggio minimo",
+		"score": "Punteggio di corrispondenza"
+	}
+}

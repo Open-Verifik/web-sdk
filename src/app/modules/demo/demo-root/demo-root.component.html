@@ -5,8 +5,8 @@
 			<img src="https://cdn.verifik.co/demo/logo3x.png" alt="" class="demo-header-logo" />
 		</div>
 
-		<div fxFlex fxLayout="row" fxLayoutAlign="end center" class="demo-header-actions cursor-pointer" (click)="partnerWithUs()">
-			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action">
+		<div fxFlex fxLayout="row" fxLayoutAlign="end center" class="demo-header-actions cursor-pointer">
+			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action" (click)="partnerWithUs()">
 				<img src="https://cdn.verifik.co/demo/handshake@3x.png" class="demo-header-partner-icon" alt="" />
 
 				<span fxHide.sm="true" fxHide.xs="true"> {{ "header.partner" | transloco }} </span>
@@ -18,11 +18,12 @@
 				<span fxHide.sm="true" fxHide.xs="true">{{ "header.talk" | transloco }}</span>
 			</div>
 
-			<!-- <div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action cursor-pointer">
-				<img src="https://cdn.verifik.co/demo/settings@3x.png" class="demo-header-partner-icon" alt="" />
+			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action cursor-pointer">
+				<languages></languages>
+				<!-- <img src="https://cdn.verifik.co/demo/settings@3x.png" class="demo-header-partner-icon" alt="" />
 
-				<span fxHide.sm="true" fxHide.xs="true"> Settings </span>
-			</div> -->
+				<span fxHide.sm="true" fxHide.xs="true"> Settings </span> -->
+			</div>
 		</div>
 	</div>
 	<!-- end of header -->
