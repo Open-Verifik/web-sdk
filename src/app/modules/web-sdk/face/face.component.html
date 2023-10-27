@@ -1,25 +1,30 @@
-<div class="bg-white w-full min-h-[900px] flex flex-col items-center justify-center p-1">
+<div class="w-full min-h-[900px] flex flex-col items-center justify-center p-8">
 	<div *ngIf="loadingModel" class="scan">
 		<div class="face">
 			<div class="dots"></div>
 		</div>
 		<div class="w-full flex items-center justify-center my-4">
-			<h1 class="text-3xl font-bold">{{ "loading_stream" | transloco }}</h1>
+			<h1 class="text-3xl font-bold">{{ "liveness.loading_stream" | transloco }}</h1>
 		</div>
 	</div>
 
 	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
 		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT }">
 			<div class="relative w-full">
-				<video [class.hidden]="loadingResults" #video [width]="WIDTH" [height]="HEIGHT" autoplay muted class="absolute top-0 left-0 oval-video"></video>
+				<video
+					[class.hidden]="loadingResults"
+					#video
+					[width]="WIDTH"
+					[height]="HEIGHT"
+					autoplay
+					muted
+					class="absolute top-0 left-0 oval-video"
+				></video>
 				<div #canvas class="absolute top-0 left-0 oval-video" [class.hidden]="loadingResults"></div>
 				<div #result class="absolute top-0 left-0 oval-video" [class.hidden]="!loadingResults"></div>
-
 			</div>
 		</div>
-		<div class="relative w-full">
-			<button mat-raised-button color="primary" class="absolute top-0 left-0 m-4 z-index-2 start-demo-button" (click)="manualCapture()" [disabled]="loadingResults">Manual Capture</button>
-		</div>
+
 		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
 			<div *ngIf="faceError && !loadingResults">
 				<div class="text-3xl font-bold">{{ faceError.title }}</div>

@@ -1,0 +1,28 @@
+.back-button {
+	width: 33%;
+}
+
+@media (max-width: 599px) {
+	.back-button {
+		width: 66%;
+	}
+}
+
+// Small screens
+@media (min-width: 600px) and (max-width: 959px) {
+	.back-button {
+		width: 50%;
+	}
+}
+
+// Medium screens
+@media (min-width: 960px) and (max-width: 1279px) {
+}
+
+// Large screens
+@media (min-width: 1280px) and (max-width: 1919px) {
+}
+
+// Extra large screens
+@media (min-width: 1920px) {
+}

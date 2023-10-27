@@ -50,13 +50,13 @@
 	width: 70%;
 	padding: 10px;
 	border-top: 1px solid rgba(128, 128, 128, 0.148);
-	border-bottom: 1px solid rgba(128, 128, 128, 0.148);;
+	border-bottom: 1px solid rgba(128, 128, 128, 0.148);
 
 	h3 {
 		font-size: 16px;
 		font-weight: 800;
 	}
-	
+
 	p {
 		font-size: 14px;
 		font-weight: 400;
@@ -90,17 +90,21 @@
 		width: 95%;
 		padding: 10px;
 		border-top: 1px solid rgba(128, 128, 128, 0.148);
-		border-bottom: 1px solid rgba(128, 128, 128, 0.148);;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.148);
 
 		h3 {
 			font-size: 16px;
 			font-weight: 800;
 		}
-		
+
 		p {
 			font-size: 14px;
 			font-weight: 400;
 		}
+	}
+
+	.start-demo-button {
+		width: 45%;
 	}
 }
 
@@ -117,22 +121,35 @@
 		}
 	}
 
+	.id-details-second-section {
+		width: 95%;
+		margin-top: 30px;
+		background-color: #ffffffbd;
+		padding-bottom: 70px;
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
 	.id-details-item {
 		min-height: 65px;
 		width: 95%;
 		padding: 10px;
 		border-top: 1px solid rgba(128, 128, 128, 0.148);
-		border-bottom: 1px solid rgba(128, 128, 128, 0.148);;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.148);
 
 		h3 {
 			font-size: 16px;
 			font-weight: 800;
 		}
-		
+
 		p {
 			font-size: 14px;
 			font-weight: 400;
 		}
+	}
+
+	.start-demo-button {
+		width: 40%;
 	}
 }
 
@@ -161,24 +178,34 @@
 		width: 95%;
 		padding: 10px;
 		border-top: 1px solid rgba(128, 128, 128, 0.148);
-		border-bottom: 1px solid rgba(128, 128, 128, 0.148);;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.148);
 
 		h3 {
 			font-size: 16px;
 			font-weight: 800;
 		}
-		
+
 		p {
 			font-size: 14px;
 			font-weight: 400;
 		}
 	}
+
+	.start-demo-button {
+		width: 35%;
+	}
 }
 
 // Large screens
 @media (min-width: 1280px) and (max-width: 1919px) {
+	.start-demo-button {
+		width: 33%;
+	}
 }
 
 // Extra large screens
 @media (min-width: 1920px) {
+	.start-demo-button {
+		width: 25%;
+	}
 }

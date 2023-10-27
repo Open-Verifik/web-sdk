@@ -101,6 +101,10 @@ export class DemoService {
 	setDemoLiveness(data: any): void {
 		this.demoData.liveness = data;
 
+		this.demoData.liveness.result.liveness_score = parseInt(`${this.demoData.liveness.result.liveness_score * 100}`);
+
+		this.demoData.liveness.result.min_score = parseInt(`${this.demoData.liveness.result.min_score * 100}`);
+
 		this.demoData.livenessResult = [];
 
 		for (const key in data.result) {
@@ -118,6 +122,8 @@ export class DemoService {
 
 	setDemoCompare(data: any): void {
 		this.demoData.comparison = data;
+
+		this.demoData.comparison.result.score = parseInt(`${this.demoData.comparison.result.score * 100}`);
 
 		for (const key in data.result) {
 			const value = data.result[key];

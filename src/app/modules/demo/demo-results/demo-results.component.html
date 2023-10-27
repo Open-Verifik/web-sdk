@@ -2,24 +2,26 @@
 	class="id-details-body"
 	fxLayout="row"
 	fxLayout.xs="column"
+	fxLayout.sm="column"
 	fxLayoutAlign="start start"
+	fxLayoutAlign.sm="center center"
 	fxLayoutAlign.xs="center center"
 	*ngIf="demoData.document._id && demoData.liveness._id"
 >
 	<!-- first section -->
 	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
 		<div fxLayout="column" fxLayoutAlign="start center" *ngIf="demoData.liveness">
-			<h1 class="mt-4">Selfie</h1>
+			<h1 class="mt-4">{{ "results.selfie" | transloco }}</h1>
 			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
 				<img [src]="'data:image/png;base64,' + demoData.liveness.images[0]" alt="" class="mt-4 box-shadow-3px" />
 			</div>
 		</div>
 
 		<div fxLayout="column" fxLayoutAlign="start center">
-			<h1 class="mt-4">Document scanned</h1>
+			<h1 class="mt-4">{{ "step_three.document_scanned" | transloco }}</h1>
 
 			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
-				<h2 class="mt-4">Front side</h2>
+				<h2 class="mt-4">{{ "step_three.front_side" | transloco }}</h2>
 
 				<img [src]="demoData.document.url" alt="" class="mt-4 box-shadow-3px" />
 			</div>
@@ -34,36 +36,51 @@
 		fxLayoutAlign="start start"
 		fxLayoutAlign.xs="center center"
 	>
-		<h1 class="mt-4">General Information</h1>
+		<h1 class="mt-4">{{ "step_three.general_information" | transloco }}</h1>
 
 		<div *ngIf="hasGeneralInformation()" class="mt-8">
 			<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.generalInformation" class="id-details-item">
-				<h3>{{ item.key }}</h3>
+				<h3>{{ "general_information." + item.key | transloco }}</h3>
 				<p>{{ item.value }}</p>
 			</div>
 		</div>
+		<!-- stats for sm and plus -->
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start center"
+			class="w-full stats-section"
+			fxLayoutAlign.sm="center center"
+			fxLayoutAlign.xs="center center"
+			fxHide.xs="true"
+		>
+			<div fxLayout="row" fxLayoutAlign="start center" fxLayoutAlign.sm="center center" class="w-full">
+				<!-- liveness chart -->
+				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section" fxLayoutAlign.sm="center center">
+					<h2 class="liveness-title">{{ "results.liveness_score" | transloco }}</h2>
 
-		<div fxLayout="column" fxLayoutAlign="start center" class="w-full stats-section">
-			<div fxLayout="row" fxLayoutAlign="start center" class="w-full">
-				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section">
-					<h2 class="liveness-title">Liveness Score</h2>
-
-					<h3 class="stat-percent">{{ demoData.liveness.result.liveness_score * 100 }} %</h3>
+					<h3 class="stat-percent" ngClass.xs="small-left-stat-percent">{{ demoData.liveness.result.liveness_score }} %</h3>
 				</div>
 
-				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section">
-					<h2 class="w-50p match-title">Match score</h2>
+				<div
+					fxLayout="column"
+					fxLayoutAlign="start start"
+					class="w-50p liveness-section"
+					fxLayoutAlign.sm="center center"
+					fxLayoutAlign.xs="center center"
+				>
+					<h2 class="match-title" ngClass.gt-xs="w-50p">{{ "results.match_score" | transloco }}</h2>
 
-					<h3 class="stat-percent">{{ demoData.comparison.result.score * 100 }}%</h3>
+					<h3 class="stat-percent">{{ demoData.comparison.result.score }}%</h3>
 				</div>
 			</div>
-			<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+
+			<div fxLayout="row" fxLayoutAlign="start start" fxLayoutAlign.sm="center center" fxLayoutAlign.xs="start start" class="w-full">
 				<div class="w-50p">
 					<mat-progress-spinner
 						class="spinner"
 						[color]="demoData.liveness.result.passed ? 'primary' : 'warn'"
 						mode="determinate"
-						[value]="demoData.liveness.result.liveness_score * 100"
+						[value]="demoData.liveness.result.liveness_score"
 					>
 					</mat-progress-spinner>
 				</div>
@@ -71,15 +88,22 @@
 				<div>
 					<mat-progress-spinner
 						class="spinner"
-						[color]="demoData.comparison.result.score < 0.67 ? 'warn' : 'primary'"
+						[color]="demoData.comparison.result.score < 67 ? 'warn' : 'primary'"
 						mode="determinate"
-						[value]="demoData.comparison.result.score * 100"
+						[value]="demoData.comparison.result.score"
 					>
 					</mat-progress-spinner>
 				</div>
 			</div>
 
-			<div fxLayout="row" fxLayoutAlign="start center" class="negative-margin-100 w-full">
+			<div
+				fxLayout="row"
+				fxLayoutAlign="start center"
+				class="negative-margin-100 w-full"
+				fxLayoutAlign.sm="center center"
+				fxLayoutAlign.xs="start start"
+			>
+				<!-- ngClass.gt-xs="w-50p" -->
 				<div class="w-50p" fxLayout="row" fxLayoutAlign="start center">
 					<mat-progress-spinner class="background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
 				</div>
@@ -88,51 +112,104 @@
 				</div>
 			</div>
 		</div>
+		<!-- end of stats for sm and plus -->
 
-		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
-			<h1 class="mt-4">Liveness & Match Results</h1>
+		<!-- stats for small screen -->
+		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center">
+			<h2 class="mb-4">{{ "results.liveness_score" | transloco }}</h2>
+
+			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.liveness.result.liveness_score }} %</h3>
+
+			<!-- stat for liveness -->
+			<div class="w-full">
+				<mat-progress-spinner
+					class="spinner"
+					[color]="demoData.liveness.result.passed ? 'primary' : 'warn'"
+					mode="determinate"
+					[value]="demoData.liveness.result.liveness_score"
+				>
+				</mat-progress-spinner>
+			</div>
+
+			<div class="w-full">
+				<mat-progress-spinner class="xs-background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
+			</div>
+			<!-- end of stat for liveness -->
+		</div>
+		<!-- end of stats for small screen -->
+
+		<!-- stats for small screen -->
+		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center" class="mt-4">
+			<h2 class="mb-4">{{ "results.match_score" | transloco }}</h2>
+
+			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.comparison.result.score }} %</h3>
+
+			<!-- stat for liveness -->
+			<div class="w-full">
+				<mat-progress-spinner
+					class="spinner"
+					[color]="demoData.comparison.result.score > 67 ? 'primary' : 'warn'"
+					mode="determinate"
+					[value]="demoData.comparison.result.score"
+				>
+				</mat-progress-spinner>
+			</div>
+
+			<div class="w-full">
+				<mat-progress-spinner class="xs-background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
+			</div>
+			<!-- end of stat for liveness -->
+		</div>
+		<!-- end of stats for small screen -->
+
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" class="w-full">
+			<h1 class="mt-4">{{ "results.liveness_and_match" | transloco }}</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.livenessResult" class="id-details-item">
-					<h3>{{ item.key }}</h3>
+					<h3>{{ "results." + item.key | transloco }}</h3>
 					<p>{{ item.value }}</p>
 				</div>
 			</div>
 
 			<div class="w-full">
-				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.comparisonResult" class="id-details-item">
-					<h3>{{ item.key }}</h3>
-					<p>{{ item.value }}</p>
+				<div fxLayout="column" fxLayoutAlign="start start" *ngIf="demoData.comparisonResult" class="id-details-item">
+					<h3>{{ "results." + demoData.comparisonResult[0].key | transloco }}</h3>
+					<p>{{ demoData.comparisonResult[0].value }}</p>
 				</div>
 			</div>
 		</div>
 
-		<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
-			<h1 class="mt-4">Extracted information</h1>
+		<!-- extracted info from ID -->
+		<div fxLayout="column" fxLayoutAlign="start start" class="w-full" fxLayoutAlign.xs="center center">
+			<h1 class="mt-4">{{ "step_three.extracted_information" | transloco }}</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.extractedData" class="id-details-item">
-					<h3>{{ item.key }}</h3>
+					<h3>{{ "extracted_information." + item.key | transloco }}</h3>
 					<p>{{ item.value }}</p>
 				</div>
 			</div>
 		</div>
+		<!-- end of extracted info from ID -->
 
-		<div fxLayout="column" fxLayoutAlign="start start" *ngIf="demoData.location" class="w-full">
-			<h1 class="mt-4">User Location</h1>
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" *ngIf="demoData.location" class="w-full">
+			<h1 class="mt-4">{{ "step_three.user_location" | transloco }}</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.location" class="id-details-item">
-					<h3>{{ item.key }}</h3>
+					<h3>{{ "user_location." + item.key | transloco }}</h3>
 					<p>{{ item.value }}</p>
 				</div>
 			</div>
 		</div>
 
 		<div fxLayout="row" fxLayoutAlign="center center" class="button-section">
-			<button mat-raised-button color="primary" class="m-4 z-index-2 restart-demo-button" (click)="restartDemo()">Restart demo</button>
+			<button mat-raised-button color="primary" class="m-4 z-index-2 restart-demo-button" (click)="restartDemo()">
+				{{ "restart" | transloco }}
+			</button>
 		</div>
 	</div>
 </div>
 
-<div class="white-background" fxHide.xs="true"></div>
+<div class="white-background" fxHide.xs="true" fxHide.sm="true"></div>

@@ -1,15 +1,12 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
-// import * as faceapi from "face-api.js";
-// const tf = require('@tensorflow/tfjs-node')
-// import * as coco from '@tensorflow-models/coco-ssd';
+
 import * as faceapi from "@vladmandic/face-api";
 import { Subject } from "rxjs";
 import { FormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { WebSdkService } from "./web-sdk.service";
-import { MatDialogRef, MatDialogModule, MatDialog } from "@angular/material/dialog";
+import { MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule } from "@ngneat/transloco";
-
 
 @Component({
 	selector: "app-web-sdk",
@@ -148,190 +145,172 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 	}
 
 	addPerson() {
-		if (this.loadingResults) return;
-
-		if (this.personForm.valid && this.base64Images.length > 2) {
-			const formValues: any = this.personForm.value;
-			formValues.collections = [this.collectionId];
-			formValues.images = this.base64Images;
-
-			this.loadingResults = true;
-
-			this._sdkService.addPerson(formValues).subscribe(
-				(person) => {
-					this.personCreated = person.data;
-					this.completeResults();
-					// this.dialogRef.close();
-				},
-				(error) => {
-					this.errorResult = {
-						status: error.error?.code,
-						message: error.error?.message,
-					};
-					console.error("sdkService.addPerson");
-					this.completeResults();
-				}
-			);
-		}
+		// if (this.loadingResults) return;
+		// if (this.personForm.valid && this.base64Images.length > 2) {
+		// 	const formValues: any = this.personForm.value;
+		// 	formValues.collections = [this.collectionId];
+		// 	formValues.images = this.base64Images;
+		// 	this.loadingResults = true;
+		// 	this._sdkService.addPerson(formValues).subscribe(
+		// 		(person) => {
+		// 			this.personCreated = person.data;
+		// 			this.completeResults();
+		// 			// this.dialogRef.close();
+		// 		},
+		// 		(error) => {
+		// 			this.errorResult = {
+		// 				status: error.error?.code,
+		// 				message: error.error?.message,
+		// 			};
+		// 			console.error("sdkService.addPerson");
+		// 			this.completeResults();
+		// 		}
+		// 	);
+		// }
 	}
 
 	search() {
-		if (this.loadingResults) return;
-
-		const payload: any = {
-			images: this.base64Images,
-			collection_id: this.collectionId,
-			min_score: 0.7,
-			search_mode: "ACCURATE",
-		};
-
-		this.loadingResults = true;
-
-		this._sdkService.search(payload).subscribe(
-			(searchResult) => {
-				this.personSearch = searchResult.data;
-				this.errorResult = null;
-				this.loadingResults = false;
-				this.completeResults();
-			},
-			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				console.error("sdkService.search");
-				this.completeResults();
-			}
-		);
+		// if (this.loadingResults) return;
+		// const payload: any = {
+		// 	images: this.base64Images,
+		// 	collection_id: this.collectionId,
+		// 	min_score: 0.7,
+		// 	search_mode: "ACCURATE",
+		// };
+		// this.loadingResults = true;
+		// this._sdkService.search(payload).subscribe(
+		// 	(searchResult) => {
+		// 		this.personSearch = searchResult.data;
+		// 		this.errorResult = null;
+		// 		this.loadingResults = false;
+		// 		this.completeResults();
+		// 	},
+		// 	(error) => {
+		// 		this.errorResult = {
+		// 			status: error.error?.code,
+		// 			message: error.error?.message,
+		// 		};
+		// 		console.error("sdkService.search");
+		// 		this.completeResults();
+		// 	}
+		// );
 	}
 
 	searchLiveFace() {
-		if (this.loadingResults) return;
-
-		const payload: any = {
-			image: this.base64Images[0],
-			collection_id: this.collectionId,
-			os: this.osInfo,
-			liveness_min_score: 0.7,
-			min_score: 0.7,
-			search_mode: "ACCURATE",
-		};
-
-		this.loadingResults = true;
-
-		this._sdkService.searchLiveFace(payload).subscribe(
-			(searchResult) => {
-				this.livenessScore = searchResult.data.liveness_score;
-				this.personSearch = searchResult.data.persons;
-				this.errorResult = null;
-				this.loadingResults = false;
-				this.completeResults();
-			},
-			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				console.error("sdkService.searchLiveFace");
-				this.loadingResults = false;
-				this.completeResults();
-			}
-		);
+		// if (this.loadingResults) return;
+		// const payload: any = {
+		// 	image: this.base64Images[0],
+		// 	collection_id: this.collectionId,
+		// 	os: this.osInfo,
+		// 	liveness_min_score: 0.7,
+		// 	min_score: 0.7,
+		// 	search_mode: "ACCURATE",
+		// };
+		// this.loadingResults = true;
+		// this._sdkService.searchLiveFace(payload).subscribe(
+		// 	(searchResult) => {
+		// 		this.livenessScore = searchResult.data.liveness_score;
+		// 		this.personSearch = searchResult.data.persons;
+		// 		this.errorResult = null;
+		// 		this.loadingResults = false;
+		// 		this.completeResults();
+		// 	},
+		// 	(error) => {
+		// 		this.errorResult = {
+		// 			status: error.error?.code,
+		// 			message: error.error?.message,
+		// 		};
+		// 		console.error("sdkService.searchLiveFace");
+		// 		this.loadingResults = false;
+		// 		this.completeResults();
+		// 	}
+		// );
 	}
 
 	detect() {
-		if (this.loadingResults) return;
-
-		const payload: any = {
-			image: this.base64Images[0],
-			collection_id: this.collectionId,
-			min_score: 0.7,
-			search_mode: "ACCURATE",
-		};
-
-		this.loadingResults = true;
-
-		this._sdkService.detect(payload).subscribe(
-			(detect) => {
-				this.personsDetect = detect.data;
-				this.errorResult = null;
-				this.loadingResults = false;
-				this.loadingResults = false;
-				this.completeResults();
-			},
-			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				this.loadingResults = false;
-				this.loadingResults = false;
-				console.error("sdkService.detect");
-				this.completeResults();
-			}
-		);
+		// if (this.loadingResults) return;
+		// const payload: any = {
+		// 	image: this.base64Images[0],
+		// 	collection_id: this.collectionId,
+		// 	min_score: 0.7,
+		// 	search_mode: "ACCURATE",
+		// };
+		// this.loadingResults = true;
+		// this._sdkService.detect(payload).subscribe(
+		// 	(detect) => {
+		// 		this.personsDetect = detect.data;
+		// 		this.errorResult = null;
+		// 		this.loadingResults = false;
+		// 		this.loadingResults = false;
+		// 		this.completeResults();
+		// 	},
+		// 	(error) => {
+		// 		this.errorResult = {
+		// 			status: error.error?.code,
+		// 			message: error.error?.message,
+		// 		};
+		// 		this.loadingResults = false;
+		// 		this.loadingResults = false;
+		// 		console.error("sdkService.detect");
+		// 		this.completeResults();
+		// 	}
+		// );
 	}
 
 	liveness() {
-		if (this.loadingResults) return;
-
-		const payload: any = {
-			image: this.base64Images[0],
-			os: this.osInfo,
-			collection_id: this.collectionId,
-		};
-
-		this.loadingResults = true;
-
-		this._sdkService.liveness(payload).subscribe(
-			(liveness) => {
-				this.livenessScore = liveness.data.liveness_score;
-				this.errorResult = null;
-				this.loadingResults = false;
-				this.completeResults();
-			},
-			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				this.loadingResults = false;
-				console.error("sdkService.liveness");
-				this.completeResults();
-			}
-		);
+		// if (this.loadingResults) return;
+		// const payload: any = {
+		// 	image: this.base64Images[0],
+		// 	os: this.osInfo,
+		// 	collection_id: this.collectionId,
+		// };
+		// this.loadingResults = true;
+		// this._sdkService.liveness(payload).subscribe(
+		// 	(liveness) => {
+		// 		this.livenessScore = liveness.data.liveness_score;
+		// 		this.errorResult = null;
+		// 		this.loadingResults = false;
+		// 		this.completeResults();
+		// 	},
+		// 	(error) => {
+		// 		this.errorResult = {
+		// 			status: error.error?.code,
+		// 			message: error.error?.message,
+		// 		};
+		// 		this.loadingResults = false;
+		// 		console.error("sdkService.liveness");
+		// 		this.completeResults();
+		// 	}
+		// );
 	}
 
 	verify() {
-		if (this.loadingResults) return;
-
-		const payload: any = {
-			id: this.personId,
-			images: this.base64Images,
-			collection_id: this.collectionId,
-			min_score: 0.7,
-			search_mode: "ACCURATE",
-		};
-
-		this.loadingResults = true;
-
-		this._sdkService.verify(payload).subscribe(
-			(verify) => {
-				this.personVerify = verify.data;
-				this.errorResult = null;
-				this.loadingResults = false;
-				this.completeResults();
-			},
-			(error) => {
-				this.errorResult = {
-					status: error.error?.code,
-					message: error.error?.message,
-				};
-				this.loadingResults = false;
-				console.error("sdkService.verify");
-				this.completeResults();
-			}
-		);
+		// if (this.loadingResults) return;
+		// const payload: any = {
+		// 	id: this.personId,
+		// 	images: this.base64Images,
+		// 	collection_id: this.collectionId,
+		// 	min_score: 0.7,
+		// 	search_mode: "ACCURATE",
+		// };
+		// this.loadingResults = true;
+		// this._sdkService.verify(payload).subscribe(
+		// 	(verify) => {
+		// 		this.personVerify = verify.data;
+		// 		this.errorResult = null;
+		// 		this.loadingResults = false;
+		// 		this.completeResults();
+		// 	},
+		// 	(error) => {
+		// 		this.errorResult = {
+		// 			status: error.error?.code,
+		// 			message: error.error?.message,
+		// 		};
+		// 		this.loadingResults = false;
+		// 		console.error("sdkService.verify");
+		// 		this.completeResults();
+		// 	}
+		// );
 	}
 
 	completeResults() {
@@ -393,7 +372,6 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 		await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-
 	}
 
 	async startAsyncVideo() {
@@ -456,14 +434,11 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 	async detectFaces() {
 		await this.setConfigCanvas();
 		this.detectFaceInterval = setInterval(async () => {
-
 			const detection = await faceapi
 				.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions())
 				.withFaceLandmarks()
 				.withFaceExpressions()
 				.withAgeAndGender();
-
-
 
 			const context = this.canvas.getContext("2d");
 

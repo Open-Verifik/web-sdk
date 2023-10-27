@@ -4,13 +4,14 @@ import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "../demo.service";
 import { CommonModule } from "@angular/common";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { TranslocoModule } from "@ngneat/transloco";
 
 @Component({
 	selector: "demo-results",
 	templateUrl: "./demo-results.component.html",
 	styleUrls: ["./demo-results.component.scss", "../demo-root/demo-root.component.scss", "../id-details/id-details.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, MatButtonModule, CommonModule, MatProgressSpinnerModule],
+	imports: [FlexLayoutModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, TranslocoModule],
 })
 export class DemoResultsComponent implements OnInit {
 	demoData: any;
