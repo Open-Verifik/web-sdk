@@ -6,6 +6,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { DemoService } from "../demo.service";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
+import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 
 @Component({
 	selector: "app-upload-file",
@@ -17,9 +18,18 @@ import { MatButtonModule } from "@angular/material/button";
 export class UploadFileComponent {
 	demoData: any;
 	base64Image: any;
+	errorResult: boolean;
+	attempts: number;
+	attemptsLimit: number;
 
-	constructor(private _demoService: DemoService, private dialogRef: MatDialogRef<UploadFileComponent>) {
+	constructor(
+		private _demoService: DemoService,
+		private dialogRef: MatDialogRef<UploadFileComponent>,
+		private _splashScreenService: FuseSplashScreenService
+	) {
 		this.demoData = this._demoService.getDemoData();
+		this.attempts = 0;
+		this.attemptsLimit = 3;
 	}
 
 	onFileDropped($event) {
@@ -44,21 +54,37 @@ export class UploadFileComponent {
 		this.dialogRef.close();
 	}
 
+	tryAgain() {
+		this.errorResult = false;
+		this.base64Image = null;
+		this.attempts++;
+	}
+
 	continue(): void {
+		this._splashScreenService.show();
+
 		const body = {
 			image: this.base64Image.replace(/^data:image\/.*;base64,/, ""),
 		};
 
-		https: this._demoService.sendDocument(body).subscribe((response) => {
-			localStorage.setItem("idCard", this.base64Image);
+		https: this._demoService.sendDocument(body).subscribe(
+			(response) => {
+				localStorage.setItem("idCard", this.base64Image);
 
-			this._demoService.setDemoDocument(response.data);
+				this._demoService.setDemoDocument(response.data);
 
-			localStorage.setItem("documentId", response.data._id);
+				localStorage.setItem("documentId", response.data._id);
 
-			this._demoService.moveToStep(3);
+				this._demoService.moveToStep(3);
+				
+				this._splashScreenService.hide();
 
-			this.dialogRef.close();
-		});
+				this.dialogRef.close();
+			},
+			(err) => {
+				this.errorResult = true;
+				this._splashScreenService.hide();
+			}
+		);
 	}
 }

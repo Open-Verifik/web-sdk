@@ -1,4 +1,4 @@
-<div class="white-background csv-container w-3/5 mt-10" appDnd (fileDropped)="onFileDropped($event)">
+<div class="white-background csv-container w-3/5 mt-10" appDnd (fileDropped)="onFileDropped($event)" *ngIf="!errorResult">
 	<input type="file" #fileDropRef id="fileDropRef" (change)="fileBrowseHandler($event.target.files)" accept="image/*" />
 	<div class="grid grid-cols-4">
 		<div class="flex items-center justify-center">
@@ -27,7 +27,7 @@
 	</div>
 	<label for="fileDropRef" class="mx-2">{{ "step_two.upload_button" | transloco }}</label>
 </div>
-<div class="w-full mt-5" fxLayout="row" fxLayoutAlign="center center">
+<div class="w-full mt-5" fxLayout="row" fxLayoutAlign="center center" *ngIf="!errorResult">
     <button mat-stroked-button color="warn" class="mx-2" (click)="cancelUpload()">
 		{{ "step_two.cancel_button" | transloco }}
 	</button>
@@ -35,4 +35,16 @@
     <button mat-raised-button color="primary" class="mx-2" [disabled]="!base64Image" (click)="continue()">
 		{{ "step_two.continue_button" | transloco }}
 	</button>
+</div>
+
+<div fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div w-full" *ngIf="errorResult">
+	<img src="https://cdn.verifik.co/demo/failedtodetectdocument@3x.png" alt="" class="id-scanning-failed-document-img" />
+
+	<h1 class="mt-4">We cant detect the document</h1>
+
+	<p class="mt-4">Please make sure you are scanning an identity document such as an ID card or passport.</p>
+
+	<!-- <p class="mt-4">Remaining attempts {{ attemptsLimit - attempts }}</p> -->
+
+	<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="tryAgain()" [disabled]="attempts >= attemptsLimit">Try again</button>
 </div>

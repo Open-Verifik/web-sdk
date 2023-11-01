@@ -1,3 +1,27 @@
+.id-scanning-error-div {
+	margin-top: 20px;
+	width: 600px;
+	background: white;
+	height: 600px;
+	padding: 16px;
+	box-shadow: 3px 3px 3px 3px rgb(0 0 0 / 5%);
+	.id-scanning-failed-document-img {
+		width: 40%;
+	}
+	h1 {
+		color: #0036e7;
+		font-size: 24px;
+		font-weight: 800;
+		text-align: center;
+	}
+
+	p {
+		color: #01236da6;
+		font-size: 16px;
+		font-weight: 300;
+		text-align: center;
+	}
+}
 .menu-section {
 	width: 50%;
 	min-height: 300px;
