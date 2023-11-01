@@ -1,13 +1,13 @@
-<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
 	<app-stepper class="w-full"></app-stepper>
 
-	<div fxLayout="row" fxLayoutAlign="center center" class="w-full mt-5" *ngIf="!selectOption">
+	<div fxLayout="row" fxLayoutAlign="center center" class="w-3/5 mt-5" *ngIf="!selectOption">
 		<div class="white-background" fxLayout="column" fxLayoutAlign="center center">
 			<span class="my-5">
 				{{ "step_two.file_description" | transloco }}
 			</span>
 
-			<button mat-raised-button color="primary" (click)="openUploadFile()">
+			<button mat-raised-button color="primary" class="mb-5" (click)="openUploadFile()">
 				{{ "step_two.file" | transloco }}
 			</button>
 		</div>
@@ -15,7 +15,7 @@
 			<span class="my-5">
 				{{ "step_two.manual_description" | transloco }}
 			</span>
-			<button mat-raised-button color="primary" (click)="openCamera()">
+			<button mat-raised-button color="primary"  class="mb-5" (click)="openCamera()">
 				{{ "step_two.manual" | transloco }}
 			</button>
 		</div>

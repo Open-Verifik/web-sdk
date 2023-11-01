@@ -26,7 +26,7 @@ export class DemoStepTwoComponent implements OnInit {
 	constructor(private _demoService: DemoService,        private dialog: MatDialog,
 		) {
 		this.demoData = this._demoService.getDemoData();
-		this.selectOption = "idscan"
+		this.selectOption = ""
 	}
 
 	ngOnInit(): void {
