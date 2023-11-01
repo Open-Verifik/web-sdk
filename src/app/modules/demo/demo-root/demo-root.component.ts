@@ -68,6 +68,8 @@ export class DemoRootComponent implements OnInit {
 
 			this._splashScreenService.hide();
 
+			this.demoData.loading = false;
+
 			return;
 		}
 

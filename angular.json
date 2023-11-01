@@ -36,8 +36,7 @@
 							"@tensorflow/tfjs-core"
 						],
 						"assets": [
-							"src/favicon-16x16.png",
-							"src/favicon-32x32.png",
+							"src/favicon.ico",
 							"src/assets",
 							{
 								"glob": "_redirects",
@@ -116,7 +115,7 @@
 						"polyfills": ["zone.js", "zone.js/testing"],
 						"tsConfig": "tsconfig.spec.json",
 						"inlineStyleLanguage": "scss",
-						"assets": ["src/favicon-16x16.png", "src/favicon-32x32.png", "src/assets"],
+						"assets": ["src/favicon.ico", "src/assets"],
 						"styles": ["src/styles/styles.scss"],
 						"scripts": []
 					}
