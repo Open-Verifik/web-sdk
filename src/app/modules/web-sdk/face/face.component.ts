@@ -31,7 +31,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	@ViewChild("video", { static: false }) public video: ElementRef;
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
-
+	@ViewChild("credentialCanvas", { static: false }) credentialRef: ElementRef;
 	//
 	canvasEl: any;
 	canvas: any;
@@ -72,6 +72,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 	} | null;
 
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	idCardImage: string;
+	faceIdCard: any;
+	left: HTMLImageElement;
+	right: HTMLImageElement;
+	up: HTMLImageElement;
+	down: HTMLImageElement;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
@@ -124,6 +130,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async ngOnInit(): Promise<void> {
+		this.idCardImage = localStorage.getItem("idCard");
+
 		await this.loadModels();
 
 		this.base64Images = [];
@@ -143,14 +151,82 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async loadModels(): Promise<void> {
+		this.left = new Image();
+		this.left.crossOrigin = "anonymous";
+		this.left.src = "https://cdn.verifik.co/web-sdk/images/left.png";
+		this.right = new Image();
+		this.right.crossOrigin = "anonymous";
+		this.right.src = "https://cdn.verifik.co/web-sdk/images/right.png";
+		this.up = new Image();
+		this.up.crossOrigin = "anonymous";
+		this.up.src = "https://cdn.verifik.co/web-sdk/images/up.png";
+		this.down = new Image();
+		this.down.crossOrigin = "anonymous";
+		this.down.src = "https://cdn.verifik.co/web-sdk/images/down.png";
+
 		await faceapi.nets.ssdMobilenetv1.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.faceLandmark68Net.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
+		await this.detectFaceBiggest();
 	}
 
+	async detectFaceBiggest() {
+		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
+
+		const detections = await faceapi
+			.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions())
+			.withFaceLandmarks()
+			.withFaceExpressions();
+
+		let maxArea = 0;
+		let faceBigest;
+		for (const detection of detections) {
+			const position = detection.detection.box;
+			const tempArea = position.width * position.height;
+			if (tempArea > maxArea) {
+				faceBigest = detection.detection;
+				maxArea = tempArea;
+			}
+		}
+
+		if (!faceBigest) {
+			return;
+		}
+
+		const position = faceBigest.box; // Object with x, y, width, height
+		const width = Math.ceil(position.width) * 1.2;
+		const height = Math.ceil(position.height) * 1.4;
+		const sx = Math.floor(position.x);
+		const sy = Math.floor(position.y) - (height - position.height);
+
+		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
+		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
+
+		credentialCanvas.height = height;
+		credentialCanvas.width = width;
+
+		ctx.drawImage(credentialImage, sx, sy, width, height, 0, 0, width, height);
+
+		this.faceIdCard = credentialCanvas.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
+	}
+
+	loadImage(url: string, canvas) {
+		return new Promise((resolve) => {
+			const image = new Image();
+			image.onload = () => {
+				const context = canvas.getContext("2d");
+				canvas.height = image.height;
+				canvas.width = image.width;
+
+				context.drawImage(image, 0, 0); // Dibuja la imagen en el canvas
+				resolve("Done");
+			};
+			image.src = url;
+		});
+	}
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
@@ -317,27 +393,38 @@ export class FaceComponent implements OnInit, OnDestroy {
 		ctx.closePath();
 
 		if (!isOk) {
-			let positionError = {
-				x: this.videoCenterX,
-				y: this.videoCenterY - this.OVAL.radiusY - 10,
-			};
+			// let positionError = {
+			// 	x: this.videoCenterX,
+			// 	y: this.videoCenterY - this.OVAL.radiusY - 10,
+			// };
 
-			this.drawText(ctx, this.errorFace.title, positionError.x, positionError.y);
+			// this.drawText(ctx, this.errorFace.title, positionError.x, positionError.y);
 
 			if (this.errorFace.canvas?.includes("↑")) {
-				this.drawText(ctx, "  ↑  ", this.videoCenterX, this.videoCenterY - 60);
+				const startX = this.videoCenterX - 20;
+				const startY = this.videoCenterY - this.OVAL.radiusY + 10;
+				ctx.drawImage(this.up, startX, startY, 40, 40);
 			}
+
 			if (this.errorFace.canvas?.includes("↓")) {
-				this.drawText(ctx, "  ↓  ", this.videoCenterX, this.videoCenterY + 60);
+				const startX = this.videoCenterX - 20;
+				const startY = this.videoCenterY + this.OVAL.radiusY - 50;
+				ctx.drawImage(this.down, startX, startY, 40, 40);
 			}
+
 			if (this.errorFace.canvas?.includes("→")) {
-				this.drawText(ctx, " → ", this.videoCenterX - 60, this.videoCenterY);
+				const startX = this.videoCenterX + this.OVAL.radiusX - 50;
+				const startY = this.videoCenterY - 20;
+				ctx.drawImage(this.right, startX, startY, 40, 40);
 			}
 
 			if (this.errorFace.canvas?.includes("←")) {
-				this.drawText(ctx, " ← ", this.videoCenterX + 60, this.videoCenterY);
+				const startX = this.videoCenterX - this.OVAL.radiusX + 10;
+				const startY = this.videoCenterY - 20;
+				ctx.drawImage(this.left, startX, startY, 40, 40);
 			}
 		}
+		this._changeDetectorRef.markForCheck();
 	}
 
 	isFaceCentered(nose): void {
@@ -453,9 +540,14 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 				this._demoService.setDemoLiveness(liveness.data);
 
-				this._compareWithDocument({ search_mode: "FAST", gallery: [this.demoData.document.url], probe: [this.demoData.liveness.images[0]] });
+				this._compareWithDocument({
+					search_mode: "FAST",
+					gallery: [this.faceIdCard || this.demoData.document.url],
+					probe: [this.demoData.liveness.images[0]],
+				});
 			},
 			(error) => {
+				this._splashScreenService.hide();
 				this.retryLivenessModal(error.error?.message);
 			}
 		);

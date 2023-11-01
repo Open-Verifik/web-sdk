@@ -1,14 +1,21 @@
 <div class="w-full min-h-[900px] flex flex-col items-center justify-center p-8">
-	<div *ngIf="loadingModel" class="scan">
+	<!-- <div *ngIf="loadingModel" class="scan">
 		<div class="face">
 			<div class="dots"></div>
 		</div>
 		<div class="w-full flex items-center justify-center my-4">
 			<h1 class="text-3xl font-bold">{{ "liveness.loading_stream" | transloco }}</h1>
 		</div>
-	</div>
+	</div> -->
 
 	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
+		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
+			<div *ngIf="errorFace && !loadingResults">
+				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
+			</div>
+		</div>
+
 		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT }">
 			<div class="relative w-full">
 				<video
@@ -24,12 +31,7 @@
 				<div #result class="absolute top-0 left-0 oval-video" [class.hidden]="!loadingResults"></div>
 			</div>
 		</div>
-
-		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
-			<div *ngIf="faceError && !loadingResults">
-				<div class="text-3xl font-bold">{{ faceError.title }}</div>
-				<div class="text-gray-600">{{ faceError.subtitle }}</div>
-			</div>
-		</div>
 	</div>
 </div>
+<canvas #credentialCanvas hidden="true"></canvas>
+<img id="credential" [src]="idCardImage" hidden="true"/>

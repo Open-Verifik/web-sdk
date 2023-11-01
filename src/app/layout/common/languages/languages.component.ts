@@ -44,6 +44,12 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 			availableLangs: this.availableLangs,
 		});
 
+		const currentLanguage = localStorage.getItem("currentLanguage")
+
+		if(currentLanguage){
+			this._translocoService.setActiveLang(currentLanguage)
+		}
+
 		// Subscribe to language changes
 		this._translocoService.langChanges$.subscribe((activeLang) => {
 			// Get the active lang
@@ -84,6 +90,7 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 	setActiveLang(lang: string): void {
 		// Set the active lang
 		this._translocoService.setActiveLang(lang);
+		localStorage.setItem("currentLanguage", lang)
 	}
 
 	/**

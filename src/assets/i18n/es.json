@@ -26,6 +26,14 @@
 		"terms_link": "Acuerdo de Tratamiento de Datos.",
 		"start_demo_button": "Iniciar demo"
 	},
+	"step_two": {
+		"dialog_title": "Documentos a subir",
+		"drag_n_drop_title": "Arrastra y suelta el archivo aquí",
+		"drag_n_drop_description": "El archivo debe tener una extensión .png .jpeg .jpg",
+		"upload_button": "Buscar el archivo en tu dispositivo",
+		"cancel_button": "Cancelar",
+		"continue_button": "Siguiente"
+	},
 	"step_three": {
 		"document_scanned": "Documento escaneado",
 		"front_side": "Lado frontal",

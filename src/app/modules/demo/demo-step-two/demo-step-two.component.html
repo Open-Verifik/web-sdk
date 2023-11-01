@@ -1,7 +1,24 @@
 <div fxLayout="column" fxLayoutAlign="start start" class="w-full">
 	<app-stepper class="w-full"></app-stepper>
 
-	<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-		<id-scanning></id-scanning>
+	<div fxLayout="row" fxLayoutAlign="center center" class="w-full mt-5" *ngIf="!selectOption">
+		<div class="white-background" fxLayout="column" fxLayoutAlign="center center">
+			<span class="my-5">
+				{{ "step_two.file_description" | transloco }}
+			</span>
+
+			<button mat-raised-button color="primary" (click)="openUploadFile()">
+				{{ "step_two.file" | transloco }}
+			</button>
+		</div>
+		<div class="white-background" fxLayout="column" fxLayoutAlign="center center">
+			<span class="my-5">
+				{{ "step_two.manual_description" | transloco }}
+			</span>
+			<button mat-raised-button color="primary" (click)="openCamera()">
+				{{ "step_two.manual" | transloco }}
+			</button>
+		</div>
 	</div>
+	<id-scanning *ngIf="selectOption === 'idscan'" class="w-full h-full"></id-scanning>
 </div>
