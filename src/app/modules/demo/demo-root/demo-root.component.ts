@@ -13,6 +13,8 @@ import { DemoStepFiveComponent } from "../demo-step-five/demo-step-five.componen
 import { DemoFooterComponent } from "../demo-footer/demo-footer.component";
 import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 
 @Component({
 	selector: "app-demo-root",
@@ -33,6 +35,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 		DemoFooterComponent,
 		TranslocoModule,
 		LanguagesComponent,
+		MatProgressBarModule,
 	],
 })
 export class DemoRootComponent implements OnInit {
@@ -41,7 +44,11 @@ export class DemoRootComponent implements OnInit {
 	step: number;
 	demoData: any;
 
-	constructor(private _demoService: DemoService) {
+	constructor(private _demoService: DemoService, private _splashScreenService: FuseSplashScreenService) {
+		this.demoData = {};
+
+		this._splashScreenService.show();
+
 		this.navigation = this._demoService.getNavigation();
 
 		this._demoService.getDeviceDetails();
@@ -50,10 +57,16 @@ export class DemoRootComponent implements OnInit {
 	}
 
 	async ngOnInit(): Promise<any> {
+		this.demoData = this._demoService.getDemoData();
+
 		if (this.step > 1) {
+			this.demoData.loading = true;
+
 			await this._loadContent();
 
 			this._demoService.moveToStep(this.step);
+
+			this._splashScreenService.hide();
 
 			return;
 		}
@@ -61,11 +74,11 @@ export class DemoRootComponent implements OnInit {
 		this._demoService.cleanVariables();
 
 		this.requirementsLoaded = true;
+
+		this._splashScreenService.hide();
 	}
 
 	async _loadContent(): Promise<any> {
-		this.demoData = this._demoService.getDemoData();
-
 		this._demoService.getDeviceDetails();
 
 		const location = await this._demoService.getAddress();

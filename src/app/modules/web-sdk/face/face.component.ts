@@ -9,11 +9,14 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
 
 import * as faceapi from "@vladmandic/face-api";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 
 @Component({
 	selector: "app-face",
 	standalone: true,
-	imports: [CommonModule, MatDialogModule, TranslocoModule, MatButtonModule],
+	imports: [CommonModule, MatDialogModule, TranslocoModule, MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule],
 	templateUrl: "./face.component.html",
 	styleUrls: ["./face.component.scss"],
 })
@@ -74,12 +77,18 @@ export class FaceComponent implements OnInit, OnDestroy {
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _sdkService: WebSdkService,
 		private _demoService: DemoService,
-		private _translocoService: TranslocoService
+		private _translocoService: TranslocoService,
+		private _splashScreenService: FuseSplashScreenService
 	) {
 		this.loadingModel = true;
+
 		this.debugIndex = 0;
+
 		this.osInfo = this.detectOS();
+
 		this.demoData = this._demoService.getDemoData();
+
+		this._splashScreenService.show();
 
 		this.listenModeDebug();
 
@@ -118,9 +127,14 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await this.loadModels();
 
 		this.base64Images = [];
+
 		this.errorFace = null;
 
 		await this.startAsyncVideo();
+
+		this._splashScreenService.hide();
+
+		this.demoData.loading = false;
 	}
 
 	async restart(): Promise<void> {
@@ -422,6 +436,10 @@ export class FaceComponent implements OnInit, OnDestroy {
 	liveness() {
 		if (this.loadingResults) return;
 
+		this.demoData.loading = true;
+
+		this._splashScreenService.show();
+
 		this.loadingResults = true;
 
 		const payload: any = {
@@ -435,26 +453,28 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 				this._demoService.setDemoLiveness(liveness.data);
 
-				this._demoService
-					.compareDocumentWithSelfie({
-						search_mode: "FAST",
-						gallery: [this.demoData.document.url],
-						probe: [this.demoData.liveness.images[0]],
-					})
-					.subscribe(
-						(compareResponse) => {
-							this.completeResults();
-
-							this._demoService.setDemoCompare(compareResponse.data);
-
-							this._demoService.moveToStep(5);
-						},
-						(error) => {}
-					);
+				this._compareWithDocument({ search_mode: "FAST", gallery: [this.demoData.document.url], probe: [this.demoData.liveness.images[0]] });
 			},
 			(error) => {
 				this.retryLivenessModal(error.error?.message);
 			}
+		);
+	}
+
+	_compareWithDocument(data) {
+		this._demoService.compareDocumentWithSelfie(data).subscribe(
+			(compareResponse) => {
+				this.completeResults();
+
+				this._demoService.setDemoCompare(compareResponse.data);
+
+				this._demoService.moveToStep(5);
+
+				this.demoData.loading = false;
+
+				this._splashScreenService.hide();
+			},
+			(error) => {}
 		);
 	}
 

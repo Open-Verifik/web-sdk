@@ -86,12 +86,16 @@ export class IdScanningComponent implements OnInit {
 			image: "https://cdn.verifik.co/ocr/samples/cc2.jpg",
 		};
 
+		this.demoData.loading = true;
+
 		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe((response) => {
 			this._demoService.setDemoDocument(response.data);
 
 			localStorage.setItem("documentId", response.data._id);
 
 			this._demoService.moveToStep(3);
+
+			this.demoData.loading = false;
 		});
 	}
 }

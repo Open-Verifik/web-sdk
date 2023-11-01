@@ -63,6 +63,7 @@ export class DemoService {
 
 	initDemoData(): void {
 		this.demoData = {
+			loading: false,
 			document: {},
 			liveness: {},
 			comparison: {},
