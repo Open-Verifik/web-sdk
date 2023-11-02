@@ -73,7 +73,6 @@ export class IdScanningComponent implements OnInit {
 				.then((stream) => {
 					this.stream = stream;
 					this.hasCameraPermissions = true;
-					this.attempts++;
 					this.loadingCamera = false;
 
 					const videoTrack = this.stream.getVideoTracks()[0];
@@ -114,8 +113,9 @@ export class IdScanningComponent implements OnInit {
 
 	tryAgain(plusAttempts = false): void {
 		if(plusAttempts) this.attempts++;
-		
+		console.log(plusAttempts, this.attempts)
 		this.base64Images = undefined
+		this.failedToDetectDocument = false
 		this.startCamera();
 		// logic todo here
 	}
@@ -147,6 +147,9 @@ export class IdScanningComponent implements OnInit {
 			this._demoService.moveToStep(3);
 
 			this.demoData.loading = false;
+		},(err) =>{
+			this._splashScreenService.hide();
+			this.failedToDetectDocument = true
 		});
 	}
 
