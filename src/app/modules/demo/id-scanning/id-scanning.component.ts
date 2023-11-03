@@ -82,7 +82,6 @@ export class IdScanningComponent implements OnInit {
 					const { width, height } = settings;
 					this.HEIGHT = height;
 					this.WIDTH = width;
-					console.log(this.WIDTH, this.HEIGHT);
 
 					setTimeout(() => {
 						const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
@@ -95,9 +94,6 @@ export class IdScanningComponent implements OnInit {
 						this._splashScreenService.hide();
 					}, 1000);
 
-					// setTimeout(() => {
-					// 	this.failedToDetectDocument = true;
-					// }, 4000);
 				})
 				.catch((error) => {
 					console.error("Error accessing the camera:", error);

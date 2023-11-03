@@ -1,0 +1,78 @@
+{
+	"go_back": "Go back",
+	"restart": "Restart demo",
+	"continue": "Continue",
+	"confirm": "Confirm",
+	"cancel": "Cancel",
+	"header": {
+		"partner": "Partner with us",
+		"talk": "Talk to sales",
+		"id": "ID Scanning",
+		"verify_id": "Document details",
+		"liveness": "Liveness check",
+		"compare": "Results"
+	},
+	"step_one": {
+		"title": "Explore the future of identity validation with Verifik",
+		"subtitle": "Discover how Verifik is revolutionizing identity validation security.",
+		"header": "We feature cutting-edge services including accurate and fast identification of identity documents using state-of-the-art OCR technology, as well as 3D biometric scans that ensure the authenticity of individuals and prevent impersonation.",
+		"cards": {
+			"id": "Scan your ID Document",
+			"verify_id": "Obtain and verify the information extracted",
+			"liveness": "Liveness detection",
+			"compare": "Get your identity authenticated within a minute."
+		},
+		"terms_label": "To use this demo, you must accept our",
+		"terms_link": "Data Treatment Agreement.",
+		"start_demo_button": "Start demo"
+	},
+	"step_three": {
+		"document_scanned": "Document scanned",
+		"front_side": "Front side",
+		"general_information": "General information",
+		"extracted_information": "Extracted information",
+		"user_location": "User location",
+		"scan_again": "Scan again"
+	},
+	"general_information": {
+		"device": "Device",
+		"language": "Lenguaje",
+		"userAgent": "User Agent"
+	},
+	"extracted_information": {
+		"documentType": "Document type",
+		"documentNumber": "Document number",
+		"firstName": "First name",
+		"lastName": "Last name",
+		"fullName": "Full name"
+	},
+	"user_location": {
+		"road": "street",
+		"neighbourhood": "Neighbourhood",
+		"city": "Ciudad",
+		"county": "County",
+		"state": "State",
+		"ISO3166-2-lvl4": "Country ISO code",
+		"postcode": "Postal code",
+		"country": "Country",
+		"country_code": "Country code"
+	},
+	"liveness": {
+		"center_yor_face": "Center your face on the screen",
+		"center_your_face_subtitle": "Please make sure your face is centered",
+		"get_closer": "Get closer",
+		"get_closer_subtitle": "Please come a bit closer for better face recognition.",
+		"liveness_failed": "Liveness detection failed",
+		"liveness_error_message": "The liveness check has failed with the following error:<br><strong>{{error}}</strong><br>Do you want to try again?",
+		"loading_stream": "Loading Camera"
+	},
+	"results": {
+		"selfie": "Selfie",
+		"liveness_and_match": "Liveness & Match results",
+		"match_score": "Match score",
+		"liveness_score": "Liveness score",
+		"passed": "Liveness passed",
+		"min_score": "Minimum score",
+		"score": "Match score"
+	}
+}

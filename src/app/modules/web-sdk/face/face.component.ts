@@ -170,16 +170,26 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await this.detectFaceBiggest();
+		await this.detectFaceBiggest(0.7);
 	}
 
-	async detectFaceBiggest() {
+	async detectFaceBiggest(scoreThreshold) {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
 
 		const detections = await faceapi
-			.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions())
+			.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions({ scoreThreshold }))
 			.withFaceLandmarks()
 			.withFaceExpressions();
+
+
+		if (scoreThreshold <= 0.1){
+			return;
+		}
+
+		if (!detections.length) {
+			this.detectFaceBiggest(scoreThreshold - 0.1);
+			return;
+		}
 
 		let maxArea = 0;
 		let faceBigest;
@@ -190,10 +200,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 				faceBigest = detection.detection;
 				maxArea = tempArea;
 			}
-		}
-
-		if (!faceBigest) {
-			return;
 		}
 
 		const position = faceBigest.box; // Object with x, y, width, height
@@ -213,20 +219,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.faceIdCard = credentialCanvas.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
 	}
 
-	loadImage(url: string, canvas) {
-		return new Promise((resolve) => {
-			const image = new Image();
-			image.onload = () => {
-				const context = canvas.getContext("2d");
-				canvas.height = image.height;
-				canvas.width = image.width;
-
-				context.drawImage(image, 0, 0); // Dibuja la imagen en el canvas
-				resolve("Done");
-			};
-			image.src = url;
-		});
-	}
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({

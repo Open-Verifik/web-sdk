@@ -1,0 +1,78 @@
+{
+	"go_back": "返回",
+	"restart": "重新开始演示",
+	"continue": "继续",
+	"confirm": "确认",
+	"cancel": "取消",
+	"header": {
+		"partner": "成为我们的合作伙伴",
+		"talk": "与销售人员交谈",
+		"id": "身份证扫描",
+		"verify_id": "文件详情",
+		"liveness": "活体检测",
+		"compare": "结果"
+	},
+	"step_one": {
+		"title": "探索身份验证的未来，与Verifik一起",
+		"subtitle": "发现Verifik如何革新身份验证安全性。",
+		"header": "我们提供尖端服务，包括使用先进的OCR技术准确快速地识别身份文件，以及进行3D生物特征扫描，确保个体的真实性并防止冒充。",
+		"cards": {
+			"id": "扫描您的身份证件",
+			"verify_id": "获取并验证提取的信息",
+			"liveness": "活体检测",
+			"compare": "在一分钟内获得身份验证。"
+		},
+		"terms_label": "要使用此演示，您必须接受我们的",
+		"terms_link": "数据处理协议。",
+		"start_demo_button": "开始演示"
+	},
+	"step_three": {
+		"document_scanned": "文档已扫描",
+		"front_side": "正面",
+		"general_information": "常规信息",
+		"extracted_information": "提取的信息",
+		"user_location": "用户位置",
+		"scan_again": "重新扫描"
+	},
+	"general_information": {
+		"device": "设备",
+		"language": "语言",
+		"userAgent": "用户代理"
+	},
+	"extracted_information": {
+		"documentType": "文件类型",
+		"documentNumber": "文件号码",
+		"firstName": "名字",
+		"lastName": "姓氏",
+		"fullName": "全名"
+	},
+	"user_location": {
+		"road": "街道",
+		"neighbourhood": "社区",
+		"city": "城市",
+		"county": "县",
+		"state": "州",
+		"ISO3166-2-lvl4": "国家ISO代码",
+		"postcode": "邮政编码",
+		"country": "国家",
+		"country_code": "国家代码"
+	},
+	"liveness": {
+		"center_yor_face": "将您的脸居中在屏幕上",
+		"center_your_face_subtitle": "请确保您的脸部居中",
+		"get_closer": "靠近一点",
+		"get_closer_subtitle": "请稍微靠近以获得更好的面部识别。",
+		"liveness_failed": "活体检测失败",
+		"liveness_error_message": "活体检测出现以下错误：<br><strong>{{error}}</strong><br>您想再试一次吗？",
+		"loading_stream": "加载摄像头"
+	},
+	"results": {
+		"selfie": "自拍",
+		"liveness_and_match": "活体检测和匹配结果",
+		"match_score": "匹配分数",
+		"liveness_score": "活体分数",
+		"passed": "通过",
+		"min_score": "最低分数",
+		"score": "匹配分数"
+	}
+}
