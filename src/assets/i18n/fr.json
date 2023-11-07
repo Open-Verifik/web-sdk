@@ -52,7 +52,7 @@
 	},
 	"extracted_information": {
 		"documentType": "Type de document",
-		"documentNumber": "Numéro de document",
+		"documentNumber": "Numéro du document",
 		"firstName": "Prénom",
 		"lastName": "Nom de famille",
 		"fullName": "Nom complet",
@@ -64,9 +64,23 @@
 		"expirationDate": "Date d'expiration",
 		"address": "Adresse",
 		"barcodeNumber": "Numéro de code-barres",
-		"dateOfExpiry": "Date de péremption",
-		"issuingAuthority": "Autorité émettrice",
-		"country": "Pays"
+		"dateOfExpiry": "Date d'expiration",
+		"issuingAuthority": "Autorité d'émission",
+		"country": "Pays",
+		"height": "Taille",
+		"placeOfBirth": "Lieu de naissance"
+	},
+	"id_scanning": {
+		"camera_not_found": "Aucune caméra n'a été trouvée sur l'appareil ou est momentanément désactivée.",
+		"camera_not_found_description": "Veuillez vous assurer que l'appareil sur lequel vous effectuez la démonstration possède une caméra et que vous avez les autorisations pour y accéder.",
+		"manual_capture_button": "Capture manuelle",
+		"retry": "Réessayer",
+		"continue": "Continuer",
+		"document_not_detected": "Type de document non détecté",
+		"document_not_detected_description": "Veuillez vous assurer que vous scannez un document d'identité tel qu'une carte d'identité, un permis de conduire ou un passeport",
+		"remaining_attempts": "Tentatives restantes",
+		"failed_to_detect_limit": "Vous avez épuisé toutes les tentatives pour effectuer correctement la démo",
+		"failed_to_detect_limit_description": "Vous pouvez répéter la démo autant de fois que vous le souhaitez, mais souvenez-vous de suivre les indications pour qu'elle soit couronnée de succès."
 	},
 	"user_location": {
 		"road": "Rue",
