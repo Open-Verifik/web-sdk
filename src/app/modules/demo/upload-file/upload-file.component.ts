@@ -29,7 +29,7 @@ export class UploadFileComponent {
 	) {
 		this.demoData = this._demoService.getDemoData();
 		this.attempts = 0;
-		this.attemptsLimit = 3;
+		this.attemptsLimit = 1;
 	}
 
 	onFileDropped($event) {
@@ -62,6 +62,7 @@ export class UploadFileComponent {
 
 	restartDemo(): void {
 		this._demoService.moveToStep(1);
+		this.dialogRef.close();
 	}
 
 	continue(): void {

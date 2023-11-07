@@ -254,6 +254,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this.videoInput = this.video.nativeElement as HTMLVideoElement;
 
 				this.videoInput.srcObject = this.stream;
+				this.videoInput.style.transform = "scaleX(-1)";
+
 
 				this.displaySize = {
 					width: this.WIDTH,

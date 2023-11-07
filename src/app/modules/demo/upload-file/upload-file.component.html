@@ -1,66 +1,69 @@
-<div class="white-background csv-container w-3/5 mt-10" appDnd (fileDropped)="onFileDropped($event)" *ngIf="!errorResult">
-	<input type="file" #fileDropRef id="fileDropRef" (change)="fileBrowseHandler($event.target.files)" accept="image/*" />
-	<div class="grid grid-cols-4">
-		<div class="flex items-center justify-center">
-			<div
-				class="flex items-center rounded-lg justify-center p-4 text-primary-700 dark:bg-primary dark:text-on-primary"
-				style="min-width: 7rem !important; max-width: 7rem !important"
-			>
-				<img [src]="base64Image" alt="Imagen seleccionada" *ngIf="base64Image" />
-				<mat-icon svgIcon="feather:upload" *ngIf="!base64Image"
-					style="
-						transform: scale(2);
-						filter: invert(14%) sepia(100%) saturate(4147%) hue-rotate(228deg) brightness(89%) contrast(114%);
-					"
+<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
+	<div class="white-background csv-container w-3/5 mt-10" appDnd (fileDropped)="onFileDropped($event)" *ngIf="!errorResult">
+		<input type="file" #fileDropRef id="fileDropRef" (change)="fileBrowseHandler($event.target.files)" accept="image/*" />
+		<div class="grid grid-cols-4">
+			<div class="flex items-center justify-center">
+				<div
+					class="flex items-center rounded-lg justify-center p-4 text-primary-700 dark:bg-primary dark:text-on-primary"
+					style="min-width: 7rem !important; max-width: 7rem !important"
 				>
-				</mat-icon>
+					<img [src]="base64Image" alt="Imagen seleccionada" *ngIf="base64Image" />
+					<mat-icon
+						svgIcon="feather:upload"
+						*ngIf="!base64Image"
+						style="transform: scale(2); filter: invert(14%) sepia(100%) saturate(4147%) hue-rotate(228deg) brightness(89%) contrast(114%)"
+					>
+					</mat-icon>
+				</div>
+			</div>
+			<div class="flex flex-col col-span-3 text-start">
+				<div class="text-sm mt-4">
+					{{ "step_two.drag_n_drop_title" | transloco }}
+				</div>
+				<div class="text-xs text-secondary mb-6">
+					{{ "step_two.drag_n_drop_description" | transloco }}
+				</div>
 			</div>
 		</div>
-		<div class="flex flex-col col-span-3 text-start">
-			<div class="text-sm mt-4">
-				{{ "step_two.drag_n_drop_title" | transloco }}
-			</div>
-			<div class="text-xs text-secondary mb-6">
-				{{ "step_two.drag_n_drop_description" | transloco }}
-			</div>
-		</div>
+		<label for="fileDropRef" class="mx-2">{{ "step_two.upload_button" | transloco }}</label>
 	</div>
-	<label for="fileDropRef" class="mx-2">{{ "step_two.upload_button" | transloco }}</label>
-</div>
-<div class="w-full mt-5" fxLayout="row" fxLayoutAlign="center center" *ngIf="!errorResult">
-    <button mat-stroked-button color="warn" class="mx-2" (click)="cancelUpload()">
-		{{ "step_two.cancel_button" | transloco }}
-	</button>
-    
-    <button mat-raised-button color="primary" class="mx-2" [disabled]="!base64Image" (click)="continue()">
-		{{ "step_two.continue_button" | transloco }}
-	</button>
-</div>
+	<div class="w-full mt-5" fxLayout="row" fxLayoutAlign="center center" *ngIf="!errorResult">
+		<button mat-stroked-button color="warn" class="mx-2" (click)="cancelUpload()">
+			{{ "step_two.cancel_button" | transloco }}
+		</button>
 
-<div *ngIf="errorResult" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
-	<img
-		[src]="attemptsLimit - attempts > 0 ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png' : 'https://cdn.verifik.co/demo/redstop.svg'"
-		alt=""
-		class="id-scanning-failed-document-img"
-	/>
+		<button mat-raised-button color="primary" class="mx-2" [disabled]="!base64Image" (click)="continue()">
+			{{ "step_two.continue_button" | transloco }}
+		</button>
+	</div>
 
-	<h1 class="mt-4">
-		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
-	</h1>
+	<div *ngIf="errorResult" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
+		<img
+			[src]="attemptsLimit - attempts > 0 ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png' : 'https://cdn.verifik.co/demo/redstop.svg'"
+			alt=""
+			class="id-scanning-failed-document-img"
+		/>
 
-	<p class="mt-4">
-		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description") | transloco
-		}}
-	</p>
+		<h1 class="mt-4">
+			{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
+		</h1>
 
-	<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
+		<p class="mt-4">
+			{{
+				(attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description")
+					| transloco
+			}}
+		</p>
 
-	<button
-		mat-raised-button
-		color="primary"
-		class="mt-4 z-index-2 id-scanning-try-again-button"
-		(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
-	>
-		{{ (attemptsLimit - attempts > 0 ? "id_scanning.retry" : "restart") | transloco }}
-	</button>
+		<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
+
+		<button
+			mat-raised-button
+			color="primary"
+			class="mt-4 z-index-2 id-scanning-try-again-button"
+			(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
+		>
+			{{ (attemptsLimit - attempts > 0 ? "id_scanning.retry" : "restart") | transloco }}
+		</button>
+	</div>
 </div>

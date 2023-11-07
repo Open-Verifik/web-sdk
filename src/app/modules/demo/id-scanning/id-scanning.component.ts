@@ -92,6 +92,7 @@ export class IdScanningComponent implements OnInit {
 						canvas.width = this.WIDTH;
 
 						this.videoElement.nativeElement.srcObject = stream;
+						this.videoElement.nativeElement.style.transform = "scaleX(-1)";
 
 						this.drawRect(canvas.getContext("2d"));
 						this.demoData.loading = false;
