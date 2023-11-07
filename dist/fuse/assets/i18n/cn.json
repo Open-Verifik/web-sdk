@@ -5,31 +5,42 @@
 	"confirm": "确认",
 	"cancel": "取消",
 	"header": {
-		"partner": "成为我们的合作伙伴",
-		"talk": "与销售人员交谈",
+		"partner": "与我们合作",
+		"talk": "联系销售",
 		"id": "身份证扫描",
 		"verify_id": "文件详情",
-		"liveness": "活体检测",
+		"liveness": "生命特征检测",
 		"compare": "结果"
 	},
 	"step_one": {
-		"title": "探索身份验证的未来，与Verifik一起",
-		"subtitle": "发现Verifik如何革新身份验证安全性。",
-		"header": "我们提供尖端服务，包括使用先进的OCR技术准确快速地识别身份文件，以及进行3D生物特征扫描，确保个体的真实性并防止冒充。",
+		"title": "与Verifik一起探索身份验证的未来",
+		"subtitle": "发现Verifik如何革新身份验证安全。",
+		"header": "我们提供前沿服务，包括使用最先进的OCR技术快速准确地识别身份文件，以及3D生物特征扫描，确保个人身份的真实性并防止冒充。",
 		"cards": {
 			"id": "扫描您的身份证件",
 			"verify_id": "获取并验证提取的信息",
-			"liveness": "活体检测",
-			"compare": "在一分钟内获得身份验证。"
+			"liveness": "生命特征检测",
+			"compare": "在一分钟内完成身份认证。"
 		},
 		"terms_label": "要使用此演示，您必须接受我们的",
 		"terms_link": "数据处理协议。",
 		"start_demo_button": "开始演示"
 	},
+	"step_two": {
+		"file": "上传文件",
+		"file_description": "上传您的身份证件",
+		"manual_description": "扫描您的身份证件",
+		"manual": "开始扫描",
+		"drag_n_drop_title": "将照片拖放到这里",
+		"drag_n_drop_description": "身份证件文件必须是.png、.jpeg、.jpg格式",
+		"upload_button": "在您的设备上找到文件",
+		"cancel_button": "取消",
+		"continue_button": "继续"
+	},
 	"step_three": {
 		"document_scanned": "文档已扫描",
 		"front_side": "正面",
-		"general_information": "常规信息",
+		"general_information": "一般信息",
 		"extracted_information": "提取的信息",
 		"user_location": "用户位置",
 		"scan_again": "重新扫描"
@@ -41,14 +52,39 @@
 	},
 	"extracted_information": {
 		"documentType": "文件类型",
-		"documentNumber": "文件号码",
+		"documentNumber": "文件编号",
 		"firstName": "名字",
 		"lastName": "姓氏",
-		"fullName": "全名"
+		"fullName": "全名",
+		"nationality": "国籍",
+		"gender": "性别",
+		"expeditionDate": "发行日期",
+		"dateOfIssue": "签发日期",
+		"dateOfBirth": "出生日期",
+		"expirationDate": "过期日期",
+		"address": "地址",
+		"barcodeNumber": "条形码号",
+		"dateOfExpiry": "失效日期",
+		"issuingAuthority": "签发机关",
+		"country": "国家",
+		"height": "身高",
+		"placeOfBirth": "出生地"
+	},
+	"id_scanning": {
+		"camera_not_found": "未在设备上找到相机，或相机暂时被禁用。",
+		"camera_not_found_description": "请确保您执行演示的设备上有相机，并且您有权访问它。",
+		"manual_capture_button": "手动捕捉",
+		"retry": "重试",
+		"continue": "继续",
+		"document_not_detected": "未检测到文件类型",
+		"document_not_detected_description": "请确保您正在扫描的是身份证件，如身份证、驾驶证或护照。",
+		"remaining_attempts": "剩余尝试次数",
+		"failed_to_detect_limit": "您已用完所有正确执行演示的尝试次数",
+		"failed_to_detect_limit_description": "您可以多次重复演示，但请记住遵循指示以确保演示成功。"
 	},
 	"user_location": {
-		"road": "街道",
-		"neighbourhood": "社区",
+		"road": "道路",
+		"neighbourhood": "邻里",
 		"city": "城市",
 		"county": "县",
 		"state": "州",
@@ -58,20 +94,20 @@
 		"country_code": "国家代码"
 	},
 	"liveness": {
-		"center_yor_face": "将您的脸居中在屏幕上",
+		"center_yor_face": "将您的脸部居中显示在屏幕上",
 		"center_your_face_subtitle": "请确保您的脸部居中",
-		"get_closer": "靠近一点",
-		"get_closer_subtitle": "请稍微靠近以获得更好的面部识别。",
-		"liveness_failed": "活体检测失败",
-		"liveness_error_message": "活体检测出现以下错误：<br><strong>{{error}}</strong><br>您想再试一次吗？",
-		"loading_stream": "加载摄像头"
+		"get_closer": "靠近些",
+		"get_closer_subtitle": "请再靠近一点，以便更好地识别面部。",
+		"liveness_failed": "生命特征检测失败",
+		"liveness_error_message": "生命特征检测失败，错误如下：<br><strong>{{error}}</strong><br>您想要重试吗？",
+		"loading_stream": "正在加载摄像头"
 	},
 	"results": {
 		"selfie": "自拍",
-		"liveness_and_match": "活体检测和匹配结果",
+		"liveness_and_match": "生命特征与匹配结果",
 		"match_score": "匹配分数",
-		"liveness_score": "活体分数",
-		"passed": "通过",
+		"liveness_score": "生命特征分数",
+		"passed": "生命特征检测通过",
 		"min_score": "最低分数",
 		"score": "匹配分数"
 	}

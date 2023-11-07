@@ -1,38 +1,49 @@
 {
-	"go_back": "뒤로 가기",
-	"restart": "데모 다시 시작",
-	"continue": "계속",
+	"go_back": "돌아가기",
+	"restart": "데모 재시작",
+	"continue": "계속하기",
 	"confirm": "확인",
 	"cancel": "취소",
 	"header": {
-		"partner": "우리와 협력하세요",
-		"talk": "영업팀과 대화하기",
-		"id": "ID 스캐닝",
+		"partner": "파트너 되기",
+		"talk": "영업팀과 상담하기",
+		"id": "ID 스캔",
 		"verify_id": "문서 상세 정보",
-		"liveness": "생동감 검사",
-		"compare": "결과"
+		"liveness": "생체 인식 검사",
+		"compare": "결과 비교"
 	},
 	"step_one": {
-		"title": "Verifik와 함께 미래의 신원 확인을 탐색하세요",
-		"subtitle": "Verifik이 신원 확인 보안을 혁신하는 방법을 발견하세요.",
-		"header": "저희는 최첨단 OCR 기술을 사용하여 정확하고 빠른 신분증 식별뿐만 아니라 3D 생체 인식 스캔을 통해 개인의 신원을 확인하고 사칭을 방지하는 서비스를 제공합니다.",
+		"title": "Verifik와 함께 신분증명의 미래를 탐험하세요",
+		"subtitle": "Verifik이 신분증명 보안을 혁신하는 방법을 알아보세요.",
+		"header": "최첨단 OCR 기술을 이용한 정확하고 빠른 신분증문서 인식과 개인의 진위 여부를 확인하고 사칭을 방지하는 3D 생체 인식 스캔을 포함한 최첨단 서비스를 제공합니다.",
 		"cards": {
-			"id": "신분증 문서 스캔하기",
-			"verify_id": "추출된 정보를 얻고 확인하기",
-			"liveness": "생동감 감지",
-			"compare": "1분 이내에 신원을 인증받으세요."
+			"id": "신분증문서 스캔하기",
+			"verify_id": "추출된 정보 얻기 및 검증하기",
+			"liveness": "생체 인식 검출",
+			"compare": "1분 내에 신원 인증 받기"
 		},
-		"terms_label": "이 데모를 사용하려면 저희의",
-		"terms_link": "데이터 처리 동의서",
+		"terms_label": "이 데모를 사용하려면 우리의",
+		"terms_link": "데이터 처리 동의서를 수락해야 합니다.",
 		"start_demo_button": "데모 시작"
 	},
+	"step_two": {
+		"file": "파일 업로드",
+		"file_description": "신분증문서 업로드하기",
+		"manual_description": "신분증문서 스캔하기",
+		"manual": "스캔 시작",
+		"drag_n_drop_title": "여기에 사진을 드래그 앤 드롭하세요",
+		"drag_n_drop_description": "신분증문서 파일은 .png, .jpeg, .jpg 확장자를 가져야 합니다",
+		"upload_button": "장치에서 파일 찾기",
+		"cancel_button": "취소",
+		"continue_button": "계속하기"
+	},
 	"step_three": {
-		"document_scanned": "문서 스캔됨",
+		"document_scanned": "문서 스캔 완료",
 		"front_side": "앞면",
 		"general_information": "일반 정보",
 		"extracted_information": "추출된 정보",
 		"user_location": "사용자 위치",
-		"scan_again": "다시 스캔"
+		"scan_again": "다시 스캔하기"
 	},
 	"general_information": {
 		"device": "장치",
@@ -44,34 +55,59 @@
 		"documentNumber": "문서 번호",
 		"firstName": "이름",
 		"lastName": "성",
-		"fullName": "전체 이름"
+		"fullName": "전체 이름",
+		"nationality": "국적",
+		"gender": "성별",
+		"expeditionDate": "발급 날짜",
+		"dateOfIssue": "발행 날짜",
+		"dateOfBirth": "생년월일",
+		"expirationDate": "만료 날짜",
+		"address": "주소",
+		"barcodeNumber": "바코드 번호",
+		"dateOfExpiry": "유효 기간 만료일",
+		"issuingAuthority": "발급 기관",
+		"country": "국가",
+		"height": "키",
+		"placeOfBirth": "출생지"
+	},
+	"id_scanning": {
+		"camera_not_found": "장치에 카메라가 없거나 일시적으로 비활성화되었습니다.",
+		"camera_not_found_description": "시연을 수행하는 장치에 카메라가 있고 접근 권한이 있는지 확인하십시오.",
+		"manual_capture_button": "수동 캡처",
+		"retry": "다시 시도",
+		"continue": "계속",
+		"document_not_detected": "문서 유형이 감지되지 않았습니다",
+		"document_not_detected_description": "신분증, 운전면허증 또는 여권과 같은 신분 문서를 스캔하고 있는지 확인해 주십시오.",
+		"remaining_attempts": "남은 시도 횟수",
+		"failed_to_detect_limit": "데모를 올바르게 수행하기 위한 모든 시도를 소진했습니다",
+		"failed_to_detect_limit_description": "원하는 만큼 데모를 반복할 수 있지만 성공적으로 수행하기 위한 지시사항을 따르십시오."
 	},
 	"user_location": {
 		"road": "도로",
 		"neighbourhood": "동네",
 		"city": "도시",
-		"county": "카운티",
+		"county": "군",
 		"state": "주",
 		"ISO3166-2-lvl4": "국가 ISO 코드",
-		"postcode": "우편 번호",
+		"postcode": "우편번호",
 		"country": "국가",
 		"country_code": "국가 코드"
 	},
 	"liveness": {
-		"center_yor_face": "화면 가운데 얼굴을 맞추세요",
-		"center_your_face_subtitle": "얼굴이 화면 가운데에 있는지 확인하세요",
-		"get_closer": "가까이 다가가세요",
-		"get_closer_subtitle": "더 나은 얼굴 인식을 위해 조금 더 가까이 다가가주세요.",
-		"liveness_failed": "생동감 검사 실패",
-		"liveness_error_message": "다음과 같은 오류로 생동감 검사가 실패했습니다:<br><strong>{{error}}</strong><br>다시 시도하시겠습니까?",
-		"loading_stream": "카메라 로드 중"
+		"center_yor_face": "화면에 얼굴을 중앙에 맞추세요",
+		"center_your_face_subtitle": "얼굴이 화면 중앙에 위치하도록 해주세요",
+		"get_closer": "더 가까이 오세요",
+		"get_closer_subtitle": "얼굴 인식을 위해 조금 더 가까이 오세요.",
+		"liveness_failed": "생체 인식 실패",
+		"liveness_error_message": "다음 오류로 생체 인식 검사가 실패했습니다:<br><strong>{{error}}</strong><br>다시 시도하시겠습니까?",
+		"loading_stream": "카메라 로딩 중"
 	},
 	"results": {
 		"selfie": "셀피",
-		"liveness_and_match": "생동감 및 일치 결과",
+		"liveness_and_match": "생체 인식 및 일치 결과",
 		"match_score": "일치 점수",
-		"liveness_score": "생동감 점수",
-		"passed": "통과",
+		"liveness_score": "생체 점수",
+		"passed": "생체 인식 통과",
 		"min_score": "최소 점수",
 		"score": "일치 점수"
 	}

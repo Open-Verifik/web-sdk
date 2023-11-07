@@ -1,0 +1,114 @@
+{
+	"go_back": "Bumalik",
+	"restart": "I-restart ang demo",
+	"continue": "Magpatuloy",
+	"confirm": "Kumpirmahin",
+	"cancel": "Ikansela",
+	"header": {
+		"partner": "Maging kasosyo sa amin",
+		"talk": "Makipag-usap sa benta",
+		"id": "Pag-scan ng ID",
+		"verify_id": "Detalye ng dokumento",
+		"liveness": "Pagtitiyak ng buhay",
+		"compare": "Mga Resulta"
+	},
+	"step_one": {
+		"title": "Tuklasin ang hinaharap ng pagpapatunay ng pagkakakilanlan sa Verifik",
+		"subtitle": "Alamin kung paano binabago ng Verifik ang seguridad ng pagpapatunay ng pagkakakilanlan.",
+		"header": "Nagtatampok kami ng mga nangungunang serbisyo kabilang ang tumpak at mabilis na pagkakakilanlan ng mga dokumento ng pagkakakilanlan gamit ang makabagong teknolohiyang OCR, pati na rin ang 3D biometric scans na tinitiyak ang pagiging tunay ng mga indibidwal at pumipigil sa pagpapanggap.",
+		"cards": {
+			"id": "I-scan ang iyong Dokumento ng ID",
+			"verify_id": "Kunin at beripikahin ang nakuhang impormasyon",
+			"liveness": "Deteksyon ng pagiging buhay",
+			"compare": "Makuha ang pagpapatunay ng iyong pagkakakilanlan sa loob ng isang minuto."
+		},
+		"terms_label": "Upang gamitin ang demo na ito, kailangan mong tanggapin ang aming",
+		"terms_link": "Kasunduan sa Pagtrato ng Datos.",
+		"start_demo_button": "Simulan ang demo"
+	},
+	"step_two": {
+		"file": "Mag-upload ng file",
+		"file_description": "I-upload ang iyong Dokumento ng ID",
+		"manual_description": "I-scan ang iyong Dokumento ng ID",
+		"manual": "Simulan ang pag-scan",
+		"drag_n_drop_title": "I-drag at i-drop ang larawan dito",
+		"drag_n_drop_description": "Ang file ng Dokumento ng ID ay dapat mayroong .png .jpeg .jpg na extension",
+		"upload_button": "Hanapin ang file sa iyong aparato",
+		"cancel_button": "Ikansela",
+		"continue_button": "Magpatuloy"
+	},
+	"step_three": {
+		"document_scanned": "Na-scan na dokumento",
+		"front_side": "Harapang bahagi",
+		"general_information": "Pangkalahatang impormasyon",
+		"extracted_information": "Impormasyong nakuha",
+		"user_location": "Lokasyon ng gumagamit",
+		"scan_again": "I-scan muli"
+	},
+	"general_information": {
+		"device": "Aparato",
+		"language": "Wika",
+		"userAgent": "User Agent"
+	},
+	"extracted_information": {
+		"documentType": "Uri ng Dokumento",
+		"documentNumber": "Numero ng Dokumento",
+		"firstName": "Pangalan",
+		"lastName": "Apelyido",
+		"fullName": "Buong Pangalan",
+		"nationality": "Nasyonalidad",
+		"gender": "Kasarian",
+		"expeditionDate": "Petsa ng Pagkakaloob",
+		"dateOfIssue": "Petsa ng Isyu",
+		"dateOfBirth": "Petsa ng Kapanganakan",
+		"expirationDate": "Petsa ng Pag-expire",
+		"address": "Tirahan",
+		"barcodeNumber": "Numero ng Barcode",
+		"dateOfExpiry": "Petsa ng Pag-expire",
+		"issuingAuthority": "Awtoridad ng Pag-isyu",
+		"country": "Bansa",
+		"height": "Taas",
+		"placeOfBirth": "Lugar ng Kapanganakan"
+	},
+	"id_scanning": {
+		"camera_not_found": "Walang nakitang kamera sa device o pansamantalang hindi pinagana.",
+		"camera_not_found_description": "Paki siguro na ang device na iyong ginagamit sa demo ay may kamera at mayroon kang permiso upang ito'y gamitin.",
+		"manual_capture_button": "Manu-manong Kuhain",
+		"retry": "Subukan muli",
+		"continue": "Magpatuloy",
+		"document_not_detected": "Hindi na-detect ang uri ng dokumento",
+		"document_not_detected_description": "Siguruhing ang iyong sine-scan ay isang identity document gaya ng ID card, driver's license o pasaporte",
+		"remaining_attempts": "Natitirang mga Pagtatangka",
+		"failed_to_detect_limit": "Naubos mo na lahat ng pagtatangka para maayos na maisagawa ang demo",
+		"failed_to_detect_limit_description": "Maaari mong ulitin ang demo ng maraming beses na gusto mo ngunit tandaan na sundin ang mga panuto para ito ay maging matagumpay."
+	},
+	"user_location": {
+		"road": "Kalsada",
+		"neighbourhood": "Kapitbahayan",
+		"city": "Lungsod",
+		"county": "Kondado",
+		"state": "Estado",
+		"ISO3166-2-lvl4": "ISO code ng Bansa",
+		"postcode": "Postal code",
+		"country": "Bansa",
+		"country_code": "Kodigo ng bansa"
+	},
+	"liveness": {
+		"center_yor_face": "Igitna ang iyong mukha sa screen",
+		"center_your_face_subtitle": "Pakitiyak na nasa gitna ang iyong mukha",
+		"get_closer": "Lumapit",
+		"get_closer_subtitle": "Pakilapit nang kaunti para sa mas maayos na pagkilala ng mukha.",
+		"liveness_failed": "Nabigo ang pagtukoy ng buhay",
+		"liveness_error_message": "Nabigo ang pagtukoy ng buhay sa sumusunod na error:<br><strong>{{error}}</strong><br>Nais mo bang subukan muli?",
+		"loading_stream": "Naglo-load ng Camera"
+	},
+	"results": {
+		"selfie": "Selfie",
+		"liveness_and_match": "Resulta ng Buhay at Pagtutugma",
+		"match_score": "Iskor ng Pagtutugma",
+		"liveness_score": "Iskor ng Pagiging Buhay",
+		"passed": "Nakapasa sa Pagiging Buhay",
+		"min_score": "Pinakamababang iskor",
+		"score": "Iskor ng Pagtutugma"
+	}
+}

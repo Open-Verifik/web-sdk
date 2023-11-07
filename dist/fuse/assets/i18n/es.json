@@ -1,42 +1,45 @@
 {
-	"go_back": "Volver",
-	"restart": "Reiniciar demo",
+	"go_back": "Regresar",
+	"restart": "Reiniciar demostración",
 	"continue": "Continuar",
 	"confirm": "Confirmar",
 	"cancel": "Cancelar",
 	"header": {
-		"partner": "Asociarse con nosotros",
+		"partner": "Asóciate con nosotros",
 		"talk": "Hablar con ventas",
 		"id": "Escaneo de ID",
 		"verify_id": "Detalles del documento",
-		"liveness": "Verificación de vida",
+		"liveness": "Comprobación de vida",
 		"compare": "Resultados"
 	},
 	"step_one": {
 		"title": "Explora el futuro de la validación de identidad con Verifik",
-		"subtitle": "Descubre cómo Verifik está revolucionando la seguridad en la validación de identidades.",
-		"header": "Ofrecemos servicios de vanguardia, incluyendo la identificación precisa y rápida de documentos de identidad mediante tecnología OCR de última generación, así como escaneos biométricos 3D que aseguran la autenticidad de las personas y evitan la suplantación de identidad.",
+		"subtitle": "Descubre cómo Verifik está revolucionando la seguridad de la validación de identidad.",
+		"header": "Ofrecemos servicios de vanguardia que incluyen la identificación precisa y rápida de documentos de identidad utilizando tecnología OCR de última generación, así como escaneos biométricos en 3D que garantizan la autenticidad de las personas y previenen la suplantación.",
 		"cards": {
-			"id": "Escanear tu documento de identidad",
+			"id": "Escanea tu Documento de Identidad",
 			"verify_id": "Obtener y verificar la información extraída",
 			"liveness": "Detección de vida",
-			"compare": "Obtén la autenticación de tu identidad en menos de un minuto."
+			"compare": "Autentica tu identidad en menos de un minuto."
 		},
-		"terms_label": "Para utilizar esta demostración, debes aceptar nuestro",
+		"terms_label": "Para usar esta demo, debes aceptar nuestro",
 		"terms_link": "Acuerdo de Tratamiento de Datos.",
-		"start_demo_button": "Iniciar demo"
+		"start_demo_button": "Iniciar demostración"
 	},
 	"step_two": {
-		"dialog_title": "Documentos a subir",
-		"drag_n_drop_title": "Arrastra y suelta el archivo aquí",
-		"drag_n_drop_description": "El archivo debe tener una extensión .png .jpeg .jpg",
+		"file": "Subir archivo",
+		"file_description": "Sube tu Documento de Identidad",
+		"manual_description": "Escanear tu Documento de Identidad",
+		"manual": "Iniciar escaneo",
+		"drag_n_drop_title": "Arrastra y suelta la foto aquí",
+		"drag_n_drop_description": "El archivo del Documento de Identidad debe tener una extensión .png .jpeg .jpg",
 		"upload_button": "Buscar el archivo en tu dispositivo",
 		"cancel_button": "Cancelar",
-		"continue_button": "Siguiente"
+		"continue_button": "Continuar"
 	},
 	"step_three": {
 		"document_scanned": "Documento escaneado",
-		"front_side": "Lado frontal",
+		"front_side": "Parte frontal",
 		"general_information": "Información general",
 		"extracted_information": "Información extraída",
 		"user_location": "Ubicación del usuario",
@@ -45,14 +48,39 @@
 	"general_information": {
 		"device": "Dispositivo",
 		"language": "Idioma",
-		"userAgent": "Agente de usuario"
+		"userAgent": "Agente de Usuario"
 	},
 	"extracted_information": {
 		"documentType": "Tipo de documento",
 		"documentNumber": "Número de documento",
 		"firstName": "Nombre",
 		"lastName": "Apellido",
-		"fullName": "Nombre completo"
+		"fullName": "Nombre completo",
+		"nationality": "Nacionalidad",
+		"gender": "Género",
+		"expeditionDate": "Fecha de expedición",
+		"dateOfIssue": "Fecha de emisión",
+		"dateOfBirth": "Fecha de nacimiento",
+		"expirationDate": "Fecha de vencimiento",
+		"address": "Dirección",
+		"barcodeNumber": "Número de código de barras",
+		"dateOfExpiry": "Fecha de caducidad",
+		"issuingAuthority": "Autoridad emisora",
+		"country": "País",
+		"height": "Altura",
+		"placeOfBirth": "Lugar de nacimiento"
+	},
+	"id_scanning": {
+		"camera_not_found": "No se ha encontrado una cámara en el dispositivo o está deshabilitada momentáneamente.",
+		"camera_not_found_description": "Por favor, asegúrese de que el dispositivo en el que está realizando la demostración tiene una cámara y que tiene permisos para acceder a ella.",
+		"manual_capture_button": "Captura manual",
+		"retry": "Intentar de nuevo",
+		"continue": "Continuar",
+		"document_not_detected": "Tipo de documento no detectado",
+		"document_not_detected_description": "Asegúrese de estar escaneando un documento de identidad como una tarjeta de identificación, licencia de conducir o pasaporte",
+		"remaining_attempts": "Intentos restantes",
+		"failed_to_detect_limit": "Ha agotado todos los intentos para realizar la demostración correctamente",
+		"failed_to_detect_limit_description": "Puede repetir la demostración tantas veces como desee pero recuerde seguir las indicaciones para que sea exitosa."
 	},
 	"user_location": {
 		"road": "Calle",
@@ -67,20 +95,20 @@
 	},
 	"liveness": {
 		"center_yor_face": "Centra tu rostro en la pantalla",
-		"center_your_face_subtitle": "Asegúrate de que tu rostro esté centrado",
+		"center_your_face_subtitle": "Por favor, asegúrate de que tu rostro esté centrado",
 		"get_closer": "Acércate",
-		"get_closer_subtitle": "Por favor, acércate un poco para una mejor identificación facial.",
-		"liveness_failed": "Fallo en la detección de vida",
-		"liveness_error_message": "La verificación de vida ha fallado con el siguiente error:<br><strong>{{error}}</strong><br>¿Deseas intentarlo de nuevo?",
-		"loading_stream": "Cargando cámara"
+		"get_closer_subtitle": "Por favor acércate un poco más para un mejor reconocimiento facial.",
+		"liveness_failed": "Detección de vida fallida",
+		"liveness_error_message": "La comprobación de vida ha fallado con el siguiente error:<br><strong>{{error}}</strong><br>¿Quieres intentarlo de nuevo?",
+		"loading_stream": "Cargando Cámara"
 	},
 	"results": {
 		"selfie": "Selfie",
 		"liveness_and_match": "Resultados de Vida y Coincidencia",
-		"match_score": "Puntaje de coincidencia",
-		"liveness_score": "Puntaje de vida",
-		"passed": "Aprobado",
-		"min_score": "Puntaje mínimo",
-		"score": "Puntaje de coincidencia"
+		"match_score": "Puntuación de coincidencia",
+		"liveness_score": "Puntuación de vida",
+		"passed": "Vida aprobada",
+		"min_score": "Puntuación mínima",
+		"score": "Puntuación de coincidencia"
 	}
 }

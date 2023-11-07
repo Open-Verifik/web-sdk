@@ -1,50 +1,86 @@
 {
 	"go_back": "Torna indietro",
-	"restart": "Riavvia demo",
+	"restart": "Riavvia la demo",
 	"continue": "Continua",
 	"confirm": "Conferma",
 	"cancel": "Annulla",
 	"header": {
 		"partner": "Diventa nostro partner",
-		"talk": "Parla con il reparto vendite",
-		"id": "Scansione dell'ID",
+		"talk": "Parla con le vendite",
+		"id": "Scansione ID",
 		"verify_id": "Dettagli del documento",
-		"liveness": "Controllo di autenticità",
+		"liveness": "Verifica della presenza",
 		"compare": "Risultati"
 	},
 	"step_one": {
 		"title": "Esplora il futuro della validazione dell'identità con Verifik",
-		"subtitle": "Scopri come Verifik sta rivoluzionando la sicurezza nella validazione dell'identità.",
-		"header": "Offriamo servizi all'avanguardia, compresa l'identificazione precisa e rapida dei documenti di identità utilizzando la tecnologia OCR all'avanguardia, nonché scansioni biometriche 3D che garantiscono l'autenticità delle persone e prevengono l'usurpazione di identità.",
+		"subtitle": "Scopri come Verifik sta rivoluzionando la sicurezza della validazione dell'identità.",
+		"header": "Offriamo servizi all'avanguardia inclusa l'identificazione precisa e veloce di documenti d'identità utilizzando tecnologia OCR di stato dell'arte, così come scansioni biometriche 3D che assicurano l'autenticità degli individui e prevengono l'impersonificazione.",
 		"cards": {
-			"id": "Scansiona il tuo documento d'identità",
+			"id": "Scansiona il tuo Documento d'Identità",
 			"verify_id": "Ottieni e verifica le informazioni estratte",
-			"liveness": "Rilevamento di autenticità",
-			"compare": "Ottieni l'autenticazione della tua identità in meno di un minuto."
+			"liveness": "Rilevamento della presenza",
+			"compare": "Ottieni l'autenticazione della tua identità in un minuto."
 		},
-		"terms_label": "Per utilizzare questa demo, è necessario accettare il nostro",
-		"terms_link": "Accordo di trattamento dei dati.",
+		"terms_label": "Per usare questa demo, devi accettare il nostro",
+		"terms_link": "Accordo sul Trattamento dei Dati.",
 		"start_demo_button": "Avvia demo"
+	},
+	"step_two": {
+		"file": "Carica file",
+		"file_description": "Carica il tuo Documento d'Identità",
+		"manual_description": "Scansiona il tuo Documento d'Identità",
+		"manual": "Inizia la scansione",
+		"drag_n_drop_title": "Trascina e rilascia la foto qui",
+		"drag_n_drop_description": "Il file del Documento d'Identità deve essere in formato .png, .jpeg, .jpg",
+		"upload_button": "Trova il file sul tuo dispositivo",
+		"cancel_button": "Annulla",
+		"continue_button": "Continua"
 	},
 	"step_three": {
 		"document_scanned": "Documento scansionato",
-		"front_side": "Facciata anteriore",
+		"front_side": "Facciata frontale",
 		"general_information": "Informazioni generali",
 		"extracted_information": "Informazioni estratte",
 		"user_location": "Posizione dell'utente",
-		"scan_again": "Scansiona nuovamente"
+		"scan_again": "Scansiona di nuovo"
 	},
 	"general_information": {
 		"device": "Dispositivo",
 		"language": "Lingua",
-		"userAgent": "Agente utente"
+		"userAgent": "User Agent"
 	},
 	"extracted_information": {
-		"documentType": "Tipo di documento",
-		"documentNumber": "Numero di documento",
-		"firstName": "Nome",
-		"lastName": "Cognome",
-		"fullName": "Nome completo"
+		"documentType": "文件类型",
+		"documentNumber": "文件编号",
+		"firstName": "名字",
+		"lastName": "姓氏",
+		"fullName": "全名",
+		"nationality": "国籍",
+		"gender": "性别",
+		"expeditionDate": "发行日期",
+		"dateOfIssue": "签发日期",
+		"dateOfBirth": "出生日期",
+		"expirationDate": "过期日期",
+		"address": "地址",
+		"barcodeNumber": "条形码号",
+		"dateOfExpiry": "失效日期",
+		"issuingAuthority": "签发机关",
+		"country": "国家",
+		"height": "身高",
+		"placeOfBirth": "出生地"
+	},
+	"id_scanning": {
+		"camera_not_found": "未在设备上找到相机，或相机暂时被禁用。",
+		"camera_not_found_description": "请确保您执行演示的设备上有相机，并且您有权访问它。",
+		"manual_capture_button": "手动捕捉",
+		"retry": "重试",
+		"continue": "继续",
+		"document_not_detected": "未检测到文件类型",
+		"document_not_detected_description": "请确保您正在扫描的是身份证件，如身份证、驾驶证或护照。",
+		"remaining_attempts": "剩余尝试次数",
+		"failed_to_detect_limit": "您已用完所有正确执行演示的尝试次数",
+		"failed_to_detect_limit_description": "您可以多次重复演示，但请记住遵循指示以确保演示成功。"
 	},
 	"user_location": {
 		"road": "Strada",
@@ -52,26 +88,26 @@
 		"city": "Città",
 		"county": "Contea",
 		"state": "Stato",
-		"ISO3166-2-lvl4": "Codice ISO del paese",
+		"ISO3166-2-lvl4": "Codice Paese ISO",
 		"postcode": "Codice postale",
 		"country": "Paese",
-		"country_code": "Codice paese"
+		"country_code": "Codice del paese"
 	},
 	"liveness": {
-		"center_yor_face": "Centra il tuo volto sullo schermo",
-		"center_your_face_subtitle": "Assicurati che il tuo volto sia centrato",
+		"center_yor_face": "Centra il tuo viso sullo schermo",
+		"center_your_face_subtitle": "Assicurati che il tuo viso sia centrato",
 		"get_closer": "Avvicinati",
-		"get_closer_subtitle": "Per favore, avvicinati un po' per un riconoscimento facciale migliore.",
-		"liveness_failed": "Controllo di autenticità fallito",
-		"liveness_error_message": "Il controllo di autenticità è fallito con il seguente errore:<br><strong>{{error}}</strong><br>Vuoi provare di nuovo?",
-		"loading_stream": "Caricamento della fotocamera"
+		"get_closer_subtitle": "Avvicinati un po' per un miglior riconoscimento del viso.",
+		"liveness_failed": "Rilevamento della presenza fallito",
+		"liveness_error_message": "Il controllo di presenza è fallito per il seguente errore:<br><strong>{{error}}</strong><br>Vuoi provare di nuovo?",
+		"loading_stream": "Caricamento della camera"
 	},
 	"results": {
 		"selfie": "Selfie",
-		"liveness_and_match": "Risultati di autenticità e corrispondenza",
+		"liveness_and_match": "Risultati del controllo di presenza e corrispondenza",
 		"match_score": "Punteggio di corrispondenza",
-		"liveness_score": "Punteggio di autenticità",
-		"passed": "Superato",
+		"liveness_score": "Punteggio di presenza",
+		"passed": "Controllo di presenza superato",
 		"min_score": "Punteggio minimo",
 		"score": "Punteggio di corrispondenza"
 	}
