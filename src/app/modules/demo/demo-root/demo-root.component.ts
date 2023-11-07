@@ -83,7 +83,7 @@ export class DemoRootComponent implements OnInit {
 	async _loadContent(): Promise<any> {
 		this._demoService.getDeviceDetails();
 
-		const location = await this._demoService.getAddress();
+		await this._demoService.getAddress();
 
 		this.requirementsLoaded = true;
 	}
@@ -97,5 +97,11 @@ export class DemoRootComponent implements OnInit {
 		const url = "https://verifik.co/en/partners/";
 
 		window.open(url, "_blank");
+	}
+
+	restartDemo(): void {
+		this._demoService.cleanVariables();
+
+		this._demoService.moveToStep(1);
 	}
 }

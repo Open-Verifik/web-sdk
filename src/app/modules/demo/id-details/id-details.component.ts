@@ -30,7 +30,17 @@ export class IdDetailsComponent implements OnInit {
 		this.locationLoading = false;
 	}
 
-	ngOnInit(): void {}
+	ngOnInit(): void {
+		if (this.demoData.extractedData) {
+			for (let index = this.demoData.extractedData.length - 1; index >= 0; index--) {
+				const extractedRow = this.demoData.extractedData[index];
+
+				if (extractedRow.key === "details") {
+					this.demoData.extractedData.splice(index, 1);
+				}
+			}
+		}
+	}
 
 	hasGeneralInformation(): boolean {
 		if (this.generalInfoLoaded) return true;

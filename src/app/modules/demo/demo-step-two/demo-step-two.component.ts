@@ -17,16 +17,25 @@ import { MatDialog } from "@angular/material/dialog";
 	templateUrl: "./demo-step-two.component.html",
 	styleUrls: ["./demo-step-two.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, RouterLink, MatCheckboxModule, MatButtonModule, StepperComponent, IdScanningComponent, CommonModule, TranslocoModule, UploadFileComponent],
+	imports: [
+		FlexLayoutModule,
+		RouterLink,
+		MatCheckboxModule,
+		MatButtonModule,
+		StepperComponent,
+		IdScanningComponent,
+		CommonModule,
+		TranslocoModule,
+		UploadFileComponent,
+	],
 })
 export class DemoStepTwoComponent implements OnInit {
 	demoData: any;
 	selectOption: string;
 
-	constructor(private _demoService: DemoService,        private dialog: MatDialog,
-		) {
+	constructor(private _demoService: DemoService, private dialog: MatDialog) {
 		this.demoData = this._demoService.getDemoData();
-		this.selectOption = ""
+		this.selectOption = "";
 	}
 
 	ngOnInit(): void {
@@ -35,18 +44,15 @@ export class DemoStepTwoComponent implements OnInit {
 
 	openUploadFile() {
 		const dialogRef = this.dialog.open(UploadFileComponent, {
-			width: '900px'
+			width: "900px",
 		});
 
 		dialogRef.afterClosed().subscribe((result) => {
-			console.log(result)
+			console.log(result);
 		});
 	}
 
 	openCamera() {
-		this.selectOption = 'idscan'
+		this.selectOption = "idscan";
 	}
-
-
-
 }

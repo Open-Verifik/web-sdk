@@ -1,24 +1,41 @@
 <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
 	<app-stepper class="w-full"></app-stepper>
 
-	<div fxLayout="row" fxLayoutAlign="center center" class="w-3/5 mt-5" *ngIf="!selectOption">
-		<div class="white-background" fxLayout="column" fxLayoutAlign="center center">
-			<span class="my-5">
+	<div
+		class="id-details-body w-full"
+		fxLayout="row"
+		fxLayout.xs="column"
+		fxLayoutAlign="start start"
+		fxLayoutAlign.xs="center center"
+		*ngIf="!selectOption"
+	>
+		<!-- first section -->
+		<div class="w-50p upload-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center">
+			<h2 class="my-5">
 				{{ "step_two.file_description" | transloco }}
-			</span>
+			</h2>
+
+			<img src="https://cdn.verifik.co/demo/anverso2x.png" class="p-8 upload-img" alt="" />
 
 			<button mat-raised-button color="primary" class="mb-5" (click)="openUploadFile()">
 				{{ "step_two.file" | transloco }}
 			</button>
 		</div>
-		<div class="white-background" fxLayout="column" fxLayoutAlign="center center">
-			<span class="my-5">
+		<!-- end of first section -->
+
+		<div class="w-50p scan-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="center center">
+			<h2 class="my-5">
 				{{ "step_two.manual_description" | transloco }}
-			</span>
-			<button mat-raised-button color="primary"  class="mb-5" (click)="openCamera()">
+			</h2>
+
+			<img src="https://cdn.verifik.co/demo/scan2x.png" alt="" class="p-8 scan-img" />
+			<button mat-raised-button color="primary" class="mb-5" (click)="openCamera()">
 				{{ "step_two.manual" | transloco }}
 			</button>
 		</div>
 	</div>
-	<id-scanning *ngIf="selectOption === 'idscan'" class="w-full h-full"></id-scanning>
+
+	<div class="white-background" *ngIf="!selectOption" fxHide.xs="true"></div>
+
+	<id-scanning *ngIf="selectOption === 'idscan'" class="w-full h-full mb-6"></id-scanning>
 </div>

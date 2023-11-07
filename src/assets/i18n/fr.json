@@ -6,45 +6,67 @@
 	"cancel": "Annuler",
 	"header": {
 		"partner": "Partenariat avec nous",
-		"talk": "Parler à un commercial",
-		"id": "Numérisation d'identité",
+		"talk": "Parler aux ventes",
+		"id": "Scan d'identifiant",
 		"verify_id": "Détails du document",
-		"liveness": "Vérification de l'authenticité",
+		"liveness": "Vérification de vie",
 		"compare": "Résultats"
 	},
 	"step_one": {
 		"title": "Explorez l'avenir de la validation d'identité avec Verifik",
 		"subtitle": "Découvrez comment Verifik révolutionne la sécurité de la validation d'identité.",
-		"header": "Nous proposons des services de pointe, notamment l'identification précise et rapide de documents d'identité grâce à une technologie OCR de pointe, ainsi que des scans biométriques 3D qui garantissent l'authenticité des individus et évitent les usurpations d'identité.",
+		"header": "Nous proposons des services de pointe incluant l'identification précise et rapide des documents d'identité grâce à la technologie OCR de pointe, ainsi que des scans biométriques en 3D qui garantissent l'authenticité des individus et préviennent l'usurpation d'identité.",
 		"cards": {
 			"id": "Scannez votre document d'identité",
-			"verify_id": "Obtenez et vérifiez les informations extraites",
-			"liveness": "Détection de l'authenticité",
-			"compare": "Obtenez l'authentification de votre identité en moins d'une minute."
+			"verify_id": "Obtenir et vérifier les informations extraites",
+			"liveness": "Détection de vie",
+			"compare": "Authentifiez votre identité en moins d'une minute."
 		},
 		"terms_label": "Pour utiliser cette démo, vous devez accepter notre",
-		"terms_link": "Accord de traitement des données.",
+		"terms_link": "Accord sur le traitement des données.",
 		"start_demo_button": "Démarrer la démo"
 	},
+	"step_two": {
+		"file": "Télécharger un fichier",
+		"file_description": "Téléchargez votre document d'identité",
+		"manual_description": "Scannez votre document d'identité",
+		"manual": "Commencer le scan",
+		"drag_n_drop_title": "Glissez et déposez la photo ici",
+		"drag_n_drop_description": "Le fichier du document d'identité doit être au format .png, .jpeg ou .jpg",
+		"upload_button": "Trouvez le fichier sur votre appareil",
+		"cancel_button": "Annuler",
+		"continue_button": "Continuer"
+	},
 	"step_three": {
-		"document_scanned": "Document numérisé",
+		"document_scanned": "Document scanné",
 		"front_side": "Face avant",
 		"general_information": "Informations générales",
 		"extracted_information": "Informations extraites",
-		"user_location": "Emplacement de l'utilisateur",
-		"scan_again": "Numériser à nouveau"
+		"user_location": "Localisation de l'utilisateur",
+		"scan_again": "Scanner à nouveau"
 	},
 	"general_information": {
 		"device": "Appareil",
 		"language": "Langue",
-		"userAgent": "Agent utilisateur"
+		"userAgent": "Agent Utilisateur"
 	},
 	"extracted_information": {
 		"documentType": "Type de document",
 		"documentNumber": "Numéro de document",
 		"firstName": "Prénom",
 		"lastName": "Nom de famille",
-		"fullName": "Nom complet"
+		"fullName": "Nom complet",
+		"nationality": "Nationalité",
+		"gender": "Genre",
+		"expeditionDate": "Date de délivrance",
+		"dateOfIssue": "Date d'émission",
+		"dateOfBirth": "Date de naissance",
+		"expirationDate": "Date d'expiration",
+		"address": "Adresse",
+		"barcodeNumber": "Numéro de code-barres",
+		"dateOfExpiry": "Date de péremption",
+		"issuingAuthority": "Autorité émettrice",
+		"country": "Pays"
 	},
 	"user_location": {
 		"road": "Rue",
@@ -55,23 +77,23 @@
 		"ISO3166-2-lvl4": "Code ISO du pays",
 		"postcode": "Code postal",
 		"country": "Pays",
-		"country_code": "Code pays"
+		"country_code": "Code du pays"
 	},
 	"liveness": {
-		"center_yor_face": "Recentrez votre visage sur l'écran",
-		"center_your_face_subtitle": "Assurez-vous que votre visage est centré",
-		"get_closer": "Rapprochez-vous",
-		"get_closer_subtitle": "Veuillez vous rapprocher un peu pour une meilleure reconnaissance faciale.",
-		"liveness_failed": "Échec de la vérification de l'authenticité",
-		"liveness_error_message": "La vérification de l'authenticité a échoué avec l'erreur suivante :<br><strong>{{error}}</strong><br>Voulez-vous essayer à nouveau ?",
+		"center_yor_face": "Centre ton visage à l'écran",
+		"center_your_face_subtitle": "Veuillez vous assurer que votre visage est centré",
+		"get_closer": "Rapproche-toi",
+		"get_closer_subtitle": "Veuillez vous rapprocher pour une meilleure reconnaissance faciale.",
+		"liveness_failed": "Échec de la vérification de vie",
+		"liveness_error_message": "La vérification de vie a échoué avec l'erreur suivante :<br><strong>{{error}}</strong><br>Voulez-vous réessayer ?",
 		"loading_stream": "Chargement de la caméra"
 	},
 	"results": {
 		"selfie": "Selfie",
-		"liveness_and_match": "Résultats d'authenticité et de correspondance",
+		"liveness_and_match": "Résultats de Vie et Correspondance",
 		"match_score": "Score de correspondance",
-		"liveness_score": "Score d'authenticité",
-		"passed": "Approuvé",
+		"liveness_score": "Score de vie",
+		"passed": "Vie validée",
 		"min_score": "Score minimum",
 		"score": "Score de correspondance"
 	}

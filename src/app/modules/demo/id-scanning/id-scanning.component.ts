@@ -6,13 +6,14 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { DemoService } from "../demo.service";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
+import { TranslocoModule } from "@ngneat/transloco";
 
 @Component({
 	selector: "id-scanning",
 	templateUrl: "./id-scanning.component.html",
 	styleUrls: ["./id-scanning.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, MatCheckboxModule, MatButtonModule, CommonModule, MatProgressSpinnerModule],
+	imports: [FlexLayoutModule, MatCheckboxModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, TranslocoModule],
 })
 export class IdScanningComponent implements OnInit {
 	@ViewChild("videoElement") videoElement: ElementRef;
@@ -93,7 +94,6 @@ export class IdScanningComponent implements OnInit {
 						this.drawRect(canvas.getContext("2d"));
 						this._splashScreenService.hide();
 					}, 1000);
-
 				})
 				.catch((error) => {
 					console.error("Error accessing the camera:", error);
@@ -108,10 +108,10 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	tryAgain(plusAttempts = false): void {
-		if(plusAttempts) this.attempts++;
-		console.log(plusAttempts, this.attempts)
-		this.base64Images = undefined
-		this.failedToDetectDocument = false
+		if (plusAttempts) this.attempts++;
+		console.log(plusAttempts, this.attempts);
+		this.base64Images = undefined;
+		this.failedToDetectDocument = false;
 		this.startCamera();
 		// logic todo here
 	}
@@ -128,25 +128,27 @@ export class IdScanningComponent implements OnInit {
 		this.demoData.loading = true;
 		this._splashScreenService.show();
 
+		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe(
+			(response) => {
+				this._splashScreenService.hide();
 
-		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe((response) => {
-			this._splashScreenService.hide();
+				this._demoService.setDemoDocument(response.data);
 
-			this._demoService.setDemoDocument(response.data);
+				localStorage.setItem("documentId", response.data._id);
 
-			localStorage.setItem("documentId", response.data._id);
-			
-			const canvasResult = this.canvasResultRef.nativeElement;
+				const canvasResult = this.canvasResultRef.nativeElement;
 
-			localStorage.setItem("idCard", canvasResult.toDataURL("image/jpeg"));
+				localStorage.setItem("idCard", canvasResult.toDataURL("image/jpeg"));
 
-			this._demoService.moveToStep(3);
+				this._demoService.moveToStep(3);
 
-			this.demoData.loading = false;
-		},(err) =>{
-			this._splashScreenService.hide();
-			this.failedToDetectDocument = true
-		});
+				this.demoData.loading = false;
+			},
+			(err) => {
+				this._splashScreenService.hide();
+				this.failedToDetectDocument = true;
+			}
+		);
 	}
 
 	drawRect(ctx: CanvasRenderingContext2D): void {

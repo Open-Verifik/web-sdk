@@ -1,5 +1,59 @@
 .white-background {
 	width: 50%;
 	background-color: white;
-	padding: 32px;
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	left: 50%;
+	height: 100%;
+}
+
+.scan-img {
+	width: 400px;
+}
+
+.upload-img {
+	width: 450px;
+}
+
+// Extra small screens
+@media (max-width: 599px) {
+	.upload-file-section {
+		width: 95% !important;
+		min-height: 300px;
+		h2 {
+			font-size: 24px;
+			text-align: center;
+			padding: 8px;
+		}
+	}
+
+	.scan-file-section {
+		width: 95% !important;
+		min-height: 700px;
+		h2 {
+			font-size: 24px;
+			text-align: center;
+			padding: 8px;
+		}
+	}
+}
+
+// Small screens
+@media (min-width: 600px) and (max-width: 959px) {
+	.upload-file-section {
+		h2 {
+			font-size: 24px;
+			text-align: center;
+			padding: 8px;
+		}
+	}
+
+	.scan-file-section {
+		h2 {
+			font-size: 24px;
+			text-align: center;
+			padding: 8px;
+		}
+	}
 }

@@ -1,42 +1,61 @@
 <div fxLayout="column" fxLayoutAlign="center center" class="bg-white rounded-lg shadow-lg m-5 p-4 items-center w-full h-full">
 	<!-- it doesnt have permissions -->
-	<div *ngIf="!hasCameraPermissions && !loadingCamera" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div ">
+	<div *ngIf="!hasCameraPermissions && !loadingCamera" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
 		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
 
-		<h1 class="mt-4">A camera has not been found on the device or is momentarily disabled.</h1>
+		<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
 
 		<p class="mt-4">
-			Please make sure that the device on which you are performing the demonstration has a camera and that you have permissions to access it.
+			{{ "id_scanning.camera_not_found_description" | transloco }}
 		</p>
 	</div>
 
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full h-full">
-		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full" >
+		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
 			<div class="relative" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
 				<video #videoElement autoplay class="absolute top-0 left-0" [class.hidden]="base64Images"></video>
-				<canvas #canvas class="absolute top-0 left-0" [style.width.px]="WIDTH" [style.height.px]="HEIGHT" [class.hidden]="base64Images"></canvas>
-				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>			  
+				<canvas
+					#canvas
+					class="absolute top-0 left-0"
+					[style.width.px]="WIDTH"
+					[style.height.px]="HEIGHT"
+					[class.hidden]="base64Images"
+				></canvas>
+				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>
 			</div>
 			<div fxLayout="row" fxLayoutAlign="center center">
-				<button mat-raised-button color="primary" class="m-4 z-index-2" [class.hidden]="base64Images" (click)="takePicture()">Manual Capture</button>
+				<button mat-raised-button color="primary" class="m-4 z-index-2" [class.hidden]="base64Images" (click)="takePicture()">
+					{{ "id_scanning.manual_capture_button" | transloco }}
+				</button>
 
-				<button mat-stroked-button color="primary" class="m-4 z-index-2" [class.hidden]="!base64Images" (click)="tryAgain()">Retry</button>
-				
-				<button mat-raised-button color="primary" class="mx-2" [class.hidden]="!base64Images" (click)="continue()">Continue</button> 
+				<button mat-stroked-button color="primary" class="m-4 z-index-2" [class.hidden]="!base64Images" (click)="tryAgain()">
+					{{ "id_scanning.retry" | transloco }}
+				</button>
+
+				<button mat-raised-button color="primary" class="mx-2" [class.hidden]="!base64Images" (click)="continue()">
+					{{ "continue" | transloco }}
+				</button>
 			</div>
-
 		</div>
 
-		<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center"  class="id-scanning-error-div" >
+		<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
 			<img src="https://cdn.verifik.co/demo/failedtodetectdocument@3x.png" alt="" class="id-scanning-failed-document-img" />
 
-			<h1 class="mt-4">We cant detect the document</h1>
+			<h1 class="mt-4">{{ "id_scanning.document_not_detected" | transloco }}</h1>
 
-			<p class="mt-4">Please make sure you are scanning an identity document such as an ID card or passport.</p>
+			<p class="mt-4">{{ "id_scanning.document_not_detected_description" | transloco }}</p>
 
-			<p class="mt-4">Remaining attempts {{ attemptsLimit - attempts }}</p>
+			<p class="mt-4">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
 
-			<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="tryAgain(true)" [disabled]="attempts >= attemptsLimit">Try again</button>
+			<button
+				mat-raised-button
+				color="primary"
+				class="mt-4 z-index-2 id-scanning-try-again-button"
+				(click)="tryAgain(true)"
+				[disabled]="attempts >= attemptsLimit"
+			>
+				{{ "id_scanning.retry" | transloco }}
+			</button>
 
 			<!-- <button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="continue()">Fake Continue</button> -->
 		</div>
@@ -44,12 +63,12 @@
 		<div *ngIf="failedToDetectDocument && !(attemptsLimit - attempts)" fxLayout="column" fxLayoutAlign="center center">
 			<img src="https://cdn.verifik.co/demo/redstop.svg" alt="" class="id-scanning-failed-document-img" />
 
-			<h1 class="mt-4">You have exhausted all attempts to perform the demo correctly</h1>
+			<h1 class="mt-4">{{ "id_scanning.failed_to_detect_limit" | transloco }}</h1>
 
-			<p class="mt-4">You can repeat the demo as many times as you want but remember to follow the indications for it to be successful.</p>
+			<p class="mt-4">{{ "id_scanning.failed_to_detect_limit_description" | transloco }}</p>
 
 			<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="restartDemo()">
-				Restart Demo
+				{{ "restart" | transloco }}
 			</button>
 		</div>
 	</div>

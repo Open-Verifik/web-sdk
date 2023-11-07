@@ -88,7 +88,7 @@ export class DemoService {
 			if (Object.prototype.hasOwnProperty.call(document.OCRExtraction, key)) {
 				const value = document.OCRExtraction[key];
 
-				if (key === "documentNumber") continue;
+				if (["documentNumber", "details"].includes(key)) continue;
 
 				this.demoData.extractedData.push({ key, value });
 			}

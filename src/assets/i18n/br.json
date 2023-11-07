@@ -1,78 +1,114 @@
 {
 	"go_back": "Voltar",
-	"restart": "Reiniciar demo",
+	"restart": "Reiniciar demonstração",
 	"continue": "Continuar",
 	"confirm": "Confirmar",
 	"cancel": "Cancelar",
 	"header": {
-		"partner": "Parceiros",
-		"talk": "Falar com vendas",
-		"id": "Digitalização de ID",
+		"partner": "Associe-se a nós",
+		"talk": "Fale com vendas",
+		"id": "Escaneamento de ID",
 		"verify_id": "Detalhes do documento",
-		"liveness": "Verificação de autenticidade",
+		"liveness": "Verificação de vivacidade",
 		"compare": "Resultados"
 	},
 	"step_one": {
-		"title": "Explore o futuro da validação de identidade com Verifik",
-		"subtitle": "Descubra como a Verifik está revolucionando a segurança na validação de identidades.",
-		"header": "Oferecemos serviços de ponta, incluindo a identificação precisa e rápida de documentos de identidade usando tecnologia OCR de última geração, bem como scans biométricos 3D que garantem a autenticidade das pessoas e evitam a falsificação de identidade.",
+		"title": "Explore o futuro da validação de identidade com a Verifik",
+		"subtitle": "Descubra como a Verifik está revolucionando a segurança da validação de identidade.",
+		"header": "Nós oferecemos serviços de ponta incluindo identificação rápida e precisa de documentos de identidade usando tecnologia OCR avançada, bem como escaneamentos biométricos 3D que asseguram a autenticidade dos indivíduos e previnem a personificação.",
 		"cards": {
-			"id": "Escanear seu Documento de Identidade",
-			"verify_id": "Obter e verificar as informações extraídas",
-			"liveness": "Detecção de autenticidade",
-			"compare": "Obtenha sua identidade autenticada em menos de um minuto."
+			"id": "Escaneie seu Documento de Identidade",
+			"verify_id": "Obtenha e verifique as informações extraídas",
+			"liveness": "Detecção de vivacidade",
+			"compare": "Autentique sua identidade em menos de um minuto."
 		},
 		"terms_label": "Para usar esta demonstração, você deve aceitar nosso",
 		"terms_link": "Acordo de Tratamento de Dados.",
-		"start_demo_button": "Iniciar demo"
+		"start_demo_button": "Iniciar demonstração"
+	},
+	"step_two": {
+		"file": "Enviar arquivo",
+		"file_description": "Envie seu Documento de Identidade",
+		"manual_description": "Escaneie seu Documento de Identidade",
+		"manual": "Começar escaneamento",
+		"drag_n_drop_title": "Arraste e solte a foto aqui",
+		"drag_n_drop_description": "O arquivo do Documento de Identidade deve ser .png, .jpeg ou .jpg",
+		"upload_button": "Encontre o arquivo em seu dispositivo",
+		"cancel_button": "Cancelar",
+		"continue_button": "Continuar"
 	},
 	"step_three": {
-		"document_scanned": "Documento digitalizado",
-		"front_side": "Lado frontal",
-		"general_information": "Informações gerais",
-		"extracted_information": "Informações extraídas",
-		"user_location": "Localização do usuário",
-		"scan_again": "Digitalizar novamente"
+		"document_scanned": "Documento escaneado",
+		"front_side": "Frente",
+		"general_information": "Informações Gerais",
+		"extracted_information": "Informações Extraídas",
+		"user_location": "Localização do Usuário",
+		"scan_again": "Escanear novamente"
 	},
 	"general_information": {
 		"device": "Dispositivo",
 		"language": "Idioma",
-		"userAgent": "Agente do usuário"
+		"userAgent": "Agente do Usuário"
 	},
 	"extracted_information": {
 		"documentType": "Tipo de documento",
 		"documentNumber": "Número do documento",
 		"firstName": "Nome",
 		"lastName": "Sobrenome",
-		"fullName": "Nome completo"
+		"fullName": "Nome completo",
+		"nationality": "Nacionalidade",
+		"gender": "Gênero",
+		"expeditionDate": "Data de expedição",
+		"dateOfIssue": "Data de emissão",
+		"dateOfBirth": "Data de nascimento",
+		"expirationDate": "Data de validade",
+		"address": "Endereço",
+		"barcodeNumber": "Número do código de barras",
+		"dateOfExpiry": "Data de expiração",
+		"issuingAuthority": "Autoridade emissora",
+		"country": "País",
+		"height": "Altura",
+		"placeOfBirth": "Local de nascimento"
+	},
+	"id_scanning": {
+		"camera_not_found": "Nenhuma câmera foi encontrada no dispositivo ou está momentaneamente desativada.",
+		"camera_not_found_description": "Por favor, certifique-se de que o dispositivo em que você está realizando a demonstração possui uma câmera e que você tem permissões para acessá-la.",
+		"manual_capture_button": "Capturar manualmente",
+		"retry": "Tentar novamente",
+		"continue": "Continuar",
+		"document_not_detected": "Tipo de documento não detectado",
+		"document_not_detected_description": "Por favor, certifique-se de que está escaneando um documento de identidade como um RG, carteira de motorista ou passaporte",
+		"remaining_attempts": "Tentativas restantes",
+		"failed_to_detect_limit": "Você esgotou todas as tentativas de realizar a demonstração corretamente",
+		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida."
 	},
 	"user_location": {
 		"road": "Rua",
 		"neighbourhood": "Bairro",
 		"city": "Cidade",
-		"county": "Condado",
+		"county": "Município",
 		"state": "Estado",
-		"ISO3166-2-lvl4": "Código ISO do país",
-		"postcode": "Código postal",
+		"ISO3166-2-lvl4": "Código ISO do País",
+		"postcode": "CEP",
 		"country": "País",
-		"country_code": "Código do país"
+		"country_code": "Código do País"
 	},
 	"liveness": {
 		"center_yor_face": "Centralize seu rosto na tela",
-		"center_your_face_subtitle": "Certifique-se de que seu rosto esteja centralizado",
+		"center_your_face_subtitle": "Por favor, certifique-se de que seu rosto está centralizado",
 		"get_closer": "Aproxime-se",
-		"get_closer_subtitle": "Por favor, chegue um pouco mais perto para melhor reconhecimento facial.",
-		"liveness_failed": "Falha na verificação de autenticidade",
-		"liveness_error_message": "A verificação de autenticidade falhou com o seguinte erro:<br><strong>{{error}}</strong><br>Você deseja tentar novamente?",
+		"get_closer_subtitle": "Por favor, aproxime-se um pouco para um melhor reconhecimento facial.",
+		"liveness_failed": "Falha na detecção de vivacidade",
+		"liveness_error_message": "A verificação de vivacidade falhou com o seguinte erro:<br><strong>{{error}}</strong><br>Você quer tentar novamente?",
 		"loading_stream": "Carregando Câmera"
 	},
 	"results": {
 		"selfie": "Selfie",
-		"liveness_and_match": "Resultados de Autenticidade e Correspondência",
-		"match_score": "Pontuação de correspondência",
-		"liveness_score": "Pontuação de autenticidade",
-		"passed": "Aprovado",
-		"min_score": "Pontuação mínima",
-		"score": "Pontuação de correspondência"
+		"liveness_and_match": "Resultados de Vivacidade e Correspondência",
+		"match_score": "Pontuação de Correspondência",
+		"liveness_score": "Pontuação de Vivacidade",
+		"passed": "Vivacidade aprovada",
+		"min_score": "Pontuação Mínima",
+		"score": "Pontuação de Correspondência"
 	}
 }
