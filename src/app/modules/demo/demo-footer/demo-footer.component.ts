@@ -9,6 +9,6 @@ import { TranslocoModule } from "@ngneat/transloco";
 	templateUrl: "./demo-footer.component.html",
 	styleUrls: ["./demo-footer.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, CommonModule, DemoFooterComponent],
+	imports: [FlexLayoutModule, CommonModule, DemoFooterComponent, TranslocoModule],
 })
 export class DemoFooterComponent {}

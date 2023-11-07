@@ -1,15 +1,9 @@
-<div fxLayout="column" fxLayoutAlign="center center" class="bg-white rounded-lg shadow-lg m-5 p-4 items-center w-full h-full">
-	<!-- it doesnt have permissions -->
-	<div *ngIf="!hasCameraPermissions && !loadingCamera" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
-		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
-
-		<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
-
-		<p class="mt-4">
-			{{ "id_scanning.camera_not_found_description" | transloco }}
-		</p>
-	</div>
-
+<div
+	fxLayout="column"
+	fxLayoutAlign="center center"
+	class="bg-white rounded-lg shadow-lg m-5 p-4 items-center"
+	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera"
+>
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full h-full">
 		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
 			<div class="relative" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
@@ -37,39 +31,49 @@
 				</button>
 			</div>
 		</div>
-
-		<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
-			<img src="https://cdn.verifik.co/demo/failedtodetectdocument@3x.png" alt="" class="id-scanning-failed-document-img" />
-
-			<h1 class="mt-4">{{ "id_scanning.document_not_detected" | transloco }}</h1>
-
-			<p class="mt-4">{{ "id_scanning.document_not_detected_description" | transloco }}</p>
-
-			<p class="mt-4">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
-
-			<button
-				mat-raised-button
-				color="primary"
-				class="mt-4 z-index-2 id-scanning-try-again-button"
-				(click)="tryAgain(true)"
-				[disabled]="attempts >= attemptsLimit"
-			>
-				{{ "id_scanning.retry" | transloco }}
-			</button>
-
-			<!-- <button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="continue()">Fake Continue</button> -->
-		</div>
-
-		<div *ngIf="failedToDetectDocument && !(attemptsLimit - attempts)" fxLayout="column" fxLayoutAlign="center center">
-			<img src="https://cdn.verifik.co/demo/redstop.svg" alt="" class="id-scanning-failed-document-img" />
-
-			<h1 class="mt-4">{{ "id_scanning.failed_to_detect_limit" | transloco }}</h1>
-
-			<p class="mt-4">{{ "id_scanning.failed_to_detect_limit_description" | transloco }}</p>
-
-			<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="restartDemo()">
-				{{ "restart" | transloco }}
-			</button>
-		</div>
 	</div>
+</div>
+
+<!-- it doesnt have permissions -->
+<div
+	*ngIf="!failedToDetectDocument && !hasCameraPermissions && !loadingCamera"
+	fxLayout="column"
+	fxLayoutAlign="center center"
+	class="id-scanning-error-div"
+>
+	<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
+
+	<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+
+	<p class="mt-4">
+		{{ "id_scanning.camera_not_found_description" | transloco }}
+	</p>
+</div>
+
+<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
+	<img
+		[src]="attemptsLimit - attempts > 0 ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png' : 'https://cdn.verifik.co/demo/redstop.svg'"
+		alt=""
+		class="id-scanning-failed-document-img"
+	/>
+
+	<h1 class="mt-4">
+		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
+	</h1>
+
+	<p class="mt-4">
+		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description") | transloco
+		}}
+	</p>
+
+	<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
+
+	<button
+		mat-raised-button
+		color="primary"
+		class="mt-4 z-index-2 id-scanning-try-again-button"
+		(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
+	>
+		{{ (failedToDetectDocument ? "id_scanning.retry" : "restart") | transloco }}
+	</button>
 </div>

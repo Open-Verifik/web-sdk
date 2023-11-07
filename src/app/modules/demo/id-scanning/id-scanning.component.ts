@@ -64,6 +64,8 @@ export class IdScanningComponent implements OnInit {
 	startCamera() {
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 			this.loadingCamera = true;
+			
+			this.demoData.loading = true;
 			this._splashScreenService.show();
 
 			navigator.mediaDevices
@@ -92,6 +94,7 @@ export class IdScanningComponent implements OnInit {
 						this.videoElement.nativeElement.srcObject = stream;
 
 						this.drawRect(canvas.getContext("2d"));
+						this.demoData.loading = false;
 						this._splashScreenService.hide();
 					}, 1000);
 				})
@@ -99,6 +102,7 @@ export class IdScanningComponent implements OnInit {
 					console.error("Error accessing the camera:", error);
 					this.loadingCamera = false;
 					this.hasCameraPermissions = false;
+					this.demoData.loading = false;
 					this._splashScreenService.hide();
 				});
 		} else {
@@ -130,8 +134,6 @@ export class IdScanningComponent implements OnInit {
 
 		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe(
 			(response) => {
-				this._splashScreenService.hide();
-
 				this._demoService.setDemoDocument(response.data);
 
 				localStorage.setItem("documentId", response.data._id);
@@ -139,14 +141,17 @@ export class IdScanningComponent implements OnInit {
 				const canvasResult = this.canvasResultRef.nativeElement;
 
 				localStorage.setItem("idCard", canvasResult.toDataURL("image/jpeg"));
+				
+				this.demoData.loading = false;
+				this._splashScreenService.hide();
 
 				this._demoService.moveToStep(3);
 
-				this.demoData.loading = false;
 			},
 			(err) => {
-				this._splashScreenService.hide();
 				this.failedToDetectDocument = true;
+				this.demoData.loading = false;
+				this._splashScreenService.hide();
 			}
 		);
 	}
@@ -177,8 +182,6 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	async takePicture() {
-		this.stopRecord();
-
 		const canvasResult = this.canvasResultRef.nativeElement;
 		const context = canvasResult.getContext("2d");
 
@@ -195,6 +198,6 @@ export class IdScanningComponent implements OnInit {
 
 		this._changeDetectorRef.markForCheck();
 
-		// await this.continue();
+		this.stopRecord();
 	}
 }

@@ -47,6 +47,7 @@ export class DemoRootComponent implements OnInit {
 	constructor(private _demoService: DemoService, private _splashScreenService: FuseSplashScreenService) {
 		this.demoData = {};
 
+		this.demoData.loading = true;
 		this._splashScreenService.show();
 
 		this.navigation = this._demoService.getNavigation();
@@ -66,9 +67,8 @@ export class DemoRootComponent implements OnInit {
 
 			this._demoService.moveToStep(this.step);
 
-			this._splashScreenService.hide();
-
 			this.demoData.loading = false;
+			this._splashScreenService.hide();
 
 			return;
 		}
@@ -76,7 +76,6 @@ export class DemoRootComponent implements OnInit {
 		this._demoService.cleanVariables();
 
 		this.requirementsLoaded = true;
-
 		this._splashScreenService.hide();
 	}
 

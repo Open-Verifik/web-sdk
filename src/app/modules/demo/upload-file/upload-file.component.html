@@ -37,14 +37,30 @@
 	</button>
 </div>
 
-<div fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div w-full" *ngIf="errorResult">
-	<img src="https://cdn.verifik.co/demo/failedtodetectdocument@3x.png" alt="" class="id-scanning-failed-document-img" />
+<div *ngIf="errorResult" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
+	<img
+		[src]="attemptsLimit - attempts > 0 ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png' : 'https://cdn.verifik.co/demo/redstop.svg'"
+		alt=""
+		class="id-scanning-failed-document-img"
+	/>
 
-	<h1 class="mt-4">We cant detect the document</h1>
+	<h1 class="mt-4">
+		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
+	</h1>
 
-	<p class="mt-4">Please make sure you are scanning an identity document such as an ID card or passport.</p>
+	<p class="mt-4">
+		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description") | transloco
+		}}
+	</p>
 
-	<!-- <p class="mt-4">Remaining attempts {{ attemptsLimit - attempts }}</p> -->
+	<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
 
-	<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="tryAgain()" [disabled]="attempts >= attemptsLimit">Try again</button>
+	<button
+		mat-raised-button
+		color="primary"
+		class="mt-4 z-index-2 id-scanning-try-again-button"
+		(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
+	>
+		{{ (attemptsLimit - attempts > 0 ? "id_scanning.retry" : "restart") | transloco }}
+	</button>
 </div>

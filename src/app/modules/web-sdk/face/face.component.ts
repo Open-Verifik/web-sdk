@@ -93,7 +93,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.osInfo = this.detectOS();
 
 		this.demoData = this._demoService.getDemoData();
-
+		
+		this.demoData.loading = true;
 		this._splashScreenService.show();
 
 		this.listenModeDebug();
@@ -140,9 +141,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		await this.startAsyncVideo();
 
-		this._splashScreenService.hide();
-
 		this.demoData.loading = false;
+		this._splashScreenService.hide();
 	}
 
 	async restart(): Promise<void> {
@@ -516,7 +516,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		if (this.loadingResults) return;
 
 		this.demoData.loading = true;
-
 		this._splashScreenService.show();
 
 		this.loadingResults = true;
@@ -539,6 +538,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 				});
 			},
 			(error) => {
+				this.demoData.loading = false;
 				this._splashScreenService.hide();
 				this.retryLivenessModal(error.error?.message);
 			}
@@ -555,7 +555,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this._demoService.moveToStep(5);
 
 				this.demoData.loading = false;
-
 				this._splashScreenService.hide();
 			},
 			(error) => {}

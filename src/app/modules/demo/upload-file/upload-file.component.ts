@@ -60,7 +60,12 @@ export class UploadFileComponent {
 		this.attempts++;
 	}
 
+	restartDemo(): void {
+		this._demoService.moveToStep(1);
+	}
+
 	continue(): void {
+		this.demoData.loading = true;
 		this._splashScreenService.show();
 
 		const body = {
@@ -77,12 +82,14 @@ export class UploadFileComponent {
 
 				this._demoService.moveToStep(3);
 				
+				this.demoData.loading = false;
 				this._splashScreenService.hide();
 
 				this.dialogRef.close();
 			},
 			(err) => {
 				this.errorResult = true;
+				this.demoData.loading = false;
 				this._splashScreenService.hide();
 			}
 		);
