@@ -1,5 +1,5 @@
 export const environment = {
 	production: false,
 	baseUrl: "/",
-	apiUrl: "https://sandbox-api.verifik.co",
+	apiUrl: "http://localhost:3001",
 };

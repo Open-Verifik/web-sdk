@@ -19,6 +19,7 @@ export class IdScanningComponent implements OnInit {
 	@ViewChild("videoElement") videoElement: ElementRef;
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
+	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
 
 	hasCameraPermissions: boolean;
 	loadingCamera: boolean;
@@ -31,11 +32,9 @@ export class IdScanningComponent implements OnInit {
 	HEIGHT: number;
 	WIDTH: number;
 	aspectRatio = 85.6 / 53.98;
-	y: number;
-	x: number;
-	rectHeight: number;
-	rectWidth: number;
+	rectCredential: any;
 	base64Images: any;
+	video: any;
 
 	constructor(
 		private _demoService: DemoService,
@@ -53,24 +52,26 @@ export class IdScanningComponent implements OnInit {
 		this.failedToDetectDocument = false;
 
 		this.base64Images = undefined;
+
+		this.video = {};
+		this.rectCredential = {};
 	}
 
 	ngOnInit(): void {
 		this.demoData = this._demoService.getDemoData();
-
 		this.startCamera();
 	}
 
 	startCamera() {
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 			this.loadingCamera = true;
-			
+
 			this.demoData.loading = true;
 			this._splashScreenService.show();
 
 			navigator.mediaDevices
 				.getUserMedia({
-					video: { height: 720 },
+					video: { facingMode: this.demoData.isMobile ? "environment" : "user", height: 720 },
 					audio: false,
 				})
 				.then((stream) => {
@@ -83,20 +84,27 @@ export class IdScanningComponent implements OnInit {
 
 					// Access the width and height properties
 					const { width, height } = settings;
-					this.HEIGHT = height;
-					this.WIDTH = width;
+					alert(`${width} x ${height}`);
+					this.video.height = height;
+					this.video.width = width;
 
 					setTimeout(() => {
-						const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
-						canvas.height = this.HEIGHT;
-						canvas.width = this.WIDTH;
-
 						this.videoElement.nativeElement.srcObject = stream;
-						this.videoElement.nativeElement.style.transform = "scaleX(-1)";
+						if (!this.demoData.isMobile) {
+							this.videoElement.nativeElement.style.transform = "scaleX(-1)";
+						}
+						setTimeout(() => {
+							this.HEIGHT = this.videoElement.nativeElement.clientHeight;
+							this.WIDTH = this.videoElement.nativeElement.clientWidth;
 
-						this.drawRect(canvas.getContext("2d"));
-						this.demoData.loading = false;
-						this._splashScreenService.hide();
+							const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
+							canvas.height = this.HEIGHT;
+							canvas.width = this.WIDTH;
+
+							this.drawRect(canvas.getContext("2d"));
+							this.demoData.loading = false;
+							this._splashScreenService.hide();
+						}, 1000);
 					}, 1000);
 				})
 				.catch((error) => {
@@ -142,12 +150,11 @@ export class IdScanningComponent implements OnInit {
 				const canvasResult = this.canvasResultRef.nativeElement;
 
 				localStorage.setItem("idCard", canvasResult.toDataURL("image/jpeg"));
-				
+
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
 
 				this._demoService.moveToStep(3);
-
 			},
 			(err) => {
 				this.failedToDetectDocument = true;
@@ -166,14 +173,28 @@ export class IdScanningComponent implements OnInit {
 		ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 		ctx.globalCompositeOperation = "destination-out";
 
-		this.y = Math.floor(this.HEIGHT * 0.1);
-		this.rectHeight = Math.floor(this.HEIGHT * 0.8);
-		this.rectWidth = Math.floor(this.aspectRatio * this.rectHeight);
-		this.x = Math.floor((this.WIDTH - this.rectWidth) / 2);
+		const isHorizontal = this.video.height < this.video.width;
+
+		this.setDimensions(isHorizontal, this.HEIGHT, this.WIDTH, this.rectCredential);
+		this.setDimensions(isHorizontal, this.video.height, this.video.width, this.video);
 
 		ctx.fillStyle = "rgba(0, 0, 0, 1)";
-		ctx.fillRect(this.x, this.y, this.rectWidth, this.rectHeight);
+		ctx.fillRect(this.rectCredential.x, this.rectCredential.y, this.rectCredential.rectWidth, this.rectCredential.rectHeight);
 		ctx.globalCompositeOperation = "source-over";
+	}
+
+	setDimensions(isHorizontal, height, width, data) {
+		if (isHorizontal) {
+			data.y = Math.floor(height * 0.1);
+			data.rectHeight = Math.floor(height * 0.8);
+			data.rectWidth = Math.floor(this.aspectRatio * data.rectHeight);
+			data.x = Math.floor((width - data.rectWidth) / 2);
+		} else {
+			data.x = Math.floor(width * 0.1);
+			data.rectWidth = Math.floor(width * 0.8);
+			data.rectHeight = Math.floor(this.aspectRatio * data.rectWidth);
+			data.y = Math.floor((height - data.rectHeight) / 2);
+		}
 	}
 
 	stopRecord(): void {
@@ -183,22 +204,43 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	async takePicture() {
+		const canvasToSend = this.canvasToSendRef.nativeElement;
 		const canvasResult = this.canvasResultRef.nativeElement;
-		const context = canvasResult.getContext("2d");
 
-		canvasResult.width = this.rectWidth;
-		canvasResult.height = this.rectHeight;
-		canvasResult.style.marginLeft = `${this.x}px`;
-		canvasResult.style.marginTop = `${this.y}px`;
+		this.setPictureInCavas(canvasResult, this.rectCredential, this.video);
+		this.setPictureInCavas(canvasToSend, this.video);
 
-		context.drawImage(this.videoElement.nativeElement, this.x, this.y, this.rectWidth, this.rectHeight, 0, 0, this.rectWidth, this.rectHeight);
-
-		const base64Image = canvasResult.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
+		const base64Image = canvasToSend.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
 
 		this.base64Images = base64Image;
 
 		this._changeDetectorRef.markForCheck();
 
 		this.stopRecord();
+	}
+
+	setPictureInCavas(canvas, dimensions, dimensionsOriginals?) {
+		const context = canvas.getContext("2d");
+
+		canvas.width = dimensions.rectWidth;
+		canvas.height = dimensions.rectHeight;
+		canvas.style.marginLeft = `${dimensions.x}px`;
+		canvas.style.marginTop = `${dimensions.y}px`;
+
+		if (!dimensionsOriginals) {
+			dimensionsOriginals = { x: dimensions.x, y: dimensions.y, rectWidth: dimensions.rectWidth, rectHeight: dimensions.rectHeight };
+		}
+
+		context.drawImage(
+			this.videoElement.nativeElement,
+			dimensionsOriginals.x,
+			dimensionsOriginals.y,
+			dimensionsOriginals.rectWidth,
+			dimensionsOriginals.rectHeight,
+			0,
+			0,
+			dimensions.rectWidth,
+			dimensions.rectHeight,
+		);
 	}
 }

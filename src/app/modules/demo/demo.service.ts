@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { HttpWrapperService } from "./http-wrapper.service";
 import { environment } from "environments/environment";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 let _this = null;
 
 @Injectable({
@@ -12,7 +13,7 @@ export class DemoService {
 	demoData: any;
 	apiUrl: any;
 
-	constructor(private _httpWrapperService: HttpWrapperService) {
+	constructor(private _httpWrapperService: HttpWrapperService,private breakpointObserver: BreakpointObserver) {
 		this.apiUrl = environment.apiUrl;
 
 		this.initNavigation();
@@ -20,6 +21,13 @@ export class DemoService {
 		this.initDemoData();
 
 		_this = this;
+
+		breakpointObserver.observe([
+			Breakpoints.XSmall,
+			Breakpoints.Small,
+		  ]).subscribe(result => {
+			this.demoData.isMobile = result.matches
+		  });
 	}
 
 	getNavigation(): any {
