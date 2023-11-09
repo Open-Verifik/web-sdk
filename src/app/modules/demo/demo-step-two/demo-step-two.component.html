@@ -11,11 +11,11 @@
 	>
 		<!-- first section -->
 		<div class="w-50p upload-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center">
-			<h2 class="my-5">
+			<h2 class="title-margin">
 				{{ "step_two.file_description" | transloco }}
 			</h2>
 
-			<img src="https://cdn.verifik.co/demo/anverso2x.png" class="p-8 upload-img" alt="" />
+			<img src="https://cdn.verifik.co/demo/anverso2x.png" class="upload-img" alt="" />
 
 			<button mat-raised-button color="primary" class="mb-5" (click)="openUploadFile()">
 				{{ "step_two.file" | transloco }}
@@ -24,11 +24,11 @@
 		<!-- end of first section -->
 
 		<div class="w-50p scan-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="center center">
-			<h2 class="my-5">
+			<h2 class="title-margin">
 				{{ "step_two.manual_description" | transloco }}
 			</h2>
 
-			<img src="https://cdn.verifik.co/demo/scan2x.png" alt="" class="p-8 scan-img" />
+			<img src="https://cdn.verifik.co/demo/scan2x.png" alt="" class="scan-img" />
 			<button mat-raised-button color="primary" class="mb-5" (click)="openCamera()">
 				{{ "step_two.manual" | transloco }}
 			</button>
