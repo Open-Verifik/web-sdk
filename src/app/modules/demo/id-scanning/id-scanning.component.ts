@@ -71,7 +71,11 @@ export class IdScanningComponent implements OnInit {
 
 			navigator.mediaDevices
 				.getUserMedia({
-					video: { facingMode: this.demoData.isMobile ? "environment" : "user", height: 720 },
+					video: {
+						facingMode: this.demoData.isMobile ? "environment" : "user",
+						width: { ideal: 4096 },
+						height: { ideal: 2160 },
+					},
 					audio: false,
 				})
 				.then((stream) => {
@@ -84,7 +88,7 @@ export class IdScanningComponent implements OnInit {
 
 					// Access the width and height properties
 					const { width, height } = settings;
-					alert(`${width} x ${height}`);
+
 					this.video.height = height;
 					this.video.width = width;
 
@@ -104,8 +108,8 @@ export class IdScanningComponent implements OnInit {
 							this.drawRect(canvas.getContext("2d"));
 							this.demoData.loading = false;
 							this._splashScreenService.hide();
-						}, 1000);
-					}, 1000);
+						}, 300);
+					}, 300);
 				})
 				.catch((error) => {
 					console.error("Error accessing the camera:", error);
@@ -240,7 +244,7 @@ export class IdScanningComponent implements OnInit {
 			0,
 			0,
 			dimensions.rectWidth,
-			dimensions.rectHeight,
+			dimensions.rectHeight
 		);
 	}
 }
