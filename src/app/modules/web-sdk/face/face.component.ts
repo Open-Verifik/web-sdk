@@ -160,29 +160,28 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.down.crossOrigin = "anonymous";
 		this.down.src = "https://cdn.verifik.co/web-sdk/images/down.png";
 
-		await faceapi.nets.ssdMobilenetv1.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.faceLandmark68Net.loadFromUri("https://cdn.verifik.co/web-sdk/models");
+		await faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models");
+		await faceapi.nets.tinyFaceDetector.loadFromUri("assets/models");
+		await faceapi.nets.faceLandmark68Net.loadFromUri("assets/models");
 		// await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		// await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		// await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await this.detectFaceBiggest(0.7);
 
 		this.loadingModel = false;
 	}
 
-	async detectFaceBiggest(scoreThreshold) {
+	async detectFaceBiggest(minConfidence) {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
 
-		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions({ scoreThreshold })).withFaceLandmarks();
+		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
 		// .withFaceExpressions();
 
-		if (scoreThreshold <= 0.1) {
+		if (minConfidence <= 0.1) {
 			return;
 		}
 
 		if (!detections.length) {
-			this.detectFaceBiggest(scoreThreshold - 0.1);
+			this.detectFaceBiggest(minConfidence - 0.1);
 			return;
 		}
 
@@ -198,10 +197,10 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 
 		const position = faceBigest.box; // Object with x, y, width, height
-		const width = Math.ceil(position.width) * 1.2;
-		const height = Math.ceil(position.height) * 1.4;
-		const sx = Math.floor(position.x);
-		const sy = Math.floor(position.y) - (height - position.height);
+		const width = Math.ceil(position.width * 1.4);
+		const height = Math.ceil(position.height * 1.6);
+		const sx = Math.floor(position.x) - position.width * 0.2;
+		const sy = Math.floor(position.y) - position.height * 0.3;
 
 		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
 		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
@@ -223,6 +222,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 				},
 				audio: false,
 			});
+			this.detectFaceBiggest(0.9);
 
 			this.videoInput = this.video.nativeElement as HTMLVideoElement;
 			this.videoInput.srcObject = this.stream;
@@ -279,30 +279,33 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async detectFaces() {
 		await this.setConfigCanvas();
 
-		this.detectFaceInterval = setInterval(async () => {
-			const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-			// .withFaceExpressions()
-			// .withAgeAndGender();
+		this.detectFaceInterval = setInterval(
+			async () => {
+				const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+				// .withFaceExpressions()
+				// .withAgeAndGender();
 
-			const context = this.canvas.getContext("2d");
+				const context = this.canvas.getContext("2d");
 
-			if (detection.length > 0) {
-				this.lastFace = detection[0];
-				this.errorFace = null;
+				if (detection.length > 0) {
+					this.lastFace = detection[0];
+					this.errorFace = null;
 
-				this.drawFaceAndCenter(detection, context);
-				this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
-				this.isFaceClose(this.lastFace.landmarks);
+					this.drawFaceAndCenter(detection, context);
+					this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
+					this.isFaceClose(this.lastFace.landmarks);
 
-				this.drawStatusOval(context, !this.errorFace?.title);
+					this.drawStatusOval(context, !this.errorFace?.title);
 
-				if (!this.errorFace) {
-					this.captureBase64Image();
+					if (!this.errorFace) {
+						this.captureBase64Image();
+					}
 				}
-			}
 
-			this._changeDetectorRef.markForCheck();
-		},  this.demoData.isMobile ? 500: 300);
+				this._changeDetectorRef.markForCheck();
+			},
+			this.demoData.isMobile ? 500 : 300
+		);
 	}
 
 	manualCapture(): void {
@@ -446,7 +449,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const totalImageArea = 4 * this.OVAL.radiusX * this.videoInput.height;
 		const faceProportion = totalFaceArea / totalImageArea;
 
-		const threshold = 0.25;
+		const threshold = this.demoData.isMobile ? 0.5 : 0.25;
 
 		if (faceProportion < threshold) {
 			this.errorFace = {
@@ -589,7 +592,13 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 				this._demoService.moveToStep(5);
 			},
-			(error) => {}
+			(error) => {
+				this.demoData.loading = false;
+				this._splashScreenService.hide();
+				// alert(`_compareWithDocument: ${JSON.stringify(error)}`);
+
+				// this.retryLivenessModal(error.error?.message);
+			}
 		);
 	}
 

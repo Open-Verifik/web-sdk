@@ -1,3 +1,6 @@
+<canvas #credentialCanvas hidden="true"></canvas>
+<img id="credential" [src]="idCardImage" hidden="true"/>
+
 <div fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 w-full">
 	<div fxLayout="column" fxLayoutAlign="center center" class="justify-center w-full" *ngIf="!loadingModel" >
 		<div fxLayout="column" fxLayoutAlign="center center" class="justify-center text-center h-20 my-2">
@@ -17,5 +20,3 @@
 		</div>
 	</div>
 </div>
-<canvas #credentialCanvas hidden="true"></canvas>
-<img id="credential" [src]="idCardImage" hidden="true"/>
