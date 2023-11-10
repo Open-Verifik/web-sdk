@@ -1,6 +1,6 @@
-<div class="min-h-[900px] flex flex-col items-center justify-center p-8 w-full">
-	<div class="flex flex-col items-center justify-center w-full" *ngIf="!loadingModel" >
-		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
+<div fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 w-full">
+	<div fxLayout="column" fxLayoutAlign="center center" class="justify-center w-full" *ngIf="!loadingModel" >
+		<div fxLayout="column" fxLayoutAlign="center center" class="justify-center text-center h-20 my-2">
 			<div *ngIf="errorFace && !loadingResults">
 				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
 				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
@@ -9,7 +9,7 @@
 
 		<div class="relative w-full" [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT }">
 			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
-				<video #video autoplay class="absolute top-0 left-0 oval-video max-h-[75vh]" [class.hidden]="base64Image"></video>
+				<video #video autoplay class="absolute top-0 left-0 oval-video w-full max-h-[85vh]" [class.hidden]="base64Image"></video>
 				<div #canvas class="absolute top-0 left-0 oval-video" [class.hidden]="base64Image"></div>
 				<canvas #result class="absolute top-0 left-0 oval-video" [class.hidden]="!base64Image"></canvas>
 				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>

@@ -223,7 +223,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				video: {
 					facingMode: "user",
-					height: { ideal: 1080 },
 				},
 				audio: false,
 			});
@@ -231,9 +230,10 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.videoInput = this.video.nativeElement as HTMLVideoElement;
 			this.videoInput.srcObject = this.stream;
 
-			// if (!this.demoData.isMobile) {
+			if (!this.demoData.isMobile) {
 				this.videoInput.style.transform = "scaleX(-1)";
-			// }
+				this.canvasRef.nativeElement.style.transform = "scaleX(-1)";
+			}
 
 			const videoTrack = this.stream.getVideoTracks()[0];
 			const settings = videoTrack.getSettings();
