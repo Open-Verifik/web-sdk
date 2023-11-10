@@ -197,10 +197,10 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 
 		const position = faceBigest.box; // Object with x, y, width, height
-		const width = Math.ceil(position.width * 1.4);
-		const height = Math.ceil(position.height * 1.6);
-		const sx = Math.floor(position.x) - position.width * 0.2;
-		const sy = Math.floor(position.y) - position.height * 0.3;
+		const width = Math.ceil(position.width * 2);
+		const height = Math.ceil(position.height * 2);
+		const sx = Math.floor(position.x) - position.width * 0.5;
+		const sy = Math.floor(position.y) - position.height * 0.5;
 
 		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
 		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
@@ -595,7 +595,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			(error) => {
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
-				// alert(`_compareWithDocument: ${JSON.stringify(error)}`);
+				alert(`_compareWithDocument: ${JSON.stringify(error)}`);
 
 				// this.retryLivenessModal(error.error?.message);
 			}
