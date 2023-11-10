@@ -1,4 +1,5 @@
 {
+	"footerText": "Verifik © 2023 Produkto ng MAT Enterprises",
 	"go_back": "Bumalik",
 	"restart": "I-restart ang demo",
 	"continue": "Magpatuloy",
@@ -55,6 +56,7 @@
 		"documentNumber": "Numero ng Dokumento",
 		"firstName": "Pangalan",
 		"lastName": "Apelyido",
+		"secondLastName": "Ikalawang Apelyido",
 		"fullName": "Buong Pangalan",
 		"nationality": "Nasyonalidad",
 		"gender": "Kasarian",

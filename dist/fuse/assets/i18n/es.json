@@ -1,4 +1,5 @@
 {
+	"footerText": "Verifik © 2023 Producto de MAT Enterprises",
 	"go_back": "Regresar",
 	"restart": "Reiniciar demostración",
 	"continue": "Continuar",
@@ -55,6 +56,7 @@
 		"documentNumber": "Número de documento",
 		"firstName": "Nombre",
 		"lastName": "Apellido",
+		"secondLastName": "Segundo Apellido",
 		"fullName": "Nombre completo",
 		"nationality": "Nacionalidad",
 		"gender": "Género",

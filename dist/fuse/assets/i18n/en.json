@@ -1,5 +1,5 @@
 {
-	"footerText": "Verifik © 2023 Product of MAT Enterprises", 
+	"footerText": "Verifik © 2023 Product of MAT Enterprises",
 	"go_back": "Go back",
 	"restart": "Restart demo",
 	"continue": "Continue",
@@ -56,6 +56,7 @@
 		"documentNumber": "Document number",
 		"firstName": "First name",
 		"lastName": "Last name",
+		"secondLastName": "Second Last Name",
 		"fullName": "Full name",
 		"nationality": "Nationality",
 		"gender": "Gender",

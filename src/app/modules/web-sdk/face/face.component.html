@@ -1,14 +1,5 @@
 <div class="w-full min-h-[900px] flex flex-col items-center justify-center p-8">
-	<!-- <div *ngIf="loadingModel" class="scan">
-		<div class="face">
-			<div class="dots"></div>
-		</div>
-		<div class="w-full flex items-center justify-center my-4">
-			<h1 class="text-3xl font-bold">{{ "liveness.loading_stream" | transloco }}</h1>
-		</div>
-	</div> -->
-
-	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center">
+	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center w-full">
 		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
 			<div *ngIf="errorFace && !loadingResults">
 				<div class="text-3xl font-bold">{{ errorFace.title }}</div>

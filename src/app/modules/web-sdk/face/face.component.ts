@@ -78,6 +78,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	right: HTMLImageElement;
 	up: HTMLImageElement;
 	down: HTMLImageElement;
+	videoDimensions: any;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
@@ -93,7 +94,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.osInfo = this.detectOS();
 
 		this.demoData = this._demoService.getDemoData();
-		
+
 		this.demoData.loading = true;
 		this._splashScreenService.show();
 
@@ -140,9 +141,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.errorFace = null;
 
 		await this.startAsyncVideo();
-
-		this.demoData.loading = false;
-		this._splashScreenService.hide();
 	}
 
 	async restart(): Promise<void> {
@@ -181,8 +179,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			.withFaceLandmarks()
 			.withFaceExpressions();
 
-
-		if (scoreThreshold <= 0.1){
+		if (scoreThreshold <= 0.1) {
 			return;
 		}
 
@@ -222,7 +219,10 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
-				video: { height: 720 },
+				video: {
+					width: { ideal: 4096 },
+					height: { ideal: 2160 },
+				},
 				audio: false,
 			});
 
@@ -236,37 +236,42 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 				const videoTrack = this.stream.getVideoTracks()[0];
 				const settings = videoTrack.getSettings();
-
 				// Access the width and height properties
 				const { width, height } = settings;
-				this.HEIGHT = height;
-				this.WIDTH = width;
-
-				this.videoCenterX = this.WIDTH / 2;
-				this.videoCenterY = this.HEIGHT / 2;
-
-				this.marginY = this.HEIGHT * 0.04;
-				this.marginX = this.marginY * 0.8;
-
-				this.OVAL.radiusY = (this.HEIGHT * 0.85) / 2;
-				this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
 
 				this.videoInput = this.video.nativeElement as HTMLVideoElement;
-
 				this.videoInput.srcObject = this.stream;
 				this.videoInput.style.transform = "scaleX(-1)";
+				
+				this.videoDimensions = { height, width };
 
+				setTimeout(() => {
+					this.HEIGHT = height;
+					this.WIDTH = width;
 
-				this.displaySize = {
-					width: this.WIDTH,
-					height: this.HEIGHT,
-				};
+					this.videoCenterX = this.WIDTH / 2;
+					this.videoCenterY = this.HEIGHT / 2;
 
-				this.videoInput.addEventListener("play", async () => {
+					this.marginY = this.HEIGHT * 0.04;
+					this.marginX = this.marginY * 0.8;
+
+					this.OVAL.radiusY = (this.HEIGHT * 0.85) / 2;
+					this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
+
+					this.displaySize = {
+						width: this.WIDTH,
+						height: this.HEIGHT,
+					};
+
 					this.detectFaces();
-				});
 
-				this._changeDetectorRef.markForCheck();
+					this.demoData.loading = false;
+					this._splashScreenService.hide();
+
+
+					this._changeDetectorRef.markForCheck();
+					alert(`${this.HEIGHT} X ${this.WIDTH} ========== ${height} X ${width}`);
+				}, 300);
 			}, 300);
 		} catch (error) {
 			alert(`${error.message}`);
@@ -478,8 +483,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async takePicture() {
-		this.stopRecord();
-
 		const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
 		const widthCut = 2.8 * this.OVAL.radiusX;
 
@@ -498,6 +501,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const base64Image = this.canvasResult.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
 
 		this.base64Images.push(base64Image);
+
+		this.stopRecord();
 
 		await this.liveness();
 	}
@@ -531,6 +536,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			(liveness) => {
 				this.errorResult = null;
 
+				this.demoData.loading = false;
 				this._demoService.setDemoLiveness(liveness.data);
 
 				this._compareWithDocument({
@@ -555,9 +561,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this._demoService.setDemoCompare(compareResponse.data);
 
 				this._demoService.moveToStep(5);
-
-				this.demoData.loading = false;
-				this._splashScreenService.hide();
 			},
 			(error) => {}
 		);
@@ -603,6 +606,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 				// pantalla de error
 			});
 	}
+
 	completeResults() {
 		this.errorFace = null;
 		this.loadingResults = false;
@@ -611,6 +615,13 @@ export class FaceComponent implements OnInit, OnDestroy {
 		if (!this.errorResult) {
 			this.stopRecord();
 		}
+
+		if (this.saveImageBase64Intent) {
+			this.saveImageBase64Intent = clearTimeout(this.saveImageBase64Intent);
+		}
+
+		this.demoData.loading = false;
+		this._splashScreenService.hide();
 
 		this._changeDetectorRef.markForCheck();
 	}
