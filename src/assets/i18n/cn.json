@@ -1,4 +1,5 @@
 {
+	"footerText": "Verifik © 2023 由MAT企业制作",
 	"go_back": "返回",
 	"restart": "重新开始演示",
 	"continue": "继续",
@@ -55,6 +56,7 @@
 		"documentNumber": "文件编号",
 		"firstName": "名字",
 		"lastName": "姓氏",
+		"secondLastName": "第二姓氏",
 		"fullName": "全名",
 		"nationality": "国籍",
 		"gender": "性别",

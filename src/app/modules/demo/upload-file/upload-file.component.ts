@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -7,7 +7,8 @@ import { DemoService } from "../demo.service";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-
+import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
+import { Subject, takeUntil } from "rxjs";
 @Component({
 	selector: "app-upload-file",
 	standalone: true,
@@ -15,21 +16,36 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 	templateUrl: "./upload-file.component.html",
 	styleUrls: ["./upload-file.component.scss"],
 })
-export class UploadFileComponent {
+export class UploadFileComponent implements OnDestroy {
 	demoData: any;
 	base64Image: any;
 	errorResult: boolean;
 	attempts: number;
 	attemptsLimit: number;
+	phoneMode: boolean;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
 	constructor(
 		private _demoService: DemoService,
 		private dialogRef: MatDialogRef<UploadFileComponent>,
-		private _splashScreenService: FuseSplashScreenService
+		private _splashScreenService: FuseSplashScreenService,
+		private mediaService: FuseMediaWatcherService
 	) {
 		this.demoData = this._demoService.getDemoData();
 		this.attempts = 0;
 		this.attemptsLimit = 1;
+		this.mediaService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe((result) => {
+			result.matchingAliases;
+			this.phoneMode = Boolean(
+				!result.matchingAliases.includes("lg") && !result.matchingAliases.includes("md") && !result.matchingAliases.includes("sm")
+			);
+			console.log(this.phoneMode);
+		});
+	}
+
+	ngOnDestroy(): void {
+		// Unsubscribe from all subscriptions
+		this._unsubscribeAll.complete();
 	}
 
 	onFileDropped($event) {
@@ -82,7 +98,7 @@ export class UploadFileComponent {
 				localStorage.setItem("documentId", response.data._id);
 
 				this._demoService.moveToStep(3);
-				
+
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
 
