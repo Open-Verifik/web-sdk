@@ -136,9 +136,15 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.loadingResults = false;
 		this.base64Image = null;
 
-		await this.loadModels();
+		await this.loadImages();
 
-		await this.startAsyncVideo();
+		this._demoService.faceapi$.subscribe(async (isLoaded) => {
+			this.loadingModel = !isLoaded;
+
+			if(isLoaded){
+				await this.startAsyncVideo();
+			}
+		});
 	}
 
 	async restart(): Promise<void> {
@@ -146,7 +152,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await this.startAsyncVideo();
 	}
 
-	async loadModels(): Promise<void> {
+	async loadImages(): Promise<void> {
 		this.left = new Image();
 		this.left.crossOrigin = "anonymous";
 		this.left.src = "https://cdn.verifik.co/web-sdk/images/left.png";
@@ -159,20 +165,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.down = new Image();
 		this.down.crossOrigin = "anonymous";
 		this.down.src = "https://cdn.verifik.co/web-sdk/images/down.png";
-
-		await faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models");
-		await faceapi.nets.tinyFaceDetector.loadFromUri("assets/models");
-		await faceapi.nets.faceLandmark68Net.loadFromUri("assets/models");
-		await faceapi.nets.faceRecognitionNet.loadFromUri("assets/models");
-		// await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		// await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-
-		this.loadingModel = false;
 	}
 
 	async detectFaceBiggest(minConfidence) {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
-		
+
 		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
 		// .withFaceExpressions();
 
@@ -196,18 +193,17 @@ export class FaceComponent implements OnInit, OnDestroy {
 			}
 		}
 
-
 		const position = faceBigest.box; // Object with x, y, width, height
-		let width = Math.ceil(position.width * 2);
-		let height = Math.ceil(position.height * 2);
-		let sx = Math.floor(position.x) - position.width * 0.5;
-		let sy = Math.floor(position.y) - position.height * 0.5;
+		let width = Math.ceil(position.width * 3);
+		let height = Math.ceil(position.height * 3);
+		let sx = Math.floor(position.x) - position.width ;
+		let sy = Math.floor(position.y) - position.height;
 
-		if(width > credentialImage.naturalWidth){
-			width = credentialImage.naturalWidth
-			height = credentialImage.naturalHeight
-			sx = 0
-			sy = 0
+		if (width > credentialImage.naturalWidth) {
+			width = credentialImage.naturalWidth;
+			height = credentialImage.naturalHeight;
+			sx = 0;
+			sy = 0;
 		}
 
 		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
@@ -261,11 +257,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 					this.marginY = this.HEIGHT * 0.04;
 					this.marginX = this.marginY * 0.8;
 
-					this.OVAL.radiusY = (this.HEIGHT * 0.42);
+					this.OVAL.radiusY = this.HEIGHT * 0.42;
 					this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
 
 					if (this.OVAL.radiusX * 2 >= this.WIDTH) {
-						this.OVAL.radiusX = (this.WIDTH * 0.48) ;
+						this.OVAL.radiusX = this.WIDTH * 0.48;
 						this.OVAL.radiusY = this.OVAL.radiusX / 0.75;
 					}
 
@@ -293,7 +289,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.detectFaceInterval = setInterval(
 			async () => {
-				const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+				const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks();
 				// .withFaceExpressions()
 				// .withAgeAndGender();
 
@@ -582,9 +578,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this._demoService.setDemoLiveness(liveness.data);
 
 				this._compareWithDocument({
-					search_mode: "FAST",
+					search_mode: "ACCURATE",
 					gallery: [this.faceIdCard || this.demoData.document.url],
-					probe: [this.demoData.liveness.images[0]],
+					probe: [this.base64Image],
 				});
 			},
 			(error) => {

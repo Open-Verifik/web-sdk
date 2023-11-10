@@ -1,20 +1,26 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { HttpWrapperService } from "./http-wrapper.service";
 import { environment } from "environments/environment";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import * as faceapi from "@vladmandic/face-api";
+
 let _this = null;
 
 @Injectable({
 	providedIn: "root",
 })
 export class DemoService {
+	private _faceapi: BehaviorSubject < any > = new BehaviorSubject(null);
+
 	navigation: any;
 	demoData: any;
 	apiUrl: any;
 
-	constructor(private _httpWrapperService: HttpWrapperService,private breakpointObserver: BreakpointObserver) {
+	constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
 		this.apiUrl = environment.apiUrl;
+
+		this.loadModels();
 
 		this.initNavigation();
 
@@ -22,12 +28,28 @@ export class DemoService {
 
 		_this = this;
 
-		breakpointObserver.observe([
-			Breakpoints.XSmall,
-			Breakpoints.Small,
-		  ]).subscribe(result => {
-			this.demoData.isMobile = result.matches
-		  });
+		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
+			this.demoData.isMobile = result.matches;
+		});
+	}
+
+	get faceapi$(): Observable < boolean > {
+        return this._faceapi.asObservable();
+    }
+
+	async loadModels(): Promise<void> {
+		// const startTime = performance.now();
+		const promises = [];
+		promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
+		promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
+		await Promise.allSettled(promises)
+
+		this._faceapi.next(true)
+
+		// const endTime = performance.now();
+		// const elapsedTime = endTime - startTime;
+
+		// alert(`Function took ${elapsedTime} milliseconds to load.`);
 	}
 
 	getNavigation(): any {
@@ -158,7 +180,7 @@ export class DemoService {
 	}
 
 	restart(): void {
-		localStorage.clear()
+		localStorage.clear();
 		this.navigation.currentStep = 1;
 		localStorage.setItem("step", `${this.navigation.currentStep}`);
 	}
