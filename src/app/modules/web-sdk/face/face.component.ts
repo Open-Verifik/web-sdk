@@ -163,7 +163,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models");
 		await faceapi.nets.tinyFaceDetector.loadFromUri("assets/models");
 		await faceapi.nets.faceLandmark68Net.loadFromUri("assets/models");
-		// await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
+		await faceapi.nets.faceRecognitionNet.loadFromUri("assets/models");
 		// await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		// await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 
@@ -172,7 +172,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	async detectFaceBiggest(minConfidence) {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
-
+		
 		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
 		// .withFaceExpressions();
 
@@ -196,11 +196,19 @@ export class FaceComponent implements OnInit, OnDestroy {
 			}
 		}
 
+
 		const position = faceBigest.box; // Object with x, y, width, height
-		const width = Math.ceil(position.width * 2);
-		const height = Math.ceil(position.height * 2);
-		const sx = Math.floor(position.x) - position.width * 0.5;
-		const sy = Math.floor(position.y) - position.height * 0.5;
+		let width = Math.ceil(position.width * 2);
+		let height = Math.ceil(position.height * 2);
+		let sx = Math.floor(position.x) - position.width * 0.5;
+		let sy = Math.floor(position.y) - position.height * 0.5;
+
+		if(width > credentialImage.naturalWidth){
+			width = credentialImage.naturalWidth
+			height = credentialImage.naturalHeight
+			sx = 0
+			sy = 0
+		}
 
 		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
 		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
@@ -222,15 +230,14 @@ export class FaceComponent implements OnInit, OnDestroy {
 				},
 				audio: false,
 			});
+
 			this.detectFaceBiggest(0.9);
 
 			this.videoInput = this.video.nativeElement as HTMLVideoElement;
 			this.videoInput.srcObject = this.stream;
 
-			if (!this.demoData.isMobile) {
-				this.videoInput.style.transform = "scaleX(-1)";
-				this.canvasRef.nativeElement.style.transform = "scaleX(-1)";
-			}
+			this.videoInput.style.transform = "scaleX(-1)";
+			this.canvasRef.nativeElement.style.transform = "scaleX(-1)";
 
 			const videoTrack = this.stream.getVideoTracks()[0];
 			const settings = videoTrack.getSettings();
@@ -254,8 +261,13 @@ export class FaceComponent implements OnInit, OnDestroy {
 					this.marginY = this.HEIGHT * 0.04;
 					this.marginX = this.marginY * 0.8;
 
-					this.OVAL.radiusY = (this.HEIGHT * 0.85) / 2;
+					this.OVAL.radiusY = (this.HEIGHT * 0.42);
 					this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
+
+					if (this.OVAL.radiusX * 2 >= this.WIDTH) {
+						this.OVAL.radiusX = (this.WIDTH * 0.48) ;
+						this.OVAL.radiusY = this.OVAL.radiusX / 0.75;
+					}
 
 					this.displaySize = {
 						width: this.WIDTH,
