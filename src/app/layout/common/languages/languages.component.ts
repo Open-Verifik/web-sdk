@@ -40,10 +40,6 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 		// Get the available languages from transloco
 		this.availableLangs = this._translocoService.getAvailableLangs();
 
-		console.log({
-			availableLangs: this.availableLangs,
-		});
-
 		const currentLanguage = localStorage.getItem("currentLanguage")
 
 		if(currentLanguage){

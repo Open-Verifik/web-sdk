@@ -31,6 +31,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	@ViewChild("video", { static: false }) public video: ElementRef;
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
+	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
 	@ViewChild("credentialCanvas", { static: false }) credentialRef: ElementRef;
 	//
 	canvasEl: any;
@@ -38,11 +39,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 	canvasResult: any;
 	displaySize: any;
 	videoInput: HTMLVideoElement;
-	base64Images: any[];
+	base64Image: any;
 
 	//SIZE OF CANVAS
-	WIDTH = 720;
-	HEIGHT = 720;
+	HEIGHT: number;
+	WIDTH: number;
 	videoCenterX;
 	videoCenterY;
 	marginX;
@@ -95,9 +96,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.demoData = this._demoService.getDemoData();
 
-		this.demoData.loading = true;
-		this._splashScreenService.show();
-
 		this.listenModeDebug();
 
 		this._changeDetectorRef.markForCheck();
@@ -132,13 +130,15 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async ngOnInit(): Promise<void> {
+		this._splashScreenService.show();
+
 		this.idCardImage = localStorage.getItem("idCard");
 
-		await this.loadModels();
-
-		this.base64Images = [];
-
 		this.errorFace = null;
+		this.loadingResults = false;
+		this.base64Image = null;
+
+		await this.loadModels();
 
 		await this.startAsyncVideo();
 	}
@@ -169,6 +169,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await this.detectFaceBiggest(0.7);
+
+		this.loadingModel = false;
 	}
 
 	async detectFaceBiggest(scoreThreshold) {
@@ -220,13 +222,25 @@ export class FaceComponent implements OnInit, OnDestroy {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				video: {
+					facingMode: "user",
 					width: { ideal: 4096 },
 					height: { ideal: 2160 },
 				},
 				audio: false,
 			});
 
-			this.loadingModel = false;
+			this.videoInput = this.video.nativeElement as HTMLVideoElement;
+			this.videoInput.srcObject = this.stream;
+
+			if (!this.demoData.isMobile) {
+				this.videoInput.style.transform = "scaleX(-1)";
+			}
+
+			const videoTrack = this.stream.getVideoTracks()[0];
+			const settings = videoTrack.getSettings();
+			const { width, height } = settings;
+
+			this.videoDimensions = { height, width };
 
 			setTimeout(() => {
 				if (!this.video && !this.canvas) {
@@ -234,20 +248,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 					return;
 				}
 
-				const videoTrack = this.stream.getVideoTracks()[0];
-				const settings = videoTrack.getSettings();
-				// Access the width and height properties
-				const { width, height } = settings;
-
-				this.videoInput = this.video.nativeElement as HTMLVideoElement;
-				this.videoInput.srcObject = this.stream;
-				this.videoInput.style.transform = "scaleX(-1)";
-				
-				this.videoDimensions = { height, width };
-
 				setTimeout(() => {
-					this.HEIGHT = height;
-					this.WIDTH = width;
+					this.HEIGHT = this.videoInput.clientHeight;
+					this.WIDTH = this.videoInput.clientWidth;
 
 					this.videoCenterX = this.WIDTH / 2;
 					this.videoCenterY = this.HEIGHT / 2;
@@ -263,14 +266,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 						height: this.HEIGHT,
 					};
 
-					this.detectFaces();
-
 					this.demoData.loading = false;
 					this._splashScreenService.hide();
 
+					this.detectFaces();
 
 					this._changeDetectorRef.markForCheck();
-					alert(`${this.HEIGHT} X ${this.WIDTH} ========== ${height} X ${width}`);
 				}, 300);
 			}, 300);
 		} catch (error) {
@@ -392,13 +393,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		ctx.closePath();
 
 		if (!isOk) {
-			// let positionError = {
-			// 	x: this.videoCenterX,
-			// 	y: this.videoCenterY - this.OVAL.radiusY - 10,
-			// };
-
-			// this.drawText(ctx, this.errorFace.title, positionError.x, positionError.y);
-
 			if (this.errorFace.canvas?.includes("↑")) {
 				const startX = this.videoCenterX - 20;
 				const startY = this.videoCenterY - this.OVAL.radiusY + 10;
@@ -427,8 +421,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	isFaceCentered(nose): void {
-		const faceCenterX = nose.x;
-		const faceCenterY = nose.y;
+		const faceCenterX = (nose.x / this.videoDimensions.width) * this.WIDTH;
+		const faceCenterY = (nose.y / this.videoDimensions.height) * this.HEIGHT;
 
 		const isFaceCentered =
 			faceCenterX > this.videoCenterX - this.marginX &&
@@ -483,28 +477,68 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async takePicture() {
-		const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
-		const widthCut = 2.8 * this.OVAL.radiusX;
+		// const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
+		// const widthCut = 2.8 * this.OVAL.radiusX;
 
-		if (!this.canvasResult) {
-			this.canvasResult = document.createElement("canvas");
-			this.canvasResult.width = widthCut;
-			this.canvasResult.height = this.HEIGHT;
-			this.canvasResult.style.marginLeft = `${startX}px`;
-			this.canvasResultRef.nativeElement.appendChild(this.canvasResult);
-		}
+		// this.canvasResult = this.canvasResultRef.nativeElement
+		// this.canvasResult.width = widthCut;
+		// this.canvasResult.height = this.HEIGHT;
+		// this.canvasResult.style.marginLeft = `${startX}px`;
 
-		const context = this.canvasResult.getContext("2d");
+		// const context = this.canvasResult.getContext("2d");
 
-		context.drawImage(this.videoInput, startX, 0, widthCut, this.HEIGHT, 0, 0, widthCut, this.HEIGHT);
+		// context.drawImage(this.videoInput, startX, 0, widthCut, this.HEIGHT, 0, 0, widthCut, this.HEIGHT);
 
-		const base64Image = this.canvasResult.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
+		const canvasToSend = this.canvasToSendRef.nativeElement;
+		const canvasResult = this.canvasResultRef.nativeElement;
 
-		this.base64Images.push(base64Image);
+		const resizeDimensions = {
+			rectHeight: this.HEIGHT,
+			rectWidth: 2.8 * this.OVAL.radiusX,
+			y: 0,
+			x: this.videoCenterX - 1.4 * this.OVAL.radiusX,
+		};
+	
+		const originalDimensions = {
+			rectHeight: this.videoDimensions.height,
+			rectWidth: (resizeDimensions.rectWidth / this.WIDTH) * this.videoDimensions.width,
+			y: 0,
+			x: (resizeDimensions.x / this.WIDTH) * this.videoDimensions.width,
+		};
+
+		this.setPictureInCavas(canvasResult, resizeDimensions, originalDimensions);
+		this.setPictureInCavas(canvasToSend, originalDimensions);
+
+		this.base64Image = canvasToSend.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
 
 		this.stopRecord();
 
 		await this.liveness();
+	}
+
+	setPictureInCavas(canvas, dimensions, dimensionsOriginals?) {
+		const context = canvas.getContext("2d");
+
+		canvas.width = dimensions.rectWidth;
+		canvas.height = dimensions.rectHeight;
+		canvas.style.marginLeft = `${dimensions.x}px`;
+		canvas.style.marginTop = `${dimensions.y}px`;
+
+		if (!dimensionsOriginals) {
+			dimensionsOriginals = { x: dimensions.x, y: dimensions.y, rectWidth: dimensions.rectWidth, rectHeight: dimensions.rectHeight };
+		}
+
+		context.drawImage(
+			this.video.nativeElement,
+			dimensionsOriginals.x,
+			dimensionsOriginals.y,
+			dimensionsOriginals.rectWidth,
+			dimensionsOriginals.rectHeight,
+			0,
+			0,
+			dimensions.rectWidth,
+			dimensions.rectHeight
+		);
 	}
 
 	detectOS() {
@@ -522,13 +556,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 	liveness() {
 		if (this.loadingResults) return;
 
+		this.loadingResults = true;
 		this.demoData.loading = true;
 		this._splashScreenService.show();
 
-		this.loadingResults = true;
-
 		const payload: any = {
-			image: this.base64Images[0],
+			image: this.base64Image,
 			os: this.osInfo,
 		};
 
@@ -602,7 +635,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 					return this.restart();
 				}
 
-				this._demoService.moveToStep(1);
+				this._demoService.restart();
 				// pantalla de error
 			});
 	}
@@ -610,7 +643,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	completeResults() {
 		this.errorFace = null;
 		this.loadingResults = false;
-		this.base64Images = [];
+		this.base64Image = null;
 
 		if (!this.errorResult) {
 			this.stopRecord();

@@ -39,7 +39,7 @@ export class UploadFileComponent implements OnDestroy {
 			this.phoneMode = Boolean(
 				!result.matchingAliases.includes("lg") && !result.matchingAliases.includes("md") && !result.matchingAliases.includes("sm")
 			);
-			console.log(this.phoneMode);
+			// console.log(this.phoneMode);
 		});
 	}
 

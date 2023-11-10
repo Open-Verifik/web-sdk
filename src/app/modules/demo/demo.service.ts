@@ -157,6 +157,12 @@ export class DemoService {
 		localStorage.setItem("step", `${step}`);
 	}
 
+	restart(): void {
+		localStorage.clear()
+		this.navigation.currentStep = 1;
+		localStorage.setItem("step", `${this.navigation.currentStep}`);
+	}
+
 	getDeviceDetails(): any {
 		if (this.demoData.generalInformation.length) return;
 
@@ -221,7 +227,7 @@ export class DemoService {
 
 		localStorage.setItem("lng", _this.demoData.lng);
 
-		console.log(`Latitude: ${_this.demoData.lat}, Longitude: ${_this.demoData.lng}`);
+		// console.log(`Latitude: ${_this.demoData.lat}, Longitude: ${_this.demoData.lng}`);
 	}
 
 	showError(error) {

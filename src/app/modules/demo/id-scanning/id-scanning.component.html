@@ -7,7 +7,7 @@
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full h-full">
 		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
 			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
-				<video #videoElement autoplay class="absolute top-0 left-0 w-full" [class.hidden]="base64Images"></video>
+				<video #videoElement autoplay class="absolute top-0 left-0 w-full max-h-[75vh]" [class.hidden]="base64Images"></video>
 				<canvas
 					#canvas
 					class="absolute top-0 left-0"

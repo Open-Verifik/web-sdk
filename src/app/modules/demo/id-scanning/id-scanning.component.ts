@@ -65,8 +65,6 @@ export class IdScanningComponent implements OnInit {
 	startCamera() {
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 			this.loadingCamera = true;
-
-			this.demoData.loading = true;
 			this._splashScreenService.show();
 
 			navigator.mediaDevices
@@ -126,7 +124,7 @@ export class IdScanningComponent implements OnInit {
 
 	tryAgain(plusAttempts = false): void {
 		if (plusAttempts) this.attempts++;
-		console.log(plusAttempts, this.attempts);
+		// console.log(plusAttempts, this.attempts);
 		this.base64Images = undefined;
 		this.failedToDetectDocument = false;
 		this.startCamera();
@@ -134,7 +132,7 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	restartDemo(): void {
-		this._demoService.moveToStep(1);
+		this._demoService.restart();
 	}
 
 	continue(): void {
