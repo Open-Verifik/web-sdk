@@ -58,9 +58,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	stream: any;
 	loadingResults: boolean = false;
 	loadingModel: boolean = false;
-	lastFace: faceapi.WithAge<
-		faceapi.WithGender<faceapi.WithFaceExpressions<faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>>>
-	>;
+	lastFace: any;
 	demoData: any;
 
 	//RESULTS
@@ -165,9 +163,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await faceapi.nets.ssdMobilenetv1.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await faceapi.nets.faceLandmark68Net.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
+		// await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
+		// await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
+		// await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
 		await this.detectFaceBiggest(0.7);
 
 		this.loadingModel = false;
@@ -176,10 +174,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async detectFaceBiggest(scoreThreshold) {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
 
-		const detections = await faceapi
-			.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions({ scoreThreshold }))
-			.withFaceLandmarks()
-			.withFaceExpressions();
+		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions({ scoreThreshold })).withFaceLandmarks();
+		// .withFaceExpressions();
 
 		if (scoreThreshold <= 0.1) {
 			return;
@@ -223,6 +219,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				video: {
 					facingMode: "user",
+					height: { ideal: 720 },
 				},
 				audio: false,
 			});
@@ -238,7 +235,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			const videoTrack = this.stream.getVideoTracks()[0];
 			const settings = videoTrack.getSettings();
 			const { width, height } = settings;
-
+			// alert(`${width} x ${height}`);
 			this.videoDimensions = { height, width };
 
 			setTimeout(() => {
@@ -283,11 +280,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await this.setConfigCanvas();
 
 		this.detectFaceInterval = setInterval(async () => {
-			const detection = await faceapi
-				.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions())
-				.withFaceLandmarks()
-				.withFaceExpressions()
-				.withAgeAndGender();
+			const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+			// .withFaceExpressions()
+			// .withAgeAndGender();
 
 			const context = this.canvas.getContext("2d");
 
@@ -307,7 +302,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			}
 
 			this._changeDetectorRef.markForCheck();
-		}, 100);
+		},  this.demoData.isMobile ? 500: 300);
 	}
 
 	manualCapture(): void {
@@ -497,7 +492,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			y: 0,
 			x: this.videoCenterX - 1.4 * this.OVAL.radiusX,
 		};
-	
+
 		const originalDimensions = {
 			rectHeight: this.videoDimensions.height,
 			rectWidth: (resizeDimensions.rectWidth / this.WIDTH) * this.videoDimensions.width,
