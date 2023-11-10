@@ -71,8 +71,7 @@ export class IdScanningComponent implements OnInit {
 				.getUserMedia({
 					video: {
 						facingMode: this.demoData.isMobile ? "environment" : "user",
-						width: { ideal: 4096 },
-						height: { ideal: 2160 },
+						height: { ideal: 1080 },
 					},
 					audio: false,
 				})
