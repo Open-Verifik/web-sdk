@@ -85,15 +85,18 @@
 		"failed_to_detect_limit_description": "Maaari mong ulitin ang demo ng maraming beses na gusto mo ngunit tandaan na sundin ang mga panuto para ito ay maging matagumpay."
 	},
 	"user_location": {
-		"road": "Kalsada",
+		"amenity": "Amenidad",
+		"region": "Rehiyon",
+		"suburb": "Suburb",
+		"road": "kalsada",
 		"neighbourhood": "Kapitbahayan",
 		"city": "Lungsod",
-		"county": "Kondado",
+		"county": "County",
 		"state": "Estado",
-		"ISO3166-2-lvl4": "ISO code ng Bansa",
-		"postcode": "Postal code",
+		"ISO3166-2-lvl4": "Kodigo ng Bansa ISO",
+		"postcode": "Kodigo ng Postal",
 		"country": "Bansa",
-		"country_code": "Kodigo ng bansa"
+		"country_code": "Kodigo ng Bansa"
 	},
 	"liveness": {
 		"center_yor_face": "Igitna ang iyong mukha sa screen",

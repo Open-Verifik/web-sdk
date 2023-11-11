@@ -85,6 +85,9 @@
 		"failed_to_detect_limit_description": "Vous pouvez répéter la démo autant de fois que vous le souhaitez, mais souvenez-vous de suivre les indications pour qu'elle soit couronnée de succès."
 	},
 	"user_location": {
+		"amenity": "Équipement",
+		"region": "Région",
+		"suburb": "Banlieue",
 		"road": "Rue",
 		"neighbourhood": "Quartier",
 		"city": "Ville",
@@ -93,7 +96,7 @@
 		"ISO3166-2-lvl4": "Code ISO du pays",
 		"postcode": "Code postal",
 		"country": "Pays",
-		"country_code": "Code du pays"
+		"country_code": "Code pays"
 	},
 	"liveness": {
 		"center_yor_face": "Centre ton visage à l'écran",

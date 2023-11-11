@@ -43,7 +43,7 @@
 		"front_side": "Front side",
 		"general_information": "General information",
 		"extracted_information": "Extracted information",
-		"user_location": "User location",
+		"user_location": "User estimated location",
 		"scan_again": "Scan again"
 	},
 	"general_information": {
@@ -85,9 +85,12 @@
 		"failed_to_detect_limit_description": "You can repeat the demo as many times as you want but remember to follow the indications for it to be successful."
 	},
 	"user_location": {
+		"amenity": "Amenity",
+		"region": "Region",
+		"suburb": "Suburb",
 		"road": "street",
 		"neighbourhood": "Neighbourhood",
-		"city": "Ciudad",
+		"city": "City",
 		"county": "County",
 		"state": "State",
 		"ISO3166-2-lvl4": "Country ISO code",

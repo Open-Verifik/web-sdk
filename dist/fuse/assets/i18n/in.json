@@ -85,13 +85,16 @@
 		"failed_to_detect_limit_description": "आप डेमो को जितनी बार चाहें दोहरा सकते हैं लेकिन याद रखें कि इसे सफल बनाने के लिए निर्देशों का पालन करें।"
 	},
 	"user_location": {
+		"amenity": "सुविधा",
+		"region": "क्षेत्र",
+		"suburb": "उपनगर",
 		"road": "सड़क",
 		"neighbourhood": "पड़ोस",
 		"city": "शहर",
 		"county": "काउंटी",
 		"state": "राज्य",
 		"ISO3166-2-lvl4": "देश ISO कोड",
-		"postcode": "डाक कोड",
+		"postcode": "पोस्टकोड",
 		"country": "देश",
 		"country_code": "देश कोड"
 	},

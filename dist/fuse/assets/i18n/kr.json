@@ -85,10 +85,13 @@
 		"failed_to_detect_limit_description": "원하는 만큼 데모를 반복할 수 있지만 성공적으로 수행하기 위한 지시사항을 따르십시오."
 	},
 	"user_location": {
-		"road": "도로",
-		"neighbourhood": "동네",
+		"amenity": "시설",
+		"region": "지역",
+		"suburb": "구역",
+		"road": "거리",
+		"neighbourhood": "이웃",
 		"city": "도시",
-		"county": "군",
+		"county": "군/구",
 		"state": "주",
 		"ISO3166-2-lvl4": "국가 ISO 코드",
 		"postcode": "우편번호",
