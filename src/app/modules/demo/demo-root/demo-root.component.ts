@@ -15,6 +15,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
+import Hotjar from "@hotjar/browser";
 
 @Component({
 	selector: "app-demo-root",
@@ -55,6 +56,12 @@ export class DemoRootComponent implements OnInit {
 		this._demoService.getDeviceDetails();
 
 		this.step = Number(localStorage.getItem("step")) || 1;
+
+		const siteId = 3732219;
+
+		const hotjarVersion = 6;
+
+		Hotjar.init(siteId, hotjarVersion);
 	}
 
 	async ngOnInit(): Promise<any> {
