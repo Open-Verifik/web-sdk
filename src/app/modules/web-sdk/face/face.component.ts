@@ -457,7 +457,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		const totalImageArea = 4 * this.OVAL.radiusX * this.videoInput.height;
 		const faceProportion = totalFaceArea / totalImageArea;
 
-		const threshold = this.demoData.isMobile ? 0.5 : 0.25;
+		const threshold = this.demoData.isMobile ? 0.5 : 0.35;
 
 		if (faceProportion < threshold) {
 			this.errorFace = {
