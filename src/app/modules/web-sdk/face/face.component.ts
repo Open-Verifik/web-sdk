@@ -220,8 +220,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				video: {
-					width: { ideal: 4096 },
-					height: { ideal: 2160 },
+					// width: { ideal: 4096 },
+					height: { ideal: 720 },
 				},
 				audio: false,
 			});
@@ -270,7 +270,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 
 					this._changeDetectorRef.markForCheck();
-					alert(`${this.HEIGHT} X ${this.WIDTH} ========== ${height} X ${width}`);
+					// alert(`${this.HEIGHT} X ${this.WIDTH} ========== ${height} X ${width}`);
 				}, 300);
 			}, 300);
 		} catch (error) {
