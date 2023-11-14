@@ -85,8 +85,11 @@
 		"failed_to_detect_limit_description": "Puede repetir la demostración tantas veces como desee pero recuerde seguir las indicaciones para que sea exitosa."
 	},
 	"user_location": {
+		"amenity": "Comodidad",
+		"region": "Región",
+		"suburb": "Barrio",
 		"road": "Calle",
-		"neighbourhood": "Barrio",
+		"neighbourhood": "Vecindario",
 		"city": "Ciudad",
 		"county": "Condado",
 		"state": "Estado",

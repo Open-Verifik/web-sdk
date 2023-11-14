@@ -85,15 +85,18 @@
 		"failed_to_detect_limit_description": "Puoi ripetere la scansione più volte, ma assicurati di seguire le istruzioni per garantire il successo della scansione."
 	},
 	"user_location": {
+		"amenity": "Struttura",
+		"region": "Regione",
+		"suburb": "Quartiere",
 		"road": "Strada",
 		"neighbourhood": "Quartiere",
 		"city": "Città",
 		"county": "Contea",
 		"state": "Stato",
-		"ISO3166-2-lvl4": "Codice Paese ISO",
-		"postcode": "Codice postale",
+		"ISO3166-2-lvl4": "Codice ISO del Paese",
+		"postcode": "Codice Postale",
 		"country": "Paese",
-		"country_code": "Codice del paese"
+		"country_code": "Codice Paese"
 	},
 	"liveness": {
 		"center_yor_face": "Centra il tuo viso sullo schermo",

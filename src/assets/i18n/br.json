@@ -84,16 +84,19 @@
 		"failed_to_detect_limit": "Você esgotou todas as tentativas de realizar a demonstração corretamente",
 		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida."
 	},
-	"user_location": {
-		"road": "Rua",
-		"neighbourhood": "Bairro",
-		"city": "Cidade",
-		"county": "Município",
-		"state": "Estado",
+	"localizacao_usuario": {
+		"amenidade": "Comodidade",
+		"regiao": "Região",
+		"bairro": "Bairro",
+		"rua": "Rua",
+		"vizinhanca": "Vizinhança",
+		"cidade": "Cidade",
+		"condado": "Condado",
+		"estado": "Estado",
 		"ISO3166-2-lvl4": "Código ISO do País",
-		"postcode": "CEP",
-		"country": "País",
-		"country_code": "Código do País"
+		"codigo_postal": "Código Postal",
+		"pais": "País",
+		"codigo_pais": "Código do País"
 	},
 	"liveness": {
 		"center_yor_face": "Centralize seu rosto na tela",

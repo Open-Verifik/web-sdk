@@ -85,8 +85,11 @@
 		"failed_to_detect_limit_description": "您可以多次重复演示，但请记住遵循指示以确保演示成功。"
 	},
 	"user_location": {
-		"road": "道路",
-		"neighbourhood": "邻里",
+		"amenity": "便利设施",
+		"region": "地区",
+		"suburb": "郊区",
+		"road": "街道",
+		"neighbourhood": "社区",
 		"city": "城市",
 		"county": "县",
 		"state": "州",
