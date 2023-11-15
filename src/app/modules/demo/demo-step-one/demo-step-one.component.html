@@ -1,5 +1,5 @@
 <!-- step one -->
-<div class="step-one-main-div" fxLayout="column" fxLayoutAlign="start center">
+<div class="step-one-main-div" fxLayout="column" fxLayoutAlign="start center" *ngIf="!showForm">
 	<!-- image on the left of business woman -->
 	<div fxLayout="column" fxLayoutAlign="center center" class="step-one-middle-container">
 		<img src="https://cdn.verifik.co/demo/verifiklogosvgsvg.svg" alt="" class="step-one-logo" />
@@ -70,13 +70,90 @@
 				}}</a>
 			</mat-checkbox>
 
-			<button mat-raised-button color="primary" class="mt-4 z-index-2 start-demo-button" [disabled]="!canStartDemo" (click)="startDemo()">
+			<button mat-raised-button color="primary" class="mt-4 z-index-2 start-demo-button" [disabled]="!canStartDemo" (click)="showFormView()">
 				{{ "step_one.start_demo_button" | transloco }}
 			</button>
 		</div>
 	</div>
 	<!-- middle content -->
 	<div></div>
+</div>
+
+<div class="step-one-main-div" fxLayout="column" fxLayoutAlign="center center" *ngIf="showForm && contactForm">
+	<h1>Datos de contacto</h1>
+
+	<form [formGroup]="contactForm" novalidate fxLayout="column" class="w-full">
+		<!-- Company Name -->
+		<mat-form-field appearance="fill">
+			<mat-label>{{ "form.company" | transloco }}</mat-label>
+			<input matInput formControlName="companyName" />
+			<mat-error *ngIf="contactForm.get('companyName').hasError('required')">Company Name is required</mat-error>
+			<mat-error *ngIf="contactForm.get('companyName').hasError('pattern')">Invalid format</mat-error>
+		</mat-form-field>
+
+		<!-- Name -->
+		<mat-form-field appearance="fill">
+			<mat-label>{{ "form.names" | transloco }}</mat-label>
+			<input matInput formControlName="name" />
+			<mat-error *ngIf="contactForm.get('name').hasError('required')">Name is required</mat-error>
+			<mat-error *ngIf="contactForm.get('name').hasError('pattern')">Invalid format</mat-error>
+		</mat-form-field>
+
+		<!-- Website -->
+		<mat-form-field appearance="fill">
+			<mat-label>{{ "form.website" | transloco }}</mat-label>
+			<input matInput formControlName="website" />
+			<mat-error *ngIf="contactForm.get('website').hasError('required')">Website is required</mat-error>
+			<mat-error *ngIf="contactForm.get('website').hasError('pattern')">Invalid URL</mat-error>
+		</mat-form-field>
+
+		<!-- Job Function -->
+		<mat-form-field appearance="fill">
+			<mat-label>{{ "form.job" | transloco }}</mat-label>
+			<input matInput formControlName="jobFunction" />
+			<mat-error *ngIf="contactForm.get('jobFunction').hasError('required')">Job Function is required</mat-error>
+			<mat-error *ngIf="contactForm.get('jobFunction').hasError('pattern')">Invalid format</mat-error>
+		</mat-form-field>
+
+		<!-- Email -->
+		<mat-form-field appearance="fill">
+			<mat-label>{{ "form.email" | transloco }}</mat-label>
+			<input matInput formControlName="email" />
+			<mat-error *ngIf="contactForm.get('email').hasError('required')">Email is required</mat-error>
+			<mat-error *ngIf="contactForm.get('email').hasError('email')">Invalid email</mat-error>
+			<!-- Add custom validator error message if needed -->
+		</mat-form-field>
+
+		<!-- Country Code (assuming a select dropdown) -->
+		<mat-form-field appearance="fill" *ngIf="countries && countries.length">
+			<mat-label>{{ "form.country_code" | transloco }}</mat-label>
+			<mat-select formControlName="countryCode">
+				<!-- Replace with actual country code options -->
+				<mat-option *ngFor="let code of countries" [value]="code.code">{{ code.name }}</mat-option>
+			</mat-select>
+			<mat-error *ngIf="contactForm.get('countryCode').hasError('required')">Country Code is required</mat-error>
+		</mat-form-field>
+
+		<!-- Phone -->
+		<mat-form-field appearance="fill">
+			<mat-label>{{ "form.phone" | transloco }}</mat-label>
+			<input matInput formControlName="phone" />
+			<mat-error *ngIf="contactForm.get('phone').hasError('required')">Phone is required</mat-error>
+			<!-- Add custom validator error message if needed -->
+		</mat-form-field>
+
+		<!-- Legal Agreement -->
+		<mat-checkbox formControlName="legalAgreement">
+			{{ "step_one.terms_label" | transloco }}
+			<a href="https://docs.verifik.co/docs/terms-conditions/4s01oqa1z6oof-privacy-policy" target="_blank">{{
+				"step_one.terms_link" | transloco
+			}}</a>
+		</mat-checkbox>
+		<mat-error *ngIf="contactForm.get('legalAgreement').hasError('required')">You must accept the Legal Agreement</mat-error>
+
+		<!-- Submit Button -->
+		<button mat-raised-button color="primary" type="submit" [disabled]="!contactForm.valid" class="mt-8">Submit</button>
+	</form>
 </div>
 
 <img src="https://cdn.verifik.co/demo/stepone_woman@2x.png" alt="" fxHide.xs="true" fxHide.sm="true" fxHide.md="true" class="business-woman-image" />

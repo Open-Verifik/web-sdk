@@ -1,6 +1,12 @@
 .step-one-main-div {
 	width: 100%;
 	padding-top: 100px;
+
+	form {
+		width: 50% !important;
+		margin-top: 50px;
+		z-index: 2;
+	}
 }
 
 .step-one-logo {
