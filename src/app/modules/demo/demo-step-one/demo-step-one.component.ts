@@ -124,7 +124,10 @@ export class DemoStepOneComponent {
 		): {
 			[key: string]: any;
 		} | null => {
-			const forbidden = /.*@(gmail\.com|hotmail\.com|outlook\.com)$/.test(control.value);
+			const forbidden =
+				/.*@(gmail\.com|hotmail\.com|outlook\.com|test\.com|yahoo\.com|aol\.com|protonmail\.com|icloud\.com|zoho\.com|gmx\.com)$/.test(
+					control.value
+				);
 			return forbidden
 				? {
 						forbiddenEmail: {

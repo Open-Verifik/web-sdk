@@ -80,23 +80,23 @@
 </div>
 
 <div class="step-one-main-div" fxLayout="column" fxLayoutAlign="center center" *ngIf="showForm && contactForm">
-	<h1>Datos de contacto</h1>
+	<h1>{{ "form.title" | transloco }}</h1>
 
 	<form [formGroup]="contactForm" novalidate fxLayout="column" class="w-full">
 		<!-- Company Name -->
 		<mat-form-field appearance="fill">
 			<mat-label>{{ "form.company" | transloco }}</mat-label>
 			<input matInput formControlName="companyName" />
-			<mat-error *ngIf="contactForm.get('companyName').hasError('required')">Company Name is required</mat-error>
-			<mat-error *ngIf="contactForm.get('companyName').hasError('pattern')">Invalid format</mat-error>
+			<mat-error *ngIf="contactForm.get('companyName').hasError('required')"> {{ "form.company_required_error" | transloco }}</mat-error>
+			<mat-error *ngIf="contactForm.get('companyName').hasError('pattern')">{{ "form.invalid_format_error" | transloco }}</mat-error>
 		</mat-form-field>
 
 		<!-- Name -->
 		<mat-form-field appearance="fill">
 			<mat-label>{{ "form.names" | transloco }}</mat-label>
 			<input matInput formControlName="name" />
-			<mat-error *ngIf="contactForm.get('name').hasError('required')">Name is required</mat-error>
-			<mat-error *ngIf="contactForm.get('name').hasError('pattern')">Invalid format</mat-error>
+			<mat-error *ngIf="contactForm.get('name').hasError('required')">{{ "form.name_requird_error" | transloco }}</mat-error>
+			<mat-error *ngIf="contactForm.get('name').hasError('pattern')">{{ "form.invalid_format_error" | transloco }}</mat-error>
 		</mat-form-field>
 
 		<!-- Website -->
@@ -112,7 +112,7 @@
 			<mat-label>{{ "form.job" | transloco }}</mat-label>
 			<input matInput formControlName="jobFunction" />
 			<mat-error *ngIf="contactForm.get('jobFunction').hasError('required')">Job Function is required</mat-error>
-			<mat-error *ngIf="contactForm.get('jobFunction').hasError('pattern')">Invalid format</mat-error>
+			<mat-error *ngIf="contactForm.get('jobFunction').hasError('pattern')">{{ "form.invalid_format_error" | transloco }}</mat-error>
 		</mat-form-field>
 
 		<!-- Email -->
@@ -149,10 +149,13 @@
 				"step_one.terms_link" | transloco
 			}}</a>
 		</mat-checkbox>
-		<mat-error *ngIf="contactForm.get('legalAgreement').hasError('required')">You must accept the Legal Agreement</mat-error>
 
 		<!-- Submit Button -->
-		<button mat-raised-button color="primary" type="submit" [disabled]="!contactForm.valid" class="mt-8">Submit</button>
+		<div fxLayout="row" fxLayoutAlign="center center">
+			<button mat-raised-button color="primary" type="submit" [disabled]="!contactForm.valid" class="mt-8 w-50">
+				{{ "step_one.start_demo_button" | transloco }}
+			</button>
+		</div>
 	</form>
 </div>
 
