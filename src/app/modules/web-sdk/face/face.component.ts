@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
 import { WebSdkService } from "../web-sdk.service";
@@ -31,6 +31,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	@ViewChild("video", { static: false }) public video: ElementRef;
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
+	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
 	@ViewChild("credentialCanvas", { static: false }) credentialRef: ElementRef;
 	//
 	canvasEl: any;
@@ -38,11 +39,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 	canvasResult: any;
 	displaySize: any;
 	videoInput: HTMLVideoElement;
-	base64Images: any[];
+	base64Image: any;
 
 	//SIZE OF CANVAS
-	WIDTH = 720;
-	HEIGHT = 720;
+	HEIGHT: number;
+	WIDTH: number;
 	videoCenterX;
 	videoCenterY;
 	marginX;
@@ -57,9 +58,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	stream: any;
 	loadingResults: boolean = false;
 	loadingModel: boolean = false;
-	lastFace: faceapi.WithAge<
-		faceapi.WithGender<faceapi.WithFaceExpressions<faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>>>
-	>;
+	lastFace: any;
 	demoData: any;
 
 	//RESULTS
@@ -79,13 +78,16 @@ export class FaceComponent implements OnInit, OnDestroy {
 	up: HTMLImageElement;
 	down: HTMLImageElement;
 	videoDimensions: any;
+	resizeDimensions: { rectHeight: number; rectWidth: number; y: number; x: number; };
+	originalDimensions: { rectHeight: any; rectWidth: number; y: number; x: number; };
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _sdkService: WebSdkService,
 		private _demoService: DemoService,
 		private _translocoService: TranslocoService,
-		private _splashScreenService: FuseSplashScreenService
+		private _splashScreenService: FuseSplashScreenService,
+		private renderer: Renderer2
 	) {
 		this.loadingModel = true;
 
@@ -95,10 +97,14 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.demoData = this._demoService.getDemoData();
 
-		this.demoData.loading = true;
-		this._splashScreenService.show();
-
 		this.listenModeDebug();
+
+		this.renderer.listen("window", "resize", () => {
+			if (this.videoInput) {
+				this.setCanvasDimension();
+				this.setConfigCanvas()
+			}
+		});
 
 		this._changeDetectorRef.markForCheck();
 	}
@@ -132,15 +138,23 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async ngOnInit(): Promise<void> {
+		this._splashScreenService.show();
+
 		this.idCardImage = localStorage.getItem("idCard");
 
-		await this.loadModels();
-
-		this.base64Images = [];
-
 		this.errorFace = null;
+		this.loadingResults = false;
+		this.base64Image = null;
 
-		await this.startAsyncVideo();
+		await this.loadImages();
+
+		this._demoService.faceapi$.subscribe(async (isLoaded) => {
+			this.loadingModel = !isLoaded;
+
+			if (isLoaded) {
+				await this.startAsyncVideo();
+			}
+		});
 	}
 
 	async restart(): Promise<void> {
@@ -148,7 +162,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		await this.startAsyncVideo();
 	}
 
-	async loadModels(): Promise<void> {
+	async loadImages(): Promise<void> {
 		this.left = new Image();
 		this.left.crossOrigin = "anonymous";
 		this.left.src = "https://cdn.verifik.co/web-sdk/images/left.png";
@@ -161,30 +175,20 @@ export class FaceComponent implements OnInit, OnDestroy {
 		this.down = new Image();
 		this.down.crossOrigin = "anonymous";
 		this.down.src = "https://cdn.verifik.co/web-sdk/images/down.png";
-
-		await faceapi.nets.ssdMobilenetv1.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.faceLandmark68Net.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await faceapi.nets.ageGenderNet.loadFromUri("https://cdn.verifik.co/web-sdk/models");
-		await this.detectFaceBiggest(0.7);
 	}
 
-	async detectFaceBiggest(scoreThreshold) {
+	async detectFaceBiggest(minConfidence) {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
 
-		const detections = await faceapi
-			.detectAllFaces(credentialImage, new faceapi.TinyFaceDetectorOptions({ scoreThreshold }))
-			.withFaceLandmarks()
-			.withFaceExpressions();
+		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
+		// .withFaceExpressions();
 
-		if (scoreThreshold <= 0.1) {
+		if (minConfidence <= 0.1) {
 			return;
 		}
 
 		if (!detections.length) {
-			this.detectFaceBiggest(scoreThreshold - 0.1);
+			this.detectFaceBiggest(minConfidence - 0.1);
 			return;
 		}
 
@@ -200,10 +204,17 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 
 		const position = faceBigest.box; // Object with x, y, width, height
-		const width = Math.ceil(position.width) * 1.2;
-		const height = Math.ceil(position.height) * 1.4;
-		const sx = Math.floor(position.x);
-		const sy = Math.floor(position.y) - (height - position.height);
+		let width = Math.ceil(position.width * 3);
+		let height = Math.ceil(position.height * 3);
+		let sx = Math.floor(position.x) - position.width;
+		let sy = Math.floor(position.y) - position.height;
+
+		if (width > credentialImage.naturalWidth) {
+			width = credentialImage.naturalWidth;
+			height = credentialImage.naturalHeight;
+			sx = 0;
+			sy = 0;
+		}
 
 		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
 		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
@@ -220,58 +231,44 @@ export class FaceComponent implements OnInit, OnDestroy {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				video: {
-					// width: { ideal: 4096 },
+					facingMode: "user",
 					height: { ideal: 720 },
 				},
 				audio: false,
 			});
 
-			this.loadingModel = false;
+			this.detectFaceBiggest(0.9);
 
-			setTimeout(() => {
+			this.videoInput = this.video.nativeElement as HTMLVideoElement;
+			this.videoInput.srcObject = this.stream;
+
+			this.videoInput.style.transform = "scaleX(-1)";
+			this.canvasRef.nativeElement.style.transform = "scaleX(-1)";
+
+			const videoTrack = this.stream.getVideoTracks()[0];
+			const settings = videoTrack.getSettings();
+			const { width, height } = settings;
+			// alert(`${width} x ${height}`);
+			this.videoDimensions = { height, width };
+
+			this.videoInput.addEventListener("loadedmetadata", () => {
 				if (!this.video && !this.canvas) {
 					this.stopRecord();
 					return;
 				}
 
-				const videoTrack = this.stream.getVideoTracks()[0];
-				const settings = videoTrack.getSettings();
-				// Access the width and height properties
-				const { width, height } = settings;
+				this.setCanvasDimension()
 
-				this.videoInput = this.video.nativeElement as HTMLVideoElement;
-				this.videoInput.srcObject = this.stream;
-				this.videoInput.style.transform = "scaleX(-1)";
-				
-				this.videoDimensions = { height, width };
+				this.demoData.loading = false;
+				this._splashScreenService.hide();
 
-				setTimeout(() => {
-					this.HEIGHT = height;
-					this.WIDTH = width;
+				this.detectFaces();
 
-					this.videoCenterX = this.WIDTH / 2;
-					this.videoCenterY = this.HEIGHT / 2;
+				this._changeDetectorRef.markForCheck();
+			});
 
-					this.marginY = this.HEIGHT * 0.04;
-					this.marginX = this.marginY * 0.8;
-
-					this.OVAL.radiusY = (this.HEIGHT * 0.85) / 2;
-					this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
-
-					this.displaySize = {
-						width: this.WIDTH,
-						height: this.HEIGHT,
-					};
-
-					this.detectFaces();
-
-					this.demoData.loading = false;
-					this._splashScreenService.hide();
-
-
-					this._changeDetectorRef.markForCheck();
-					// alert(`${this.HEIGHT} X ${this.WIDTH} ========== ${height} X ${width}`);
-				}, 300);
+			setTimeout(() => {
+				setTimeout(() => {}, 300);
 			}, 300);
 		} catch (error) {
 			alert(`${error.message}`);
@@ -279,35 +276,75 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	setCanvasDimension = () => {
+		this.HEIGHT = this.videoInput.clientHeight;
+		this.WIDTH = this.videoInput.clientWidth;
+
+		this.videoCenterX = this.WIDTH / 2;
+		this.videoCenterY = this.HEIGHT / 2;
+
+		this.marginY = this.HEIGHT * 0.04;
+		this.marginX = this.marginY * 0.8;
+
+		this.OVAL.radiusY = this.HEIGHT * 0.42;
+		this.OVAL.radiusX = this.OVAL.radiusY * 0.75;
+
+		if (this.OVAL.radiusX * 2 >= this.WIDTH) {
+			this.OVAL.radiusX = this.WIDTH * 0.48;
+			this.OVAL.radiusY = this.OVAL.radiusX / 0.75;
+		}
+
+
+		this.displaySize = {
+			width: this.WIDTH,
+			height: this.HEIGHT,
+		};
+
+		this.resizeDimensions = {
+			rectHeight: this.HEIGHT,
+			rectWidth: 2.8 * this.OVAL.radiusX,
+			y: 0,
+			x: this.videoCenterX - 1.4 * this.OVAL.radiusX,
+		};
+
+		this.originalDimensions = {
+			rectHeight: this.videoDimensions.height,
+			rectWidth: (this.resizeDimensions.rectWidth / this.WIDTH) * this.videoDimensions.width,
+			y: 0,
+			x: (this.resizeDimensions.x / this.WIDTH) * this.videoDimensions.width,
+		};
+	};
+
 	async detectFaces() {
 		await this.setConfigCanvas();
 
-		this.detectFaceInterval = setInterval(async () => {
-			const detection = await faceapi
-				.detectAllFaces(this.videoInput, new faceapi.TinyFaceDetectorOptions())
-				.withFaceLandmarks()
-				.withFaceExpressions()
-				.withAgeAndGender();
+		this.detectFaceInterval = setInterval(
+			async () => {
+				const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks();
+				// .withFaceExpressions()
+				// .withAgeAndGender();
 
-			const context = this.canvas.getContext("2d");
+				const context = this.canvas.getContext("2d");
 
-			if (detection.length > 0) {
-				this.lastFace = detection[0];
-				this.errorFace = null;
+				if (detection.length > 0) {
+					this.lastFace = detection[0];
+					this.errorFace = null;
 
-				this.drawFaceAndCenter(detection, context);
-				this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
-				this.isFaceClose(this.lastFace.landmarks);
+					this.drawFaceAndCenter(detection, context);
+					this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
+					this.isFaceClose(this.lastFace.landmarks);
 
-				this.drawStatusOval(context, !this.errorFace?.title);
+					this.drawStatusOval(context, !this.errorFace?.title);
 
-				if (!this.errorFace) {
-					this.captureBase64Image();
+					if (!this.errorFace) {
+						this.captureBase64Image();
+					}
 				}
-			}
 
-			this._changeDetectorRef.markForCheck();
-		}, 100);
+				this._changeDetectorRef.markForCheck();
+			},
+			this.demoData.isMobile ? 500 : 300
+		);
 	}
 
 	manualCapture(): void {
@@ -322,8 +359,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.canvasEl.appendChild(this.canvas);
 			this.canvas.setAttribute("id", "canvas");
 
-			faceapi.matchDimensions(this.canvas, this.displaySize);
 		}
+
+		faceapi.matchDimensions(this.canvas, this.displaySize);
 
 		const ctx = this.canvas.getContext("2d");
 		this.drawOvalCenterAndMask(ctx);
@@ -392,13 +430,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 		ctx.closePath();
 
 		if (!isOk) {
-			// let positionError = {
-			// 	x: this.videoCenterX,
-			// 	y: this.videoCenterY - this.OVAL.radiusY - 10,
-			// };
-
-			// this.drawText(ctx, this.errorFace.title, positionError.x, positionError.y);
-
 			if (this.errorFace.canvas?.includes("↑")) {
 				const startX = this.videoCenterX - 20;
 				const startY = this.videoCenterY - this.OVAL.radiusY + 10;
@@ -427,8 +458,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	isFaceCentered(nose): void {
-		const faceCenterX = nose.x;
-		const faceCenterY = nose.y;
+		const faceCenterX = (nose.x / this.videoDimensions.width) * this.WIDTH;
+		const faceCenterY = (nose.y / this.videoDimensions.height) * this.HEIGHT;
 
 		const isFaceCentered =
 			faceCenterX > this.videoCenterX - this.marginX &&
@@ -455,7 +486,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 	isFaceClose(landmarks: faceapi.FaceLandmarks68): void {
 		const totalFaceArea = landmarks.imageHeight * landmarks.imageWidth;
-		const totalImageArea = 4 * this.OVAL.radiusX * this.videoInput.height;
+		const totalImageArea = Math.floor(this.originalDimensions.rectHeight * this.originalDimensions.rectWidth);
 		const faceProportion = totalFaceArea / totalImageArea;
 
 		const threshold = 0.25;
@@ -483,28 +514,54 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async takePicture() {
-		const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
-		const widthCut = 2.8 * this.OVAL.radiusX;
+		// const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
+		// const widthCut = 2.8 * this.OVAL.radiusX;
 
-		if (!this.canvasResult) {
-			this.canvasResult = document.createElement("canvas");
-			this.canvasResult.width = widthCut;
-			this.canvasResult.height = this.HEIGHT;
-			this.canvasResult.style.marginLeft = `${startX}px`;
-			this.canvasResultRef.nativeElement.appendChild(this.canvasResult);
-		}
+		// this.canvasResult = this.canvasResultRef.nativeElement
+		// this.canvasResult.width = widthCut;
+		// this.canvasResult.height = this.HEIGHT;
+		// this.canvasResult.style.marginLeft = `${startX}px`;
 
-		const context = this.canvasResult.getContext("2d");
+		// const context = this.canvasResult.getContext("2d");
 
-		context.drawImage(this.videoInput, startX, 0, widthCut, this.HEIGHT, 0, 0, widthCut, this.HEIGHT);
+		// context.drawImage(this.videoInput, startX, 0, widthCut, this.HEIGHT, 0, 0, widthCut, this.HEIGHT);
 
-		const base64Image = this.canvasResult.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
+		const canvasToSend = this.canvasToSendRef.nativeElement;
+		const canvasResult = this.canvasResultRef.nativeElement;
 
-		this.base64Images.push(base64Image);
+		this.setPictureInCavas(canvasResult, this.resizeDimensions, this.originalDimensions);
+		this.setPictureInCavas(canvasToSend, this.originalDimensions);
+
+		this.base64Image = canvasToSend.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
 
 		this.stopRecord();
 
 		await this.liveness();
+	}
+
+	setPictureInCavas(canvas, dimensions, dimensionsOriginals?) {
+		const context = canvas.getContext("2d");
+
+		canvas.width = dimensions.rectWidth;
+		canvas.height = dimensions.rectHeight;
+		canvas.style.marginLeft = `${dimensions.x}px`;
+		canvas.style.marginTop = `${dimensions.y}px`;
+
+		if (!dimensionsOriginals) {
+			dimensionsOriginals = { x: dimensions.x, y: dimensions.y, rectWidth: dimensions.rectWidth, rectHeight: dimensions.rectHeight };
+		}
+
+		context.drawImage(
+			this.video.nativeElement,
+			dimensionsOriginals.x,
+			dimensionsOriginals.y,
+			dimensionsOriginals.rectWidth,
+			dimensionsOriginals.rectHeight,
+			0,
+			0,
+			dimensions.rectWidth,
+			dimensions.rectHeight
+		);
 	}
 
 	detectOS() {
@@ -522,13 +579,12 @@ export class FaceComponent implements OnInit, OnDestroy {
 	liveness() {
 		if (this.loadingResults) return;
 
+		this.loadingResults = true;
 		this.demoData.loading = true;
 		this._splashScreenService.show();
 
-		this.loadingResults = true;
-
 		const payload: any = {
-			image: this.base64Images[0],
+			image: this.base64Image,
 			os: this.osInfo,
 		};
 
@@ -540,9 +596,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 				this._demoService.setDemoLiveness(liveness.data);
 
 				this._compareWithDocument({
-					search_mode: "FAST",
+					search_mode: "ACCURATE",
 					gallery: [this.faceIdCard || this.demoData.document.url],
-					probe: [this.demoData.liveness.images[0]],
+					probe: [this.base64Image],
 				});
 			},
 			(error) => {
@@ -562,7 +618,13 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 				this._demoService.moveToStep(5);
 			},
-			(error) => {}
+			(error) => {
+				this.demoData.loading = false;
+				this._splashScreenService.hide();
+				alert(`_compareWithDocument: ${JSON.stringify(error)}`);
+
+				// this.retryLivenessModal(error.error?.message);
+			}
 		);
 	}
 
@@ -602,7 +664,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 					return this.restart();
 				}
 
-				this._demoService.moveToStep(1);
+				this._demoService.restart();
 				// pantalla de error
 			});
 	}
@@ -610,7 +672,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	completeResults() {
 		this.errorFace = null;
 		this.loadingResults = false;
-		this.base64Images = [];
+		this.base64Image = null;
 
 		if (!this.errorResult) {
 			this.stopRecord();
