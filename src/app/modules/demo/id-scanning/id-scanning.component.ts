@@ -35,6 +35,9 @@ export class IdScanningComponent implements OnInit {
 	rectCredential: any;
 	base64Images: any;
 	video: any;
+	videoOptions: any = {
+		frameRate: { ideal: 30, max: 30 },
+	};
 
 	constructor(
 		private _demoService: DemoService,
@@ -54,6 +57,12 @@ export class IdScanningComponent implements OnInit {
 
 		this.base64Images = undefined;
 
+		this.demoData = this._demoService.getDemoData();
+
+		let key = this.demoData.isMobile ? "heigth" : "width";
+		this.videoOptions[key] = { ideal: 1024 };
+		this.videoOptions.facingMode = this.demoData.isMobile ? "environment" : "user"
+
 		this.video = {};
 		this.rectCredential = {};
 
@@ -65,7 +74,6 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.demoData = this._demoService.getDemoData();
 		this.startCamera();
 	}
 
@@ -76,9 +84,7 @@ export class IdScanningComponent implements OnInit {
 
 			navigator.mediaDevices
 				.getUserMedia({
-					video: {
-						facingMode: this.demoData.isMobile ? "environment" : "user",
-					},
+					video: this.videoOptions,
 					audio: false,
 				})
 				.then((stream) => {
