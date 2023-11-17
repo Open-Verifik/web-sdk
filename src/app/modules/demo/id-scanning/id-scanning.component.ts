@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -35,11 +35,15 @@ export class IdScanningComponent implements OnInit {
 	rectCredential: any;
 	base64Images: any;
 	video: any;
+	videoOptions: any = {
+		frameRate: { ideal: 30, max: 30 },
+	};
 
 	constructor(
 		private _demoService: DemoService,
 		private _splashScreenService: FuseSplashScreenService,
-		private _changeDetectorRef: ChangeDetectorRef
+		private _changeDetectorRef: ChangeDetectorRef,
+		private renderer: Renderer2
 	) {
 		this.attempts = 0;
 
@@ -53,12 +57,24 @@ export class IdScanningComponent implements OnInit {
 
 		this.base64Images = undefined;
 
+		this.demoData = this._demoService.getDemoData();
+
+		let key = this.demoData.isMobile ? "width" : "height";
+		
+		this.videoOptions[key] = { ideal: 1080 };
+		this.videoOptions.facingMode = this.demoData.isMobile ? "environment" : "user"
+
 		this.video = {};
 		this.rectCredential = {};
+
+		this.renderer.listen("window", "resize", () => {
+			if (this.videoElement) {
+				this.setCanvasDimensions();
+			}
+		});
 	}
 
 	ngOnInit(): void {
-		this.demoData = this._demoService.getDemoData();
 		this.startCamera();
 	}
 
@@ -69,9 +85,7 @@ export class IdScanningComponent implements OnInit {
 
 			navigator.mediaDevices
 				.getUserMedia({
-					video: {
-						facingMode: this.demoData.isMobile ? "environment" : "user",
-					},
+					video: this.videoOptions,
 					audio: false,
 				})
 				.then((stream) => {
@@ -90,21 +104,17 @@ export class IdScanningComponent implements OnInit {
 
 					setTimeout(() => {
 						this.videoElement.nativeElement.srcObject = stream;
-						if (!this.demoData.isMobile) {
-							this.videoElement.nativeElement.style.transform = "scaleX(-1)";
-						}
-						setTimeout(() => {
-							this.HEIGHT = this.videoElement.nativeElement.clientHeight;
-							this.WIDTH = this.videoElement.nativeElement.clientWidth;
+						this.videoElement.nativeElement.addEventListener("loadedmetadata", () => {
+							if (!this.demoData.isMobile) {
+								this.videoElement.nativeElement.style.transform = "scaleX(-1)";
+							}
 
-							const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
-							canvas.height = this.HEIGHT;
-							canvas.width = this.WIDTH;
-
-							this.drawRect(canvas.getContext("2d"));
+							// setTimeout(() => {
+							this.setCanvasDimensions();
 							this.demoData.loading = false;
 							this._splashScreenService.hide();
-						}, 300);
+							// }, 300);
+						});
 					}, 300);
 				})
 				.catch((error) => {
@@ -119,6 +129,17 @@ export class IdScanningComponent implements OnInit {
 			this.hasCameraPermissions = false;
 		}
 	}
+
+	setCanvasDimensions = () => {
+		this.HEIGHT = this.videoElement.nativeElement.clientHeight;
+		this.WIDTH = this.videoElement.nativeElement.clientWidth;
+
+		const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
+		canvas.height = this.HEIGHT;
+		canvas.width = this.WIDTH;
+
+		this.drawRect(canvas.getContext("2d"));
+	};
 
 	tryAgain(plusAttempts = false): void {
 		if (plusAttempts) this.attempts++;

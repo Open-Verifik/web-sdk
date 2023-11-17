@@ -91,11 +91,15 @@ export class UploadFileComponent implements OnDestroy {
 
 		https: this._demoService.sendDocument(body).subscribe(
 			(response) => {
+				const data = response.data;
+
+				const documentId = data.studio ? data.studio._id : data.prompt._id;
+
 				localStorage.setItem("idCard", this.base64Image);
 
-				this._demoService.setDemoDocument(response.data);
+				this._demoService.setDemoDocument(data);
 
-				localStorage.setItem("documentId", response.data._id);
+				localStorage.setItem("documentId", documentId);
 
 				this._demoService.moveToStep(3);
 

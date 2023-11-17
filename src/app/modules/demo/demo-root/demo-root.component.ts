@@ -49,6 +49,7 @@ export class DemoRootComponent implements OnInit {
 		this.demoData = {};
 
 		this.demoData.loading = true;
+
 		this._splashScreenService.show();
 
 		this.navigation = this._demoService.getNavigation();
@@ -75,6 +76,7 @@ export class DemoRootComponent implements OnInit {
 			this._demoService.moveToStep(this.step);
 
 			this.demoData.loading = false;
+
 			this._splashScreenService.hide();
 
 			return;
@@ -96,6 +98,7 @@ export class DemoRootComponent implements OnInit {
 
 	talkToSales(): void {
 		const url = "https://meetings.hubspot.com/lina-yepes";
+
 		window.open(url, "_blank");
 	}
 

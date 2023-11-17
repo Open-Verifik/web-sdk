@@ -1,28 +1,48 @@
-<div class="w-full min-h-[900px] flex flex-col items-center justify-center p-8">
-	<div *ngIf="!loadingModel" class="flex flex-col items-center justify-center w-full">
-		<div class="flex flex-col items-center justify-center text-center h-20 my-2">
+<canvas #credentialCanvas hidden="true"></canvas>
+<img id="credential" [src]="idCardImage" hidden="true" />
+
+<div fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 sm:p-1 xs:p-1 w-full">
+	<div fxLayout="column" fxLayoutAlign="center center" class="justify-center w-full" *ngIf="!loadingModel && !lowCamera">
+		<div fxLayout="column" fxLayoutAlign="center center" class="justify-center text-center h-20 sm:h-8 xs:h-8 my-2">
 			<div *ngIf="errorFace && !loadingResults">
 				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
 				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
 			</div>
 		</div>
 
-		<div [ngStyle]="{ 'width.px': WIDTH, 'height.px': HEIGHT }">
-			<div class="relative w-full">
-				<video
-					[class.hidden]="loadingResults"
-					#video
-					[width]="WIDTH"
-					[height]="HEIGHT"
-					autoplay
-					muted
-					class="absolute top-0 left-0 oval-video"
-				></video>
-				<div #canvas class="absolute top-0 left-0 oval-video" [class.hidden]="loadingResults"></div>
-				<div #result class="absolute top-0 left-0 oval-video" [class.hidden]="!loadingResults"></div>
-			</div>
+		<div
+			class="relative w-full"
+			[style.maxWidth.px]="maxWidth"
+			[style.maxHeight.px]="maxHeight"
+			[style.width.px]="WIDTH"
+			[style.height.px]="HEIGHT"
+		>
+			<video
+				#video
+				autoplay
+				class="absolute top-0 left-0 oval-video"
+				[style.width.px]="WIDTH"
+				[style.height.px]="HEIGHT"
+				[class.hidden]="base64Image"
+			></video>
+			<div
+				#canvas
+				class="absolute top-0 left-0 oval-video"
+				[style.width.px]="WIDTH"
+				[style.height.px]="HEIGHT"
+				[class.hidden]="base64Image"
+			></div>
+			<canvas #result class="absolute" [class.hidden]="!base64Image"></canvas>
+			<canvas #toSend class="absolute" [class.hidden]="true"></canvas>
 		</div>
 	</div>
+	<div fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div" *ngIf="!loadingModel && lowCamera">
+		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
+
+		<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+
+		<p class="mt-4">
+			{{ "id_scanning.camera_not_found_description" | transloco }}
+		</p>
+	</div>
 </div>
-<canvas #credentialCanvas hidden="true"></canvas>
-<img id="credential" [src]="idCardImage" hidden="true"/>

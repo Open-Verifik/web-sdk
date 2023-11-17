@@ -11,7 +11,7 @@ let _this = null;
 	providedIn: "root",
 })
 export class DemoService {
-	private _faceapi: BehaviorSubject < any > = new BehaviorSubject(null);
+	private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
 
 	navigation: any;
 	demoData: any;
@@ -30,21 +30,35 @@ export class DemoService {
 
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
 			this.demoData.isMobile = result.matches;
+			this.demoData.time = result.matches ? 500: 250
 		});
+		this.demoData.OS =  this.detectOS()
 	}
 
-	get faceapi$(): Observable < boolean > {
-        return this._faceapi.asObservable();
-    }
+	detectOS() {
+		const userAgent = window.navigator.userAgent.toLowerCase();
+
+		if (/android/.test(userAgent)) {
+			return "ANDROID";
+		} else if (/iphone|ipad|ipod/.test(userAgent)) {
+			return "IOS";
+		}
+
+		return "DESKTOP";
+	}
+
+	get faceapi$(): Observable<boolean> {
+		return this._faceapi.asObservable();
+	}
 
 	async loadModels(): Promise<void> {
 		// const startTime = performance.now();
 		const promises = [];
 		promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
 		promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
-		await Promise.allSettled(promises)
+		await Promise.allSettled(promises);
 
-		this._faceapi.next(true)
+		this._faceapi.next(true);
 
 		// const endTime = performance.now();
 		// const elapsedTime = endTime - startTime;
@@ -64,12 +78,22 @@ export class DemoService {
 	}
 
 	getDemoData(): any {
-		if (!this.demoData.document?._id && localStorage.getItem("document")) {
-			this.demoData.document = JSON.parse(localStorage.getItem("document"));
+		if (!this.demoData.proFields?.length && localStorage.getItem("proFields")) {
+			this.demoData.pro = JSON.parse(localStorage.getItem("pro"));
+
+			this.demoData.proFields = JSON.parse(localStorage.getItem("proFields"));
 		}
 
-		if (!this.demoData.extractedData.length && localStorage.getItem("extractedData")) {
-			this.demoData.extractedData = JSON.parse(localStorage.getItem("extractedData"));
+		if (!this.demoData.promptFields?.length && localStorage.getItem("promptFields")) {
+			this.demoData.prompt = JSON.parse(localStorage.getItem("prompt"));
+
+			this.demoData.promptFields = JSON.parse(localStorage.getItem("promptFields"));
+		}
+
+		if (!this.demoData.studioFields?.length && localStorage.getItem("studioFields")) {
+			this.demoData.studio = JSON.parse(localStorage.getItem("studio"));
+
+			this.demoData.studioFields = JSON.parse(localStorage.getItem("studioFields"));
 		}
 
 		if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
@@ -94,39 +118,80 @@ export class DemoService {
 	initDemoData(): void {
 		this.demoData = {
 			loading: false,
-			document: {},
 			liveness: {},
 			comparison: {},
 			livenessResult: [],
 			comparisonResult: [],
 			generalInformation: [],
 			location: [],
+			documentType: {},
+			documentTypeFields: [],
+			pro: {},
+			proFields: [],
+			studio: {},
+			studioFields: [],
+			prompt: {},
+			promptFields: [],
 			extractedData: [],
 			lat: null,
 			lng: null,
 		};
 	}
 
-	setDemoDocument(document: any): void {
-		this.demoData.document = document;
+	setDemoDocument(response: any): void {
+		this.demoData.proFields = [];
 
-		this.demoData.extractedData.push({ key: "documentType", value: document.documentType });
+		this.demoData.promptFields = [];
 
-		this.demoData.extractedData.push({ key: "documentNumber", value: document.documentNumber });
+		this.demoData.studioFields = [];
+
+		this.formatAndSaveOCRs(response.pro, "pro");
+
+		this.formatAndSaveOCRs(response.studio, "studio");
+
+		this.formatAndSaveOCRs(response.prompt, "prompt");
+
+		if (this.demoData.studio) {
+			localStorage.setItem("documentId", this.demoData.studio._id);
+		} else if (this.demoData.prompt) {
+			localStorage.setItem("documentId", this.demoData.prompt._id);
+		} else if (this.demoData.pro) {
+			localStorage.setItem("documentId", this.demoData.pro._id);
+		}
+	}
+
+	formatAndSaveOCRs(document, type: string): void {
+		const typeFields = `${type}Fields`;
+
+		if (!document) {
+			localStorage.removeItem(type);
+
+			localStorage.removeItem(typeFields);
+
+			return;
+		}
+
+		this.demoData[typeFields].push({ key: "documentType", value: document.documentType });
+
+		this.demoData[typeFields].push({ key: "documentNumber", value: document.documentNumber });
 
 		for (const key in document.OCRExtraction) {
 			if (Object.prototype.hasOwnProperty.call(document.OCRExtraction, key)) {
 				const value = document.OCRExtraction[key];
 
-				if (["documentNumber", "details"].includes(key)) continue;
+				if (!value) continue;
 
-				this.demoData.extractedData.push({ key, value });
+				if (["documentNumber", "documentType", "details"].includes(key)) continue;
+
+				this.demoData[typeFields].push({ key, value });
 			}
 		}
 
-		localStorage.setItem("document", JSON.stringify(document));
+		this.demoData[type] = document;
 
-		localStorage.setItem("extractedData", JSON.stringify(this.demoData.extractedData));
+		localStorage.setItem(type, JSON.stringify(document));
+
+		localStorage.setItem(typeFields, JSON.stringify(this.demoData[typeFields]));
 	}
 
 	setDemoLiveness(data: any): void {
@@ -339,7 +404,12 @@ export class DemoService {
 	cleanVariables(): void {
 		const keys = [
 			"documentId",
-			"document",
+			"pro",
+			"studio",
+			"prompt",
+			"proFields",
+			"studioFields",
+			"promptFields",
 			"extractedData",
 			"liveness",
 			"livenessId",

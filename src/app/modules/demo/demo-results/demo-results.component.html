@@ -6,7 +6,7 @@
 	fxLayoutAlign="start start"
 	fxLayoutAlign.sm="center center"
 	fxLayoutAlign.xs="center center"
-	*ngIf="demoData.document._id && demoData.liveness._id"
+	*ngIf="(demoData.prompt._id || demoData.studio._id) && demoData.liveness._id"
 >
 	<!-- first section -->
 	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="end end">
@@ -24,7 +24,7 @@
 			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
 				<h2 class="mt-4">{{ "step_three.front_side" | transloco }}</h2>
 
-				<img [src]="demoData.document.url" alt="" class="mt-4 box-shadow-3px" />
+				<img [src]="documentFrontSideUrl" alt="" class="mt-4 box-shadow-3px" />
 			</div>
 		</div>
 	</div>
@@ -181,18 +181,56 @@
 			</div>
 		</div>
 
-		<!-- extracted info from ID -->
-		<div fxLayout="column" fxLayoutAlign="start start" class="w-full" fxLayoutAlign.xs="center center">
-			<h1 class="mt-4">{{ "step_three.extracted_information" | transloco }}</h1>
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start start"
+			fxLayoutAlign.xs="center center"
+			class="w-full"
+			*ngIf="demoData.studio && !demoData.studio.error"
+		>
+			<h1 class="mt-4">{{ "extracted_information.studio" | transloco }}</h1>
 
 			<div class="mt-8 w-full">
-				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.extractedData" class="id-details-item">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.studioFields" class="id-details-item">
 					<h3>{{ "extracted_information." + item.key | transloco }}</h3>
 					<p>{{ item.value }}</p>
 				</div>
 			</div>
 		</div>
-		<!-- end of extracted info from ID -->
+
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start start"
+			fxLayoutAlign.xs="center center"
+			class="w-full"
+			*ngIf="demoData.prompt && !demoData.prompt.error"
+		>
+			<h1 class="mt-4">{{ "extracted_information.prompt" | transloco }}</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.promptFields" class="id-details-item">
+					<h3>{{ "extracted_information." + item.key | transloco }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start start"
+			fxLayoutAlign.xs="center center"
+			class="w-full"
+			*ngIf="demoData.pro && !demoData.pro.error"
+		>
+			<h1 class="mt-4">{{ "extracted_information.pro" | transloco }}</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.proFields" class="id-details-item">
+					<h3>{{ "extracted_information." + item.key | transloco }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
 
 		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" *ngIf="demoData.location" class="w-full">
 			<h1 class="mt-4">{{ "step_three.user_location" | transloco }}</h1>

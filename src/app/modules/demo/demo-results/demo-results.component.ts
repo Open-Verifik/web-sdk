@@ -18,6 +18,7 @@ export class DemoResultsComponent implements OnInit {
 	generalInfoLoaded: boolean;
 	locationLoaded: boolean;
 	locationLoading: boolean;
+	documentFrontSideUrl: string;
 
 	constructor(private _demoService: DemoService, private _changeDetectorRef: ChangeDetectorRef) {
 		this.demoData = this._demoService.getDemoData();
@@ -27,48 +28,22 @@ export class DemoResultsComponent implements OnInit {
 		this.locationLoaded = false;
 
 		this.locationLoading = false;
+
+		this.documentFrontSideUrl = this.demoData.pro?.url || this.demoData.studio?.url || this.demoData.prompt?.url;
 	}
 
 	ngOnInit(): void {
-		if (!this.demoData.document?._id && localStorage.getItem("documentId")) {
-			this._getDocumentData();
-		}
-
 		if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
 			this._getLivenessData();
 		}
 
 		this._changeDetectorRef.markForCheck();
 
-		if (!this.demoData.liveness?._id || !this.demoData.document?._id) {
+		if (!this.demoData.liveness?._id) {
 			this._demoService.moveToStep(1);
 
 			return;
 		}
-
-		if (this.demoData.extractedData) {
-			for (let index = this.demoData.extractedData.length - 1; index >= 0; index--) {
-				const extractedRow = this.demoData.extractedData[index];
-
-				if (extractedRow.key === "details") {
-					this.demoData.extractedData.splice(index, 1);
-				}
-			}
-		}
-	}
-
-	_getDocumentData(): void {
-		let document = localStorage.getItem("document");
-
-		if (document) {
-			this.demoData.document = JSON.parse(document);
-
-			this.demoData.extractedData = JSON.parse(localStorage.getItem("extractedData"));
-
-			return;
-		}
-
-		this._changeDetectorRef.markForCheck();
 	}
 
 	_getLivenessData(): void {
