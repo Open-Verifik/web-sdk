@@ -77,19 +77,19 @@ export class DemoService {
 		if (!this.demoData.proFields?.length && localStorage.getItem("proFields")) {
 			this.demoData.pro = new DocumentValidation(JSON.parse(localStorage.getItem("pro")));
 
-			this.demoData.proFields = JSON.parse(localStorage.getItem("proFields"));
+			this.demoData.proFields = this.demoData.pro.arrayFields;
 		}
 
 		if (!this.demoData.promptFields?.length && localStorage.getItem("promptFields")) {
 			this.demoData.prompt = new DocumentValidation(JSON.parse(localStorage.getItem("prompt")));
 
-			this.demoData.promptFields = JSON.parse(localStorage.getItem("promptFields"));
+			this.demoData.promptFields = this.demoData.prompt.arrayFields;
 		}
 
 		if (!this.demoData.studioFields?.length && localStorage.getItem("studioFields")) {
 			this.demoData.studio = new DocumentValidation(JSON.parse(localStorage.getItem("studio")));
 
-			this.demoData.studioFields = JSON.parse(localStorage.getItem("studioFields"));
+			this.demoData.studioFields = this.demoData.studio.arrayFields;
 		}
 
 		if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
@@ -175,21 +175,9 @@ export class DemoService {
 
 		const _document = new DocumentValidation(document);
 
-		console.log({ _document });
+		this.demoData[type] = _document;
 
-		for (const key in document.OCRExtraction) {
-			if (Object.prototype.hasOwnProperty.call(document.OCRExtraction, key)) {
-				const value = document.OCRExtraction[key];
-
-				if (!value) continue;
-
-				if (["documentNumber", "documentType", "details"].includes(key)) continue;
-
-				this.demoData[typeFields].push({ key, value });
-			}
-		}
-
-		this.demoData[type] = document;
+		this.demoData[typeFields] = _document.arrayFields;
 
 		localStorage.setItem(type, JSON.stringify(document));
 
