@@ -70,7 +70,17 @@
 		"issuingAuthority": "Issuing Authority",
 		"country": "Country",
 		"height": "Height",
-		"placeOfBirth": "Place of birth"
+		"placeOfBirth": "Place of birth",
+		"pro": "Scan Pro - Document extraction",
+		"studio": "Scan Studio - Document extraction",
+		"prompt": "Scan Prompt - Document extraction",
+		"organDonor": "Organ donor",
+		"code": "Bar code",
+		"type": "Type",
+		"issueDate": "Issue date",
+		"sex": "Gender",
+		"issuingCountry": "Issuing country",
+		"middleName": "Middle name"
 	},
 	"id_scanning": {
 		"camera_not_found": "A camera has not been found on the device or is momentarily disabled.",
