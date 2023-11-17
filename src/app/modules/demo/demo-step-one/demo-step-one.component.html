@@ -79,7 +79,8 @@
 	<div></div>
 </div>
 
-<div class="step-one-main-div" fxLayout="column" fxLayoutAlign="center center" *ngIf="showForm && contactForm">
+<!-- lead form -->
+<div class="form-div" fxLayout="column" fxLayoutAlign="center center" *ngIf="showForm && contactForm">
 	<h1>{{ "form.title" | transloco }}</h1>
 
 	<form [formGroup]="contactForm" novalidate fxLayout="column" class="w-full">
@@ -158,5 +159,6 @@
 		</div>
 	</form>
 </div>
+<!-- end of lead form -->
 
 <img src="https://cdn.verifik.co/demo/stepone_woman@2x.png" alt="" fxHide.xs="true" fxHide.sm="true" fxHide.md="true" class="business-woman-image" />
