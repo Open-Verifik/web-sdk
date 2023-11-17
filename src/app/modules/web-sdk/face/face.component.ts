@@ -12,11 +12,12 @@ import * as faceapi from "@vladmandic/face-api";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 @Component({
 	selector: "app-face",
 	standalone: true,
-	imports: [CommonModule, MatDialogModule, TranslocoModule, MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule],
+	imports: [FlexLayoutModule, CommonModule, MatDialogModule, TranslocoModule, MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule],
 	templateUrl: "./face.component.html",
 	styleUrls: ["./face.component.scss"],
 })
@@ -78,8 +79,15 @@ export class FaceComponent implements OnInit, OnDestroy {
 	up: HTMLImageElement;
 	down: HTMLImageElement;
 	videoDimensions: any;
-	resizeDimensions: { rectHeight: number; rectWidth: number; y: number; x: number; };
-	originalDimensions: { rectHeight: any; rectWidth: number; y: number; x: number; };
+	resizeDimensions: { rectHeight: number; rectWidth: number; y: number; x: number };
+	originalDimensions: { rectHeight: any; rectWidth: number; y: number; x: number };
+	minPixelFace: number = 234;
+	videoOptions: any = {
+		frameRate: { ideal: 30, max: 30 },
+	};
+	maxHeight: number;
+	maxWidth: number;
+	lowCamera: boolean;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
@@ -90,6 +98,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2
 	) {
 		this.loadingModel = true;
+		
+		this.lowCamera = false
 
 		this.debugIndex = 0;
 
@@ -97,12 +107,15 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.demoData = this._demoService.getDemoData();
 
+		let key = this.demoData.isMobile ? "heigth" : "width";
+		this.videoOptions[key] = { ideal: 1024 };
+
 		this.listenModeDebug();
 
 		this.renderer.listen("window", "resize", () => {
 			if (this.videoInput) {
 				this.setCanvasDimension();
-				this.setConfigCanvas()
+				this.setConfigCanvas();
 			}
 		});
 
@@ -188,8 +201,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 		}
 
 		if (!detections.length) {
-			this.detectFaceBiggest(minConfidence - 0.1);
-			return;
+			return this.detectFaceBiggest(minConfidence - 0.1);
 		}
 
 		let maxArea = 0;
@@ -230,10 +242,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
-				video: {
-					facingMode: "user",
-					height: { ideal: 720 },
-				},
+				video: this.videoOptions,
 				audio: false,
 			});
 
@@ -250,6 +259,13 @@ export class FaceComponent implements OnInit, OnDestroy {
 			const { width, height } = settings;
 			// alert(`${width} x ${height}`);
 			this.videoDimensions = { height, width };
+			
+			if(height < 600) {
+				this.lowCamera = true
+				this.loadingModel = false;
+				this.demoData.loading = false;
+				this._splashScreenService.hide();
+			}
 
 			this.videoInput.addEventListener("loadedmetadata", () => {
 				if (!this.video && !this.canvas) {
@@ -257,7 +273,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 					return;
 				}
 
-				this.setCanvasDimension()
+				this.setCanvasDimension();
 
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
@@ -266,10 +282,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 				this._changeDetectorRef.markForCheck();
 			});
-
-			setTimeout(() => {
-				setTimeout(() => {}, 300);
-			}, 300);
 		} catch (error) {
 			alert(`${error.message}`);
 			console.error("SHOW ERROR");
@@ -277,8 +289,11 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	setCanvasDimension = () => {
-		this.HEIGHT = this.videoInput.clientHeight;
-		this.WIDTH = this.videoInput.clientWidth;
+		this.maxHeight = Math.floor(window.innerHeight * 0.8);
+		this.maxWidth = Math.floor(window.innerWidth * 0.75);
+
+		this.HEIGHT = Math.min(this.videoInput.clientHeight, this.maxHeight);
+		this.WIDTH = Math.min(this.videoInput.clientWidth, this.maxWidth);
 
 		this.videoCenterX = this.WIDTH / 2;
 		this.videoCenterY = this.HEIGHT / 2;
@@ -294,7 +309,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.OVAL.radiusY = this.OVAL.radiusX / 0.75;
 		}
 
-
 		this.displaySize = {
 			width: this.WIDTH,
 			height: this.HEIGHT,
@@ -302,9 +316,9 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.resizeDimensions = {
 			rectHeight: this.HEIGHT,
-			rectWidth: 2.8 * this.OVAL.radiusX,
+			rectWidth: Math.min(2.8 * this.OVAL.radiusX, this.WIDTH),
 			y: 0,
-			x: this.videoCenterX - 1.4 * this.OVAL.radiusX,
+			x: this.videoCenterX - Math.min(2.8 * this.OVAL.radiusX, this.WIDTH) / 2,
 		};
 
 		this.originalDimensions = {
@@ -320,28 +334,34 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.detectFaceInterval = setInterval(
 			async () => {
-				const detection = await faceapi.detectAllFaces(this.videoInput, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks();
-				// .withFaceExpressions()
-				// .withAgeAndGender();
+				try {
+					const detection = await faceapi
+						.detectAllFaces(this.videoInput, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
+						.withFaceLandmarks();
+					// .withFaceExpressions()
+					// .withAgeAndGender();
 
-				const context = this.canvas.getContext("2d");
+					const context = this.canvas.getContext("2d");
 
-				if (detection.length > 0) {
-					this.lastFace = detection[0];
-					this.errorFace = null;
+					if (detection.length > 0) {
+						this.lastFace = detection[0];
+						this.errorFace = null;
 
-					this.drawFaceAndCenter(detection, context);
-					this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
-					this.isFaceClose(this.lastFace.landmarks);
+						this.drawFaceAndCenter(detection, context);
+						this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
+						this.isFaceClose(this.lastFace.landmarks);
 
-					this.drawStatusOval(context, !this.errorFace?.title);
+						this.drawStatusOval(context, !this.errorFace?.title);
 
-					if (!this.errorFace) {
-						this.captureBase64Image();
+						if (!this.errorFace) {
+							this.captureBase64Image();
+						}
 					}
-				}
 
-				this._changeDetectorRef.markForCheck();
+					this._changeDetectorRef.markForCheck();
+				} catch (error) {
+					alert(error.message);
+				}
 			},
 			this.demoData.isMobile ? 500 : 300
 		);
@@ -358,7 +378,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 			this.canvasEl = this.canvasRef.nativeElement;
 			this.canvasEl.appendChild(this.canvas);
 			this.canvas.setAttribute("id", "canvas");
-
 		}
 
 		faceapi.matchDimensions(this.canvas, this.displaySize);
@@ -465,7 +484,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 			faceCenterX > this.videoCenterX - this.marginX &&
 			faceCenterX < this.videoCenterX + this.marginX &&
 			faceCenterY > this.videoCenterY &&
-			faceCenterY < this.videoCenterY + this.marginY * 2;
+			faceCenterY < this.videoCenterY + this.marginY * 2.5;
 
 		if (!isFaceCentered) {
 			let direction = "";
@@ -491,7 +510,7 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		const threshold = 0.25;
 
-		if (faceProportion < threshold) {
+		if (faceProportion < threshold || landmarks.imageHeight < this.minPixelFace || landmarks.imageWidth < this.minPixelFace) {
 			this.errorFace = {
 				title: this._translocoService.translate("liveness.get_closer"),
 				subtitle: this._translocoService.translate("liveness.get_closer_subtitle"),
@@ -514,18 +533,6 @@ export class FaceComponent implements OnInit, OnDestroy {
 	}
 
 	async takePicture() {
-		// const startX = this.videoCenterX - 1.4 * this.OVAL.radiusX;
-		// const widthCut = 2.8 * this.OVAL.radiusX;
-
-		// this.canvasResult = this.canvasResultRef.nativeElement
-		// this.canvasResult.width = widthCut;
-		// this.canvasResult.height = this.HEIGHT;
-		// this.canvasResult.style.marginLeft = `${startX}px`;
-
-		// const context = this.canvasResult.getContext("2d");
-
-		// context.drawImage(this.videoInput, startX, 0, widthCut, this.HEIGHT, 0, 0, widthCut, this.HEIGHT);
-
 		const canvasToSend = this.canvasToSendRef.nativeElement;
 		const canvasResult = this.canvasResultRef.nativeElement;
 
