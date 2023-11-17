@@ -80,7 +80,18 @@
 		"issueDate": "Issue date",
 		"sex": "Gender",
 		"issuingCountry": "Issuing country",
-		"middleName": "Middle name"
+		"middleName": "Middle name",
+		"name1": "First name",
+		"name2": "First name (2)",
+		"name3": "First name (3)",
+		"maritalStatus": "Marital status",
+		"marritalStatus": "Marital status",
+		"inscriptionDate": "Inscription date",
+		"documentNumberMRZ": "Document number (MRZ)",
+		"firstLastNameMRZ": "Last name [1] (MRZ)",
+		"firstNameMRZ": "First name (MRZ)",
+		"locationCode": "Location code",
+		"DNIPhoto": "DNI on the photo"
 	},
 	"id_scanning": {
 		"camera_not_found": "A camera has not been found on the device or is momentarily disabled.",

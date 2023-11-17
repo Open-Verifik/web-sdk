@@ -80,7 +80,18 @@
 		"issueDate": "Petsa ng Pag-isyu",
 		"sex": "Kasarian",
 		"issuingCountry": "Bansang Nag-isyu",
-		"middleName": "Gitnang Pangalan"
+		"middleName": "Gitnang Pangalan",
+		"name1": "Unang Pangalan",
+		"name2": "Unang Pangalan (2)",
+		"name3": "Unang Pangalan (3)",
+		"maritalStatus": "Katayuan sa Pag-aasawa",
+		"marritalStatus": "Katayuan sa Pag-aasawa",
+		"inscriptionDate": "Petsa ng Inscription",
+		"documentNumberMRZ": "Numero ng Dokumento (MRZ)",
+		"firstLastNameMRZ": "Huling Pangalan [1] (MRZ)",
+		"firstNameMRZ": "Unang Pangalan (MRZ)",
+		"locationCode": "Kodigo ng Lokasyon",
+		"DNIPhoto": "DNI sa Larawan"
 	},
 	"id_scanning": {
 		"camera_not_found": "Walang nakitang kamera sa device o pansamantalang hindi pinagana.",

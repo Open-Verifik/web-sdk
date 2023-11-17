@@ -1,54 +1,49 @@
 <div
 	fxLayout="column"
 	fxLayoutAlign="center center"
-	class="bg-white rounded-lg shadow-lg m-5 p-4 items-center w-full"
-	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera"
+	class="bg-white rounded-lg shadow-lg m-5 p-4 w-full"
+	*ngIf="!response.isFailed && camera.hasPermissions"
 >
-	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full h-full">
-		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
-			<div class="relative w-full" [style.width.px]="VideoDimensions.width" [style.height.px]="VideoDimensions.height">
-				<webcam
-					[height]="VideoDimensions.maxHeight"
-					[width]="VideoDimensions.maxWidth"
-					[videoOptions]="videoOptions"
-					[imageQuality]="1"
-					[captureImageData]="true"
-					[allowCameraSwitch]="false"
-					[trigger]="trigger$"
-					[mirrorImage]="demoData.isMobile ? 'never' : 'always'"
-					(imageCapture)="captureImage($event)"
-					(initError)="cameraError($event)"
-					*ngIf="!base64Images"
-				></webcam>
-				<canvas
-					#canvas
-					class="absolute top-0 left-0"
-					[style.width.px]="VideoDimensions.resultWidth ?? VideoDimensions.width"
-					[style.height.px]="VideoDimensions.resultHeight ?? VideoDimensions.height"
-				></canvas>
-				<canvas #toSend [class.hidden]="true"
-				></canvas>
-			</div>
-			<div fxLayout="row" fxLayoutAlign="center center">
-				<button mat-raised-button color="primary" class="m-4 z-index-2" [class.hidden]="base64Images" (click)="triggerSnapshot()">
-					{{ "id_scanning.manual_capture_button" | transloco }}
-				</button>
+	<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
+		<webcam
+			[height]="camera.dimensions.video.max.height"
+			[width]="camera.dimensions.video.max.width"
+			[videoOptions]="camera.configuration"
+			[imageQuality]="1"
+			[captureImageData]="true"
+			[allowCameraSwitch]="false"
+			[trigger]="takePicture$"
+			[mirrorImage]="demoData.isMobile ? 'never' : 'always'"
+			(imageCapture)="proccessImage($event)"
+			(initError)="cameraError($event)"
+			*ngIf="!response.base64Image"
+		></webcam>
+		<canvas
+			#maskResult
+			class="absolute top-0 left-0"
+			[style.width.px]="camera.dimensions.real?.width ? camera.dimensions.result.width : camera.dimensions.video.width"
+			[style.height.px]="camera.dimensions.real?.height ? camera.dimensions.result.height : camera.dimensions.video.height"
+		></canvas>
+		<canvas #toSend [class.hidden]="true"></canvas>
+	</div>
+	<div fxLayout="row" fxLayoutAlign="center center">
+		<button mat-raised-button color="primary" class="m-4 z-index-2" [class.hidden]="response.base64Image" (click)="takePictureSnapshot()">
+			{{ "id_scanning.manual_capture_button" | transloco }}
+		</button>
 
-				<button mat-stroked-button color="primary" class="m-4 z-index-2" [class.hidden]="!base64Images" (click)="tryAgain()">
-					{{ "id_scanning.retry" | transloco }}
-				</button>
+		<button mat-stroked-button color="primary" class="m-4 z-index-2" [class.hidden]="!response.base64Image" (click)="ngOnInit()">
+			{{ "id_scanning.retry" | transloco }}
+		</button>
 
-				<button mat-raised-button color="primary" class="mx-2" [class.hidden]="!base64Images" (click)="continue()">
-					{{ "continue" | transloco }}
-				</button>
-			</div>
-		</div>
+		<button mat-raised-button color="primary" class="mx-2" [class.hidden]="!response.base64Image" (click)="continue()">
+			{{ "continue" | transloco }}
+		</button>
 	</div>
 </div>
 
 <!-- it doesnt have permissions -->
 <div
-	*ngIf="!failedToDetectDocument && !hasCameraPermissions && !loadingCamera"
+	*ngIf="!response.isFailed && !camera.hasPermissions && !camera.isLoading"
 	fxLayout="column"
 	fxLayoutAlign="center center"
 	class="id-scanning-error-div"
@@ -62,31 +57,39 @@
 	</p>
 </div>
 
-<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
+<div *ngIf="response.isFailed" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
 	<img
-		[src]="attemptsLimit - attempts > 0 ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png' : 'https://cdn.verifik.co/demo/redstop.svg'"
+		[src]="
+			attempts.limit - attempts.current > 0
+				? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png'
+				: 'https://cdn.verifik.co/demo/redstop.svg'
+		"
 		alt=""
 		class="id-scanning-failed-document-img"
 	/>
 
 	<h1 class="mt-4">
-		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
+		{{ (attempts.limit - attempts.current > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
 	</h1>
 
 	<p class="mt-4">
 		{{
-			(attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description")
-				| transloco
+			(attempts.limit - attempts.current > 0
+				? "id_scanning.document_not_detected_description"
+				: "id_scanning.failed_to_detect_limit_description"
+			) | transloco
 		}}
 	</p>
 
-	<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
+	<p class="mt-4" *ngIf="attempts.limit - attempts.current > 0">
+		{{ "id_scanning.remaining_attempts" | transloco }} {{ attempts.limit - attempts.current }}
+	</p>
 
 	<button
 		mat-raised-button
 		color="primary"
 		class="mt-4 z-index-2 id-scanning-try-again-button"
-		(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
+		(click)="attempts.limit - attempts.current > 0 ? tryAgain() : restartDemo()"
 	>
 		{{ (failedToDetectDocument ? "id_scanning.retry" : "restart") | transloco }}
 	</button>

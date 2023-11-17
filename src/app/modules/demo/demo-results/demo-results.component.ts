@@ -30,7 +30,6 @@ export class DemoResultsComponent implements OnInit {
 		this.locationLoading = false;
 
 		this.documentFrontSideUrl = this.demoData.pro?.url || this.demoData.studio?.url || this.demoData.prompt?.url;
-		console.log("got constructor");
 	}
 
 	ngOnInit(): void {

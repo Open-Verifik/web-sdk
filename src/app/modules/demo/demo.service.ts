@@ -30,6 +30,7 @@ export class DemoService {
 
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
 			this.demoData.isMobile = result.matches;
+			this.demoData.time = result.matches ? 500: 250
 		});
 		this.demoData.OS =  this.detectOS()
 	}
@@ -157,8 +158,6 @@ export class DemoService {
 		} else if (this.demoData.pro) {
 			localStorage.setItem("documentId", this.demoData.pro._id);
 		}
-
-		console.log({ demoDATA: this.demoData });
 	}
 
 	formatAndSaveOCRs(document, type: string): void {

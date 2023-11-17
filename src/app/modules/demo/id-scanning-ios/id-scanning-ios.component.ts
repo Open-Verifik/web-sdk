@@ -9,6 +9,7 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule } from "@ngneat/transloco";
 import { WebcamImage, WebcamInitError, WebcamModule } from "ngx-webcam";
 import { Observable, Subject } from "rxjs";
+import { CameraData, FacingMode, ResponseData } from "../models/sdk.models";
 @Component({
 	selector: "id-scanning-ios",
 	templateUrl: "./id-scanning-ios.component.html",
@@ -17,275 +18,270 @@ import { Observable, Subject } from "rxjs";
 	imports: [FlexLayoutModule, MatCheckboxModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, TranslocoModule, WebcamModule],
 })
 export class IdScanningIOSComponent implements OnInit {
-	@ViewChild("videoElement") videoElement: ElementRef;
-	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
-	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
+	@ViewChild("maskResult", { static: false }) public maskResultCanvasRef: ElementRef;
+	@ViewChild("toSend", { static: false }) public ToSendCanvasRef: ElementRef;
 
-	hasCameraPermissions: boolean;
-	loadingCamera: boolean;
-	private trigger: Subject<void> = new Subject<void>();
-	videoOptions: any = {
-		frameRate: { ideal: 30, max: 30 },
+	attempts: any;
+	demoData: any;
+	camera: CameraData;
+	response: ResponseData;
+	intervalCheckNgxVideo: any;
+
+	aspectRatio = 85.6 / 53.98;
+
+	private takePicture: Subject<void> = new Subject<void>();
+
+	public get takePicture$(): Observable<void> {
+		return this.takePicture.asObservable();
+	}
+
+	setDefaultCamera = () => {
+		let key = this.demoData.isMobile ? "width" : "height";
+
+		this.camera = {
+			hasPermissions: false,
+			isLoading: false,
+			configuration: {
+				frameRate: { ideal: 30, max: 30 },
+				[key]: { ideal: 1080 },
+				facingMode: FacingMode[this.demoData.isMobile],
+			},
+			dimensions: {
+				video: {
+					max: {
+						height: Math.ceil(window.innerHeight * 0.7),
+						width: Math.ceil(window.innerWidth * 0.9),
+					},
+				},
+			},
+		};
 	};
 
-	failedToDetectDocument: boolean;
-	attempts: number;
-	attemptsLimit: number;
-	demoData: any;
-	idToSend: any;
-	stream: MediaStream;
-	VideoDimensions: any = {};
-	HEIGHT: number;
-	WIDTH: number;
-	aspectRatio = 85.6 / 53.98;
-	rectCredential: any;
-	base64Images: any;
-	video: any;
-	isVideoReady: any;
+	setDefaultAttempts = () => {
+		this.attempts = {
+			current: 0,
+			limit: 3,
+		};
+	};
+
+	setDefaultResponse = () => {
+		this.response = {
+			isLoading: false,
+			isFailed: false,
+		};
+	};
 
 	constructor(
 		private _dom: ElementRef,
 		private _demoService: DemoService,
 		private _splashScreenService: FuseSplashScreenService,
-		private _changeDetectorRef: ChangeDetectorRef,
 		private renderer: Renderer2
 	) {
-		this.attempts = 0;
-		this.attemptsLimit = 3;
-
-		this.loadingCamera = false;
-		this.hasCameraPermissions = false;
-
-		this.base64Images = undefined;
-		this.failedToDetectDocument = false;
-
-		this.video = {};
-		this.rectCredential = {};
-
 		this.demoData = this._demoService.getDemoData();
 
-		let key = this.demoData.isMobile ? "heigth" : "width";
-
-		this.videoOptions[key] = { ideal: 1024 };
-
-		this.videoOptions.facingMode = this.demoData.isMobile ? "environment" : "user";
-
-		this.VideoDimensions = {};
-
-		this.setMaxDimensions();
+		this.startDefaultValues();
+		this.setDefaultAttempts();
 
 		this.renderer.listen("window", "resize", () => {
-			this.setMaxDimensions();
-
-			const videoNgx = this._dom.nativeElement.querySelector("video");
-
-			if (!videoNgx) return;
-
-			this.setBasicDimensions(videoNgx);
-
-			this.drawRect();
+			this.intervalCheckNgxVideo = setInterval(() => {
+				this.setVideoNgxCameraData();
+			}, this.demoData.time);
 		});
 	}
 
 	ngOnInit(): void {
-		this.hasCameraPermissions = true;
-		this.loadingCamera = false;
-		this._splashScreenService.show();
+		this.startDefaultValues();
 
-		this.VideoDimensions.resultWidth = undefined;
-		this.VideoDimensions.resultHeight = undefined;
+		this.camera.hasPermissions = true;
 
-		this.isVideoReady = setInterval(() => {
-			const ctx: CanvasRenderingContext2D = this.canvasRef.nativeElement.getContext("2d");
-			ctx.clearRect(0, 0, this.VideoDimensions.width, this.VideoDimensions.height);
+		this.loading({ start: true });
 
-			const videoNgx = this._dom.nativeElement.querySelector("video");
-
-			if (!videoNgx) return;
-
-			this.isVideoReady = clearInterval(this.isVideoReady);
-
-			videoNgx.addEventListener("playing", () => {
-				this.setBasicDimensions(videoNgx);
-
-				this.drawRect();
-
-				this.loadingCamera = false;
-				this.hasCameraPermissions = true;
-				this.demoData.loading = false;
-				this._splashScreenService.hide();
-			});
-		}, 100);
+		this.intervalCheckNgxVideo = setInterval(() => {
+			this.setMaxVideoDimensions();
+			this.setVideoNgxCameraData();
+		}, this.demoData.time);
 	}
 
-	setMaxDimensions(): void {
-		this.VideoDimensions.maxHeight = Math.ceil(window.innerHeight * 0.7);
-		this.VideoDimensions.maxWidth = Math.ceil(window.innerWidth * 0.9);
+	startDefaultValues() {
+		this.setDefaultResponse();
+		this.setDefaultCamera();
+		this.setMaxVideoDimensions();
+	}
+
+	setVideoNgxCameraData = () => {
+		const videoNgx = this._dom.nativeElement.querySelector("video");
+		if (!videoNgx) return;
+
+		this.intervalCheckNgxVideo = clearInterval(this.intervalCheckNgxVideo);
+
+		this.setVideoDimensions(videoNgx);
+		this.drawRect();
+
+		videoNgx.addEventListener("playing", () => {
+			this.setVideoDimensions(videoNgx);
+			this.drawRect();
+
+			this.loading({ isLoading: false, start: true });
+		});
+	};
+
+	setVideoDimensions(videoNgx) {
+		this.camera.dimensions.video.height = videoNgx.clientHeight;
+		this.camera.dimensions.video.width = videoNgx.clientWidth;
+
+		const maskResultCanvas = this.maskResultCanvasRef.nativeElement;
+		maskResultCanvas.style.marginLeft = `0px`;
+		maskResultCanvas.style.marginTop = `0px`;
+	}
+
+	setMaxVideoDimensions(): void {
+		this.camera.dimensions.video = {
+			max: {
+				height: Math.ceil(window.innerHeight * 0.7),
+				width: Math.ceil(window.innerWidth * 0.9),
+			},
+		};
+		this.camera.dimensions.result = undefined;
+	}
+
+	setResultDimensions(data, height, width) {
+		const isHorizontal = height < width;
+
+		if (isHorizontal) {
+			data.offsetY = Math.floor(height * 0.1);
+			data.height = Math.floor(height * 0.8);
+			data.width = Math.floor(this.aspectRatio * data.height);
+			data.offsetX = Math.floor((width - data.width) / 2);
+		} else {
+			data.offsetX = Math.floor(width * 0.1);
+			data.width = Math.floor(width * 0.8);
+			data.height = Math.floor(this.aspectRatio * data.width);
+			data.offsetY = Math.floor((height - data.height) / 2);
+		}
+	}
+
+	loading = ({ isLoading = true, start = undefined, result = undefined }) => {
+		const key = (start && "camera") || (result && "response");
+
+		if (key) {
+			this[key].isLoading = isLoading;
+		}
+
+		const functionName = isLoading ? "show" : "hide";
+		this.demoData.loading = isLoading;
+		this._splashScreenService[functionName]();
+	};
+
+	drawRect(): void {
+		this.camera.dimensions.result = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
+		this.setResultDimensions(this.camera.dimensions.result, this.camera.dimensions.video.height, this.camera.dimensions.video.width);
+
+		const maskResultCanvas = this.maskResultCanvasRef.nativeElement;
+
+		const videoDim = this.camera.dimensions.video;
+		const resultDim = this.camera.dimensions.result;
+
+		maskResultCanvas.height = videoDim.height;
+		maskResultCanvas.width = videoDim.width;
+
+		const ctx: CanvasRenderingContext2D = maskResultCanvas.getContext("2d");
+
+		//CLEAR CANVAS
+		ctx.clearRect(0, 0, videoDim.width, videoDim.height);
+
+		//OPACITY OUTSIDE THE ELLIPSE
+		ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; // Color de la máscara
+		ctx.fillRect(0, 0, videoDim.width, videoDim.height);
+		ctx.globalCompositeOperation = "destination-out";
+
+		ctx.fillStyle = "rgba(0, 0, 0, 1)";
+		ctx.fillRect(resultDim.offsetX, resultDim.offsetY, resultDim.width, resultDim.height);
+		ctx.globalCompositeOperation = "source-over";
 	}
 
 	cameraError(error: WebcamInitError): void {
 		if (error.mediaStreamError && error.mediaStreamError.name === "NotAllowedError") {
-			this.loadingCamera = false;
-			this.hasCameraPermissions = false;
-			this.demoData.loading = false;
-			this._splashScreenService.hide();
+			this.loading({ isLoading: false, start: true });
+			this.camera.hasPermissions = false;
 		}
 	}
 
-	public get trigger$(): Observable<void> {
-		return this.trigger.asObservable();
-	}
-
-	public captureImage(webcamImage: WebcamImage): void {
+	proccessImage(webcamImage: WebcamImage): void {
 		const img = new Image();
 
 		img.src = webcamImage.imageAsDataUrl;
 
 		img.onload = () => {
-			const canvas = this.canvasRef.nativeElement;
-			this.VideoDimensions.resultWidth = this.rectCredential.rectWidth;
-			this.VideoDimensions.resultHeight = this.rectCredential.rectHeight;
+			this.camera.dimensions.real = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
+			this.setResultDimensions(this.camera.dimensions.real, img.height, img.width);
 
-			canvas.width = this.rectCredential.rectWidth;
-			canvas.height = this.rectCredential.rectHeight;
-			canvas.style.marginLeft = `${this.rectCredential.x}px`;
-			canvas.style.marginTop = `${this.rectCredential.y}px`;
+			const maskResultCanvas = this.maskResultCanvasRef.nativeElement;
+			this.setImageOnCanvas(maskResultCanvas, img, this.camera.dimensions.real, this.camera.dimensions.result);
 
-			const originalDimensions: any = {};
+			const toSendCanvas = this.ToSendCanvasRef.nativeElement;
+			this.setImageOnCanvas(toSendCanvas, img, this.camera.dimensions.real, this.camera.dimensions.real);
 
-			const isHorizontal = this.VideoDimensions.height < this.VideoDimensions.width;
-
-			this.setRectDimensions(isHorizontal, img.height, img.width, originalDimensions);
-
-			const ctx = canvas.getContext("2d");
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-			ctx.drawImage(
-				img,
-				originalDimensions.x,
-				originalDimensions.y,
-				originalDimensions.rectWidth,
-				originalDimensions.rectHeight,
-				0,
-				0,
-				this.rectCredential.rectWidth,
-				this.rectCredential.rectHeight
-			);
-
-			const canvasToSend = this.canvasToSendRef.nativeElement;
-
-			canvasToSend.width = originalDimensions.rectWidth;
-			canvasToSend.height = originalDimensions.rectHeight;
-
-			const toSend = canvasToSend.getContext("2d");
-			toSend.clearRect(0, 0, webcamImage.imageData.width, webcamImage.imageData.height);
-
-			toSend.drawImage(
-				img,
-				originalDimensions.x,
-				originalDimensions.y,
-				originalDimensions.rectWidth,
-				originalDimensions.rectHeight,
-				0,
-				0,
-				originalDimensions.rectWidth,
-				originalDimensions.rectHeight
-			);
-
-			this.base64Images = canvasToSend.toDataURL("image/jpeg");
+			this.response.base64Image = toSendCanvas.toDataURL("image/jpeg");
 		};
 	}
 
-	public triggerSnapshot(): void {
-		this.trigger.next();
+	setImageOnCanvas = (canvas, inputImg, originalDim, resizeDim) => {
+		canvas.width = resizeDim.width;
+		canvas.height = resizeDim.height;
+		canvas.style.marginLeft = `${resizeDim.offsetX || 0}px`;
+		canvas.style.marginTop = `${resizeDim.offsetY || 0}px`;
+
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, originalDim.width, originalDim.height);
+
+		ctx.drawImage(
+			inputImg,
+			originalDim.offsetX,
+			originalDim.offsetY,
+			originalDim.width,
+			originalDim.height,
+			0,
+			0,
+			resizeDim.width,
+			resizeDim.height
+		);
+	};
+
+	takePictureSnapshot(): void {
+		this.takePicture.next();
 	}
 
-	tryAgain(plusAttempts = false): void {
-		if (plusAttempts) this.attempts++;
+	continue(): void {
+		const dataToSend = {
+			image: this.response.base64Image.replace("data:image/jpeg;base64", ""),
+		};
 
-		this.base64Images = undefined;
-		this.failedToDetectDocument = false;
+		this.loading({ result: true });
 
+		https: this._demoService.sendDocument(dataToSend).subscribe(
+			(response) => {
+				this._demoService.setDemoDocument(response.data);
+
+				localStorage.setItem("idCard", this.response.base64Image);
+				localStorage.setItem("documentId", response.data._id);
+
+				this.loading({ isLoading: false });
+
+				this._demoService.moveToStep(3);
+			},
+			(err) => {
+				this.response.isFailed = true;
+				this.loading({ isLoading: false });
+			}
+		);
+	}
+
+	tryAgain(): void {
+		this.attempts.current++;
 		this.ngOnInit();
 	}
 
 	restartDemo(): void {
 		this._demoService.restart();
-	}
-
-	continue(): void {
-		this.idToSend = {
-			image: this.base64Images.replace("data:image/jpeg;base64", ""),
-		};
-
-		this.demoData.loading = true;
-		this._splashScreenService.show();
-
-		https: this._demoService.sendDocument(this.idToSend).subscribe(
-			(response) => {
-				this._demoService.setDemoDocument(response.data);
-
-				const canvasResult = this.canvasRef.nativeElement;
-
-				localStorage.setItem("idCard", this.base64Images);
-				localStorage.setItem("documentId", response.data._id);
-
-				this.demoData.loading = false;
-				this._splashScreenService.hide();
-
-				this._demoService.moveToStep(3);
-			},
-			(err) => {
-				this.failedToDetectDocument = true;
-				this.demoData.loading = false;
-				this._splashScreenService.hide();
-			}
-		);
-	}
-
-	drawRect(): void {
-		const ctx: CanvasRenderingContext2D = this.canvasRef.nativeElement.getContext("2d");
-		this.canvasRef.nativeElement.width = this.VideoDimensions.width;
-		this.canvasRef.nativeElement.height = this.VideoDimensions.height;
-		//CLEAR CANVAS
-		ctx.clearRect(0, 0, this.VideoDimensions.width, this.VideoDimensions.height);
-
-		//OPACITY OUTSIDE THE ELLIPSE
-		ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; // Color de la máscara
-		ctx.fillRect(0, 0, this.VideoDimensions.width, this.VideoDimensions.height);
-		ctx.globalCompositeOperation = "destination-out";
-
-		const isHorizontal = this.VideoDimensions.height < this.VideoDimensions.width;
-
-		this.setRectDimensions(isHorizontal, this.VideoDimensions.height, this.VideoDimensions.width, this.rectCredential);
-
-		ctx.fillStyle = "rgba(0, 0, 0, 1)";
-		ctx.fillRect(this.rectCredential.x, this.rectCredential.y, this.rectCredential.rectWidth, this.rectCredential.rectHeight);
-		ctx.globalCompositeOperation = "source-over";
-	}
-
-	setRectDimensions(isHorizontal, height, width, data) {
-		if (isHorizontal) {
-			data.y = Math.floor(height * 0.1);
-			data.rectHeight = Math.floor(height * 0.8);
-			data.rectWidth = Math.floor(this.aspectRatio * data.rectHeight);
-			data.x = Math.floor((width - data.rectWidth) / 2);
-		} else {
-			data.x = Math.floor(width * 0.1);
-			data.rectWidth = Math.floor(width * 0.8);
-			data.rectHeight = Math.floor(this.aspectRatio * data.rectWidth);
-			data.y = Math.floor((height - data.rectHeight) / 2);
-		}
-	}
-
-	setBasicDimensions(videoNgx) {
-		this.VideoDimensions.height = videoNgx.clientHeight;
-		this.VideoDimensions.width = videoNgx.clientWidth;
-
-		const canvas = this.canvasRef.nativeElement;
-		canvas.style.marginLeft = `0px`;
-		canvas.style.marginTop = `0px`;
-
-		this.drawRect();
 	}
 }

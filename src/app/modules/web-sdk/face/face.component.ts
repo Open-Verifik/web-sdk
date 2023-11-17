@@ -107,8 +107,8 @@ export class FaceComponent implements OnInit, OnDestroy {
 
 		this.demoData = this._demoService.getDemoData();
 
-		let key = this.demoData.isMobile ? "heigth" : "width";
-		this.videoOptions[key] = { ideal: 1024 };
+		let key = this.demoData.isMobile ? "width" : "height";
+		this.videoOptions[key] = { ideal: 1080 };
 
 		this.listenModeDebug();
 
