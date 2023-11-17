@@ -80,7 +80,18 @@
 		"issueDate": "Fecha de emisión",
 		"sex": "Género",
 		"issuingCountry": "País emisor",
-		"middleName": "Segundo nombre"
+		"middleName": "Segundo nombre",
+		"name1": "Primer nombre",
+		"name2": "Primer nombre (2)",
+		"name3": "Primer nombre (3)",
+		"maritalStatus": "Estado civil",
+		"marritalStatus": "Estado civil",
+		"inscriptionDate": "Fecha de inscripción",
+		"documentNumberMRZ": "Número de documento (MRZ)",
+		"firstLastNameMRZ": "Apellido [1] (MRZ)",
+		"firstNameMRZ": "Primer nombre (MRZ)",
+		"locationCode": "Código de ubicación",
+		"DNIPhoto": "DNI en la foto"
 	},
 	"id_scanning": {
 		"camera_not_found": "No se ha encontrado una cámara en el dispositivo o está deshabilitada momentáneamente.",

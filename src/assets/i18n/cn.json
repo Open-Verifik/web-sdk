@@ -80,7 +80,18 @@
 		"issueDate": "发行日期",
 		"sex": "性别",
 		"issuingCountry": "签发国家",
-		"middleName": "中间名"
+		"middleName": "中间名",
+		"name1": "名字",
+		"name2": "名字（2）",
+		"name3": "名字（3）",
+		"maritalStatus": "婚姻状况",
+		"marritalStatus": "婚姻状况",
+		"inscriptionDate": "登记日期",
+		"documentNumberMRZ": "文件号码（MRZ）",
+		"firstLastNameMRZ": "姓氏 [1]（MRZ）",
+		"firstNameMRZ": "名字（MRZ）",
+		"locationCode": "位置代码",
+		"DNIPhoto": "照片上的DNI"
 	},
 	"id_scanning": {
 		"camera_not_found": "未在设备上找到相机，或相机暂时被禁用。",
