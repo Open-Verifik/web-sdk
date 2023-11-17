@@ -31,6 +31,19 @@ export class DemoService {
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
 			this.demoData.isMobile = result.matches;
 		});
+		this.demoData.OS =  this.detectOS()
+	}
+
+	detectOS() {
+		const userAgent = window.navigator.userAgent.toLowerCase();
+
+		if (/android/.test(userAgent)) {
+			return "ANDROID";
+		} else if (/iphone|ipad|ipod/.test(userAgent)) {
+			return "IOS";
+		}
+
+		return "DESKTOP";
 	}
 
 	get faceapi$(): Observable < boolean > {

@@ -11,6 +11,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { TranslocoModule } from "@ngneat/transloco";
 import { UploadFileComponent } from "../upload-file/upload-file.component";
 import { MatDialog } from "@angular/material/dialog";
+import { IdScanningIOSComponent } from "../id-scanning-ios/id-scanning-ios.component";
 
 @Component({
 	selector: "demo-step-two",
@@ -23,6 +24,7 @@ import { MatDialog } from "@angular/material/dialog";
 		MatCheckboxModule,
 		MatButtonModule,
 		StepperComponent,
+		IdScanningIOSComponent,
 		IdScanningComponent,
 		CommonModule,
 		TranslocoModule,
