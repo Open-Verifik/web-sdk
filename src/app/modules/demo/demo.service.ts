@@ -4,6 +4,7 @@ import { HttpWrapperService } from "./http-wrapper.service";
 import { environment } from "environments/environment";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import * as faceapi from "@vladmandic/face-api";
+import { DocumentValidation } from "./document-validation";
 
 let _this = null;
 
@@ -30,9 +31,9 @@ export class DemoService {
 
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
 			this.demoData.isMobile = result.matches;
-			this.demoData.time = result.matches ? 500: 250
+			this.demoData.time = result.matches ? 500 : 250;
 		});
-		this.demoData.OS =  this.detectOS()
+		this.demoData.OS = this.detectOS();
 	}
 
 	detectOS() {
@@ -59,11 +60,6 @@ export class DemoService {
 		await Promise.allSettled(promises);
 
 		this._faceapi.next(true);
-
-		// const endTime = performance.now();
-		// const elapsedTime = endTime - startTime;
-
-		// alert(`Function took ${elapsedTime} milliseconds to load.`);
 	}
 
 	getNavigation(): any {
@@ -79,19 +75,19 @@ export class DemoService {
 
 	getDemoData(): any {
 		if (!this.demoData.proFields?.length && localStorage.getItem("proFields")) {
-			this.demoData.pro = JSON.parse(localStorage.getItem("pro"));
+			this.demoData.pro = new DocumentValidation(JSON.parse(localStorage.getItem("pro")));
 
 			this.demoData.proFields = JSON.parse(localStorage.getItem("proFields"));
 		}
 
 		if (!this.demoData.promptFields?.length && localStorage.getItem("promptFields")) {
-			this.demoData.prompt = JSON.parse(localStorage.getItem("prompt"));
+			this.demoData.prompt = new DocumentValidation(JSON.parse(localStorage.getItem("prompt")));
 
 			this.demoData.promptFields = JSON.parse(localStorage.getItem("promptFields"));
 		}
 
 		if (!this.demoData.studioFields?.length && localStorage.getItem("studioFields")) {
-			this.demoData.studio = JSON.parse(localStorage.getItem("studio"));
+			this.demoData.studio = new DocumentValidation(JSON.parse(localStorage.getItem("studio")));
 
 			this.demoData.studioFields = JSON.parse(localStorage.getItem("studioFields"));
 		}
@@ -111,6 +107,8 @@ export class DemoService {
 		if (!this.demoData.comparisonResult.length && localStorage.getItem("comparisonResult")) {
 			this.demoData.comparisonResult = JSON.parse(localStorage.getItem("comparisonResult"));
 		}
+
+		console.log({ demoData: this.demoData });
 
 		return this.demoData;
 	}
@@ -163,7 +161,7 @@ export class DemoService {
 	formatAndSaveOCRs(document, type: string): void {
 		const typeFields = `${type}Fields`;
 
-		if (!document) {
+		if (!document || !document.documentNumber) {
 			localStorage.removeItem(type);
 
 			localStorage.removeItem(typeFields);
@@ -174,6 +172,10 @@ export class DemoService {
 		this.demoData[typeFields].push({ key: "documentType", value: document.documentType });
 
 		this.demoData[typeFields].push({ key: "documentNumber", value: document.documentNumber });
+
+		const _document = new DocumentValidation(document);
+
+		console.log({ _document });
 
 		for (const key in document.OCRExtraction) {
 			if (Object.prototype.hasOwnProperty.call(document.OCRExtraction, key)) {
