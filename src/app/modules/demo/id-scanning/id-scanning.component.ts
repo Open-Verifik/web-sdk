@@ -55,6 +55,7 @@ export class IdScanningComponent implements OnInit {
 		this.base64Images = undefined;
 
 		this.video = {};
+
 		this.rectCredential = {};
 
 		this.renderer.listen("window", "resize", () => {
@@ -136,11 +137,12 @@ export class IdScanningComponent implements OnInit {
 
 	tryAgain(plusAttempts = false): void {
 		if (plusAttempts) this.attempts++;
-		// console.log(plusAttempts, this.attempts);
+
 		this.base64Images = undefined;
+
 		this.failedToDetectDocument = false;
+
 		this.startCamera();
-		// logic todo here
 	}
 
 	restartDemo(): void {
@@ -153,13 +155,12 @@ export class IdScanningComponent implements OnInit {
 		};
 
 		this.demoData.loading = true;
+
 		this._splashScreenService.show();
 
 		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe(
 			(response) => {
 				this._demoService.setDemoDocument(response.data);
-
-				localStorage.setItem("documentId", response.data._id);
 
 				const canvasResult = this.canvasResultRef.nativeElement;
 

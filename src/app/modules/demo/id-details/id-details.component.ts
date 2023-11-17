@@ -11,7 +11,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 	templateUrl: "./id-details.component.html",
 	styleUrls: ["./id-details.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, CommonModule, MatButtonModule, LeafletModule, TranslocoModule], // Add this line],
+	imports: [FlexLayoutModule, CommonModule, MatButtonModule, LeafletModule, TranslocoModule],
 })
 export class IdDetailsComponent implements OnInit {
 	demoData: any;
@@ -19,6 +19,7 @@ export class IdDetailsComponent implements OnInit {
 	locationLoaded: boolean;
 	locationLoading: boolean;
 	documentId: string;
+	documentFrontSideUrl: string;
 
 	constructor(private _demoService: DemoService, private _changeDetectorRef: ChangeDetectorRef) {
 		this.demoData = this._demoService.getDemoData();
@@ -28,19 +29,11 @@ export class IdDetailsComponent implements OnInit {
 		this.locationLoaded = false;
 
 		this.locationLoading = false;
+
+		this.documentFrontSideUrl = this.demoData.pro?.url || this.demoData.studio?.url || this.demoData.prompt?.url;
 	}
 
-	ngOnInit(): void {
-		if (this.demoData.extractedData) {
-			for (let index = this.demoData.extractedData.length - 1; index >= 0; index--) {
-				const extractedRow = this.demoData.extractedData[index];
-
-				if (extractedRow.key === "details") {
-					this.demoData.extractedData.splice(index, 1);
-				}
-			}
-		}
-	}
+	ngOnInit(): void {}
 
 	hasGeneralInformation(): boolean {
 		if (this.generalInfoLoaded) return true;
@@ -73,15 +66,15 @@ export class IdDetailsComponent implements OnInit {
 	}
 
 	scanAgain(): void {
-		localStorage.removeItem("documentId");
+		const fieldsToClear = ["pro", "proFields", "prompt", "promptFields", "studio", "studioFields"];
 
-		localStorage.removeItem("document");
+		for (let index = 0; index < fieldsToClear.length; index++) {
+			const field = fieldsToClear[index];
 
-		localStorage.removeItem("extractedData");
+			localStorage.removeItem(field);
 
-		this.demoData.document = {};
-
-		this.demoData.extractedData = [];
+			this.demoData[field] = null;
+		}
 
 		this._demoService.moveToStep(2);
 	}
