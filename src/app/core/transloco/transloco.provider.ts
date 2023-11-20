@@ -46,6 +46,10 @@ export const provideTransloco = (): Array<Provider | EnvironmentProviders> => {
 						id: "ru",
 						label: "Russian",
 					},
+					{
+						id: "ph",
+						label: "Tagalog",
+					},
 				],
 				defaultLang: "en",
 				fallbackLang: "en",

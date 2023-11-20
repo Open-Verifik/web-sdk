@@ -136,5 +136,15 @@
 		"passed": "生命特征检测通过",
 		"min_score": "最低分数",
 		"score": "匹配分数"
+	},
+	"form": {
+		"title": "请填写此表格以开始我们的演示",
+		"company": "公司",
+		"names": "全名",
+		"website": "贵公司网站",
+		"job": "职位名称",
+		"email": "公司电子邮件（不用 @gmail, @outlook, @hotmail）",
+		"country_code": "国家代码",
+		"phone": "电话"
 	}
 }

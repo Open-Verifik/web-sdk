@@ -136,5 +136,15 @@
 		"passed": "Liveness passed",
 		"min_score": "Minimum score",
 		"score": "Match score"
+	},
+	"form": {
+		"title": "Please fill this form to start with our demo",
+		"company": "Company",
+		"names": "Full name",
+		"website": "Your company website",
+		"job": "Job title",
+		"email": "Company Email (No @gmail, @outlook @hotmail)",
+		"country_code": "Country code",
+		"phone": "Phone"
 	}
 }

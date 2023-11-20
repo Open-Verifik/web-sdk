@@ -136,5 +136,15 @@
 		"passed": "Vie validée",
 		"min_score": "Score minimum",
 		"score": "Score de correspondance"
+	},
+	"form": {
+		"title": "Veuillez remplir ce formulaire pour commencer avec notre démo",
+		"company": "Entreprise",
+		"names": "Nom complet",
+		"website": "Le site Web de votre entreprise",
+		"job": "Titre du poste",
+		"email": "E-mail de l'entreprise (Pas de @gmail, @outlook, @hotmail)",
+		"country_code": "Code du pays",
+		"phone": "Téléphone"
 	}
 }

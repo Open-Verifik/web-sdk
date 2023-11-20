@@ -136,5 +136,15 @@
 		"passed": "생체 인식 통과",
 		"min_score": "최소 점수",
 		"score": "일치 점수"
+	},
+	"form": {
+		"title": "데모를 시작하려면 이 양식을 작성해 주세요",
+		"company": "회사",
+		"names": "전체 이름",
+		"website": "귀사의 웹사이트",
+		"job": "직함",
+		"email": "회사 이메일 (@gmail, @outlook, @hotmail 제외)",
+		"country_code": "국가 코드",
+		"phone": "전화"
 	}
 }

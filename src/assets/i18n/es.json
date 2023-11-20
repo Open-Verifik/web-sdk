@@ -136,5 +136,15 @@
 		"passed": "Vida aprobada",
 		"min_score": "Puntuación mínima",
 		"score": "Puntuación de coincidencia"
+	},
+	"form": {
+		"title": "Por favor complete este formulario para comenzar con nuestra demostración",
+		"company": "Empresa",
+		"names": "Nombre completo",
+		"website": "El sitio web de su empresa",
+		"job": "Título del puesto",
+		"email": "Correo electrónico de la empresa (No @gmail, @outlook, @hotmail)",
+		"country_code": "Código del país",
+		"phone": "Teléfono"
 	}
 }

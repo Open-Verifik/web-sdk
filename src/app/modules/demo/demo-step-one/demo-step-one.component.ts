@@ -106,7 +106,7 @@ export class DemoStepOneComponent implements OnInit {
 	initForm(): void {
 		const name = this.route.snapshot.queryParams?.name?.toLocaleLowerCase();
 
-		const data = this.dataLeads[name || "miguel"] ?? {};
+		const data = this.dataLeads[name] ?? {};
 
 		this.contactForm = this._formBuilder.group({
 			companyName: [data.companyName, [Validators.required, Validators.pattern("^[a-zA-Z][a-zA-Z\\s]*$")]],
