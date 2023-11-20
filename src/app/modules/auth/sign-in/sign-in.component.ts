@@ -1,6 +1,6 @@
-import { NgIf } from "@angular/common";
-import { Component, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
-import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { CommonModule, NgIf } from "@angular/common";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
+import { FormGroup, FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -10,11 +10,22 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
+import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { AuthService } from "app/core/auth/auth.service";
+import { PasswordlessService } from "../passwordless.service";
+import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
+import { Subject } from "rxjs";
+import { MatTabsModule } from "@angular/material/tabs";
+import { environment } from "environments/environment";
+import { TranslocoModule } from "@ngneat/transloco";
+import { CountriesService } from "app/modules/demo/countries.service";
+import { MatSelectModule } from "@angular/material/select";
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 
 @Component({
 	selector: "auth-sign-in",
 	templateUrl: "./sign-in.component.html",
+	styleUrls: ["./sign-in.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
@@ -29,18 +40,38 @@ import { AuthService } from "app/core/auth/auth.service";
 		MatButtonModule,
 		MatIconModule,
 		MatCheckboxModule,
+		MatSelectModule,
 		MatProgressSpinnerModule,
+		MatTabsModule,
+		TranslocoModule,
+		CommonModule,
+		LanguagesComponent,
 	],
 })
-export class AuthSignInComponent implements OnInit {
+export class AuthSignInComponent implements OnInit, OnDestroy {
 	@ViewChild("signInNgForm") signInNgForm: NgForm;
 
 	alert: { type: FuseAlertType; message: string } = {
 		type: "success",
 		message: "",
 	};
-	signInForm: UntypedFormGroup;
 	showAlert: boolean = false;
+	project: Project;
+	projectFlow: ProjectFlow;
+	kycProjectFlow: ProjectFlow;
+	signInForm: FormGroup;
+	countries: Array<any>;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	emailSent: boolean;
+	smsSent: boolean;
+	emailValidation: any;
+	phoneValidation: any;
+	groupFields: any;
+	typeLogin: string;
+	activeSendOtp: boolean;
+	biometricsReady: boolean;
+	secondFactorData: any;
+	secondFactorForm: any;
 
 	/**
 	 * Constructor
@@ -49,28 +80,135 @@ export class AuthSignInComponent implements OnInit {
 		private _activatedRoute: ActivatedRoute,
 		private _authService: AuthService,
 		private _formBuilder: UntypedFormBuilder,
-		private _router: Router
-	) {}
+		private _router: Router,
+		private _splashScreenService: FuseSplashScreenService,
+		private _passwordlessService: PasswordlessService,
+		private _changeDetectorRef: ChangeDetectorRef,
+		private _countries: CountriesService
+	) {
+		this.countries = this._countries.countryCodes;
 
-	// -----------------------------------------------------------------------------------------------------
-	// @ Lifecycle hooks
-	// -----------------------------------------------------------------------------------------------------
+		console.log({ countries: this.countries });
+
+		this._splashScreenService.show();
+	}
 
 	/**
 	 * On init
 	 */
 	ngOnInit(): void {
-		// Create the form
-		this.signInForm = this._formBuilder.group({
-			email: ["hughes.brian@company.com", [Validators.required, Validators.email]],
-			password: ["admin", Validators.required],
-			rememberMe: [""],
+		this._activatedRoute.params.subscribe((params) => {
+			console.log({ params });
+
+			this.requestProject(params.id);
 		});
 	}
 
-	// -----------------------------------------------------------------------------------------------------
-	// @ Public methods
-	// -----------------------------------------------------------------------------------------------------
+	ngOnDestroy(): void {
+		this._unsubscribeAll.next(null);
+	}
+
+	requestProject(projectId: string): void {
+		this._passwordlessService.requestProject(projectId, "login").subscribe({
+			next: (v) => {
+				this.project = new ProjectModel(v.data);
+				this.projectFlow = this.project.currentProjectFlow;
+
+				for (let index = 0; index < v.data.projectFlows.length; index++) {
+					const projectFlow = v.data.projectFlows[index];
+
+					if (projectFlow.type === "onboarding") this.kycProjectFlow = new ProjectFlowModel(projectFlow);
+				}
+			},
+			error: (e) => {
+				console.info({ errorHERE: e });
+				if (e.error.code === "InternalServer") {
+					alert("something went wrong, try  again");
+				}
+
+				this._splashScreenService.hide();
+			},
+			complete: () => {
+				this.initForm();
+
+				this._changeDetectorRef.markForCheck();
+
+				this._splashScreenService.hide();
+			},
+		});
+	}
+
+	initForm(): void {
+		// Create the form
+		this.typeLogin = this.projectFlow.email ? "email" : "phone";
+
+		this.buttonSendOtp();
+
+		this.setFieldRequiredInForm();
+
+		this._init2FAForm();
+	}
+
+	_init2FAForm(): void {
+		this.secondFactorForm = this._formBuilder.group({
+			authenticatorOTP: ["", [Validators.required, Validators.minLength(6)]],
+		});
+	}
+
+	buttonSendOtp() {
+		this.activeSendOtp = this.typeLogin === "email" ? this.projectFlow.email && !this.emailSent : this.projectFlow.phone && !this.smsSent;
+	}
+
+	setFieldRequiredInForm() {
+		this.groupFields = {
+			email: [,],
+			emailOTP: [,],
+
+			countryCode: [,],
+			phone: [,],
+			phoneOTP: [,],
+		};
+
+		switch (this.typeLogin) {
+			case "email":
+				this.groupFields["email"][1] = [Validators.required, Validators.email];
+				this.groupFields["emailOTP"][1] = [Validators.minLength(6)];
+				break;
+
+			case "phone":
+				this.groupFields["countryCode"][1] = [Validators.required];
+				this.groupFields["phone"][1] = [Validators.required, Validators.minLength(8)];
+				this.groupFields["phoneOTP"][1] = [Validators.minLength(6)];
+				break;
+		}
+
+		this.signInForm = this._formBuilder.group(this.groupFields);
+	}
+
+	selectLogin(event) {
+		this.groupFields = {};
+
+		this.typeLogin = event.index ? "phone" : "email";
+
+		this.setFieldRequiredInForm();
+
+		this.buttonSendOtp();
+
+		this._changeDetectorRef.markForCheck();
+	}
+
+	canSendOTP() {
+		return this.activeSendOtp && this.signInForm.valid;
+	}
+
+	canUseBiometrics(): boolean {
+		const isFormValid =
+			this.typeLogin === "email"
+				? Boolean(this.signInForm.value.email)
+				: Boolean(this.signInForm.value.countryCode && this.signInForm.value.phone);
+
+		return Boolean(isFormValid);
+	}
 
 	/**
 	 * Sign in
@@ -116,5 +254,32 @@ export class AuthSignInComponent implements OnInit {
 				this.showAlert = true;
 			}
 		);
+	}
+
+	successLogin(token: any) {
+		const redirectUrl = environment.production ? this.projectFlow.redirectUrl : `${environment.appUrl}/sign-in`;
+
+		window.location.href = `${redirectUrl}?type=login&token=${token}`;
+	}
+
+	errorLogin(error: string) {
+		this.alert = {
+			type: "error",
+			message: error,
+		};
+
+		console.log({
+			errorLogin: error,
+		});
+
+		this.showAlert = true;
+
+		this._changeDetectorRef.detectChanges();
+
+		setTimeout(() => {
+			this.showAlert = false;
+
+			this._changeDetectorRef.detectChanges();
+		}, 10000);
 	}
 }

@@ -96,8 +96,8 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2
 	) {
 		this.loadingModel = true;
-		
-		this.lowCamera = false
+
+		this.lowCamera = false;
 
 		this.debugIndex = 0;
 
@@ -258,9 +258,9 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 			const { width, height } = settings;
 			// alert(`${width} x ${height}`);
 			this.videoDimensions = { height, width };
-			
-			if(height < 600) {
-				this.lowCamera = true
+
+			if (height < 600) {
+				this.lowCamera = true;
 				this.loadingModel = false;
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
