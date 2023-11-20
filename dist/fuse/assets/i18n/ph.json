@@ -136,5 +136,15 @@
 		"passed": "Nakapasa sa Pagiging Buhay",
 		"min_score": "Pinakamababang iskor",
 		"score": "Iskor ng Pagtutugma"
+	},
+	"form": {
+		"title": "Pakipunan ang form na ito upang magsimula sa aming demo",
+		"company": "Kumpanya",
+		"names": "Buong pangalan",
+		"website": "Website ng iyong kumpanya",
+		"job": "Titulo ng trabaho",
+		"email": "Email ng Kumpanya (Walang @gmail, @outlook, @hotmail)",
+		"country_code": "Code ng bansa",
+		"phone": "Telepono"
 	}
 }

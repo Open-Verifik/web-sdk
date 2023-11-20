@@ -136,5 +136,15 @@
 		"passed": "Controllo di presenza superato",
 		"min_score": "Punteggio minimo",
 		"score": "Punteggio di corrispondenza"
+	},
+	"form": {
+		"title": "Si prega di compilare questo modulo per iniziare con la nostra demo",
+		"company": "Azienda",
+		"names": "Nome completo",
+		"website": "Il sito web della tua azienda",
+		"job": "Titolo di lavoro",
+		"email": "Email aziendale (Niente @gmail, @outlook, @hotmail)",
+		"country_code": "Codice del paese",
+		"phone": "Telefono"
 	}
 }

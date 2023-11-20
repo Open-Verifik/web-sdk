@@ -40,10 +40,10 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 		// Get the available languages from transloco
 		this.availableLangs = this._translocoService.getAvailableLangs();
 
-		const currentLanguage = localStorage.getItem("currentLanguage")
+		const currentLanguage = localStorage.getItem("currentLanguage");
 
-		if(currentLanguage){
-			this._translocoService.setActiveLang(currentLanguage)
+		if (currentLanguage) {
+			this._translocoService.setActiveLang(currentLanguage);
 		}
 
 		// Subscribe to language changes
@@ -66,6 +66,7 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 			kr: "kr",
 			in: "in",
 			cn: "cn",
+			ph: "ph",
 		};
 	}
 
@@ -86,7 +87,7 @@ export class LanguagesComponent implements OnInit, OnDestroy {
 	setActiveLang(lang: string): void {
 		// Set the active lang
 		this._translocoService.setActiveLang(lang);
-		localStorage.setItem("currentLanguage", lang)
+		localStorage.setItem("currentLanguage", lang);
 	}
 
 	/**

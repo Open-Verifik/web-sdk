@@ -136,5 +136,15 @@
 		"passed": "Vivacidade aprovada",
 		"min_score": "Pontuação Mínima",
 		"score": "Pontuação de Correspondência"
+	},
+	"form": {
+		"title": "Por favor, preencha este formulário para começar com a nossa demonstração",
+		"company": "Empresa",
+		"names": "Nome completo",
+		"website": "O site da sua empresa",
+		"job": "Cargo",
+		"email": "Email da empresa (Sem @gmail, @outlook, @hotmail)",
+		"country_code": "Código do país",
+		"phone": "Telefone"
 	}
 }
