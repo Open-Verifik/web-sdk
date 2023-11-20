@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -11,6 +11,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { CountriesService } from "../countries.service";
+import { FuseSplashScreenService } from "@fuse/services/splash-screen";
+import { Lead, Session } from "../lead";
 
 @Component({
 	selector: "demo-step-one",
@@ -32,11 +34,13 @@ import { CountriesService } from "../countries.service";
 		MatSelectModule,
 	],
 })
-export class DemoStepOneComponent {
+export class DemoStepOneComponent implements OnInit {
 	canStartDemo: Boolean;
 	contactForm: FormGroup;
 	showForm: Boolean;
 	countries: Array<any>;
+	lead: Lead;
+	session: Session;
 
 	private dataLeads = {
 		lina: {
@@ -85,23 +89,24 @@ export class DemoStepOneComponent {
 		private _demoService: DemoService,
 		private _formBuilder: FormBuilder,
 		private route: ActivatedRoute,
-		private _countries: CountriesService
+		private _countries: CountriesService,
+		private _splashScreenService: FuseSplashScreenService
 	) {
 		this.canStartDemo = false;
 
 		this.showForm = false;
 
 		this.countries = this._countries.countryCodes;
+	}
 
-		console.log({ countryCodes: this.countries });
-
+	ngOnInit(): void {
 		this.initForm();
 	}
 
 	initForm(): void {
 		const name = this.route.snapshot.queryParams?.name?.toLocaleLowerCase();
 
-		const data = this.dataLeads[name] ?? {};
+		const data = this.dataLeads[name || "miguel"] ?? {};
 
 		this.contactForm = this._formBuilder.group({
 			companyName: [data.companyName, [Validators.required, Validators.pattern("^[a-zA-Z][a-zA-Z\\s]*$")]],
@@ -156,14 +161,41 @@ export class DemoStepOneComponent {
 		};
 	}
 
-	agreeToTerms(): void {
-		this.canStartDemo = !Boolean(this.canStartDemo);
-	}
-
 	showFormView(): void {
-		if (!this.canStartDemo) return;
+		this.lead = this._demoService.getLead();
+
+		if (this.lead) {
+			this._demoService.moveToStep(2);
+
+			return;
+		}
 
 		this.showForm = true;
-		// this._demoService.moveToStep(2);
+	}
+
+	submitForm(): void {
+		if (!this.contactForm.valid) return;
+
+		this._splashScreenService.show();
+
+		this._demoService.createLead(this.contactForm.value).subscribe((response) => {
+			this._demoService.setLead(response.data);
+
+			this._createSession();
+		});
+	}
+
+	_createSession(): void {
+		this._demoService
+			.createSession({
+				identifier: this._demoService.generateUniqueId(),
+			})
+			.subscribe((response) => {
+				this._demoService.setSession(response.data);
+
+				this._demoService.moveToStep(2);
+			});
+
+		this._splashScreenService.hide();
 	}
 }

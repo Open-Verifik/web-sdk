@@ -16,6 +16,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import Hotjar from "@hotjar/browser";
+import { Lead, Session } from "../lead";
 
 @Component({
 	selector: "app-demo-root",
@@ -44,6 +45,8 @@ export class DemoRootComponent implements OnInit {
 	requirementsLoaded: boolean;
 	step: number;
 	demoData: any;
+	lead: Lead;
+	session: Session;
 
 	constructor(private _demoService: DemoService, private _splashScreenService: FuseSplashScreenService) {
 		this.demoData = {};
@@ -67,6 +70,10 @@ export class DemoRootComponent implements OnInit {
 
 	async ngOnInit(): Promise<any> {
 		this.demoData = this._demoService.getDemoData();
+
+		this.lead = this._demoService.getLead();
+
+		this.session = this._demoService.getSession();
 
 		if (this.step > 1) {
 			this.demoData.loading = true;

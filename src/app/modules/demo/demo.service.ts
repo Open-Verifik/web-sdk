@@ -5,6 +5,7 @@ import { environment } from "environments/environment";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import * as faceapi from "@vladmandic/face-api";
 import { DocumentValidation } from "./document-validation";
+import { Lead, Session } from "./lead";
 
 let _this = null;
 
@@ -16,7 +17,9 @@ export class DemoService {
 
 	navigation: any;
 	demoData: any;
+	lead: any;
 	apiUrl: any;
+	session: any;
 
 	constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
 		this.apiUrl = environment.apiUrl;
@@ -31,6 +34,7 @@ export class DemoService {
 
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
 			this.demoData.isMobile = result.matches;
+
 			this.demoData.time = result.matches ? 500 : 250;
 		});
 		this.demoData.OS = this.detectOS();
@@ -108,8 +112,6 @@ export class DemoService {
 			this.demoData.comparisonResult = JSON.parse(localStorage.getItem("comparisonResult"));
 		}
 
-		console.log({ demoData: this.demoData });
-
 		return this.demoData;
 	}
 
@@ -130,7 +132,6 @@ export class DemoService {
 			studioFields: [],
 			prompt: {},
 			promptFields: [],
-			extractedData: [],
 			lat: null,
 			lng: null,
 		};
@@ -235,8 +236,10 @@ export class DemoService {
 	}
 
 	restart(): void {
-		localStorage.clear();
+		this.cleanVariables();
+
 		this.navigation.currentStep = 1;
+
 		localStorage.setItem("step", `${this.navigation.currentStep}`);
 	}
 
@@ -303,8 +306,6 @@ export class DemoService {
 		localStorage.setItem("lat", _this.demoData.lat);
 
 		localStorage.setItem("lng", _this.demoData.lng);
-
-		// console.log(`Latitude: ${_this.demoData.lat}, Longitude: ${_this.demoData.lng}`);
 	}
 
 	showError(error) {
@@ -343,6 +344,7 @@ export class DemoService {
 
 	async getAddress(): Promise<any> {
 		const lat = this.demoData.lat || localStorage.getItem("lat");
+
 		const lng = this.demoData.lng || localStorage.getItem("lng");
 
 		if (!lat || !lng) return null;
@@ -374,6 +376,46 @@ export class DemoService {
 		return this.demoData.location;
 	}
 
+	getLead(): Lead {
+		if (this.lead) return this.lead;
+
+		const storageLead = localStorage.getItem("lead");
+
+		if (!storageLead) return null;
+
+		this.lead = new Lead(JSON.parse(storageLead));
+
+		return this.lead;
+	}
+
+	setLead(data): void {
+		localStorage.setItem("accessToken", data.token);
+
+		this.lead = new Lead(data);
+
+		localStorage.setItem("lead", JSON.stringify(this.lead));
+	}
+
+	getSession(): Session {
+		if (this.session) return this.session;
+
+		const storedSession = localStorage.getItem("session");
+
+		if (!storedSession) return null;
+
+		this.session = new Session(JSON.parse(storedSession));
+
+		console.log({ session: this.session });
+
+		return this.session;
+	}
+
+	setSession(data): void {
+		this.session = new Session(data);
+
+		localStorage.setItem("session", JSON.stringify(this.session));
+	}
+
 	requestDocument(documentId: string): Observable<any> {
 		return this._httpWrapperService.sendRequest("get", `${this.apiUrl}/v2/document-validations/demo/${documentId}`);
 	}
@@ -389,6 +431,16 @@ export class DemoService {
 
 	compareDocumentWithSelfie(data): Observable<any> {
 		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/compare/demo`, data);
+	}
+
+	createLead(data): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/leads`, data);
+	}
+
+	createSession(data): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/liveness-sessions`, {
+			...data,
+		});
 	}
 
 	cleanVariables(): void {
@@ -407,6 +459,10 @@ export class DemoService {
 			"comparison",
 			"comparisonResult",
 			"comparisonId",
+			// "session",
+			// "lead",
+			// "accessToken",
+			"idCard",
 		];
 
 		for (let index = 0; index < keys.length; index++) {
@@ -425,5 +481,33 @@ export class DemoService {
 				this.demoData[key] = null;
 			}
 		}
+	}
+
+	generateUniqueId(): string {
+		const navigatorInfo = window.navigator;
+
+		const screenInfo = window.screen;
+
+		const uniqueString = `${navigatorInfo.userAgent}-${navigatorInfo.language}-${navigatorInfo.platform}-${screenInfo.height}x${screenInfo.width}`;
+
+		return this.simpleHash(uniqueString);
+	}
+
+	private simpleHash(input: string): string {
+		let hash = 0;
+
+		if (input.length === 0) {
+			return hash.toString();
+		}
+
+		for (let i = 0; i < input.length; i++) {
+			const char = input.charCodeAt(i);
+
+			hash = (hash << 5) - hash + char;
+
+			hash = hash & hash; // Convert to 32bit integer
+		}
+
+		return hash.toString();
 	}
 }

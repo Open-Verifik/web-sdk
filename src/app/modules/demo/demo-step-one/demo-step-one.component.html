@@ -63,14 +63,7 @@
 		</div>
 
 		<div fxLayout="column" class="accept-terms-container" fxLayoutAlign="start center">
-			<mat-checkbox class="mt-8 z-index-2" [checked]="canStartDemo" (change)="agreeToTerms()"
-				>{{ "step_one.terms_label" | transloco }}
-				<a href="https://docs.verifik.co/docs/terms-conditions/4s01oqa1z6oof-privacy-policy" target="_blank">{{
-					"step_one.terms_link" | transloco
-				}}</a>
-			</mat-checkbox>
-
-			<button mat-raised-button color="primary" class="mt-4 z-index-2 start-demo-button" [disabled]="!canStartDemo" (click)="showFormView()">
+			<button mat-raised-button color="primary" class="mt-8 z-index-2 start-demo-button" (click)="showFormView()">
 				{{ "step_one.start_demo_button" | transloco }}
 			</button>
 		</div>
@@ -153,7 +146,7 @@
 
 		<!-- Submit Button -->
 		<div fxLayout="row" fxLayoutAlign="center center">
-			<button mat-raised-button color="primary" type="submit" [disabled]="!contactForm.valid" class="mt-8 w-50">
+			<button mat-raised-button color="primary" [disabled]="!contactForm.valid" class="mt-8 w-50" (click)="submitForm()">
 				{{ "step_one.start_demo_button" | transloco }}
 			</button>
 		</div>
