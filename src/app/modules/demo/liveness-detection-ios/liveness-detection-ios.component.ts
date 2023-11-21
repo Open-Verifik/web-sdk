@@ -212,16 +212,16 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		this.setVideoDimensions(videoNgx);
 		this.drawOvalCenterAndMask();
 
-		videoNgx.addEventListener("playing", () => {
-			this.setVideoDimensions(videoNgx);
-			this.drawOvalCenterAndMask();
+		// videoNgx.addEventListener("playing", () => {
+		this.setVideoDimensions(videoNgx);
+		this.drawOvalCenterAndMask();
 
-			this.interval.detectFace = setInterval(() => {
-				this.takePicture.next();
-			}, this.demoData.time);
+		this.interval.detectFace = setInterval(() => {
+			this.takePicture.next();
+		}, this.demoData.time);
 
-			this.loading({ isLoading: false, start: true });
-		});
+		this.loading({ isLoading: false, start: true });
+		// });
 	};
 
 	setVideoDimensions(videoNgx) {
@@ -327,6 +327,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 	};
 
 	cameraError(error: WebcamInitError): void {
+		console.log({ webcamError: error });
 		if (error.mediaStreamError && error.mediaStreamError.name === "NotAllowedError") {
 			this.loading({ isLoading: false, start: true });
 			this.camera.hasPermissions = false;
@@ -339,11 +340,11 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		img.src = webcamImage.imageAsDataUrl;
 
 		img.onload = async () => {
-			if(img.height < this.face.minHeight){
-				this.camera.isLowQuality = true
+			if (img.height < this.face.minHeight) {
+				this.camera.isLowQuality = true;
 			}
-			if(this.response.base64Image){
-				return
+			if (this.response.base64Image) {
+				return;
 			}
 			try {
 				this.camera.dimensions.real = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
@@ -553,6 +554,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 		this._demoService.sendSelfie(payload).subscribe(
 			(liveness) => {
+				console.log(liveness);
 				this.response.error = null;
 
 				this._demoService.setDemoLiveness(liveness.data);
@@ -564,6 +566,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 				});
 			},
 			(error) => {
+				console.log(error);
 				this.loading({ isLoading: false, result: true });
 
 				this.retryLivenessModal(error.error?.message);
