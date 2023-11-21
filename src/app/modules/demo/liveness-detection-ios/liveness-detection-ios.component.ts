@@ -188,12 +188,12 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 			if (isLoaded) {
 				this.interval.checkNgxVideo = setInterval(() => {
+					this.setMaxVideoDimensions();
 					this.setVideoNgxCameraData();
 				}, this.demoData.time);
 				this.detectFaceBiggest(0.9);
 			}
 		});
-		this.setMaxVideoDimensions();
 	}
 
 	startDefaultValues() {
@@ -558,9 +558,11 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 				this._demoService.setDemoLiveness(liveness.data);
 
+				const credentialImage = this.idCard.face || this.idCard.image
+
 				this._compareWithDocument({
 					search_mode: "ACCURATE",
-					gallery: [this.idCard.face?.replace(/^data:.*;base64,/, "") || this.demoData.document.url],
+					gallery: [credentialImage.replace(/^data:.*;base64,/, "") || this.demoData.document.url],
 					probe: [payload.image],
 				});
 			},
