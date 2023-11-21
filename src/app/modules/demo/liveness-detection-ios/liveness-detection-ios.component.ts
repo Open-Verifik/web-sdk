@@ -187,14 +187,13 @@ export class LivenessDetectionIOSComponent implements OnInit {
 			this.camera.isLoading = !isLoaded;
 
 			if (isLoaded) {
+				this.interval.checkNgxVideo = setInterval(() => {
+					this.setVideoNgxCameraData();
+				}, this.demoData.time);
 				this.detectFaceBiggest(0.9);
 			}
 		});
-
-		this.interval.checkNgxVideo = setInterval(() => {
-			this.setMaxVideoDimensions();
-			this.setVideoNgxCameraData();
-		}, this.demoData.time);
+		this.setMaxVideoDimensions();
 	}
 
 	startDefaultValues() {
