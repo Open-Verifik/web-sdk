@@ -385,7 +385,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		this.setImageOnCanvas(toSendCanvas, img, this.camera.dimensions.real, this.camera.dimensions.real);
 
 		this.response.base64Image = toSendCanvas.toDataURL("image/jpeg");
-
+		console.log(this.demoData);
 		this.liveness();
 	}
 
