@@ -117,7 +117,7 @@ export class IdScanningIOSComponent implements OnInit {
 		this.setVideoDimensions(videoNgx);
 		this.drawRect();
 
-		videoNgx.addEventListener("playing", () => {
+		videoNgx.addEventListener("loadeddata", () => {
 			this.setVideoDimensions(videoNgx);
 			this.drawRect();
 

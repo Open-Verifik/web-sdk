@@ -191,6 +191,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 					this.setMaxVideoDimensions();
 					this.setVideoNgxCameraData();
 				}, this.demoData.time);
+
 				this.detectFaceBiggest(0.9);
 			}
 		});
@@ -211,16 +212,22 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		this.setVideoDimensions(videoNgx);
 		this.drawOvalCenterAndMask();
 
-		// videoNgx.addEventListener("playing", () => {
-		this.setVideoDimensions(videoNgx);
-		this.drawOvalCenterAndMask();
+		videoNgx.addEventListener("loadeddata", () => {
+			this.setVideoDimensions(videoNgx);
+			this.drawOvalCenterAndMask();
 
-		this.interval.detectFace = setInterval(() => {
-			this.takePicture.next();
-		}, this.demoData.time);
+			if (!this.interval.detectFace) {
+				this.interval.detectFace = setInterval(() => {
+					if (this.response.base64Image) {
+						this.interval.detectFace = clearInterval(this.interval.detectFace);
+					}
 
-		this.loading({ isLoading: false, start: true });
-		// });
+					this.takePicture.next();
+				}, this.demoData.time);
+			}
+
+			this.loading({ isLoading: false, start: true });
+		});
 	};
 
 	setVideoDimensions(videoNgx) {
@@ -342,9 +349,11 @@ export class LivenessDetectionIOSComponent implements OnInit {
 			if (img.height < this.face.minHeight) {
 				this.camera.isLowQuality = true;
 			}
+
 			if (this.response.base64Image) {
 				return;
 			}
+
 			try {
 				this.camera.dimensions.real = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
 				this.setResultDimensions("real", img.height, img.width);
@@ -354,6 +363,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 				const context = this.maskResultCanvasRef.nativeElement.getContext("2d");
 
+
 				if (detection.length > 0) {
 					this.lastFace = detection[0];
 					this.errorFace = null;
@@ -361,12 +371,14 @@ export class LivenessDetectionIOSComponent implements OnInit {
 					this.drawOvalCenterAndMask();
 					this.isFaceCentered(this.lastFace.landmarks.getNose()[3]);
 					this.isFaceClose(this.lastFace.landmarks);
-
 					this.drawStatusOval(context, !this.errorFace?.title);
 
-					if (!this.errorFace && ++this.face.successPosition && this.face.successPosition > 3) {
+					!this.errorFace ? ++this.face.successPosition : (this.face.successPosition = 0);
+
+					if (!this.errorFace && this.face.successPosition > 2) {
 						this.face.successPosition = 0;
 						this.takePictureLiveness(img);
+						return;
 					}
 				}
 
@@ -385,7 +397,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		this.setImageOnCanvas(toSendCanvas, img, this.camera.dimensions.real, this.camera.dimensions.real);
 
 		this.response.base64Image = toSendCanvas.toDataURL("image/jpeg");
-		console.log(this.demoData);
 		this.liveness();
 	}
 
@@ -417,6 +428,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
 
 		if (minConfidence <= 0.1) {
+			console.log("NOT FOUND FACE");
 			return;
 		}
 
@@ -515,7 +527,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		if (!isFaceCentered) {
 			let direction = "";
 
-			if (!inRangeX) direction += `${faceCenterX < center.x - margin.x - this.marginX ? "→" : "←"}`;
+			if (!inRangeX) direction += `${faceCenterX < center.x - margin.x ? "→" : "←"}`;
 
 			if (!inRangeY) direction += `${faceCenterY < center.y ? "↓" : "↑"}`;
 
@@ -558,7 +570,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 				this._demoService.setDemoLiveness(liveness.data);
 
-				const credentialImage = this.idCard.face || this.idCard.image
+				const credentialImage = this.idCard.face || this.idCard.image;
 
 				this._compareWithDocument({
 					search_mode: "ACCURATE",
