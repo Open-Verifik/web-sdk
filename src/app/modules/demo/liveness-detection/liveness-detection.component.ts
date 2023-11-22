@@ -87,6 +87,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 	maxHeight: number;
 	maxWidth: number;
 	lowCamera: boolean;
+	successPosition: any;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
@@ -96,10 +97,12 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2
 	) {
 		this.loadingModel = true;
-		
-		this.lowCamera = false
+
+		this.lowCamera = false;
 
 		this.debugIndex = 0;
+
+		this.successPosition = 0;
 
 		this.osInfo = this.detectOS();
 
@@ -110,15 +113,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		this.videoOptions[key] = { ideal: 1080 };
 
 		this.listenModeDebug();
-
-		this.renderer.listen("window", "resize", () => {
-			if (this.videoInput) {
-				this.setCanvasDimension();
-				this.setConfigCanvas();
-			}
-		});
-
-		this._changeDetectorRef.markForCheck();
 	}
 
 	listenModeDebug(): void {
@@ -159,12 +153,21 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		this.base64Image = null;
 
 		await this.loadImages();
+		this.setMaxDimensions();
 
-		this._demoService.faceapi$.subscribe(async (isLoaded) => {
+		this.renderer.listen("window", "resize", () => {
+			this.setMaxDimensions();
+			if (this.videoInput) {
+				this.setCanvasDimension();
+				this.setConfigCanvas();
+			}
+		});
+
+		this._demoService.faceapi$.subscribe((isLoaded) => {
 			this.loadingModel = !isLoaded;
 
 			if (isLoaded) {
-				await this.startAsyncVideo();
+				this.startAsyncVideo();
 			}
 		});
 	}
@@ -258,39 +261,42 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 			const { width, height } = settings;
 			// alert(`${width} x ${height}`);
 			this.videoDimensions = { height, width };
-			
-			if(height < 600) {
-				this.lowCamera = true
+
+			if (height < 600) {
+				this.lowCamera = true;
 				this.loadingModel = false;
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
+
+				return;
 			}
 
-			this.videoInput.addEventListener("loadedmetadata", () => {
+			this.videoInput.addEventListener("loadeddata", () => {
 				if (!this.video && !this.canvas) {
 					this.stopRecord();
 					return;
 				}
-
+				// setTimeout(() => {
 				this.setCanvasDimension();
 
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
 
 				this.detectFaces();
-
-				this._changeDetectorRef.markForCheck();
+				// }, 100);
 			});
 		} catch (error) {
 			alert(`${error.message}`);
-			console.error("SHOW ERROR");
+			console.error("SHOW ERROR", error);
 		}
 	}
 
-	setCanvasDimension = () => {
+	setMaxDimensions = () => {
 		this.maxHeight = Math.floor(window.innerHeight * 0.7);
 		this.maxWidth = Math.floor(window.innerWidth * 0.9);
+	};
 
+	setCanvasDimension = () => {
 		this.HEIGHT = Math.min(this.videoInput.clientHeight, this.maxHeight);
 		this.WIDTH = Math.min(this.videoInput.clientWidth, this.maxWidth);
 
@@ -352,7 +358,11 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 
 						this.drawStatusOval(context, !this.errorFace?.title);
 
+						!this.errorFace ? ++this.successPosition : (this.successPosition = 0);
+
 						if (!this.errorFace) {
+							this.successPosition = 0;
+
 							this.captureBase64Image();
 						}
 					}
