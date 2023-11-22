@@ -212,6 +212,8 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		this.setVideoDimensions(videoNgx);
 		this.drawOvalCenterAndMask();
 
+		this.loading({ isLoading: false, start: true });
+
 		videoNgx.addEventListener("loadeddata", () => {
 			this.setVideoDimensions(videoNgx);
 			this.drawOvalCenterAndMask();
@@ -226,7 +228,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 				}, this.demoData.time);
 			}
 
-			this.loading({ isLoading: false, start: true });
 		});
 	};
 
