@@ -5,8 +5,8 @@
 	*ngIf="!response.isFailed && camera.hasPermissions"
 >
 	<div class="relative" 
-	[style.width.px]="response.base64Image ? camera.dimensions.result.width : camera.dimensions.video.width"
-	[style.height.px]="response.base64Image ? camera.dimensions.result.height : camera.dimensions.video.height"
+	[style.width.px]="camera.dimensions.video.width"
+	[style.height.px]="camera.dimensions.video.height"
 	>
 		<webcam
 			[height]="camera.dimensions.video.max.height"

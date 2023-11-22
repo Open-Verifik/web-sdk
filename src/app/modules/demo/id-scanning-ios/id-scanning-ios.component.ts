@@ -112,17 +112,16 @@ export class IdScanningIOSComponent implements OnInit {
 		const videoNgx = this._dom.nativeElement.querySelector("video");
 		if (!videoNgx) return;
 
+		videoNgx.addEventListener("loadeddata", () => {
+			this.setVideoDimensions(videoNgx);
+			this.drawRect();
+		});
+
 		this.intervalCheckNgxVideo = clearInterval(this.intervalCheckNgxVideo);
 
 		this.setVideoDimensions(videoNgx);
 		this.drawRect();
 		this.loading({ isLoading: false, start: true });
-
-		videoNgx.addEventListener("loadeddata", () => {
-			this.setVideoDimensions(videoNgx);
-			this.drawRect();
-
-		});
 	};
 
 	setVideoDimensions(videoNgx) {

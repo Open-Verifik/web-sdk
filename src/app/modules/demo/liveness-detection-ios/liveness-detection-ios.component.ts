@@ -185,12 +185,13 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 		this._demoService.faceapi$.subscribe(async (isLoaded) => {
 			this.camera.isLoading = !isLoaded;
+			
+			this.setMaxVideoDimensions();
 
 			if (isLoaded) {
 				this.interval.checkNgxVideo = setInterval(() => {
-					this.setMaxVideoDimensions();
 					this.setVideoNgxCameraData();
-				}, this.demoData.time);
+				}, 100);
 
 				this.detectFaceBiggest(0.9);
 			}
@@ -207,13 +208,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		const videoNgx = this._dom.nativeElement.querySelector("video");
 		if (!videoNgx) return;
 
-		this.interval.checkNgxVideo = clearInterval(this.interval.checkNgxVideo);
-
-		this.setVideoDimensions(videoNgx);
-		this.drawOvalCenterAndMask();
-
-		this.loading({ isLoading: false, start: true });
-
 		videoNgx.addEventListener("loadeddata", () => {
 			this.setVideoDimensions(videoNgx);
 			this.drawOvalCenterAndMask();
@@ -227,8 +221,14 @@ export class LivenessDetectionIOSComponent implements OnInit {
 					this.takePicture.next();
 				}, this.demoData.time);
 			}
-
 		});
+
+		this.interval.checkNgxVideo = clearInterval(this.interval.checkNgxVideo);
+
+		this.setVideoDimensions(videoNgx);
+		this.drawOvalCenterAndMask();
+
+		this.loading({ isLoading: false, start: true });
 	};
 
 	setVideoDimensions(videoNgx) {
