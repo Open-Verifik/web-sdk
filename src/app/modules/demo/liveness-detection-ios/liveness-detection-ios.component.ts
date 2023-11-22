@@ -341,6 +341,8 @@ export class LivenessDetectionIOSComponent implements OnInit {
 	}
 
 	proccessImage(webcamImage: WebcamImage): void {
+		if (!this.interval.detectFace || this.response.base64Image) return;
+
 		const img = new Image();
 
 		img.src = webcamImage.imageAsDataUrl;
@@ -348,9 +350,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		img.onload = async () => {
 			if (img.height < this.face.minHeight) {
 				this.camera.isLowQuality = true;
-			}
-
-			if (this.response.base64Image) {
 				return;
 			}
 
@@ -362,7 +361,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 				const detection = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
 				const context = this.maskResultCanvasRef.nativeElement.getContext("2d");
-
 
 				if (detection.length > 0) {
 					this.lastFace = detection[0];
