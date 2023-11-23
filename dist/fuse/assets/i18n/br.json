@@ -52,6 +52,7 @@
 		"userAgent": "Agente do Usuário"
 	},
 	"extracted_information": {
+		"bloodType": "Tipo sanguíneo",
 		"documentType": "Tipo de documento",
 		"documentNumber": "Número do documento",
 		"firstName": "Primeiro nome",
@@ -145,6 +146,8 @@
 		"job": "Cargo",
 		"email": "Email da empresa (Sem @gmail, @outlook, @hotmail)",
 		"country_code": "Código do país",
-		"phone": "Telefone"
+		"phone": "Telefone",
+		"company_required_error": "O nome da sua empresa é obrigatório",
+		"invalid_format_error": "O campo possui um formato inválido"
 	}
 }

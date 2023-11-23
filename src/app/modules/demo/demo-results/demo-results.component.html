@@ -57,7 +57,7 @@
 			<div fxLayout="row" fxLayoutAlign="start center" fxLayoutAlign.sm="center center" class="w-full">
 				<!-- liveness chart -->
 				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section" fxLayoutAlign.sm="center center">
-					<h2 class="liveness-title">{{ "results.liveness_score" | transloco }}</h2>
+					<h2 #liveness [style.height.px]="h2MaxHeight" class="liveness-title">{{ "results.liveness_score" | transloco }}</h2>
 
 					<h3 class="stat-percent" ngClass.xs="small-left-stat-percent">{{ demoData.liveness.result.liveness_score }} %</h3>
 				</div>
@@ -69,7 +69,9 @@
 					fxLayoutAlign.sm="center center"
 					fxLayoutAlign.xs="center center"
 				>
-					<h2 class="match-title" ngClass.gt-xs="w-50p">{{ "results.match_score" | transloco }}</h2>
+					<h2 #compare [style.height.px]="h2MaxHeight" class="match-title" ngClass.gt-xs="w-50p">
+						{{ "results.match_score" | transloco }}
+					</h2>
 
 					<h3 class="stat-percent">{{ demoData.comparison.result.score }}%</h3>
 				</div>
@@ -117,12 +119,14 @@
 
 		<!-- stats for small screen -->
 		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center">
-			<h2 class="mb-4">{{ "results.liveness_score" | transloco }}</h2>
+			<div>
+				<h2 class="mb-4">{{ "results.liveness_score" | transloco }}</h2>
+			</div>
 
 			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.liveness.result.liveness_score }} %</h3>
 
 			<!-- stat for liveness -->
-			<div class="w-full">
+			<div class="w-full flex sm:block justify-center sm:justify-normal">
 				<mat-progress-spinner
 					class="spinner"
 					[color]="demoData.liveness.result.passed ? 'primary' : 'warn'"
@@ -132,7 +136,7 @@
 				</mat-progress-spinner>
 			</div>
 
-			<div class="w-full">
+			<div class="w-full flex sm:block justify-center sm:justify-normal">
 				<mat-progress-spinner class="xs-background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
 			</div>
 			<!-- end of stat for liveness -->
@@ -141,12 +145,14 @@
 
 		<!-- stats for small screen -->
 		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center" class="mt-4">
-			<h2 class="mb-4">{{ "results.match_score" | transloco }}</h2>
+			<div>
+				<h2 #compare class="mb-4">{{ "results.match_score" | transloco }}</h2>
+			</div>
 
 			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.comparison.result.score }} %</h3>
 
 			<!-- stat for liveness -->
-			<div class="w-full">
+			<div class="w-full flex sm:block justify-center sm:justify-normal">
 				<mat-progress-spinner
 					class="spinner"
 					[color]="demoData.comparison.result.score > 67 ? 'primary' : 'warn'"
@@ -156,7 +162,7 @@
 				</mat-progress-spinner>
 			</div>
 
-			<div class="w-full">
+			<div class="w-full flex sm:block justify-center sm:justify-normal">
 				<mat-progress-spinner class="xs-background-spinner" [color]="'accent'" mode="determinate" [value]="100"> </mat-progress-spinner>
 			</div>
 			<!-- end of stat for liveness -->
@@ -186,9 +192,9 @@
 			fxLayoutAlign="start start"
 			fxLayoutAlign.xs="center center"
 			class="w-full"
-			*ngIf="demoData.studio && !demoData.studio.error"
+			*ngIf="ObjectEmpty(demoData.studio) && demoData.studio && !demoData.studio.error"
 		>
-			<h1 class="mt-4">{{ "extracted_information.studio" | transloco }}</h1>
+			<h1 class="mt-4">{{ "extracted_information.studio" | transloco }}a</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.studioFields" class="id-details-item">
@@ -203,7 +209,7 @@
 			fxLayoutAlign="start start"
 			fxLayoutAlign.xs="center center"
 			class="w-full"
-			*ngIf="demoData.prompt && !demoData.prompt.error"
+			*ngIf="ObjectEmpty(demoData.prompt) && demoData.prompt && !demoData.prompt.error"
 		>
 			<h1 class="mt-4">{{ "extracted_information.prompt" | transloco }}</h1>
 
@@ -220,7 +226,7 @@
 			fxLayoutAlign="start start"
 			fxLayoutAlign.xs="center center"
 			class="w-full"
-			*ngIf="demoData.pro && !demoData.pro.error"
+			*ngIf="ObjectEmpty(demoData.pro) && demoData.pro && !demoData.pro.error"
 		>
 			<h1 class="mt-4">{{ "extracted_information.pro" | transloco }}</h1>
 
@@ -232,7 +238,13 @@
 			</div>
 		</div>
 
-		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" *ngIf="demoData.location" class="w-full">
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start start"
+			fxLayoutAlign.xs="center center"
+			*ngIf="ObjectEmpty(demoData.location) && demoData.location"
+			class="w-full"
+		>
 			<h1 class="mt-4">{{ "step_three.user_location" | transloco }}</h1>
 
 			<div class="mt-8 w-full">

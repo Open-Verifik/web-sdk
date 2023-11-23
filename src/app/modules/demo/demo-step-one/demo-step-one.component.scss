@@ -8,6 +8,9 @@
 	height: auto;
 }
 
+.error-text {
+	color: #ed4c5c !important;
+}
 .step-one-middle-container {
 	width: 50%;
 }
@@ -105,6 +108,9 @@ h3 {
 		z-index: 2;
 	}
 }
+.error-w {
+	width: 40% !important;
+}
 
 // Extra small screens
 @media (max-width: 599px) {
@@ -123,6 +129,9 @@ h3 {
 			margin-top: 50px;
 			z-index: 2;
 		}
+	}
+	.error-w {
+		width: 90% !important;
 	}
 
 	.step-one-logo {
@@ -188,6 +197,9 @@ a {
 			z-index: 2;
 		}
 	}
+	.error-w {
+		width: 85% !important;
+	}
 
 	.step-one-logo {
 		width: 150px;
@@ -225,6 +237,9 @@ a {
 			margin-top: 50px;
 			z-index: 2;
 		}
+	}
+	.error-w {
+		width: 60% !important;
 	}
 
 	.step-one-logo {
