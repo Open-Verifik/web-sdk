@@ -17,10 +17,12 @@ import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project
 import { Subject } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
+import { FlexLayoutModule } from "@angular/flex-layout";
+import moment from "moment";
 
 @Component({
 	selector: "auth-sign-in",
@@ -30,6 +32,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [
+		FlexLayoutModule,
 		RouterLink,
 		FuseAlertComponent,
 		NgIf,
@@ -49,8 +52,6 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 	],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
-	@ViewChild("signInNgForm") signInNgForm: NgForm;
-
 	alert: { type: FuseAlertType; message: string } = {
 		type: "success",
 		message: "",
@@ -84,11 +85,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		private _splashScreenService: FuseSplashScreenService,
 		private _passwordlessService: PasswordlessService,
 		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService
+		private _countries: CountriesService,
+		private _translocoService: TranslocoService
 	) {
 		this.countries = this._countries.countryCodes;
-
-		console.log({ countries: this.countries });
 
 		this._splashScreenService.show();
 	}
@@ -98,8 +98,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	 */
 	ngOnInit(): void {
 		this._activatedRoute.params.subscribe((params) => {
-			console.log({ params });
-
 			this.requestProject(params.id);
 		});
 	}
@@ -172,13 +170,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		switch (this.typeLogin) {
 			case "email":
 				this.groupFields["email"][1] = [Validators.required, Validators.email];
-				this.groupFields["emailOTP"][1] = [Validators.minLength(6)];
+				this.groupFields["emailOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 				break;
 
 			case "phone":
 				this.groupFields["countryCode"][1] = [Validators.required];
 				this.groupFields["phone"][1] = [Validators.required, Validators.minLength(8)];
-				this.groupFields["phoneOTP"][1] = [Validators.minLength(6)];
+				this.groupFields["phoneOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 				break;
 		}
 
@@ -210,50 +208,89 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		return Boolean(isFormValid);
 	}
 
-	/**
-	 * Sign in
-	 */
+	isFormValid(): boolean {
+		const otpField = this.signInForm.value.phoneOTP || this.signInForm.value.emailOTP;
+
+		return Boolean(this.signInForm.valid && otpField && otpField.length === 6);
+	}
+
+	onInput(event: Event) {
+		const input = event.target as HTMLInputElement;
+		input.value = input.value.replace(/[^0-9]/g, "");
+	}
+
+	checkSixDigits(): void {
+		if (this.signInForm.value?.emailOTP?.length !== 6 || this.signInForm.invalid) return;
+
+		console.log("Six digits entered:", this.signInForm.value?.emailOTP);
+
+		this.signIn();
+	}
+
+	_signInWithEmail(dataForm): void {
+		this._passwordlessService
+			.confirmEmailValidation(this.project._id, dataForm.email, dataForm.emailOTP, this.secondFactorForm.value.authenticatorOTP)
+			.subscribe(
+				(response) => {
+					if (response.data.message) {
+						this.secondFactorData = response.data;
+
+						this.secondFactorData.emailOTP = dataForm.emailOTP;
+
+						return;
+					}
+
+					return this.successLogin(response.data);
+				},
+				(err) => {
+					console.log({
+						err: err.error.message,
+					});
+
+					this.errorLogin(err.error.message);
+				}
+			);
+	}
+
 	signIn(): void {
-		// Return if the form is invalid
-		if (this.signInForm.invalid) {
-			return;
+		const dataForm = this.signInForm.value;
+
+		switch (this.typeLogin) {
+			case "email":
+				this._signInWithEmail(dataForm);
+
+				break;
+			case "phone":
+				this._passwordlessService
+					.confirmPhoneValidation(
+						this.project._id,
+						dataForm.countryCode,
+						dataForm.phone,
+						dataForm.phoneOTP,
+						this.secondFactorForm.value.authenticatorOTP
+					)
+					.subscribe(
+						(response) => {
+							if (!response.data) {
+								return;
+							}
+
+							if (response.data.message) {
+								this.secondFactorData = response.data;
+
+								this.secondFactorData.phoneOTP = dataForm.phoneOTP;
+
+								return;
+							}
+
+							return this.successLogin(response.data);
+						},
+						(err) => {
+							this.errorLogin(err.error.message);
+						}
+					);
+				break;
 		}
-
-		// Disable the form
-		this.signInForm.disable();
-
-		// Hide the alert
-		this.showAlert = false;
-
-		// Sign in
-		this._authService.signIn(this.signInForm.value).subscribe(
-			() => {
-				// Set the redirect url.
-				// The '/signed-in-redirect' is a dummy url to catch the request and redirect the user
-				// to the correct page after a successful sign in. This way, that url can be set via
-				// routing file and we don't have to touch here.
-				const redirectURL = this._activatedRoute.snapshot.queryParamMap.get("redirectURL") || "/signed-in-redirect";
-
-				// Navigate to the redirect url
-				this._router.navigateByUrl(redirectURL);
-			},
-			(response) => {
-				// Re-enable the form
-				this.signInForm.enable();
-
-				// Reset the form
-				this.signInNgForm.resetForm();
-
-				// Set the alert
-				this.alert = {
-					type: "error",
-					message: "Wrong email or password",
-				};
-
-				// Show the alert
-				this.showAlert = true;
-			}
-		);
 	}
 
 	successLogin(token: any) {
@@ -281,5 +318,101 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 			this._changeDetectorRef.detectChanges();
 		}, 10000);
+	}
+
+	sendOTP(event, gateway): void {
+		event.preventDefault();
+
+		switch (this.typeLogin) {
+			case "email":
+				this._passwordlessService.sendEmailValidation(this.project._id, this.signInForm.value.email).subscribe({
+					next: (response) => {
+						this.emailValidation = response.data;
+
+						this.emailSent = true;
+
+						this.startTimer(this.typeLogin);
+					},
+					error: (err) => {
+						console.log({ err });
+
+						this.errorLogin(err?.error?.message);
+					},
+				});
+				break;
+
+			case "phone":
+				this._passwordlessService
+					.sendPhoneValidation(this.project._id, this.signInForm.value.countryCode, this.signInForm.value.phone, gateway)
+					.subscribe(
+						(response) => {
+							this.phoneValidation = response.data;
+
+							this.smsSent = true;
+
+							// this.openSnackBar(this._translocoService.translate("notifications.phone_otp"), "OK");
+
+							this.startTimer(this.typeLogin);
+						},
+						(err) => {
+							this.errorLogin(err?.error?.message);
+						}
+					);
+				break;
+		}
+	}
+
+	startTimer(field): number {
+		let interval;
+
+		switch (field) {
+			case "email":
+				if (!this.emailValidation) {
+					return 0;
+				}
+
+				this.emailValidation.diff = moment(this.emailValidation.expiresAt).diff(moment.utc(), "seconds");
+
+				interval = setInterval(() => {
+					if (this.emailValidation.diff > 0) {
+						this.emailValidation.diff--;
+					} else {
+						clearInterval(interval);
+
+						this.emailSent = false;
+
+						this.emailValidation = null;
+					}
+					this.buttonSendOtp();
+
+					this._changeDetectorRef.detectChanges();
+				}, 1000);
+
+				break;
+
+			case "phone":
+				if (!this.phoneValidation) {
+					return 0;
+				}
+
+				this.phoneValidation.diff = moment(this.phoneValidation.expiresAt).diff(moment.utc(), "seconds");
+
+				interval = setInterval(() => {
+					if (this.phoneValidation.diff > 0) {
+						this.phoneValidation.diff--;
+					} else {
+						clearInterval(interval);
+
+						this.smsSent = false;
+
+						this.phoneValidation = null;
+					}
+					this.buttonSendOtp();
+
+					this._changeDetectorRef.detectChanges();
+				}, 1000);
+
+				break;
+		}
 	}
 }

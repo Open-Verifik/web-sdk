@@ -1,6 +1,6 @@
 <div class="flex flex-col flex-auto items-center sm:justify-center min-w-0 md:p-8" *ngIf="project">
 	<div class="flex md:w-full md:max-w-6xl sm:rounded-2xl sm:shadow overflow-hidden sm:bg-card">
-		<div class="relative hidden md:flex flex-auto items-center justify-center h-full p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-r">
+		<div class="relative hidden md:flex flex-auto items-center justify-center h-full p-16 lg:px-28 overflow-hidden bg-blue-800 dark:border-r">
 			<!-- Background - @formatter:off -->
 			<!-- Rings -->
 			<svg
@@ -60,7 +60,7 @@
 			</div>
 		</div>
 		<div class="w-full sm:w-auto py-8 px-4 sm:p-12">
-			<div class="w-full w-400 mx-auto sm:mx-0">
+			<div class="w-400 mx-auto sm:mx-0">
 				<!-- Logo -->
 				<div class="w-full">
 					<img [src]="project.branding.logo" class="w-36" />
@@ -95,13 +95,13 @@
 				<!-- Sign in form -->
 				<form class="mt-8" [formGroup]="signInForm">
 					<mat-tab-group selectedIndex="{{ typeLogin == 'email' ? 0 : 1 }}" (selectedTabChange)="selectLogin($event)">
-						<mat-tab disabled="{{ !projectFlow.email }}">
+						<mat-tab disabled="{{ !projectFlow.email }}" class="m-0 p-0">
 							<ng-template mat-tab-label>
 								<span [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</span>
 							</ng-template>
 							<ng-template matTabContent>
 								<!-- email -->
-								<mat-form-field class="w-full mt-4">
+								<mat-form-field class="w-full mt-1">
 									<mat-label [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</mat-label>
 
 									<input id="email" matInput [formControlName]="'email'" />
@@ -118,7 +118,15 @@
 								<!-- OTP -->
 								<mat-form-field class="w-full" *ngIf="emailSent">
 									<mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
-									<input id="emailOTP" matInput type="password" [formControlName]="'emailOTP'" #passwordField />
+									<input
+										id="emailOTP"
+										matInput
+										type="password"
+										[formControlName]="'emailOTP'"
+										#passwordField
+										(input)="onInput($event)"
+										(keyup)="checkSixDigits()"
+									/>
 									<button
 										mat-icon-button
 										type="button"
@@ -148,7 +156,7 @@
 							</ng-template>
 							<ng-template matTabContent>
 								<!-- phone-->
-								<div class="grid grid-flow-col mt-4" *ngIf="groupFields.phone">
+								<div class="mt-2" *ngIf="groupFields.phone" fxLayout="row" fxLayoutAlign="start start">
 									<mat-form-field class="w-120px">
 										<mat-label [style.color]="project.branding.txtColor">{{ "login.country_code" | transloco }}</mat-label>
 										<mat-select *ngIf="countries" [formControl]="signInForm.get('countryCode')" matPrefix>
@@ -166,7 +174,7 @@
 											</mat-option>
 										</mat-select>
 									</mat-form-field>
-									<mat-form-field class="w-full col-span-3" *ngIf="groupFields.phone">
+									<mat-form-field class="w-full" *ngIf="groupFields.phone">
 										<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
 										<input id="phone" matInput [formControlName]="'phone'" />
 
@@ -210,17 +218,81 @@
 						</mat-tab>
 					</mat-tab-group>
 
-					<!-- Submit button -->
-					<button
-						class="fuse-mat-button-large w-full mt-6"
-						mat-flat-button
-						[color]="'primary'"
-						[disabled]="signInForm.disabled"
-						(click)="signIn()"
-					>
-						<span *ngIf="!signInForm.disabled"> Sign in </span>
-						<mat-progress-spinner *ngIf="signInForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
-					</button>
+					<!-- buttons -->
+					<div class="flex flex-col flex-auto w-full items-center sm:justify-center">
+						<!-- Submit button -->
+						<!-- <button
+							class="fuse-mat-button-large w-full"
+							mat-flat-button
+							[color]="'primary'"
+							[disabled]="!isFormValid()"
+							(click)="signIn()"
+							*ngIf="!activeSendOtp"
+						>
+							<span *ngIf="!signInForm.disabled" [style.color]="project.branding.txtColor">
+								{{ "login.login_button" | transloco }}
+							</span>
+							<mat-progress-spinner *ngIf="signInForm.disabled" [diameter]="24" [mode]="'indeterminate'"> </mat-progress-spinner>
+						</button> -->
+
+						<!-- SEND OTP -->
+						<h3 *ngIf="typeLogin === 'phone' && activeSendOtp" [style.color]="project.branding.txtColor">
+							{{ "login.sent_otp_phone_label" | transloco }}
+						</h3>
+
+						<div class="grid grid-cols-2 w-full" *ngIf="typeLogin === 'phone'">
+							<button
+								mat-stroked-button
+								class="w-11/12 mt-4"
+								color="primary"
+								(click)="sendOTP($event, 'sms')"
+								[class.col-span-2]="projectFlow.phoneGateway !== 'both'"
+								[disabled]="!canSendOTP()"
+								*ngIf="projectFlow.phoneGateway === 'sms' || projectFlow.phoneGateway === 'both'"
+							>
+								<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> SMS </span>
+
+								<mat-progress-spinner *ngIf="!activeSendOtp" [diameter]="12" [mode]="'indeterminate'"> </mat-progress-spinner>
+
+								<span *ngIf="typeLogin == 'phone' && smsSent" [style.color]="project.branding.txtColor">
+									SMS ({{ phoneValidation.diff }}) s
+								</span>
+							</button>
+
+							<button
+								mat-stroked-button
+								class="mt-4"
+								color="primary"
+								(click)="sendOTP($event, 'whatsapp')"
+								[class.col-span-2]="projectFlow.phoneGateway !== 'both'"
+								[disabled]="!canSendOTP()"
+								*ngIf="projectFlow.phoneGateway === 'whatsapp' || projectFlow.phoneGateway === 'both'"
+							>
+								<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> Whatsapp </span>
+
+								<mat-progress-spinner *ngIf="!activeSendOtp" [diameter]="12" [mode]="'indeterminate'"> </mat-progress-spinner>
+
+								<span *ngIf="typeLogin == 'phone' && smsSent" [style.color]="project.branding.txtColor">
+									Whatsapp ({{ phoneValidation.diff }}) s
+								</span>
+							</button>
+						</div>
+
+						<button
+							mat-stroked-button
+							class="w-full mt-4"
+							color="primary"
+							(click)="sendOTP($event)"
+							[disabled]="!canSendOTP()"
+							*ngIf="typeLogin === 'email'"
+						>
+							<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> Send email </span>
+
+							<span *ngIf="emailSent && !activeSendOtp" [style.color]="project.branding.txtColor">
+								<span>Send email ({{ emailValidation.diff }}) s </span>
+							</span>
+						</button>
+					</div>
 
 					<!-- Separator -->
 					<div class="flex items-center mt-8">

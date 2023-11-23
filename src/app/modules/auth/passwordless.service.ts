@@ -29,9 +29,64 @@ export class PasswordlessService {
 			);
 	}
 
+	sendEmailValidation(projectId: string, email: string): Observable<any> {
+		return this._httpWrapper
+			.sendRequest("post", `${this.baseUrl}/v2/projects/email-login`, {
+				email,
+				id: projectId,
+				type: "login",
+				language: this._translocoService.getActiveLang(),
+			})
+			.pipe(tap((response: any) => {}));
+	}
+
+	sendPhoneValidation(projectId: string, countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
+		return this._httpWrapper
+			.sendRequest("post", `${this.baseUrl}/v2/projects/phone-login`, {
+				phone,
+				countryCode,
+				id: projectId,
+				phoneGateway,
+				type: "login",
+				language: this._translocoService.getActiveLang(),
+			})
+			.pipe(tap((response: any) => {}));
+	}
+
+	confirmPhoneValidation(projectId: string, countryCode: string, phone: string, otp: string, authenticatorOTP: string): Observable<any> {
+		return this._httpWrapper
+			.sendRequest("post", `${this.baseUrl}/v2/projects/phone-login/confirm`, {
+				phone,
+				otp,
+				countryCode,
+				id: projectId,
+				authenticatorOTP,
+				type: "login",
+				// ipData: JSON.parse(localStorage.getItem("ipData")),
+			})
+			.pipe(
+				tap((response: any) => {
+					// console.log({
+					//     response
+					// });
+				})
+			);
+	}
+
+	confirmEmailValidation(projectId: string, email: string, otp: string, authenticatorOTP: string): Observable<any> {
+		return this._httpWrapper
+			.sendRequest("post", `${this.baseUrl}/v2/projects/email-login/confirm`, {
+				email,
+				otp,
+				id: projectId,
+				authenticatorOTP,
+				type: "login",
+				// ipData: JSON.parse(localStorage.getItem("ipData")),
+			})
+			.pipe(tap((response: any) => {}));
+	}
+
 	getProject(): Project {
 		return this.currentProject;
 	}
-
-	setProject;
 }
