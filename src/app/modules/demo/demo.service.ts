@@ -64,6 +64,7 @@ export class DemoService {
 		await Promise.allSettled(promises);
 
 		this._faceapi.next(true);
+		return
 	}
 
 	getNavigation(): any {
