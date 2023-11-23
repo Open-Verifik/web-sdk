@@ -89,4 +89,8 @@ export class PasswordlessService {
 	getProject(): Project {
 		return this.currentProject;
 	}
+
+	searchLiveFace(data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/face-recognition/search-live-face`, data);
+	}
 }

@@ -23,6 +23,10 @@ import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import moment from "moment";
+import { DemoService } from "app/modules/demo/demo.service";
+import { LivenessDetectionComponent } from "app/modules/demo/liveness-detection/liveness-detection.component";
+import { LivenessDetectionIOSComponent } from "app/modules/demo/liveness-detection-ios/liveness-detection-ios.component";
+import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
 
 @Component({
 	selector: "auth-sign-in",
@@ -49,6 +53,9 @@ import moment from "moment";
 		TranslocoModule,
 		CommonModule,
 		LanguagesComponent,
+		LivenessDetectionComponent,
+		LivenessDetectionIOSComponent,
+		BiometricsLoginComponent,
 	],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
@@ -73,13 +80,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	biometricsReady: boolean;
 	secondFactorData: any;
 	secondFactorForm: any;
+	showBiometrics: boolean;
+	demoData: any;
 
 	/**
 	 * Constructor
 	 */
 	constructor(
 		private _activatedRoute: ActivatedRoute,
-		private _authService: AuthService,
+		private _demoService: DemoService,
 		private _formBuilder: UntypedFormBuilder,
 		private _router: Router,
 		private _splashScreenService: FuseSplashScreenService,
@@ -90,7 +99,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	) {
 		this.countries = this._countries.countryCodes;
 
+		this.showBiometrics = false;
+
 		this._splashScreenService.show();
+
+		this.demoData = this._demoService.getDemoData();
 	}
 
 	/**
@@ -216,13 +229,14 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 	onInput(event: Event) {
 		const input = event.target as HTMLInputElement;
+
 		input.value = input.value.replace(/[^0-9]/g, "");
 	}
 
-	checkSixDigits(): void {
-		if (this.signInForm.value?.emailOTP?.length !== 6 || this.signInForm.invalid) return;
+	checkSixDigits(field: string): void {
+		if (this.signInForm.value[field].length !== 6 || this.signInForm.invalid) return;
 
-		console.log("Six digits entered:", this.signInForm.value?.emailOTP);
+		console.log("Six digits entered:", this.signInForm.value[field]);
 
 		this.signIn();
 	}
@@ -252,6 +266,37 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 			);
 	}
 
+	_signInWithPhone(dataForm): void {
+		this._passwordlessService
+			.confirmPhoneValidation(
+				this.project._id,
+				dataForm.countryCode,
+				dataForm.phone,
+				dataForm.phoneOTP,
+				this.secondFactorForm.value.authenticatorOTP
+			)
+			.subscribe(
+				(response) => {
+					if (!response.data) {
+						return;
+					}
+
+					if (response.data.message) {
+						this.secondFactorData = response.data;
+
+						this.secondFactorData.phoneOTP = dataForm.phoneOTP;
+
+						return;
+					}
+
+					return this.successLogin(response.data);
+				},
+				(err) => {
+					this.errorLogin(err.error.message);
+				}
+			);
+	}
+
 	signIn(): void {
 		const dataForm = this.signInForm.value;
 
@@ -261,34 +306,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 				break;
 			case "phone":
-				this._passwordlessService
-					.confirmPhoneValidation(
-						this.project._id,
-						dataForm.countryCode,
-						dataForm.phone,
-						dataForm.phoneOTP,
-						this.secondFactorForm.value.authenticatorOTP
-					)
-					.subscribe(
-						(response) => {
-							if (!response.data) {
-								return;
-							}
+				this._signInWithPhone(dataForm);
 
-							if (response.data.message) {
-								this.secondFactorData = response.data;
-
-								this.secondFactorData.phoneOTP = dataForm.phoneOTP;
-
-								return;
-							}
-
-							return this.successLogin(response.data);
-						},
-						(err) => {
-							this.errorLogin(err.error.message);
-						}
-					);
 				break;
 		}
 	}
@@ -414,5 +433,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 				break;
 		}
+	}
+
+	showBiometricsLogin(): void {
+		this.showBiometrics = true;
 	}
 }

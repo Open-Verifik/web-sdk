@@ -12,15 +12,17 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { FlexLayoutModule } from "@angular/flex-layout";
+import { PasswordlessService } from "../passwordless.service";
+import { Project } from "../project";
 
 @Component({
-	selector: "app-liveness-detection",
+	selector: "app-biometrics-login",
 	standalone: true,
+	templateUrl: "./biometrics-login.component.html",
+	styleUrls: ["./biometrics-login.component.scss"],
 	imports: [FlexLayoutModule, CommonModule, MatDialogModule, TranslocoModule, MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule],
-	templateUrl: "./liveness-detection.component.html",
-	styleUrls: ["./liveness-detection.component.scss"],
 })
-export class LivenessDetectionComponent implements OnInit, OnDestroy {
+export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	private _matDialog: MatDialog = inject(MatDialog);
 
 	//ACTIVE DEBUG GRAPHIC MODE
@@ -71,7 +73,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 	} | null;
 
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
-	idCardImage: string;
+
 	faceIdCard: any;
 	left: HTMLImageElement;
 	right: HTMLImageElement;
@@ -88,13 +90,15 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 	maxWidth: number;
 	lowCamera: boolean;
 	successPosition: any;
+	project: Project;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _demoService: DemoService,
 		private _translocoService: TranslocoService,
 		private _splashScreenService: FuseSplashScreenService,
-		private renderer: Renderer2
+		private renderer: Renderer2,
+		private _passwordlessService: PasswordlessService
 	) {
 		this.loadingModel = true;
 
@@ -113,6 +117,8 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		this.videoOptions[key] = { ideal: 1080 };
 
 		this.listenModeDebug();
+
+		this.project = this._passwordlessService.getProject();
 	}
 
 	listenModeDebug(): void {
@@ -146,13 +152,14 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		this._splashScreenService.show();
 
-		this.idCardImage = localStorage.getItem("idCard");
-
 		this.errorFace = null;
+
 		this.loadingResults = false;
+
 		this.base64Image = null;
 
 		await this.loadImages();
+
 		this.setMaxDimensions();
 
 		this.renderer.listen("window", "resize", () => {
@@ -197,7 +204,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
 
 		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
-		// .withFaceExpressions();
 
 		if (minConfidence <= 0.1) {
 			return;
@@ -208,33 +214,47 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		}
 
 		let maxArea = 0;
+
 		let faceBigest;
+
 		for (const detection of detections) {
 			const position = detection.detection.box;
+
 			const tempArea = position.width * position.height;
+
 			if (tempArea > maxArea) {
 				faceBigest = detection.detection;
+
 				maxArea = tempArea;
 			}
 		}
 
-		const position = faceBigest.box; // Object with x, y, width, height
+		const position = faceBigest.box;
+
 		let width = Math.ceil(position.width * 3);
+
 		let height = Math.ceil(position.height * 3);
+
 		let sx = Math.floor(position.x) - position.width;
+
 		let sy = Math.floor(position.y) - position.height;
 
 		if (width > credentialImage.naturalWidth) {
 			width = credentialImage.naturalWidth;
+
 			height = credentialImage.naturalHeight;
+
 			sx = 0;
+
 			sy = 0;
 		}
 
 		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
+
 		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
 
 		credentialCanvas.height = height;
+
 		credentialCanvas.width = width;
 
 		ctx.drawImage(credentialImage, sx, sy, width, height, 0, 0, width, height);
@@ -266,7 +286,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 			if (height < 600) {
 				this.lowCamera = true;
 				this.loadingModel = false;
-				this.demoData.loading = false;
+
 				this._splashScreenService.hide();
 
 				return;
@@ -280,7 +300,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 				// setTimeout(() => {
 				this.setCanvasDimension();
 
-				this.demoData.loading = false;
 				this._splashScreenService.hide();
 
 				this.detectFaces();
@@ -375,10 +394,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 			},
 			this.demoData.isMobile ? 500 : 300
 		);
-	}
-
-	manualCapture(): void {
-		this.takePicture();
 	}
 
 	async setConfigCanvas(): Promise<void> {
@@ -553,7 +568,12 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 
 		this.stopRecord();
 
-		await this.liveness();
+		// authenticate
+
+		alert("biometrics login");
+
+		this.searchLiveFace();
+		// await this.liveness();
 	}
 
 	setPictureInCavas(canvas, dimensions, dimensionsOriginals?) {
@@ -593,54 +613,54 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		return "DESKTOP";
 	}
 
-	liveness() {
+	searchLiveFace(): void {
 		if (this.loadingResults) return;
 
 		this.loadingResults = true;
-		this.demoData.loading = true;
+
 		this._splashScreenService.show();
 
 		const payload: any = {
 			image: this.base64Image,
 			os: this.osInfo,
+			collection_id: this.project._id,
+			liveness_min_score: 0.55,
+			search_mode: "FAST",
+		};
+
+		this._passwordlessService.searchLiveFace(payload).subscribe({
+			next: (response) => {
+				console.log({ response });
+			},
+			error: (err) => {
+				console.error({ err });
+			},
+			complete: () => {},
+		});
+	}
+
+	liveness() {
+		if (this.loadingResults) return;
+
+		this.loadingResults = true;
+
+		this._splashScreenService.show();
+
+		const payload: any = {
+			image: this.base64Image,
+			os: this.osInfo,
+			collection_id: this.project._id,
+			liveness_min_score: 0.55,
+			search_mode: "FAST",
 		};
 
 		this._demoService.sendSelfie(payload).subscribe(
 			(liveness) => {
 				this.errorResult = null;
-
-				this.demoData.loading = false;
-				this._demoService.setDemoLiveness(liveness.data);
-
-				this._compareWithDocument({
-					search_mode: "ACCURATE",
-					gallery: [this.faceIdCard || this.demoData.document.url],
-					probe: [this.base64Image],
-				});
 			},
 			(error) => {
-				this.demoData.loading = false;
 				this._splashScreenService.hide();
 				this.retryLivenessModal(error.error?.message);
-			}
-		);
-	}
-
-	_compareWithDocument(data) {
-		this._demoService.compareDocumentWithSelfie(data).subscribe(
-			(compareResponse) => {
-				this.completeResults();
-
-				this._demoService.setDemoCompare(compareResponse.data);
-
-				this._demoService.moveToStep(5);
-			},
-			(error) => {
-				this.demoData.loading = false;
-
-				this._splashScreenService.hide();
-
-				alert(`_compareWithDocument: ${JSON.stringify(error)}`);
 			}
 		);
 	}
@@ -680,9 +700,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 				if (result === "confirmed") {
 					return this.restart();
 				}
-
-				this._demoService.restart();
-				// pantalla de error
 			});
 	}
 
@@ -699,7 +716,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 			this.saveImageBase64Intent = clearTimeout(this.saveImageBase64Intent);
 		}
 
-		this.demoData.loading = false;
 		this._splashScreenService.hide();
 
 		this._changeDetectorRef.markForCheck();

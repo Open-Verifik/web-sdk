@@ -1,64 +1,5 @@
 <div class="flex flex-col flex-auto items-center sm:justify-center min-w-0 md:p-8" *ngIf="project">
-	<div class="flex md:w-full md:max-w-6xl sm:rounded-2xl sm:shadow overflow-hidden sm:bg-card">
-		<div class="relative hidden md:flex flex-auto items-center justify-center h-full p-16 lg:px-28 overflow-hidden bg-blue-800 dark:border-r">
-			<!-- Background - @formatter:off -->
-			<!-- Rings -->
-			<svg
-				class="absolute inset-0 pointer-events-none"
-				viewBox="0 0 960 540"
-				width="100%"
-				height="100%"
-				preserveAspectRatio="xMidYMax slice"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<g class="text-gray-700 opacity-25" fill="none" stroke="currentColor" stroke-width="100">
-					<circle r="234" cx="196" cy="23"></circle>
-					<circle r="234" cx="790" cy="491"></circle>
-				</g>
-			</svg>
-			<!-- Dots -->
-			<svg class="absolute -top-16 -right-16 text-gray-700" viewBox="0 0 220 192" width="220" height="192" fill="none">
-				<defs>
-					<pattern id="837c3e70-6c3a-44e6-8854-cc48c737b659" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-						<rect x="0" y="0" width="4" height="4" fill="currentColor"></rect>
-					</pattern>
-				</defs>
-				<rect width="220" height="192" fill="url(#837c3e70-6c3a-44e6-8854-cc48c737b659)"></rect>
-			</svg>
-			<!-- @formatter:on -->
-			<!-- Content -->
-			<div class="z-10 relative w-full max-w-2xl">
-				<div class="text-7xl font-bold leading-none text-gray-100">
-					<div>Verifik</div>
-					<div></div>
-				</div>
-				<div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
-					Login into Verifik with your email, phone number or your biometrics. All of your personal data is encrypted and only stored to
-					compare encrypted data to authenticate your access.
-				</div>
-				<!-- <div class="flex items-center mt-8">
-					<div class="flex flex-0 items-center -space-x-1.5">
-						<img
-							class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-							src="assets/images/avatars/female-18.jpg"
-						/>
-						<img
-							class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-							src="assets/images/avatars/female-11.jpg"
-						/>
-						<img
-							class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-							src="assets/images/avatars/male-09.jpg"
-						/>
-						<img
-							class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-							src="assets/images/avatars/male-16.jpg"
-						/>
-					</div>
-					<div class="ml-4 font-medium tracking-tight text-gray-400">More than 17k people joined us, it's your turn</div>
-				</div> -->
-			</div>
-		</div>
+	<div class="flex md:w-full md:max-w-6xl sm:rounded-2xl sm:shadow overflow-hidden sm:bg-card" *ngIf="!showBiometrics">
 		<div class="w-full sm:w-auto py-8 px-4 sm:p-12">
 			<div class="w-400 mx-auto sm:mx-0">
 				<!-- Logo -->
@@ -125,7 +66,7 @@
 										[formControlName]="'emailOTP'"
 										#passwordField
 										(input)="onInput($event)"
-										(keyup)="checkSixDigits()"
+										(keyup)="checkSixDigits('emailOTP')"
 									/>
 									<button
 										mat-icon-button
@@ -190,7 +131,15 @@
 								<!-- phoneOTP -->
 								<mat-form-field class="w-full" *ngIf="smsSent">
 									<mat-label [style.color]="project.branding.txtColor"> {{ "login.phone_otp" | transloco }}</mat-label>
-									<input id="phoneOTP" matInput type="password" [formControlName]="'phoneOTP'" #passwordField />
+									<input
+										id="phoneOTP"
+										matInput
+										type="password"
+										[formControlName]="'phoneOTP'"
+										#passwordField
+										(input)="onInput($event)"
+										(keyup)="checkSixDigits('phoneOTP')"
+									/>
 									<button
 										mat-icon-button
 										type="button"
@@ -252,9 +201,7 @@
 							>
 								<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> SMS </span>
 
-								<mat-progress-spinner *ngIf="!activeSendOtp" [diameter]="12" [mode]="'indeterminate'"> </mat-progress-spinner>
-
-								<span *ngIf="typeLogin == 'phone' && smsSent" [style.color]="project.branding.txtColor">
+								<span *ngIf="typeLogin == 'phone' && smsSent && !activeSendOtp" [style.color]="project.branding.txtColor">
 									SMS ({{ phoneValidation.diff }}) s
 								</span>
 							</button>
@@ -270,9 +217,7 @@
 							>
 								<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> Whatsapp </span>
 
-								<mat-progress-spinner *ngIf="!activeSendOtp" [diameter]="12" [mode]="'indeterminate'"> </mat-progress-spinner>
-
-								<span *ngIf="typeLogin == 'phone' && smsSent" [style.color]="project.branding.txtColor">
+								<span *ngIf="typeLogin == 'phone' && smsSent && !activeSendOtp" [style.color]="project.branding.txtColor">
 									Whatsapp ({{ phoneValidation.diff }}) s
 								</span>
 							</button>
@@ -303,7 +248,7 @@
 
 					<!-- Single sign-on buttons -->
 					<div class="flex items-center mt-8 space-x-4">
-						<button class="flex-auto" type="button" mat-stroked-button>
+						<button class="flex-auto" type="button" mat-stroked-button (click)="showBiometricsLogin()">
 							{{ "login.use_biometrics_button" | transloco }}
 						</button>
 					</div>
@@ -313,5 +258,19 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r" fxLayout="row" fxLayoutAlign="center end">
+			<img src="https://cdn.verifik.co/assets/auth/authb.svg" alt="" />
+		</div>
+	</div>
+
+	<div *ngIf="showBiometrics">
+		<app-liveness-detection-ios
+			*ngIf="demoData.OS == 'IOS'"
+			fxLayoutAlign="center center"
+			class="w-full h-full mb-6"
+		></app-liveness-detection-ios>
+
+		<app-biometrics-login *ngIf="demoData.OS !== 'IOS'" fxLayoutAlign="center center" class="w-full h-full mb-6"></app-biometrics-login>
 	</div>
 </div>
