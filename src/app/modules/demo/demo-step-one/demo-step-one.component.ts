@@ -41,6 +41,7 @@ export class DemoStepOneComponent implements OnInit {
 	countries: Array<any>;
 	lead: Lead;
 	session: Session;
+	errorScreen: Object = { showError: Boolean, errorMessage: String };
 
 	private dataLeads = {
 		lina: {
@@ -83,6 +84,16 @@ export class DemoStepOneComponent implements OnInit {
 			phone: "9541607442",
 			legalAgreement: true,
 		},
+		daniel: {
+			name: "Daniel Gallardo",
+			companyName: "Verifik",
+			website: "verifik.co",
+			jobFunction: "Developer",
+			email: "daniel@verifik.co",
+			countryCode: "+52",
+			phone: "8333114871",
+			legalAgreement: true,
+		},
 	};
 
 	constructor(
@@ -95,6 +106,8 @@ export class DemoStepOneComponent implements OnInit {
 		this.canStartDemo = false;
 
 		this.showForm = false;
+
+		this.errorScreen["showError"] = false;
 
 		this.countries = this._countries.countryCodes;
 	}
@@ -109,8 +122,8 @@ export class DemoStepOneComponent implements OnInit {
 		const data = this.dataLeads[name] ?? {};
 
 		this.contactForm = this._formBuilder.group({
-			companyName: [data.companyName, [Validators.required, Validators.pattern("^[a-zA-Z][a-zA-Z\\s]*$")]],
-			name: [data.name, [Validators.required, Validators.pattern("^[a-zA-Z][a-zA-Z\\s]*$")]],
+			companyName: [data.companyName, [Validators.required]],
+			name: [data.name, [Validators.required]],
 			website: [
 				data.website,
 				[Validators.required, Validators.pattern("^(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+(-?[a-zA-Z0-9])*\\.)+\\w{2,}(\\/?|\\/\\w*)$")],
@@ -176,13 +189,24 @@ export class DemoStepOneComponent implements OnInit {
 	submitForm(): void {
 		if (!this.contactForm.valid) return;
 
+		this.errorScreen["showError"] = false;
+
 		this._splashScreenService.show();
 
-		this._demoService.createLead(this.contactForm.value).subscribe((response) => {
-			this._demoService.setLead(response.data);
+		this._demoService.createLead(this.contactForm.value).subscribe(
+			(response) => {
+				this._demoService.setLead(response.data);
 
-			this._createSession();
-		});
+				this._createSession();
+			},
+			(err) => {
+				this.errorScreen["errorMessage"] = `${err.status}: ${err.error.message}`;
+
+				this.errorScreen["showError"] = true;
+
+				this._splashScreenService.hide();
+			}
+		);
 	}
 
 	_createSession(): void {

@@ -52,6 +52,7 @@
 		"userAgent": "Agent Utilisateur"
 	},
 	"extracted_information": {
+		"bloodType": "Groupe sanguin",
 		"documentType": "Type de document",
 		"documentNumber": "Numéro de document",
 		"firstName": "Prénom",
@@ -145,6 +146,8 @@
 		"job": "Titre du poste",
 		"email": "E-mail de l'entreprise (Pas de @gmail, @outlook, @hotmail)",
 		"country_code": "Code du pays",
-		"phone": "Téléphone"
+		"phone": "Téléphone",
+		"company_required_error": "Le nom de votre entreprise est requis",
+		"invalid_format_error": "Le champ a un format invalide"
 	}
 }

@@ -52,6 +52,7 @@
 		"userAgent": "User Agent"
 	},
 	"extracted_information": {
+		"bloodType": "Uri ng Dugo",
 		"documentType": "Uri ng Dokumento",
 		"documentNumber": "Numero ng Dokumento",
 		"firstName": "Unang Pangalan",
@@ -145,6 +146,8 @@
 		"job": "Titulo ng trabaho",
 		"email": "Email ng Kumpanya (Walang @gmail, @outlook, @hotmail)",
 		"country_code": "Code ng bansa",
-		"phone": "Telepono"
+		"phone": "Telepono",
+		"company_required_error": "Kinakailangan ang pangalan ng iyong kumpanya",
+		"invalid_format_error": "Ang campo ay mayroong hindi wastong format"
 	}
 }

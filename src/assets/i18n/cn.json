@@ -52,6 +52,7 @@
 		"userAgent": "用户代理"
 	},
 	"extracted_information": {
+		"bloodType": "血型",
 		"documentType": "文件类型",
 		"documentNumber": "文件编号",
 		"firstName": "名字",
@@ -145,6 +146,8 @@
 		"job": "职位名称",
 		"email": "公司电子邮件（不用 @gmail, @outlook, @hotmail）",
 		"country_code": "国家代码",
-		"phone": "电话"
+		"phone": "电话",
+		"company_required_error": "公司名称是必填项",
+		"invalid_format_error": "字段格式无效"
 	}
 }

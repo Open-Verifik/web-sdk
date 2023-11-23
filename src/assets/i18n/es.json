@@ -52,6 +52,7 @@
 		"userAgent": "Agente de Usuario"
 	},
 	"extracted_information": {
+		"bloodType": "Grupo sanguineo",
 		"documentType": "Tipo de documento",
 		"documentNumber": "Número de documento",
 		"firstName": "Nombre",
@@ -107,6 +108,7 @@
 	},
 	"user_location": {
 		"amenity": "Comodidad",
+		"house_number": "Numero de Residencia",
 		"region": "Región",
 		"suburb": "Barrio",
 		"road": "Calle",
@@ -145,6 +147,8 @@
 		"job": "Título del puesto",
 		"email": "Correo electrónico de la empresa (No @gmail, @outlook, @hotmail)",
 		"country_code": "Código del país",
-		"phone": "Teléfono"
+		"phone": "Teléfono",
+		"company_required_error": "El nombre de su compañia es requerido",
+		"invalid_format_error": "El campo tiene un formato invalido"
 	}
 }

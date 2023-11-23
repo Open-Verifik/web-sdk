@@ -52,6 +52,7 @@
 		"userAgent": "User Agent"
 	},
 	"extracted_information": {
+		"bloodType": "Gruppo sanguigno",
 		"documentType": "Tipo di documento",
 		"documentNumber": "Numero del documento",
 		"firstName": "Nome",
@@ -145,6 +146,8 @@
 		"job": "Titolo di lavoro",
 		"email": "Email aziendale (Niente @gmail, @outlook, @hotmail)",
 		"country_code": "Codice del paese",
-		"phone": "Telefono"
+		"phone": "Telefono",
+		"company_required_error": "Il nome della tua azienda è obbligatorio",
+		"invalid_format_error": "Il campo ha un formato non valido"
 	}
 }

@@ -52,6 +52,7 @@
 		"userAgent": "यूज़र एजेंट"
 	},
 	"extracted_information": {
+		"bloodType": "रक्त समूह",
 		"documentType": "दस्तावेज़ का प्रकार",
 		"documentNumber": "दस्तावेज़ संख्या",
 		"firstName": "पहला नाम",
@@ -145,6 +146,8 @@
 		"job": "नौकरी का शीर्षक",
 		"email": "कंपनी ईमेल (नहीं @gmail, @outlook, @hotmail)",
 		"country_code": "देश कोड",
-		"phone": "फ़ोन"
+		"phone": "फ़ोन",
+		"company_required_error": "आपकी कंपनी का नाम आवश्यक है",
+		"invalid_format_error": "क्षेत्र में अमान्य प्रारूप है"
 	}
 }

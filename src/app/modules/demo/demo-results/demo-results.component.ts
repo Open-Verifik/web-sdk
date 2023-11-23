@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "../demo.service";
 import { CommonModule } from "@angular/common";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
 	selector: "demo-results",
@@ -13,15 +14,27 @@ import { TranslocoModule } from "@ngneat/transloco";
 	standalone: true,
 	imports: [FlexLayoutModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, TranslocoModule],
 })
-export class DemoResultsComponent implements OnInit {
+export class DemoResultsComponent implements OnInit, OnDestroy, AfterViewInit {
 	demoData: any;
 	generalInfoLoaded: boolean;
 	locationLoaded: boolean;
+	@ViewChild("liveness", { static: false }) liveness: ElementRef;
+	@ViewChild("compare", { static: false }) compare: ElementRef;
 	locationLoading: boolean;
 	documentFrontSideUrl: string;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	lang: string;
+	h2MaxHeight: any;
 
-	constructor(private _demoService: DemoService, private _changeDetectorRef: ChangeDetectorRef) {
+	constructor(
+		private _demoService: DemoService,
+		private _changeDetectorRef: ChangeDetectorRef,
+		private transloco: TranslocoService,
+		private el: ElementRef
+	) {
 		this.demoData = this._demoService.getDemoData();
+
+		console.log(this.demoData);
 
 		this.generalInfoLoaded = false;
 
@@ -30,6 +43,27 @@ export class DemoResultsComponent implements OnInit {
 		this.locationLoading = false;
 
 		this.documentFrontSideUrl = this.demoData.pro?.url || this.demoData.studio?.url || this.demoData.prompt?.url;
+
+		this.transloco.langChanges$.pipe(takeUntil(this._unsubscribeAll)).subscribe((result) => {
+			this.lang = result;
+			if (this.liveness && this.liveness.nativeElement && this.compare && this.compare.nativeElement) {
+				const livenessHeight = this.liveness.nativeElement.offsetHeight;
+				const comparesHeight = this.compare.nativeElement.offsetHeight;
+				this.h2MaxHeight = livenessHeight > comparesHeight ? livenessHeight : comparesHeight;
+				this._changeDetectorRef.markForCheck();
+			}
+		});
+	}
+
+	ngAfterViewInit() {
+		setTimeout(() => {
+			if (this.liveness && this.liveness.nativeElement && this.compare && this.compare.nativeElement) {
+				const livenessHeight = this.liveness.nativeElement.offsetHeight;
+				const comparesHeight = this.compare.nativeElement.offsetHeight;
+				this.h2MaxHeight = livenessHeight > comparesHeight ? livenessHeight : comparesHeight;
+				this._changeDetectorRef.markForCheck();
+			}
+		}, 300);
 	}
 
 	ngOnInit(): void {
@@ -44,6 +78,10 @@ export class DemoResultsComponent implements OnInit {
 
 			return;
 		}
+	}
+
+	ngOnDestroy(): void {
+		this._unsubscribeAll.complete();
 	}
 
 	_getLivenessData(): void {
@@ -82,5 +120,9 @@ export class DemoResultsComponent implements OnInit {
 		this._demoService.cleanVariables();
 
 		this._demoService.moveToStep(1);
+	}
+
+	ObjectEmpty(data): boolean {
+		return Boolean(Object.keys(data).length > 0);
 	}
 }

@@ -52,6 +52,7 @@
 		"userAgent": "Пользовательский агент"
 	},
 	"extracted_information": {
+		"bloodType": "Группа крови",
 		"documentType": "Тип документа",
 		"documentNumber": "Номер документа",
 		"firstName": "Имя",
@@ -145,6 +146,8 @@
 		"job": "Должность",
 		"email": "Электронная почта компании (без @gmail, @outlook, @hotmail)",
 		"country_code": "Код страны",
-		"phone": "Телефон"
+		"phone": "Телефон",
+		"company_required_error": "Требуется указать название вашей компании",
+		"invalid_format_error": "Неверный формат поля"
 	}
 }

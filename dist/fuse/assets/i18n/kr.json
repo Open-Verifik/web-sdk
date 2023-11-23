@@ -52,6 +52,7 @@
 		"userAgent": "사용자 에이전트"
 	},
 	"extracted_information": {
+		"bloodType": "혈액형",
 		"documentType": "문서 유형",
 		"documentNumber": "문서 번호",
 		"firstName": "이름",
@@ -145,6 +146,8 @@
 		"job": "직함",
 		"email": "회사 이메일 (@gmail, @outlook, @hotmail 제외)",
 		"country_code": "국가 코드",
-		"phone": "전화"
+		"phone": "전화",
+		"company_required_error": "회사 이름은 필수 항목입니다",
+		"invalid_format_error": "필드 형식이 잘못되었습니다"
 	}
 }

@@ -52,6 +52,7 @@
 		"userAgent": "User Agent"
 	},
 	"extracted_information": {
+		"bloodType": "Blood Type",
 		"documentType": "Document type",
 		"documentNumber": "Document number",
 		"firstName": "First name",
@@ -145,6 +146,8 @@
 		"job": "Job title",
 		"email": "Company Email (No @gmail, @outlook @hotmail)",
 		"country_code": "Country code",
-		"phone": "Phone"
+		"phone": "Phone",
+		"company_required_error": "Company name is required",
+		"invalid_format_error": "Invalid format for the field"
 	}
 }

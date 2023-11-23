@@ -76,6 +76,10 @@
 <div class="form-div" fxLayout="column" fxLayoutAlign="center center" *ngIf="showForm && contactForm">
 	<h1>{{ "form.title" | transloco }}</h1>
 
+	<div *ngIf="errorScreen.showError" class="error-w p-2 rounded-md error-text">
+		{{ errorScreen.errorMessage }}
+	</div>
+
 	<form [formGroup]="contactForm" novalidate fxLayout="column" class="w-full">
 		<!-- Company Name -->
 		<mat-form-field appearance="fill">
@@ -89,7 +93,7 @@
 		<mat-form-field appearance="fill">
 			<mat-label>{{ "form.names" | transloco }}</mat-label>
 			<input matInput formControlName="name" />
-			<mat-error *ngIf="contactForm.get('name').hasError('required')">{{ "form.name_requird_error" | transloco }}</mat-error>
+			<mat-error *ngIf="contactForm.get('name').hasError('required')">{{ "form.invalid_format_error" | transloco }}</mat-error>
 			<mat-error *ngIf="contactForm.get('name').hasError('pattern')">{{ "form.invalid_format_error" | transloco }}</mat-error>
 		</mat-form-field>
 
