@@ -210,9 +210,11 @@ export class DemoStepOneComponent implements OnInit {
 	}
 
 	_createSession(): void {
+		const { hash } = this._demoService.generateUniqueId();
+
 		this._demoService
 			.createSession({
-				identifier: this._demoService.generateUniqueId(),
+				identifier: hash,
 			})
 			.subscribe((response) => {
 				this._demoService.setSession(response.data);
