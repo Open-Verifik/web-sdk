@@ -95,6 +95,8 @@
 		"DNIPhoto": "DNI en la foto"
 	},
 	"id_scanning": {
+		"face_not_found":"Rostro no encontrado",
+		"face_not_found_details": "No se encontro ningun rostro en el documento de identidad",
 		"camera_not_found": "No se ha encontrado una cámara en el dispositivo o está deshabilitada momentáneamente.",
 		"camera_not_found_description": "Por favor, asegúrese de que el dispositivo en el que está realizando la demostración tiene una cámara y que tiene permisos para acceder a ella.",
 		"manual_capture_button": "Captura manual",

@@ -1,8 +1,3 @@
-<div fxLayout="row" hidden="true">
-	<canvas #credentialCanvas hidden="true"></canvas>
-	<img id="credential" [src]="idCard.image" hidden="true" />
-</div>
-
 <div fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 sm:p-1 xs:p-1 w-full">
 	<div fxLayout="column" fxLayoutAlign="center center" class="justify-center w-full" *ngIf="!camera.isLoading && camera.hasPermissions && !camera.isLowQuality">
 		<div fxLayout="column" fxLayoutAlign="center center" class="justify-center text-center h-20 sm:h-8 xs:h-8 my-2">

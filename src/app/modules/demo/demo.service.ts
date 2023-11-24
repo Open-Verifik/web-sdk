@@ -64,7 +64,7 @@ export class DemoService {
 		await Promise.allSettled(promises);
 
 		this._faceapi.next(true);
-		return
+		return;
 	}
 
 	getNavigation(): any {
@@ -406,9 +406,47 @@ export class DemoService {
 
 		this.session = new Session(JSON.parse(storedSession));
 
-		console.log({ session: this.session });
+		// console.log({ session: this.session });
 
 		return this.session;
+	}
+
+	getBiggestFace(faces) {
+		let maxArea = 0;
+		let faceBigest;
+
+		for (const face of faces) {
+			const tempArea = face.width * face.height;
+			if (tempArea > maxArea) {
+				faceBigest = face;
+				maxArea = tempArea;
+			}
+		}
+
+		return faceBigest;
+	}
+
+	cutFaceIdCard(image, face, cardIdCanvas: HTMLCanvasElement) {
+		const ctx: CanvasRenderingContext2D = cardIdCanvas.getContext("2d");
+
+		let width = Math.ceil(face.width * 2);
+		let height = Math.ceil(face.height * 2);
+		let sx = Math.floor(face.x) - face.width / 2;
+		let sy = Math.floor(face.y) - face.height / 2;
+
+		if (width > image.naturalWidth) {
+			width = image.naturalWidth;
+			height = image.naturalHeight;
+			sx = 0;
+			sy = 0;
+		}
+
+		cardIdCanvas.height = height;
+		cardIdCanvas.width = width;
+
+		ctx.drawImage(image, sx, sy, width, height, 0, 0, width, height);
+
+		return cardIdCanvas.toDataURL("image/jpeg");
 	}
 
 	setSession(data): void {
@@ -428,6 +466,10 @@ export class DemoService {
 
 	sendSelfie(data: any): Observable<any> {
 		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/liveness/demo`, data);
+	}
+
+	detectFace(data: any): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/detect/demo`, data);
 	}
 
 	compareDocumentWithSelfie(data): Observable<any> {

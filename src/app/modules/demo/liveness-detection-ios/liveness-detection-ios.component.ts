@@ -47,7 +47,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 	@ViewChild("maskResult", { static: false }) public maskResultCanvasRef: ElementRef;
 	@ViewChild("toSend", { static: false }) public ToSendCanvasRef: ElementRef;
-	@ViewChild("credentialCanvas", { static: false }) credentialRef: ElementRef;
 
 	demoData: any;
 	attempts: Attemps;
@@ -86,8 +85,13 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 	setDefaultIdCard = () => {
 		this.idCard = {
-			image: localStorage.getItem("idCard"),
+			face: localStorage.getItem("idCardFaceImage"),
 		};
+
+		if (!this.idCard.face) {
+			alert(this._translocoService.translate("id_scanning.face_not_found"));
+			this._demoService.moveToStep(2);
+		}
 	};
 
 	setDefaultDirections = () => {
@@ -193,7 +197,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 					this.setVideoNgxCameraData();
 				}, 100);
 
-				this.detectFaceBiggest(0.9);
 			}
 		});
 	}
@@ -421,55 +424,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 		);
 	};
 
-	async detectFaceBiggest(minConfidence) {
-		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
-
-		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
-
-		if (minConfidence <= 0.1) {
-			console.log("NOT FOUND FACE");
-			return;
-		}
-
-		if (!detections.length) {
-			return this.detectFaceBiggest(minConfidence - 0.1);
-		}
-
-		let maxArea = 0;
-		let faceBigest;
-		for (const detection of detections) {
-			const position = detection.detection.box;
-			const tempArea = position.width * position.height;
-			if (tempArea > maxArea) {
-				faceBigest = detection.detection;
-				maxArea = tempArea;
-			}
-		}
-
-		const position = faceBigest.box; // Object with x, y, width, height
-		let width = Math.ceil(position.width * 3);
-		let height = Math.ceil(position.height * 3);
-		let sx = Math.floor(position.x) - position.width;
-		let sy = Math.floor(position.y) - position.height;
-
-		if (width > credentialImage.naturalWidth) {
-			width = credentialImage.naturalWidth;
-			height = credentialImage.naturalHeight;
-			sx = 0;
-			sy = 0;
-		}
-
-		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
-		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
-
-		credentialCanvas.height = height;
-		credentialCanvas.width = width;
-
-		ctx.drawImage(credentialImage, sx, sy, width, height, 0, 0, width, height);
-
-		this.idCard.face = credentialCanvas.toDataURL("image/jpeg"); //.replace(/^data:.*;base64,/, "");
-	}
-
 	drawStatusOval(ctx, isOk?): void {
 		const { center, radius } = this.face.video;
 
@@ -569,11 +523,11 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 				this._demoService.setDemoLiveness(liveness.data);
 
-				const credentialImage = this.idCard.face || this.idCard.image;
+				const credentialImage = this.idCard.face;
 
 				this._compareWithDocument({
 					search_mode: "ACCURATE",
-					gallery: [credentialImage.replace(/^data:.*;base64,/, "") || this.demoData.document.url],
+					gallery: [credentialImage.replace(/^data:.*;base64,/, "")],
 					probe: [payload.image],
 				});
 			},

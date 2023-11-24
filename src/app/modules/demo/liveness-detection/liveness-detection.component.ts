@@ -32,7 +32,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
 	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
-	@ViewChild("credentialCanvas", { static: false }) credentialRef: ElementRef;
 	//
 	canvasEl: any;
 	canvas: any;
@@ -112,6 +111,13 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 
 		this.videoOptions[key] = { ideal: 1080 };
 
+		this.faceIdCard = localStorage.getItem("idCardFaceImage")?.replace(/^data:.*;base64,/, "");
+
+		if (!this.faceIdCard) {
+			alert(this._translocoService.translate("id_scanning.face_not_found"));
+			this._demoService.moveToStep(2);
+		}
+
 		this.listenModeDebug();
 	}
 
@@ -146,8 +152,6 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		this._splashScreenService.show();
 
-		this.idCardImage = localStorage.getItem("idCard");
-
 		this.errorFace = null;
 		this.loadingResults = false;
 		this.base64Image = null;
@@ -168,6 +172,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 
 			if (isLoaded) {
 				this.startAsyncVideo();
+				// this.detectFaceBiggest(0.9);
 			}
 		});
 	}
@@ -192,63 +197,12 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		this.down.src = "https://cdn.verifik.co/web-sdk/images/down.png";
 	}
 
-	async detectFaceBiggest(minConfidence) {
-		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
-
-		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
-		// .withFaceExpressions();
-
-		if (minConfidence <= 0.1) {
-			return;
-		}
-
-		if (!detections.length) {
-			return this.detectFaceBiggest(minConfidence - 0.1);
-		}
-
-		let maxArea = 0;
-		let faceBigest;
-		for (const detection of detections) {
-			const position = detection.detection.box;
-			const tempArea = position.width * position.height;
-			if (tempArea > maxArea) {
-				faceBigest = detection.detection;
-				maxArea = tempArea;
-			}
-		}
-
-		const position = faceBigest.box; // Object with x, y, width, height
-		let width = Math.ceil(position.width * 3);
-		let height = Math.ceil(position.height * 3);
-		let sx = Math.floor(position.x) - position.width;
-		let sy = Math.floor(position.y) - position.height;
-
-		if (width > credentialImage.naturalWidth) {
-			width = credentialImage.naturalWidth;
-			height = credentialImage.naturalHeight;
-			sx = 0;
-			sy = 0;
-		}
-
-		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
-		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
-
-		credentialCanvas.height = height;
-		credentialCanvas.width = width;
-
-		ctx.drawImage(credentialImage, sx, sy, width, height, 0, 0, width, height);
-
-		this.faceIdCard = credentialCanvas.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
-	}
-
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				video: this.videoOptions,
 				audio: false,
 			});
-
-			this.detectFaceBiggest(0.9);
 
 			this.videoInput = this.video.nativeElement as HTMLVideoElement;
 			this.videoInput.srcObject = this.stream;
@@ -613,7 +567,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 
 				this._compareWithDocument({
 					search_mode: "ACCURATE",
-					gallery: [this.faceIdCard || this.demoData.document.url],
+					gallery: [this.faceIdCard],
 					probe: [this.base64Image],
 				});
 			},

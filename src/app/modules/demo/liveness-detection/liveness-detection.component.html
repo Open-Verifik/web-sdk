@@ -1,7 +1,4 @@
-<canvas #credentialCanvas hidden="true"></canvas>
-<img id="credential" [src]="idCardImage" hidden="true" />
-
-<div fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 sm:p-1 xs:p-1 w-full">
+<div fxLayout="row" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 sm:p-1 xs:p-1 w-full">
 	<div fxLayout="column" fxLayoutAlign="center center" class="w-full" *ngIf="!loadingModel && !lowCamera">
 		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 sm:h-8 xs:h-8 my-2">
 			<div *ngIf="errorFace && !loadingResults">
@@ -10,11 +7,7 @@
 			</div>
 		</div>
 
-		<div
-			class="relative"
-			[style.width.px]="WIDTH"
-			[style.height.px]="HEIGHT">
-			
+		<div class="relative" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
 			<video
 				#video
 				autoplay

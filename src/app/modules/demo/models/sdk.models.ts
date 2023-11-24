@@ -88,8 +88,8 @@ export interface ErrorFace {
 }
 
 export interface IdCard {
-	image: string;
-	face?: string;
+	// image: string;
+	face: string;
 }
 
 export interface directionImage {
