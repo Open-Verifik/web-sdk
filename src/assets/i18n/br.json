@@ -104,7 +104,9 @@
 		"document_not_detected_description": "Por favor, certifique-se de que está escaneando um documento de identidade como um RG, carteira de motorista ou passaporte",
 		"remaining_attempts": "Tentativas restantes",
 		"failed_to_detect_limit": "Você esgotou todas as tentativas de realizar a demonstração corretamente",
-		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida."
+		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida.",
+		"face_not_found":"Rosto não encontrado",
+   		"face_not_found_details":"Nenhum rosto encontrado no documento de identidade"
 	},
 	"localizacao_usuario": {
 		"amenidade": "Comodidade",
