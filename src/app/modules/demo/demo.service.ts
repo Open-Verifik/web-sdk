@@ -506,6 +506,7 @@ export class DemoService {
 			// "lead",
 			// "accessToken",
 			"idCard",
+			"idCardFaceImage",
 		];
 
 		for (let index = 0; index < keys.length; index++) {

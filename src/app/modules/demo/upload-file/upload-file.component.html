@@ -1,4 +1,5 @@
 <div class="w-full" fxLayout="column" fxLayoutAlign="center center">
+	<canvas #cardIdFace hidden="true"></canvas>
 	<div class="white-background csv-container w-full sm:w-3/5 mt-10" appDnd (fileDropped)="onFileDropped($event)" *ngIf="!errorResult">
 		<input type="file" #fileDropRef id="fileDropRef" (change)="fileBrowseHandler($event.target.files)" accept="image/*" />
 		<div class="grid grid-cols-4">

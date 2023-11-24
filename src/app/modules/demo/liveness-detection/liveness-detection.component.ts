@@ -116,6 +116,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 		if (!this.faceIdCard) {
 			alert(this._translocoService.translate("id_scanning.face_not_found"));
 			this._demoService.moveToStep(2);
+			return
 		}
 
 		this.listenModeDebug();

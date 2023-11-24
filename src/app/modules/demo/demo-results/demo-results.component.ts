@@ -34,8 +34,6 @@ export class DemoResultsComponent implements OnInit, OnDestroy, AfterViewInit {
 	) {
 		this.demoData = this._demoService.getDemoData();
 
-		console.log(this.demoData);
-
 		this.generalInfoLoaded = false;
 
 		this.locationLoaded = false;
