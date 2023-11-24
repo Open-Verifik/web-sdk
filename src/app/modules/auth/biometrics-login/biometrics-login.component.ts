@@ -200,68 +200,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		this.down.src = "https://cdn.verifik.co/web-sdk/images/down.png";
 	}
 
-	async detectFaceBiggest(minConfidence) {
-		const credentialImage: HTMLImageElement = document.getElementById("credential") as HTMLImageElement;
-
-		const detections = await faceapi.detectAllFaces(credentialImage, new faceapi.SsdMobilenetv1Options({ minConfidence })).withFaceLandmarks();
-
-		if (minConfidence <= 0.1) {
-			return;
-		}
-
-		if (!detections.length) {
-			return this.detectFaceBiggest(minConfidence - 0.1);
-		}
-
-		let maxArea = 0;
-
-		let faceBigest;
-
-		for (const detection of detections) {
-			const position = detection.detection.box;
-
-			const tempArea = position.width * position.height;
-
-			if (tempArea > maxArea) {
-				faceBigest = detection.detection;
-
-				maxArea = tempArea;
-			}
-		}
-
-		const position = faceBigest.box;
-
-		let width = Math.ceil(position.width * 3);
-
-		let height = Math.ceil(position.height * 3);
-
-		let sx = Math.floor(position.x) - position.width;
-
-		let sy = Math.floor(position.y) - position.height;
-
-		if (width > credentialImage.naturalWidth) {
-			width = credentialImage.naturalWidth;
-
-			height = credentialImage.naturalHeight;
-
-			sx = 0;
-
-			sy = 0;
-		}
-
-		const credentialCanvas: HTMLCanvasElement = this.credentialRef.nativeElement;
-
-		const ctx: CanvasRenderingContext2D = credentialCanvas.getContext("2d");
-
-		credentialCanvas.height = height;
-
-		credentialCanvas.width = width;
-
-		ctx.drawImage(credentialImage, sx, sy, width, height, 0, 0, width, height);
-
-		this.faceIdCard = credentialCanvas.toDataURL("image/jpeg").replace(/^data:.*;base64,/, "");
-	}
-
 	async startAsyncVideo() {
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
@@ -269,9 +207,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				audio: false,
 			});
 
-			this.detectFaceBiggest(0.9);
-
 			this.videoInput = this.video.nativeElement as HTMLVideoElement;
+
 			this.videoInput.srcObject = this.stream;
 
 			this.videoInput.style.transform = "scaleX(-1)";
