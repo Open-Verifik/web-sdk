@@ -149,5 +149,10 @@
 		"phone": "फ़ोन",
 		"company_required_error": "आपकी कंपनी का नाम आवश्यक है",
 		"invalid_format_error": "क्षेत्र में अमान्य प्रारूप है"
+	},
+	"errors": {
+		"phone_is_registered_already": "फोन पहले से ही पंजीकृत है",
+		"email_is_registered_already": "ईमेल पहले से ही पंजीकृत है",
+		"Lead_exceeded_its_limit": "डेमो प्रयासों की सीमा पार हो गई है"
 	}
 }

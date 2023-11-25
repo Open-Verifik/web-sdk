@@ -64,6 +64,16 @@ export class DemoStepOneComponent implements OnInit {
 			phone: "7809133082",
 			legalAgreement: true,
 		},
+		juan: {
+			name: "Juan Sebastian",
+			companyName: "Verifik",
+			website: "verifik.co",
+			jobFunction: "Sales",
+			email: "juan.sebastian@verifik.co",
+			countryCode: "+57",
+			phone: "3647364731",
+			legalAgreement: true,
+		},
 		johan: {
 			name: "Johan Sebastian Castellanos Barrera",
 			companyName: "Verifik",
@@ -193,20 +203,20 @@ export class DemoStepOneComponent implements OnInit {
 
 		this._splashScreenService.show();
 
-		this._demoService.createLead(this.contactForm.value).subscribe(
-			(response) => {
+		this._demoService.createLead(this.contactForm.value).subscribe({
+			next: (response) => {
 				this._demoService.setLead(response.data);
 
 				this._createSession();
 			},
-			(err) => {
-				this.errorScreen["errorMessage"] = `${err.status}: ${err.error.message}`;
+			error: (err) => {
+				this.errorScreen["errorMessage"] = `errors.${err.error.message}`;
 
 				this.errorScreen["showError"] = true;
 
 				this._splashScreenService.hide();
-			}
-		);
+			},
+		});
 	}
 
 	_createSession(): void {

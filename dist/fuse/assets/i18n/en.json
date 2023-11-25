@@ -72,7 +72,7 @@
 		"country": "Country",
 		"height": "Height",
 		"placeOfBirth": "Place of birth",
-		"pro": "Scan Pro - Document extraction",
+		"pro": "Scan Zero - Document extraction",
 		"studio": "Scan Studio - Document extraction",
 		"prompt": "Scan Prompt - Document extraction",
 		"organDonor": "Organ donor",
@@ -135,7 +135,7 @@
 		"match_score": "Match score",
 		"liveness_score": "Liveness score",
 		"passed": "Liveness passed",
-		"min_score": "Minimum score",
+		"min_score": "Minimum liveness score",
 		"score": "Match score"
 	},
 	"form": {
@@ -149,5 +149,10 @@
 		"phone": "Phone",
 		"company_required_error": "Company name is required",
 		"invalid_format_error": "Invalid format for the field"
+	},
+	"errors": {
+		"phone_is_registered_already": "Phone is already registered",
+		"email_is_registered_already": "Email is already registered",
+		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit"
 	}
 }

@@ -149,5 +149,10 @@
 		"phone": "Telepono",
 		"company_required_error": "Kinakailangan ang pangalan ng iyong kumpanya",
 		"invalid_format_error": "Ang campo ay mayroong hindi wastong format"
+	},
+	"errors": {
+		"phone_is_registered_already": "Ang telepono ay nakarehistro na",
+		"email_is_registered_already": "Ang email ay nakarehistro na",
+		"Lead_exceeded_its_limit": "Naabot na ng mga pagtatangka sa demo ang limitasyon nito"
 	}
 }

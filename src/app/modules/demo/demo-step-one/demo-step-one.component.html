@@ -77,7 +77,7 @@
 	<h1>{{ "form.title" | transloco }}</h1>
 
 	<div *ngIf="errorScreen.showError" class="error-w p-2 rounded-md error-text">
-		{{ errorScreen.errorMessage }}
+		{{ errorScreen.errorMessage | transloco }}
 	</div>
 
 	<form [formGroup]="contactForm" novalidate fxLayout="column" class="w-full">

@@ -72,9 +72,9 @@
 		"country": "País",
 		"height": "Altura",
 		"placeOfBirth": "Lugar de nacimiento",
-		"pro": "Escaneo Pro - Extracción de documentos",
-		"studio": "Escaneo Estudio - Extracción de documentos",
-		"prompt": "Escaneo Rápido - Extracción de documentos",
+		"pro": "Scan Pro - Extracción de documentos",
+		"studio": "Scan Studio - Extracción de documentos",
+		"prompt": "Scan Prompt - Extracción de documentos",
 		"organDonor": "Donante de órganos",
 		"code": "Código de barras",
 		"type": "Tipo",
@@ -136,7 +136,7 @@
 		"match_score": "Puntuación de coincidencia",
 		"liveness_score": "Puntuación de vida",
 		"passed": "Vida aprobada",
-		"min_score": "Puntuación mínima",
+		"min_score": "Puntuación mínima de vida",
 		"score": "Puntuación de coincidencia"
 	},
 	"form": {
@@ -150,5 +150,10 @@
 		"phone": "Teléfono",
 		"company_required_error": "El nombre de su compañia es requerido",
 		"invalid_format_error": "El campo tiene un formato invalido"
+	},
+	"errors": {
+		"phone_is_registered_already": "El teléfono ya está registrado",
+		"email_is_registered_already": "El correo electrónico ya está registrado",
+		"Lead_exceeded_its_limit": "Los intentos de demostración han alcanzado su límite"
 	}
 }
