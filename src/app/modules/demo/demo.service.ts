@@ -527,14 +527,14 @@ export class DemoService {
 		}
 	}
 
-	generateUniqueId(): string {
+	generateUniqueId(): any {
 		const navigatorInfo = window.navigator;
 
 		const screenInfo = window.screen;
 
 		const uniqueString = `${navigatorInfo.userAgent}-${navigatorInfo.language}-${navigatorInfo.platform}-${screenInfo.height}x${screenInfo.width}`;
 
-		return this.simpleHash(uniqueString);
+		return { hash: this.simpleHash(uniqueString), userAgent: navigatorInfo.userAgent, height: screenInfo.height, width: screenInfo.width };
 	}
 
 	private simpleHash(input: string): string {

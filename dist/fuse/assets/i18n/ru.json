@@ -151,5 +151,10 @@
 		"phone": "Телефон",
 		"company_required_error": "Требуется указать название вашей компании",
 		"invalid_format_error": "Неверный формат поля"
+	},
+	"errors": {
+		"phone_is_registered_already": "Телефон уже зарегистрирован",
+		"email_is_registered_already": "Электронная почта уже зарегистрирована",
+		"Lead_exceeded_its_limit": "Достигнут лимит попыток демонстрации"
 	}
 }

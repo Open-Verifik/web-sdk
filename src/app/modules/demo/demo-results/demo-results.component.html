@@ -57,7 +57,11 @@
 			<div fxLayout="row" fxLayoutAlign="start center" fxLayoutAlign.sm="center center" class="w-full">
 				<!-- liveness chart -->
 				<div fxLayout="column" fxLayoutAlign="start start" class="w-50p liveness-section" fxLayoutAlign.sm="center center">
-					<h2 #liveness [style.height.px]="h2MaxHeight" class="liveness-title">{{ "results.liveness_score" | transloco }}</h2>
+					<h2 #liveness [style.height.px]="h2MaxHeight" class="liveness-title underline">
+						<a href="https://docs.verifik.co/docs/liveness/yi4ymla63um2f-l-liveness-check">
+							{{ "results.liveness_score" | transloco }}
+						</a>
+					</h2>
 
 					<h3 class="stat-percent" ngClass.xs="small-left-stat-percent">{{ demoData.liveness.result.liveness_score }} %</h3>
 				</div>
@@ -69,8 +73,10 @@
 					fxLayoutAlign.sm="center center"
 					fxLayoutAlign.xs="center center"
 				>
-					<h2 #compare [style.height.px]="h2MaxHeight" class="match-title" ngClass.gt-xs="w-50p">
-						{{ "results.match_score" | transloco }}
+					<h2 #compare [style.height.px]="h2MaxHeight" class="match-title underline" ngClass.gt-xs="w-50p">
+						<a href="https://docs.verifik.co/docs/liveness/ju102wpf097ee-l-compare-with-liveness">
+							{{ "results.match_score" | transloco }}
+						</a>
 					</h2>
 
 					<h3 class="stat-percent">{{ demoData.comparison.result.score }}%</h3>
@@ -120,7 +126,11 @@
 		<!-- stats for small screen -->
 		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center">
 			<div>
-				<h2 class="mb-4">{{ "results.liveness_score" | transloco }}</h2>
+				<h2 class="mb-4 underline">
+					<a href="https://docs.verifik.co/docs/liveness/yi4ymla63um2f-l-liveness-check">
+						{{ "results.liveness_score" | transloco }}
+					</a>
+				</h2>
 			</div>
 
 			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.liveness.result.liveness_score }} %</h3>
@@ -146,7 +156,11 @@
 		<!-- stats for small screen -->
 		<div fxHide.gt-xs="true" fxLayout="column" fxLayoutAlign="center center" class="mt-4">
 			<div>
-				<h2 #compare class="mb-4">{{ "results.match_score" | transloco }}</h2>
+				<h2 #compare class="mb-4 underline">
+					<a href="https://docs.verifik.co/docs/liveness/ju102wpf097ee-l-compare-with-liveness">
+						{{ "results.match_score" | transloco }}
+					</a>
+				</h2>
 			</div>
 
 			<h3 class="small-left-stat-percent" ngClass.xs="">{{ demoData.comparison.result.score }} %</h3>
@@ -192,9 +206,13 @@
 			fxLayoutAlign="start start"
 			fxLayoutAlign.xs="center center"
 			class="w-full"
-			*ngIf="ObjectEmpty(demoData.studio) && demoData.studio && !demoData.studio.error"
+			*ngIf="demoData.studio && !demoData.studio.error && demoData.studioFields.length"
 		>
-			<h1 class="mt-4">{{ "extracted_information.studio" | transloco }}a</h1>
+			<h1 class="mt-4">
+				<a href="https://docs.verifik.co/docs/ocr-optical-character-recognition/dbbaliulefuwh-scan-studio">
+					{{ "extracted_information.studio" | transloco }}
+				</a>
+			</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.studioFields" class="id-details-item">
@@ -209,9 +227,13 @@
 			fxLayoutAlign="start start"
 			fxLayoutAlign.xs="center center"
 			class="w-full"
-			*ngIf="ObjectEmpty(demoData.prompt) && demoData.prompt && !demoData.prompt.error"
+			*ngIf="demoData.prompt && !demoData.prompt.error && demoData.promptFields.length"
 		>
-			<h1 class="mt-4">{{ "extracted_information.prompt" | transloco }}</h1>
+			<h1 class="mt-4 underline">
+				<a href="https://docs.verifik.co/docs/ocr-optical-character-recognition/ylzsk93prunqw-scan-prompt-ocr">{{
+					"extracted_information.prompt" | transloco
+				}}</a>
+			</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.promptFields" class="id-details-item">
@@ -226,9 +248,13 @@
 			fxLayoutAlign="start start"
 			fxLayoutAlign.xs="center center"
 			class="w-full"
-			*ngIf="ObjectEmpty(demoData.pro) && demoData.pro && !demoData.pro.error"
+			*ngIf="demoData.pro && !demoData.pro.error && demoData.proFields.length"
 		>
-			<h1 class="mt-4">{{ "extracted_information.pro" | transloco }}</h1>
+			<h1 class="mt-4 underline">
+				<a href="https://docs.verifik.co/docs/ocr-optical-character-recognition/524rlz99dpvyu-scan-zero">
+					{{ "extracted_information.pro" | transloco }}
+				</a>
+			</h1>
 
 			<div class="mt-8 w-full">
 				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.proFields" class="id-details-item">

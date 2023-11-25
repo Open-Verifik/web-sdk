@@ -151,5 +151,10 @@
 		"phone": "电话",
 		"company_required_error": "公司名称是必填项",
 		"invalid_format_error": "字段格式无效"
+	},
+	"errors": {
+		"phone_is_registered_already": "电话已经注册",
+		"email_is_registered_already": "电子邮件已经注册",
+		"Lead_exceeded_its_limit": "演示尝试已达到上限"
 	}
 }

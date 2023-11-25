@@ -180,6 +180,7 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 
 	async restart(): Promise<void> {
 		this.completeResults();
+
 		await this.startAsyncVideo();
 	}
 
@@ -591,10 +592,10 @@ export class LivenessDetectionComponent implements OnInit, OnDestroy {
 			},
 			(error) => {
 				this.demoData.loading = false;
-				this._splashScreenService.hide();
-				alert(`_compareWithDocument: ${JSON.stringify(error)}`);
 
-				// this.retryLivenessModal(error.error?.message);
+				this._splashScreenService.hide();
+
+				alert(`_compareWithDocument: ${JSON.stringify(error)}`);
 			}
 		);
 	}

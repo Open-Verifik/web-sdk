@@ -151,5 +151,10 @@
 		"phone": "Telefono",
 		"company_required_error": "Il nome della tua azienda è obbligatorio",
 		"invalid_format_error": "Il campo ha un formato non valido"
+	},
+	"errors": {
+		"phone_is_registered_already": "Il telefono è già registrato",
+		"email_is_registered_already": "L'email è già registrata",
+		"Lead_exceeded_its_limit": "I tentativi di dimostrazione hanno raggiunto il loro limite"
 	}
 }
