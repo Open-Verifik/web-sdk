@@ -105,8 +105,8 @@
 		"remaining_attempts": "शेष प्रयास",
 		"failed_to_detect_limit": "आपने डेमो को सही ढंग से पूरा करने के सभी प्रयास समाप्त कर दिए हैं",
 		"failed_to_detect_limit_description": "आप डेमो को जितनी बार चाहें दोहरा सकते हैं लेकिन याद रखें कि इसे सफल बनाने के लिए निर्देशों का पालन करें।",
-		"face_not_found":"चेहरा नहीं मिला",
-   		"face_not_found_details":"पहचान पत्र में कोई चेहरा नहीं मिला"
+		"face_not_found": "चेहरा नहीं मिला",
+		"face_not_found_details": "पहचान पत्र में कोई चेहरा नहीं मिला"
 	},
 	"user_location": {
 		"amenity": "सुविधा",
@@ -156,5 +156,23 @@
 		"phone_is_registered_already": "फोन पहले से ही पंजीकृत है",
 		"email_is_registered_already": "ईमेल पहले से ही पंजीकृत है",
 		"Lead_exceeded_its_limit": "डेमो प्रयासों की सीमा पार हो गई है"
+	},
+	"login": {
+		"title_1": "स्वागत है",
+		"title_2": "साइन इन करें",
+		"no_account": "अभी तक खाता नहीं है?",
+		"register_here_link": "यहाँ रजिस्टर करें",
+		"email": "ईमेल",
+		"country_code": "देश कोड",
+		"phone": "फ़ोन",
+		"send_otp_phone_options_label": "सत्यापन कोड भेजें",
+		"send_email": "ईमेल भेजें",
+		"or_continue": "या जारी रखें",
+		"use_biometrics_button": "चेहरा सत्यापन",
+		"required_email": "ईमेल आवश्यक है",
+		"invalid_email": "ईमेल अमान्य है",
+		"required_otp": "OTP आवश्यक है",
+		"user_not_found": "उपयोगकर्ता नहीं मिला",
+		"projectFlow_not_found": "परियोजना नहीं मिली"
 	}
 }

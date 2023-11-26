@@ -156,5 +156,20 @@
 		"phone_is_registered_already": "Телефон уже зарегистрирован",
 		"email_is_registered_already": "Электронная почта уже зарегистрирована",
 		"Lead_exceeded_its_limit": "Достигнут лимит попыток демонстрации"
-	}
+	},
+	"login": {
+		"title_1": "Добро пожаловать",
+		"title_2": "Войти",
+		"no_account": "Еще нет учетной записи?",
+		"register_here_link": "Зарегистрируйтесь здесь",
+		"email": "Электронная почта",
+		"country_code": "Код страны",
+		"phone": "Телефон",
+		"send_otp_phone_options_label": "Отправить код подтверждения через",
+		"send_email": "Отправить письмо",
+		"or_continue": "Или продолжить с",
+		"use_biometrics_button": "Проверка лица",
+		"required_email": "Требуется электронная почта",
+		"invalid_email": "
+	
 }

@@ -105,8 +105,8 @@
 		"remaining_attempts": "Tentatives restantes",
 		"failed_to_detect_limit": "Vous avez épuisé toutes les tentatives pour effectuer correctement la démo",
 		"failed_to_detect_limit_description": "Vous pouvez répéter la démo autant de fois que vous le souhaitez, mais souvenez-vous de suivre les indications pour qu'elle soit couronnée de succès.",
-		"face_not_found":"Visage non trouvé",
-   		"face_not_found_details":"Aucun visage trouvé dans le document d'identité"
+		"face_not_found": "Visage non trouvé",
+		"face_not_found_details": "Aucun visage trouvé dans le document d'identité"
 	},
 	"user_location": {
 		"amenity": "Équipement",
@@ -156,5 +156,23 @@
 		"phone_is_registered_already": "Le téléphone est déjà enregistré",
 		"email_is_registered_already": "L'email est déjà enregistré",
 		"Lead_exceeded_its_limit": "Les tentatives de démo ont atteint leur limite"
+	},
+	"login": {
+		"title_1": "Bienvenue",
+		"title_2": "Se connecter",
+		"no_account": "Vous n'avez pas encore de compte ?",
+		"register_here_link": "Inscrivez-vous ici",
+		"email": "E-mail",
+		"country_code": "Code du pays",
+		"phone": "Téléphone",
+		"send_otp_phone_options_label": "Envoyer le code de vérification par",
+		"send_email": "Envoyer un e-mail",
+		"or_continue": "Ou continuez avec",
+		"use_biometrics_button": "Vérification faciale",
+		"required_email": "L'e-mail est requis",
+		"invalid_email": "L'e-mail est invalide",
+		"required_otp": "OTP est requis",
+		"user_not_found": "Utilisateur non trouvé",
+		"projectFlow_not_found": "Projet non trouvé"
 	}
 }

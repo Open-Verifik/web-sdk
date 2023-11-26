@@ -105,8 +105,8 @@
 		"remaining_attempts": "剩余尝试次数",
 		"failed_to_detect_limit": "您已用完所有正确执行演示的尝试次数",
 		"failed_to_detect_limit_description": "您可以多次重复演示，但请记住遵循指示以确保演示成功。",
-		"face_not_found":"未找到面孔",
-   		"face_not_found_details":"身份证中未找到任何面孔"
+		"face_not_found": "未找到面孔",
+		"face_not_found_details": "身份证中未找到任何面孔"
 	},
 	"user_location": {
 		"amenity": "便利设施",
@@ -156,5 +156,23 @@
 		"phone_is_registered_already": "电话已经注册",
 		"email_is_registered_already": "电子邮件已经注册",
 		"Lead_exceeded_its_limit": "演示尝试已达到上限"
+	},
+	"login": {
+		"title_1": "欢迎",
+		"title_2": "登录",
+		"no_account": "还没有账户？",
+		"register_here_link": "在这里注册",
+		"email": "电子邮件",
+		"country_code": "国家代码",
+		"phone": "电话",
+		"send_otp_phone_options_label": "通过以下方式发送验证码",
+		"send_email": "发送电子邮件",
+		"or_continue": "或继续使用",
+		"use_biometrics_button": "面部验证",
+		"required_email": "需要电子邮件",
+		"invalid_email": "电子邮件无效",
+		"required_otp": "需要OTP",
+		"user_not_found": "未找到用户",
+		"projectFlow_not_found": "未找到项目"
 	}
 }

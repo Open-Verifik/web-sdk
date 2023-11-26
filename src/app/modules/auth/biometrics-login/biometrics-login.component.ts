@@ -14,6 +14,7 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { PasswordlessService } from "../passwordless.service";
 import { Project } from "../project";
+import { environment } from "environments/environment";
 
 @Component({
 	selector: "app-biometrics-login",
@@ -505,12 +506,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this.stopRecord();
 
-		// authenticate
-
-		alert("biometrics login");
-
 		this.searchLiveFace();
-		// await this.liveness();
 	}
 
 	setPictureInCavas(canvas, dimensions, dimensionsOriginals?) {
@@ -560,20 +556,27 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		const payload: any = {
 			image: this.base64Image,
 			os: this.osInfo,
-			collection_id: this.project._id,
+			id: this.project._id,
 			liveness_min_score: 0.55,
+			min_score: 0.7,
 			search_mode: "FAST",
 		};
 
-		this._passwordlessService.searchLiveFace(payload).subscribe({
+		this._passwordlessService.biometricsSignIn(payload).subscribe({
 			next: (response) => {
 				console.log({ response });
+
+				this.successLogin(response.data.token);
 			},
 			error: (err) => {
 				console.error({ err });
 			},
 			complete: () => {},
 		});
+	}
+
+	successLogin(token: any) {
+		window.location.href = `${this.project.currentProjectFlow.redirectUrl}?type=login&token=${token}`;
 	}
 
 	liveness() {

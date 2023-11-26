@@ -90,7 +90,7 @@ export class PasswordlessService {
 		return this.currentProject;
 	}
 
-	searchLiveFace(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/face-recognition/search-live-face`, data);
+	biometricsSignIn(data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/projects/biometrics/sign-in`, data);
 	}
 }

@@ -16,7 +16,8 @@
 				<!-- no account -->
 				<div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
 					<div>{{ "login.no_account" | transloco }}</div>
-					<a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/kyc/project/', project._id]">{{
+					<!-- [routerLink]="['/kyc/project/', project._id]" -->
+					<a class="ml-1 text-primary-500 hover:underline cursor-pointer" (click)="createAccount()">{{
 						"login.register_here_link" | transloco
 					}}</a>
 				</div>
@@ -30,7 +31,7 @@
 					[type]="alert.type"
 					[@shake]="alert.type === 'error'"
 				>
-					{{ alert.message }}
+					{{ alert.message | transloco }}
 				</fuse-alert>
 
 				<!-- Sign in form -->
@@ -87,7 +88,7 @@
 											[svgIcon]="'heroicons_solid:eye-off'"
 										></mat-icon>
 									</button>
-									<mat-error> OTP is required </mat-error>
+									<mat-error> {{ "login.required_otp" | transloco }} </mat-error>
 								</mat-form-field>
 							</ng-template>
 						</mat-tab>
@@ -186,7 +187,7 @@
 
 						<!-- SEND OTP -->
 						<h3 *ngIf="typeLogin === 'phone' && activeSendOtp" [style.color]="project.branding.txtColor">
-							{{ "login.sent_otp_phone_label" | transloco }}
+							{{ "login.send_otp_phone_options_label" | transloco }}
 						</h3>
 
 						<div class="grid grid-cols-2 w-full" *ngIf="typeLogin === 'phone'">
@@ -231,10 +232,10 @@
 							[disabled]="!canSendOTP()"
 							*ngIf="typeLogin === 'email'"
 						>
-							<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> Send email </span>
+							<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> {{ "login.send_email" | transloco }} </span>
 
 							<span *ngIf="emailSent && !activeSendOtp" [style.color]="project.branding.txtColor">
-								<span>Send email ({{ emailValidation.diff }}) s </span>
+								<span>{{ "login.send_email" | transloco }} ({{ emailValidation.diff }}) s </span>
 							</span>
 						</button>
 					</div>
@@ -242,7 +243,7 @@
 					<!-- Separator -->
 					<div class="flex items-center mt-8">
 						<div class="flex-auto mt-px border-t"></div>
-						<div class="mx-2 text-secondary">Or continue with</div>
+						<div class="mx-2 text-secondary">{{ "login.or_continue" | transloco }}</div>
 						<div class="flex-auto mt-px border-t"></div>
 					</div>
 

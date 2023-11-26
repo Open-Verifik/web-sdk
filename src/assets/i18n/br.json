@@ -105,8 +105,8 @@
 		"remaining_attempts": "Tentativas restantes",
 		"failed_to_detect_limit": "Você esgotou todas as tentativas de realizar a demonstração corretamente",
 		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida.",
-		"face_not_found":"Rosto não encontrado",
-   		"face_not_found_details":"Nenhum rosto encontrado no documento de identidade"
+		"face_not_found": "Rosto não encontrado",
+		"face_not_found_details": "Nenhum rosto encontrado no documento de identidade"
 	},
 	"localizacao_usuario": {
 		"amenidade": "Comodidade",
@@ -156,5 +156,23 @@
 		"phone_is_registered_already": "O telefone já está registrado",
 		"email_is_registered_already": "O e-mail já está registrado",
 		"Lead_exceeded_its_limit": "As tentativas de demonstração atingiram seu limite"
+	},
+	"login": {
+		"title_1": "Bem-vindo",
+		"title_2": "Entrar",
+		"no_account": "Ainda não tem uma conta?",
+		"register_here_link": "Registre-se aqui",
+		"email": "E-mail",
+		"country_code": "Código do país",
+		"phone": "Telefone",
+		"send_otp_phone_options_label": "Enviar o código de verificação por",
+		"send_email": "Enviar e-mail",
+		"or_continue": "Ou continue com",
+		"use_biometrics_button": "Verificação facial",
+		"required_email": "E-mail é obrigatório",
+		"invalid_email": "E-mail inválido",
+		"required_otp": "OTP é obrigatório",
+		"user_not_found": "Usuário não encontrado",
+		"projectFlow_not_found": "Projeto não encontrado"
 	}
 }

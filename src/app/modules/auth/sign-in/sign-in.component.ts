@@ -11,7 +11,6 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { AuthService } from "app/core/auth/auth.service";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 import { Subject } from "rxjs";
@@ -321,12 +320,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	errorLogin(error: string) {
 		this.alert = {
 			type: "error",
-			message: error,
+			message: `login.${error}`,
 		};
-
-		console.log({
-			errorLogin: error,
-		});
 
 		this.showAlert = true;
 
@@ -437,5 +432,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 	showBiometricsLogin(): void {
 		this.showBiometrics = true;
+	}
+
+	createAccount(): void {
+		window.location.href = `${environment.kycUrl}/kyc/project/${this.project._id}`;
 	}
 }

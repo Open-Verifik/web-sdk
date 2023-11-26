@@ -3,4 +3,5 @@ export const environment = {
 	baseUrl: "/",
 	apiUrl: "https://sandbox-api.verifik.co",
 	appUrl: "https://sandbox.verifik.co",
+	kycUrl: "https://kyc.verifik.co",
 };

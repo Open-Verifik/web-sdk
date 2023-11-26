@@ -105,8 +105,8 @@
 		"remaining_attempts": "Tentativi rimanenti",
 		"failed_to_detect_limit": "Hai esaurito tutti i tentativi consentiti per eseguire correttamente la scansione.",
 		"failed_to_detect_limit_description": "Puoi ripetere la scansione più volte, ma assicurati di seguire le istruzioni per garantire il successo della scansione.",
-		"face_not_found":"Volto non trovato",
-		"face_not_found_details":"Nessun volto trovato nel documento d'identità"
+		"face_not_found": "Volto non trovato",
+		"face_not_found_details": "Nessun volto trovato nel documento d'identità"
 	},
 	"user_location": {
 		"amenity": "Struttura",
@@ -156,5 +156,23 @@
 		"phone_is_registered_already": "Il telefono è già registrato",
 		"email_is_registered_already": "L'email è già registrata",
 		"Lead_exceeded_its_limit": "I tentativi di dimostrazione hanno raggiunto il loro limite"
+	},
+	"login": {
+		"title_1": "Benvenuto",
+		"title_2": "Accedi",
+		"no_account": "Non hai ancora un account?",
+		"register_here_link": "Registrati qui",
+		"email": "Email",
+		"country_code": "Codice del paese",
+		"phone": "Telefono",
+		"send_otp_phone_options_label": "Invia il codice di verifica tramite",
+		"send_email": "Invia email",
+		"or_continue": "Oppure continua con",
+		"use_biometrics_button": "Verifica facciale",
+		"required_email": "L'email è richiesta",
+		"invalid_email": "Email non valida",
+		"required_otp": "OTP è richiesto",
+		"user_not_found": "Utente non trovato",
+		"projectFlow_not_found": "Progetto non trovato"
 	}
 }

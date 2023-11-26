@@ -95,7 +95,7 @@
 		"DNIPhoto": "DNI en la foto"
 	},
 	"id_scanning": {
-		"face_not_found":"Rostro no encontrado",
+		"face_not_found": "Rostro no encontrado",
 		"face_not_found_details": "No se encontro ningun rostro en el documento de identidad",
 		"camera_not_found": "No se ha encontrado una cámara en el dispositivo o está deshabilitada momentáneamente.",
 		"camera_not_found_description": "Por favor, asegúrese de que el dispositivo en el que está realizando la demostración tiene una cámara y que tiene permisos para acceder a ella.",
@@ -157,5 +157,23 @@
 		"phone_is_registered_already": "El teléfono ya está registrado",
 		"email_is_registered_already": "El correo electrónico ya está registrado",
 		"Lead_exceeded_its_limit": "Los intentos de demostración han alcanzado su límite"
+	},
+	"login": {
+		"title_1": "Bienvenido",
+		"title_2": "Iniciar sesión",
+		"no_account": "¿Aún no tienes una cuenta?",
+		"register_here_link": "Regístrate aquí",
+		"email": "Correo electrónico",
+		"country_code": "País",
+		"phone": "Teléfono",
+		"send_otp_phone_options_label": "Enviar el código de verificación por",
+		"send_email": "Enviar correo",
+		"or_continue": "O continuar con",
+		"use_biometrics_button": "Verificación facial",
+		"required_email": "El correo electrónico es obligatorio",
+		"invalid_email": "El correo electrónico no es válido",
+		"required_otp": "OTP es obligatorio",
+		"user_not_found": "Usuario no encontrado",
+		"projectFlow_not_found": "Proyecto no encontrado"
 	}
 }

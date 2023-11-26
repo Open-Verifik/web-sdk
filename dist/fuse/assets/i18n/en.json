@@ -105,8 +105,8 @@
 		"remaining_attempts": "Remaining attempts",
 		"failed_to_detect_limit": "You have exhausted all attempts to perform the demo correctly",
 		"failed_to_detect_limit_description": "You can repeat the demo as many times as you want but remember to follow the indications for it to be successful.",
-		"face_not_found":"Face not found",
-   		"face_not_found_details":"No face found in the ID document"
+		"face_not_found": "Face not found",
+		"face_not_found_details": "No face found in the ID document"
 	},
 	"user_location": {
 		"amenity": "Amenity",
@@ -156,5 +156,23 @@
 		"phone_is_registered_already": "Phone is already registered",
 		"email_is_registered_already": "Email is already registered",
 		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit"
+	},
+	"login": {
+		"title_1": "Welcome",
+		"title_2": "Sign in",
+		"no_account": "Don't have an account yet?",
+		"register_here_link": "Register here",
+		"email": "Email",
+		"country_code": "Country code",
+		"phone": "Phone",
+		"send_otp_phone_options_label": "Send the verification code by",
+		"send_email": "Send email",
+		"or_continue": "Or continue with",
+		"use_biometrics_button": "Face verification",
+		"required_email": "Email is required",
+		"invalid_email": "Email is invalid",
+		"required_otp": "OTP is required",
+		"user_not_found": "User not found",
+		"projectFlow_not_found": "Project not found"
 	}
 }
