@@ -576,33 +576,13 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	}
 
 	successLogin(token: any) {
-		window.location.href = `${this.project.currentProjectFlow.redirectUrl}?type=login&token=${token}`;
-	}
+		if (environment.production) {
+			window.location.href = `${this.project.currentProjectFlow.redirectUrl}?type=login&token=${token}`;
 
-	liveness() {
-		if (this.loadingResults) return;
+			return;
+		}
 
-		this.loadingResults = true;
-
-		this._splashScreenService.show();
-
-		const payload: any = {
-			image: this.base64Image,
-			os: this.osInfo,
-			collection_id: this.project._id,
-			liveness_min_score: 0.55,
-			search_mode: "FAST",
-		};
-
-		this._demoService.sendSelfie(payload).subscribe(
-			(liveness) => {
-				this.errorResult = null;
-			},
-			(error) => {
-				this._splashScreenService.hide();
-				this.retryLivenessModal(error.error?.message);
-			}
-		);
+		window.location.href = `${environment.appUrl}/sign-in?type=login&token=${token}`;
 	}
 
 	retryLivenessModal(error) {
