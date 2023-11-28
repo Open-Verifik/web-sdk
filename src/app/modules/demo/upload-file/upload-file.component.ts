@@ -63,6 +63,7 @@ export class UploadFileComponent implements OnDestroy {
 	}
 	prepareFilesList(files: Array<any>) {
 		const fileReader = new FileReader();
+		this._splashScreenService.show();
 
 		fileReader.onload = (event: any) => {
 			const img = new Image();
@@ -72,6 +73,8 @@ export class UploadFileComponent implements OnDestroy {
 			img.onload = async () => {
 				try {
 					const faces = await this.detectFace(img);
+					this.demoData.loading = false;
+					this._splashScreenService.hide();
 
 					if (!faces) {
 						alert(this._translocoService.translate("id_scanning.face_not_found"));
