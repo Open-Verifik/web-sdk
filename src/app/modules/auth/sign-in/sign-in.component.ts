@@ -121,7 +121,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	requestProject(projectId: string): void {
 		this._passwordlessService.requestProject(projectId, "login").subscribe({
 			next: (v) => {
-				this.project = new ProjectModel(v.data);
+				this.project = new ProjectModel({ ...v.data, type: "login" });
+
 				this.projectFlow = this.project.currentProjectFlow;
 
 				for (let index = 0; index < v.data.projectFlows.length; index++) {
@@ -233,9 +234,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	checkSixDigits(field: string): void {
-		if (this.signInForm.value[field].length !== 6 || this.signInForm.invalid) return;
-
-		console.log("Six digits entered:", this.signInForm.value[field]);
+		if ((this.signInForm.value[field] && this.signInForm.value[field].length !== 6) || this.signInForm.invalid) return;
 
 		this.signIn();
 	}
@@ -312,7 +311,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	successLogin(token: any) {
-		const redirectUrl = environment.production ? this.projectFlow.redirectUrl : `${environment.appUrl}/sign-in`;
+		const redirectUrl = Boolean(environment.sandboxProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
 		window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}

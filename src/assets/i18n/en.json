@@ -163,6 +163,8 @@
 		"no_account": "Don't have an account yet?",
 		"register_here_link": "Register here",
 		"email": "Email",
+		"email_otp": "OTP (6 digits password)",
+		"phone_otp": "OTP (6 digits password)",
 		"country_code": "Country code",
 		"phone": "Phone",
 		"send_otp_phone_options_label": "Send the verification code by",
