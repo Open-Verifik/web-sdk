@@ -11,7 +11,7 @@ body fuse-splash-screen {
     background-color: #0030e74a;
     color: #F9FAFB;
     z-index: 999999;
-    pointer-events: none;
+    /* pointer-events: none; */
     opacity: 1;
     visibility: visible;
     transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
