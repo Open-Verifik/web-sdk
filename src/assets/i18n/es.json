@@ -164,6 +164,8 @@
 		"no_account": "¿Aún no tienes una cuenta?",
 		"register_here_link": "Regístrate aquí",
 		"email": "Correo electrónico",
+		"email_otp": "Código de seguridad (6 dígitos)",
+		"phone_otp": "Código de seguridad (6 dígitos)",
 		"country_code": "País",
 		"phone": "Teléfono",
 		"send_otp_phone_options_label": "Enviar el código de verificación por",
@@ -172,8 +174,9 @@
 		"use_biometrics_button": "Verificación facial",
 		"required_email": "El correo electrónico es obligatorio",
 		"invalid_email": "El correo electrónico no es válido",
-		"required_otp": "OTP es obligatorio",
+		"required_otp": "Código de seguridad es obligatorio",
 		"user_not_found": "Usuario no encontrado",
-		"projectFlow_not_found": "Proyecto no encontrado"
+		"projectFlow_not_found": "Proyecto no encontrado",
+		"otp_does_not_match": "Código incorrecto"
 	}
 }

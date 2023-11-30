@@ -81,6 +81,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	secondFactorForm: any;
 	showBiometrics: boolean;
 	demoData: any;
+	sendingOTP: Boolean;
 
 	/**
 	 * Constructor
@@ -89,12 +90,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		private _activatedRoute: ActivatedRoute,
 		private _demoService: DemoService,
 		private _formBuilder: UntypedFormBuilder,
-		private _router: Router,
 		private _splashScreenService: FuseSplashScreenService,
 		private _passwordlessService: PasswordlessService,
 		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService,
-		private _translocoService: TranslocoService
+		private _countries: CountriesService
 	) {
 		this.countries = this._countries.countryCodes;
 
@@ -103,6 +102,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this._splashScreenService.show();
 
 		this.demoData = this._demoService.getDemoData();
+
+		this.sendingOTP = false;
 	}
 
 	/**
@@ -208,8 +209,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this._changeDetectorRef.markForCheck();
 	}
 
-	canSendOTP() {
-		return this.activeSendOtp && this.signInForm.valid;
+	canSendOTP(): Boolean {
+		return Boolean(!this.sendingOTP && this.activeSendOtp && this.signInForm.valid);
 	}
 
 	canUseBiometrics(): boolean {
@@ -234,7 +235,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	checkSixDigits(field: string): void {
-		if ((this.signInForm.value[field] && this.signInForm.value[field].length !== 6) || this.signInForm.invalid) return;
+		if (!this.signInForm.value[field] || (this.signInForm.value[field] && this.signInForm.value[field].length !== 6) || this.signInForm.invalid)
+			return;
 
 		this.signIn();
 	}
@@ -336,6 +338,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	sendOTP(event, gateway): void {
 		event.preventDefault();
 
+		this.sendingOTP = true;
+
 		switch (this.typeLogin) {
 			case "email":
 				this._passwordlessService.sendEmailValidation(this.project._id, this.signInForm.value.email).subscribe({
@@ -345,11 +349,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 						this.emailSent = true;
 
 						this.startTimer(this.typeLogin);
+
+						this.sendingOTP = false;
 					},
 					error: (err) => {
 						console.log({ err });
 
 						this.errorLogin(err?.error?.message);
+
+						this.sendingOTP = false;
 					},
 				});
 				break;
@@ -363,12 +371,14 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 							this.smsSent = true;
 
-							// this.openSnackBar(this._translocoService.translate("notifications.phone_otp"), "OK");
-
 							this.startTimer(this.typeLogin);
+
+							this.sendingOTP = false;
 						},
 						(err) => {
 							this.errorLogin(err?.error?.message);
+
+							this.sendingOTP = false;
 						}
 					);
 				break;

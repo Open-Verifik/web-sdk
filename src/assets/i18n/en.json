@@ -172,9 +172,12 @@
 		"or_continue": "Or continue with",
 		"use_biometrics_button": "Face verification",
 		"required_email": "Email is required",
+		"required_phone": "Phone is required",
 		"invalid_email": "Email is invalid",
+		"invalid_phone": "Phone is invalid",
 		"required_otp": "OTP is required",
 		"user_not_found": "User not found",
-		"projectFlow_not_found": "Project not found"
+		"projectFlow_not_found": "Project not found",
+		"otp_does_not_match": "Invalid OTP"
 	}
 }
