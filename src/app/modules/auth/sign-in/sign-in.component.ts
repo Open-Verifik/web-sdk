@@ -242,44 +242,36 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	_signInWithEmail(dataForm): void {
-		this._passwordlessService
-			.confirmEmailValidation(this.project._id, dataForm.email, dataForm.emailOTP, this.secondFactorForm.value.authenticatorOTP)
-			.subscribe(
-				(response) => {
-					if (response.data.message) {
-						this.secondFactorData = response.data;
+		this._passwordlessService.confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm.value.authenticatorOTP).subscribe(
+			(response) => {
+				if (response.data.message) {
+					this.secondFactorData = response.data;
 
-						this.secondFactorData.emailOTP = dataForm.emailOTP;
+					this.secondFactorData.emailOTP = dataForm.emailOTP;
 
-						return;
-					}
-
-					return this.successLogin(response.data);
-				},
-				(err) => {
-					console.log({
-						err: err.error.message,
-					});
-
-					this.errorLogin(err.error.message);
+					return;
 				}
-			);
+
+				console.log({ DATA: response.data });
+
+				// return this.successLogin(response.data.token);
+			},
+			(err) => {
+				console.log({
+					err: err.error.message,
+				});
+
+				this.errorLogin(err.error.message);
+			}
+		);
 	}
 
 	_signInWithPhone(dataForm): void {
 		this._passwordlessService
-			.confirmPhoneValidation(
-				this.project._id,
-				dataForm.countryCode,
-				dataForm.phone,
-				dataForm.phoneOTP,
-				this.secondFactorForm.value.authenticatorOTP
-			)
+			.confirmPhoneValidation(dataForm.countryCode, dataForm.phone, dataForm.phoneOTP, this.secondFactorForm.value.authenticatorOTP)
 			.subscribe(
 				(response) => {
-					if (!response.data) {
-						return;
-					}
+					if (!response.data) return;
 
 					if (response.data.message) {
 						this.secondFactorData = response.data;
@@ -289,7 +281,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 						return;
 					}
 
-					return this.successLogin(response.data);
+					return this.successLogin(response.data.token);
 				},
 				(err) => {
 					this.errorLogin(err.error.message);
@@ -363,24 +355,22 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				break;
 
 			case "phone":
-				this._passwordlessService
-					.sendPhoneValidation(this.project._id, this.signInForm.value.countryCode, this.signInForm.value.phone, gateway)
-					.subscribe(
-						(response) => {
-							this.phoneValidation = response.data;
+				this._passwordlessService.sendPhoneValidation(this.signInForm.value.countryCode, this.signInForm.value.phone, gateway).subscribe(
+					(response) => {
+						this.phoneValidation = response.data;
 
-							this.smsSent = true;
+						this.smsSent = true;
 
-							this.startTimer(this.typeLogin);
+						this.startTimer(this.typeLogin);
 
-							this.sendingOTP = false;
-						},
-						(err) => {
-							this.errorLogin(err?.error?.message);
+						this.sendingOTP = false;
+					},
+					(err) => {
+						this.errorLogin(err?.error?.message);
 
-							this.sendingOTP = false;
-						}
-					);
+						this.sendingOTP = false;
+					}
+				);
 				break;
 		}
 	}

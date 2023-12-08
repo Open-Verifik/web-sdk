@@ -31,35 +31,39 @@ export class PasswordlessService {
 
 	sendEmailValidation(projectId: string, email: string): Observable<any> {
 		return this._httpWrapper
-			.sendRequest("post", `${this.baseUrl}/v2/projects/email-login`, {
+			.sendRequest("post", `${this.baseUrl}/v2/email-validations`, {
 				email,
-				id: projectId,
+				project: this.currentProject._id,
+				projectFlow: this.currentProject.currentProjectFlow._id,
 				type: "login",
+				validationMethod: "verificationCode",
 				language: this._translocoService.getActiveLang(),
 			})
 			.pipe(tap((response: any) => {}));
 	}
 
-	sendPhoneValidation(projectId: string, countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
+	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
 		return this._httpWrapper
-			.sendRequest("post", `${this.baseUrl}/v2/projects/phone-login`, {
+			.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
 				phone,
 				countryCode,
-				id: projectId,
+				projectFlow: this.currentProject.currentProjectFlow._id,
+				project: this.currentProject._id,
 				phoneGateway,
 				type: "login",
 				language: this._translocoService.getActiveLang(),
+				validationMethod: "verificationCode",
 			})
 			.pipe(tap((response: any) => {}));
 	}
 
-	confirmPhoneValidation(projectId: string, countryCode: string, phone: string, otp: string, authenticatorOTP: string): Observable<any> {
+	confirmPhoneValidation(countryCode: string, phone: string, otp: string, authenticatorOTP: string): Observable<any> {
 		return this._httpWrapper
-			.sendRequest("post", `${this.baseUrl}/v2/projects/phone-login/confirm`, {
+			.sendRequest("post", `${this.baseUrl}/v2/phone-validations/validate`, {
+				projectFlow: this.currentProject.currentProjectFlow._id,
+				countryCode,
 				phone,
 				otp,
-				countryCode,
-				id: projectId,
 				authenticatorOTP,
 				type: "login",
 				// ipData: JSON.parse(localStorage.getItem("ipData")),
@@ -73,17 +77,20 @@ export class PasswordlessService {
 			);
 	}
 
-	confirmEmailValidation(projectId: string, email: string, otp: string, authenticatorOTP: string): Observable<any> {
+	confirmEmailValidation(email: string, otp: string, authenticatorOTP: string): Observable<any> {
 		return this._httpWrapper
-			.sendRequest("post", `${this.baseUrl}/v2/projects/email-login/confirm`, {
+			.sendRequest("post", `${this.baseUrl}/v2/email-validations/validate`, {
 				email,
 				otp,
-				id: projectId,
-				authenticatorOTP,
-				type: "login",
+				projectFlow: this.currentProject.currentProjectFlow._id,
+				// authenticatorOTP,
 				// ipData: JSON.parse(localStorage.getItem("ipData")),
 			})
-			.pipe(tap((response: any) => {}));
+			.pipe(
+				tap((response: any) => {
+					console.log({ emailConfirmed: response.data });
+				})
+			);
 	}
 
 	getProject(): Project {

@@ -23,6 +23,15 @@ export interface ProjectFlow {
 	usesWhiteList: boolean;
 	loginSettings?: {
 		steps?: any;
+		email: boolean;
+		emailAuthy: boolean;
+		phone: boolean;
+		phoneAuthy: boolean;
+		phoneGateway?: string;
+		faceLiveness: boolean;
+		searchMode: string;
+		searchMinScore: string;
+		showFaceLivenessRecommendation: boolean;
 	};
 	onboardingSettings?: {
 		countriesAllowed?: Array<any>;
@@ -303,6 +312,15 @@ export class ProjectFlowModel implements ProjectFlow {
 	usesWhiteList: boolean;
 	loginSettings?: {
 		steps?: any;
+		email: boolean;
+		emailAuthy: boolean;
+		phone: boolean;
+		phoneAuthy: boolean;
+		phoneGateway?: string;
+		faceLiveness: boolean;
+		searchMode: string;
+		searchMinScore: string;
+		showFaceLivenessRecommendation: boolean;
 	};
 	onboardingSettings?: {
 		countriesAllowed?: any[];
@@ -364,6 +382,14 @@ export class ProjectFlowModel implements ProjectFlow {
 		this.documentValidation = data.documentValidation;
 		this.appQRCode = data.appQRCode;
 		this.loginSettings = data.loginSettings;
+
+		if (this.loginSettings) {
+			this.email = this.loginSettings.email;
+			this.emailAuthy = this.loginSettings.emailAuthy;
+			this.phone = this.loginSettings.phone;
+			this.phoneGateway = this.loginSettings.phoneGateway;
+		}
+
 		this.onboardingSettings = data.onboardingSettings || {
 			basicInformation: {
 				fullName: false,
