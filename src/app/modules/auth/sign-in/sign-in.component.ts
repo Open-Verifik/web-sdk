@@ -82,6 +82,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	showBiometrics: boolean;
 	demoData: any;
 	sendingOTP: Boolean;
+	showFaceLivenessRecommendation: Boolean;
 
 	/**
 	 * Constructor
@@ -104,6 +105,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this.demoData = this._demoService.getDemoData();
 
 		this.sendingOTP = false;
+
+		this.showFaceLivenessRecommendation = false;
 	}
 
 	/**
@@ -252,9 +255,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					return;
 				}
 
-				console.log({ DATA: response.data });
+				if (response.data?.showFaceLivenessRecommendation) {
+					this.showFaceLivenessRecommendation = true;
 
-				// return this.successLogin(response.data.token);
+					return;
+				}
+
+				return this.successLogin(response.data.token);
 			},
 			(err) => {
 				console.log({
