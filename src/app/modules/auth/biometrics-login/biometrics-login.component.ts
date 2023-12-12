@@ -92,6 +92,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	lowCamera: boolean;
 	successPosition: any;
 	project: Project;
+	appLoginToken: string;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
@@ -120,6 +121,25 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		this.listenModeDebug();
 
 		this.project = this._passwordlessService.getProject();
+
+		this.appLoginToken = localStorage.getItem("accessToken");
+
+		this._generateSession();
+	}
+
+	_generateSession(): void {
+		const { hash } = this._demoService.generateUniqueId();
+
+		this._passwordlessService
+			.createLivenessSession({
+				identifier: hash,
+				type: "login",
+			})
+			.subscribe((response) => {
+				console.log({ _generateSession: response });
+
+				localStorage.setItem("accessToken", response.data.token);
+			});
 	}
 
 	listenModeDebug(): void {
@@ -245,6 +265,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 			});
 		} catch (error) {
 			alert(`${error.message}`);
+
 			console.error("SHOW ERROR", error);
 		}
 	}
@@ -506,7 +527,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this.stopRecord();
 
-		this.searchLiveFace();
+		this.biometricsLogin();
 	}
 
 	setPictureInCavas(canvas, dimensions, dimensionsOriginals?) {
@@ -546,7 +567,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		return "DESKTOP";
 	}
 
-	searchLiveFace(): void {
+	biometricsLogin(): void {
 		if (this.loadingResults) return;
 
 		this.loadingResults = true;
@@ -562,9 +583,9 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 			search_mode: "FAST",
 		};
 
-		this._passwordlessService.biometricsSignIn(payload).subscribe({
+		this._passwordlessService.validateBiometrics(payload).subscribe({
 			next: (response) => {
-				console.log({ response });
+				console.log({ validateBiometrics: response });
 
 				this.successLogin(response.data.token);
 			},

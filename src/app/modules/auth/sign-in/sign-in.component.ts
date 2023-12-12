@@ -16,7 +16,7 @@ import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project
 import { Subject } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { TranslocoModule } from "@ngneat/transloco";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
@@ -62,6 +62,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		type: "success",
 		message: "",
 	};
+
 	showAlert: boolean = false;
 	project: Project;
 	projectFlow: ProjectFlow;
@@ -83,6 +84,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	demoData: any;
 	sendingOTP: Boolean;
 	showFaceLivenessRecommendation: Boolean;
+	isVerifikProject: Boolean;
+	appLoginToken: string;
 
 	/**
 	 * Constructor
@@ -102,6 +105,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 		this._splashScreenService.show();
 
+		this._demoService.cleanVariables();
+
+		localStorage.removeItem("accessToken");
+
 		this.demoData = this._demoService.getDemoData();
 
 		this.sendingOTP = false;
@@ -115,6 +122,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this._activatedRoute.params.subscribe((params) => {
 			this.requestProject(params.id);
+
+			this.isVerifikProject = Boolean(params.id === environment.sandboxProject);
 		});
 	}
 
@@ -255,6 +264,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					return;
 				}
 
+				this.appLoginToken = response.data.token;
+
 				if (response.data?.showFaceLivenessRecommendation) {
 					this.showFaceLivenessRecommendation = true;
 
@@ -288,7 +299,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 						return;
 					}
 
-					return this.successLogin(response.data.token);
+					this.appLoginToken = response.data.token;
+
+					if (response.data?.showFaceLivenessRecommendation) {
+						this.showFaceLivenessRecommendation = true;
+
+						return;
+					}
+
+					return this.successLogin(this.appLoginToken);
 				},
 				(err) => {
 					this.errorLogin(err.error.message);
@@ -437,7 +456,17 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	showBiometricsLogin(): void {
+		if (this.appLoginToken) {
+			localStorage.setItem("accessToken", this.appLoginToken);
+		}
+
 		this.showBiometrics = true;
+	}
+
+	continueRedirection(): void {
+		this.sendingOTP = true;
+
+		this.successLogin(this.appLoginToken);
 	}
 
 	createAccount(): void {

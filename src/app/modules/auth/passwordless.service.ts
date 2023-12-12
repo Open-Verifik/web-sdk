@@ -100,4 +100,31 @@ export class PasswordlessService {
 	biometricsSignIn(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/projects/biometrics/sign-in`, data);
 	}
+
+	createLivenessSession(data: any): Observable<any> {
+		const appLoginToken = localStorage.getItem("accessToken");
+
+		let url = `${this.baseUrl}/v2/biometric-validations`;
+
+		if (appLoginToken) url += `/app-login`;
+
+		return this._httpWrapper.sendRequest(
+			"post",
+			url,
+			{
+				...data,
+				projectFlow: this.currentProject.currentProjectFlow._id,
+				project: this.currentProject._id,
+			},
+			{
+				Headers: {
+					Authorization: appLoginToken ? `Bearer ${appLoginToken}` : "",
+				},
+			}
+		);
+	}
+
+	validateBiometrics(data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/validate`, data);
+	}
 }

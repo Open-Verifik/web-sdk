@@ -259,6 +259,35 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="showFaceLivenessRecommendation" fxLayout="column" fxLayoutAlign="start center">
+				<div class="w-400 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
+					<!-- content -->
+					<div fxLayout="column" fxLayoutAlign="start center">
+						<img src="https://cdn.verifik.co/access/goldcoins3x.png" alt="" class="w-36" />
+
+						<h2 class="pt-2 credits-h2">Obtén $10 Créditos con Datos Biométricos</h2>
+
+						<h3 class="credits-h3">Registra tus datos y mejora la seguridad de tu cuenta y disfruta de un acceso rápido y seguro.</h3>
+					</div>
+					<!-- end of content -->
+					<!-- Title -->
+
+					<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="showBiometricsLogin()">
+							<span [style.color]="project.branding.txtColor"> Realizar biometría ahora </span>
+						</button>
+
+						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueRedirection()">
+							<span [style.color]="project.branding.txtColor"> Omitir </span>
+						</button>
+					</div>
+
+					<div class="w-full text-center mt-6">
+						<languages [colorText]="project.branding.txtColor" *ngIf="project.branding.txtColor"></languages>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div *ngIf="showBiometrics">
@@ -273,9 +302,10 @@
 	</div>
 
 	<div
-		class="relative sm:hidden xs:hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r bg-white w-full"
+		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r bg-white w-full"
 		fxLayout="row"
 		fxLayoutAlign="center end"
+		*ngIf="!showBiometrics"
 	>
 		<img src="https://cdn.verifik.co/assets/auth/authb.svg" alt="" />
 	</div>

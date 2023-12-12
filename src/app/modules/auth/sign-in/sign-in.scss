@@ -17,6 +17,23 @@ bg-white {
 	z-index: 2 !important;
 }
 
+.credits-h2 {
+	font-size: 24px;
+	text-align: center;
+}
+
+.credits-h3 {
+	font-size: 16px;
+	text-align: center;
+	font-weight: 600;
+	color: grey;
+}
+
+.biometrics-button {
+	background-color: #82269e;
+	color: white !important;
+}
+
 mat-form-field {
 	padding-right: 4px !important;
 }
