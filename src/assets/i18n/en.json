@@ -155,7 +155,10 @@
 	"errors": {
 		"phone_is_registered_already": "Phone is already registered",
 		"email_is_registered_already": "Email is already registered",
-		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit"
+		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit",
+		"person_linked_to_another_email": "Your biometrics are linked to another email",
+		"person_linked_to_another_phone": "Your biometrics are linked to another phone",
+		"continue_without_biometrics": "Continue without biometrics"
 	},
 	"login": {
 		"title_1": "Welcome",

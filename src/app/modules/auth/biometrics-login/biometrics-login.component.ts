@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { PasswordlessService } from "../passwordless.service";
-import { Project } from "../project";
+import { Project, ProjectFlow } from "../project";
 import { environment } from "environments/environment";
 
 @Component({
@@ -93,6 +93,9 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	successPosition: any;
 	project: Project;
 	appLoginToken: string;
+	showError: Boolean;
+	errorContent: any;
+	projectFlow: ProjectFlow;
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
@@ -110,9 +113,19 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this.successPosition = 0;
 
+		this.showError = false;
+
+		this.errorContent = {
+			message: "",
+		};
+
 		this.osInfo = this.detectOS();
 
 		this.demoData = this._demoService.getDemoData();
+
+		this.project = this._passwordlessService.getProject();
+
+		this.projectFlow = this.project.currentProjectFlow;
 
 		let key = this.demoData.isMobile ? "width" : "height";
 
@@ -120,11 +133,39 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this.listenModeDebug();
 
-		this.project = this._passwordlessService.getProject();
-
 		this.appLoginToken = localStorage.getItem("accessToken");
 
 		this._generateSession();
+	}
+
+	async ngOnInit(): Promise<void> {
+		this._splashScreenService.show();
+
+		this.errorFace = null;
+
+		this.loadingResults = false;
+
+		this.base64Image = null;
+
+		await this.loadImages();
+
+		this.setMaxDimensions();
+
+		this.renderer.listen("window", "resize", () => {
+			this.setMaxDimensions();
+			if (this.videoInput) {
+				this.setCanvasDimension();
+				this.setConfigCanvas();
+			}
+		});
+
+		this._demoService.faceapi$.subscribe((isLoaded) => {
+			this.loadingModel = !isLoaded;
+
+			if (isLoaded) {
+				this.startAsyncVideo();
+			}
+		});
 	}
 
 	_generateSession(): void {
@@ -168,36 +209,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		if (this.stream) {
 			this.stream.getTracks().forEach((track) => track.stop());
 		}
-	}
-
-	async ngOnInit(): Promise<void> {
-		this._splashScreenService.show();
-
-		this.errorFace = null;
-
-		this.loadingResults = false;
-
-		this.base64Image = null;
-
-		await this.loadImages();
-
-		this.setMaxDimensions();
-
-		this.renderer.listen("window", "resize", () => {
-			this.setMaxDimensions();
-			if (this.videoInput) {
-				this.setCanvasDimension();
-				this.setConfigCanvas();
-			}
-		});
-
-		this._demoService.faceapi$.subscribe((isLoaded) => {
-			this.loadingModel = !isLoaded;
-
-			if (isLoaded) {
-				this.startAsyncVideo();
-			}
-		});
 	}
 
 	async restart(): Promise<void> {
@@ -590,7 +601,12 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				this.successLogin(response.data.token);
 			},
 			error: (err) => {
-				console.error({ err });
+				console.error({ errorFromValidatingBiometrics: err });
+				this.showError = true;
+
+				this.errorContent = err.error;
+
+				this._splashScreenService.hide();
 			},
 			complete: () => {},
 		});
@@ -669,5 +685,13 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		if (this.detectFaceInterval) {
 			this.stopRecord();
 		}
+	}
+
+	continueRedirection(): void {
+		const token = localStorage.getItem("accessToken");
+
+		const redirectUrl = Boolean(environment.sandboxProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
+
+		window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}
 }
