@@ -108,19 +108,19 @@
 		"face_not_found": "Rosto não encontrado",
 		"face_not_found_details": "Nenhum rosto encontrado no documento de identidade"
 	},
-	"localizacao_usuario": {
-		"amenidade": "Comodidade",
-		"regiao": "Região",
-		"bairro": "Bairro",
-		"rua": "Rua",
-		"vizinhanca": "Vizinhança",
-		"cidade": "Cidade",
-		"condado": "Condado",
-		"estado": "Estado",
+	"user_location": {
+		"amenity": "Comodidade",
+		"region": "Região",
+		"suburb": "Bairro",
+		"road": "Rua",
+		"neighbourhood": "Vizinhança",
+		"city": "Cidade",
+		"county": "Condado",
+		"state": "Estado",
 		"ISO3166-2-lvl4": "Código ISO do País",
-		"codigo_postal": "Código Postal",
-		"pais": "País",
-		"codigo_pais": "Código do País"
+		"postcode": "Código Postal",
+		"country": "País",
+		"country_code": "Código do País"
 	},
 	"liveness": {
 		"center_yor_face": "Centralize seu rosto na tela",
@@ -134,8 +134,8 @@
 	"results": {
 		"selfie": "Selfie",
 		"liveness_and_match": "Resultados de Vivacidade e Correspondência",
-		"match_score": "Pontuação de Correspondência",
-		"liveness_score": "Pontuação de Vivacidade",
+		"match_score": "Correspondência",
+		"liveness_score": "Vivacidade",
 		"passed": "Vivacidade aprovada",
 		"min_score": "Pontuação Mínima",
 		"score": "Pontuação de Correspondência"

@@ -507,6 +507,7 @@ export class DemoService {
 			// "accessToken",
 			"idCard",
 			"idCardFaceImage",
+			"sessionToken",
 		];
 
 		for (let index = 0; index < keys.length; index++) {
