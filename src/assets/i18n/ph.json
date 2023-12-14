@@ -105,8 +105,8 @@
 		"remaining_attempts": "Natitirang mga Pagtatangka",
 		"failed_to_detect_limit": "Naubos mo na lahat ng pagtatangka para maayos na maisagawa ang demo",
 		"failed_to_detect_limit_description": "Maaari mong ulitin ang demo ng maraming beses na gusto mo ngunit tandaan na sundin ang mga panuto para ito ay maging matagumpay.",
-		"face_not_found":"Hindi Natagpuan ang Mukha",
-   		"face_not_found_details":"Walang natagpuang mukha sa ID document"
+		"face_not_found": "Hindi Natagpuan ang Mukha",
+		"face_not_found_details": "Walang natagpuang mukha sa ID document"
 	},
 	"user_location": {
 		"amenity": "Amenidad",
@@ -155,6 +155,41 @@
 	"errors": {
 		"phone_is_registered_already": "Ang telepono ay nakarehistro na",
 		"email_is_registered_already": "Ang email ay nakarehistro na",
-		"Lead_exceeded_its_limit": "Naabot na ng mga pagtatangka sa demo ang limitasyon nito"
+		"Lead_exceeded_its_limit": "Naabot na ang limitasyon ng mga pagtatangka sa demo",
+		"person_linked_to_another_email": "Ang iyong biometrics ay nakalink sa ibang email",
+		"person_linked_to_another_phone": "Ang iyong biometrics ay nakalink sa ibang telepono",
+		"continue_without_biometrics": "Magpatuloy nang walang biometrics"
+	},
+	"login": {
+		"title_1": "Maligayang Pagdating",
+		"title_2": "Mag-log in",
+		"no_account": "Wala ka pang account?",
+		"register_here_link": "Magrehistro dito",
+		"email": "Email",
+		"email_otp": "Security code (6 na digit)",
+		"phone_otp": "Security code (6 na digit)",
+		"country_code": "Bansa",
+		"phone": "Telepono",
+		"send_otp_phone_options_label": "Ipadala ang verification code sa pamamagitan ng",
+		"send_email": "Ipadala ang Email",
+		"or_continue": "O magpatuloy gamit ang",
+		"use_biometrics_button": "Pagpapatunay gamit ang mukha",
+		"required_email": "Kailangan ang email",
+		"invalid_email": "Hindi wasto ang email",
+		"required_otp": "Kailangan ang security code",
+		"user_not_found": "Hindi makita ang user",
+		"projectFlow_not_found": "Hindi makita ang proyekto",
+		"otp_does_not_match": "Maling code"
+	},
+	"add_biometrics": {
+		"project_title": "Maligayang pagdating sa ",
+		"verifik_title": "I-unlock ang $10 sa Credits gamit ang Iyong Biometrics!",
+		"title": "I-validate ang iyong pagkakakilanlan gamit ang facial biometrics",
+		"verifik_content": "I-angat ang seguridad ng iyong account sa susunod na antas! Irehistro na ngayon ang iyong biometric data at mag-enjoy ng seamless at ultra-secure na access. Maranasan ang kaginhawahan ng cutting-edge security na may rewarding twist.",
+		"content": "Pagkatapos ikonekta ang iyong biometrics, maaari kang mag-login gamit ito para sa mas mabilis at secure na authentication",
+		"verifik_button": "I-activate ang Biometric Bonus",
+		"button": "Ikonekta ang biometrics ngayon",
+		"verifik_dismiss": "Hindi Ngayon, Salamat",
+		"dismiss": "I-dismiss"
 	}
 }

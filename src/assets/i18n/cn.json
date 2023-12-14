@@ -155,7 +155,10 @@
 	"errors": {
 		"phone_is_registered_already": "电话已经注册",
 		"email_is_registered_already": "电子邮件已经注册",
-		"Lead_exceeded_its_limit": "演示尝试已达到上限"
+		"Lead_exceeded_its_limit": "演示尝试已达到其限制",
+		"person_linked_to_another_email": "您的生物特征已链接到另一个电子邮件",
+		"person_linked_to_another_phone": "您的生物特征已链接到另一个电话",
+		"continue_without_biometrics": "继续不用生物特征"
 	},
 	"login": {
 		"title_1": "欢迎",
@@ -174,5 +177,16 @@
 		"required_otp": "需要OTP",
 		"user_not_found": "未找到用户",
 		"projectFlow_not_found": "未找到项目"
+	},
+	"add_biometrics": {
+		"project_title": "欢迎来到 ",
+		"verifik_title": "用您的生物特征解锁10美元积分!",
+		"title": "用面部生物特征验证您的身份",
+		"verifik_content": "将您账户的安全性提升到新的水平！现在就注册您的生物特征数据，享受流畅、超级安全的访问体验。体验带有奖励转折的尖端安全便利。",
+		"content": "链接您的生物特征后，您可以使用它进行更快速和安全的认证",
+		"verifik_button": "激活生物特征奖金",
+		"button": "现在链接生物特征",
+		"verifik_dismiss": "暂不，谢谢",
+		"dismiss": "忽略"
 	}
 }

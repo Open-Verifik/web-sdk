@@ -155,24 +155,43 @@
 	"errors": {
 		"phone_is_registered_already": "O telefone já está registrado",
 		"email_is_registered_already": "O e-mail já está registrado",
-		"Lead_exceeded_its_limit": "As tentativas de demonstração atingiram seu limite"
+		"Lead_exceeded_its_limit": "As tentativas de demonstração atingiram seu limite",
+		"person_linked_to_another_email": "Sua biometria está vinculada a outro e-mail",
+		"person_linked_to_another_phone": "Sua biometria está vinculada a outro telefone",
+		"continue_without_biometrics": "Continuar sem biometria"
 	},
 	"login": {
 		"title_1": "Bem-vindo",
 		"title_2": "Entrar",
 		"no_account": "Ainda não tem uma conta?",
 		"register_here_link": "Registre-se aqui",
-		"email": "E-mail",
+		"email": "Email",
+		"email_otp": "OTP (senha de 6 dígitos)",
+		"phone_otp": "OTP (senha de 6 dígitos)",
 		"country_code": "Código do país",
 		"phone": "Telefone",
 		"send_otp_phone_options_label": "Enviar o código de verificação por",
-		"send_email": "Enviar e-mail",
+		"send_email": "Enviar email",
 		"or_continue": "Ou continue com",
 		"use_biometrics_button": "Verificação facial",
-		"required_email": "E-mail é obrigatório",
-		"invalid_email": "E-mail inválido",
+		"required_email": "Email é obrigatório",
+		"required_phone": "Telefone é obrigatório",
+		"invalid_email": "Email inválido",
+		"invalid_phone": "Telefone inválido",
 		"required_otp": "OTP é obrigatório",
 		"user_not_found": "Usuário não encontrado",
-		"projectFlow_not_found": "Projeto não encontrado"
+		"projectFlow_not_found": "Projeto não encontrado",
+		"otp_does_not_match": "OTP inválido"
+	},
+	"add_biometrics": {
+		"project_title": "Bem-vindo a ",
+		"verifik_title": "Desbloqueie $10 em Créditos com seus Biométricos!",
+		"title": "Valide sua identidade com Biometria Facial",
+		"verifik_content": "Eleve a segurança da sua conta para o próximo nível! Registre seus dados biométricos agora e desfrute de um acesso contínuo e ultra seguro. Experimente a conveniência de uma segurança de ponta com um toque recompensador.",
+		"content": "Após vincular seus biométricos, você poderá fazer login com eles para uma autenticação mais rápida e segura",
+		"verifik_button": "Ativar Bônus Biométrico",
+		"button": "Vincule biometria agora",
+		"verifik_dismiss": "Agora não, obrigado",
+		"dismiss": "Descartar"
 	}
 }

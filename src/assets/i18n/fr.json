@@ -155,7 +155,10 @@
 	"errors": {
 		"phone_is_registered_already": "Le téléphone est déjà enregistré",
 		"email_is_registered_already": "L'email est déjà enregistré",
-		"Lead_exceeded_its_limit": "Les tentatives de démo ont atteint leur limite"
+		"Lead_exceeded_its_limit": "Le nombre de tentatives de démo a atteint sa limite",
+		"person_linked_to_another_email": "Vos biométriques sont liées à un autre email",
+		"person_linked_to_another_phone": "Vos biométriques sont liées à un autre téléphone",
+		"continue_without_biometrics": "Continuer sans biométrie"
 	},
 	"login": {
 		"title_1": "Bienvenue",
@@ -174,5 +177,16 @@
 		"required_otp": "OTP est requis",
 		"user_not_found": "Utilisateur non trouvé",
 		"projectFlow_not_found": "Projet non trouvé"
+	},
+	"add_biometrics": {
+		"project_title": "Bienvenue à ",
+		"verifik_title": "Débloquez 10 $ de Crédits avec Vos Biométriques!",
+		"title": "Validez votre identité avec la biométrie faciale",
+		"verifik_content": "Élevez la sécurité de votre compte à un niveau supérieur! Enregistrez dès maintenant vos données biométriques et profitez d'un accès fluide et ultra-sécurisé. Vivez la commodité d'une sécurité de pointe avec un bonus gratifiant.",
+		"content": "Après avoir lié vos biométriques, vous pourrez vous connecter avec pour une authentification plus rapide et sécurisée",
+		"verifik_button": "Activer le Bonus Biométrique",
+		"button": "Liez maintenant vos biométriques",
+		"verifik_dismiss": "Pas maintenant, merci",
+		"dismiss": "Ignorer"
 	}
 }
