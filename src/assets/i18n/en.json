@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit",
 		"person_linked_to_another_email": "Your biometrics are linked to another email",
 		"person_linked_to_another_phone": "Your biometrics are linked to another phone",
-		"continue_without_biometrics": "Continue without biometrics"
+		"continue_without_biometrics": "Continue without biometrics",
+		"person_not_found": "Biometrics did not match any record"
 	},
 	"login": {
 		"title_1": "Welcome",

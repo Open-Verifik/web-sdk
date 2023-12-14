@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "Naabot na ang limitasyon ng mga pagtatangka sa demo",
 		"person_linked_to_another_email": "Ang iyong biometrics ay nakalink sa ibang email",
 		"person_linked_to_another_phone": "Ang iyong biometrics ay nakalink sa ibang telepono",
-		"continue_without_biometrics": "Magpatuloy nang walang biometrics"
+		"continue_without_biometrics": "Magpatuloy nang walang biometrics",
+		"person_not_found": "Hindi tumugma ang biometrics sa anumang tala"
 	},
 	"login": {
 		"title_1": "Maligayang Pagdating",

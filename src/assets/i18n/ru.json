@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "Достигнут предел попыток демонстрации",
 		"person_linked_to_another_email": "Ваши биометрические данные связаны с другим электронным адресом",
 		"person_linked_to_another_phone": "Ваши биометрические данные связаны с другим телефоном",
-		"continue_without_biometrics": "Продолжить без биометрии"
+		"continue_without_biometrics": "Продолжить без биометрии",
+		"person_not_found": "Биометрические данные не соответствуют ни одной записи"
 	},
 	"login": {
 		"title_1": "Добро пожаловать",

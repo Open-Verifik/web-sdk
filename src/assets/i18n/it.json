@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "I tentativi di dimostrazione hanno raggiunto il loro limite",
 		"person_linked_to_another_email": "La tua biometria è collegata a un'altra email",
 		"person_linked_to_another_phone": "La tua biometria è collegata a un altro telefono",
-		"continue_without_biometrics": "Continua senza biometria"
+		"continue_without_biometrics": "Continua senza biometria",
+		"person_not_found": "La biometria non corrisponde a nessun record"
 	},
 	"login": {
 		"title_1": "Benvenuto",

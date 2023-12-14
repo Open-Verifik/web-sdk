@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "डेमो प्रयासों ने अपनी सीमा पार कर ली है",
 		"person_linked_to_another_email": "आपका बायोमेट्रिक्स किसी अन्य ईमेल से जुड़ा हुआ है",
 		"person_linked_to_another_phone": "आपका बायोमेट्रिक्स किसी अन्य फ़ोन से जुड़ा हुआ है",
-		"continue_without_biometrics": "बायोमेट्रिक्स के बिना जारी रखें"
+		"continue_without_biometrics": "बायोमेट्रिक्स के बिना जारी रखें",
+		"person_not_found": "बायोमेट्रिक्स किसी भी रिकॉर्ड से मेल नहीं खाते"
 	},
 	"login": {
 		"title_1": "स्वागत है",

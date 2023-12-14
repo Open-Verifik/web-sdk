@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "演示尝试已达到其限制",
 		"person_linked_to_another_email": "您的生物特征已链接到另一个电子邮件",
 		"person_linked_to_another_phone": "您的生物特征已链接到另一个电话",
-		"continue_without_biometrics": "继续不用生物特征"
+		"continue_without_biometrics": "继续不用生物特征",
+		"person_not_found": "生物特征未与任何记录匹配"
 	},
 	"login": {
 		"title_1": "欢迎",

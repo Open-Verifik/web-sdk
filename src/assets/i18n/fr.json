@@ -158,7 +158,8 @@
 		"Lead_exceeded_its_limit": "Le nombre de tentatives de démo a atteint sa limite",
 		"person_linked_to_another_email": "Vos biométriques sont liées à un autre email",
 		"person_linked_to_another_phone": "Vos biométriques sont liées à un autre téléphone",
-		"continue_without_biometrics": "Continuer sans biométrie"
+		"continue_without_biometrics": "Continuer sans biométrie",
+		"person_not_found": "La biométrie ne correspond à aucun enregistrement"
 	},
 	"login": {
 		"title_1": "Bienvenue",
