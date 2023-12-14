@@ -688,6 +688,12 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	}
 
 	continueRedirection(): void {
+		if (this.showError && this.errorContent.message === "person_not_found") {
+			window.location.reload();
+
+			return;
+		}
+
 		const token = localStorage.getItem("accessToken");
 
 		const redirectUrl = Boolean(environment.sandboxProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;

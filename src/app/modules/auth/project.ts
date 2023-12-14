@@ -86,6 +86,9 @@ export interface Project {
 		txtColor?: string;
 		titleColor?: string;
 		logo?: string;
+		rightImage?: string;
+		rightImagePosition?: string;
+		rightBackgroundColor?: string;
 	};
 
 	allowedCountries?: Array<string>;
@@ -196,6 +199,9 @@ export class ProjectModel implements Project {
 		txtColor?: string;
 		titleColor?: string;
 		logo?: string;
+		rightImage?: string;
+		rightImagePosition?: string;
+		rightBackgroundColor?: string;
 	};
 	projectFlows?: ProjectFlowModel[];
 	allowedCountries?: Array<string>;
@@ -231,6 +237,9 @@ export class ProjectModel implements Project {
 			txtColor: "#8091B6",
 			titleColor: "#FFFFFF",
 			logo: "",
+			rightImage: "https://cdn.verifik.co/assets/auth/authb.svg",
+			rightImagePosition: "end end",
+			rightBackgroundColor: "white",
 		}; // add default branding stuff
 		this.projectFlows = data.projectFlows;
 		this.allowedCountries = data.allowedCountries || [];
