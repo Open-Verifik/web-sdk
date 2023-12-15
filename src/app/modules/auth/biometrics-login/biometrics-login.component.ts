@@ -613,13 +613,11 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	}
 
 	successLogin(token: any) {
-		if (environment.production) {
-			window.location.href = `${this.project.currentProjectFlow.redirectUrl}?type=login&token=${token}`;
+		const redirectUrl = Boolean(environment.sandboxProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
-			return;
-		}
+		console.log({ token, redirectUrl });
 
-		window.location.href = `${environment.appUrl}/sign-in?type=login&token=${token}`;
+		// window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}
 
 	retryLivenessModal(error) {
