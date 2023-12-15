@@ -615,9 +615,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	successLogin(token: any) {
 		const redirectUrl = Boolean(environment.sandboxProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
-		console.log({ token, redirectUrl });
-
-		// window.location.href = `${redirectUrl}?type=login&token=${token}`;
+		window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}
 
 	retryLivenessModal(error) {
@@ -678,8 +676,11 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this._unsubscribeAll.next(null);
+
 		this.loadingResults = false;
+
 		this.video = undefined;
+
 		if (this.detectFaceInterval) {
 			this.stopRecord();
 		}
