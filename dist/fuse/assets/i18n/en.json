@@ -155,7 +155,11 @@
 	"errors": {
 		"phone_is_registered_already": "Phone is already registered",
 		"email_is_registered_already": "Email is already registered",
-		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit"
+		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit",
+		"person_linked_to_another_email": "Your biometrics are linked to another email",
+		"person_linked_to_another_phone": "Your biometrics are linked to another phone",
+		"continue_without_biometrics": "Continue without biometrics",
+		"person_not_found": "Biometrics did not match any record"
 	},
 	"login": {
 		"title_1": "Welcome",
@@ -163,6 +167,8 @@
 		"no_account": "Don't have an account yet?",
 		"register_here_link": "Register here",
 		"email": "Email",
+		"email_otp": "OTP (6 digits password)",
+		"phone_otp": "OTP (6 digits password)",
 		"country_code": "Country code",
 		"phone": "Phone",
 		"send_otp_phone_options_label": "Send the verification code by",
@@ -170,9 +176,23 @@
 		"or_continue": "Or continue with",
 		"use_biometrics_button": "Face verification",
 		"required_email": "Email is required",
+		"required_phone": "Phone is required",
 		"invalid_email": "Email is invalid",
+		"invalid_phone": "Phone is invalid",
 		"required_otp": "OTP is required",
 		"user_not_found": "User not found",
-		"projectFlow_not_found": "Project not found"
+		"projectFlow_not_found": "Project not found",
+		"otp_does_not_match": "Invalid OTP"
+	},
+	"add_biometrics": {
+		"project_title": "Bienvenido a ",
+		"verifik_title": "Unlock $10 in Credits with Your Biometrics!",
+		"title": "Valida tu identidad con Biometría facial",
+		"verifik_content": "Elevate your account's security to the next level! Register your biometric data now and enjoy seamless, ultra-secure access. Experience the convenience of cutting-edge security with a rewarding twist.",
+		"content": "After linking your biometrics, you could login with it for a faster and secure authentication",
+		"verifik_button": "Activate Biometric Bonus",
+		"button": "Link biometrics now",
+		"verifik_dismiss": "Not Now, Thanks",
+		"dismiss": "Dismiss"
 	}
 }

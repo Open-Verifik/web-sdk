@@ -4,5 +4,5 @@ export const environment = {
 	apiUrl: "http://localhost:3001",
 	appUrl: "https://sandbox.verifik.co",
 	kycUrl: "https://sandbox-kyc.verifik.co",
-	sandboxProject: "6266193db77ccc8111730c90",
+	verifikProject: "6266193db77ccc8111730c90",
 };

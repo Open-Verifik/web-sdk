@@ -123,7 +123,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this._activatedRoute.params.subscribe((params) => {
 			this.requestProject(params.id);
 
-			this.isVerifikProject = Boolean(params.id === environment.sandboxProject);
+			this.isVerifikProject = Boolean(params.id === environment.verifikProject);
 		});
 	}
 
@@ -331,7 +331,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	successLogin(token: any) {
-		const redirectUrl = Boolean(environment.sandboxProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
+		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
 		window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}
