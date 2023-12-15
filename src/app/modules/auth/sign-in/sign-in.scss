@@ -54,3 +54,9 @@ mat-tab-body {
 .w-120px {
 	width: 60% !important;
 }
+
+.half-width-image {
+	width: 50vw; /* vw stands for viewport width */
+	object-fit: fill;
+	height: 100%;
+}

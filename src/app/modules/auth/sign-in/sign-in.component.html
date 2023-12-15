@@ -338,9 +338,10 @@
 	<div
 		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r bg-white w-full"
 		fxLayout="row"
-		fxLayoutAlign="center end"
+		[style.background]="project.branding.rightBackgroundColor"
+		fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
 		*ngIf="!showBiometrics"
 	>
-		<img src="https://cdn.verifik.co/assets/auth/authb.svg" alt="" />
+		<img [src]="project.branding.rightImage" alt="" class="hhalf-width-image" />
 	</div>
 </div>
