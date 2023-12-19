@@ -23,9 +23,8 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 import { FlexLayoutModule } from "@angular/flex-layout";
 import moment from "moment";
 import { DemoService } from "app/modules/demo/demo.service";
-import { LivenessDetectionComponent } from "app/modules/demo/liveness-detection/liveness-detection.component";
-import { LivenessDetectionIOSComponent } from "app/modules/demo/liveness-detection-ios/liveness-detection-ios.component";
 import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
+import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
 
 @Component({
 	selector: "auth-sign-in",
@@ -52,9 +51,8 @@ import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.c
 		TranslocoModule,
 		CommonModule,
 		LanguagesComponent,
-		LivenessDetectionComponent,
-		LivenessDetectionIOSComponent,
 		BiometricsLoginComponent,
+		BiometricsLoginIosComponent,
 	],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {

@@ -189,14 +189,13 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 		this._demoService.faceapi$.subscribe(async (isLoaded) => {
 			this.camera.isLoading = !isLoaded;
-			
+
 			this.setMaxVideoDimensions();
 
 			if (isLoaded) {
 				this.interval.checkNgxVideo = setInterval(() => {
 					this.setVideoNgxCameraData();
 				}, 100);
-
 			}
 		});
 	}

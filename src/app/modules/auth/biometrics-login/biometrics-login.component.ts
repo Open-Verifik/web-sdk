@@ -588,10 +588,10 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		const payload: any = {
 			image: this.base64Image,
 			os: this.osInfo,
-			id: this.project._id,
-			liveness_min_score: 0.55,
-			min_score: 0.7,
-			search_mode: "FAST",
+			// id: this.project._id,
+			// liveness_min_score: 0.55,
+			// min_score: 0.7,
+			// search_mode: "FAST",
 		};
 
 		this._passwordlessService.validateBiometrics(payload).subscribe({

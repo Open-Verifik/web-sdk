@@ -260,7 +260,12 @@
 				</div>
 			</div>
 
-			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="showFaceLivenessRecommendation" fxLayout="column" fxLayoutAlign="start center">
+			<div
+				class="w-full sm:w-auto py-8 lg:px-4 sm:p-12 xs:m-2"
+				*ngIf="showFaceLivenessRecommendation"
+				fxLayout="column"
+				fxLayoutAlign="start center"
+			>
 				<!-- for verifik project -->
 				<div class="w-400 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="isVerifikProject">
 					<!-- content -->
@@ -327,11 +332,11 @@
 		</div>
 
 		<div *ngIf="showBiometrics">
-			<app-liveness-detection-ios
+			<app-biometrics-login-ios
 				*ngIf="demoData.OS == 'IOS'"
 				fxLayoutAlign="center center"
 				class="w-full h-full mb-6"
-			></app-liveness-detection-ios>
+			></app-biometrics-login-ios>
 
 			<app-biometrics-login *ngIf="demoData.OS !== 'IOS'" fxLayoutAlign="center center" class="w-full h-full mb-6"></app-biometrics-login>
 		</div>
