@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="center center" *ngIf="project" class="w-full">
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full">
-		<img [src]="project.branding.logo" class="main-logo w-28" />
+		<img [src]="project.branding.logo" class="main-logo w-14" />
 
 		<div class="flex rounded-2xl shadow overflow-hidden bg-card sign-in-content" *ngIf="!showBiometrics">
 			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
@@ -14,8 +14,8 @@
 					<!-- no account -->
 					<div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
 						<div>{{ "login.no_account" | transloco }}</div>
-						<!-- [routerLink]="['/kyc/project/', project._id]" -->
-						<a class="ml-1 text-primary-500 hover:underline cursor-pointer" (click)="createAccount()">{{
+						<!--  -->
+						<a class="ml-1 text-primary-500 hover:underline cursor-pointer" [routerLink]="['/sign-up', project._id]">{{
 							"login.register_here_link" | transloco
 						}}</a>
 					</div>

@@ -194,5 +194,10 @@
 		"button": "Link biometrics now",
 		"verifik_dismiss": "Not Now, Thanks",
 		"dismiss": "Dismiss"
+	},
+	"signup": {
+		"title": "Create an account",
+		"auth_question": "Already have an account?",
+		"auth_link": "Sign in"
 	}
 }

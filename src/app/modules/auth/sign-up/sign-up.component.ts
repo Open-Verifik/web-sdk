@@ -18,6 +18,7 @@ import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 import { Subject } from "rxjs";
 import { environment } from "environments/environment";
+import { TranslocoModule } from "@ngneat/transloco";
 
 @Component({
 	selector: "auth-sign-up",
@@ -37,6 +38,7 @@ import { environment } from "environments/environment";
 		MatIconModule,
 		MatCheckboxModule,
 		MatProgressSpinnerModule,
+		TranslocoModule,
 	],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
@@ -57,6 +59,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	isVerifikProject: Boolean;
 	demoData: any;
 	sendingOTP: Boolean;
+	OnboardingSignUpForm: any;
 
 	/**
 	 * Constructor
@@ -109,6 +112,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 				this.projectFlow = this.project.currentProjectFlow;
 
+				this.OnboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+
 				for (let index = 0; index < v.data.projectFlows.length; index++) {
 					const projectFlow = v.data.projectFlows[index];
 
@@ -136,6 +141,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	initForm(): void {
+		const fields = [];
+
+		if (this.projectFlow.)
+
 		// Create the form
 		this.signUpForm = this._formBuilder.group({
 			name: ["", Validators.required],

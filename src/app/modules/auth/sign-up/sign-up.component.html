@@ -1,18 +1,18 @@
-<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0" *ngIf="signUpForm">
+<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0" *ngIf="signUpForm && project">
 	<div
 		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
 	>
 		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
 			<!-- Logo -->
 			<div class="w-12">
-				<img src="assets/images/logo/logo.svg" />
+				<img [src]="project.branding.logo" />
 			</div>
 
 			<!-- Title -->
-			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Sign up</div>
+			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">{{ "signup.title" | transloco }}</div>
 			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>Already have an account?</div>
-				<a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-in']">Sign in </a>
+				<div>{{ "signup.auth_question" | transloco }}</div>
+				<a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-in', project._id]">{{ "signup.auth_link" | transloco }} </a>
 			</div>
 
 			<!-- Alert -->

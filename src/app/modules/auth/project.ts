@@ -34,7 +34,20 @@ export interface ProjectFlow {
 		showFaceLivenessRecommendation: boolean;
 	};
 	onboardingSettings?: {
-		countriesAllowed?: Array<any>;
+		signUpForm?: {
+			fullName?: boolean;
+			firstName?: boolean;
+			lastName?: boolean;
+			email?: boolean;
+			emailGateway?: string;
+			phone?: boolean;
+			phoneGateway?: string;
+			legalDocument?: boolean;
+			legalDocumentValidation?: string;
+			showTermsAndConditions?: boolean;
+			showPrivacyNotice?: boolean;
+			extraFields?: any;
+		};
 		basicInformation?: {
 			fullName?: boolean;
 			age?: boolean;
