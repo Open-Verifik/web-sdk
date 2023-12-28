@@ -1,4 +1,4 @@
-import { NgIf } from "@angular/common";
+import { CommonModule, NgIf } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -19,6 +19,8 @@ import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project
 import { Subject } from "rxjs";
 import { environment } from "environments/environment";
 import { TranslocoModule } from "@ngneat/transloco";
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatSelectModule } from "@angular/material/select";
 
 @Component({
 	selector: "auth-sign-up",
@@ -27,6 +29,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [
+		FlexLayoutModule,
 		RouterLink,
 		NgIf,
 		FuseAlertComponent,
@@ -39,6 +42,8 @@ import { TranslocoModule } from "@ngneat/transloco";
 		MatCheckboxModule,
 		MatProgressSpinnerModule,
 		TranslocoModule,
+		CommonModule,
+		MatSelectModule,
 	],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
@@ -51,6 +56,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	signUpForm: UntypedFormGroup;
 	showAlert: boolean = false;
 	countries: Array<any>;
+	roles: Array<any>;
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
 	project: Project;
 	projectFlow: ProjectFlow;
@@ -60,6 +66,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	demoData: any;
 	sendingOTP: Boolean;
 	OnboardingSignUpForm: any;
+	fields: any;
 
 	/**
 	 * Constructor
@@ -76,6 +83,37 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _changeDetectorRef: ChangeDetectorRef
 	) {
 		this.countries = this._countries.countryCodes;
+
+		this.roles = [
+			{
+				label: "signup.roles.founder",
+				code: "founder",
+			},
+			{
+				label: "signup.roles.high_management",
+				code: "highManagement",
+			},
+			{
+				label: "signup.roles.manager",
+				code: "manager",
+			},
+			{
+				label: "signup.roles.developer",
+				code: "developer",
+			},
+			{
+				label: "signup.roles.compliance",
+				code: "compliance",
+			},
+			{
+				label: "signup.roles.marketing",
+				code: "marketing",
+			},
+			{
+				label: "signup.roles.ciso",
+				code: "ciso",
+			},
+		];
 
 		this._splashScreenService.show();
 
@@ -99,28 +137,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 */
 	ngOnInit(): void {
 		this._activatedRoute.params.subscribe((params) => {
-			this.requestProject(params.id);
-
 			this.isVerifikProject = Boolean(params.id === environment.verifikProject);
+
+			this.requestProject(params.id);
 		});
 	}
 
 	requestProject(projectId: string): void {
 		this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
 			next: (v) => {
-				this.project = new ProjectModel({ ...v.data, type: "onboarding" });
-
-				this.projectFlow = this.project.currentProjectFlow;
-
-				this.OnboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
-
-				for (let index = 0; index < v.data.projectFlows.length; index++) {
-					const projectFlow = v.data.projectFlows[index];
-
-					if (projectFlow.type === "login") this.loginProjectFlow = new ProjectFlowModel(projectFlow);
-				}
-
-				console.log({ project: this.project, flow: this.projectFlow });
+				this._onProjectNext(v.data);
 			},
 			error: (e) => {
 				console.info({ errorHERE: e });
@@ -131,28 +157,100 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this._splashScreenService.hide();
 			},
 			complete: () => {
-				this.initForm();
-
-				this._changeDetectorRef.markForCheck();
-
-				this._splashScreenService.hide();
+				this._onProjectComplete();
 			},
 		});
 	}
 
-	initForm(): void {
-		const fields = [];
+	_onProjectNext(data: any): void {
+		this.project = new ProjectModel({ ...data, type: "onboarding" });
 
-		if (this.projectFlow.)
+		this.projectFlow = this.project.currentProjectFlow;
+
+		this.OnboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+
+		for (let index = 0; index < data.projectFlows.length; index++) {
+			const projectFlow = data.projectFlows[index];
+
+			if (projectFlow.type === "login") this.loginProjectFlow = new ProjectFlowModel(projectFlow);
+		}
+	}
+
+	_onProjectComplete(): void {
+		this._splashScreenService.hide();
+
+		try {
+			this.initForm();
+		} catch (exception) {
+			console.error({ exception });
+		}
+
+		this._changeDetectorRef.markForCheck();
+	}
+
+	generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
+
+	initForm(): void {
+		const randomIndex = Math.floor(Math.random() * 20);
+
+		const randomNumber = Math.floor(Math.random() * 1234567);
+
+		const demoData = {
+			fullName: environment.production
+				? ""
+				: `${this._demoService.sampleFirstNames[randomIndex]} ${this._demoService.sampleLastNames[randomIndex]}`,
+			firstName: environment.production ? "" : this._demoService.sampleFirstNames[randomIndex],
+			lastName: environment.production ? "" : this._demoService.sampleLastNames[randomIndex],
+			email: environment.production ? "" : `${this._demoService.sampleFirstNames[randomIndex].toLowerCase()}_${randomNumber}@verifik.co`,
+			phone: environment.production ? "" : this.generateRandomPhoneNumber(),
+			countryCode: environment.production ? "" : "+1",
+			company: environment.production ? "" : `company ${randomNumber}`,
+			role: environment.production ? "" : this.roles[3].code,
+			agreements: !Boolean(environment.production),
+		};
+
+		this.fields = {};
+
+		if (this.OnboardingSignUpForm.fullName && !this.OnboardingSignUpForm.firstName) {
+			this.fields["fullName"] = [demoData.fullName, Validators.required];
+		}
+
+		if (this.OnboardingSignUpForm.firstName) {
+			this.fields["firstName"] = [demoData.firstName, Validators.required];
+
+			this.fields["lastName"] = [demoData.lastName, Validators.required];
+		}
+
+		if (this.OnboardingSignUpForm.email) {
+			this.fields["email"] = [demoData.email, Validators.required];
+
+			if (environment.production) {
+				this.fields["email"].push(Validators.email);
+			}
+		}
+
+		if (this.OnboardingSignUpForm.phone) {
+			this.fields["countryCode"] = [demoData.countryCode, Validators.required];
+
+			this.fields["phone"] = [demoData.phone, Validators.required];
+
+			if (environment.production) {
+				this.fields["phone"].push(Validators.min(8), Validators.max(10));
+			}
+		}
+
+		if (this.OnboardingSignUpForm.showTermsAndConditions || this.OnboardingSignUpForm.showPrivacyNotice) {
+			this.fields["agreements"] = ["", Validators.requiredTrue];
+		}
+
+		if (Array.isArray(this.OnboardingSignUpForm.extraFields)) {
+			for (const field of this.OnboardingSignUpForm.extraFields) {
+				this.fields[field] = [demoData[field] || "", Validators.required];
+			}
+		}
 
 		// Create the form
-		this.signUpForm = this._formBuilder.group({
-			name: ["", Validators.required],
-			email: ["", [Validators.required, Validators.email]],
-			password: ["", Validators.required],
-			company: [""],
-			agreements: ["", Validators.requiredTrue],
-		});
+		this.signUpForm = this._formBuilder.group(this.fields);
 	}
 
 	// -----------------------------------------------------------------------------------------------------
@@ -174,29 +272,44 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		// Hide the alert
 		this.showAlert = false;
 
-		// Sign up
-		this._authService.signUp(this.signUpForm.value).subscribe(
-			(response) => {
-				// Navigate to the confirmation required page
-				this._router.navigateByUrl("/confirmation-required");
-			},
-			(response) => {
-				// Re-enable the form
-				this.signUpForm.enable();
+		localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
 
-				// Reset the form
-				this.signUpNgForm.resetForm();
+		let appRegistration = null;
 
-				// Set the alert
-				this.alert = {
-					type: "error",
-					message: "Something went wrong, please try again.",
-				};
+		this._passwordlessService
+			.createAppRegistration({
+				project: this.project._id,
+				projectFlow: this.projectFlow._id,
+				...this.signUpForm.value,
+			})
+			.subscribe({
+				next: (v) => {
+					appRegistration = v?.data?.appRegistration;
 
-				// Show the alert
-				this.showAlert = true;
-			}
-		);
+					appRegistration.token = v?.data?.token;
+
+					console.log({ v });
+				},
+				error: (e) => {
+					console.info({ errorHERE: e });
+
+					this.alert = {
+						type: "error",
+						message: "Something went wrong, please try again.",
+					};
+
+					this.showAlert = true;
+
+					this._splashScreenService.hide();
+				},
+				complete: () => {
+					this.signUpForm.enable();
+
+					this.signUpNgForm.resetForm();
+
+					if (!this.showAlert) this._router.navigateByUrl(`/confirmation-required/${appRegistration._id}?token=${appRegistration.token}`);
+				},
+			});
 	}
 
 	ngOnDestroy(): void {

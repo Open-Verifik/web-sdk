@@ -20,6 +20,8 @@ export class DemoService {
 	lead: any;
 	apiUrl: any;
 	session: any;
+	sampleLastNames: Array<any>;
+	sampleFirstNames: Array<any>;
 
 	constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
 		this.apiUrl = environment.apiUrl;
@@ -30,6 +32,8 @@ export class DemoService {
 
 		this.initDemoData();
 
+		this.initSampleData();
+
 		_this = this;
 
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
@@ -37,7 +41,62 @@ export class DemoService {
 
 			this.demoData.time = result.matches ? 500 : 250;
 		});
+
 		this.demoData.OS = this.detectOS();
+	}
+
+	initSampleData(): void {
+		if (environment.production) return;
+
+		this.sampleLastNames = [
+			// English Last Names
+			"Smith",
+			"Johnson",
+			"Williams",
+			"Jones",
+			"Brown",
+			"Davis",
+			"Miller",
+			"Wilson",
+			"Moore",
+			"Taylor",
+			// Spanish Last Names
+			"García",
+			"Fernández",
+			"González",
+			"Rodríguez",
+			"López",
+			"Martínez",
+			"Sánchez",
+			"Pérez",
+			"Martín",
+			"Gómez",
+		];
+
+		this.sampleFirstNames = [
+			// English First Names
+			"James",
+			"John",
+			"Robert",
+			"Michael",
+			"William",
+			"David",
+			"Richard",
+			"Joseph",
+			"Thomas",
+			"Charles",
+			// Spanish First Names
+			"José",
+			"Juan",
+			"Miguel",
+			"Luis",
+			"Antonio",
+			"Javier",
+			"Francisco",
+			"Carlos",
+			"Alejandro",
+			"Manuel",
+		];
 	}
 
 	detectOS() {

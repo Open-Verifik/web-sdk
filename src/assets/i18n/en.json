@@ -198,6 +198,27 @@
 	"signup": {
 		"title": "Create an account",
 		"auth_question": "Already have an account?",
-		"auth_link": "Sign in"
+		"auth_link": "Sign in",
+		"fullName": "Full name",
+		"is_required": "is required",
+		"please_enter_a_valid": "Please enter a valid",
+		"firstName": "First name",
+		"lastName": "Last name",
+		"company": "Company",
+		"role": "Role",
+		"roles": {
+			"founder": "Founder/Co-Founder",
+			"high_management": "CEO/Director",
+			"manager": "Manager",
+			"developer": "Developer",
+			"compliance": "Compliance Officer",
+			"marketing": "Marketing",
+			"ciso": "Chief information security officer"
+		},
+		"agreement1": "I agree with",
+		"terms": "the terms and conditions",
+		"and": "&",
+		"privacyPolicy": "the privacy policy",
+		"create_account_button": "Create your account"
 	}
 }

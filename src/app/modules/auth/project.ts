@@ -345,18 +345,10 @@ export class ProjectFlowModel implements ProjectFlow {
 		showFaceLivenessRecommendation: boolean;
 	};
 	onboardingSettings?: {
-		countriesAllowed?: any[];
-		basicInformation?: {
-			fullName?: boolean;
-			age?: boolean;
-			gender?: boolean;
-			address?: boolean;
-			postalCode?: boolean;
-			dateOfBirth?: boolean;
-			legalDocument?: boolean;
-		};
 		signUpForm?: {
 			fullName?: boolean;
+			firstName?: boolean;
+			lastName?: boolean;
 			email?: boolean;
 			emailGateway?: string;
 			phone?: boolean;
@@ -365,6 +357,16 @@ export class ProjectFlowModel implements ProjectFlow {
 			legalDocumentValidation?: string;
 			showTermsAndConditions?: boolean;
 			showPrivacyNotice?: boolean;
+			extraFields?: any;
+		};
+		basicInformation?: {
+			fullName?: boolean;
+			age?: boolean;
+			gender?: boolean;
+			address?: boolean;
+			postalCode?: boolean;
+			dateOfBirth?: boolean;
+			legalDocument?: boolean;
 		};
 		documentValidation: {
 			includeOCR?: boolean;

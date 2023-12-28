@@ -127,4 +127,8 @@ export class PasswordlessService {
 	validateBiometrics(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/validate`, data);
 	}
+
+	createAppRegistration(data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations`, data);
+	}
 }
