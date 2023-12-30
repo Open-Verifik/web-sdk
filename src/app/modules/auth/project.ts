@@ -272,6 +272,8 @@ export class ProjectModel implements Project {
 			for (let index = 0; index < this.projectFlows.length; index++) {
 				const projectFlow = this.projectFlows[index];
 
+				if (["paused", "draft"].includes(projectFlow.status)) continue;
+
 				if (projectFlow.status === "active" && projectFlow.type === this.type) {
 					this.currentProjectFlow = new ProjectFlowModel(projectFlow);
 

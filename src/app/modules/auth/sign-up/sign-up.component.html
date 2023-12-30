@@ -1,5 +1,6 @@
 <div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0" *ngIf="signUpForm && project">
 	<div
+		*ngIf="projectFlow._id"
 		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
 	>
 		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
@@ -175,6 +176,28 @@
 			</form>
 		</div>
 	</div>
+
+	<!-- projectFlow is not set yet -->
+	<div
+		*ngIf="!projectFlow._id"
+		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+	>
+		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+			<!-- Logo -->
+			<div class="w-12">
+				<img [src]="project.branding.logo" />
+			</div>
+
+			<!-- Title -->
+			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
+				{{ "signup.project_flow_not_set" | transloco }}
+			</div>
+			<div class="flex items-baseline mt-0.5 font-medium">
+				<div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l">
 		<div class="z-10 relative w-full max-w-2xl"></div>
 	</div>
