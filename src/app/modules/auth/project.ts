@@ -10,17 +10,10 @@ export interface ProjectFlow {
 	webhookUrl?: string;
 	identityUrl?: string;
 	allowedCountries: Array<any>;
-	email: boolean;
-	emailAuthy: boolean;
-	phone: boolean;
-	phoneAuthy: boolean;
-	phoneGateway?: string;
-	faceLiveness: boolean;
 	faceLivenessAuthy: boolean;
 	webAuthN: boolean;
 	documentValidation: boolean;
 	appQRCode: boolean;
-	usesWhiteList: boolean;
 	loginSettings?: {
 		steps?: any;
 		email: boolean;
@@ -263,7 +256,7 @@ export class ProjectModel implements Project {
 		this.faceLivenessEnabled = false;
 		this.faceLivenessAuthyEnabled = false;
 		this.usesWhiteList = false;
-		// this.whiteList = {docs: [], total: 0 , limit:20 , page:1, pages: 0}
+
 		this.whiteListLength = 0;
 		this.currentStep = data.currentStep;
 		this.lastStep = data.lastStep;
@@ -292,19 +285,7 @@ export class ProjectModel implements Project {
 			});
 		}
 
-		if (this.currentProjectFlow.email) this.emailEnabled = true;
-
-		if (this.currentProjectFlow.phone) this.phoneEnabled = true;
-
-		if (this.currentProjectFlow.faceLiveness) this.faceLivenessEnabled = true;
-
-		if (this.currentProjectFlow.phoneAuthy) this.phoneAuthyEnabled = true;
-
-		if (this.currentProjectFlow.emailAuthy) this.emailAuthyEnabled = true;
-
 		if (this.currentProjectFlow.faceLivenessAuthy) this.faceLivenessAuthyEnabled = true;
-
-		if (this.currentProjectFlow.usesWhiteList) this.usesWhiteList = true;
 
 		if (this.currentProjectFlow["whiteList"]) this.whiteListLength = this.currentProjectFlow["whiteList"].total;
 	}
@@ -322,18 +303,10 @@ export class ProjectFlowModel implements ProjectFlow {
 	webhookUrl?: string;
 	identityUrl?: string;
 	allowedCountries: any[];
-	email: boolean;
-	emailAuthy: boolean;
-	phone: boolean;
-	phoneAuthy: boolean;
-	phoneGateway?: string;
-	faceLiveness: boolean;
 	faceLivenessAuthy: boolean;
 	webAuthN: boolean;
 	documentValidation: boolean;
 	appQRCode: boolean;
-	whiteList: any;
-	usesWhiteList: boolean;
 	loginSettings?: {
 		steps?: any;
 		email: boolean;
@@ -397,24 +370,12 @@ export class ProjectFlowModel implements ProjectFlow {
 		this.webhookUrl = data.webhookUrl;
 		this.identityUrl = data.identityUrl;
 		this.allowedCountries = data.allowedCountries || [];
-		this.email = data.email;
-		this.emailAuthy = data.emailAuthy;
-		this.phone = data.phone;
-		this.phoneAuthy = data.phoneAuthy;
-		this.phoneGateway = data.phoneGateway;
-		this.faceLiveness = data.faceLiveness;
+
 		this.faceLivenessAuthy = data.faceLivenessAuthy;
 		this.webAuthN = data.webAuthN;
 		this.documentValidation = data.documentValidation;
 		this.appQRCode = data.appQRCode;
 		this.loginSettings = data.loginSettings;
-
-		if (this.loginSettings) {
-			this.email = this.loginSettings.email;
-			this.emailAuthy = this.loginSettings.emailAuthy;
-			this.phone = this.loginSettings.phone;
-			this.phoneGateway = this.loginSettings.phoneGateway;
-		}
 
 		this.onboardingSettings = data.onboardingSettings || {
 			basicInformation: {
@@ -449,9 +410,6 @@ export class ProjectFlowModel implements ProjectFlow {
 				showPrivacyNotice: false,
 			};
 		}
-
-		this.usesWhiteList = Boolean(data.usesWhiteList);
-		this.whiteList = data.whiteList || {};
 	}
 }
 

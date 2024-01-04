@@ -35,7 +35,7 @@
 					<!-- Sign in form -->
 					<form class="mt-8" [formGroup]="signInForm">
 						<mat-tab-group selectedIndex="{{ typeLogin == 'email' ? 0 : 1 }}" (selectedTabChange)="selectLogin($event)">
-							<mat-tab disabled="{{ !projectFlow.email }}" class="m-0 p-0">
+							<mat-tab disabled="{{ !projectFlow.loginSettings.email }}" class="m-0 p-0">
 								<ng-template mat-tab-label>
 									<span [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</span>
 								</ng-template>
@@ -90,7 +90,7 @@
 									</mat-form-field>
 								</ng-template>
 							</mat-tab>
-							<mat-tab disabled="{{ !projectFlow.phone }}">
+							<mat-tab disabled="{{ !projectFlow.loginSettings.phone }}">
 								<ng-template mat-tab-label>
 									<span [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</span>
 								</ng-template>
@@ -255,7 +255,7 @@
 						</div>
 					</form>
 					<div class="w-full text-center mt-6">
-						<languages [colorText]="project.branding.txtColor" *ngIf="project.branding.txtColor"></languages>
+						<languages [colorText]="project.branding.txtColor"></languages>
 					</div>
 				</div>
 			</div>

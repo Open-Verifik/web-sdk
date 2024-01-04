@@ -162,7 +162,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 	initForm(): void {
 		// Create the form
-		this.typeLogin = this.projectFlow.email ? "email" : "phone";
+		this.typeLogin = this.projectFlow.loginSettings.email ? "email" : "phone";
 
 		this.buttonSendOtp();
 
@@ -178,7 +178,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	buttonSendOtp() {
-		this.activeSendOtp = this.typeLogin === "email" ? this.projectFlow.email && !this.emailSent : this.projectFlow.phone && !this.smsSent;
+		this.activeSendOtp =
+			this.typeLogin === "email"
+				? this.projectFlow.loginSettings.email && !this.emailSent
+				: this.projectFlow.loginSettings.phone && !this.smsSent;
 	}
 
 	setFieldRequiredInForm() {
