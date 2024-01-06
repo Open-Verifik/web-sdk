@@ -48,9 +48,7 @@ export class DemoStepTwoComponent implements OnInit {
 			width: "900px",
 		});
 
-		dialogRef.afterClosed().subscribe((result) => {
-			// console.log(result);
-		});
+		dialogRef.afterClosed().subscribe((result) => {});
 	}
 
 	openCamera() {

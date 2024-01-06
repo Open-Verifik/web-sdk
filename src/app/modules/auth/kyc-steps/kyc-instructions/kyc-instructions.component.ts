@@ -26,15 +26,17 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 
 	constructor(private _KYCService: KYCService) {
 		this.appRegistration = this._KYCService.appRegistration;
+
 		this.project = this._KYCService.currentProject;
+
 		this.projectFlow = this._KYCService.currentProjectFlow;
+
 		this.navigation = this._KYCService.getNavigation();
+
 		this.steps = [];
 	}
 
 	ngOnInit(): void {
-		console.log(this.appRegistration, this.project, this.projectFlow, this.navigation);
-
 		this.defineStepsAndInstrutions();
 	}
 

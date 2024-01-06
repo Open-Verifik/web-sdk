@@ -51,8 +51,6 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
 		this.navigation = this._KYCService.getNavigation();
-
-		console.log({ person: this.appRegistration.person });
 	}
 
 	ngOnDestroy(): void {}
@@ -71,11 +69,10 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		// sync
 		this._KYCService.syncAppRegistration("liveness").subscribe({
 			next: (response) => {
-				console.log({ response: response.data });
 				_response = response.data;
 			},
 			error: (exception) => {
-				console.log({ exception });
+				console.error({ exception });
 
 				this._splashScreenService.hide();
 			},

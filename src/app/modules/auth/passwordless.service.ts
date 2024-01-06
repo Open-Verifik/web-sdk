@@ -68,13 +68,7 @@ export class PasswordlessService {
 				type: "login",
 				// ipData: JSON.parse(localStorage.getItem("ipData")),
 			})
-			.pipe(
-				tap((response: any) => {
-					// console.log({
-					//     response
-					// });
-				})
-			);
+			.pipe(tap((response: any) => {}));
 	}
 
 	confirmEmailValidation(email: string, otp: string, authenticatorOTP: string): Observable<any> {
@@ -86,11 +80,7 @@ export class PasswordlessService {
 				// authenticatorOTP,
 				// ipData: JSON.parse(localStorage.getItem("ipData")),
 			})
-			.pipe(
-				tap((response: any) => {
-					console.log({ emailConfirmed: response.data });
-				})
-			);
+			.pipe(tap((response: any) => {}));
 	}
 
 	getProject(): Project {

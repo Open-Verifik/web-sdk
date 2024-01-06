@@ -238,6 +238,10 @@
 			"header": "To ensure the security and compliance of our services, we need to verify your identity. This quick and easy process ensures your safety and compliance with regulatory standards. Let's get started!",
 			"subtitle": "Follow the steps to complete the verification",
 			"button": "Start verification"
+		},
+		"end_step": {
+			"title": "Sucessful registration",
+			"complete_button": "Complete verification"
 		}
 	}
 }

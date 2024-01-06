@@ -181,11 +181,11 @@ export class IdScanningComponent implements OnInit {
 
 	tryAgain(plusAttempts = false): void {
 		if (plusAttempts) this.attempts++;
-		// console.log(plusAttempts, this.attempts);
+
 		this.base64Images = undefined;
 		this.failedToDetectDocument = false;
 		this.errorFace = {};
-		
+
 		this.startCamera();
 		// logic todo here
 	}
@@ -217,7 +217,7 @@ export class IdScanningComponent implements OnInit {
 
 				localStorage.setItem("documentId", response.data._id);
 
-				localStorage.setItem('idCardFaceImage',idCardFaceImage)
+				localStorage.setItem("idCardFaceImage", idCardFaceImage);
 
 				this.demoData.loading = false;
 				this._splashScreenService.hide();

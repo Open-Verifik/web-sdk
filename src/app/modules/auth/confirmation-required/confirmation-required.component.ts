@@ -158,7 +158,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this._splashScreenService.hide();
 			},
 			error: (exception) => {
-				console.log({ exception });
+				console.error({ exception });
 			},
 			complete: () => {},
 		});
@@ -316,7 +316,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				// do something
 			},
 			error: (exception) => {
-				console.log({ exception });
+				console.error({ exception });
 			},
 			complete: () => {},
 		});

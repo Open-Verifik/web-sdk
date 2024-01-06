@@ -276,7 +276,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				return this.successLogin(response.data.token);
 			},
 			(err) => {
-				console.log({
+				console.error({
 					err: err.error.message,
 				});
 
@@ -372,7 +372,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 						this.sendingOTP = false;
 					},
 					error: (err) => {
-						console.log({ err });
+						console.error({ err });
 
 						this.errorLogin(err?.error?.message);
 

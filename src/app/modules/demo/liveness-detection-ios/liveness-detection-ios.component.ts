@@ -336,9 +336,9 @@ export class LivenessDetectionIOSComponent implements OnInit {
 	};
 
 	cameraError(error: WebcamInitError): void {
-		console.log({ webcamError: error });
 		if (error.mediaStreamError && error.mediaStreamError.name === "NotAllowedError") {
 			this.loading({ isLoading: false, start: true });
+
 			this.camera.hasPermissions = false;
 		}
 	}
@@ -517,7 +517,6 @@ export class LivenessDetectionIOSComponent implements OnInit {
 
 		this._demoService.sendSelfie(payload).subscribe(
 			(liveness) => {
-				console.log(liveness);
 				this.response.error = null;
 
 				this._demoService.setDemoLiveness(liveness.data);
@@ -531,7 +530,7 @@ export class LivenessDetectionIOSComponent implements OnInit {
 				});
 			},
 			(error) => {
-				console.log(error);
+				console.error(error);
 				this.loading({ isLoading: false, result: true });
 
 				this.retryLivenessModal(error.error?.message);

@@ -177,8 +177,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				type: "login",
 			})
 			.subscribe((response) => {
-				console.log({ _generateSession: response });
-
 				localStorage.setItem("accessToken", response.data.token);
 			});
 	}
@@ -596,8 +594,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this._passwordlessService.validateBiometrics(payload).subscribe({
 			next: (response) => {
-				console.log({ validateBiometrics: response });
-
 				this.successLogin(response.data.token);
 			},
 			error: (err) => {

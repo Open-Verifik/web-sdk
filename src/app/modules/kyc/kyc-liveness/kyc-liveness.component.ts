@@ -601,7 +601,9 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 
 		this._KYCService.createBiometricValidation(payload).subscribe({
 			next: (response) => {
-				console.log({ validateBiometrics: response.data });
+				this.appRegistration.person = response.data.person;
+
+				this.appRegistration.biometricValidation = response.data.biometricValidation;
 			},
 			error: (err) => {
 				this.showError = true;
@@ -613,8 +615,6 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 				this.loadingResults = false;
 			},
 			complete: () => {
-				alert("go next step");
-
 				this._splashScreenService.hide();
 
 				this.loadingResults = false;

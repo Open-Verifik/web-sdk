@@ -357,7 +357,6 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
 	};
 
 	cameraError(error: WebcamInitError): void {
-		console.log({ webcamError: error });
 		if (error.mediaStreamError && error.mediaStreamError.name === "NotAllowedError") {
 			this.loading({ isLoading: false, start: true });
 			this.camera.hasPermissions = false;

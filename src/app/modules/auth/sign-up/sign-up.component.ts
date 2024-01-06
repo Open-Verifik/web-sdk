@@ -167,8 +167,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this.projectFlow = this.project.currentProjectFlow;
 
-		console.log({ projectFlow: this.projectFlow });
-
 		this.OnboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
 
 		for (let index = 0; index < data.projectFlows.length; index++) {
@@ -289,8 +287,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					appRegistration = v?.data?.appRegistration;
 
 					appRegistration.token = v?.data?.token;
-
-					console.log({ v });
 				},
 				error: (e) => {
 					console.info({ errorHERE: e });
