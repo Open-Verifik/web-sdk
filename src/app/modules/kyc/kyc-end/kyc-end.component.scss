@@ -1,0 +1,21 @@
+.thumbnail {
+	width: 250px;
+}
+
+.end-card {
+	max-width: 400px !important;
+}
+
+// Extra small screens
+@media (max-width: 599px) {
+	.end-card {
+		width: 90% !important;
+	}
+}
+
+// Small screens
+@media (min-width: 600px) and (max-width: 959px) {
+	.end-card {
+		width: 80% !important;
+	}
+}

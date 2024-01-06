@@ -1,0 +1,24 @@
+<div
+	*ngIf="!showError && appRegistration && !appRegistration.documentValidation && appRegistration.person"
+	fxLayout="column"
+	fxLayoutAlign="center center"
+	class="flex w-full"
+>
+	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11" fxLayout="column" fxLayoutAlign="center center">
+		<img src="https://cdn.verifik.co/access/check.svg" class="w-20" alt="" />
+
+		<h3 class="text-center text-2xl pt-4 pb-8">Successful registration</h3>
+
+		<img [src]="'data:image/jpeg;base64,' + appRegistration.person.thumbnails[0].thumbnail" alt="" class="thumbnail" />
+
+		<h3 class="text-center pt-4">
+			{{ appRegistration.person.name }}
+		</h3>
+
+		<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+			<button mat-stroked-button class="w-11/12 mt-4" (click)="completeAndRedirect()">
+				<span [style.color]="project.branding.txtColor"> Finish verification </span>
+			</button>
+		</div>
+	</div>
+</div>

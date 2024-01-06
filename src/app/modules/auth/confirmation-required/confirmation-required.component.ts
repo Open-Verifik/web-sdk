@@ -88,15 +88,15 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 			const token = this._router.url.split("?token=")[1];
 
-			this._requestAppRegistration(params.id, token);
+			localStorage.setItem("accessToken", token);
+
+			this._requestAppRegistration();
 		});
 	}
 
-	_requestAppRegistration(id: string, token: string): void {
-		localStorage.setItem("accessToken", token);
-
+	_requestAppRegistration(): void {
 		this._KYCService
-			.getAppRegistration(id, {
+			.getAppRegistration({
 				populates: ["project", "projectFlow", "emailValidation", "phoneValidation"],
 			})
 			.subscribe({
@@ -106,12 +106,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
-
-					console.log({ appRegistration: this.appRegistration, project: this.project, flow: this.projectFlow });
 				},
 				error: (exception) => {
-					console.log({ exception });
-
 					this.errorContent = exception.error;
 
 					this._splashScreenService.hide();
@@ -160,8 +156,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this.loading = false;
 
 				this._splashScreenService.hide();
-
-				console.log("end sending email");
 			},
 			error: (exception) => {
 				console.log({ exception });
@@ -195,8 +189,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this.loading = false;
 
 				this._splashScreenService.hide();
-
-				console.log("end sending sms or whatsapp");
 			},
 			complete: () => {
 				this.loading = false;
@@ -268,8 +260,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		this._KYCService.confirmEmailValidation(this.appRegistration.email, this.otpForm.value.otp).subscribe({
 			next: (response) => {
 				this.appRegistration.emailValidation = response.data;
-
-				console.log({ confirmation: response.data });
 			},
 			error: (exception) => {
 				this.otpForm.reset();
@@ -293,8 +283,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	_confirmPhoneValidation(): void {
 		this._KYCService.confirmPhoneValidation(this.currentValidation.countryCode, this.currentValidation.phone, this.otpForm.value.otp).subscribe({
 			next: (response) => {
-				console.log({ confirmation: response.data });
-
 				this.appRegistration.phoneValidation = response.data;
 			},
 			error: (exception) => {
@@ -345,18 +333,18 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 		if (this.loading) return;
 
-		this._KYCService.completeSignUpForm("signUpForm").subscribe({
+		this._KYCService.syncAppRegistration("signUpForm").subscribe({
 			next: (response) => {
 				this.syncResponse = response.data;
-
-				console.log({ syncResponse: this.syncResponse });
 			},
 			error: () => {},
 			complete: () => {},
 		});
 	}
 
-	completeKYC(): void {}
+	startKYC(): void {
+		this._router.navigate(["/kyc"], { queryParams: { token: this.syncResponse.token } });
+	}
 
 	continueWitoutKYC(): void {
 		const url = `${this.projectFlow.redirectUrl}/sign-in?type=onboarding&token=${this.syncResponse.token}`;

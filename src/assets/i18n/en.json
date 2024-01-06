@@ -21,7 +21,7 @@
 			"id": "Scan your ID Document",
 			"verify_id": "Obtain and verify the information extracted",
 			"liveness": "Liveness detection",
-			"compare": "Get your identity authenticated within a minute."
+			"compare": "Get your identity authenticated"
 		},
 		"terms_label": "To use this demo, you must accept our",
 		"terms_link": "Data Treatment Agreement.",
@@ -159,7 +159,11 @@
 		"person_linked_to_another_email": "Your biometrics are linked to another email",
 		"person_linked_to_another_phone": "Your biometrics are linked to another phone",
 		"continue_without_biometrics": "Continue without biometrics",
-		"person_not_found": "Biometrics did not match any record"
+		"person_not_found": "Biometrics did not match any record",
+		"collection_not_set": "Project is not configured properly. Collection not assigned yet",
+		"person_already_set": "Your registration has biometrics linked already",
+		"replace_person_button": "Ok, replace biometrics",
+		"Duplicated_person": "Biometrics is being used into another record"
 	},
 	"login": {
 		"title_1": "Welcome",
@@ -228,6 +232,12 @@
 			"project_title": "Validate your identity with",
 			"title": "KYC Verification",
 			"content": "To ensure the security and compliance of our services, we need to verify your identity. This quick and easy process ensures your safety and compliance with regulatory standards. Let's get started!"
+		},
+		"instructions_step": {
+			"title": "Verify your identity",
+			"header": "To ensure the security and compliance of our services, we need to verify your identity. This quick and easy process ensures your safety and compliance with regulatory standards. Let's get started!",
+			"subtitle": "Follow the steps to complete the verification",
+			"button": "Start verification"
 		}
 	}
 }

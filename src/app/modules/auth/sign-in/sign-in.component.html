@@ -333,7 +333,7 @@
 
 		<div *ngIf="showBiometrics">
 			<app-biometrics-login-ios
-				*ngIf="demoData.OS == 'IOS'"
+				*ngIf="demoData.OS === 'IOS'"
 				fxLayoutAlign="center center"
 				class="w-full h-full mb-6"
 			></app-biometrics-login-ios>

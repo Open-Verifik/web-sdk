@@ -1,0 +1,79 @@
+<!-- step one -->
+<div class="step-one-main-div" fxLayout="column" fxLayoutAlign="start center" *ngIf="appRegistration && project && projectFlow">
+	<!-- image on the left of business woman -->
+	<div fxLayout="column" fxLayoutAlign="center center" class="step-one-middle-container">
+		<h1>{{ "signup.instructions_step.title" | transloco }}</h1>
+
+		<p class="p-1">
+			{{ "signup.instructions_step.header" | transloco }}
+		</p>
+
+		<p class="p-2">{{ "signup.instructions_step.subtitle" | transloco }}</p>
+	</div>
+
+	<div class="step-one-woman-and-options" fxLayout="column" fxLayoutAlign="center center">
+		<!-- scanning options -->
+		<div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" class="steps-in-cards" fxLayoutWrap="true">
+			<!-- steps -->
+			<div fxLayout="column" fxLayoutAlign="start center" *ngFor="let step of navigation.displayableSteps; let i = index">
+				<div class="step-one-card" fxLayout="column" fxLayoutAlign="start center">
+					<div class="step-one-card-image" fxLayout="row" fxLayoutAlign="center center">
+						<img src="https://cdn.verifik.co/demo/x2Step3.png" alt="" class="id_in_card_img" *ngIf="step.code === 'liveness'" />
+
+						<img src="https://cdn.verifik.co/demo/x2Step4.png" alt="" class="id_in_card_img" *ngIf="step.code === 'end'" />
+						<!-- <img src="https://cdn.verifik.co/demo/id_in_card.png" alt="" class="id_in_card_img" /> -->
+					</div>
+
+					<h3 class="mt-4 text-center m-2" *ngIf="step.code === 'liveness'">{{ "step_one.cards.liveness" | transloco }}</h3>
+
+					<h3 class="mt-4 text-center m-2" *ngIf="step.code === 'end'">{{ "step_one.cards.compare" | transloco }}</h3>
+
+					<!-- <h3 class="mt-4" *ngIf="expression">{{ "step_one.cards.id" | transloco }}</h3> -->
+				</div>
+				<p class="step-one-circle">{{ i + 1 }}</p>
+			</div>
+
+			<!-- <div fxLayout="column" fxLayoutAlign="start center">
+				<div class="step-one-card" fxLayout="column" fxLayoutAlign="start center">
+					<div class="step-one-card-image" fxLayout="row" fxLayoutAlign="center center">
+						<img src="https://cdn.verifik.co/demo/x2Step2.png" alt="" class="id_in_card_img" />
+					</div>
+
+					<h3 class="mt-4 text-center">{{ "step_one.cards.verify_id" | transloco }}</h3>
+				</div>
+				<p class="step-one-circle">2</p>
+			</div> -->
+
+			<!-- <div fxLayout="column" fxLayoutAlign="start center">
+				<div class="step-one-card" fxLayout="column" fxLayoutAlign="start center">
+					<div class="step-one-card-image" fxLayout="row" fxLayoutAlign="center center">
+						<img src="https://cdn.verifik.co/demo/x2Step3.png" alt="" class="id_in_card_img" />
+					</div>
+
+					<h3 class="mt-4 text-center m-2">{{ "step_one.cards.liveness" | transloco }}</h3>
+				</div>
+				<p class="step-one-circle">3</p>
+			</div> -->
+
+			<!-- <div fxLayout="column" fxLayoutAlign="start center">
+				<div class="step-one-card" fxLayout="column" fxLayoutAlign="start center">
+					<div class="step-one-card-image" fxLayout="row" fxLayoutAlign="center center">
+						<img src="https://cdn.verifik.co/demo/x2Step4.png" alt="" class="id_in_card_img" />
+					</div>
+
+					<h3 class="mt-4 text-center m-2">{{ "step_one.cards.compare" | transloco }}</h3>
+				</div>
+
+				<p class="step-one-circle">4</p>
+			</div> -->
+		</div>
+
+		<div fxLayout="column" class="accept-terms-container" fxLayoutAlign="start center">
+			<button mat-raised-button color="primary" class="mt-8 z-index-2 start-demo-button" (click)="startKYC()">
+				{{ "signup.instructions_step.button" | transloco }}
+			</button>
+		</div>
+	</div>
+	<!-- middle content -->
+	<div></div>
+</div>

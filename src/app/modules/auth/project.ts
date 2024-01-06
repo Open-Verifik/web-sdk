@@ -27,6 +27,13 @@ export interface ProjectFlow {
 		showFaceLivenessRecommendation: boolean;
 	};
 	onboardingSettings?: {
+		steps?: {
+			signUpForm?: string;
+			basicInformation?: string;
+			document?: string;
+			liveness?: string;
+			form?: string;
+		};
 		signUpForm?: {
 			fullName?: boolean;
 			firstName?: boolean;
@@ -320,6 +327,13 @@ export class ProjectFlowModel implements ProjectFlow {
 		showFaceLivenessRecommendation: boolean;
 	};
 	onboardingSettings?: {
+		steps?: {
+			signUpForm?: string;
+			basicInformation?: string;
+			document?: string;
+			liveness?: string;
+			form?: string;
+		};
 		signUpForm?: {
 			fullName?: boolean;
 			firstName?: boolean;
