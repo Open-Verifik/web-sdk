@@ -18,6 +18,8 @@ import { DemoFooterComponent } from "app/modules/demo/demo-footer/demo-footer.co
 import { KycInstructionsComponent } from "./kyc-instructions/kyc-instructions.component";
 import { KycLivenessComponent } from "app/modules/kyc/kyc-liveness/kyc-liveness.component";
 import { KycEndComponent } from "app/modules/kyc/kyc-end/kyc-end.component";
+import { DemoService } from "app/modules/demo/demo.service";
+import { KycLivenessIosComponent } from "app/modules/kyc/kyc-liveness-ios/kyc-liveness-ios.component";
 
 @Component({
 	selector: "auth-forgot-password",
@@ -40,6 +42,7 @@ import { KycEndComponent } from "app/modules/kyc/kyc-end/kyc-end.component";
 		DemoFooterComponent,
 		KycInstructionsComponent,
 		KycLivenessComponent,
+		KycLivenessIosComponent,
 		KycEndComponent,
 	],
 	styleUrls: ["./kyc-steps.component.scss"],
@@ -57,6 +60,7 @@ export class KYCStepsComponent implements OnInit {
 	errorContent: any;
 	requirementsLoaded: boolean;
 	navigation: any;
+	demoData: any;
 
 	/**
 	 * Constructor
@@ -65,11 +69,14 @@ export class KYCStepsComponent implements OnInit {
 		private _router: Router,
 		private _KYCService: KYCService,
 		private _splashScreenService: FuseSplashScreenService,
-		private activatedRoute: ActivatedRoute
+		private activatedRoute: ActivatedRoute,
+		private _demoService: DemoService
 	) {
 		this._splashScreenService.show();
 
 		localStorage.removeItem("accessToken");
+
+		this.demoData = this._demoService.getDemoData();
 	}
 
 	// -----------------------------------------------------------------------------------------------------

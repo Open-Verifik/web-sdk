@@ -624,12 +624,6 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	successLogin(token: any) {
-		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
-
-		window.location.href = `${redirectUrl}?type=login&token=${token}`;
-	}
-
 	retryLivenessModal(error) {
 		const data = {
 			title: this._translocoService.translate("liveness.liveness_failed"),
