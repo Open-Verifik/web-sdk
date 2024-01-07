@@ -21,12 +21,15 @@
 						<img src="https://cdn.verifik.co/demo/x2Step3.png" alt="" class="id_in_card_img" *ngIf="step.code === 'liveness'" />
 
 						<img src="https://cdn.verifik.co/demo/x2Step4.png" alt="" class="id_in_card_img" *ngIf="step.code === 'end'" />
-						<!-- <img src="https://cdn.verifik.co/demo/id_in_card.png" alt="" class="id_in_card_img" /> -->
+
+						<img src="https://cdn.verifik.co/demo/id_in_card.png" alt="" class="id_in_card_img" *ngIf="step.code === 'document'" />
 					</div>
 
 					<h3 class="mt-4 text-center m-2" *ngIf="step.code === 'liveness'">{{ "step_one.cards.liveness" | transloco }}</h3>
 
 					<h3 class="mt-4 text-center m-2" *ngIf="step.code === 'end'">{{ "step_one.cards.compare" | transloco }}</h3>
+
+					<h3 class="mt-4 text-center" *ngIf="step.code === 'document'">{{ "step_one.cards.verify_id" | transloco }}</h3>
 
 					<!-- <h3 class="mt-4" *ngIf="expression">{{ "step_one.cards.id" | transloco }}</h3> -->
 				</div>

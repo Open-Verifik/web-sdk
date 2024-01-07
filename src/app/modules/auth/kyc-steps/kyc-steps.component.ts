@@ -20,6 +20,7 @@ import { KycLivenessComponent } from "app/modules/kyc/kyc-liveness/kyc-liveness.
 import { KycEndComponent } from "app/modules/kyc/kyc-end/kyc-end.component";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KycLivenessIosComponent } from "app/modules/kyc/kyc-liveness-ios/kyc-liveness-ios.component";
+import { KycDocumentComponent } from "app/modules/kyc/kyc-document/kyc-document.component";
 
 @Component({
 	selector: "auth-forgot-password",
@@ -41,6 +42,7 @@ import { KycLivenessIosComponent } from "app/modules/kyc/kyc-liveness-ios/kyc-li
 		FlexLayoutModule,
 		DemoFooterComponent,
 		KycInstructionsComponent,
+		KycDocumentComponent,
 		KycLivenessComponent,
 		KycLivenessIosComponent,
 		KycEndComponent,

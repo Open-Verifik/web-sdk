@@ -17,6 +17,8 @@
 	<ng-container class="demo-content">
 		<kyc-instructions *ngIf="navigation.currentStep === 1"> </kyc-instructions>
 
+		<kyc-document *ngIf="navigation.currentStep === 'document'"> </kyc-document>
+
 		<kyc-liveness *ngIf="navigation.currentStep === 'liveness' && demoData.OS !== 'IOS'"></kyc-liveness>
 
 		<kyc-liveness-ios *ngIf="navigation.currentStep === 'liveness' && demoData.OS === 'IOS'"></kyc-liveness-ios>
