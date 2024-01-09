@@ -1,29 +1,32 @@
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FlexLayoutModule } from "@angular/flex-layout";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { MatIconModule } from "@angular/material/icon";
-import { DemoService } from "../demo.service";
 import { MatDialogRef } from "@angular/material/dialog";
-import { MatButtonModule } from "@angular/material/button";
-import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
+import { FuseSplashScreenService } from "@fuse/services/splash-screen";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { DemoService } from "app/modules/demo/demo.service";
+import { UploadFileComponent } from "app/modules/demo/upload-file/upload-file.component";
 import { Subject, takeUntil } from "rxjs";
 import * as faceapi from "@vladmandic/face-api";
+import { CommonModule } from "@angular/common";
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { KYCService } from "app/modules/auth/kyc.service";
 
 @Component({
-	selector: "app-upload-file",
+	selector: "kyc-document-uploader",
 	standalone: true,
+	templateUrl: "./kyc-document-uploader.component.html",
+	styleUrls: ["./kyc-document-uploader.component.scss"],
 	imports: [CommonModule, FlexLayoutModule, TranslocoModule, MatIconModule, MatButtonModule],
-	templateUrl: "./upload-file.component.html",
-	styleUrls: ["./upload-file.component.scss"],
 })
-export class UploadFileComponent implements OnDestroy {
+export class KycDocumentUploaderComponent implements OnDestroy {
 	@ViewChild("cardIdFace", { static: false }) cardIdFaceRef: ElementRef;
 
 	demoData: any;
 	base64Image: any;
 	errorResult: boolean;
+	errorContent: any;
 	attempts: number;
 	attemptsLimit: number;
 	phoneMode: boolean;
@@ -34,14 +37,18 @@ export class UploadFileComponent implements OnDestroy {
 		private _demoService: DemoService,
 		private dialogRef: MatDialogRef<UploadFileComponent>,
 		private _splashScreenService: FuseSplashScreenService,
-		private _translocoService: TranslocoService,
-		private mediaService: FuseMediaWatcherService
+		private mediaService: FuseMediaWatcherService,
+		private _KYCService: KYCService
 	) {
 		this.demoData = this._demoService.getDemoData();
 
 		this.attempts = 0;
 
 		this.attemptsLimit = 1;
+
+		this.errorContent = {
+			message: "",
+		};
 
 		this.mediaService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe((result) => {
 			result.matchingAliases;
@@ -53,7 +60,6 @@ export class UploadFileComponent implements OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		// Unsubscribe from all subscriptions
 		this._unsubscribeAll.complete();
 	}
 
@@ -83,7 +89,9 @@ export class UploadFileComponent implements OnDestroy {
 					this._splashScreenService.hide();
 
 					if (!faces) {
-						alert(this._translocoService.translate("id_scanning.face_not_found"));
+						this.errorResult = true;
+
+						this.errorContent = { message: "id_scanning.face_not_found" };
 
 						return;
 					}
@@ -91,6 +99,8 @@ export class UploadFileComponent implements OnDestroy {
 					this.base64Image = event.target.result;
 
 					const faceBiggest = this._demoService.getBiggestFace(faces);
+
+					console.log({ faces, faceBiggest });
 
 					this.faceIdCard = this._demoService.cutFaceIdCard(img, faceBiggest, this.cardIdFaceRef.nativeElement);
 				} catch (error) {
@@ -135,6 +145,8 @@ export class UploadFileComponent implements OnDestroy {
 	}
 
 	continue(): void {
+		if (this.demoData.loading) return;
+
 		this.demoData.loading = true;
 
 		this._splashScreenService.show();
@@ -143,30 +155,20 @@ export class UploadFileComponent implements OnDestroy {
 			image: this.base64Image.replace(/^data:image\/.*;base64,/, ""),
 		};
 
-		https: this._demoService.sendDocument(body).subscribe(
-			(response) => {
-				const data = response.data;
-
-				const documentId = data.studio ? data.studio._id : data.prompt._id;
-
-				this._demoService.setDemoDocument(data);
-
-				localStorage.setItem("idCardFaceImage", this.faceIdCard);
-
-				localStorage.setItem("documentId", documentId);
-
-				this._demoService.moveToStep(3);
-
-				this.demoData.loading = false;
-				this._splashScreenService.hide();
-
-				this.dialogRef.close();
+		this._KYCService.createDocumentValidation(body).subscribe({
+			next: (response) => {
+				console.log({ response: response.data });
 			},
-			(err) => {
+			error: (exception) => {
+				this.errorContent = exception.error;
+
 				this.errorResult = true;
+
+				console.log({ exception, errorContent: this.errorContent });
+			},
+			complete: () => {
 				this.demoData.loading = false;
-				this._splashScreenService.hide();
-			}
-		);
+			},
+		});
 	}
 }

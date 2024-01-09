@@ -60,6 +60,10 @@ export class DemoService {
 			"Wilson",
 			"Moore",
 			"Taylor",
+			"Reynolds",
+			"Specter",
+			"Litt",
+			"Ross",
 			// Spanish Last Names
 			"García",
 			"Fernández",
@@ -85,6 +89,8 @@ export class DemoService {
 			"Joseph",
 			"Thomas",
 			"Charles",
+			"Mike",
+			"Harvey",
 			// Spanish First Names
 			"José",
 			"Juan",

@@ -191,7 +191,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
 
 	initForm(): void {
-		const randomIndex = Math.floor(Math.random() * 20);
+		const randomIndex = Math.floor(Math.random() * this._demoService.sampleLastNames.length);
 
 		const randomNumber = Math.floor(Math.random() * 1234567);
 
@@ -261,7 +261,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 * Sign up
 	 */
 	signUp(): void {
-		// Do nothing if the form is invalid
 		if (this.signUpForm.invalid) {
 			return;
 		}

@@ -2,8 +2,8 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { fuseAnimations } from "@fuse/animations";
-import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+
+import { TranslocoModule } from "@ngneat/transloco";
 import { DemoService } from "app/modules/demo/demo.service";
 
 import { MatButtonModule } from "@angular/material/button";
@@ -14,6 +14,7 @@ import { IdScanningComponent } from "app/modules/demo/id-scanning/id-scanning.co
 import { StepperComponent } from "app/modules/demo/stepper/stepper.component";
 import { UploadFileComponent } from "app/modules/demo/upload-file/upload-file.component";
 import { MatDialog } from "@angular/material/dialog";
+import { KycDocumentUploaderComponent } from "../kyc-document-uploader/kyc-document-uploader.component";
 
 @Component({
 	selector: "kyc-document",
@@ -49,11 +50,13 @@ export class KycDocumentComponent implements OnInit {
 	}
 
 	openUploadFile() {
-		const dialogRef = this.dialog.open(UploadFileComponent, {
+		const dialogRef = this.dialog.open(KycDocumentUploaderComponent, {
 			width: "900px",
 		});
 
-		dialogRef.afterClosed().subscribe((result) => {});
+		dialogRef.afterClosed().subscribe((result) => {
+			console.log({ result });
+		});
 	}
 
 	openCamera() {

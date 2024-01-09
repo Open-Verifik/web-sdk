@@ -168,6 +168,10 @@ export class KYCService {
 		});
 	}
 
+	createDocumentValidation(data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/document-validations/app-registration`, data);
+	}
+
 	createBiometricValidation(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/app-registration`, data);
 	}
