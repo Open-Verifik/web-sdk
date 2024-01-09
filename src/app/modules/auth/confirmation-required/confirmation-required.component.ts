@@ -158,7 +158,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this._splashScreenService.hide();
 			},
 			error: (exception) => {
-				console.error({ exception });
+				this.errorContent = exception.error;
+
+				this._splashScreenService.hide();
 			},
 			complete: () => {},
 		});
@@ -185,6 +187,13 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this._linkValidation();
 
 				this.startCountdown();
+
+				this.loading = false;
+
+				this._splashScreenService.hide();
+			},
+			error: (exception) => {
+				this.errorContent = exception.error;
 
 				this.loading = false;
 
