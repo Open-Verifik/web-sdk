@@ -139,7 +139,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 */
 	ngOnInit(): void {
 		this._activatedRoute.params.subscribe((params) => {
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject);
+			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 
 			this.requestProject(params.id);
 		});

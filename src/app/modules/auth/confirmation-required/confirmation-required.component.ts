@@ -84,7 +84,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		this._initForm();
 
 		this._activatedRoute.params.subscribe((params) => {
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject);
+			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 
 			const token = this._router.url.split("?token=")[1];
 
