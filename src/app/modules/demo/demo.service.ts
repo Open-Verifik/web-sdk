@@ -49,7 +49,6 @@ export class DemoService {
 		if (environment.production) return;
 
 		this.sampleLastNames = [
-			// English Last Names
 			"Smith",
 			"Johnson",
 			"Williams",
@@ -64,7 +63,6 @@ export class DemoService {
 			"Specter",
 			"Litt",
 			"Ross",
-			// Spanish Last Names
 			"García",
 			"Fernández",
 			"González",
@@ -78,7 +76,6 @@ export class DemoService {
 		];
 
 		this.sampleFirstNames = [
-			// English First Names
 			"James",
 			"John",
 			"Robert",
@@ -91,7 +88,6 @@ export class DemoService {
 			"Charles",
 			"Mike",
 			"Harvey",
-			// Spanish First Names
 			"José",
 			"Juan",
 			"Miguel",
@@ -102,6 +98,8 @@ export class DemoService {
 			"Carlos",
 			"Alejandro",
 			"Manuel",
+			"Rogelio",
+			"Alexander",
 		];
 	}
 
