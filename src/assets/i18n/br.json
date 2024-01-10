@@ -52,6 +52,7 @@
 		"userAgent": "Agente do Usuário"
 	},
 	"extracted_information": {
+		"bloodType": "Tipo sanguíneo",
 		"documentType": "Tipo de documento",
 		"documentNumber": "Número do documento",
 		"firstName": "Primeiro nome",
@@ -103,21 +104,23 @@
 		"document_not_detected_description": "Por favor, certifique-se de que está escaneando um documento de identidade como um RG, carteira de motorista ou passaporte",
 		"remaining_attempts": "Tentativas restantes",
 		"failed_to_detect_limit": "Você esgotou todas as tentativas de realizar a demonstração corretamente",
-		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida."
+		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida.",
+		"face_not_found": "Rosto não encontrado",
+		"face_not_found_details": "Nenhum rosto encontrado no documento de identidade"
 	},
-	"localizacao_usuario": {
-		"amenidade": "Comodidade",
-		"regiao": "Região",
-		"bairro": "Bairro",
-		"rua": "Rua",
-		"vizinhanca": "Vizinhança",
-		"cidade": "Cidade",
-		"condado": "Condado",
-		"estado": "Estado",
+	"user_location": {
+		"amenity": "Comodidade",
+		"region": "Região",
+		"suburb": "Bairro",
+		"road": "Rua",
+		"neighbourhood": "Vizinhança",
+		"city": "Cidade",
+		"county": "Condado",
+		"state": "Estado",
 		"ISO3166-2-lvl4": "Código ISO do País",
-		"codigo_postal": "Código Postal",
-		"pais": "País",
-		"codigo_pais": "Código do País"
+		"postcode": "Código Postal",
+		"country": "País",
+		"country_code": "Código do País"
 	},
 	"liveness": {
 		"center_yor_face": "Centralize seu rosto na tela",
@@ -131,8 +134,8 @@
 	"results": {
 		"selfie": "Selfie",
 		"liveness_and_match": "Resultados de Vivacidade e Correspondência",
-		"match_score": "Pontuação de Correspondência",
-		"liveness_score": "Pontuação de Vivacidade",
+		"match_score": "Correspondência",
+		"liveness_score": "Vivacidade",
 		"passed": "Vivacidade aprovada",
 		"min_score": "Pontuação Mínima",
 		"score": "Pontuação de Correspondência"
@@ -145,6 +148,51 @@
 		"job": "Cargo",
 		"email": "Email da empresa (Sem @gmail, @outlook, @hotmail)",
 		"country_code": "Código do país",
-		"phone": "Telefone"
+		"phone": "Telefone",
+		"company_required_error": "O nome da sua empresa é obrigatório",
+		"invalid_format_error": "O campo possui um formato inválido"
+	},
+	"errors": {
+		"phone_is_registered_already": "O telefone já está registrado",
+		"email_is_registered_already": "O e-mail já está registrado",
+		"Lead_exceeded_its_limit": "As tentativas de demonstração atingiram seu limite",
+		"person_linked_to_another_email": "Sua biometria está vinculada a outro e-mail",
+		"person_linked_to_another_phone": "Sua biometria está vinculada a outro telefone",
+		"continue_without_biometrics": "Continuar sem biometria",
+		"person_not_found": "A biometria não corresponde a nenhum registro"
+	},
+	"login": {
+		"title_1": "Bem-vindo",
+		"title_2": "Entrar",
+		"no_account": "Ainda não tem uma conta?",
+		"register_here_link": "Registre-se aqui",
+		"email": "Email",
+		"email_otp": "OTP (senha de 6 dígitos)",
+		"phone_otp": "OTP (senha de 6 dígitos)",
+		"country_code": "Código do país",
+		"phone": "Telefone",
+		"send_otp_phone_options_label": "Enviar o código de verificação por",
+		"send_email": "Enviar email",
+		"or_continue": "Ou continue com",
+		"use_biometrics_button": "Verificação facial",
+		"required_email": "Email é obrigatório",
+		"required_phone": "Telefone é obrigatório",
+		"invalid_email": "Email inválido",
+		"invalid_phone": "Telefone inválido",
+		"required_otp": "OTP é obrigatório",
+		"user_not_found": "Usuário não encontrado",
+		"projectFlow_not_found": "Projeto não encontrado",
+		"otp_does_not_match": "OTP inválido"
+	},
+	"add_biometrics": {
+		"project_title": "Bem-vindo a ",
+		"verifik_title": "Desbloqueie $10 em Créditos com seus Biométricos!",
+		"title": "Valide sua identidade com Biometria Facial",
+		"verifik_content": "Eleve a segurança da sua conta para o próximo nível! Registre seus dados biométricos agora e desfrute de um acesso contínuo e ultra seguro. Experimente a conveniência de uma segurança de ponta com um toque recompensador.",
+		"content": "Após vincular seus biométricos, você poderá fazer login com eles para uma autenticação mais rápida e segura",
+		"verifik_button": "Ativar Bônus Biométrico",
+		"button": "Vincule biometria agora",
+		"verifik_dismiss": "Agora não, obrigado",
+		"dismiss": "Descartar"
 	}
 }

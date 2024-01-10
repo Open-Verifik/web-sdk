@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from "@angular/core";
+import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { MatIconModule } from "@angular/material/icon";
 import { DemoService } from "../demo.service";
 import { MatDialogRef } from "@angular/material/dialog";
@@ -9,6 +9,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import { Subject, takeUntil } from "rxjs";
+import * as faceapi from "@vladmandic/face-api";
+
 @Component({
 	selector: "app-upload-file",
 	standalone: true,
@@ -17,6 +19,8 @@ import { Subject, takeUntil } from "rxjs";
 	styleUrls: ["./upload-file.component.scss"],
 })
 export class UploadFileComponent implements OnDestroy {
+	@ViewChild("cardIdFace", { static: false }) cardIdFaceRef: ElementRef;
+
 	demoData: any;
 	base64Image: any;
 	errorResult: boolean;
@@ -24,22 +28,27 @@ export class UploadFileComponent implements OnDestroy {
 	attemptsLimit: number;
 	phoneMode: boolean;
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	faceIdCard: string;
 
 	constructor(
 		private _demoService: DemoService,
 		private dialogRef: MatDialogRef<UploadFileComponent>,
 		private _splashScreenService: FuseSplashScreenService,
+		private _translocoService: TranslocoService,
 		private mediaService: FuseMediaWatcherService
 	) {
 		this.demoData = this._demoService.getDemoData();
+
 		this.attempts = 0;
+
 		this.attemptsLimit = 1;
+
 		this.mediaService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe((result) => {
 			result.matchingAliases;
+
 			this.phoneMode = Boolean(
 				!result.matchingAliases.includes("lg") && !result.matchingAliases.includes("md") && !result.matchingAliases.includes("sm")
 			);
-			// console.log(this.phoneMode);
 		});
 	}
 
@@ -55,15 +64,56 @@ export class UploadFileComponent implements OnDestroy {
 	fileBrowseHandler(files) {
 		this.prepareFilesList(files);
 	}
+
 	prepareFilesList(files: Array<any>) {
 		const fileReader = new FileReader();
+		this._splashScreenService.show();
 
 		fileReader.onload = (event: any) => {
-			this.base64Image = event.target.result;
-			// this.continue();
+			const img = new Image();
+
+			img.src = event.target.result;
+
+			img.onload = async () => {
+				try {
+					const faces = await this.detectFace(img);
+
+					this.demoData.loading = false;
+
+					this._splashScreenService.hide();
+
+					if (!faces) {
+						alert(this._translocoService.translate("id_scanning.face_not_found"));
+
+						return;
+					}
+
+					this.base64Image = event.target.result;
+
+					const faceBiggest = this._demoService.getBiggestFace(faces);
+
+					this.faceIdCard = this._demoService.cutFaceIdCard(img, faceBiggest, this.cardIdFaceRef.nativeElement);
+				} catch (error) {
+					alert(error.message);
+				}
+			};
 		};
 
 		fileReader.readAsDataURL(files[0]);
+	}
+
+	async detectFace(image) {
+		try {
+			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+
+			if (faces.length) {
+				return faces.map((face) => face.detection.box);
+			}
+
+			return undefined;
+		} catch (error) {
+			alert(error.message);
+		}
 	}
 
 	cancelUpload() {
@@ -72,17 +122,21 @@ export class UploadFileComponent implements OnDestroy {
 
 	tryAgain() {
 		this.errorResult = false;
+
 		this.base64Image = null;
+
 		this.attempts++;
 	}
 
 	restartDemo(): void {
 		this._demoService.moveToStep(1);
+
 		this.dialogRef.close();
 	}
 
 	continue(): void {
 		this.demoData.loading = true;
+
 		this._splashScreenService.show();
 
 		const body = {
@@ -95,9 +149,9 @@ export class UploadFileComponent implements OnDestroy {
 
 				const documentId = data.studio ? data.studio._id : data.prompt._id;
 
-				localStorage.setItem("idCard", this.base64Image);
-
 				this._demoService.setDemoDocument(data);
+
+				localStorage.setItem("idCardFaceImage", this.faceIdCard);
 
 				localStorage.setItem("documentId", documentId);
 

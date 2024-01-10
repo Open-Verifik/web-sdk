@@ -6,10 +6,12 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { DemoService } from "../demo.service";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { WebcamImage, WebcamInitError, WebcamModule } from "ngx-webcam";
 import { Observable, Subject } from "rxjs";
-import { CameraData, FacingMode, ResponseData } from "../models/sdk.models";
+import { CameraData, FacingMode, IdCard, Intervals, ResponseData } from "../models/sdk.models";
+import * as faceapi from "@vladmandic/face-api";
+
 @Component({
 	selector: "id-scanning-ios",
 	templateUrl: "./id-scanning-ios.component.html",
@@ -20,16 +22,21 @@ import { CameraData, FacingMode, ResponseData } from "../models/sdk.models";
 export class IdScanningIOSComponent implements OnInit {
 	@ViewChild("maskResult", { static: false }) public maskResultCanvasRef: ElementRef;
 	@ViewChild("toSend", { static: false }) public ToSendCanvasRef: ElementRef;
+	@ViewChild("cardIdFace", { static: false }) cardIdFaceRef: ElementRef;
 
 	attempts: any;
 	demoData: any;
 	camera: CameraData;
 	response: ResponseData;
-	intervalCheckNgxVideo: any;
+	interval: Intervals;
+
+	idCard: IdCard;
 
 	aspectRatio = 85.6 / 53.98;
 
 	private takePicture: Subject<void> = new Subject<void>();
+	errorFace: any;
+	checkFaceTimeout: any;
 
 	public get takePicture$(): Observable<void> {
 		return this.takePicture.asObservable();
@@ -57,6 +64,10 @@ export class IdScanningIOSComponent implements OnInit {
 		};
 	};
 
+	setDefaultInterval = () => {
+		this.interval = {};
+	};
+
 	setDefaultAttempts = () => {
 		this.attempts = {
 			current: 0,
@@ -75,15 +86,17 @@ export class IdScanningIOSComponent implements OnInit {
 		private _dom: ElementRef,
 		private _demoService: DemoService,
 		private _splashScreenService: FuseSplashScreenService,
+		private _translocoService: TranslocoService,
 		private renderer: Renderer2
 	) {
 		this.demoData = this._demoService.getDemoData();
 
 		this.startDefaultValues();
 		this.setDefaultAttempts();
+		this.setDefaultInterval();
 
 		this.renderer.listen("window", "resize", () => {
-			this.intervalCheckNgxVideo = setInterval(() => {
+			this.interval.checkNgxVideo = setInterval(() => {
 				this.setVideoNgxCameraData();
 			}, this.demoData.time);
 		});
@@ -94,12 +107,21 @@ export class IdScanningIOSComponent implements OnInit {
 
 		this.camera.hasPermissions = true;
 
-		this.loading({ start: true });
+		this.errorFace = {};
 
-		this.intervalCheckNgxVideo = setInterval(() => {
-			this.setMaxVideoDimensions();
-			this.setVideoNgxCameraData();
-		}, this.demoData.time);
+		this.loading({ start: true });
+		this._demoService.faceapi$.subscribe(async (isLoaded) => {
+			if (isLoaded) {
+				this.interval.checkNgxVideo = setInterval(() => {
+					this.setMaxVideoDimensions();
+					this.setVideoNgxCameraData();
+				}, this.demoData.time);
+
+				// this.interval.checkNgxVideo = setInterval(() => {
+				// 	this.setVideoNgxCameraData();
+				// }, 100);
+			}
+		});
 	}
 
 	startDefaultValues() {
@@ -112,17 +134,26 @@ export class IdScanningIOSComponent implements OnInit {
 		const videoNgx = this._dom.nativeElement.querySelector("video");
 		if (!videoNgx) return;
 
-		this.intervalCheckNgxVideo = clearInterval(this.intervalCheckNgxVideo);
+		videoNgx.addEventListener("loadeddata", () => {
+			this.setVideoDimensions(videoNgx);
+			this.drawRect();
+		});
+
+		if (!this.interval.detectFace) {
+			this.interval.detectFace = setInterval(() => {
+				if (this.response.base64Image) {
+					this.interval.detectFace = clearInterval(this.interval.detectFace);
+				}
+
+				this.takePicture.next();
+			}, this.demoData.time);
+		}
+
+		this.interval.checkNgxVideo = clearInterval(this.interval.checkNgxVideo);
 
 		this.setVideoDimensions(videoNgx);
 		this.drawRect();
-
-		videoNgx.addEventListener("playing", () => {
-			this.setVideoDimensions(videoNgx);
-			this.drawRect();
-
-			this.loading({ isLoading: false, start: true });
-		});
+		this.loading({ isLoading: false, start: true });
 	};
 
 	setVideoDimensions(videoNgx) {
@@ -207,11 +238,68 @@ export class IdScanningIOSComponent implements OnInit {
 	}
 
 	proccessImage(webcamImage: WebcamImage): void {
+		if (this.response.base64Image) return;
+
+		if (!this.interval.detectFace) {
+			this.takePictureManual(webcamImage);
+			return;
+		}
+
 		const img = new Image();
 
 		img.src = webcamImage.imageAsDataUrl;
 
-		img.onload = () => {
+		img.onload = async () => {
+			try {
+				this.detectFace(img);
+			} catch (error) {
+				alert(error.message);
+			}
+		};
+	}
+
+	async detectFace(image) {
+		try {
+			const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+
+			if (detection.length) {
+				this.checkFaceTimeout = clearTimeout(this.checkFaceTimeout);
+				this.errorFace = null;
+				return detection;
+			}
+
+			if (!this.checkFaceTimeout) {
+				this.checkFaceTimeout = setTimeout(() => {
+					this.errorFace = {
+						title: this._translocoService.translate("id_scanning.face_not_found"),
+						subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
+					};
+				}, 3 * this.demoData.time);
+			}
+			return null;
+		} catch (error) {
+			alert(error.message);
+		}
+	}
+
+	takePictureManual(webcamImage: WebcamImage): void {
+		const img = new Image();
+
+		img.src = webcamImage.imageAsDataUrl;
+
+		img.onload = async () => {
+			const faces = await this.detectFace(img);
+
+			if (!faces || !faces.length) {
+				alert(this._translocoService.translate("id_scanning.face_not_found"));
+				return this.tryAgain();
+			}
+
+			const faceBiggest = this._demoService.getBiggestFace(faces.map((face) => face.detection.box));
+			this.idCard = {
+				face: this._demoService.cutFaceIdCard(img, faceBiggest, this.cardIdFaceRef.nativeElement),
+			};
+			
 			this.camera.dimensions.real = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
 			this.setResultDimensions(this.camera.dimensions.real, img.height, img.width);
 
@@ -248,10 +336,12 @@ export class IdScanningIOSComponent implements OnInit {
 	};
 
 	takePictureSnapshot(): void {
+		this.interval.detectFace = clearInterval(this.interval.detectFace);
+
 		this.takePicture.next();
 	}
 
-	continue(): void {
+	async continue(): Promise<void> {
 		const dataToSend = {
 			image: this.response.base64Image.replace("data:image/jpeg;base64", ""),
 		};
@@ -262,7 +352,7 @@ export class IdScanningIOSComponent implements OnInit {
 			(response) => {
 				this._demoService.setDemoDocument(response.data);
 
-				localStorage.setItem("idCard", this.response.base64Image);
+				localStorage.setItem('idCardFaceImage',this.idCard.face)
 				localStorage.setItem("documentId", response.data._id);
 
 				this.loading({ isLoading: false });

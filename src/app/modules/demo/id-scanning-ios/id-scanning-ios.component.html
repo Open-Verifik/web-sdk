@@ -4,6 +4,13 @@
 	class="bg-white rounded-lg shadow-lg m-5 p-4 w-full"
 	*ngIf="!response.isFailed && camera.hasPermissions"
 >
+	<canvas #cardIdFace hidden="true"></canvas>
+	<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
+		<div *ngIf="errorFace && !loadingResults">
+			<div class="text-3xl font-bold">{{ errorFace.title }}</div>
+			<div class="text-gray-600">{{ errorFace.subtitle }}</div>
+		</div>
+	</div>
 	<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
 		<webcam
 			[height]="camera.dimensions.video.max.height"
@@ -21,13 +28,20 @@
 		<canvas
 			#maskResult
 			class="absolute top-0 left-0"
-			[style.width.px]="camera.dimensions.real?.width ? camera.dimensions.result.width : camera.dimensions.video.width"
-			[style.height.px]="camera.dimensions.real?.height ? camera.dimensions.result.height : camera.dimensions.video.height"
+			[style.width.px]="response.base64Image ? camera.dimensions.result.width : camera.dimensions.video.width"
+			[style.height.px]="response.base64Image ? camera.dimensions.result.height : camera.dimensions.video.height"
 		></canvas>
 		<canvas #toSend [class.hidden]="true"></canvas>
 	</div>
 	<div fxLayout="row" fxLayoutAlign="center center">
-		<button mat-raised-button color="primary" class="m-4 z-index-2" [class.hidden]="response.base64Image" (click)="takePictureSnapshot()">
+		<button
+			mat-raised-button
+			color="primary"
+			class="m-4 z-index-2"
+			[class.hidden]="response.base64Image"
+			(click)="takePictureSnapshot()"
+			[disabled]="errorFace"
+		>
 			{{ "id_scanning.manual_capture_button" | transloco }}
 		</button>
 

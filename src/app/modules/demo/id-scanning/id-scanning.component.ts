@@ -6,7 +6,8 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { DemoService } from "../demo.service";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
 
 @Component({
 	selector: "id-scanning",
@@ -20,6 +21,7 @@ export class IdScanningComponent implements OnInit {
 	@ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
 	@ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
 	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
+	@ViewChild("cardIdFace", { static: false }) cardIdFaceRef: ElementRef;
 
 	hasCameraPermissions: boolean;
 	loadingCamera: boolean;
@@ -38,11 +40,15 @@ export class IdScanningComponent implements OnInit {
 	videoOptions: any = {
 		frameRate: { ideal: 30, max: 30 },
 	};
+	checkFaceTimeout: any;
+	detectFaceInterval: any;
+	errorFace: any;
 
 	constructor(
 		private _demoService: DemoService,
 		private _splashScreenService: FuseSplashScreenService,
 		private _changeDetectorRef: ChangeDetectorRef,
+		private _translocoService: TranslocoService,
 		private renderer: Renderer2
 	) {
 		this.attempts = 0;
@@ -57,12 +63,14 @@ export class IdScanningComponent implements OnInit {
 
 		this.base64Images = undefined;
 
+		this.errorFace = {};
+
 		this.demoData = this._demoService.getDemoData();
 
 		let key = this.demoData.isMobile ? "width" : "height";
-		
+
 		this.videoOptions[key] = { ideal: 1080 };
-		this.videoOptions.facingMode = this.demoData.isMobile ? "environment" : "user"
+		this.videoOptions.facingMode = this.demoData.isMobile ? "environment" : "user";
 
 		this.video = {};
 		this.rectCredential = {};
@@ -75,7 +83,35 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.startCamera();
+		this._demoService.faceapi$.subscribe((isLoaded) => {
+			if (isLoaded) {
+				this.startCamera();
+			}
+		});
+	}
+
+	async detectFace(image) {
+		try {
+			const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+
+			if (detection.length) {
+				this.checkFaceTimeout = clearTimeout(this.checkFaceTimeout);
+				this.errorFace = null;
+				return detection;
+			}
+
+			if (!this.checkFaceTimeout) {
+				this.checkFaceTimeout = setTimeout(() => {
+					this.errorFace = {
+						title: this._translocoService.translate("id_scanning.face_not_found"),
+						subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
+					};
+				}, 3 * this.demoData.time);
+			}
+			return null;
+		} catch (error) {
+			alert(error.message);
+		}
 	}
 
 	startCamera() {
@@ -111,6 +147,8 @@ export class IdScanningComponent implements OnInit {
 
 							// setTimeout(() => {
 							this.setCanvasDimensions();
+							this.detectFaceInterval = setInterval(() => this.detectFace(this.videoElement.nativeElement), this.demoData.time);
+
 							this.demoData.loading = false;
 							this._splashScreenService.hide();
 							// }, 300);
@@ -143,9 +181,11 @@ export class IdScanningComponent implements OnInit {
 
 	tryAgain(plusAttempts = false): void {
 		if (plusAttempts) this.attempts++;
-		// console.log(plusAttempts, this.attempts);
+
 		this.base64Images = undefined;
 		this.failedToDetectDocument = false;
+		this.errorFace = {};
+
 		this.startCamera();
 		// logic todo here
 	}
@@ -154,10 +194,19 @@ export class IdScanningComponent implements OnInit {
 		this._demoService.restart();
 	}
 
-	continue(): void {
+	async continue() {
 		this.idToSend = {
 			image: this.base64Images,
 		};
+
+		const faces = await this.detectFace(this.canvasToSendRef.nativeElement);
+
+		if (!faces.length) {
+			alert(this._translocoService.translate("id_scanning.face_not_found"));
+			return this.tryAgain();
+		}
+		const faceBiggest = this._demoService.getBiggestFace(faces.map((face) => face.detection.box));
+		const idCardFaceImage = this._demoService.cutFaceIdCard(this.canvasToSendRef.nativeElement, faceBiggest, this.cardIdFaceRef.nativeElement);
 
 		this.demoData.loading = true;
 		this._splashScreenService.show();
@@ -168,9 +217,7 @@ export class IdScanningComponent implements OnInit {
 
 				localStorage.setItem("documentId", response.data._id);
 
-				const canvasResult = this.canvasResultRef.nativeElement;
-
-				localStorage.setItem("idCard", canvasResult.toDataURL("image/jpeg"));
+				localStorage.setItem("idCardFaceImage", idCardFaceImage);
 
 				this.demoData.loading = false;
 				this._splashScreenService.hide();
@@ -225,6 +272,7 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	async takePicture() {
+		this.detectFaceInterval = clearInterval(this.detectFaceInterval);
 		const canvasToSend = this.canvasToSendRef.nativeElement;
 		const canvasResult = this.canvasResultRef.nativeElement;
 

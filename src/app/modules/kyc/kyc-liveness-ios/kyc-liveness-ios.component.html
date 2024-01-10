@@ -1,0 +1,74 @@
+<div *ngIf="showError && project" fxLayout="column" fxLayoutAlign="center center" class="flex w-full">
+	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11" fxLayout="column" fxLayoutAlign="center center">
+		<img src="https://cdn.verifik.co/access/warning.svg" class="w-50" alt="" />
+
+		<h1 class="text-center">
+			{{ "errors." + errorContent.message | transloco }}
+		</h1>
+
+		<!-- person_already_set -->
+		<div *ngIf="errorContent.message === 'person_already_set'" fxLayout="column" fxLayoutAlign="center center" class="w-full">
+			<button mat-stroked-button class="w-11/12 mt-4" (click)="recordLiveness(true)">
+				<span [style.color]="project.branding.txtColor">
+					{{ "errors.replace_person_button" | transloco }}
+				</span>
+			</button>
+		</div>
+
+		<div *ngIf="errorContent.message === 'collection_not_set.'" fxLayout="column" fxLayoutAlign="center center" class="w-full">
+			<button mat-stroked-button class="w-11/12 mt-4" (click)="continueRedirection()">
+				<span [style.color]="project.branding.txtColor">
+					{{ "errors.continue_without_biometrics" | transloco }}
+				</span>
+			</button>
+		</div>
+	</div>
+</div>
+
+<div *ngIf="!showError && project" fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 sm:p-1 xs:p-1 w-full">
+	<div
+		fxLayout="column"
+		fxLayoutAlign="center center"
+		class="justify-center w-full"
+		*ngIf="!camera.isLoading && camera.hasPermissions && !camera.isLowQuality"
+	>
+		<div fxLayout="column" fxLayoutAlign="center center" class="justify-center text-center h-20 sm:h-8 xs:h-8 my-2">
+			<div *ngIf="errorFace && !response.isLoading">
+				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
+			</div>
+		</div>
+
+		<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
+			<webcam
+				[height]="camera.dimensions.video.max.height"
+				[width]="camera.dimensions.video.max.width"
+				[videoOptions]="camera.configuration"
+				[imageQuality]="1"
+				[captureImageData]="true"
+				[allowCameraSwitch]="false"
+				[trigger]="takePicture$"
+				[mirrorImage]="demoData.isMobile ? 'never' : 'always'"
+				(imageCapture)="proccessImage($event)"
+				(initError)="cameraError($event)"
+				*ngIf="!response.base64Image"
+			></webcam>
+			<canvas
+				#maskResult
+				class="absolute top-0 left-0"
+				[style.width.px]="response.base64Image ? camera.dimensions.result.width : camera.dimensions.video.width"
+				[style.height.px]="response.base64Image ? camera.dimensions.result.height : camera.dimensions.video.height"
+			></canvas>
+			<canvas #toSend hidden="true"></canvas>
+		</div>
+	</div>
+	<div fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div" *ngIf="!camera.isLoading && camera.isLowQuality">
+		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
+
+		<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+
+		<p class="mt-4">
+			{{ "id_scanning.camera_not_found_description" | transloco }}
+		</p>
+	</div>
+</div>

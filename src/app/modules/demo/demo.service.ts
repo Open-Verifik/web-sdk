@@ -20,6 +20,8 @@ export class DemoService {
 	lead: any;
 	apiUrl: any;
 	session: any;
+	sampleLastNames: Array<any>;
+	sampleFirstNames: Array<any>;
 
 	constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
 		this.apiUrl = environment.apiUrl;
@@ -30,6 +32,8 @@ export class DemoService {
 
 		this.initDemoData();
 
+		this.initSampleData();
+
 		_this = this;
 
 		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
@@ -37,7 +41,68 @@ export class DemoService {
 
 			this.demoData.time = result.matches ? 500 : 250;
 		});
+
 		this.demoData.OS = this.detectOS();
+	}
+
+	initSampleData(): void {
+		if (environment.production) return;
+
+		this.sampleLastNames = [
+			// English Last Names
+			"Smith",
+			"Johnson",
+			"Williams",
+			"Jones",
+			"Brown",
+			"Davis",
+			"Miller",
+			"Wilson",
+			"Moore",
+			"Taylor",
+			"Reynolds",
+			"Specter",
+			"Litt",
+			"Ross",
+			// Spanish Last Names
+			"García",
+			"Fernández",
+			"González",
+			"Rodríguez",
+			"López",
+			"Martínez",
+			"Sánchez",
+			"Pérez",
+			"Martín",
+			"Gómez",
+		];
+
+		this.sampleFirstNames = [
+			// English First Names
+			"James",
+			"John",
+			"Robert",
+			"Michael",
+			"William",
+			"David",
+			"Richard",
+			"Joseph",
+			"Thomas",
+			"Charles",
+			"Mike",
+			"Harvey",
+			// Spanish First Names
+			"José",
+			"Juan",
+			"Miguel",
+			"Luis",
+			"Antonio",
+			"Javier",
+			"Francisco",
+			"Carlos",
+			"Alejandro",
+			"Manuel",
+		];
 	}
 
 	detectOS() {
@@ -64,6 +129,7 @@ export class DemoService {
 		await Promise.allSettled(promises);
 
 		this._faceapi.next(true);
+		return;
 	}
 
 	getNavigation(): any {
@@ -311,16 +377,16 @@ export class DemoService {
 	showError(error) {
 		switch (error.code) {
 			case error.PERMISSION_DENIED:
-				console.log("User denied the request for Geolocation.");
+				console.info("User denied the request for Geolocation.");
 				break;
 			case error.POSITION_UNAVAILABLE:
-				console.log("Location information is unavailable.");
+				console.info("Location information is unavailable.");
 				break;
 			case error.TIMEOUT:
-				console.log("The request to get user location timed out.");
+				console.info("The request to get user location timed out.");
 				break;
 			case error.UNKNOWN_ERROR:
-				console.log("An unknown error occurred.");
+				console.info("An unknown error occurred.");
 				break;
 		}
 	}
@@ -405,9 +471,45 @@ export class DemoService {
 
 		this.session = new Session(JSON.parse(storedSession));
 
-		console.log({ session: this.session });
-
 		return this.session;
+	}
+
+	getBiggestFace(faces) {
+		let maxArea = 0;
+		let faceBigest;
+
+		for (const face of faces) {
+			const tempArea = face.width * face.height;
+			if (tempArea > maxArea) {
+				faceBigest = face;
+				maxArea = tempArea;
+			}
+		}
+
+		return faceBigest;
+	}
+
+	cutFaceIdCard(image, face, cardIdCanvas: HTMLCanvasElement) {
+		const ctx: CanvasRenderingContext2D = cardIdCanvas.getContext("2d");
+
+		let width = Math.ceil(face.width * 2);
+		let height = Math.ceil(face.height * 2);
+		let sx = Math.floor(face.x) - face.width / 2;
+		let sy = Math.floor(face.y) - face.height / 2;
+
+		if (width > image.naturalWidth) {
+			width = image.naturalWidth;
+			height = image.naturalHeight;
+			sx = 0;
+			sy = 0;
+		}
+
+		cardIdCanvas.height = height;
+		cardIdCanvas.width = width;
+
+		ctx.drawImage(image, sx, sy, width, height, 0, 0, width, height);
+
+		return cardIdCanvas.toDataURL("image/jpeg");
 	}
 
 	setSession(data): void {
@@ -427,6 +529,10 @@ export class DemoService {
 
 	sendSelfie(data: any): Observable<any> {
 		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/liveness/demo`, data);
+	}
+
+	detectFace(data: any): Observable<any> {
+		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/detect/demo`, data);
 	}
 
 	compareDocumentWithSelfie(data): Observable<any> {
@@ -463,6 +569,8 @@ export class DemoService {
 			// "lead",
 			// "accessToken",
 			"idCard",
+			"idCardFaceImage",
+			"sessionToken",
 		];
 
 		for (let index = 0; index < keys.length; index++) {
@@ -483,14 +591,14 @@ export class DemoService {
 		}
 	}
 
-	generateUniqueId(): string {
+	generateUniqueId(): any {
 		const navigatorInfo = window.navigator;
 
 		const screenInfo = window.screen;
 
 		const uniqueString = `${navigatorInfo.userAgent}-${navigatorInfo.language}-${navigatorInfo.platform}-${screenInfo.height}x${screenInfo.width}`;
 
-		return this.simpleHash(uniqueString);
+		return { hash: this.simpleHash(uniqueString), userAgent: navigatorInfo.userAgent, height: screenInfo.height, width: screenInfo.width };
 	}
 
 	private simpleHash(input: string): string {

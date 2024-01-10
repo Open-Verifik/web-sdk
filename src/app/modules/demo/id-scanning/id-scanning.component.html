@@ -4,7 +4,14 @@
 	class="bg-white rounded-lg shadow-lg m-5 p-4 items-center w-full"
 	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera"
 >
+	<canvas #cardIdFace hidden="true"></canvas>
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full h-full">
+		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
+			<div *ngIf="errorFace && !loadingResults">
+				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
+			</div>
+		</div>
 		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
 			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
 				<video #videoElement autoplay class="absolute top-0 left-0 w-full max-h-[75vh]" [class.hidden]="base64Images"></video>
@@ -19,7 +26,14 @@
 				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
 			</div>
 			<div fxLayout="row" fxLayoutAlign="center center">
-				<button mat-raised-button color="primary" class="m-4 z-index-2" [class.hidden]="base64Images" (click)="takePicture()">
+				<button
+					mat-raised-button
+					color="primary"
+					class="m-4 z-index-2"
+					[class.hidden]="base64Images"
+					(click)="takePicture()"
+					[disabled]="errorFace"
+				>
 					{{ "id_scanning.manual_capture_button" | transloco }}
 				</button>
 
@@ -63,7 +77,9 @@
 	</h1>
 
 	<p class="mt-4">
-		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description") | transloco
+		{{
+			(attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description")
+				| transloco
 		}}
 	</p>
 

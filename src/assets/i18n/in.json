@@ -52,6 +52,7 @@
 		"userAgent": "यूज़र एजेंट"
 	},
 	"extracted_information": {
+		"bloodType": "रक्त समूह",
 		"documentType": "दस्तावेज़ का प्रकार",
 		"documentNumber": "दस्तावेज़ संख्या",
 		"firstName": "पहला नाम",
@@ -103,7 +104,9 @@
 		"document_not_detected_description": "कृपया सुनिश्चित करें कि आप पहचान पत्र जैसे कि आईडी कार्ड, ड्राइवर लाइसेंस या पासपोर्ट को स्कैन कर रहे हैं।",
 		"remaining_attempts": "शेष प्रयास",
 		"failed_to_detect_limit": "आपने डेमो को सही ढंग से पूरा करने के सभी प्रयास समाप्त कर दिए हैं",
-		"failed_to_detect_limit_description": "आप डेमो को जितनी बार चाहें दोहरा सकते हैं लेकिन याद रखें कि इसे सफल बनाने के लिए निर्देशों का पालन करें।"
+		"failed_to_detect_limit_description": "आप डेमो को जितनी बार चाहें दोहरा सकते हैं लेकिन याद रखें कि इसे सफल बनाने के लिए निर्देशों का पालन करें।",
+		"face_not_found": "चेहरा नहीं मिला",
+		"face_not_found_details": "पहचान पत्र में कोई चेहरा नहीं मिला"
 	},
 	"user_location": {
 		"amenity": "सुविधा",
@@ -145,6 +148,46 @@
 		"job": "नौकरी का शीर्षक",
 		"email": "कंपनी ईमेल (नहीं @gmail, @outlook, @hotmail)",
 		"country_code": "देश कोड",
-		"phone": "फ़ोन"
+		"phone": "फ़ोन",
+		"company_required_error": "आपकी कंपनी का नाम आवश्यक है",
+		"invalid_format_error": "क्षेत्र में अमान्य प्रारूप है"
+	},
+	"errors": {
+		"phone_is_registered_already": "फ़ोन पहले से ही पंजीकृत है",
+		"email_is_registered_already": "ईमेल पहले से ही पंजीकृत है",
+		"Lead_exceeded_its_limit": "डेमो प्रयासों ने अपनी सीमा पार कर ली है",
+		"person_linked_to_another_email": "आपका बायोमेट्रिक्स किसी अन्य ईमेल से जुड़ा हुआ है",
+		"person_linked_to_another_phone": "आपका बायोमेट्रिक्स किसी अन्य फ़ोन से जुड़ा हुआ है",
+		"continue_without_biometrics": "बायोमेट्रिक्स के बिना जारी रखें",
+		"person_not_found": "बायोमेट्रिक्स किसी भी रिकॉर्ड से मेल नहीं खाते"
+	},
+	"login": {
+		"title_1": "स्वागत है",
+		"title_2": "साइन इन करें",
+		"no_account": "अभी तक खाता नहीं है?",
+		"register_here_link": "यहाँ रजिस्टर करें",
+		"email": "ईमेल",
+		"country_code": "देश कोड",
+		"phone": "फ़ोन",
+		"send_otp_phone_options_label": "सत्यापन कोड भेजें",
+		"send_email": "ईमेल भेजें",
+		"or_continue": "या जारी रखें",
+		"use_biometrics_button": "चेहरा सत्यापन",
+		"required_email": "ईमेल आवश्यक है",
+		"invalid_email": "ईमेल अमान्य है",
+		"required_otp": "OTP आवश्यक है",
+		"user_not_found": "उपयोगकर्ता नहीं मिला",
+		"projectFlow_not_found": "परियोजना नहीं मिली"
+	},
+	"add_biometrics": {
+		"project_title": "स्वागत है ",
+		"verifik_title": "अपने बायोमेट्रिक्स के साथ $10 क्रेडिट्स अनलॉक करें!",
+		"title": "चेहरे के बायोमेट्रिक के साथ अपनी पहचान सत्यापित करें",
+		"verifik_content": "अपने खाते की सुरक्षा को अगले स्तर तक बढ़ाएं! अभी अपने बायोमेट्रिक डेटा को रजिस्टर करें और निर्बाध और अति-सुरक्षित पहुंच का आनंद लें। एक इनामी मोड़ के साथ अत्याधुनिक सुरक्षा की सुविधा का अनुभव करें।",
+		"content": "अपने बायोमेट्रिक्स को लिंक करने के बाद, आप तेज़ और सुरक्षित प्रमाणीकरण के लिए इसके साथ लॉगिन कर सकते हैं",
+		"verifik_button": "बायोमेट्रिक बोनस सक्रिय करें",
+		"button": "अब बायोमेट्रिक्स लिंक करें",
+		"verifik_dismiss": "अभी नहीं, धन्यवाद",
+		"dismiss": "खारिज करें"
 	}
 }

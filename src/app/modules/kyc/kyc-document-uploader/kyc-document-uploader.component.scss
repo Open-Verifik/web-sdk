@@ -1,0 +1,83 @@
+.id-scanning-error-div {
+	width: auto;
+	background: white;
+	height: 600px;
+	padding: 16px;
+	.id-scanning-failed-document-img {
+		width: 30%;
+	}
+	h1 {
+		color: #0036e7;
+		font-size: 24px;
+		font-weight: 800;
+		text-align: center;
+	}
+
+	p {
+		color: #01236da6;
+		font-size: 16px;
+		font-weight: 300;
+		text-align: center;
+	}
+}
+.menu-section {
+	width: 50%;
+	min-height: 300px;
+	padding-bottom: 100px;
+	padding-left: 32px;
+	padding-right: 16px;
+}
+
+.white-background {
+	width: 50%;
+	background-color: white;
+	padding-bottom: 100px;
+	padding-left: 32px;
+	padding-right: 16px;
+}
+
+.csv-container {
+	height: auto;
+	padding: 2rem;
+	text-align: center;
+	border: dashed 3px #979797;
+	border-radius: 0.5rem;
+	// background: #CCD7FA;
+	position: relative;
+	margin: 0 auto;
+
+	input {
+		opacity: 0;
+		position: absolute;
+		z-index: 2;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+	}
+
+	label {
+		color: white;
+		width: auto;
+		height: auto;
+		border-radius: 21.5px;
+		background-color: #0036e7;
+		padding: 8px 8px;
+	}
+
+	h3 {
+		font-size: 20px;
+		font-weight: 600;
+		color: #38424c;
+	}
+}
+
+.btn-cancel {
+	color: white;
+	width: auto;
+	height: auto;
+	border-radius: 21.5px;
+	background-color: #0036e7;
+	padding: 8px 8px;
+	z-index: 10;
+}

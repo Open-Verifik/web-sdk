@@ -1,0 +1,32 @@
+<div class="w-full" *ngIf="requirementsLoaded">
+	<!-- header -->
+	<div class="w-full demo-header" fxLayout="row" fxLayoutAlign="end center">
+		<div fxFlex>
+			<img [src]="project.branding.logo" alt="" class="demo-header-logo cursor-pointer" (click)="backToStepOne()" />
+		</div>
+
+		<div fxFlex fxLayout="row" fxLayoutAlign="end center" class="demo-header-actions cursor-pointer">
+			<div fxLayout="row" fxLayoutAlign="center center" class="demo-header-action cursor-pointer">
+				<languages></languages>
+			</div>
+		</div>
+	</div>
+	<!-- end of header -->
+	<mat-progress-bar mode="query" class="w-full" *ngIf="kycData && kycData.loading"></mat-progress-bar>
+
+	<ng-container class="demo-content">
+		<kyc-instructions *ngIf="navigation.currentStep === 1"> </kyc-instructions>
+
+		<kyc-document *ngIf="navigation.currentStep === 'document'"> </kyc-document>
+
+		<kyc-document-review *ngIf="navigation.currentStep === 'documentReview'"></kyc-document-review>
+
+		<kyc-liveness *ngIf="navigation.currentStep === 'liveness' && demoData.OS !== 'IOS'"></kyc-liveness>
+
+		<kyc-liveness-ios *ngIf="navigation.currentStep === 'liveness' && demoData.OS === 'IOS'"></kyc-liveness-ios>
+
+		<kyc-end *ngIf="navigation.currentStep === 'end'"></kyc-end>
+	</ng-container>
+
+	<app-demo-footer></app-demo-footer>
+</div>

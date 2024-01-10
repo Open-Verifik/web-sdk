@@ -52,6 +52,7 @@
 		"userAgent": "User Agent"
 	},
 	"extracted_information": {
+		"bloodType": "Gruppo sanguigno",
 		"documentType": "Tipo di documento",
 		"documentNumber": "Numero del documento",
 		"firstName": "Nome",
@@ -103,7 +104,9 @@
 		"document_not_detected_description": "Assicurati di scansionare un documento d'identità come carta d'identità, patente o passaporto.",
 		"remaining_attempts": "Tentativi rimanenti",
 		"failed_to_detect_limit": "Hai esaurito tutti i tentativi consentiti per eseguire correttamente la scansione.",
-		"failed_to_detect_limit_description": "Puoi ripetere la scansione più volte, ma assicurati di seguire le istruzioni per garantire il successo della scansione."
+		"failed_to_detect_limit_description": "Puoi ripetere la scansione più volte, ma assicurati di seguire le istruzioni per garantire il successo della scansione.",
+		"face_not_found": "Volto non trovato",
+		"face_not_found_details": "Nessun volto trovato nel documento d'identità"
 	},
 	"user_location": {
 		"amenity": "Struttura",
@@ -145,6 +148,46 @@
 		"job": "Titolo di lavoro",
 		"email": "Email aziendale (Niente @gmail, @outlook, @hotmail)",
 		"country_code": "Codice del paese",
-		"phone": "Telefono"
+		"phone": "Telefono",
+		"company_required_error": "Il nome della tua azienda è obbligatorio",
+		"invalid_format_error": "Il campo ha un formato non valido"
+	},
+	"errors": {
+		"phone_is_registered_already": "Il telefono è già registrato",
+		"email_is_registered_already": "L'email è già registrata",
+		"Lead_exceeded_its_limit": "I tentativi di dimostrazione hanno raggiunto il loro limite",
+		"person_linked_to_another_email": "La tua biometria è collegata a un'altra email",
+		"person_linked_to_another_phone": "La tua biometria è collegata a un altro telefono",
+		"continue_without_biometrics": "Continua senza biometria",
+		"person_not_found": "La biometria non corrisponde a nessun record"
+	},
+	"login": {
+		"title_1": "Benvenuto",
+		"title_2": "Accedi",
+		"no_account": "Non hai ancora un account?",
+		"register_here_link": "Registrati qui",
+		"email": "Email",
+		"country_code": "Codice del paese",
+		"phone": "Telefono",
+		"send_otp_phone_options_label": "Invia il codice di verifica tramite",
+		"send_email": "Invia email",
+		"or_continue": "Oppure continua con",
+		"use_biometrics_button": "Verifica facciale",
+		"required_email": "L'email è richiesta",
+		"invalid_email": "Email non valida",
+		"required_otp": "OTP è richiesto",
+		"user_not_found": "Utente non trovato",
+		"projectFlow_not_found": "Progetto non trovato"
+	},
+	"add_biometrics": {
+		"project_title": "Benvenuto a ",
+		"verifik_title": "Sblocca 10$ in Crediti con i tuoi Biometrici!",
+		"title": "Valida la tua identità con la biometria facciale",
+		"verifik_content": "Porta la sicurezza del tuo account al livello successivo! Registra ora i tuoi dati biometrici e goditi un accesso fluido e ultra sicuro. Scopri la comodità di una sicurezza all'avanguardia con un vantaggio gratificante.",
+		"content": "Dopo aver collegato i tuoi biometrici, potrai accedere con essi per un'autenticazione più rapida e sicura",
+		"verifik_button": "Attiva Bonus Biometrico",
+		"button": "Collega ora i biometrici",
+		"verifik_dismiss": "Non ora, grazie",
+		"dismiss": "Ignora"
 	}
 }

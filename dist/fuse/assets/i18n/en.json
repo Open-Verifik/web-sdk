@@ -21,7 +21,7 @@
 			"id": "Scan your ID Document",
 			"verify_id": "Obtain and verify the information extracted",
 			"liveness": "Liveness detection",
-			"compare": "Get your identity authenticated within a minute."
+			"compare": "Get your identity authenticated"
 		},
 		"terms_label": "To use this demo, you must accept our",
 		"terms_link": "Data Treatment Agreement.",
@@ -52,6 +52,7 @@
 		"userAgent": "User Agent"
 	},
 	"extracted_information": {
+		"bloodType": "Blood Type",
 		"documentType": "Document type",
 		"documentNumber": "Document number",
 		"firstName": "First name",
@@ -71,7 +72,7 @@
 		"country": "Country",
 		"height": "Height",
 		"placeOfBirth": "Place of birth",
-		"pro": "Scan Pro - Document extraction",
+		"pro": "Scan Zero - Document extraction",
 		"studio": "Scan Studio - Document extraction",
 		"prompt": "Scan Prompt - Document extraction",
 		"organDonor": "Organ donor",
@@ -103,7 +104,9 @@
 		"document_not_detected_description": "Please make sure you are scanning an identity document such as an ID card, driver license or passport",
 		"remaining_attempts": "Remaining attempts",
 		"failed_to_detect_limit": "You have exhausted all attempts to perform the demo correctly",
-		"failed_to_detect_limit_description": "You can repeat the demo as many times as you want but remember to follow the indications for it to be successful."
+		"failed_to_detect_limit_description": "You can repeat the demo as many times as you want but remember to follow the indications for it to be successful.",
+		"face_not_found": "Face not found",
+		"face_not_found_details": "No face found in the ID document"
 	},
 	"user_location": {
 		"amenity": "Amenity",
@@ -134,7 +137,7 @@
 		"match_score": "Match score",
 		"liveness_score": "Liveness score",
 		"passed": "Liveness passed",
-		"min_score": "Minimum score",
+		"min_score": "Minimum liveness score",
 		"score": "Match score"
 	},
 	"form": {
@@ -145,6 +148,101 @@
 		"job": "Job title",
 		"email": "Company Email (No @gmail, @outlook @hotmail)",
 		"country_code": "Country code",
-		"phone": "Phone"
+		"phone": "Phone",
+		"company_required_error": "Company name is required",
+		"invalid_format_error": "Invalid format for the field"
+	},
+	"errors": {
+		"phone_is_registered_already": "Phone is already registered",
+		"email_is_registered_already": "Email is already registered",
+		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit",
+		"person_linked_to_another_email": "Your biometrics are linked to another email",
+		"person_linked_to_another_phone": "Your biometrics are linked to another phone",
+		"continue_without_biometrics": "Continue without biometrics",
+		"person_not_found": "Biometrics did not match any record",
+		"collection_not_set": "Project is not configured properly. Collection not assigned yet",
+		"person_already_set": "Your registration has biometrics linked already",
+		"replace_person_button": "Ok, replace biometrics",
+		"Duplicated_person": "Biometrics is being used into another record"
+	},
+	"login": {
+		"title_1": "Welcome",
+		"title_2": "Sign in",
+		"no_account": "Don't have an account yet?",
+		"register_here_link": "Register here",
+		"email": "Email",
+		"email_otp": "OTP (6 digits password)",
+		"phone_otp": "OTP (6 digits password)",
+		"country_code": "Country code",
+		"phone": "Phone",
+		"send_otp_phone_options_label": "Send the verification code by",
+		"send_email": "Send email",
+		"or_continue": "Or continue with",
+		"use_biometrics_button": "Face verification",
+		"required_email": "Email is required",
+		"required_phone": "Phone is required",
+		"invalid_email": "Email is invalid",
+		"invalid_phone": "Phone is invalid",
+		"required_otp": "OTP is required",
+		"user_not_found": "User not found",
+		"projectFlow_not_found": "Project not found",
+		"otp_does_not_match": "Invalid OTP"
+	},
+	"add_biometrics": {
+		"project_title": "Bienvenido a ",
+		"verifik_title": "Unlock $10 in Credits with Your Biometrics!",
+		"title": "Validate your identity with biometrics",
+		"verifik_content": "Elevate your account's security to the next level! Register your biometric data now and enjoy seamless, ultra-secure access. Experience the convenience of cutting-edge security with a rewarding twist.",
+		"content": "After linking your biometrics, you could login with it for a faster and secure authentication",
+		"verifik_button": "Activate Biometric Bonus",
+		"button": "Link biometrics now",
+		"verifik_dismiss": "Not Now, Thanks",
+		"dismiss": "Dismiss"
+	},
+	"signup": {
+		"title": "Create an account",
+		"auth_question": "Already have an account?",
+		"auth_link": "Sign in",
+		"fullName": "Full name",
+		"is_required": "is required",
+		"please_enter_a_valid": "Please enter a valid",
+		"firstName": "First name",
+		"lastName": "Last name",
+		"company": "Company",
+		"role": "Role",
+		"roles": {
+			"founder": "Founder/Co-Founder",
+			"high_management": "CEO/Director",
+			"manager": "Manager",
+			"developer": "Developer",
+			"compliance": "Compliance Officer",
+			"marketing": "Marketing",
+			"ciso": "Chief information security officer"
+		},
+		"agreement1": "I agree with",
+		"terms": "the terms and conditions",
+		"and": "&",
+		"privacyPolicy": "the privacy policy",
+		"create_account_button": "Create your account",
+		"project_flow_not_set": "The project is not set yet",
+		"project_flow_not_set_description": "If you are the administrator, complete the steps in app.verifik.co",
+		"verify_code_sent": "Enter the 6-Digit verification code sent to {{destination}}",
+		"error_expired_token": "The token has been expired, go back and restart the process again",
+		"error_security_not_set": "The project is not configured properly. Security settings missing",
+		"kyc_start_popup": {
+			"project_title": "Validate your identity with",
+			"title": "KYC Verification",
+			"content": "To ensure the security and compliance of our services, we need to verify your identity. This quick and easy process ensures your safety and compliance with regulatory standards. Let's get started!"
+		},
+		"instructions_step": {
+			"title": "Verify your identity",
+			"header": "To ensure the security and compliance of our services, we need to verify your identity. This quick and easy process ensures your safety and compliance with regulatory standards. Let's get started!",
+			"subtitle": "Follow the steps to complete the verification",
+			"button": "Start verification"
+		},
+		"end_step": {
+			"title": "Sucessful registration",
+			"complete_button": "Complete verification"
+		}
 	}
 }

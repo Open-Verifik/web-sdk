@@ -384,8 +384,6 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 			this.loadingModel = false;
 
 			setTimeout(() => {
-				console.log("startAsyncVideo", this.stream, this.canvas, this.video);
-
 				if (!this.video && !this.canvas) {
 					this.stopRecord();
 					return;
@@ -420,7 +418,7 @@ export class WebSdkComponent implements OnInit, OnDestroy {
 				this._changeDetectorRef.markForCheck();
 			}, 300);
 		} catch (error) {
-			console.log("SHOW ERROR");
+			console.error("SHOW ERROR", { error });
 		}
 	}
 
