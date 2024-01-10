@@ -356,9 +356,15 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	}
 
 	continueWitoutKYC(): void {
-		const url = `${this.projectFlow.redirectUrl}/sign-in?type=onboarding&token=${this.syncResponse.token}`;
+		let redirectUrl = this.projectFlow.redirectUrl;
 
-		window.location.href = url;
+		if (environment.verifikProject === this.project._id) {
+			redirectUrl = `${environment.appUrl}/sign-in`;
+		} else if (environment.sandboxProject === this.project._id) {
+			redirectUrl = `${environment.sandboxUrl}/sign-in`;
+		}
+
+		window.location.href = `${redirectUrl}?type=onboarding&token=${this.syncResponse.token}`;
 	}
 
 	ngOnDestroy(): void {
