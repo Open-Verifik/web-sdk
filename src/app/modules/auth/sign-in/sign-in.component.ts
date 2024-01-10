@@ -121,7 +121,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this._activatedRoute.params.subscribe((params) => {
 			this.requestProject(params.id);
 
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject);
+			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 		});
 	}
 
