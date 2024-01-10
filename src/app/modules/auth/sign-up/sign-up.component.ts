@@ -193,17 +193,17 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
 
 	initForm(): void {
-		const randomIndex = Math.floor(Math.random() * this._demoService.sampleLastNames.length);
+		const r1 = Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1);
+
+		const r2 = Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1);
 
 		const randomNumber = Math.floor(Math.random() * 1234567);
 
 		const demoData = {
-			fullName: environment.production
-				? ""
-				: `${this._demoService.sampleFirstNames[randomIndex]} ${this._demoService.sampleLastNames[randomIndex]}`,
-			firstName: environment.production ? "" : this._demoService.sampleFirstNames[randomIndex],
-			lastName: environment.production ? "" : this._demoService.sampleLastNames[randomIndex],
-			email: environment.production ? "" : `${this._demoService.sampleFirstNames[randomIndex].toLowerCase()}_${randomNumber}@verifik.co`,
+			fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
+			firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
+			lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
+			email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
 			phone: environment.production ? "" : this.generateRandomPhoneNumber(),
 			countryCode: environment.production ? "" : "+1",
 			company: environment.production ? "" : `company ${randomNumber}`,
