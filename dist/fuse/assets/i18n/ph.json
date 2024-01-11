@@ -192,5 +192,51 @@
 		"button": "Ikonekta ang biometrics ngayon",
 		"verifik_dismiss": "Hindi Ngayon, Salamat",
 		"dismiss": "I-dismiss"
+	},
+	"signup": {
+		"title": "Gumawa ng Account",
+		"auth_question": "Mayroon ka na bang account?",
+		"auth_link": "Mag-sign in",
+		"fullName": "Buong Pangalan",
+		"is_required": "ay kailangan",
+		"please_enter_a_valid": "Mangyaring magpasok ng wasto",
+		"firstName": "Unang Pangalan",
+		"lastName": "Huling Pangalan",
+		"company": "Kumpanya",
+		"role": "Papel",
+		"roles": {
+			"founder": "Tagapagtatag/Kasamang Tagapagtatag",
+			"high_management": "CEO/Direktor",
+			"manager": "Tagapamahala",
+			"developer": "Developer",
+			"compliance": "Opisyal ng Pagsunod",
+			"marketing": "Marketing",
+			"ciso": "Punong Opisyal ng Seguridad sa Impormasyon"
+		},
+		"agreement1": "Sumasang-ayon ako sa",
+		"terms": "mga tuntunin at kondisyon",
+		"and": "&",
+		"privacyPolicy": "patakaran sa privacy",
+		"create_account_button": "Gumawa ng iyong account",
+		"project_flow_not_set": "Hindi pa naitakda ang proyekto",
+		"project_flow_not_set_description": "Kung ikaw ang administrator, kumpletuhin ang mga hakbang sa app.verifik.co",
+		"verify_code_sent": "Ipasok ang 6-digit na verification code na ipinadala sa {{destination}}",
+		"error_expired_token": "Nag-expire na ang token, bumalik at simulan muli ang proseso",
+		"error_security_not_set": "Hindi wasto ang pagkakakonpigura ng proyekto. Nawawala ang mga setting ng seguridad",
+		"kyc_start_popup": {
+			"project_title": "Patunayan ang iyong pagkakakilanlan gamit ang",
+			"title": "KYC Verification",
+			"content": "Upang matiyak ang seguridad at pagsunod ng aming mga serbisyo, kailangan naming beripikahin ang iyong pagkakakilanlan. Ang mabilis at madaling prosesong ito ay tinitiyak ang iyong kaligtasan at pagsunod sa mga pamantayang regulasyon. Simulan na natin!"
+		},
+		"instructions_step": {
+			"title": "Iberipika ang iyong pagkakakilanlan",
+			"header": "Upang matiyak ang seguridad at pagsunod ng aming mga serbisyo, kailangan naming beripikahin ang iyong pagkakakilanlan. Ang mabilis at madaling prosesong ito ay tinitiyak ang iyong kaligtasan at pagsunod sa mga pamantayang regulasyon. Simulan na natin!",
+			"subtitle": "Sundin ang mga hakbang upang kumpletuhin ang beripikasyon",
+			"button": "Simulan ang beripikasyon"
+		},
+		"end_step": {
+			"title": "Matagumpay na Pagpaparehistro",
+			"complete_button": "Kumpletuhin ang beripikasyon"
+		}
 	}
 }

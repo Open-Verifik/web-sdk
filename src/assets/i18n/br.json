@@ -194,5 +194,51 @@
 		"button": "Vincule biometria agora",
 		"verifik_dismiss": "Agora não, obrigado",
 		"dismiss": "Descartar"
+	},
+	"signup": {
+		"title": "Criar uma conta",
+		"auth_question": "Já tem uma conta?",
+		"auth_link": "Entrar",
+		"fullName": "Nome completo",
+		"is_required": "é obrigatório",
+		"please_enter_a_valid": "Por favor, insira um",
+		"firstName": "Nome",
+		"lastName": "Sobrenome",
+		"company": "Empresa",
+		"role": "Cargo",
+		"roles": {
+			"founder": "Fundador/Co-Fundador",
+			"high_management": "CEO/Diretor",
+			"manager": "Gerente",
+			"developer": "Desenvolvedor",
+			"compliance": "Oficial de Compliance",
+			"marketing": "Marketing",
+			"ciso": "Diretor de Segurança da Informação"
+		},
+		"agreement1": "Concordo com",
+		"terms": "os termos e condições",
+		"and": "&",
+		"privacyPolicy": "a política de privacidade",
+		"create_account_button": "Criar sua conta",
+		"project_flow_not_set": "O projeto ainda não foi configurado",
+		"project_flow_not_set_description": "Se você é o administrador, complete os passos em app.verifik.co",
+		"verify_code_sent": "Insira o código de verificação de 6 dígitos enviado para {{destination}}",
+		"error_expired_token": "O token expirou, volte e reinicie o processo",
+		"error_security_not_set": "O projeto não está configurado corretamente. Configurações de segurança ausentes",
+		"kyc_start_popup": {
+			"project_title": "Valide sua identidade com",
+			"title": "Verificação KYC",
+			"content": "Para garantir a segurança e conformidade de nossos serviços, precisamos verificar sua identidade. Este processo rápido e fácil garante sua segurança e conformidade com os padrões regulatórios. Vamos começar!"
+		},
+		"instructions_step": {
+			"title": "Verifique sua identidade",
+			"header": "Para garantir a segurança e conformidade de nossos serviços, precisamos verificar sua identidade. Este processo rápido e fácil garante sua segurança e conformidade com os padrões regulatórios. Vamos começar!",
+			"subtitle": "Siga os passos para completar a verificação",
+			"button": "Iniciar verificação"
+		},
+		"end_step": {
+			"title": "Registro bem-sucedido",
+			"complete_button": "Completar verificação"
+		}
 	}
 }

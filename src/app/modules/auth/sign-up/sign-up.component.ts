@@ -21,6 +21,7 @@ import { environment } from "environments/environment";
 import { TranslocoModule } from "@ngneat/transloco";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatSelectModule } from "@angular/material/select";
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 
 @Component({
 	selector: "auth-sign-up",
@@ -44,6 +45,7 @@ import { MatSelectModule } from "@angular/material/select";
 		TranslocoModule,
 		CommonModule,
 		MatSelectModule,
+		LanguagesComponent,
 	],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {

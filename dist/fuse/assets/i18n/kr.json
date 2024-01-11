@@ -189,5 +189,51 @@
 		"button": "지금 생체 인식 연결",
 		"verifik_dismiss": "지금은 아니요, 감사합니다",
 		"dismiss": "닫기"
+	},
+	"signup": {
+		"title": "계정 만들기",
+		"auth_question": "이미 계정이 있으신가요?",
+		"auth_link": "로그인",
+		"fullName": "전체 이름",
+		"is_required": "필수입니다",
+		"please_enter_a_valid": "유효한 것을 입력해주세요",
+		"firstName": "이름",
+		"lastName": "성",
+		"company": "회사",
+		"role": "역할",
+		"roles": {
+			"founder": "창립자/공동 창립자",
+			"high_management": "CEO/디렉터",
+			"manager": "매니저",
+			"developer": "개발자",
+			"compliance": "준수 담당자",
+			"marketing": "마케팅",
+			"ciso": "정보보안 최고책임자"
+		},
+		"agreement1": "약관 및 조건에 동의합니다",
+		"terms": "이용 약관",
+		"and": "&",
+		"privacyPolicy": "개인정보 처리방침",
+		"create_account_button": "계정 생성",
+		"project_flow_not_set": "프로젝트가 아직 설정되지 않았습니다",
+		"project_flow_not_set_description": "관리자이시라면 app.verifik.co에서 단계를 완료하세요",
+		"verify_code_sent": "{{destination}}으로 보낸 6자리 인증 코드를 입력하세요",
+		"error_expired_token": "토큰이 만료되었습니다. 뒤로 가서 다시 시작하세요",
+		"error_security_not_set": "프로젝트가 제대로 설정되지 않았습니다. 보안 설정이 누락되었습니다",
+		"kyc_start_popup": {
+			"project_title": "다음을 사용하여 신원을 확인하세요",
+			"title": "KYC 검증",
+			"content": "서비스의 안전성 및 준수를 보장하기 위해 신원을 확인해야 합니다. 이 빠르고 쉬운 과정은 귀하의 안전을 보장하며 규제 기준을 준수합니다. 시작합시다!"
+		},
+		"instructions_step": {
+			"title": "신원 확인",
+			"header": "서비스의 안전성 및 준수를 보장하기 위해 신원을 확인해야 합니다. 이 빠르고 쉬운 과정은 귀하의 안전을 보장하며 규제 기준을 준수합니다. 시작합시다!",
+			"subtitle": "검증을 완료하기 위한 단계를 따르세요",
+			"button": "검증 시작"
+		},
+		"end_step": {
+			"title": "성공적인 등록",
+			"complete_button": "검증 완료"
+		}
 	}
 }

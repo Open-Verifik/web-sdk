@@ -189,5 +189,51 @@
 		"button": "Liez maintenant vos biométriques",
 		"verifik_dismiss": "Pas maintenant, merci",
 		"dismiss": "Ignorer"
+	},
+	"signup": {
+		"title": "Créer un compte",
+		"auth_question": "Vous avez déjà un compte ?",
+		"auth_link": "Se connecter",
+		"fullName": "Nom complet",
+		"is_required": "est requis",
+		"please_enter_a_valid": "Veuillez saisir un",
+		"firstName": "Prénom",
+		"lastName": "Nom de famille",
+		"company": "Entreprise",
+		"role": "Rôle",
+		"roles": {
+			"founder": "Fondateur/Co-Fondateur",
+			"high_management": "PDG/Directeur",
+			"manager": "Gestionnaire",
+			"developer": "Développeur",
+			"compliance": "Responsable de la conformité",
+			"marketing": "Marketing",
+			"ciso": "Directeur de la sécurité de l'information"
+		},
+		"agreement1": "J'accepte",
+		"terms": "les termes et conditions",
+		"and": "&",
+		"privacyPolicy": "la politique de confidentialité",
+		"create_account_button": "Créer votre compte",
+		"project_flow_not_set": "Le projet n'est pas encore défini",
+		"project_flow_not_set_description": "Si vous êtes l'administrateur, complétez les étapes sur app.verifik.co",
+		"verify_code_sent": "Entrez le code de vérification à 6 chiffres envoyé à {{destination}}",
+		"error_expired_token": "Le jeton a expiré, retournez et recommencez le processus",
+		"error_security_not_set": "Le projet n'est pas correctement configuré. Paramètres de sécurité manquants",
+		"kyc_start_popup": {
+			"project_title": "Validez votre identité avec",
+			"title": "Vérification KYC",
+			"content": "Pour garantir la sécurité et la conformité de nos services, nous devons vérifier votre identité. Ce processus rapide et facile assure votre sécurité et se conforme aux normes réglementaires. Commençons !"
+		},
+		"instructions_step": {
+			"title": "Vérifiez votre identité",
+			"header": "Pour garantir la sécurité et la conformité de nos services, nous devons vérifier votre identité. Ce processus rapide et facile assure votre sécurité et se conforme aux normes réglementaires. Commençons !",
+			"subtitle": "Suivez les étapes pour compléter la vérification",
+			"button": "Commencer la vérification"
+		},
+		"end_step": {
+			"title": "Inscription réussie",
+			"complete_button": "Terminer la vérification"
+		}
 	}
 }

@@ -189,5 +189,51 @@
 		"button": "现在链接生物特征",
 		"verifik_dismiss": "暂不，谢谢",
 		"dismiss": "忽略"
+	},
+	"signup": {
+		"title": "创建账户",
+		"auth_question": "已经拥有账户？",
+		"auth_link": "登录",
+		"fullName": "全名",
+		"is_required": "为必填项",
+		"please_enter_a_valid": "请输入有效的",
+		"firstName": "名字",
+		"lastName": "姓氏",
+		"company": "公司",
+		"role": "角色",
+		"roles": {
+			"founder": "创始人/联合创始人",
+			"high_management": "首席执行官/总监",
+			"manager": "经理",
+			"developer": "开发者",
+			"compliance": "合规官",
+			"marketing": "市场营销",
+			"ciso": "首席信息安全官"
+		},
+		"agreement1": "我同意",
+		"terms": "条款和条件",
+		"and": "&",
+		"privacyPolicy": "隐私政策",
+		"create_account_button": "创建您的账户",
+		"project_flow_not_set": "项目尚未设置",
+		"project_flow_not_set_description": "如果您是管理员，请在 app.verifik.co 完成步骤",
+		"verify_code_sent": "请输入发送至 {{destination}} 的6位验证码",
+		"error_expired_token": "令牌已过期，请返回并重新开始过程",
+		"error_security_not_set": "项目配置不正确。缺少安全设置",
+		"kyc_start_popup": {
+			"project_title": "通过以下方式验证您的身份",
+			"title": "KYC验证",
+			"content": "为了确保我们服务的安全性和合规性，我们需要验证您的身份。这个快速且简单的过程确保了您的安全性并符合监管标准。让我们开始吧！"
+		},
+		"instructions_step": {
+			"title": "验证您的身份",
+			"header": "为了确保我们服务的安全性和合规性，我们需要验证您的身份。这个快速且简单的过程确保了您的安全性并符合监管标准。让我们开始吧！",
+			"subtitle": "按照步骤完成验证",
+			"button": "开始验证"
+		},
+		"end_step": {
+			"title": "注册成功",
+			"complete_button": "完成验证"
+		}
 	}
 }

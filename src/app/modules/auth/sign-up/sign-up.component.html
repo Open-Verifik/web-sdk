@@ -101,22 +101,6 @@
 					</mat-form-field>
 				</div>
 
-				<!-- Password field -->
-				<!-- <mat-form-field class="w-full">
-					<mat-label>Password</mat-label>
-					<input id="password" matInput type="password" [formControlName]="'password'" #passwordField />
-					<button
-						mat-icon-button
-						type="button"
-						(click)="passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')"
-						matSuffix
-					>
-						<mat-icon class="icon-size-5" *ngIf="passwordField.type === 'password'" [svgIcon]="'heroicons_solid:eye'"></mat-icon>
-						<mat-icon class="icon-size-5" *ngIf="passwordField.type === 'text'" [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
-					</button>
-					<mat-error> Password is required </mat-error>
-				</mat-form-field> -->
-
 				<!-- Company field -->
 				<mat-form-field class="w-full" *ngIf="fields.company">
 					<mat-label>{{ "signup.company" | transloco }}</mat-label>
@@ -174,6 +158,10 @@
 					<mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
 				</button>
 			</form>
+
+			<div class="w-full text-center mt-6">
+				<languages [colorText]="project.branding.txtColor"></languages>
+			</div>
 		</div>
 	</div>
 
