@@ -196,9 +196,9 @@
 									class="w-11/12 mt-4"
 									color="primary"
 									(click)="sendOTP($event, 'sms')"
-									[class.col-span-2]="projectFlow.phoneGateway !== 'both'"
+									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
-									*ngIf="projectFlow.phoneGateway === 'sms' || projectFlow.phoneGateway === 'both'"
+									*ngIf="projectFlow.loginSettings.phoneGateway === 'sms' || projectFlow.loginSettings.phoneGateway === 'both'"
 								>
 									<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> SMS </span>
 
@@ -212,9 +212,9 @@
 									class="mt-4"
 									color="primary"
 									(click)="sendOTP($event, 'whatsapp')"
-									[class.col-span-2]="projectFlow.phoneGateway !== 'both'"
+									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
-									*ngIf="projectFlow.phoneGateway === 'whatsapp' || projectFlow.phoneGateway === 'both'"
+									*ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
 								>
 									<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> Whatsapp </span>
 
