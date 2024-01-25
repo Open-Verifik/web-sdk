@@ -32,6 +32,7 @@
 		}"
 			for="fileDropRef"
 			class="mx-2"
+			[style.background]="project.branding.bgColor"
 			>{{ "step_two.upload_button" | transloco }}</label
 		>
 	</div>
@@ -40,7 +41,14 @@
 			{{ "step_two.cancel_button" | transloco }}
 		</button>
 
-		<button mat-raised-button color="primary" class="mx-2" [disabled]="!base64Image" (click)="continue()">
+		<button
+			[style.background]="project.branding.bgColor"
+			mat-raised-button
+			color="primary"
+			class="mx-2"
+			[disabled]="!base64Image"
+			(click)="continue()"
+		>
 			{{ "step_two.continue_button" | transloco }}
 		</button>
 	</div>
@@ -48,15 +56,21 @@
 	<div *ngIf="errorResult && attemptsLimit" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
 		<img [src]="'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png'" alt="" class="id-scanning-failed-document-img" />
 
-		<h1 class="mt-4">
+		<h1 class="mt-4" [style.color]="project.branding.titleColor">
 			{{ "id_scanning.document_not_detected" | transloco }}
 		</h1>
 
-		<p class="mt-4">
+		<p class="mt-4" [style.color]="project.branding.txtColor">
 			{{ "id_scanning.document_not_detected_description" | transloco }}
 		</p>
 
-		<button mat-raised-button color="primary" class="mt-4 z-index-2 id-scanning-try-again-button" (click)="tryAgain(true)">
+		<button
+			mat-raised-button
+			[style.background]="project.branding.bgColor"
+			color="primary"
+			class="mt-4 z-index-2 id-scanning-try-again-button"
+			(click)="tryAgain(true)"
+		>
 			{{ "id_scanning.retry" | transloco }}
 		</button>
 	</div>

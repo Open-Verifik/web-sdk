@@ -21,6 +21,9 @@ import { KycEndComponent } from "app/modules/kyc/kyc-end/kyc-end.component";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KycLivenessIosComponent } from "app/modules/kyc/kyc-liveness-ios/kyc-liveness-ios.component";
 import { KycDocumentComponent } from "app/modules/kyc/kyc-document/kyc-document.component";
+import { KycDocumentReviewComponent } from "app/modules/kyc/kyc-document-review/kyc-document-review.component";
+import { KycDocumentLivenessReviewComponent } from "app/modules/kyc/kyc-document-liveness-review/kyc-document-liveness-review.component";
+import { KycStepperComponent } from "app/modules/kyc/kyc-stepper/kyc-stepper.component";
 
 @Component({
 	selector: "auth-forgot-password",
@@ -43,9 +46,12 @@ import { KycDocumentComponent } from "app/modules/kyc/kyc-document/kyc-document.
 		DemoFooterComponent,
 		KycInstructionsComponent,
 		KycDocumentComponent,
+		KycDocumentReviewComponent,
 		KycLivenessComponent,
 		KycLivenessIosComponent,
+		KycDocumentLivenessReviewComponent,
 		KycEndComponent,
+		KycStepperComponent,
 	],
 	styleUrls: ["./kyc-steps.component.scss"],
 })
@@ -76,8 +82,6 @@ export class KYCStepsComponent implements OnInit {
 	) {
 		this._splashScreenService.show();
 
-		localStorage.removeItem("accessToken");
-
 		this.demoData = this._demoService.getDemoData();
 	}
 
@@ -89,7 +93,7 @@ export class KYCStepsComponent implements OnInit {
 	 * On init
 	 */
 	ngOnInit(): void {
-		this.activatedRoute.queryParams.subscribe((params) => {
+		this.activatedRoute.queryParams.subscribe(async (params) => {
 			const token = params["token"];
 
 			if (!token) return;
@@ -98,17 +102,42 @@ export class KYCStepsComponent implements OnInit {
 			// Use the token as needed
 
 			this._requestAppRegistration();
+
+			this._loadContent();
 		});
+	}
+
+	async _loadContent(): Promise<any> {
+		this._demoService.getDeviceDetails();
+
+		await this._demoService.getAddress();
 	}
 
 	_requestAppRegistration(): void {
 		this._KYCService
 			.getAppRegistration({
-				populates: ["project", "projectFlow", "emailValidation", "phoneValidation", "biometricValidation", "person"],
+				populates: [
+					"project",
+					"projectFlow",
+					"emailValidation",
+					"phoneValidation",
+					"biometricValidation",
+					"person",
+					"documentValidation",
+					"compareFaceVerification",
+					"face",
+					"documentFace",
+					"informationValidation",
+				],
 			})
 			.subscribe({
 				next: (response) => {
 					this.appRegistration = response.data;
+
+					console.log({
+						face: this.appRegistration.face,
+						documentFace: this.appRegistration.documentFace,
+					});
 
 					this.project = new ProjectModel(this.appRegistration.project);
 

@@ -1,6 +1,6 @@
 <div class="w-full" *ngIf="requirementsLoaded">
 	<!-- header -->
-	<div class="w-full demo-header" fxLayout="row" fxLayoutAlign="end center">
+	<div class="w-full demo-header" fxLayout="row" fxLayoutAlign="end center" [style.background]="project.branding.bgColor">
 		<div fxFlex>
 			<img [src]="project.branding.logo" alt="" class="demo-header-logo cursor-pointer" (click)="backToStepOne()" />
 		</div>
@@ -11,6 +11,9 @@
 			</div>
 		</div>
 	</div>
+
+	<kyc-stepper *ngIf="navigation.currentStep !== 1 && appRegistration" class="w-full"> </kyc-stepper>
+
 	<!-- end of header -->
 	<mat-progress-bar mode="query" class="w-full" *ngIf="kycData && kycData.loading"></mat-progress-bar>
 
@@ -24,6 +27,8 @@
 		<kyc-liveness *ngIf="navigation.currentStep === 'liveness' && demoData.OS !== 'IOS'"></kyc-liveness>
 
 		<kyc-liveness-ios *ngIf="navigation.currentStep === 'liveness' && demoData.OS === 'IOS'"></kyc-liveness-ios>
+
+		<kyc-document-liveness-review *ngIf="navigation.currentStep === 'documentLivenessReview'"> </kyc-document-liveness-review>
 
 		<kyc-end *ngIf="navigation.currentStep === 'end'"></kyc-end>
 	</ng-container>

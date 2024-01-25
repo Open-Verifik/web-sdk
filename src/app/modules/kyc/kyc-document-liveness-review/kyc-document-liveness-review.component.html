@@ -1,0 +1,190 @@
+<div
+	class="id-details-body"
+	fxLayout="row"
+	fxLayout.xs="column"
+	fxLayoutAlign="start start"
+	fxLayoutAlign.xs="center center"
+	*ngIf="appRegistration.documentValidation"
+>
+	<!-- first section -->
+	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
+		<div fxLayout="column" fxLayoutAlign="start center" *ngIf="face && documentFace">
+			<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "results.selfie" | transloco }}</h1>
+
+			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+				<img [src]="face.base64" alt="" class="mt-4 box-shadow-3px" />
+
+				<img [src]="documentFace.base64" alt="" class="mt-4 box-shadow-3px" />
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start center">
+			<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "step_three.document_scanned" | transloco }}</h1>
+
+			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+				<h3 class="mt-8" [style.color]="project.branding.txtColor">{{ "step_three.front_side" | transloco }}</h3>
+
+				<img [src]="documentFrontSideUrl" alt="" class="mt-4 box-shadow-3px" />
+			</div>
+		</div>
+	</div>
+	<!-- end of first section -->
+
+	<div
+		class="id-details-second-section"
+		[ngClass.xs]="{ 'box-shadow-3px': true }"
+		fxLayout="column"
+		fxLayoutAlign="start start"
+		fxLayoutAlign.xs="center center"
+	>
+		<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "signup.basic_information.title" | transloco }}</h1>
+
+		<div class="mt-8 w-full">
+			<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of basicInformation" class="id-details-item">
+				<h3 [style.color]="project.branding.txtColor">{{ item.key | transloco }}</h3>
+				<p>{{ item.value }}</p>
+			</div>
+		</div>
+
+		<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "step_three.general_information" | transloco }}</h1>
+
+		<div *ngIf="hasGeneralInformation()" class="mt-8">
+			<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.generalInformation" class="id-details-item">
+				<h3 [style.color]="project.branding.txtColor">{{ "general_information." + item.key | transloco }}</h3>
+				<p>{{ item.value }}</p>
+			</div>
+		</div>
+
+		<div class="flex-wrapper w-full mt-6">
+			<div
+				class="single-chart mr-4"
+				fxLayout="column"
+				fxLayoutAlign="center center"
+				*ngIf="appRegistration.biometricValidation && appRegistration.biometricValidation._id"
+			>
+				<h3 [style.color]="project.branding.txtColor">{{ "results.liveness_score" | transloco }}</h3>
+				<svg
+					viewBox="0 0 36 36"
+					class="circular-chart"
+					[ngClass]="{
+						green: appRegistration.biometricValidation.livenessScore >= compareMinScore,
+						red: appRegistration.biometricValidation.livenessScore < livenessMinScore
+					}"
+				>
+					<path
+						class="circle-bg"
+						d="M18 2.0845
+				a 15.9155 15.9155 0 0 1 0 31.831
+				a 15.9155 15.9155 0 0 1 0 -31.831"
+					/>
+					<path
+						class="circle"
+						[attr.stroke-dasharray]="appRegistration.biometricValidation.livenessScore * 100 + ', 100'"
+						d="M18 2.0845
+					a 15.9155 15.9155 0 0 1 0 31.831
+					a 15.9155 15.9155 0 0 1 0 -31.831"
+					/>
+
+					<text x="18" y="20.35" class="percentage">{{ appRegistration.biometricValidation.livenessScore * 100 }}%</text>
+				</svg>
+			</div>
+
+			<div
+				class="single-chart"
+				fxLayout="column"
+				fxLayoutAlign="center center"
+				*ngIf="appRegistration.compareFaceVerification && appRegistration.compareFaceVerification.result"
+			>
+				<h3 [style.color]="project.branding.txtColor">{{ "results.match_score" | transloco }}</h3>
+				<svg
+					viewBox="0 0 36 36"
+					class="circular-chart"
+					[ngClass]="{
+						green: appRegistration.compareFaceVerification.result.score >= compareMinScore,
+						red: appRegistration.compareFaceVerification.result.score < compareMinScore
+					}"
+				>
+					<path
+						class="circle-bg"
+						d="M18 2.0845
+					a 15.9155 15.9155 0 0 1 0 31.831
+					a 15.9155 15.9155 0 0 1 0 -31.831"
+					/>
+					<path
+						class="circle"
+						[attr.stroke-dasharray]="appRegistration.compareFaceVerification.result.score * 100 + ', 100'"
+						d="M18 2.0845
+						a 15.9155 15.9155 0 0 1 0 31.831
+						a 15.9155 15.9155 0 0 1 0 -31.831"
+					/>
+
+					<text x="18" y="20.35" class="percentage">{{ appRegistration.compareFaceVerification.result.score * 100 }}%</text>
+				</svg>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" class="w-full">
+			<h1 class="mt-4" [style.color]="project.branding.titleColor" *ngIf="appRegistration.documentValidation.validationMethod === 'SCAN_PRO'">
+				{{ "extracted_information.pro" | transloco }}
+			</h1>
+
+			<h1
+				class="mt-4"
+				[style.color]="project.branding.titleColor"
+				*ngIf="appRegistration.documentValidation.validationMethod === 'SCAN_PROMPT'"
+			>
+				{{ "extracted_information.prompt" | transloco }}
+			</h1>
+
+			<h1
+				class="mt-4"
+				[style.color]="project.branding.titleColor"
+				*ngIf="appRegistration.documentValidation.validationMethod === 'SCAN_STUDIO'"
+			>
+				{{ "extracted_information.studio" | transloco }}
+			</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of extractedData" class="id-details-item">
+					<h3 [style.color]="project.branding.txtColor">{{ "extracted_information." + item.key | transloco }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" *ngIf="hasLocation()" class="w-full">
+			<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "step_three.user_location" | transloco }}</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.location" class="id-details-item">
+					<h3 [style.color]="project.branding.txtColor">{{ "user_location." + item.key | transloco }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+			<button
+				[style.color]="project.branding.txtColor"
+				mat-stroked-button
+				color="primary"
+				class="m-4 z-index-2 start-demo-button"
+				(click)="doLivenessAgain()"
+			>
+				{{ "restart" | transloco }}
+			</button>
+
+			<button
+				mat-raised-button
+				color="primary"
+				class="m-4 z-index-2 start-demo-button"
+				(click)="continue()"
+				[style.background]="project.branding.bgColor"
+			>
+				{{ "continue" | transloco }}
+			</button>
+		</div>
+	</div>
+</div>
+
+<div class="white-background" fxHide.xs="true"></div>

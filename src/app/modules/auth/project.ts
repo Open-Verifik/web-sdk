@@ -57,7 +57,7 @@ export interface ProjectFlow {
 			dateOfBirth?: boolean;
 			legalDocument?: boolean;
 		};
-		documentValidation: {
+		document: {
 			includeOCR?: boolean;
 			useBasicLiveness?: boolean;
 			useProLiveness?: boolean;
@@ -67,6 +67,12 @@ export interface ProjectFlow {
 			useLicense?: boolean;
 			verifyNames?: boolean;
 			verifyCriminalHistory?: boolean;
+			compareMinScore?: number;
+		};
+		liveness: {
+			livenessMinScore?: number;
+			searchMode?: string;
+			searchMinScore?: number;
 		};
 		form?: any;
 		requiresSignature?: boolean;
@@ -349,7 +355,7 @@ export class ProjectFlowModel implements ProjectFlow {
 			dateOfBirth?: boolean;
 			legalDocument?: boolean;
 		};
-		documentValidation: {
+		document: {
 			includeOCR?: boolean;
 			useBasicLiveness?: boolean;
 			useProLiveness?: boolean;
@@ -359,6 +365,12 @@ export class ProjectFlowModel implements ProjectFlow {
 			useLicense?: boolean;
 			verifyNames?: boolean;
 			verifyCriminalHistory?: boolean;
+			compareMinScore?: number;
+		};
+		liveness: {
+			livenessMinScore?: number;
+			searchMode?: string;
+			searchMinScore?: number;
 		};
 		form?: any;
 		requiresSignature?: boolean;

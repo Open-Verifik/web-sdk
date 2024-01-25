@@ -108,6 +108,8 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2,
 		private _KYCService: KYCService
 	) {
+		this.navigation = this._KYCService.getNavigation();
+
 		this.continueWithLiveness = this._initAppRegistrationData();
 
 		if (!this.continueWithLiveness) return;
@@ -142,6 +144,8 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 
 		this.appRegistration = this._KYCService.appRegistration;
 
+		this.appRegistration.forceUpload = Boolean(this.appRegistration.biometricValidation && !this.appRegistration.person);
+
 		if (this.appRegistration.biometricValidation && this.appRegistration.person) {
 			this._KYCService.navigateTo("next");
 
@@ -151,8 +155,6 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		this.project = this._KYCService.currentProject;
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
-
-		this.navigation = this._KYCService.getNavigation();
 
 		return true;
 	}
@@ -610,6 +612,8 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 
 				this.errorContent = err.error;
 
+				console.log({ errorContent: this.errorContent });
+
 				this._splashScreenService.hide();
 
 				this.loadingResults = false;
@@ -704,5 +708,9 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
 		window.location.href = `${redirectUrl}?type=login&token=${token}`;
+	}
+
+	retry(): void {
+		this._KYCService.navigateTo("documentReview");
 	}
 }

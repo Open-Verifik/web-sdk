@@ -4,8 +4,8 @@
 	<div fxLayout="column" fxLayoutAlign="center center" class="w-full" *ngIf="!loadingModel && !lowCamera">
 		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 sm:h-8 xs:h-8 my-2">
 			<div *ngIf="errorFace && !loadingResults" class="mb-4">
-				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
-				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
+				<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
 			</div>
 		</div>
 
@@ -32,7 +32,7 @@
 	<div fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div" *ngIf="!loadingModel && lowCamera">
 		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
 
-		<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+		<h1 [style.color]="project.branding.titleColor" class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
 
 		<p class="mt-4">
 			{{ "id_scanning.camera_not_found_description" | transloco }}
@@ -44,7 +44,7 @@
 	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11" fxLayout="column" fxLayoutAlign="center center">
 		<img src="https://cdn.verifik.co/access/warning.svg" class="w-50" alt="" />
 
-		<h1 class="text-center">
+		<h1 class="text-center" [style.color]="project.branding.titleColor">
 			{{ "errors." + errorContent.message | transloco }}
 		</h1>
 
@@ -53,6 +53,14 @@
 			<button mat-stroked-button class="w-11/12 mt-4" (click)="recordLiveness(true)">
 				<span [style.color]="project.branding.txtColor">
 					{{ "errors.replace_person_button" | transloco }}
+				</span>
+			</button>
+		</div>
+
+		<div *ngIf="errorContent.message === 'Liveness_score_not_acceptable'" fxLayout="column" fxLayoutAlign="center center" class="w-full">
+			<button mat-stroked-button class="w-11/12 mt-4" (click)="retry()">
+				<span [style.color]="project.branding.txtColor">
+					{{ "id_scanning.retry" | transloco }}
 				</span>
 			</button>
 		</div>

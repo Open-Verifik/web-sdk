@@ -8,6 +8,9 @@ import { DemoService } from "../demo.service";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import * as faceapi from "@vladmandic/face-api";
+import { Router } from "@angular/router";
+import { Project, ProjectFlow } from "app/modules/auth/project";
+import { KYCService } from "app/modules/auth/kyc.service";
 
 @Component({
 	selector: "id-scanning",
@@ -43,19 +46,30 @@ export class IdScanningComponent implements OnInit {
 	checkFaceTimeout: any;
 	detectFaceInterval: any;
 	errorFace: any;
+	view: string;
+	appRegistration: any;
+	project: Project;
+	projectFlow: ProjectFlow;
+	navigation: any;
+	errorContent: any;
+	loading: any;
 
 	constructor(
 		private _demoService: DemoService,
+		private _router: Router,
 		private _splashScreenService: FuseSplashScreenService,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _translocoService: TranslocoService,
-		private renderer: Renderer2
+		private renderer: Renderer2,
+		private _KYCService: KYCService
 	) {
 		this.attempts = 0;
 
 		this.attemptsLimit = 3;
 
 		this.loadingCamera = false;
+
+		this.loading = false;
 
 		this.hasCameraPermissions = false;
 
@@ -66,6 +80,22 @@ export class IdScanningComponent implements OnInit {
 		this.errorFace = {};
 
 		this.demoData = this._demoService.getDemoData();
+
+		this.view = this._router.url.includes("/kyc") ? "kyc" : "demo";
+
+		if (this.view) {
+			this.appRegistration = this._KYCService.appRegistration;
+
+			this.project = this._KYCService.currentProject;
+
+			this.projectFlow = this._KYCService.currentProjectFlow;
+
+			this.navigation = this._KYCService.getNavigation();
+		}
+
+		this.errorContent = {
+			message: "",
+		};
 
 		let key = this.demoData.isMobile ? "width" : "height";
 
@@ -187,29 +217,65 @@ export class IdScanningComponent implements OnInit {
 		this.errorFace = {};
 
 		this.startCamera();
-		// logic todo here
 	}
 
 	restartDemo(): void {
+		if (this.view === "kyc") {
+			this.appRegistration.documentValidation = null;
+		}
+
 		this._demoService.restart();
 	}
 
 	async continue() {
+		if (this.loading) return;
+
+		this.loading = true;
+
 		this.idToSend = {
 			image: this.base64Images,
+			force: this.appRegistration.forceUpload || false,
 		};
 
 		const faces = await this.detectFace(this.canvasToSendRef.nativeElement);
 
 		if (!faces.length) {
-			alert(this._translocoService.translate("id_scanning.face_not_found"));
+			this.errorContent = {
+				message: "id_scanning.face_not_found",
+			};
+
 			return this.tryAgain();
 		}
+
 		const faceBiggest = this._demoService.getBiggestFace(faces.map((face) => face.detection.box));
+
 		const idCardFaceImage = this._demoService.cutFaceIdCard(this.canvasToSendRef.nativeElement, faceBiggest, this.cardIdFaceRef.nativeElement);
 
 		this.demoData.loading = true;
+
 		this._splashScreenService.show();
+
+		if (this.view === "kyc") {
+			this._KYCService.createDocumentValidation(this.idToSend).subscribe({
+				next: (response) => {
+					this.appRegistration.documentValidation = response.data.documentValidation;
+
+					this._KYCService.navigateTo("next");
+				},
+				error: (exception) => {
+					this.errorContent = exception.error;
+
+					this._splashScreenService.hide();
+				},
+				complete: () => {
+					this.demoData.loading = false;
+
+					this._splashScreenService.hide();
+				},
+			});
+
+			return;
+		}
 
 		https: this._demoService.sendDocument({ image: this.idToSend.image }).subscribe(
 			(response) => {

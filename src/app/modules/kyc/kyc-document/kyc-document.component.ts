@@ -15,6 +15,8 @@ import { StepperComponent } from "app/modules/demo/stepper/stepper.component";
 import { UploadFileComponent } from "app/modules/demo/upload-file/upload-file.component";
 import { MatDialog } from "@angular/material/dialog";
 import { KycDocumentUploaderComponent } from "../kyc-document-uploader/kyc-document-uploader.component";
+import { Project, ProjectFlow } from "app/modules/auth/project";
+import { KYCService } from "app/modules/auth/kyc.service";
 
 @Component({
 	selector: "kyc-document",
@@ -38,9 +40,21 @@ import { KycDocumentUploaderComponent } from "../kyc-document-uploader/kyc-docum
 export class KycDocumentComponent implements OnInit {
 	demoData: any;
 	selectOption: string;
+	appRegistration: any;
+	project: Project;
+	projectFlow: ProjectFlow;
+	navigation: any;
 
-	constructor(private _demoService: DemoService, private dialog: MatDialog) {
+	constructor(private _demoService: DemoService, private dialog: MatDialog, private _KYCService: KYCService) {
 		this.demoData = this._demoService.getDemoData();
+
+		this.appRegistration = this._KYCService.appRegistration;
+
+		this.project = this._KYCService.currentProject;
+
+		this.projectFlow = this._KYCService.currentProjectFlow;
+
+		this.navigation = this._KYCService.getNavigation();
 
 		this.selectOption = "";
 	}
@@ -55,7 +69,9 @@ export class KycDocumentComponent implements OnInit {
 		});
 
 		dialogRef.afterClosed().subscribe((result) => {
-			console.log({ result });
+			this.appRegistration.documentValidation = result.documentValidation;
+
+			this._KYCService.navigateTo("next");
 		});
 	}
 

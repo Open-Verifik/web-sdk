@@ -1,15 +1,10 @@
-<div
-	*ngIf="!showError && appRegistration && !appRegistration.documentValidation && appRegistration.person"
-	fxLayout="column"
-	fxLayoutAlign="center center"
-	class="flex w-full"
->
+<div *ngIf="!showError && appRegistration && appRegistration.person" fxLayout="column" fxLayoutAlign="center center" class="flex w-full">
 	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11" fxLayout="column" fxLayoutAlign="center center">
 		<img src="https://cdn.verifik.co/access/check.svg" class="w-20" alt="" />
 
 		<h3 class="text-center text-2xl pt-4 pb-8">{{ "signup.end_step.title" | transloco }}</h3>
 
-		<img [src]="'data:image/jpeg;base64,' + appRegistration.person.thumbnails[0].thumbnail" alt="" class="thumbnail" />
+		<img [src]="face.base64" alt="" class="mt-4 box-shadow-3px final-face" />
 
 		<h3 class="text-center pt-4">
 			{{ appRegistration.person.name }}

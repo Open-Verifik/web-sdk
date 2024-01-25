@@ -33,6 +33,7 @@
 					[class.hidden]="base64Images"
 					(click)="takePicture()"
 					[disabled]="errorFace"
+					[style.background]="project.branding.bgColor"
 				>
 					{{ "id_scanning.manual_capture_button" | transloco }}
 				</button>
@@ -41,7 +42,14 @@
 					{{ "id_scanning.retry" | transloco }}
 				</button>
 
-				<button mat-raised-button color="primary" class="mx-2" [class.hidden]="!base64Images" (click)="continue()">
+				<button
+					[style.background]="project.branding.bgColor"
+					mat-raised-button
+					color="primary"
+					class="mx-2"
+					[class.hidden]="!base64Images"
+					(click)="continue()"
+				>
 					{{ "continue" | transloco }}
 				</button>
 			</div>

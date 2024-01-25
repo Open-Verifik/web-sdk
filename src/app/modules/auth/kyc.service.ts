@@ -29,9 +29,6 @@ export class KYCService {
 		const map = {};
 
 		const steps = this.currentProjectFlow.onboardingSettings.steps;
-		// init steps based on the appRegistration
-
-		// if (["mandatory", "optional"].includes(steps.basicInformation)) stepsCount++;
 
 		if (["mandatory", "optional"].includes(steps.document)) {
 			stepsCount++;
@@ -62,6 +59,18 @@ export class KYCService {
 			});
 
 			map["liveness"] = steps.liveness;
+
+			if (map["document"]) {
+				stepsCount++;
+
+				// displayableSteps.push({
+				// 	code: "documentLivenessReview",
+				// 	status: steps.liveness,
+				// 	hidden: true,
+				// });
+
+				map["documentLivenessReview"] = steps.liveness;
+			}
 		}
 
 		displayableSteps.push({
@@ -89,8 +98,23 @@ export class KYCService {
 	navigateTo(step: string): void {
 		setTimeout(() => {
 			if (step === "next") {
-				if (this.navigation.currentStep === "liveness") {
-					this.navigation.currentStep = "end";
+				switch (this.navigation.currentStep) {
+					case "liveness":
+						this.navigation.currentStep = "documentLivenessReview";
+
+						break;
+					case "document":
+						this.navigation.currentStep = "documentReview";
+
+						break;
+					case "documentReview":
+						this.navigation.currentStep = "liveness";
+
+						break;
+					case "documentLivenessReview":
+						this.navigation.currentStep = "end";
+
+						break;
 				}
 
 				return;
@@ -101,7 +125,7 @@ export class KYCService {
 	}
 
 	getAppRegistration(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/app-registrations/me`, data).pipe(
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations/me`, data).pipe(
 			tap((response: any) => {
 				this.appRegistration = response.data;
 
@@ -183,5 +207,18 @@ export class KYCService {
 
 	createBiometricValidation(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/app-registration`, data);
+	}
+
+	/////////////////////// identity images /////////////////////////
+	getIdentityImages(data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/identity-images`, data);
+	}
+
+	compareFaces(): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/face-recognition/compare/app-registration`, {});
+	}
+
+	restartKYC(): Observable<any> {
+		return this._httpWrapper.sendRequest("delete", `${this.baseUrl}/v2/biometric-validations/${this.appRegistration.biometricValidation._id}`);
 	}
 }

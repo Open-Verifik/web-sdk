@@ -27,6 +27,7 @@ export class KycEndComponent implements OnInit, OnDestroy {
 	errorContent: any;
 	projectFlow: ProjectFlow;
 	loading: boolean;
+	face: any;
 
 	constructor(private _KYCService: KYCService, private _splashScreenService: FuseSplashScreenService) {
 		this.showError = false;
@@ -41,7 +42,9 @@ export class KycEndComponent implements OnInit, OnDestroy {
 	/**
 	 * On init
 	 */
-	ngOnInit(): void {}
+	ngOnInit(): void {
+		this._requestIdentityImages();
+	}
 
 	_initAppRegistrationData(): void {
 		this.appRegistration = this._KYCService.appRegistration;
@@ -51,6 +54,34 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
 		this.navigation = this._KYCService.getNavigation();
+	}
+
+	_requestIdentityImages(): void {
+		if (this.appRegistration.face?._id) {
+			this.face = this.appRegistration.face;
+
+			return;
+		}
+
+		this._KYCService.getIdentityImages({}).subscribe({
+			next: (response) => {
+				this._extractFaces(response.data);
+			},
+			error: (exception) => {},
+			complete: () => {},
+		});
+	}
+
+	_extractFaces(arrayOfImages): void {
+		for (let index = 0; index < arrayOfImages.length; index++) {
+			const identityImage = arrayOfImages[index];
+
+			if (identityImage.category === "face" && this.appRegistration.face === identityImage._id) {
+				this.face = identityImage;
+
+				this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
+			}
+		}
 	}
 
 	ngOnDestroy(): void {}
@@ -66,7 +97,6 @@ export class KycEndComponent implements OnInit, OnDestroy {
 			token: null,
 		};
 
-		// sync
 		this._KYCService.syncAppRegistration("liveness").subscribe({
 			next: (response) => {
 				_response = response.data;

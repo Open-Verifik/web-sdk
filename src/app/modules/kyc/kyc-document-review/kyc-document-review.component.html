@@ -1,1 +1,107 @@
-<p>kyc-document-review works!</p>
+<div
+	class="id-details-body"
+	fxLayout="row"
+	fxLayout.xs="column"
+	fxLayoutAlign="start start"
+	fxLayoutAlign.xs="center center"
+	*ngIf="appRegistration.documentValidation"
+>
+	<!-- first section -->
+	<div class="id-details-first-section" fxLayout="column" fxLayoutAlign="start end" fxLayoutAlign.xs="start center">
+		<div fxLayout="column" fxLayoutAlign="start center">
+			<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "step_three.document_scanned" | transloco }}</h1>
+
+			<div class="id-details-front-side-doc" fxLayout="column" fxLayoutAlign="start center">
+				<h3 [style.color]="project.branding.txtColor" class="mt-8">{{ "step_three.front_side" | transloco }}</h3>
+
+				<img [src]="documentFrontSideUrl" alt="" class="mt-4 box-shadow-3px" />
+			</div>
+		</div>
+	</div>
+	<!-- end of first section -->
+
+	<div
+		class="id-details-second-section"
+		[ngClass.xs]="{ 'box-shadow-3px': true }"
+		fxLayout="column"
+		fxLayoutAlign="start start"
+		fxLayoutAlign.xs="center center"
+	>
+		<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "step_three.general_information" | transloco }}</h1>
+
+		<div *ngIf="hasGeneralInformation()" class="mt-8">
+			<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.generalInformation" class="id-details-item">
+				<h3 [style.color]="project.branding.txtColor">{{ "general_information." + item.key | transloco }}</h3>
+				<p>{{ item.value }}</p>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" class="w-full">
+			<h1
+				class="mt-4 underline"
+				[style.color]="project.branding.titleColor"
+				*ngIf="appRegistration.documentValidation.validationMethod === 'SCAN_PRO'"
+			>
+				{{ "extracted_information.pro" | transloco }}
+			</h1>
+
+			<h1
+				class="mt-4 underline"
+				[style.color]="project.branding.titleColor"
+				*ngIf="appRegistration.documentValidation.validationMethod === 'SCAN_PROMPT'"
+			>
+				{{ "extracted_information.prompt" | transloco }}
+			</h1>
+
+			<h1
+				class="mt-4"
+				[style.color]="project.branding.titleColor"
+				*ngIf="appRegistration.documentValidation.validationMethod === 'SCAN_STUDIO'"
+			>
+				{{ "extracted_information.studio" | transloco }}
+			</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of extractedData" class="id-details-item">
+					<h3 [style.color]="project.branding.txtColor">{{ "extracted_information." + item.key | transloco }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="column" fxLayoutAlign="start start" fxLayoutAlign.xs="center center" *ngIf="hasLocation()" class="w-full">
+			<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "step_three.user_location" | transloco }}</h1>
+
+			<div class="mt-8 w-full">
+				<div fxLayout="column" fxLayoutAlign="start start" *ngFor="let item of demoData.location" class="id-details-item">
+					<h3 [style.color]="project.branding.txtColor">{{ "user_location." + item.key | transloco }}</h3>
+					<p>{{ item.value }}</p>
+				</div>
+			</div>
+		</div>
+
+		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
+			<button
+				mat-stroked-button
+				color="primary"
+				class="m-4 z-index-2 start-demo-button"
+				(click)="scanAgain()"
+				[style.color]="project.branding.txtColor"
+			>
+				{{ "step_three.scan_again" | transloco }}
+			</button>
+
+			<button
+				mat-raised-button
+				color="primary"
+				class="m-4 z-index-2 start-demo-button"
+				(click)="continue()"
+				[style.background]="project.branding.bgColor"
+			>
+				{{ "continue" | transloco }}
+			</button>
+		</div>
+	</div>
+</div>
+
+<div class="white-background" fxHide.xs="true"></div>

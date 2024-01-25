@@ -147,12 +147,6 @@ export class KycLivenessIosComponent implements OnInit, OnDestroy {
 
 		this.appRegistration = this._KYCService.appRegistration;
 
-		if (this.appRegistration.biometricValidation && this.appRegistration.person) {
-			this._KYCService.navigateTo("next");
-
-			return false;
-		}
-
 		this.project = this._KYCService.currentProject;
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
@@ -555,8 +549,6 @@ export class KycLivenessIosComponent implements OnInit, OnDestroy {
 				this.appRegistration.person = response.data.person;
 
 				this.appRegistration.biometricValidation = response.data.biometricValidation;
-
-				console.log(this.appRegistration);
 			},
 			error: (err) => {
 				this.showError = true;

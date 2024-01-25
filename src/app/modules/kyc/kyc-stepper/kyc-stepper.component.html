@@ -1,0 +1,20 @@
+<div fxLayout="column" fxLayoutAlign="start start" *ngIf="navigation">
+	<div class="verifik-stepper" fxLayout="row" fxLayoutAlign="space-between center">
+		<div fxLayout="row" fxLayoutAlign="start center" *ngFor="let step of navigation.displayableSteps; let i = index">
+			<span
+				class="step-number-circle"
+				[style.background]="project.branding.borderColor"
+				[ngClass]="{ 'disabled-background': navigation.currentStep !== step.code }"
+			>
+				{{ i + 1 }}</span
+			>
+			<span
+				[style.color]="project.branding.txtColor"
+				[ngClass]="{ 'font-bold': navigation.currentStep === step.code }"
+				fxHide.xs="true"
+				fxHide.xs="true"
+				>{{ "header." + step.code | transloco }}
+			</span>
+		</div>
+	</div>
+</div>

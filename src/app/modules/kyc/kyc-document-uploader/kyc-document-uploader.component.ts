@@ -12,6 +12,7 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { KYCService } from "app/modules/auth/kyc.service";
+import { Project, ProjectFlow } from "app/modules/auth/project";
 
 @Component({
 	selector: "kyc-document-uploader",
@@ -32,6 +33,9 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 	phoneMode: boolean;
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
 	faceIdCard: string;
+	appRegistration: any;
+	project: Project;
+	projectFlow: ProjectFlow;
 
 	constructor(
 		private _demoService: DemoService,
@@ -41,6 +45,12 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 		private _KYCService: KYCService
 	) {
 		this.demoData = this._demoService.getDemoData();
+
+		this.appRegistration = this._KYCService.appRegistration;
+
+		this.project = this._KYCService.currentProject;
+
+		this.projectFlow = this._KYCService.currentProjectFlow;
 
 		this.attempts = 0;
 
@@ -98,11 +108,9 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 					this.base64Image = event.target.result;
 
-					const faceBiggest = this._demoService.getBiggestFace(faces);
+					const documentFace = this._demoService.getBiggestFace(faces);
 
-					console.log({ faces, faceBiggest });
-
-					this.faceIdCard = this._demoService.cutFaceIdCard(img, faceBiggest, this.cardIdFaceRef.nativeElement);
+					this.faceIdCard = this._demoService.cutFaceIdCard(img, documentFace, this.cardIdFaceRef.nativeElement);
 				} catch (error) {
 					alert(error.message);
 				}
@@ -153,21 +161,25 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 		const body = {
 			image: this.base64Image.replace(/^data:image\/.*;base64,/, ""),
+			documentFace: this.faceIdCard,
+			force: Boolean(this.appRegistration.forceUpload),
 		};
 
 		this._KYCService.createDocumentValidation(body).subscribe({
 			next: (response) => {
-				console.log({ response: response.data });
+				this.dialogRef.close(response.data);
 			},
 			error: (exception) => {
 				this.errorContent = exception.error;
 
 				this.errorResult = true;
 
-				console.log({ exception, errorContent: this.errorContent });
+				this._splashScreenService.hide();
 			},
 			complete: () => {
 				this.demoData.loading = false;
+
+				this._splashScreenService.hide();
 			},
 		});
 	}

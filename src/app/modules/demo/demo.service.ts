@@ -358,7 +358,7 @@ export class DemoService {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(this.showPosition, this.showError);
 		} else {
-			console.log("Geolocation is not supported by this browser.");
+			console.info("Geolocation is not supported by this browser.");
 		}
 	}
 
