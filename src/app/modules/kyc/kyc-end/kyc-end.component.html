@@ -11,8 +11,14 @@
 		</h3>
 
 		<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-			<button mat-stroked-button class="w-11/12 mt-4" (click)="completeAndRedirect()">
-				<span [style.color]="project.branding.txtColor">{{ "signup.end_step.complete_button" | transloco }}</span>
+			<button
+				mat-raised-button
+				color="primary"
+				class="w-11/12 mt-4 start-demo-button"
+				(click)="completeAndRedirect()"
+				[style.background]="project.branding.borderColor"
+			>
+				<span>{{ "signup.end_step.complete_button" | transloco }}</span>
 			</button>
 		</div>
 	</div>

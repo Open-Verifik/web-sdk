@@ -1,17 +1,17 @@
 {
-	"footerText": "Verifik © 2023 Product of MAT Enterprises",
+	"footerText": "Verifik © 2024 Product of MAT Enterprises",
 	"go_back": "Go back",
-	"restart": "Restart demo",
+	"restart": "Restart",
 	"continue": "Continue",
 	"confirm": "Confirm",
 	"cancel": "Cancel",
 	"header": {
 		"partner": "Partner with us",
 		"talk": "Talk to sales",
-		"id": "ID Scanning",
-		"verify_id": "Document details",
+		"document": "ID Scanning",
+		"documentReview": "Document details",
 		"liveness": "Liveness check",
-		"compare": "Results"
+		"documentLivenessReview": "Results"
 	},
 	"step_one": {
 		"title": "Explore the future of identity validation with Verifik",
@@ -163,7 +163,8 @@
 		"collection_not_set": "Project is not configured properly. Collection not assigned yet",
 		"person_already_set": "Your registration has biometrics linked already",
 		"replace_person_button": "Ok, replace biometrics",
-		"Duplicated_person": "Biometrics is being used into another record"
+		"Duplicated_person": "Biometrics is being used into another record",
+		"Liveness_score_not_acceptable": "Liveness score is not acceptable"
 	},
 	"login": {
 		"title_1": "Welcome",
@@ -243,6 +244,9 @@
 		"end_step": {
 			"title": "Sucessful registration",
 			"complete_button": "Complete verification"
+		},
+		"basic_information": {
+			"title": "Basic Information"
 		}
 	}
 }

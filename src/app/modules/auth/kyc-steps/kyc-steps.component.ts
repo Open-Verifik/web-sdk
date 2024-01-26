@@ -134,11 +134,6 @@ export class KYCStepsComponent implements OnInit {
 				next: (response) => {
 					this.appRegistration = response.data;
 
-					console.log({
-						face: this.appRegistration.face,
-						documentFace: this.appRegistration.documentFace,
-					});
-
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);

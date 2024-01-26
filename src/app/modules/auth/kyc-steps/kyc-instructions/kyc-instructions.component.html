@@ -1,5 +1,10 @@
 <!-- step one -->
-<div class="step-one-main-div" fxLayout="column" fxLayoutAlign="start center" *ngIf="appRegistration && project && projectFlow && acceptanceForm">
+<div
+	class="step-one-main-div"
+	fxLayout="column"
+	fxLayoutAlign="start center"
+	*ngIf="appRegistration && project && projectFlow && acceptanceForm && !loading"
+>
 	<!-- image on the left of business woman -->
 	<div fxLayout="column" fxLayoutAlign="center center" class="step-one-middle-container">
 		<h1 [style.color]="project.branding.titleColor">{{ "signup.instructions_step.title" | transloco }}</h1>
@@ -94,7 +99,7 @@
 					class="mt-8 z-index-2 start-demo-button"
 					(click)="startKYC()"
 					[disabled]="invalidForm()"
-					[style.background]="project.branding.bgColor"
+					[style.background]="project.branding.borderColor"
 				>
 					{{ "signup.instructions_step.button" | transloco }}
 				</button>

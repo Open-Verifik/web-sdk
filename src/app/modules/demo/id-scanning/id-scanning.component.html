@@ -33,7 +33,7 @@
 					[class.hidden]="base64Images"
 					(click)="takePicture()"
 					[disabled]="errorFace"
-					[style.background]="project.branding.bgColor"
+					[style.background]="project.branding.borderColor"
 				>
 					{{ "id_scanning.manual_capture_button" | transloco }}
 				</button>
@@ -43,7 +43,7 @@
 				</button>
 
 				<button
-					[style.background]="project.branding.bgColor"
+					[style.background]="project.branding.borderColor"
 					mat-raised-button
 					color="primary"
 					class="mx-2"

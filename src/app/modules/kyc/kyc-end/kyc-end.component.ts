@@ -60,6 +60,10 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		if (this.appRegistration.face?._id) {
 			this.face = this.appRegistration.face;
 
+			if (!this.face.base64.includes("data:image")) {
+				this.face["base64"] = `data:image/jpeg;base64,${this.face.base64}`;
+			}
+
 			return;
 		}
 
@@ -91,13 +95,15 @@ export class KycEndComponent implements OnInit, OnDestroy {
 
 		this.loading = true;
 
-		this._splashScreenService.show();
-
 		let _response = {
 			token: null,
 		};
 
-		this._KYCService.syncAppRegistration("liveness").subscribe({
+		const tokenStep = this.navigation.map.document === "mandatory" && this.navigation.map.liveness ? "end" : "liveness";
+
+		this._splashScreenService.show();
+
+		this._KYCService.syncAppRegistration(tokenStep).subscribe({
 			next: (response) => {
 				_response = response.data;
 			},

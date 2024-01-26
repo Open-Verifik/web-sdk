@@ -15,7 +15,7 @@
 
 			<img src="https://cdn.verifik.co/demo/anverso2x.png" class="upload-img" alt="" />
 
-			<button [style.background]="project.branding.bgColor" mat-raised-button color="primary" class="mb-5" (click)="openUploadFile()">
+			<button [style.background]="project.branding.borderColor" mat-raised-button color="primary" class="mb-5" (click)="openUploadFile()">
 				{{ "step_two.file" | transloco }}
 			</button>
 		</div>
@@ -27,7 +27,7 @@
 			</h2>
 
 			<img src="https://cdn.verifik.co/demo/scan2x.png" alt="" class="scan-img" />
-			<button [style.background]="project.branding.bgColor" mat-raised-button color="primary" class="mb-5" (click)="openCamera()">
+			<button [style.background]="project.branding.borderColor" mat-raised-button color="primary" class="mb-5" (click)="openCamera()">
 				{{ "step_two.manual" | transloco }}
 			</button>
 		</div>

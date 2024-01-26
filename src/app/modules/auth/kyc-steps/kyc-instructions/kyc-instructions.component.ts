@@ -39,6 +39,7 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 	navigation: any;
 	steps: any;
 	acceptanceForm: FormGroup;
+	loading: boolean;
 
 	constructor(private _KYCService: KYCService, private _formBuilder: FormBuilder) {
 		this.appRegistration = this._KYCService.appRegistration;
@@ -50,6 +51,8 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 		this.navigation = this._KYCService.getNavigation();
 
 		this.steps = [];
+
+		this.loading = true;
 	}
 
 	ngOnInit(): void {
@@ -59,10 +62,18 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 			legalAgreement: [false],
 		});
 
-		console.log({ initForm: this.acceptanceForm });
+		setTimeout(() => {
+			this.loading = false;
+		}, 1000);
 	}
 
 	defineStepsAndInstrutions(): void {
+		if (this.appRegistration.status === "COMPLETED") {
+			this._KYCService.navigateTo("end");
+
+			return;
+		}
+
 		if (this.appRegistration.person && this.appRegistration.biometricValidation && this.appRegistration.documentValidation) {
 			this._KYCService.navigateTo("documentLivenessReview");
 		} else if (this.appRegistration.documentValidation && this.navigation.map.document) {
