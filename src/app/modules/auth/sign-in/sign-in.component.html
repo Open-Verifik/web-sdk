@@ -1,8 +1,8 @@
-<div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signInForm" class="w-full">
-	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full">
+<div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signInForm" class="w-full" [style.background]="project.branding.borderColor">
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" [style.background]="project.branding.borderColor">
 		<img [src]="project.branding.logo" class="main-logo w-14" />
 
-		<div class="flex rounded-2xl shadow overflow-hidden bg-card sign-in-content" *ngIf="!showBiometrics">
+		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
 			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
 				<div class="w-400 mx-auto sm:mx-0">
 					<!-- Title -->
@@ -68,6 +68,7 @@
 											(keyup)="checkSixDigits('emailOTP')"
 										/>
 										<button
+											[style.background]="project.branding.borderColor"
 											mat-icon-button
 											type="button"
 											(click)="
@@ -231,6 +232,7 @@
 								(click)="sendOTP($event)"
 								[disabled]="!canSendOTP()"
 								*ngIf="typeLogin === 'email'"
+								[style.background]="project.branding.borderColor"
 							>
 								<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> {{ "login.send_email" | transloco }} </span>
 
@@ -243,13 +245,19 @@
 						<!-- Separator -->
 						<div class="flex items-center mt-8">
 							<div class="flex-auto mt-px border-t"></div>
-							<div class="mx-2 text-secondary">{{ "login.or_continue" | transloco }}</div>
+							<div class="mx-2 text-secondary" [style.color]="project.branding.txtColor">{{ "login.or_continue" | transloco }}</div>
 							<div class="flex-auto mt-px border-t"></div>
 						</div>
 
 						<!-- Single sign-on buttons -->
 						<div class="flex items-center mt-8 space-x-4">
-							<button class="flex-auto" type="button" mat-stroked-button (click)="showBiometricsLogin()">
+							<button
+								class="flex-auto"
+								type="button"
+								[style.color]="project.branding.txtColor"
+								mat-stroked-button
+								(click)="showBiometricsLogin()"
+							>
 								{{ "login.use_biometrics_button" | transloco }}
 							</button>
 						</div>
@@ -343,11 +351,11 @@
 	</div>
 
 	<div
-		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r bg-white w-full"
+		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
 		fxLayout="row"
 		[style.background]="project.branding.rightBackgroundColor"
 		fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
-		*ngIf="!showBiometrics"
+		*ngIf="!showBiometrics && project.branding.rightImage"
 	>
 		<img [src]="project.branding.rightImage" alt="" class="hhalf-width-image" />
 	</div>

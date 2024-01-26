@@ -68,6 +68,10 @@ export class CountriesService {
 			name: "Honduras",
 		},
 		{
+			code: "+91",
+			name: "India",
+		},
+		{
 			code: "+353",
 			name: "Ireland",
 		},
@@ -141,7 +145,7 @@ export class CountriesService {
 		},
 		{
 			code: "+1",
-			name: "United States of America",
+			name: "United States",
 		},
 		{
 			code: "+598",
