@@ -1,5 +1,5 @@
 <div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signInForm" class="w-full" [style.background]="project.branding.borderColor">
-	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" [style.background]="project.branding.borderColor">
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full">
 		<img [src]="project.branding.logo" class="main-logo w-14" />
 
 		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
