@@ -30,9 +30,9 @@
 	<div fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div" *ngIf="!loadingModel && lowCamera">
 		<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
 
-		<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+		<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "id_scanning.camera_not_found" | transloco }}</h1>
 
-		<p class="mt-4">
+		<p class="mt-4" [style.color]="project.branding.txtColor">
 			{{ "id_scanning.camera_not_found_description" | transloco }}
 		</p>
 	</div>

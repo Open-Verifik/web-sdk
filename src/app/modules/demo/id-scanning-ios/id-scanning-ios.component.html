@@ -36,7 +36,8 @@
 	<div fxLayout="row" fxLayoutAlign="center center">
 		<button
 			mat-raised-button
-			color="primary"
+			[style.background]="project.branding.buttonColor"
+			[style.color]="project.branding.buttonTxtColor"
 			class="m-4 z-index-2"
 			[class.hidden]="response.base64Image"
 			(click)="takePictureSnapshot()"
@@ -45,11 +46,18 @@
 			{{ "id_scanning.manual_capture_button" | transloco }}
 		</button>
 
-		<button mat-stroked-button color="primary" class="m-4 z-index-2" [class.hidden]="!response.base64Image" (click)="ngOnInit()">
+		<button
+			mat-stroked-button
+			[style.background]="project.branding.buttonColor"
+			[style.color]="project.branding.buttonTxtColor"
+			class="m-4 z-index-2"
+			[class.hidden]="!response.base64Image"
+			(click)="ngOnInit()"
+		>
 			{{ "id_scanning.retry" | transloco }}
 		</button>
 
-		<button mat-raised-button color="primary" class="mx-2" [class.hidden]="!response.base64Image" (click)="continue()">
+		<button mat-raised-button [style.color]="project.branding.txtColor" class="mx-2" [class.hidden]="!response.base64Image" (click)="continue()">
 			{{ "continue" | transloco }}
 		</button>
 	</div>
@@ -64,9 +72,9 @@
 >
 	<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
 
-	<h1 class="mt-4">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+	<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "id_scanning.camera_not_found" | transloco }}</h1>
 
-	<p class="mt-4">
+	<p class="mt-4" [style.color]="project.branding.txtColor">
 		{{ "id_scanning.camera_not_found_description" | transloco }}
 	</p>
 </div>
@@ -82,11 +90,11 @@
 		class="id-scanning-failed-document-img"
 	/>
 
-	<h1 class="mt-4">
+	<h1 class="mt-4" [style.color]="project.branding.titleColor">
 		{{ (attempts.limit - attempts.current > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
 	</h1>
 
-	<p class="mt-4">
+	<p class="mt-4" [style.color]="project.branding.txtColor">
 		{{
 			(attempts.limit - attempts.current > 0
 				? "id_scanning.document_not_detected_description"
@@ -95,14 +103,15 @@
 		}}
 	</p>
 
-	<p class="mt-4" *ngIf="attempts.limit - attempts.current > 0">
+	<p class="mt-4" [style.color]="project.branding.txtColor" *ngIf="attempts.limit - attempts.current > 0">
 		{{ "id_scanning.remaining_attempts" | transloco }} {{ attempts.limit - attempts.current }}
 	</p>
 
 	<button
 		mat-raised-button
-		color="primary"
 		class="mt-4 z-index-2 id-scanning-try-again-button"
+		[style.background]="project.branding.buttonColor"
+		[style.color]="project.branding.buttonTxtColor"
 		(click)="attempts.limit - attempts.current > 0 ? tryAgain() : restartDemo()"
 	>
 		{{ (failedToDetectDocument ? "id_scanning.retry" : "restart") | transloco }}
