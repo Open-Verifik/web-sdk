@@ -1,6 +1,8 @@
 <div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signInForm" class="w-full" [style.background]="project.branding.borderColor">
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full">
-		<img [src]="project.branding.logo" class="main-logo w-14" />
+		<div fxLayout="row" fxLayoutAlign="start center">
+			<img [src]="project.branding.logo" class="main-logo w-14" />
+		</div>
 
 		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
 			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
@@ -68,7 +70,6 @@
 											(keyup)="checkSixDigits('emailOTP')"
 										/>
 										<button
-											[style.background]="project.branding.borderColor"
 											mat-icon-button
 											type="button"
 											(click)="
@@ -200,12 +201,12 @@
 									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
 									*ngIf="projectFlow.loginSettings.phoneGateway === 'sms' || projectFlow.loginSettings.phoneGateway === 'both'"
+									[style.color]="project.branding.buttonTxtColor"
+									[style.background]="project.branding.buttonColor"
 								>
-									<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> SMS </span>
+									<span *ngIf="activeSendOtp"> SMS </span>
 
-									<span *ngIf="typeLogin == 'phone' && smsSent && !activeSendOtp" [style.color]="project.branding.txtColor">
-										SMS ({{ phoneValidation.diff }}) s
-									</span>
+									<span *ngIf="typeLogin == 'phone' && smsSent && !activeSendOtp"> SMS ({{ phoneValidation.diff }}) s </span>
 								</button>
 
 								<button
@@ -216,27 +217,27 @@
 									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
 									*ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
+									[style.color]="project.branding.buttonTxtColor"
+									[style.background]="project.branding.buttonColor"
 								>
-									<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> Whatsapp </span>
+									<span *ngIf="activeSendOtp"> Whatsapp </span>
 
-									<span *ngIf="typeLogin == 'phone' && smsSent && !activeSendOtp" [style.color]="project.branding.txtColor">
-										Whatsapp ({{ phoneValidation.diff }}) s
-									</span>
+									<span *ngIf="typeLogin == 'phone' && smsSent && !activeSendOtp"> Whatsapp ({{ phoneValidation.diff }}) s </span>
 								</button>
 							</div>
 
 							<button
 								mat-stroked-button
 								class="w-full mt-4"
-								color="primary"
 								(click)="sendOTP($event)"
 								[disabled]="!canSendOTP()"
 								*ngIf="typeLogin === 'email'"
-								[style.background]="project.branding.borderColor"
+								[style.background]="project.branding.buttonColor"
+								[style.color]="project.branding.buttonTxtColor"
 							>
-								<span *ngIf="activeSendOtp" [style.color]="project.branding.txtColor"> {{ "login.send_email" | transloco }} </span>
+								<span *ngIf="activeSendOtp"> {{ "login.send_email" | transloco }} </span>
 
-								<span *ngIf="emailSent && !activeSendOtp" [style.color]="project.branding.txtColor">
+								<span *ngIf="emailSent && !activeSendOtp">
 									<span>{{ "login.send_email" | transloco }} ({{ emailValidation.diff }}) s </span>
 								</span>
 							</button>
@@ -262,7 +263,8 @@
 							</button>
 						</div>
 					</form>
-					<div class="w-full text-center mt-6">
+					<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
+						<small> Powered by Verifik </small>
 						<languages [colorText]="project.branding.txtColor"></languages>
 					</div>
 				</div>
