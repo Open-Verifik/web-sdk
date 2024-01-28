@@ -57,18 +57,11 @@
 			</button>
 		</div>
 
+		<!-- retry -->
 		<div *ngIf="errorContent.message === 'Liveness_score_not_acceptable'" fxLayout="column" fxLayoutAlign="center center" class="w-full">
 			<button mat-stroked-button class="w-11/12 mt-4" (click)="retry()">
 				<span [style.color]="project.branding.txtColor">
 					{{ "id_scanning.retry" | transloco }}
-				</span>
-			</button>
-		</div>
-
-		<div *ngIf="errorContent.message === 'collection_not_set.'" fxLayout="column" fxLayoutAlign="center center" class="w-full">
-			<button mat-stroked-button class="w-11/12 mt-4" (click)="continueRedirection()">
-				<span [style.color]="project.branding.txtColor">
-					{{ "errors.continue_without_biometrics" | transloco }}
 				</span>
 			</button>
 		</div>

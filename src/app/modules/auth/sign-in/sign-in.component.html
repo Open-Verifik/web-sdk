@@ -112,8 +112,7 @@
 
 												<mat-option [value]="country.code" *ngFor="let country of countries; trackBy: trackByFn">
 													<span class="flex items-center">
-														<span class="ml-2">{{ country.name }}</span>
-														<span class="ml-2 font-medium">{{ country.code }}</span>
+														<span class="ml-2 font-medium">[{{ country.code }}] {{ country.name }}</span>
 													</span>
 												</mat-option>
 											</mat-select>

@@ -2,8 +2,8 @@
 	<div fxLayout="column" fxLayoutAlign="center center" class="w-full" *ngIf="!loadingModel && !lowCamera">
 		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 sm:h-8 xs:h-8 my-2">
 			<div *ngIf="errorFace && !loadingResults">
-				<div class="text-3xl font-bold">{{ errorFace.title }}</div>
-				<div class="text-gray-600">{{ errorFace.subtitle }}</div>
+				<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
 			</div>
 		</div>
 
