@@ -26,6 +26,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 @Component({
 	selector: "auth-sign-up",
 	templateUrl: "./sign-up.component.html",
+	styleUrls: ["../sign-in/sign-in.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,

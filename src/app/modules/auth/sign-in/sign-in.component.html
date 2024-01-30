@@ -37,7 +37,7 @@
 					<!-- Sign in form -->
 					<form class="mt-8" [formGroup]="signInForm">
 						<mat-tab-group selectedIndex="{{ typeLogin == 'email' ? 0 : 1 }}" (selectedTabChange)="selectLogin($event)">
-							<mat-tab disabled="{{ !projectFlow.loginSettings.email }}" class="m-0 p-0">
+							<mat-tab *ngIf="projectFlow.loginSettings.email" class="m-0 p-0 px-16">
 								<ng-template mat-tab-label>
 									<span [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</span>
 								</ng-template>
@@ -92,7 +92,7 @@
 									</mat-form-field>
 								</ng-template>
 							</mat-tab>
-							<mat-tab disabled="{{ !projectFlow.loginSettings.phone }}">
+							<mat-tab *ngIf="projectFlow.loginSettings.phone" disabled="{{ !projectFlow.loginSettings.phone }}">
 								<ng-template mat-tab-label>
 									<span [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</span>
 								</ng-template>
@@ -171,21 +171,6 @@
 
 						<!-- buttons -->
 						<div class="flex flex-col flex-auto w-full items-center sm:justify-center">
-							<!-- Submit button -->
-							<!-- <button
-								class="fuse-mat-button-large w-full"
-								mat-flat-button
-								[color]="'primary'"
-								[disabled]="!isFormValid()"
-								(click)="signIn()"
-								*ngIf="!activeSendOtp"
-							>
-								<span *ngIf="!signInForm.disabled" [style.color]="project.branding.txtColor">
-									{{ "login.login_button" | transloco }}
-								</span>
-								<mat-progress-spinner *ngIf="signInForm.disabled" [diameter]="24" [mode]="'indeterminate'"> </mat-progress-spinner>
-							</button> -->
-
 							<!-- SEND OTP -->
 							<h3 *ngIf="typeLogin === 'phone' && activeSendOtp" [style.color]="project.branding.txtColor">
 								{{ "login.send_otp_phone_options_label" | transloco }}
@@ -243,14 +228,14 @@
 						</div>
 
 						<!-- Separator -->
-						<div class="flex items-center mt-8">
+						<div class="flex items-center mt-8" *ngIf="projectFlow.loginSettings.faceLiveness">
 							<div class="flex-auto mt-px border-t"></div>
 							<div class="mx-2 text-secondary" [style.color]="project.branding.txtColor">{{ "login.or_continue" | transloco }}</div>
 							<div class="flex-auto mt-px border-t"></div>
 						</div>
 
 						<!-- Single sign-on buttons -->
-						<div class="flex items-center mt-8 space-x-4">
+						<div class="flex items-center mt-8 space-x-4" *ngIf="projectFlow.loginSettings.faceLiveness">
 							<button
 								class="flex-auto"
 								type="button"
