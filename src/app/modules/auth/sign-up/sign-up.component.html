@@ -157,10 +157,11 @@
 
 						<!-- Submit button -->
 						<button
+							[style.background]="project.branding.buttonColor"
+							[style.color]="project.branding.buttonTxtColor"
 							class="fuse-mat-button-large w-full mt-6"
 							mat-flat-button
-							[color]="'primary'"
-							[disabled]="signUpForm.disabled"
+							[disabled]="isFormDisabled()"
 							(click)="signUp()"
 						>
 							<span *ngIf="!signUpForm.disabled">{{ "signup.create_account_button" | transloco }}</span>

@@ -317,4 +317,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this._unsubscribeAll.next(null);
 	}
+
+	isFormDisabled(): boolean {
+		return Boolean(this.signUpForm.invalid || !this.signUpForm.value.agreements);
+	}
 }
