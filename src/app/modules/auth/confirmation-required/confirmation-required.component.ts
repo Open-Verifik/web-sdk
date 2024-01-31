@@ -62,7 +62,10 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	remainingTime: string;
 	loading: boolean;
 	syncResponse: any;
+	sendingOTP: Boolean;
+	activeSendOtp: boolean;
 	private countdownSubscription: Subscription;
+	token: string;
 
 	/**
 	 * Constructor
@@ -76,8 +79,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		private _formBuilder: UntypedFormBuilder
 	) {
 		this._splashScreenService.show();
-
-		localStorage.removeItem("accessToken");
 	}
 
 	ngOnInit(): void {
@@ -86,9 +87,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		this._activatedRoute.params.subscribe((params) => {
 			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 
-			const token = this._router.url.split("?token=")[1];
+			this.token = this._router.url.split("?token=")[1];
 
-			localStorage.setItem("accessToken", token);
+			localStorage.setItem("accessToken", this.token);
 
 			this._requestAppRegistration();
 		});
@@ -106,6 +107,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
+
+					console.log({ projectFlow: this.projectFlow });
 				},
 				error: (exception) => {
 					this.errorContent = exception.error;
@@ -129,8 +132,12 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 		setTimeout(() => {
 			this._initEmailValidation();
+
 			this._initPhoneValidation();
+
 			this._completeAppRegistration();
+
+			this._changeDetectorRef.detectChanges();
 		}, 500);
 	}
 
@@ -169,8 +176,24 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	/**
 	 * init phone validation
 	 */
-	_initPhoneValidation(): void {
-		if (!["whatsapp", "sms", "both"].includes(this.projectFlow.onboardingSettings.signUpForm.phoneGateway)) return;
+	_initPhoneValidation(phoneGateway?: string): boolean {
+		this.phoneGateway = phoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway;
+
+		if (this.phoneGateway === "both" && !this.currentValidation) {
+			this.currentValidation = !this.appRegistration.phoneValidation
+				? {
+						_id: "new",
+						countryCode: this.appRegistration.countryCode,
+						phone: this.appRegistration.phone,
+				  }
+				: this.appRegistration.phoneValidation?.status !== "validated"
+				? this.appRegistration.phoneValidation
+				: null;
+
+			console.log({ currentValidation: this.currentValidation });
+		}
+
+		if (!["whatsapp", "sms"].includes(this.phoneGateway)) return;
 
 		if (this.appRegistration.phoneValidation?.status === "validated") return;
 
@@ -203,8 +226,12 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this.loading = false;
 
 				this._splashScreenService.hide();
+
+				if (phoneGateway) this._confirmPhoneValidation();
 			},
 		});
+
+		return true;
 	}
 
 	_initForm(): void {
@@ -254,13 +281,15 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	confirmValidation(): void {
 		if (this.loading) return;
 
-		this.loading = true;
-
-		this._splashScreenService.show();
+		this.loading = Boolean(this.currentValidation.email || (this.currentValidation.phone && this.phoneGateway !== "both"));
 
 		if (this.currentValidation.email) {
+			this._splashScreenService.show();
+
 			this._confirmEmailValidation();
-		} else if (this.currentValidation.phone) {
+		} else if (this.currentValidation.phone && this.phoneGateway !== "both") {
+			this._splashScreenService.show();
+
 			this._confirmPhoneValidation();
 		}
 	}
@@ -309,6 +338,14 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		});
 	}
 
+	canSendOTP(): Boolean {
+		return Boolean(!this.sendingOTP && this.otpForm.valid && Boolean(this.otpForm.value.otp?.length === 6));
+	}
+
+	sendPhoneOTP(event, phoneGateway): void {
+		this._initPhoneValidation(phoneGateway);
+	}
+
 	_linkValidation(): void {
 		const data = {};
 
@@ -332,18 +369,23 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	}
 
 	_completeAppRegistration(): void {
-		if (this.projectFlow.onboardingSettings.signUpForm.emailGateway === "mailgun" && !this.appRegistration.emailValidation) return;
+		if (this.projectFlow.onboardingSettings.signUpForm.emailGateway === "mailgun" && this.appRegistration.emailValidation?.status !== "validated")
+			return;
 
 		if (
 			["whatsapp", "sms", "both"].includes(this.projectFlow.onboardingSettings.signUpForm.phoneGateway) &&
-			!this.appRegistration.phoneValidation
+			this.appRegistration.phoneValidation?.status !== "validated"
 		)
 			return;
 
 		if (this.loading) return;
 
+		localStorage.setItem("accessToken", this.token);
+
 		this._KYCService.syncAppRegistration("signUpForm").subscribe({
 			next: (response) => {
+				this.currentValidation = null;
+
 				this.syncResponse = response.data;
 			},
 			error: () => {},

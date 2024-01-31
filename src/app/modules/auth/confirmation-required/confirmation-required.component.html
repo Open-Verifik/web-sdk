@@ -16,6 +16,7 @@
 						| transloco : { destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone }
 				}}
 			</div>
+
 			<form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm">
 				<mat-form-field class="w-full">
 					<mat-label>OTP</mat-label>
@@ -45,8 +46,41 @@
 				</mat-form-field>
 			</form>
 
+			<div
+				class="grid grid-cols-2 w-full"
+				*ngIf="!loading && currentValidation.phone && projectFlow.onboardingSettings.signUpForm.phoneGateway === 'both'"
+			>
+				<button
+					mat-stroked-button
+					class="w-11/12 mt-4"
+					color="primary"
+					(click)="sendPhoneOTP($event, 'sms')"
+					[class.col-span-2]="phoneGateway !== 'both'"
+					[disabled]="!canSendOTP()"
+					*ngIf="phoneGateway === 'sms' || phoneGateway === 'both'"
+					[style.color]="project.branding.buttonTxtColor"
+					[style.background]="project.branding.buttonColor"
+				>
+					<span> SMS </span>
+				</button>
+
+				<button
+					mat-stroked-button
+					class="mt-4"
+					color="primary"
+					(click)="sendPhoneOTP($event, 'whatsapp')"
+					[class.col-span-2]="phoneGateway !== 'both'"
+					[disabled]="!canSendOTP()"
+					*ngIf="phoneGateway === 'whatsapp' || phoneGateway === 'both'"
+					[style.color]="project.branding.buttonTxtColor"
+					[style.background]="project.branding.buttonColor"
+				>
+					<span> Whatsapp </span>
+				</button>
+			</div>
+
 			<!-- Form footer -->
-			<div class="mt-2 text-md font-medium text-secondary">
+			<div class="mt-2 text-md font-medium text-secondary" *ngIf="remainingTime">
 				<span *ngIf="remainingTime !== 'Expired'"> Time remaining: {{ remainingTime }} </span>
 				<span *ngIf="remainingTime === 'Expired'">Resend the</span>
 				<a *ngIf="remainingTime === 'Expired'" class="ml-1 text-primary-500 hover:underline cursor-pointer" (click)="_initValidations()"
@@ -90,8 +124,14 @@
 			<!-- Title -->
 
 			<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-				<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="startKYC()">
-					<span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_button" | transloco }} </span>
+				<button
+					mat-stroked-button
+					class="w-11/12 mt-4 biometrics-button"
+					(click)="startKYC()"
+					[style.color]="project.branding.buttonTxtColor"
+					[style.background]="project.branding.buttonColor"
+				>
+					<span>{{ "add_biometrics.verifik_button" | transloco }} </span>
 				</button>
 
 				<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWitoutKYC()">
@@ -109,7 +149,7 @@
 		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
 			<!-- content -->
 			<div fxLayout="column" fxLayoutAlign="start center">
-				<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight" [style.color]="project.branding.titleColor">
+				<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
 					{{ "signup.kyc_start_popup.project_title" | transloco }} {{ project.name }}
 				</h1>
 
@@ -117,7 +157,7 @@
 
 				<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
 
-				<h2 class="pt-2 text-2xl font-extrabold">
+				<h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.txtColor">
 					{{ "signup.kyc_start_popup.title" | transloco }}
 				</h2>
 
@@ -127,8 +167,14 @@
 			<!-- Title -->
 
 			<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-				<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="startKYC()">
-					<span [style.color]="project.branding.txtColor">{{ "add_biometrics.button" | transloco }} </span>
+				<button
+					mat-stroked-button
+					class="w-11/12 mt-4 biometrics-button"
+					[style.color]="project.branding.buttonTxtColor"
+					[style.background]="project.branding.buttonColor"
+					(click)="startKYC()"
+				>
+					<span>{{ "add_biometrics.button" | transloco }} </span>
 				</button>
 
 				<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWitoutKYC()">
