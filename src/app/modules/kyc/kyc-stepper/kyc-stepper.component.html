@@ -3,7 +3,8 @@
 		<div fxLayout="row" fxLayoutAlign="start center" *ngFor="let step of navigation.displayableSteps; let i = index">
 			<span
 				class="step-number-circle"
-				[style.background]="project.branding.borderColor"
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
 				[ngClass]="{ 'disabled-background': navigation.currentStep !== step.code }"
 			>
 				{{ i + 1 }}</span

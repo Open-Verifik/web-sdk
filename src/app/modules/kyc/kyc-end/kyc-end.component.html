@@ -2,21 +2,21 @@
 	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11" fxLayout="column" fxLayoutAlign="center center">
 		<img src="https://cdn.verifik.co/access/check.svg" class="w-20" alt="" />
 
-		<h3 class="text-center text-2xl pt-4 pb-8">{{ "signup.end_step.title" | transloco }}</h3>
+		<h1 class="text-center text-3xl pt-4 pb-2" [style.color]="project.branding.titleColor">{{ "signup.end_step.title" | transloco }}</h1>
 
 		<img [src]="face.base64" alt="" class="mt-4 box-shadow-3px final-face" />
 
-		<h3 class="text-center pt-4">
+		<h3 class="text-center pt-4" [style.color]="project.branding.txtColor">
 			{{ appRegistration.person.name }}
 		</h3>
 
 		<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
 			<button
 				mat-raised-button
-				color="primary"
 				class="w-11/12 mt-4 start-demo-button"
 				(click)="completeAndRedirect()"
-				[style.background]="project.branding.borderColor"
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
 			>
 				<span>{{ "signup.end_step.complete_button" | transloco }}</span>
 			</button>

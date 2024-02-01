@@ -240,5 +240,11 @@
 			"title": "Registro bem-sucedido",
 			"complete_button": "Completar verificação"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Selecione o método pelo qual deseja receber o código de verificação de 6 dígitos",
+		"resend_code_part_one": "Reenviar o",
+		"resend_code_part_two": "código de verificação",
+		"remaining_time": "Reenviar o código de verificação em: "
 	}
 }

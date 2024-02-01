@@ -42,7 +42,9 @@
 
 					<h3 class="mt-4" *ngIf="step.code === 'document'">{{ "step_one.cards.id" | transloco }}</h3>
 				</div>
-				<p class="step-one-circle" [style.background]="project.branding.borderColor">{{ i + 1 }}</p>
+				<p class="step-one-circle" [style.background]="project.branding.buttonColor" [style.color]="project.branding.buttonTxtColor">
+					{{ i + 1 }}
+				</p>
 			</div>
 
 			<!-- <div fxLayout="column" fxLayoutAlign="start center">
@@ -83,11 +85,15 @@
 		<!-- Legal Agreement -->
 		<form [formGroup]="acceptanceForm" novalidate fxLayout="column">
 			<mat-checkbox formControlName="legalAgreement" *ngIf="project.termsAndConditionsUrl || project.privacyUrl">
-				{{ "signup.agreement1" | transloco }}
+				<span [style.color]="project.branding.txtColor">
+					{{ "signup.agreement1" | transloco }}
+				</span>
 
 				<a [href]="project.termsAndConditionsUrl" *ngIf="project.termsAndConditionsUrl" target="_blank">{{ "signup.terms" | transloco }}</a>
 
-				<span *ngIf="project.termsAndConditionsUrl && project.privacyUrl" class="mr-1"> {{ "signup.and" | transloco }}</span>
+				<span *ngIf="project.termsAndConditionsUrl && project.privacyUrl" class="mr-1" [style.color]="project.branding.txtColor">
+					{{ "signup.and" | transloco }}</span
+				>
 
 				<a [href]="project.privacyUrl" *ngIf="project.privacyUrl" target="_blank">{{ "signup.privacyPolicy" | transloco }}</a>
 			</mat-checkbox>
@@ -95,11 +101,11 @@
 			<div fxLayout="column" class="accept-terms-container" fxLayoutAlign="start center">
 				<button
 					mat-raised-button
-					color="primary"
 					class="mt-8 z-index-2 start-demo-button"
 					(click)="startKYC()"
 					[disabled]="invalidForm()"
-					[style.background]="project.branding.borderColor"
+					[style.background]="project.branding.buttonColor"
+					[style.color]="project.branding.buttonTxtColor"
 				>
 					{{ "signup.instructions_step.button" | transloco }}
 				</button>

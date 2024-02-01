@@ -23,6 +23,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 @Component({
 	selector: "auth-confirmation-required",
 	templateUrl: "./confirmation-required.component.html",
+	styleUrls: ["../sign-in/sign-in.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
@@ -107,8 +108,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
-
-					console.log({ projectFlow: this.projectFlow });
 				},
 				error: (exception) => {
 					this.errorContent = exception.error;
@@ -190,7 +189,11 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				? this.appRegistration.phoneValidation
 				: null;
 
-			console.log({ currentValidation: this.currentValidation });
+			if (this.remainingTime) {
+				this.remainingTime = null;
+
+				this.countdownSubscription.unsubscribe();
+			}
 		}
 
 		if (!["whatsapp", "sms"].includes(this.phoneGateway)) return;
@@ -226,8 +229,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this.loading = false;
 
 				this._splashScreenService.hide();
-
-				if (phoneGateway) this._confirmPhoneValidation();
 			},
 		});
 
@@ -241,7 +242,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	private startCountdown() {
 		if (this.countdownSubscription) this.countdownSubscription.unsubscribe();
 
-		const expiresAt = new Date(moment().add(2, "minute").format("YYYY-MM-DD HH:mm:ss")).getTime();
+		const expiresAt = new Date(moment().add(20, "second").format("YYYY-MM-DD HH:mm:ss")).getTime();
 
 		this.countdownSubscription = interval(1000).subscribe(() => {
 			let now = new Date().getTime();
@@ -339,7 +340,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	}
 
 	canSendOTP(): Boolean {
-		return Boolean(!this.sendingOTP && this.otpForm.valid && Boolean(this.otpForm.value.otp?.length === 6));
+		return Boolean(!this.sendingOTP && !this.loading);
 	}
 
 	sendPhoneOTP(event, phoneGateway): void {

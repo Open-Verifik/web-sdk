@@ -179,7 +179,8 @@
 				color="primary"
 				class="m-4 z-index-2 start-demo-button"
 				(click)="continue()"
-				[style.background]="project.branding.borderColor"
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
 			>
 				{{ "continue" | transloco }}
 			</button>

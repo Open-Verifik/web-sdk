@@ -32,7 +32,8 @@
 		}"
 			for="fileDropRef"
 			class="mx-2"
-			[style.background]="project.branding.borderColor"
+			[style.background]="project.branding.buttonColor"
+			[style.color]="project.branding.buttonTxtColor"
 			>{{ "step_two.upload_button" | transloco }}</label
 		>
 	</div>
@@ -42,9 +43,9 @@
 		</button>
 
 		<button
-			[style.background]="project.branding.borderColor"
+			[style.background]="project.branding.buttonColor"
+			[style.color]="project.branding.buttonTxtColor"
 			mat-raised-button
-			color="primary"
 			class="mx-2"
 			[disabled]="!base64Image"
 			(click)="continue()"
@@ -66,8 +67,8 @@
 
 		<button
 			mat-raised-button
-			[style.background]="project.branding.borderColor"
-			color="primary"
+			[style.background]="project.branding.buttonColor"
+			[style.color]="project.branding.buttonTxtColor"
 			class="mt-4 z-index-2 id-scanning-try-again-button"
 			(click)="tryAgain(true)"
 		>

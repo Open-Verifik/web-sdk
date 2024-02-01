@@ -240,5 +240,11 @@
 			"title": "Matagumpay na Pagpaparehistro",
 			"complete_button": "Kumpletuhin ang beripikasyon"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Piliin kung paano mo nais na matanggap ang 6-digit na verification code",
+		"resend_code_part_one": "Ipadala muli ang",
+		"resend_code_part_two": "verification code",
+		"remaining_time": "Ipadala muli ang verification code sa loob ng: "
 	}
 }

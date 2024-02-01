@@ -240,5 +240,11 @@
 			"title": "Inscription réussie",
 			"complete_button": "Terminer la vérification"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Sélectionnez la méthode par laquelle vous souhaitez recevoir le code de vérification à 6 chiffres",
+		"resend_code_part_one": "Renvoyer le",
+		"resend_code_part_two": "code de vérification",
+		"remaining_time": "Renvoyer le code de vérification dans : "
 	}
 }

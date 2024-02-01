@@ -240,5 +240,11 @@
 			"title": "Registrazione completata",
 			"complete_button": "Completa la verifica"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Seleziona il metodo con cui desideri ricevere il codice di verifica a 6 cifre",
+		"resend_code_part_one": "Reinvia il",
+		"resend_code_part_two": "codice di verifica",
+		"remaining_time": "Reinvia il codice di verifica in: "
 	}
 }

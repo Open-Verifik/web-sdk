@@ -240,5 +240,11 @@
 			"title": "सफल पंजीकरण",
 			"complete_button": "सत्यापन पूरा करें"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "चुनें कि आप 6-अंकीय सत्यापन कोड किस प्रकार प्राप्त करना चाहते हैं",
+		"resend_code_part_one": "पुनः भेजें",
+		"resend_code_part_two": "सत्यापन कोड",
+		"remaining_time": "सत्यापन कोड को पुनः भेजें: "
 	}
 }
