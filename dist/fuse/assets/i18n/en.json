@@ -5,6 +5,7 @@
 	"continue": "Continue",
 	"confirm": "Confirm",
 	"cancel": "Cancel",
+	"powered_by_verifik": "Powered by Verifik",
 	"header": {
 		"partner": "Partner with us",
 		"talk": "Talk to sales",
@@ -194,9 +195,9 @@
 		"verifik_title": "Unlock $10 in Credits with Your Biometrics!",
 		"title": "Validate your identity with biometrics",
 		"verifik_content": "Elevate your account's security to the next level! Register your biometric data now and enjoy seamless, ultra-secure access. Experience the convenience of cutting-edge security with a rewarding twist.",
-		"content": "After linking your biometrics, you could login with it for a faster and secure authentication",
+		"content": "After verifying your identity, you could login with biometrics for a faster and secure authentication",
 		"verifik_button": "Activate Biometric Bonus",
-		"button": "Link biometrics now",
+		"button": "Start verification",
 		"verifik_dismiss": "Not Now, Thanks",
 		"dismiss": "Dismiss"
 	},
@@ -248,5 +249,11 @@
 		"basic_information": {
 			"title": "Basic Information"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Select which method you wish to receive the 6-Digit verification code",
+		"resend_code_part_one": "Resend the",
+		"resend_code_part_two": "verification code",
+		"remaining_time": "Resend the verifcation code in: "
 	}
 }

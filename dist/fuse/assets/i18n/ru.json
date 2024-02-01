@@ -240,5 +240,11 @@
 			"title": "Успешная регистрация",
 			"complete_button": "Завершить верификацию"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Выберите метод, которым вы хотите получить 6-значный код подтверждения",
+		"resend_code_part_one": "Отправить код",
+		"resend_code_part_two": "повторно",
+		"remaining_time": "Повторная отправка кода через: "
 	}
 }

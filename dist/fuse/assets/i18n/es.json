@@ -241,5 +241,11 @@
 			"title": "Registro exitoso",
 			"complete_button": "Completar verificación"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "Seleccione el método por el cual desea recibir el código de verificación de 6 dígitos",
+		"resend_code_part_one": "Reenviar el",
+		"resend_code_part_two": "código de verificación",
+		"remaining_time": "Reenviar el código de verificación en: "
 	}
 }

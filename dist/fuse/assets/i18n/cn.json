@@ -235,5 +235,11 @@
 			"title": "注册成功",
 			"complete_button": "完成验证"
 		}
+	},
+	"confirmation": {
+		"pick_phone_gateway_title": "选择您希望接收6位验证码的方法",
+		"resend_code_part_one": "重新发送",
+		"resend_code_part_two": "验证码",
+		"remaining_time": "重新发送验证码于："
 	}
 }

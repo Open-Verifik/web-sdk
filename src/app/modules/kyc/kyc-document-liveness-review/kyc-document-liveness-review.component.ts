@@ -136,6 +136,8 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 	}
 
 	_setExtractedData(): void {
+		if (!this.appRegistration.documentValidation?.OCRExtraction) return;
+
 		for (const key in this.appRegistration.documentValidation.OCRExtraction) {
 			if (!Object.prototype.hasOwnProperty.call(this.appRegistration.documentValidation.OCRExtraction, key)) this.continue;
 
@@ -210,11 +212,11 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 	 * @author Miguel Trevino
 	 */
 	_compareFaces(): void {
-		if (this.appRegistration.compareFaceVerification) return;
+		if (this.appRegistration.compareFaceVerification || !this.appRegistration.documentValidation) return;
 
 		this._KYCService.compareFaces().subscribe({
 			next: (response) => {
-				console.log({ response: response?.data });
+				console.log({ COMPAREFACESHERE: response?.data });
 				//TODO @miguel
 			},
 			error: (exception) => {},

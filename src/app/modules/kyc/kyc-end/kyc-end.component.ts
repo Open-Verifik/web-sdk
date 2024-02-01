@@ -99,11 +99,9 @@ export class KycEndComponent implements OnInit, OnDestroy {
 			token: null,
 		};
 
-		const tokenStep = this.navigation.map.document === "mandatory" && this.navigation.map.liveness ? "end" : "liveness";
-
 		this._splashScreenService.show();
 
-		this._KYCService.syncAppRegistration(tokenStep).subscribe({
+		this._KYCService.syncAppRegistration("end").subscribe({
 			next: (response) => {
 				_response = response.data;
 			},

@@ -68,13 +68,15 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 	}
 
 	defineStepsAndInstrutions(): void {
+		console.log({ REG: this.appRegistration, map: this.navigation.map });
+
 		if (this.appRegistration.status === "COMPLETED") {
 			this._KYCService.navigateTo("end");
 
 			return;
 		}
 
-		if (this.appRegistration.person && this.appRegistration.biometricValidation && this.appRegistration.documentValidation) {
+		if (this.appRegistration.person && this.appRegistration.biometricValidation) {
 			this._KYCService.navigateTo("documentLivenessReview");
 		} else if (this.appRegistration.documentValidation && this.navigation.map.document) {
 			this._KYCService.navigateTo("documentReview");
