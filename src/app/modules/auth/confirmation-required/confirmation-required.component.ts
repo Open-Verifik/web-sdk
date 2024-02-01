@@ -242,7 +242,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	private startCountdown() {
 		if (this.countdownSubscription) this.countdownSubscription.unsubscribe();
 
-		const expiresAt = new Date(moment().add(20, "second").format("YYYY-MM-DD HH:mm:ss")).getTime();
+		const expiresAt = new Date(moment().add(2, "minute").format("YYYY-MM-DD HH:mm:ss")).getTime();
 
 		this.countdownSubscription = interval(1000).subscribe(() => {
 			let now = new Date().getTime();

@@ -152,6 +152,7 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 	}
 
 	_requestIdentityImages(): void {
+		console.log({ requestImages: true });
 		const identityImages = [];
 
 		if (this.appRegistration.face) {
@@ -162,8 +163,12 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 			identityImages.push(this.appRegistration.documentFace);
 		}
 
+		console.log({ identityImages });
+
 		if (identityImages.length) {
 			this._extractFaces(identityImages);
+
+			console.log({ faces: this.appRegistration.face, docuFace: this.appRegistration.documentFace });
 
 			this._compareFaces();
 
@@ -172,11 +177,17 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 
 		this._KYCService.getIdentityImages({}).subscribe({
 			next: (response) => {
+				console.log({ ONDB: response.data });
+
 				this._extractFaces(response.data);
 
 				this._compareFaces();
+
+				console.log({ faces: this.appRegistration.face, docuFace: this.appRegistration.documentFace });
 			},
-			error: (exception) => {},
+			error: (exception) => {
+				console.error({ exception });
+			},
 			complete: () => {},
 		});
 	}
@@ -190,7 +201,7 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 		for (let index = 0; index < arrayOfImages.length; index++) {
 			const identityImage = arrayOfImages[index];
 
-			if (identityImage.category === "face" && this.appRegistration.face?._id === identityImage._id) {
+			if (identityImage.category === "face" || this.appRegistration.face?._id === identityImage._id) {
 				this.face = identityImage;
 
 				this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
@@ -198,7 +209,7 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 				this.appRegistration.face = this.face;
 			}
 
-			if (identityImage.category === "documentFace" && this.appRegistration.documentFace?._id === identityImage._id) {
+			if (identityImage.category === "documentFace" || this.appRegistration.documentFace?._id === identityImage._id) {
 				this.documentFace = identityImage;
 
 				this.appRegistration.documentFace = this.documentFace;

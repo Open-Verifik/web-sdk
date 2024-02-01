@@ -18,7 +18,7 @@
 	<mat-progress-bar mode="query" class="w-full" *ngIf="kycData && kycData.loading"></mat-progress-bar>
 
 	<ng-container class="demo-content">
-		<kyc-instructions *ngIf="navigation.currentStep === 1"> </kyc-instructions>
+		<kyc-instructions *ngIf="navigation.currentStep === 1 || navigation.currentStep === 'instructions'"> </kyc-instructions>
 
 		<kyc-document *ngIf="navigation.currentStep === 'document'"> </kyc-document>
 

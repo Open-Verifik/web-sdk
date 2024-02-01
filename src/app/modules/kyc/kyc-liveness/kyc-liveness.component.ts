@@ -711,6 +711,6 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 	}
 
 	retry(): void {
-		this._KYCService.navigateTo("documentReview");
+		this._KYCService.navigateTo("instructions");
 	}
 }
