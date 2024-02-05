@@ -5,13 +5,14 @@
 	"continue": "Continua",
 	"confirm": "Conferma",
 	"cancel": "Annulla",
+	"powered_by_verifik": "Offerto da Verifik",
 	"header": {
+		"document": "Scansione ID",
+		"documentLivenessReview": "Risultati",
+		"documentReview": "Dettagli del documento",
+		"liveness": "Controllo di vivacità",
 		"partner": "Diventa nostro partner",
-		"talk": "Parla con le vendite",
-		"id": "Scansione ID",
-		"verify_id": "Dettagli del documento",
-		"liveness": "Verifica della presenza",
-		"compare": "Risultati"
+		"talk": "Parla con le vendite"
 	},
 	"step_one": {
 		"title": "Esplora il futuro della validazione dell'identità con Verifik",
@@ -155,11 +156,16 @@
 	"errors": {
 		"phone_is_registered_already": "Il telefono è già registrato",
 		"email_is_registered_already": "L'email è già registrata",
-		"Lead_exceeded_its_limit": "I tentativi di dimostrazione hanno raggiunto il loro limite",
-		"person_linked_to_another_email": "La tua biometria è collegata a un'altra email",
-		"person_linked_to_another_phone": "La tua biometria è collegata a un altro telefono",
-		"continue_without_biometrics": "Continua senza biometria",
-		"person_not_found": "La biometria non corrisponde a nessun record"
+		"Lead_exceeded_its_limit": "I tentativi di demo hanno raggiunto il loro limite",
+		"person_linked_to_another_email": "Le tue biometrie sono collegate a un'altra email",
+		"person_linked_to_another_phone": "Le tue biometrie sono collegate a un altro telefono",
+		"continue_without_biometrics": "Continua senza biometrie",
+		"person_not_found": "Le biometrie non corrispondono a nessun record",
+		"collection_not_set": "Il progetto non è configurato correttamente. Collezione non ancora assegnata",
+		"person_already_set": "La tua registrazione ha già le biometrie collegate",
+		"replace_person_button": "Ok, sostituire le biometrie",
+		"Duplicated_person": "Le biometrie sono utilizzate in un altro record",
+		"Liveness_score_not_acceptable": "Il punteggio di vivacità non è accettabile"
 	},
 	"login": {
 		"title_1": "Benvenuto",
@@ -239,6 +245,9 @@
 		"end_step": {
 			"title": "Registrazione completata",
 			"complete_button": "Completa la verifica"
+		},
+		"basic_information": {
+			"title": "Informazioni di Base"
 		}
 	},
 	"confirmation": {

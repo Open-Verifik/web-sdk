@@ -5,13 +5,14 @@
 	"continue": "Continuer",
 	"confirm": "Confirmer",
 	"cancel": "Annuler",
+	"powered_by_verifik": "Propulsé par Verifik",
 	"header": {
+		"document": "Numérisation d'ID",
+		"documentLivenessReview": "Résultats",
+		"documentReview": "Détails du document",
+		"liveness": "Contrôle de vivacité",
 		"partner": "Partenariat avec nous",
-		"talk": "Parler aux ventes",
-		"id": "Scan d'identifiant",
-		"verify_id": "Détails du document",
-		"liveness": "Vérification de vie",
-		"compare": "Résultats"
+		"talk": "Parler aux ventes"
 	},
 	"step_one": {
 		"title": "Explorez l'avenir de la validation d'identité avec Verifik",
@@ -156,10 +157,15 @@
 		"phone_is_registered_already": "Le téléphone est déjà enregistré",
 		"email_is_registered_already": "L'email est déjà enregistré",
 		"Lead_exceeded_its_limit": "Le nombre de tentatives de démo a atteint sa limite",
-		"person_linked_to_another_email": "Vos biométriques sont liées à un autre email",
-		"person_linked_to_another_phone": "Vos biométriques sont liées à un autre téléphone",
-		"continue_without_biometrics": "Continuer sans biométrie",
-		"person_not_found": "La biométrie ne correspond à aucun enregistrement"
+		"person_linked_to_another_email": "Vos biométriques sont liés à un autre email",
+		"person_linked_to_another_phone": "Vos biométriques sont liés à un autre téléphone",
+		"continue_without_biometrics": "Continuer sans biométriques",
+		"person_not_found": "Les biométriques ne correspondent à aucun enregistrement",
+		"collection_not_set": "Le projet n'est pas correctement configuré. Collection non attribuée",
+		"person_already_set": "Votre inscription a déjà des biométriques liés",
+		"replace_person_button": "Ok, remplacer les biométriques",
+		"Duplicated_person": "Les biométriques sont utilisés dans un autre enregistrement",
+		"Liveness_score_not_acceptable": "Le score de vivacité n'est pas acceptable"
 	},
 	"login": {
 		"title_1": "Bienvenue",
@@ -239,6 +245,9 @@
 		"end_step": {
 			"title": "Inscription réussie",
 			"complete_button": "Terminer la vérification"
+		},
+		"basic_information": {
+			"title": "Informations de base"
 		}
 	},
 	"confirmation": {

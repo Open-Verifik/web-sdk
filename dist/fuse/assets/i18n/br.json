@@ -5,13 +5,14 @@
 	"continue": "Continuar",
 	"confirm": "Confirmar",
 	"cancel": "Cancelar",
+	"powered_by_verifik": "Fornecido por Verifik",
 	"header": {
-		"partner": "Associe-se a nós",
-		"talk": "Fale com vendas",
-		"id": "Escaneamento de ID",
-		"verify_id": "Detalhes do documento",
+		"document": "Digitalização de ID",
+		"documentLivenessReview": "Resultados",
+		"documentReview": "Detalhes do documento",
 		"liveness": "Verificação de vivacidade",
-		"compare": "Resultados"
+		"partner": "Seja parceiro",
+		"talk": "Fale com vendas"
 	},
 	"step_one": {
 		"title": "Explore o futuro da validação de identidade com a Verifik",
@@ -156,10 +157,15 @@
 		"phone_is_registered_already": "O telefone já está registrado",
 		"email_is_registered_already": "O e-mail já está registrado",
 		"Lead_exceeded_its_limit": "As tentativas de demonstração atingiram seu limite",
-		"person_linked_to_another_email": "Sua biometria está vinculada a outro e-mail",
-		"person_linked_to_another_phone": "Sua biometria está vinculada a outro telefone",
-		"continue_without_biometrics": "Continuar sem biometria",
-		"person_not_found": "A biometria não corresponde a nenhum registro"
+		"person_linked_to_another_email": "Suas biometrias estão vinculadas a outro e-mail",
+		"person_linked_to_another_phone": "Suas biometrias estão vinculadas a outro telefone",
+		"continue_without_biometrics": "Continuar sem biometrias",
+		"person_not_found": "A biometria não corresponde a nenhum registro",
+		"collection_not_set": "O projeto não está configurado corretamente. Coleção ainda não atribuída",
+		"person_already_set": "Seu registro já possui biometrias vinculadas",
+		"replace_person_button": "Ok, substituir biometrias",
+		"Duplicated_person": "A biometria está sendo usada em outro registro",
+		"Liveness_score_not_acceptable": "A pontuação de vivacidade não é aceitável"
 	},
 	"login": {
 		"title_1": "Bem-vindo",
@@ -239,6 +245,9 @@
 		"end_step": {
 			"title": "Registro bem-sucedido",
 			"complete_button": "Completar verificação"
+		},
+		"basic_information": {
+			"title": "Informações Básicas"
 		}
 	},
 	"confirmation": {

@@ -5,13 +5,14 @@
 	"continue": "Magpatuloy",
 	"confirm": "Kumpirmahin",
 	"cancel": "Ikansela",
+	"powered_by_verifik": "Pinapagana ng Verifik",
 	"header": {
-		"partner": "Maging kasosyo sa amin",
-		"talk": "Makipag-usap sa benta",
-		"id": "Pag-scan ng ID",
-		"verify_id": "Detalye ng dokumento",
-		"liveness": "Pagtitiyak ng buhay",
-		"compare": "Mga Resulta"
+		"document": "Pag-scan ng ID",
+		"documentLivenessReview": "Mga Resulta",
+		"documentReview": "Detalye ng Dokumento",
+		"liveness": "Pagsusuri ng Pagkabuhay",
+		"partner": "Makipagsosyo sa amin",
+		"talk": "Makipag-usap sa benta"
 	},
 	"step_one": {
 		"title": "Tuklasin ang hinaharap ng pagpapatunay ng pagkakakilanlan sa Verifik",
@@ -155,11 +156,16 @@
 	"errors": {
 		"phone_is_registered_already": "Ang telepono ay nakarehistro na",
 		"email_is_registered_already": "Ang email ay nakarehistro na",
-		"Lead_exceeded_its_limit": "Naabot na ang limitasyon ng mga pagtatangka sa demo",
-		"person_linked_to_another_email": "Ang iyong biometrics ay nakalink sa ibang email",
-		"person_linked_to_another_phone": "Ang iyong biometrics ay nakalink sa ibang telepono",
+		"Lead_exceeded_its_limit": "Naabot na ng mga pagtatangka ng demo ang limitasyon nito",
+		"person_linked_to_another_email": "Ang iyong mga biometrics ay naka-link sa ibang email",
+		"person_linked_to_another_phone": "Ang iyong mga biometrics ay naka-link sa ibang telepono",
 		"continue_without_biometrics": "Magpatuloy nang walang biometrics",
-		"person_not_found": "Hindi tumugma ang biometrics sa anumang tala"
+		"person_not_found": "Hindi tumugma ang mga biometrics sa anumang rekord",
+		"collection_not_set": "Hindi maayos na na-configure ang proyekto. Hindi pa naitatalaga ang koleksyon",
+		"person_already_set": "May naka-link nang mga biometrics sa iyong pagpaparehistro",
+		"replace_person_button": "Ok, palitan ang biometrics",
+		"Duplicated_person": "Ginagamit ang mga biometrics sa isa pang rekord",
+		"Liveness_score_not_acceptable": "Hindi katanggap-tanggap ang iskor ng pagiging buhay"
 	},
 	"login": {
 		"title_1": "Maligayang Pagdating",
@@ -239,6 +245,9 @@
 		"end_step": {
 			"title": "Matagumpay na Pagpaparehistro",
 			"complete_button": "Kumpletuhin ang beripikasyon"
+		},
+		"basic_information": {
+			"title": "Pangunahing Impormasyon"
 		}
 	},
 	"confirmation": {

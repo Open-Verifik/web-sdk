@@ -5,13 +5,14 @@
 	"continue": "继续",
 	"confirm": "确认",
 	"cancel": "取消",
+	"powered_by_verifik": "由Verifik提供技术支持",
 	"header": {
+		"document": "身份证扫描",
+		"documentLivenessReview": "结果",
+		"documentReview": "文件详情",
+		"liveness": "活体检测",
 		"partner": "与我们合作",
-		"talk": "联系销售",
-		"id": "身份证扫描",
-		"verify_id": "文件详情",
-		"liveness": "生命特征检测",
-		"compare": "结果"
+		"talk": "联系销售"
 	},
 	"step_one": {
 		"title": "与Verifik一起探索身份验证的未来",
@@ -155,11 +156,16 @@
 	"errors": {
 		"phone_is_registered_already": "电话已经注册",
 		"email_is_registered_already": "电子邮件已经注册",
-		"Lead_exceeded_its_limit": "演示尝试已达到其限制",
-		"person_linked_to_another_email": "您的生物特征已链接到另一个电子邮件",
-		"person_linked_to_another_phone": "您的生物特征已链接到另一个电话",
-		"continue_without_biometrics": "继续不用生物特征",
-		"person_not_found": "生物特征未与任何记录匹配"
+		"Lead_exceeded_its_limit": "演示尝试次数已达上限",
+		"person_linked_to_another_email": "您的生物特征与另一个电子邮件链接",
+		"person_linked_to_another_phone": "您的生物特征与另一个电话链接",
+		"continue_without_biometrics": "继续而不使用生物特征",
+		"person_not_found": "生物特征未与任何记录匹配",
+		"collection_not_set": "项目配置不正确。尚未分配集合",
+		"person_already_set": "您的注册已链接生物特征",
+		"replace_person_button": "好的，替换生物特征",
+		"Duplicated_person": "生物特征正在用于另一个记录",
+		"Liveness_score_not_acceptable": "活体检测分数不可接受"
 	},
 	"login": {
 		"title_1": "欢迎",
@@ -234,6 +240,9 @@
 		"end_step": {
 			"title": "注册成功",
 			"complete_button": "完成验证"
+		},
+		"basic_information": {
+			"title": "基本信息"
 		}
 	},
 	"confirmation": {

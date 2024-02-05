@@ -5,13 +5,14 @@
 	"continue": "Continuar",
 	"confirm": "Confirmar",
 	"cancel": "Cancelar",
+	"powered_by_verifik": "Asegurado por Verifik",
 	"header": {
+		"document": "Escaneo de ID",
+		"documentLivenessReview": "Resultados",
+		"documentReview": "Detalles del documento",
+		"liveness": "Verificación de vitalidad",
 		"partner": "Asóciate con nosotros",
-		"talk": "Hablar con ventas",
-		"id": "Escaneo de ID",
-		"verify_id": "Detalles del documento",
-		"liveness": "Comprobación de vida",
-		"compare": "Resultados"
+		"talk": "Habla con ventas"
 	},
 	"step_one": {
 		"title": "Explora el futuro de la validación de identidad con Verifik",
@@ -156,11 +157,16 @@
 	"errors": {
 		"phone_is_registered_already": "El teléfono ya está registrado",
 		"email_is_registered_already": "El correo electrónico ya está registrado",
-		"Lead_exceeded_its_limit": "Los intentos de demostración han alcanzado su límite",
-		"person_linked_to_another_email": "Tu biometría está vinculada a otro correo electrónico",
-		"person_linked_to_another_phone": "Tu biometría está vinculada a otro teléfono",
-		"continue_without_biometrics": "Continuar sin biometría",
-		"person_not_found": "La biometría no coincide con ningún registro"
+		"Lead_exceeded_its_limit": "Se ha alcanzado el límite de intentos de demostración",
+		"person_linked_to_another_email": "Tus datos biométricos están vinculados a otro correo electrónico",
+		"person_linked_to_another_phone": "Tus datos biométricos están vinculados a otro teléfono",
+		"continue_without_biometrics": "Continuar sin datos biométricos",
+		"person_not_found": "Los datos biométricos no coinciden con ningún registro",
+		"collection_not_set": "El proyecto no está configurado correctamente. Colección aún no asignada",
+		"person_already_set": "Tu registro ya tiene datos biométricos vinculados",
+		"replace_person_button": "Ok, reemplazar los datos biométricos",
+		"Duplicated_person": "Los datos biométricos se están utilizando en otro registro",
+		"Liveness_score_not_acceptable": "La puntuación de viveza no es aceptable"
 	},
 	"login": {
 		"title_1": "Bienvenido",
@@ -240,6 +246,9 @@
 		"end_step": {
 			"title": "Registro exitoso",
 			"complete_button": "Completar verificación"
+		},
+		"basic_information": {
+			"title": "Información Básica"
 		}
 	},
 	"confirmation": {

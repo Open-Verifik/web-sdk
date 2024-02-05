@@ -152,7 +152,6 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 	}
 
 	_requestIdentityImages(): void {
-		console.log({ requestImages: true });
 		const identityImages = [];
 
 		if (this.appRegistration.face) {
@@ -163,12 +162,8 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 			identityImages.push(this.appRegistration.documentFace);
 		}
 
-		console.log({ identityImages });
-
 		if (identityImages.length) {
 			this._extractFaces(identityImages);
-
-			console.log({ faces: this.appRegistration.face, docuFace: this.appRegistration.documentFace });
 
 			this._compareFaces();
 
@@ -177,13 +172,9 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 
 		this._KYCService.getIdentityImages({}).subscribe({
 			next: (response) => {
-				console.log({ ONDB: response.data });
-
 				this._extractFaces(response.data);
 
 				this._compareFaces();
-
-				console.log({ faces: this.appRegistration.face, docuFace: this.appRegistration.documentFace });
 			},
 			error: (exception) => {
 				console.error({ exception });

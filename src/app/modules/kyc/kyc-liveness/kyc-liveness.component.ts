@@ -612,7 +612,7 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 
 				this.errorContent = err.error;
 
-				console.log({ errorContent: this.errorContent });
+				console.error({ errorContent: this.errorContent });
 
 				this._splashScreenService.hide();
 

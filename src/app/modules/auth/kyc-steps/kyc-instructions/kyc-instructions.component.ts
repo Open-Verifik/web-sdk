@@ -68,8 +68,6 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 	}
 
 	defineStepsAndInstrutions(): void {
-		console.log({ REG: this.appRegistration, map: this.navigation.map });
-
 		if (this.appRegistration.status === "COMPLETED") {
 			this._KYCService.navigateTo("end");
 

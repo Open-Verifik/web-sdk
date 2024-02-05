@@ -5,13 +5,14 @@
 	"continue": "जारी रखें",
 	"confirm": "पुष्टि करें",
 	"cancel": "रद्द करें",
+	"powered_by_verifik": "Verifik द्वारा संचालित",
 	"header": {
+		"document": "ID स्कैनिंग",
+		"documentLivenessReview": "परिणाम",
+		"documentReview": "दस्तावेज़ विवरण",
+		"liveness": "जीवंतता जाँच",
 		"partner": "हमारे साथ साझेदारी करें",
-		"talk": "बिक्री टीम से बात करें",
-		"id": "पहचान पत्र स्कैनिंग",
-		"verify_id": "दस्तावेज़ विवरण",
-		"liveness": "सजीवता जांच",
-		"compare": "परिणाम"
+		"talk": "बिक्री से बात करें"
 	},
 	"step_one": {
 		"title": "Verifik के साथ पहचान सत्यापन के भविष्य का अन्वेषण करें",
@@ -153,13 +154,18 @@
 		"invalid_format_error": "क्षेत्र में अमान्य प्रारूप है"
 	},
 	"errors": {
-		"phone_is_registered_already": "फ़ोन पहले से ही पंजीकृत है",
+		"phone_is_registered_already": "फोन पहले से ही पंजीकृत है",
 		"email_is_registered_already": "ईमेल पहले से ही पंजीकृत है",
-		"Lead_exceeded_its_limit": "डेमो प्रयासों ने अपनी सीमा पार कर ली है",
-		"person_linked_to_another_email": "आपका बायोमेट्रिक्स किसी अन्य ईमेल से जुड़ा हुआ है",
-		"person_linked_to_another_phone": "आपका बायोमेट्रिक्स किसी अन्य फ़ोन से जुड़ा हुआ है",
+		"Lead_exceeded_its_limit": "डेमो प्रयासों ने अपनी सीमा तक पहुंच गया है",
+		"person_linked_to_another_email": "आपकी बायोमेट्रिक्स दूसरे ईमेल से जुड़ी हुई हैं",
+		"person_linked_to_another_phone": "आपकी बायोमेट्रिक्स दूसरे फोन से जुड़ी हुई हैं",
 		"continue_without_biometrics": "बायोमेट्रिक्स के बिना जारी रखें",
-		"person_not_found": "बायोमेट्रिक्स किसी भी रिकॉर्ड से मेल नहीं खाते"
+		"person_not_found": "बायोमेट्रिक्स किसी भी रिकॉर्ड से मेल नहीं खाती",
+		"collection_not_set": "प्रोजेक्ट ठीक से कॉन्फ़िगर नहीं किया गया है। संग्रह अभी तक निर्धारित नहीं किया गया है",
+		"person_already_set": "आपके पंजीकरण में पहले से ही बायोमेट्रिक्स जुड़ी हुई हैं",
+		"replace_person_button": "ठीक है, बायोमेट्रिक्स बदलें",
+		"Duplicated_person": "बायोमेट्रिक्स किसी अन्य रिकॉर्ड में इस्तेमाल की जा रही है",
+		"Liveness_score_not_acceptable": "लाइवनेस स्कोर स्वीकार्य नहीं है"
 	},
 	"login": {
 		"title_1": "स्वागत है",
@@ -239,6 +245,9 @@
 		"end_step": {
 			"title": "सफल पंजीकरण",
 			"complete_button": "सत्यापन पूरा करें"
+		},
+		"basic_information": {
+			"title": "मूल जानकारी"
 		}
 	},
 	"confirmation": {
