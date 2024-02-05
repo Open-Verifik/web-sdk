@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "便利设施",
+		"house_number": "房屋号码",
 		"region": "地区",
 		"suburb": "郊区",
 		"road": "街道",

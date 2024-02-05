@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "시설",
+		"house_number": "집 번호",
 		"region": "지역",
 		"suburb": "구역",
 		"road": "거리",

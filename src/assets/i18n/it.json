@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "Struttura",
+		"house_number": "Numero di Casa",
 		"region": "Regione",
 		"suburb": "Quartiere",
 		"road": "Strada",

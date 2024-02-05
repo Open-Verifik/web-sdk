@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "Comodidade",
+		"house_number": "Número da Casa",
 		"region": "Região",
 		"suburb": "Bairro",
 		"road": "Rua",

@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "Équipement",
+		"house_number": "Numéro de Maison",
 		"region": "Région",
 		"suburb": "Banlieue",
 		"road": "Rue",

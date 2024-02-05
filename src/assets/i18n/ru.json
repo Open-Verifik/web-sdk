@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "Удобство",
+		"house_number": "Номер дома",
 		"region": "Регион",
 		"suburb": "Пригород",
 		"road": "Улица",

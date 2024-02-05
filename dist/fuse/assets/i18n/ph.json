@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "Amenidad",
+		"house_number": "Numero ng Bahay",
 		"region": "Rehiyon",
 		"suburb": "Suburb",
 		"road": "kalsada",

@@ -111,6 +111,7 @@
 	},
 	"user_location": {
 		"amenity": "सुविधा",
+		"house_number": "घर का नंबर",
 		"region": "क्षेत्र",
 		"suburb": "उपनगर",
 		"road": "सड़क",
