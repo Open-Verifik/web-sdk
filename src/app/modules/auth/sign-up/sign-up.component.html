@@ -140,7 +140,7 @@
 								<span>{{ "signup.agreement1" | transloco }} </span>
 								<a
 									class="ml-1 text-primary-500 hover:underline"
-									[routerLink]="['./']"
+									[href]="project.termsAndConditionsUrl"
 									*ngIf="this.OnboardingSignUpForm.showTermsAndConditions"
 									>{{ "signup.terms" | transloco }}
 								</a>
@@ -149,7 +149,10 @@
 									"signup.and" | transloco
 								}}</span>
 
-								<a class="ml-1 text-primary-500 hover:underline" [routerLink]="['./']" *ngIf="OnboardingSignUpForm.showPrivacyNotice"
+								<a
+									class="ml-1 text-primary-500 hover:underline"
+									[href]="project.privacyUrl"
+									*ngIf="OnboardingSignUpForm.showPrivacyNotice"
 									>{{ "signup.privacyPolicy" | transloco }}
 								</a>
 							</mat-checkbox>

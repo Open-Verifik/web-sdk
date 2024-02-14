@@ -92,6 +92,7 @@ export class DemoRootComponent implements OnInit {
 		this._demoService.cleanVariables();
 
 		this.requirementsLoaded = true;
+
 		this._splashScreenService.hide();
 	}
 

@@ -15,6 +15,8 @@ let _this = null;
 export class DemoService {
 	private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
 
+	private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
+
 	navigation: any;
 	demoData: any;
 	lead: any;
@@ -117,6 +119,10 @@ export class DemoService {
 
 	get faceapi$(): Observable<boolean> {
 		return this._faceapi.asObservable();
+	}
+
+	get geoLocation$(): Observable<any> {
+		return this._geoLocation.asObservable();
 	}
 
 	async loadModels(): Promise<void> {
@@ -355,6 +361,8 @@ export class DemoService {
 	}
 
 	getLocation() {
+		localStorage.removeItem("locationError");
+
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(this.showPosition, this.showError);
 		} else {
@@ -370,23 +378,38 @@ export class DemoService {
 		localStorage.setItem("lat", _this.demoData.lat);
 
 		localStorage.setItem("lng", _this.demoData.lng);
+
+		if (_this._geoLocation) {
+			_this._geoLocation.next({
+				lat: position?.coords.latitude,
+				lng: position?.coords.longitude,
+			});
+		}
 	}
 
 	showError(error) {
+		let errorMessage = "";
+
 		switch (error.code) {
 			case error.PERMISSION_DENIED:
-				console.info("User denied the request for Geolocation.");
+				errorMessage = "geolocation.user_denied_request";
+
 				break;
 			case error.POSITION_UNAVAILABLE:
-				console.info("Location information is unavailable.");
+				errorMessage = "geolocation.information_unavailable";
 				break;
 			case error.TIMEOUT:
-				console.info("The request to get user location timed out.");
+				errorMessage = "geolocation.request_timeout";
 				break;
 			case error.UNKNOWN_ERROR:
-				console.info("An unknown error occurred.");
+				errorMessage = "geolocation.unknown_error";
+
 				break;
 		}
+
+		localStorage.setItem("locationError", errorMessage);
+
+		_this._geoLocation.next({ errorMessage });
 	}
 
 	async reverseGeocodeWithOSM(lat, lng) {

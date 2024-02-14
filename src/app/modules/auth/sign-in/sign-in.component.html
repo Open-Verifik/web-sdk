@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signInForm" class="w-full" [style.background]="project.branding.borderColor">
+<div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signInForm" class="w-full" [style.background]="project.branding.bgColor">
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full">
 		<div fxLayout="row" fxLayoutAlign="start center">
 			<img [src]="project.branding.logo" class="main-logo w-14" />
@@ -334,6 +334,13 @@
 
 			<app-biometrics-login *ngIf="demoData.OS !== 'IOS'" fxLayoutAlign="center center" class="w-full h-full mb-6"></app-biometrics-login>
 		</div>
+
+		<!-- locationError container -->
+		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="locationError">
+			show error content here
+			<h1>location error</h1>
+		</div>
+		<!-- end of locationError container -->
 	</div>
 
 	<div

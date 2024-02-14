@@ -79,7 +79,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	secondFactorData: any;
 	secondFactorForm: any;
 	showBiometrics: boolean;
-	demoData: any;
+	deviceDetails: any;
 	sendingOTP: Boolean;
 	showFaceLivenessRecommendation: Boolean;
 	isVerifikProject: Boolean;
@@ -107,7 +107,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 		localStorage.removeItem("accessToken");
 
-		this.demoData = this._demoService.getDemoData();
+		this.deviceDetails = this._demoService.getDeviceDetails();
 
 		this.sendingOTP = false;
 
@@ -123,13 +123,23 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 		});
+
+		this._demoService.geoLocation$.subscribe({
+			next: (response) => {
+				console.log({ GEO: response });
+			},
+			error: (exception) => {},
+			complete: () => {},
+		});
 	}
 
 	ngOnDestroy(): void {
 		this._unsubscribeAll.next(null);
 	}
 
-	requestProject(projectId: string): void {
+	requestProject(projectId?: string): void {
+		if (!projectId) projectId = environment.verifikProject;
+
 		this._passwordlessService.requestProject(projectId, "login").subscribe({
 			next: (v) => {
 				this.project = new ProjectModel({ ...v.data, type: "login" });
