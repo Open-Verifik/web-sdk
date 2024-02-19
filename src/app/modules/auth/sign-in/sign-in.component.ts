@@ -60,7 +60,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		type: "success",
 		message: "",
 	};
-
+	demoData: any;
 	showAlert: boolean = false;
 	project: Project;
 	projectFlow: ProjectFlow;
@@ -102,6 +102,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this.showBiometrics = false;
 
 		this._splashScreenService.show();
+
+		this.demoData = this._demoService.getDemoData();
 
 		this._demoService.cleanVariables();
 
