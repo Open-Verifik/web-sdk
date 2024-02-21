@@ -133,7 +133,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this.listenModeDebug();
 
-		this.appLoginToken = localStorage.getItem("accessToken");
+		this.appLoginToken = `${localStorage.getItem("accessToken")}`;
 
 		this._generateSession();
 	}
@@ -689,10 +689,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		const token = localStorage.getItem("accessToken");
-
 		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
-		window.location.href = `${redirectUrl}?type=login&token=${token}`;
+		window.location.href = `${redirectUrl}?type=login&token=${this.appLoginToken}`;
 	}
 }

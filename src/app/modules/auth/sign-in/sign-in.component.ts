@@ -84,6 +84,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	showFaceLivenessRecommendation: Boolean;
 	isVerifikProject: Boolean;
 	appLoginToken: string;
+	loading: Boolean;
 
 	/**
 	 * Constructor
@@ -287,6 +288,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					return;
 				}
 
+				this.loading = false;
+
 				return this.successLogin(response.data.token);
 			},
 			(err) => {
@@ -295,6 +298,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				});
 
 				this.errorLogin(err.error.message);
+
+				this.loading = false;
 			}
 		);
 	}
@@ -322,15 +327,23 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 						return;
 					}
 
+					this.loading = false;
+
 					return this.successLogin(this.appLoginToken);
 				},
 				(err) => {
 					this.errorLogin(err.error.message);
+
+					this.loading = false;
 				}
 			);
 	}
 
 	signIn(): void {
+		if (this.loading) return;
+
+		this.loading = true;
+
 		const dataForm = this.signInForm.value;
 
 		switch (this.typeLogin) {
