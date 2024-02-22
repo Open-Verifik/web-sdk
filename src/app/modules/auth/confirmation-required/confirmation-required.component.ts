@@ -86,8 +86,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		this._initForm();
 
 		this._activatedRoute.params.subscribe((params) => {
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
-
 			this.token = this._router.url.split("?token=")[1];
 
 			localStorage.setItem("accessToken", this.token);
@@ -108,6 +106,10 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
+
+					this.isVerifikProject = Boolean(
+						this.project._id === environment.verifikProject || this.project._id === environment.sandboxProject
+					);
 				},
 				error: (exception) => {
 					this.errorContent = exception.error;
@@ -326,6 +328,10 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 			},
 			error: (exception) => {
 				this.otpForm.reset();
+
+				this._splashScreenService.hide();
+
+				this.loading = false;
 			},
 			complete: () => {
 				this.otpForm.reset();

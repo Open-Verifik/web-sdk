@@ -171,11 +171,6 @@
 					<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.verifik_dismiss" | transloco }} </span>
 				</button>
 			</div>
-
-			<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
-				<small> {{ "powered_by_verifik" | transloco }} </small>
-				<languages [colorText]="project.branding.txtColor"></languages>
-			</div>
 		</div>
 		<!-- end of verifik project -->
 
@@ -218,8 +213,9 @@
 		</div>
 
 		<!-- END client project -->
-		<div class="w-full text-center mt-6">
-			<languages></languages>
+		<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
+			<small> {{ "powered_by_verifik" | transloco }} </small>
+			<languages [colorText]="project.branding.txtColor"></languages>
 		</div>
 	</div>
 
