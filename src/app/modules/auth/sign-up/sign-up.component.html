@@ -1,13 +1,12 @@
 <div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signUpForm" class="w-full" [style.background]="project.branding.bgColor">
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full">
-		<div fxLayout="row" fxLayoutAlign="start center">
-			<img [src]="project.branding.logo" class="main-logo w-14" />
-		</div>
-
 		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
 			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
 				<div class="w-400 mx-auto sm:mx-0">
 					<!-- Title -->
+					<div fxLayout="row" fxLayoutAlign="start center">
+						<img [src]="project.branding.logo" class="w-14" />
+					</div>
 					<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">{{ "signup.title" | transloco }}</div>
 					<div class="flex items-baseline mt-0.5 font-medium">
 						<div>{{ "signup.auth_question" | transloco }}</div>
