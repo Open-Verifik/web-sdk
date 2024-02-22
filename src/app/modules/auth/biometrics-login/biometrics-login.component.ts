@@ -609,7 +609,13 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	}
 
 	successLogin(token: any) {
-		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
+		let redirectUrl = this.projectFlow.redirectUrl;
+
+		if (environment.verifikProject === this.project._id) {
+			redirectUrl = `${environment.appUrl}/sign-in`;
+		} else if (environment.sandboxProject === this.project._id) {
+			redirectUrl = `${environment.sandboxUrl}/sign-in`;
+		}
 
 		window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}
