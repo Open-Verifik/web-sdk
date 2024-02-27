@@ -1,5 +1,5 @@
-import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
+import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID, Inject } from "@angular/core";
 import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -11,14 +11,14 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
-import { AuthService } from "app/core/auth/auth.service";
+
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 import { Subject } from "rxjs";
 import { environment } from "environments/environment";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
@@ -73,12 +73,26 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	sendingOTP: Boolean;
 	OnboardingSignUpForm: any;
 	fields: any;
+	language: string;
+	flagCodes = {
+		en: "us",
+		es: "es",
+		br: "br",
+		fr: "fr",
+		it: "it",
+		ru: "ru",
+		kr: "kr",
+		in: "in",
+		cn: "cn",
+		ph: "ph",
+	};
+	deviceDetails: any;
+	location: any;
 
 	/**
 	 * Constructor
 	 */
 	constructor(
-		private _authService: AuthService,
 		private _formBuilder: UntypedFormBuilder,
 		private _router: Router,
 		private _countries: CountriesService,
@@ -86,8 +100,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _activatedRoute: ActivatedRoute,
 		private _demoService: DemoService,
 		private _passwordlessService: PasswordlessService,
-		private _changeDetectorRef: ChangeDetectorRef
+		private _changeDetectorRef: ChangeDetectorRef,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
+		this.setLanguage();
+
 		this.countries = this._countries.countryCodes;
 
 		this.project = null;
@@ -125,15 +142,29 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this._splashScreenService.show();
 
+		this.demoData = this._demoService.getDemoData();
+
 		this._demoService.cleanVariables();
 
-		localStorage.removeItem("accessToken");
+		this.deviceDetails = this._demoService.getDeviceDetails();
 
-		this.demoData = this._demoService.getDemoData();
+		localStorage.removeItem("accessToken");
 
 		this.sendingOTP = false;
 
 		this.showFaceLivenessRecommendation = false;
+	}
+
+	setLanguage() {
+		if (!isPlatformBrowser(this.platformId)) {
+			this.language = "en";
+		}
+		// Get the browser's language setting
+		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
+		// Check if the browser's language is one of the specified options, otherwise default to 'en'
+		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+		localStorage.setItem("currentLanguage", this.language);
 	}
 
 	// -----------------------------------------------------------------------------------------------------
@@ -148,6 +179,24 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 
 			this.requestProject(params.id);
+		});
+
+		this._demoService.geoLocation$.subscribe({
+			next: async (response) => {
+				if (!response) return;
+
+				console.log({ GEO_for_AppRegistration: response });
+
+				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+
+				const deviceIdentifier = this._demoService.generateUniqueId();
+
+				this.location.deviceIdentifier = deviceIdentifier.hash;
+
+				this.location.userAgent = deviceIdentifier.userAgent;
+			},
+			error: (exception) => {},
+			complete: () => {},
 		});
 	}
 
@@ -278,7 +327,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
 		});
 
-		// Disable the form
+		// Disable the for
 		this.signUpForm.disable();
 
 		// Hide the alert
@@ -292,6 +341,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			.createAppRegistration({
 				project: this.project._id,
 				projectFlow: this.projectFlow._id,
+				language: this.language,
+				location: this.location,
 				...this.signUpForm.value,
 			})
 			.subscribe({
