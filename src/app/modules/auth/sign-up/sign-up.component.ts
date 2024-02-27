@@ -22,6 +22,9 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
+import moment from "moment";
+
+declare var dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 
 @Component({
 	selector: "auth-sign-up",
@@ -266,9 +269,14 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 * Sign up
 	 */
 	signUp(): void {
-		if (this.signUpForm.invalid) {
-			return;
-		}
+		if (this.signUpForm.invalid) return;
+
+		// Push the event to the dataLayer
+		dataLayer.push({
+			event: "clickEvent",
+			clickId: `form_${this.project._id}`,
+			eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
+		});
 
 		// Disable the form
 		this.signUpForm.disable();
