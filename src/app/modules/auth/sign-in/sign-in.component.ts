@@ -1,5 +1,5 @@
-import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
+import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID } from "@angular/core";
 import { FormGroup, FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -85,6 +85,19 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	isVerifikProject: Boolean;
 	appLoginToken: string;
 	loading: Boolean;
+	language: string;
+	flagCodes = {
+		en: "us",
+		es: "es",
+		br: "br",
+		fr: "fr",
+		it: "it",
+		ru: "ru",
+		kr: "kr",
+		in: "in",
+		cn: "cn",
+		ph: "ph",
+	};
 
 	/**
 	 * Constructor
@@ -96,8 +109,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		private _splashScreenService: FuseSplashScreenService,
 		private _passwordlessService: PasswordlessService,
 		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService
+		private _countries: CountriesService,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
+		this.setLanguage();
+
 		this.countries = this._countries.countryCodes;
 
 		this.showBiometrics = false;
@@ -112,9 +128,23 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 		this.deviceDetails = this._demoService.getDeviceDetails();
 
+		// console.log(this.deviceDetails);
+
 		this.sendingOTP = false;
 
 		this.showFaceLivenessRecommendation = false;
+	}
+
+	setLanguage() {
+		if (!isPlatformBrowser(this.platformId)) {
+			this.language = "en";
+		}
+		// Get the browser's language setting
+		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
+		// Check if the browser's language is one of the specified options, otherwise default to 'en'
+		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+		localStorage.setItem("currentLanguage", this.language);
 	}
 
 	/**

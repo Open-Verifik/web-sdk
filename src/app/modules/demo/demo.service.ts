@@ -371,6 +371,8 @@ export class DemoService {
 	}
 
 	showPosition(position) {
+		if (!_this._geoLocation || !position?.coords) return;
+
 		_this.demoData.lat = position?.coords.latitude;
 
 		_this.demoData.lng = position?.coords.longitude;
@@ -379,12 +381,12 @@ export class DemoService {
 
 		localStorage.setItem("lng", _this.demoData.lng);
 
-		if (_this._geoLocation) {
-			_this._geoLocation.next({
-				lat: position?.coords.latitude,
-				lng: position?.coords.longitude,
-			});
-		}
+		console.log("send location");
+
+		_this._geoLocation.next({
+			lat: position?.coords.latitude,
+			lng: position?.coords.longitude,
+		});
 	}
 
 	showError(error) {
@@ -405,6 +407,9 @@ export class DemoService {
 				errorMessage = "geolocation.unknown_error";
 
 				break;
+
+			default:
+				return null;
 		}
 
 		localStorage.setItem("locationError", errorMessage);
@@ -461,6 +466,27 @@ export class DemoService {
 		localStorage.setItem("location", JSON.stringify(this.demoData.location));
 
 		return this.demoData.location;
+	}
+
+	async extractLocationFromLatLng(lat, lng): Promise<any> {
+		const location = await this.reverseGeocodeWithOSM(lat, lng);
+
+		if (!location) return;
+
+		const formattedLocation = {
+			lat,
+			lng,
+		};
+
+		for (const key in location.address) {
+			if (Object.prototype.hasOwnProperty.call(location.address, key)) {
+				const value = location.address[key];
+
+				formattedLocation[key] = value;
+			}
+		}
+
+		return formattedLocation;
 	}
 
 	getLead(): Lead {

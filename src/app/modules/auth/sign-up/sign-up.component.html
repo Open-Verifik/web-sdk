@@ -165,6 +165,7 @@
 							mat-flat-button
 							[disabled]="isFormDisabled()"
 							(click)="signUp()"
+							[id]="'signUp-' + project._id"
 						>
 							<span *ngIf="!signUpForm.disabled">{{ "signup.create_account_button" | transloco }}</span>
 							<mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>

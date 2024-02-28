@@ -31,6 +31,7 @@
 		"@tensorflow/tfjs-core": "^4.12.0",
 		"@types/webgl2": "^0.0.9",
 		"@vladmandic/face-api": "^1.7.12",
+		"angular-google-tag-manager": "^1.9.0",
 		"apexcharts": "3.40.0",
 		"crypto-js": "^3.3.0",
 		"highlight.js": "11.8.0",
