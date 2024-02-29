@@ -98,6 +98,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		cn: "cn",
 		ph: "ph",
 	};
+	location: any;
 
 	/**
 	 * Constructor
@@ -158,8 +159,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		});
 
 		this._demoService.geoLocation$.subscribe({
-			next: (response) => {
-				console.log({ GEO: response });
+			next: async (response) => {
+				if (!response) return;
+
+				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+
+				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
 			error: (exception) => {},
 			complete: () => {},
@@ -231,11 +236,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 	setFieldRequiredInForm() {
 		this.groupFields = {
-			email: [,],
+			email: [localStorage.getItem("defaultEmail") || ""],
 			emailOTP: [,],
-
-			countryCode: [,],
-			phone: [,],
+			countryCode: [localStorage.getItem("defaultCountryCode") || this.location?.countryCode || ""],
+			phone: [localStorage.getItem("defaultPhone") || ""],
 			phoneOTP: [,],
 		};
 
@@ -312,6 +316,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 				this.appLoginToken = response.data.token;
 
+				localStorage.setItem("defaultEmail", dataForm.email);
+
 				if (response.data?.showFaceLivenessRecommendation) {
 					this.showFaceLivenessRecommendation = true;
 
@@ -350,6 +356,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					}
 
 					this.appLoginToken = response.data.token;
+
+					localStorage.setItem("defaultCountryCode", dataForm.countryCode);
+
+					localStorage.setItem("defaultPhone", dataForm.phone);
 
 					if (response.data?.showFaceLivenessRecommendation) {
 						this.showFaceLivenessRecommendation = true;
@@ -424,7 +434,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 		switch (this.typeLogin) {
 			case "email":
-				this._passwordlessService.sendEmailValidation(this.project._id, this.signInForm.value.email).subscribe({
+				this._passwordlessService.sendEmailValidation(this.signInForm.value.email, this.location).subscribe({
 					next: (response) => {
 						this.emailValidation = response.data;
 

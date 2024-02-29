@@ -29,7 +29,7 @@ export class PasswordlessService {
 			);
 	}
 
-	sendEmailValidation(projectId: string, email: string): Observable<any> {
+	sendEmailValidation(email: string, location: any): Observable<any> {
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/email-validations`, {
 				email,
@@ -38,6 +38,7 @@ export class PasswordlessService {
 				type: "login",
 				validationMethod: "verificationCode",
 				language: this._translocoService.getActiveLang(),
+				location,
 			})
 			.pipe(tap((response: any) => {}));
 	}

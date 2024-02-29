@@ -363,6 +363,17 @@ export class DemoService {
 	getLocation() {
 		localStorage.removeItem("locationError");
 
+		const lat = localStorage.getItem("lat");
+
+		const lng = localStorage.getItem("lng");
+
+		if (lat && lng) {
+			_this._geoLocation.next({
+				lat,
+				lng,
+			});
+		}
+
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(this.showPosition, this.showError);
 		} else {
@@ -380,8 +391,6 @@ export class DemoService {
 		localStorage.setItem("lat", _this.demoData.lat);
 
 		localStorage.setItem("lng", _this.demoData.lng);
-
-		console.log("send location");
 
 		_this._geoLocation.next({
 			lat: position?.coords.latitude,
@@ -469,6 +478,10 @@ export class DemoService {
 	}
 
 	async extractLocationFromLatLng(lat, lng): Promise<any> {
+		const appLocation = localStorage.getItem("appLocation");
+
+		if (appLocation) return JSON.parse(appLocation);
+
 		const location = await this.reverseGeocodeWithOSM(lat, lng);
 
 		if (!location) return;
@@ -485,6 +498,14 @@ export class DemoService {
 				formattedLocation[key] = value;
 			}
 		}
+
+		const deviceIdentifier = this.generateUniqueId();
+
+		formattedLocation["deviceIdentifier"] = deviceIdentifier.hash;
+
+		formattedLocation["userAgent"] = deviceIdentifier.userAgent;
+
+		localStorage.setItem("appLocation", JSON.stringify(formattedLocation));
 
 		return formattedLocation;
 	}

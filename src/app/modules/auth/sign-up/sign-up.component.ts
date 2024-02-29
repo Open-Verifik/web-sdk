@@ -109,6 +109,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this.project = null;
 
+		this.location = null;
+
 		this.roles = [
 			{
 				label: "signup.roles.founder",
@@ -183,17 +185,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this._demoService.geoLocation$.subscribe({
 			next: async (response) => {
-				if (!response) return;
-
-				console.log({ GEO_for_AppRegistration: response });
+				if (!response || this.location) return;
 
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
-				const deviceIdentifier = this._demoService.generateUniqueId();
-
-				this.location.deviceIdentifier = deviceIdentifier.hash;
-
-				this.location.userAgent = deviceIdentifier.userAgent;
+				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
 			error: (exception) => {},
 			complete: () => {},
@@ -287,7 +283,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		}
 
 		if (this.OnboardingSignUpForm.phone) {
-			this.fields["countryCode"] = [demoData.countryCode, Validators.required];
+			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
 			this.fields["phone"] = [demoData.phone, Validators.required];
 

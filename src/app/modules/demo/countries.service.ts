@@ -158,4 +158,10 @@ export class CountriesService {
 	];
 
 	constructor() {}
+
+	findCountryCode(countryName): any {
+		const country = this.countryCodes.find((c) => c.name === countryName);
+
+		return country ? country.code : null; // Returns null if no match is found
+	}
 }
