@@ -195,9 +195,10 @@ export class KYCService {
 		});
 	}
 
-	syncAppRegistration(step: string): Observable<any> {
+	syncAppRegistration(step: string, status: string): Observable<any> {
 		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/app-registrations/${this.appRegistration._id}/sync`, {
 			step,
+			status,
 		});
 	}
 

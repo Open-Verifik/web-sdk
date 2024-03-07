@@ -67,6 +67,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	activeSendOtp: boolean;
 	private countdownSubscription: Subscription;
 	token: string;
+	showSkipDoingKYC: boolean;
 
 	/**
 	 * Constructor
@@ -110,6 +111,12 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 					this.isVerifikProject = Boolean(
 						this.project._id === environment.verifikProject || this.project._id === environment.sandboxProject
 					);
+
+					const steps = this.projectFlow.onboardingSettings.steps;
+
+					const mandatorySteps = ["basicInformation", "document", "form", "liveness"];
+
+					this.showSkipDoingKYC = !mandatorySteps.some((step) => steps[step] === "mandatory");
 				},
 				error: (exception) => {
 					this.errorContent = exception.error;
@@ -389,31 +396,49 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 		localStorage.setItem("accessToken", this.token);
 
-		this._KYCService.syncAppRegistration("signUpForm").subscribe({
+		this._syncAppRegistration("signUpForm", "ONGOING", "redirect");
+	}
+
+	_syncAppRegistration(step: string, status: string, action: string) {
+		const promise = this._KYCService.syncAppRegistration(step, status);
+
+		promise.subscribe({
 			next: (response) => {
 				this.currentValidation = null;
 
 				this.syncResponse = response.data;
 			},
 			error: () => {},
-			complete: () => {},
+			complete: () => {
+				console.log({ status, action });
+
+				if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
+					let redirectUrl = this.projectFlow.redirectUrl;
+
+					if (environment.verifikProject === this.project._id) {
+						redirectUrl = `${environment.appUrl}/sign-in`;
+					} else if (environment.sandboxProject === this.project._id) {
+						redirectUrl = `${environment.sandboxUrl}/sign-in`;
+					}
+
+					window.location.href = `${redirectUrl}?type=onboarding&token=${this.syncResponse.token}`;
+				}
+
+				if (step === "instructions" && action === "redirect") {
+					this._router.navigate(["/kyc"], { queryParams: { token: this.syncResponse.token } });
+				}
+			},
 		});
+
+		return promise;
 	}
 
 	startKYC(): void {
-		this._router.navigate(["/kyc"], { queryParams: { token: this.syncResponse.token } });
+		this._syncAppRegistration("instructions", "ONGOING", "redirect");
 	}
 
-	continueWitoutKYC(): void {
-		let redirectUrl = this.projectFlow.redirectUrl;
-
-		if (environment.verifikProject === this.project._id) {
-			redirectUrl = `${environment.appUrl}/sign-in`;
-		} else if (environment.sandboxProject === this.project._id) {
-			redirectUrl = `${environment.sandboxUrl}/sign-in`;
-		}
-
-		window.location.href = `${redirectUrl}?type=onboarding&token=${this.syncResponse.token}`;
+	continueWithoutKYC(): void {
+		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
 	}
 
 	ngOnDestroy(): void {

@@ -154,6 +154,7 @@
 				<h3 class="credits-h3">{{ "add_biometrics.verifik_content" | transloco }}</h3>
 			</div>
 			<!-- end of content -->
+
 			<!-- Title -->
 
 			<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
@@ -167,8 +168,14 @@
 					<span>{{ "add_biometrics.verifik_button" | transloco }} </span>
 				</button>
 
-				<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWitoutKYC()">
-					<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.verifik_dismiss" | transloco }} </span>
+				<button
+					mat-stroked-button
+					class="w-11/12 mt-4 biometrics-button"
+					color="primary"
+					(click)="continueWithoutKYC()"
+					*ngIf="showSkipDoingKYC"
+				>
+					<span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_dismiss" | transloco }} </span>
 				</button>
 			</div>
 		</div>
@@ -206,7 +213,13 @@
 					<span>{{ "add_biometrics.button" | transloco }} </span>
 				</button>
 
-				<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWitoutKYC()">
+				<button
+					mat-stroked-button
+					class="w-11/12 mt-4 biometrics-button"
+					color="primary"
+					(click)="continueWithoutKYC()"
+					*ngIf="showSkipDoingKYC"
+				>
 					<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
 				</button>
 			</div>
