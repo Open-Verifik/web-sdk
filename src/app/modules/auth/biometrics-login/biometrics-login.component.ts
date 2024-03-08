@@ -209,12 +209,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	async restart(): Promise<void> {
-		this.completeResults();
-
-		await this.startAsyncVideo();
-	}
-
 	async loadImages(): Promise<void> {
 		this.left = new Image();
 		this.left.crossOrigin = "anonymous";
@@ -620,44 +614,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		window.location.href = `${redirectUrl}?type=login&token=${token}`;
 	}
 
-	retryLivenessModal(error) {
-		const data = {
-			title: this._translocoService.translate("liveness.liveness_failed"),
-			message: this._translocoService.translate("liveness.liveness_error_message", { error }),
-			icon: {
-				show: true,
-				name: "heroicons_outline:exclamation-triangle",
-				color: "warn",
-			},
-			actions: {
-				confirm: {
-					show: true,
-					label: this._translocoService.translate("confirm"),
-					color: "primary",
-				},
-				cancel: {
-					show: true,
-					label: this._translocoService.translate("cancel"),
-				},
-			},
-			dismissible: false,
-		};
-
-		this._matDialog
-			.open(FuseConfirmationDialogComponent, {
-				autoFocus: false,
-				disableClose: true,
-				panelClass: "fuse-confirmation-dialog-panel",
-				data,
-			})
-			.afterClosed()
-			.subscribe((result) => {
-				if (result === "confirmed") {
-					return this.restart();
-				}
-			});
-	}
-
 	completeResults() {
 		this.errorFace = null;
 		this.loadingResults = false;
@@ -689,7 +645,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	}
 
 	continueRedirection(): void {
-		if (this.showError && this.errorContent.message === "person_not_found") {
+		if (this.showError && ["person_not_found", "liveness_failed"].includes(this.errorContent.message)) {
 			window.location.reload();
 
 			return;
