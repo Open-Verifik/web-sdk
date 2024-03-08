@@ -166,6 +166,7 @@
 		"person_already_set": "Your registration has biometrics linked already",
 		"replace_person_button": "Ok, replace biometrics",
 		"Duplicated_person": "Biometrics is being used into another record",
+		"liveness_failed": "Liveness detection failed",
 		"Liveness_score_not_acceptable": "Liveness score is not acceptable"
 	},
 	"login": {

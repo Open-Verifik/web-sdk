@@ -166,6 +166,7 @@
 		"person_already_set": "La tua registrazione ha già le biometrie collegate",
 		"replace_person_button": "Ok, sostituire le biometrie",
 		"Duplicated_person": "Le biometrie sono utilizzate in un altro record",
+		"liveness_failed": "Rilevamento della presenza fallito",
 		"Liveness_score_not_acceptable": "Il punteggio di vivacità non è accettabile"
 	},
 	"login": {
