@@ -410,8 +410,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 			},
 			error: () => {},
 			complete: () => {
-				console.log({ status, action });
-
 				if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
 					let redirectUrl = this.projectFlow.redirectUrl;
 
