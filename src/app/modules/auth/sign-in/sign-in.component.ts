@@ -478,13 +478,17 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	startTimer(field): number {
 		let interval;
 
+		const dateToCompare = moment(
+			this.emailValidation ? this.emailValidation.createdAt : this.phoneValidation ? this.phoneValidation.createdAt : new Date()
+		).add(2, "minute");
+
 		switch (field) {
 			case "email":
 				if (!this.emailValidation) {
 					return 0;
 				}
 
-				this.emailValidation.diff = moment(this.emailValidation.expiresAt).diff(moment.utc(), "seconds");
+				this.emailValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
 
 				interval = setInterval(() => {
 					if (this.emailValidation.diff > 0) {
@@ -508,7 +512,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					return 0;
 				}
 
-				this.phoneValidation.diff = moment(this.phoneValidation.expiresAt).diff(moment.utc(), "seconds");
+				this.phoneValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
 
 				interval = setInterval(() => {
 					if (this.phoneValidation.diff > 0) {
