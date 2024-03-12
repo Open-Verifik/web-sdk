@@ -256,23 +256,28 @@ export class IdScanningComponent implements OnInit {
 		this._splashScreenService.show();
 
 		if (this.view === "kyc") {
-			this._KYCService.createDocumentValidation(this.idToSend).subscribe({
-				next: (response) => {
-					this.appRegistration.documentValidation = response.data.documentValidation;
+			this._KYCService
+				.createDocumentValidation({
+					...this.idToSend,
+					documentFace: idCardFaceImage,
+				})
+				.subscribe({
+					next: (response) => {
+						this.appRegistration.documentValidation = response.data.documentValidation;
 
-					this._KYCService.navigateTo("next");
-				},
-				error: (exception) => {
-					this.errorContent = exception.error;
+						this._KYCService.navigateTo("next");
+					},
+					error: (exception) => {
+						this.errorContent = exception.error;
 
-					this._splashScreenService.hide();
-				},
-				complete: () => {
-					this.demoData.loading = false;
+						this._splashScreenService.hide();
+					},
+					complete: () => {
+						this.demoData.loading = false;
 
-					this._splashScreenService.hide();
-				},
-			});
+						this._splashScreenService.hide();
+					},
+				});
 
 			return;
 		}
