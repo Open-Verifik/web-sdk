@@ -220,6 +220,7 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 			next: (response) => {
 				console.log({ COMPAREFACESHERE: response?.data });
 				//TODO @miguel
+				this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
 			},
 			error: (exception) => {},
 			complete: () => {},
