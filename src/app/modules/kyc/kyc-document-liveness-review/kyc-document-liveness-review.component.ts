@@ -218,9 +218,10 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 
 		this._KYCService.compareFaces().subscribe({
 			next: (response) => {
-				console.log({ COMPAREFACESHERE: response?.data });
 				//TODO @miguel
 				this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
+
+				console.info("Verifik: comparison completed");
 			},
 			error: (exception) => {},
 			complete: () => {},
