@@ -61,11 +61,11 @@ export class DemoRootComponent implements OnInit {
 
 		this.step = Number(localStorage.getItem("step")) || 1;
 
-		const siteId = 3732219;
+		// const siteId = 3732219;
 
-		const hotjarVersion = 6;
+		// const hotjarVersion = 6;
 
-		Hotjar.init(siteId, hotjarVersion);
+		// Hotjar.init(siteId, hotjarVersion);
 	}
 
 	async ngOnInit(): Promise<any> {

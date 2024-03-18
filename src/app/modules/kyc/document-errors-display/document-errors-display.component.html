@@ -1,0 +1,52 @@
+<div class="id-scanning-error-div" fxLayout="column" fxLayoutAlign="center center">
+	<div [ngSwitch]="errorContent.message" fxLayout="column" fxLayoutAlign="center center">
+		<div *ngSwitchCase="'driver_license_not_allowed'" fxLayout="column" fxLayoutAlign="center center">
+			<img [src]="'https://cdn.verifik.co/assets/biometric-services/driverLicense.svg'" alt="" class="id-scanning-failed-document-img" />
+
+			<h1 class="mt-4">
+				{{ "id_scanning.driver_license_not_allowed" | transloco }}
+			</h1>
+		</div>
+
+		<div *ngSwitchCase="'passport_not_allowed'" fxLayout="column" fxLayoutAlign="center center">
+			<img [src]="'https://cdn.verifik.co/assets/biometric-services/Passport.svg'" alt="" class="id-scanning-failed-document-img" />
+
+			<h1 class="mt-4">
+				{{ "id_scanning.passport_not_allowed" | transloco }}
+			</h1>
+		</div>
+
+		<div *ngSwitchCase="'government_id_not_allowed'" fxLayout="column" fxLayoutAlign="center center">
+			<img [src]="'https://cdn.verifik.co/assets/biometric-services/governmentID.svg'" alt="" class="id-scanning-failed-document-img" />
+
+			<h1 class="mt-4">
+				{{ "id_scanning.government_id_not_allowed" | transloco }}
+			</h1>
+		</div>
+
+		<h1 class="mt-4" *ngSwitchDefault>
+			<img
+				[src]="
+					attemptsLimit - attempts > 0
+						? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png'
+						: 'https://cdn.verifik.co/demo/redstop.svg'
+				"
+				alt=""
+				class="id-scanning-failed-document-img"
+			/>
+
+			{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
+		</h1>
+	</div>
+
+	<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>
+
+	<button
+		mat-raised-button
+		color="primary"
+		class="mt-4 z-index-2 id-scanning-try-again-button"
+		(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
+	>
+		{{ (attemptsLimit - attempts > 0 ? "id_scanning.retry" : "restart") | transloco }}
+	</button>
+</div>

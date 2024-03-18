@@ -291,6 +291,7 @@ export class IdScanningComponent implements OnInit {
 				localStorage.setItem("idCardFaceImage", idCardFaceImage);
 
 				this.demoData.loading = false;
+
 				this._splashScreenService.hide();
 
 				this._demoService.moveToStep(3);

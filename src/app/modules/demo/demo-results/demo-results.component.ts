@@ -57,8 +57,11 @@ export class DemoResultsComponent implements OnInit, OnDestroy, AfterViewInit {
 		setTimeout(() => {
 			if (this.liveness && this.liveness.nativeElement && this.compare && this.compare.nativeElement) {
 				const livenessHeight = this.liveness.nativeElement.offsetHeight;
+
 				const comparesHeight = this.compare.nativeElement.offsetHeight;
+
 				this.h2MaxHeight = livenessHeight > comparesHeight ? livenessHeight : comparesHeight;
+
 				this._changeDetectorRef.markForCheck();
 			}
 		}, 300);

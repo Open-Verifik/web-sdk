@@ -1,12 +1,14 @@
 <div class="verifik-stepper" fxLayout="row" fxLayoutAlign="space-between center">
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 2 }">1</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 2 }" fxHide.xs="true" fxHide.sm="true">{{ "header.id" | transloco }} </span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 2 }" fxHide.xs="true" fxHide.sm="true">{{ "header.document" | transloco }} </span>
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 3 }">2</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 3 }" fxHide.xs="true" fxHide.sm="true">{{ "header.verify_id" | transloco }}</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 3 }" fxHide.xs="true" fxHide.sm="true">{{
+			"header.documentReview" | transloco
+		}}</span>
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="start center">
@@ -16,6 +18,8 @@
 
 	<div fxLayout="row" fxLayoutAlign="start center">
 		<span class="step-one-circle" [ngClass]="{ 'disabled-background': navigation.currentStep !== 5 }">4</span>
-		<span [ngClass]="{ 'font-bold': navigation.currentStep === 5 }" fxHide.xs="true" fxHide.sm="true">{{ "header.compare" | transloco }}</span>
+		<span [ngClass]="{ 'font-bold': navigation.currentStep === 5 }" fxHide.xs="true" fxHide.sm="true">{{
+			"header.documentLivenessReview" | transloco
+		}}</span>
 	</div>
 </div>

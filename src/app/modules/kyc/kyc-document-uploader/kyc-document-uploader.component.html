@@ -54,25 +54,12 @@
 		</button>
 	</div>
 
-	<div *ngIf="errorResult && attemptsLimit" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
-		<img [src]="'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png'" alt="" class="id-scanning-failed-document-img" />
-
-		<h1 class="mt-4" [style.color]="project.branding.titleColor">
-			{{ "id_scanning.document_not_detected" | transloco }}
-		</h1>
-
-		<p class="mt-4" [style.color]="project.branding.txtColor">
-			{{ "id_scanning.document_not_detected_description" | transloco }}
-		</p>
-
-		<button
-			mat-raised-button
-			[style.background]="project.branding.buttonColor"
-			[style.color]="project.branding.buttonTxtColor"
-			class="mt-4 z-index-2 id-scanning-try-again-button"
-			(click)="tryAgain(true)"
-		>
-			{{ "id_scanning.retry" | transloco }}
-		</button>
-	</div>
+	<kyc-document-errors-display
+		*ngIf="errorResult"
+		[errorContent]="errorContent"
+		[attempts]="attempts"
+		[attemptsLimit]="attemptsLimit"
+		[dialogRef]="dialogRef"
+	>
+	</kyc-document-errors-display>
 </div>

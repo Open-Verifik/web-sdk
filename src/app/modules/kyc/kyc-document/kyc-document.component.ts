@@ -69,6 +69,9 @@ export class KycDocumentComponent implements OnInit {
 		});
 
 		dialogRef.afterClosed().subscribe((result) => {
+			if (!result) return;
+
+			// TODO: work on the logic for the documentValidations attempts
 			this.appRegistration.documentValidation = result.documentValidation;
 
 			this._KYCService.navigateTo("next");

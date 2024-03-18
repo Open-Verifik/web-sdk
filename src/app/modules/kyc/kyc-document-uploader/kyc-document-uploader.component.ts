@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { TranslocoModule } from "@ngneat/transloco";
 import { DemoService } from "app/modules/demo/demo.service";
 import { UploadFileComponent } from "app/modules/demo/upload-file/upload-file.component";
 import { Subject, takeUntil } from "rxjs";
@@ -13,13 +13,14 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { Project, ProjectFlow } from "app/modules/auth/project";
+import { DocumentErrorsDisplayComponent } from "../document-errors-display/document-errors-display.component";
 
 @Component({
 	selector: "kyc-document-uploader",
 	standalone: true,
 	templateUrl: "./kyc-document-uploader.component.html",
 	styleUrls: ["./kyc-document-uploader.component.scss"],
-	imports: [CommonModule, FlexLayoutModule, TranslocoModule, MatIconModule, MatButtonModule],
+	imports: [CommonModule, FlexLayoutModule, TranslocoModule, MatIconModule, MatButtonModule, DocumentErrorsDisplayComponent],
 })
 export class KycDocumentUploaderComponent implements OnDestroy {
 	@ViewChild("cardIdFace", { static: false }) cardIdFaceRef: ElementRef;
@@ -39,7 +40,7 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 	constructor(
 		private _demoService: DemoService,
-		private dialogRef: MatDialogRef<UploadFileComponent>,
+		public dialogRef: MatDialogRef<UploadFileComponent>,
 		private _splashScreenService: FuseSplashScreenService,
 		private mediaService: FuseMediaWatcherService,
 		private _KYCService: KYCService
@@ -171,6 +172,11 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 			},
 			error: (exception) => {
 				this.errorContent = exception.error;
+
+				console.log({
+					errorContent: this.errorContent,
+					appRegistration: this.appRegistration,
+				});
 
 				this.errorResult = true;
 

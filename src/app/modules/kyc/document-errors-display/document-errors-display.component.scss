@@ -1,0 +1,22 @@
+.id-scanning-error-div {
+	width: auto;
+	background: white;
+	height: 600px;
+	padding: 16px;
+	.id-scanning-failed-document-img {
+		width: 45%;
+	}
+	h1 {
+		color: #0036e7;
+		font-size: 24px;
+		font-weight: 800;
+		text-align: center;
+	}
+
+	p {
+		color: #01236da6;
+		font-size: 16px;
+		font-weight: 300;
+		text-align: center;
+	}
+}
