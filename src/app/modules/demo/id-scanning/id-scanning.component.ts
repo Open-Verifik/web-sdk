@@ -9,7 +9,7 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import * as faceapi from "@vladmandic/face-api";
 import { Router } from "@angular/router";
-import { Project, ProjectFlow } from "app/modules/auth/project";
+import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
 
@@ -90,6 +90,10 @@ export class IdScanningComponent implements OnInit {
 		this.demoData = this._demoService.getDemoData();
 
 		this.view = this._router.url.includes("/kyc") ? "kyc" : "demo";
+
+		this.project = new ProjectModel({});
+
+		this.projectFlow = new ProjectFlowModel({});
 
 		if (this.view === "kyc") {
 			this.appRegistration = this._KYCService.appRegistration;
