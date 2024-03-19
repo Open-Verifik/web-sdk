@@ -85,6 +85,16 @@ export class KycDocumentComponent implements OnInit {
 	}
 
 	openCamera() {
+		const attempts = this.appRegistration.failedDocumentValidations?.length || 0;
+
+		const attemptsLimit = this.projectFlow.onboardingSettings.document?.maxAttempts || 3;
+
+		if (attempts >= attemptsLimit) {
+			this.openUploadFile();
+
+			return;
+		}
+
 		this.selectOption = "idscan";
 	}
 }

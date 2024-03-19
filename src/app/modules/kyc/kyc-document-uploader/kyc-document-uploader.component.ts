@@ -69,13 +69,6 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 			);
 		});
 
-		console.log({
-			appRegistration: this.appRegistration,
-			projectFlow: this.projectFlow,
-			attemptsLimit: this.attemptsLimit,
-			attempts: this.attempts,
-		});
-
 		if (this.attempts >= this.attemptsLimit) {
 			this.errorResult = true;
 			this.errorContent = { message: "attempts_limit_reached" };
