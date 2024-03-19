@@ -24,7 +24,7 @@
 			</h1>
 		</div>
 
-		<h1 class="mt-4" *ngSwitchDefault>
+		<div *ngSwitchDefault fxLayout="column" fxLayoutAlign="center center">
 			<img
 				[src]="
 					attemptsLimit - attempts > 0
@@ -35,8 +35,10 @@
 				class="id-scanning-failed-document-img"
 			/>
 
-			{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
-		</h1>
+			<h1 class="mt-4">
+				{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
+			</h1>
+		</div>
 	</div>
 
 	<p class="mt-4" *ngIf="attemptsLimit - attempts > 0">{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}</p>

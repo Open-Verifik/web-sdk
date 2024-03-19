@@ -23,7 +23,7 @@ export class DocumentErrorsDisplayComponent implements OnInit {
 	}
 
 	tryAgain(reset: boolean): void {
-		this.dialogRef.close();
+		this.dialogRef.close({ addAttempt: true });
 	}
 
 	restartDemo(): void {

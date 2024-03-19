@@ -68,6 +68,7 @@ export interface ProjectFlow {
 			verifyNames?: boolean;
 			verifyCriminalHistory?: boolean;
 			compareMinScore?: number;
+			maxAttempts?: number;
 		};
 		liveness: {
 			livenessMinScore?: number;

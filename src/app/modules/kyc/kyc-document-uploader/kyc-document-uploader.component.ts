@@ -53,9 +53,9 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
-		this.attempts = 0;
+		this.attempts = this.appRegistration.failedDocumentValidations?.length || 0;
 
-		this.attemptsLimit = 1;
+		this.attemptsLimit = this.projectFlow.onboardingSettings.document.maxAttempts;
 
 		this.errorContent = {
 			message: "",
@@ -68,6 +68,18 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 				!result.matchingAliases.includes("lg") && !result.matchingAliases.includes("md") && !result.matchingAliases.includes("sm")
 			);
 		});
+
+		console.log({
+			appRegistration: this.appRegistration,
+			projectFlow: this.projectFlow,
+			attemptsLimit: this.attemptsLimit,
+			attempts: this.attempts,
+		});
+
+		if (this.attempts >= this.attemptsLimit) {
+			this.errorResult = true;
+			this.errorContent = { message: "attempts_limit_reached" };
+		}
 	}
 
 	ngOnDestroy(): void {
@@ -84,6 +96,7 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 	prepareFilesList(files: Array<any>) {
 		const fileReader = new FileReader();
+
 		this._splashScreenService.show();
 
 		fileReader.onload = (event: any) => {
