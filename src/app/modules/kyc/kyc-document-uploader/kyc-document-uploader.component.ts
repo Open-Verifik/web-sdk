@@ -169,7 +169,7 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 		const body = {
 			image: this.base64Image.replace(/^data:image\/.*;base64,/, ""),
 			documentFace: this.faceIdCard,
-			force: Boolean(this.appRegistration.forceUpload),
+			force: Boolean(this.appRegistration?.forceUpload),
 		};
 
 		this._KYCService.createDocumentValidation(body).subscribe({

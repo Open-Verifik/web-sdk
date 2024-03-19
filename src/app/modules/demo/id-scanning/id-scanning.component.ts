@@ -256,7 +256,7 @@ export class IdScanningComponent implements OnInit {
 
 		this.idToSend = {
 			image: this.base64Images,
-			force: this.appRegistration.forceUpload || false,
+			force: this.appRegistration?.forceUpload || false,
 		};
 
 		const faces = await this.detectFace(this.canvasToSendRef.nativeElement);
