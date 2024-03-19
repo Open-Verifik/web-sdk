@@ -11,13 +11,22 @@ import * as faceapi from "@vladmandic/face-api";
 import { Router } from "@angular/router";
 import { Project, ProjectFlow } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
+import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
 
 @Component({
 	selector: "id-scanning",
 	templateUrl: "./id-scanning.component.html",
 	styleUrls: ["./id-scanning.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, MatCheckboxModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, TranslocoModule],
+	imports: [
+		FlexLayoutModule,
+		MatCheckboxModule,
+		MatButtonModule,
+		CommonModule,
+		MatProgressSpinnerModule,
+		TranslocoModule,
+		DocumentErrorsDisplayComponent,
+	],
 })
 export class IdScanningComponent implements OnInit {
 	@ViewChild("videoElement") videoElement: ElementRef;
@@ -53,6 +62,7 @@ export class IdScanningComponent implements OnInit {
 	navigation: any;
 	errorContent: any;
 	loading: any;
+	errorResult: boolean;
 
 	constructor(
 		private _demoService: DemoService,
@@ -63,8 +73,6 @@ export class IdScanningComponent implements OnInit {
 		private renderer: Renderer2,
 		private _KYCService: KYCService
 	) {
-		this.attempts = 0;
-
 		this.attemptsLimit = 3;
 
 		this.loadingCamera = false;
@@ -91,6 +99,10 @@ export class IdScanningComponent implements OnInit {
 			this.projectFlow = this._KYCService.currentProjectFlow;
 
 			this.navigation = this._KYCService.getNavigation();
+
+			this.attempts = this.appRegistration.failedDocumentValidations?.length || 0;
+
+			this.attemptsLimit = this.projectFlow.onboardingSettings.document.maxAttempts;
 		}
 
 		this.errorContent = {
@@ -213,8 +225,14 @@ export class IdScanningComponent implements OnInit {
 		if (plusAttempts) this.attempts++;
 
 		this.base64Images = undefined;
+
 		this.failedToDetectDocument = false;
+
 		this.errorFace = {};
+
+		this.errorContent.message = null;
+
+		this.errorResult = false;
 
 		this.startCamera();
 	}
@@ -240,6 +258,8 @@ export class IdScanningComponent implements OnInit {
 		const faces = await this.detectFace(this.canvasToSendRef.nativeElement);
 
 		if (!faces.length) {
+			this.errorResult = true;
+
 			this.errorContent = {
 				message: "id_scanning.face_not_found",
 			};
@@ -268,6 +288,8 @@ export class IdScanningComponent implements OnInit {
 						this._KYCService.navigateTo("next");
 					},
 					error: (exception) => {
+						this.errorResult = true;
+
 						this.errorContent = exception.error;
 
 						this._splashScreenService.hide();
@@ -298,7 +320,9 @@ export class IdScanningComponent implements OnInit {
 			},
 			(err) => {
 				this.failedToDetectDocument = true;
+
 				this.demoData.loading = false;
+
 				this._splashScreenService.hide();
 			}
 		);
@@ -383,5 +407,9 @@ export class IdScanningComponent implements OnInit {
 			dimensions.rectWidth,
 			dimensions.rectHeight
 		);
+	}
+
+	onErrorCallback(payload: any) {
+		window.location.reload();
 	}
 }

@@ -104,7 +104,7 @@
 		"document_not_detected": "문서 유형이 감지되지 않았습니다",
 		"document_not_detected_description": "신분증, 운전면허증 또는 여권과 같은 신분 문서를 스캔하고 있는지 확인해 주십시오.",
 		"remaining_attempts": "남은 시도 횟수",
-		"failed_to_detect_limit": "데모를 올바르게 수행하기 위한 모든 시도를 소진했습니다",
+		"failed_to_detect_limit": "법적 문서를 스캔하려는 모든 시도를 소진했습니다",
 		"failed_to_detect_limit_description": "원하는 만큼 데모를 반복할 수 있지만 성공적으로 수행하기 위한 지시사항을 따르십시오.",
 		"face_not_found": "얼굴을 찾을 수 없습니다",
 		"face_not_found_details": "신분증에서 얼굴을 찾을 수 없습니다",

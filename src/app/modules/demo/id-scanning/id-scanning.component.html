@@ -2,7 +2,7 @@
 	fxLayout="column"
 	fxLayoutAlign="center center"
 	class="bg-white rounded-lg shadow-lg m-5 p-4 items-center w-full"
-	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera"
+	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera && !errorResult"
 >
 	<canvas #cardIdFace hidden="true"></canvas>
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full h-full">
@@ -79,6 +79,16 @@
 		{{ "id_scanning.camera_not_found_description" | transloco }}
 	</p>
 </div>
+
+<kyc-document-errors-display
+	class="mt-16 w-1/2"
+	*ngIf="errorContent.message"
+	[errorContent]="errorContent"
+	[attempts]="attempts"
+	[attemptsLimit]="attemptsLimit"
+	[callback]="onErrorCallback"
+>
+</kyc-document-errors-display>
 
 <div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
 	<img

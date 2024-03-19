@@ -17,16 +17,21 @@ export class DocumentErrorsDisplayComponent implements OnInit {
 	@Input() attempts: number;
 	@Input() attemptsLimit: number;
 	@Input() dialogRef: any;
+	@Input() callback: any;
 
 	ngOnInit(): void {
-		console.log("component init", this.errorContent, this.attempts, this.attemptsLimit);
+		// console.log("component init", this.errorContent, this.attempts, this.attemptsLimit);
 	}
 
 	tryAgain(reset: boolean): void {
-		this.dialogRef.close({ addAttempt: true });
+		this.dialogRef ? this.dialogRef.close({ addAttempt: 1 }) : "do nothing";
+
+		this.callback ? this.callback({ addAttempt: 1 }) : "do nothing";
 	}
 
 	restartDemo(): void {
-		this.dialogRef.close();
+		this.dialogRef ? this.dialogRef.close({ addAttempt: 1 }) : "do nothing";
+
+		this.callback ? this.callback({ addAttempt: 1 }) : "do nothing";
 	}
 }

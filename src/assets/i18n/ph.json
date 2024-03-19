@@ -104,7 +104,7 @@
 		"document_not_detected": "Hindi na-detect ang uri ng dokumento",
 		"document_not_detected_description": "Siguruhing ang iyong sine-scan ay isang identity document gaya ng ID card, driver's license o pasaporte",
 		"remaining_attempts": "Natitirang mga Pagtatangka",
-		"failed_to_detect_limit": "Naubos mo na lahat ng pagtatangka para maayos na maisagawa ang demo",
+		"failed_to_detect_limit": "Naubos mo na ang lahat ng pagtatangka na i-scan ang iyong legal na dokumento",
 		"failed_to_detect_limit_description": "Maaari mong ulitin ang demo ng maraming beses na gusto mo ngunit tandaan na sundin ang mga panuto para ito ay maging matagumpay.",
 		"face_not_found": "Hindi Natagpuan ang Mukha",
 		"face_not_found_details": "Walang natagpuang mukha sa ID document",
