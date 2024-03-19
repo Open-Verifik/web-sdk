@@ -107,7 +107,11 @@
 		"failed_to_detect_limit": "데모를 올바르게 수행하기 위한 모든 시도를 소진했습니다",
 		"failed_to_detect_limit_description": "원하는 만큼 데모를 반복할 수 있지만 성공적으로 수행하기 위한 지시사항을 따르십시오.",
 		"face_not_found": "얼굴을 찾을 수 없습니다",
-		"face_not_found_details": "신분증에서 얼굴을 찾을 수 없습니다"
+		"face_not_found_details": "신분증에서 얼굴을 찾을 수 없습니다",
+		"driver_license_not_allowed": "운전 면허가 허용되지 않습니다",
+		"passport_not_allowed": "여권이 허용되지 않습니다",
+		"government_id_not_allowed": "정부 신분증이 허용되지 않습니다",
+		"country_not_allowed": "이 나라의 문서는 허용되지 않습니다"
 	},
 	"user_location": {
 		"amenity": "시설",

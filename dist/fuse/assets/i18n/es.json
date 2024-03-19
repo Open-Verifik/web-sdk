@@ -107,7 +107,11 @@
 		"document_not_detected_description": "Asegúrese de estar escaneando un documento de identidad como una tarjeta de identificación, licencia de conducir o pasaporte",
 		"remaining_attempts": "Intentos restantes",
 		"failed_to_detect_limit": "Ha agotado todos los intentos para realizar la demostración correctamente",
-		"failed_to_detect_limit_description": "Puede repetir la demostración tantas veces como desee pero recuerde seguir las indicaciones para que sea exitosa."
+		"failed_to_detect_limit_description": "Puede repetir la demostración tantas veces como desee pero recuerde seguir las indicaciones para que sea exitosa.",
+		"driver_license_not_allowed": "Licencia de conducir no permitida",
+		"passport_not_allowed": "Pasaporte no permitido",
+		"government_id_not_allowed": "Identificación gubernamental no permitida",
+		"country_not_allowed": "Documento de este país no permitido"
 	},
 	"user_location": {
 		"amenity": "Comodidad",

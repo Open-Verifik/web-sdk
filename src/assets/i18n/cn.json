@@ -107,7 +107,11 @@
 		"failed_to_detect_limit": "您已用完所有正确执行演示的尝试次数",
 		"failed_to_detect_limit_description": "您可以多次重复演示，但请记住遵循指示以确保演示成功。",
 		"face_not_found": "未找到面孔",
-		"face_not_found_details": "身份证中未找到任何面孔"
+		"face_not_found_details": "身份证中未找到任何面孔",
+		"driver_license_not_allowed": "不允许驾驶执照",
+		"passport_not_allowed": "不允许护照",
+		"government_id_not_allowed": "不允许政府身份证明",
+		"country_not_allowed": "不允许该国家的文件"
 	},
 	"user_location": {
 		"amenity": "便利设施",

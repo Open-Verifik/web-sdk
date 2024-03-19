@@ -107,7 +107,11 @@
 		"failed_to_detect_limit": "Vous avez épuisé toutes les tentatives pour effectuer correctement la démo",
 		"failed_to_detect_limit_description": "Vous pouvez répéter la démo autant de fois que vous le souhaitez, mais souvenez-vous de suivre les indications pour qu'elle soit couronnée de succès.",
 		"face_not_found": "Visage non trouvé",
-		"face_not_found_details": "Aucun visage trouvé dans le document d'identité"
+		"face_not_found_details": "Aucun visage trouvé dans le document d'identité",
+		"driver_license_not_allowed": "Permis de conduire non autorisé",
+		"passport_not_allowed": "Passeport non autorisé",
+		"government_id_not_allowed": "Identifiant gouvernemental non autorisé",
+		"country_not_allowed": "Document de ce pays non autorisé"
 	},
 	"user_location": {
 		"amenity": "Équipement",

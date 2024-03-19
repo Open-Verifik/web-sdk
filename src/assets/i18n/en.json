@@ -110,7 +110,8 @@
 		"face_not_found_details": "No face found in the ID document",
 		"driver_license_not_allowed": "Driver license not allowed",
 		"passport_not_allowed": "Passport not allowed",
-		"government_id_not_allowed": "Government ID not allowed"
+		"government_id_not_allowed": "Government ID not allowed",
+		"country_not_allowed": "Document from this country is not allowed"
 	},
 	"user_location": {
 		"amenity": "Amenity",

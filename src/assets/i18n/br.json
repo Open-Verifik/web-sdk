@@ -107,7 +107,11 @@
 		"failed_to_detect_limit": "Você esgotou todas as tentativas de realizar a demonstração corretamente",
 		"failed_to_detect_limit_description": "Você pode repetir a demonstração quantas vezes quiser, mas lembre-se de seguir as indicações para que seja bem-sucedida.",
 		"face_not_found": "Rosto não encontrado",
-		"face_not_found_details": "Nenhum rosto encontrado no documento de identidade"
+		"face_not_found_details": "Nenhum rosto encontrado no documento de identidade",
+		"driver_license_not_allowed": "Carteira de motorista não permitida",
+		"passport_not_allowed": "Passaporte não permitido",
+		"government_id_not_allowed": "Identidade governamental não permitida",
+		"country_not_allowed": "Documento deste país não permitido"
 	},
 	"user_location": {
 		"amenity": "Comodidade",

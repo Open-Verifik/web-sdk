@@ -1,5 +1,13 @@
 <div class="id-scanning-error-div" fxLayout="column" fxLayoutAlign="center center">
 	<div [ngSwitch]="errorContent.message" fxLayout="column" fxLayoutAlign="center center">
+		<div *ngSwitchCase="'country_not_allowed'" fxLayout="column" fxLayoutAlign="center center">
+			<img [src]="'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png'" alt="" class="id-scanning-failed-document-img" />
+
+			<h1 class="mt-4">
+				{{ "id_scanning.country_not_allowed" | transloco }}
+			</h1>
+		</div>
+
 		<div *ngSwitchCase="'driver_license_not_allowed'" fxLayout="column" fxLayoutAlign="center center">
 			<img [src]="'https://cdn.verifik.co/assets/biometric-services/driverLicense.svg'" alt="" class="id-scanning-failed-document-img" />
 

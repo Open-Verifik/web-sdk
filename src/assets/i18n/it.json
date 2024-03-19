@@ -107,7 +107,11 @@
 		"failed_to_detect_limit": "Hai esaurito tutti i tentativi consentiti per eseguire correttamente la scansione.",
 		"failed_to_detect_limit_description": "Puoi ripetere la scansione più volte, ma assicurati di seguire le istruzioni per garantire il successo della scansione.",
 		"face_not_found": "Volto non trovato",
-		"face_not_found_details": "Nessun volto trovato nel documento d'identità"
+		"face_not_found_details": "Nessun volto trovato nel documento d'identità",
+		"driver_license_not_allowed": "Patente di guida non consentita",
+		"passport_not_allowed": "Passaporto non consentito",
+		"government_id_not_allowed": "ID governativo non consentito",
+		"country_not_allowed": "Documento di questo paese non consentito"
 	},
 	"user_location": {
 		"amenity": "Struttura",

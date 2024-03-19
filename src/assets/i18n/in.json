@@ -107,7 +107,11 @@
 		"failed_to_detect_limit": "आपने डेमो को सही ढंग से पूरा करने के सभी प्रयास समाप्त कर दिए हैं",
 		"failed_to_detect_limit_description": "आप डेमो को जितनी बार चाहें दोहरा सकते हैं लेकिन याद रखें कि इसे सफल बनाने के लिए निर्देशों का पालन करें।",
 		"face_not_found": "चेहरा नहीं मिला",
-		"face_not_found_details": "पहचान पत्र में कोई चेहरा नहीं मिला"
+		"face_not_found_details": "पहचान पत्र में कोई चेहरा नहीं मिला",
+		"driver_license_not_allowed": "ड्राइवर लाइसेंस की अनुमति नहीं है",
+		"passport_not_allowed": "पासपोर्ट की अनुमति नहीं है",
+		"government_id_not_allowed": "सरकारी आईडी की अनुमति नहीं है",
+		"country_not_allowed": "इस देश के दस्तावेज़ की अनुमति नहीं है"
 	},
 	"user_location": {
 		"amenity": "सुविधा",
