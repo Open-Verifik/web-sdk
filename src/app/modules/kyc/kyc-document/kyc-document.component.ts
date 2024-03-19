@@ -66,7 +66,7 @@ export class KycDocumentComponent implements OnInit {
 	_initSteps(): void {
 		this.uploadSteps = ["open_your_files_or_drop_it", "select_allowed_document", "confirm_upload"];
 
-		this.scanSteps = ["open_your_camera", "give_permissions", "place_your_document", "press_scan_manually"];
+		this.scanSteps = ["get_your_document_in_place", "open_your_camera", "place_your_document_properly", "confirm_upload"];
 	}
 
 	ngOnInit(): void {

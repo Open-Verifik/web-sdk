@@ -248,6 +248,19 @@
 			"subtitle": "Segui i passaggi per completare la verifica",
 			"button": "Inizia la verifica"
 		},
+		"document": {
+			"passport": "Passaporto",
+			"government_ID": "Documento d'Identità",
+			"driver_license": "Patente di Guida",
+			"allowed_documents": "Documenti Ammessi",
+			"upload_methods": "Seleziona il tuo metodo di verifica",
+			"open_your_files_or_drop_it": "Apri il tuo sistema di file e trova il tuo documento",
+			"select_allowed_document": "Assicurati che sia un documento consentito (.jpeg, .png, .jpg)",
+			"confirm_upload": "Conferma il documento e rivedi i dettagli",
+			"get_your_document_in_place": "Posiziona il tuo documento in un luogo con illuminazione adeguata",
+			"open_your_camera": "Dai i permessi alla fotocamera del browser",
+			"place_your_document_properly": "Posiziona il documento al centro del rettangolo e assicurati che sia completamente visibile"
+		},
 		"end_step": {
 			"title": "Registrazione completata",
 			"complete_button": "Completa la verifica"

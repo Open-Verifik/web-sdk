@@ -248,6 +248,19 @@
 			"subtitle": "Sundin ang mga hakbang upang kumpletuhin ang beripikasyon",
 			"button": "Simulan ang beripikasyon"
 		},
+		"document": {
+			"passport": "Pasaporte",
+			"government_ID": "ID ng Gobyerno",
+			"driver_license": "Lisensya sa Pagmamaneho",
+			"allowed_documents": "Mga Pinapahintulutang Dokumento",
+			"upload_methods": "Piliin ang iyong paraan ng pag-verify",
+			"open_your_files_or_drop_it": "Buksan ang iyong file system at hanapin ang iyong dokumento",
+			"select_allowed_document": "Siguraduhing ito'y pinapahintulutang dokumento (.jpeg, .png, .jpg)",
+			"confirm_upload": "Kumpirmahin ang dokumento at suriin ang mga detalye",
+			"get_your_document_in_place": "Kunin ang iyong dokumento at ilagay ito sa lugar na may tamang ilaw",
+			"open_your_camera": "Bigyan ng permiso ang camera sa browser",
+			"place_your_document_properly": "Ilagay nang maayos ang dokumento sa loob ng rektanggulo, at siguraduhing ito'y lubos na nakikita"
+		},
 		"end_step": {
 			"title": "Matagumpay na Pagpaparehistro",
 			"complete_button": "Kumpletuhin ang beripikasyon"

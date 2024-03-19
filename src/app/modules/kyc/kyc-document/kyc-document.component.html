@@ -9,12 +9,12 @@
 	>
 		<!-- first section -->
 		<div class="w-50p upload-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center">
-			<h2 class="title-margin" [style.color]="project.branding.titleColor">
-				{{ "step_two.file_description" | transloco }}
-			</h2>
-
 			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
-				<img src="https://cdn.verifik.co/demo/anverso2x.png" class="" alt="" />
+				<h2 class="title-margin" [style.color]="project.branding.titleColor">
+					{{ "step_two.file_description" | transloco }}
+				</h2>
+
+				<img src="https://cdn.verifik.co/assets/kyc/upload.gif" class="" alt="" />
 
 				<!-- steps here -->
 				<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
@@ -23,8 +23,8 @@
 							{{ index + 1 }}
 						</span>
 
-						<span>
-							{{ step }}
+						<span class="w-3/4">
+							{{ "signup.document." + step | transloco }}
 						</span>
 					</p>
 				</div>
@@ -34,7 +34,7 @@
 					[style.color]="project.branding.buttonTxtColor"
 					mat-raised-button
 					color="primary"
-					class="mb-5"
+					class="mb-5 mt-5"
 					(click)="openUploadFile()"
 				>
 					{{ "step_two.file" | transloco }}
@@ -44,12 +44,12 @@
 		<!-- end of first section -->
 
 		<div class="w-50p scan-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center">
-			<h2 class="title-margin" [style.color]="project.branding.titleColor">
-				{{ "step_two.manual_description" | transloco }}
-			</h2>
-
 			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
-				<img src="https://cdn.verifik.co/demo/scan2x.png" />
+				<h2 class="title-margin" [style.color]="project.branding.titleColor">
+					{{ "step_two.manual_description" | transloco }}
+				</h2>
+
+				<img src="https://cdn.verifik.co/assets/kyc/scanOCR.gif" />
 
 				<!-- steps here -->
 				<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
@@ -58,8 +58,8 @@
 							{{ index + 1 }}
 						</span>
 
-						<span>
-							{{ step }}
+						<span class="w-3/4">
+							{{ "signup.document." + step | transloco }}
 						</span>
 					</p>
 				</div>
@@ -69,7 +69,7 @@
 					[style.color]="project.branding.buttonTxtColor"
 					mat-raised-button
 					color="primary"
-					class="mb-5"
+					class="mb-5 mt-5"
 					(click)="openCamera()"
 				>
 					{{ "step_two.manual" | transloco }}

@@ -26,13 +26,15 @@ h2 {
 	text-align: center;
 	padding-left: 4px;
 	padding-right: 4px;
-	height: 100px;
+	font-size: 26px;
 }
 
 .kyc-document-instruction-card {
 	z-index: 2;
 	width: 50%;
+	margin-top: 24px;
 	max-width: 500px;
+	min-width: 350px;
 	min-height: 500px;
 	background: white;
 	border: 1px solid #cccccc65;
@@ -41,7 +43,7 @@ h2 {
 
 	img {
 		padding: 4px;
-		width: 90%;
+		width: 75%;
 	}
 
 	p {
@@ -98,8 +100,6 @@ h2 {
 		h2 {
 			font-size: 24px;
 			text-align: center;
-			padding: 8px;
-			height: 65px !important;
 		}
 	}
 

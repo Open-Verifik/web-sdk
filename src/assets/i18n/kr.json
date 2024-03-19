@@ -248,6 +248,19 @@
 			"subtitle": "검증을 완료하기 위한 단계를 따르세요",
 			"button": "검증 시작"
 		},
+		"document": {
+			"passport": "여권",
+			"government_ID": "정부 발급 신분증",
+			"driver_license": "운전 면허증",
+			"allowed_documents": "허용된 문서",
+			"upload_methods": "인증 방법 선택",
+			"open_your_files_or_drop_it": "파일 시스템을 열고 문서를 찾으세요",
+			"select_allowed_document": "허용된 문서인지 확인하세요 (.jpeg, .png, .jpg)",
+			"confirm_upload": "문서를 확인하고 세부 사항을 검토하세요",
+			"get_your_document_in_place": "문서를 준비하고 적절한 조명이 있는 곳에 두세요",
+			"open_your_camera": "브라우저에 카메라 권한을 부여하세요",
+			"place_your_document_properly": "문서를 사각형 안 가운데에 놓고 완전히 보이는지 확인하세요"
+		},
 		"end_step": {
 			"title": "성공적인 등록",
 			"complete_button": "검증 완료"

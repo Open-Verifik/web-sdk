@@ -242,6 +242,19 @@
 			"subtitle": "按照步骤完成验证",
 			"button": "开始验证"
 		},
+		"document": {
+			"passport": "护照",
+			"government_ID": "政府身份证",
+			"driver_license": "驾照",
+			"allowed_documents": "允许的文件",
+			"upload_methods": "选择您的验证方式",
+			"open_your_files_or_drop_it": "打开您的文件系统并找到您的文档",
+			"select_allowed_document": "确保它是允许的文件类型 (.jpeg, .png, .jpg)",
+			"confirm_upload": "确认文件并复查详情",
+			"get_your_document_in_place": "准备您的文件，并确保光线充足",
+			"open_your_camera": "允许浏览器使用摄像头权限",
+			"place_your_document_properly": "将文件置于矩形框中央，确保文件完整可见"
+		},
 		"end_step": {
 			"title": "注册成功",
 			"complete_button": "完成验证"

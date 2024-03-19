@@ -248,6 +248,19 @@
 			"subtitle": "Suivez les étapes pour compléter la vérification",
 			"button": "Commencer la vérification"
 		},
+		"document": {
+			"passport": "Passeport",
+			"government_ID": "Identifiant Gouvernemental",
+			"driver_license": "Permis de Conduire",
+			"allowed_documents": "Documents Autorisés",
+			"upload_methods": "Sélectionnez votre méthode de vérification",
+			"open_your_files_or_drop_it": "Ouvrez votre système de fichiers et trouvez votre document",
+			"select_allowed_document": "Assurez-vous qu'il s'agit d'un document autorisé (.jpeg, .png, .jpg)",
+			"confirm_upload": "Confirmez le document et examinez les détails",
+			"get_your_document_in_place": "Placez votre document dans un endroit bien éclairé",
+			"open_your_camera": "Donnez la permission à la caméra du navigateur",
+			"place_your_document_properly": "Placez le document au centre du rectangle et assurez-vous qu'il soit entièrement visible"
+		},
 		"end_step": {
 			"title": "Inscription réussie",
 			"complete_button": "Terminer la vérification"
