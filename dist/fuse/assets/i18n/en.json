@@ -104,7 +104,7 @@
 		"document_not_detected": "Document type not detected",
 		"document_not_detected_description": "Please make sure you are scanning an identity document such as an ID card, driver license or passport",
 		"remaining_attempts": "Remaining attempts",
-		"failed_to_detect_limit": "You have exhausted all attempts to perform the demo correctly",
+		"failed_to_detect_limit": "You have exhausted all attempts to scan your legal document",
 		"failed_to_detect_limit_description": "You can repeat the demo as many times as you want but remember to follow the indications for it to be successful.",
 		"face_not_found": "Face not found",
 		"face_not_found_details": "No face found in the ID document",
