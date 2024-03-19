@@ -13,18 +13,33 @@
 				{{ "step_two.file_description" | transloco }}
 			</h2>
 
-			<img src="https://cdn.verifik.co/demo/anverso2x.png" class="upload-img" alt="" />
+			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
+				<img src="https://cdn.verifik.co/demo/anverso2x.png" class="" alt="" />
 
-			<button
-				[style.background]="project.branding.buttonColor"
-				[style.color]="project.branding.buttonTxtColor"
-				mat-raised-button
-				color="primary"
-				class="mb-5"
-				(click)="openUploadFile()"
-			>
-				{{ "step_two.file" | transloco }}
-			</button>
+				<!-- steps here -->
+				<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+					<p *ngFor="let step of uploadSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1">
+						<span class="instruction-number">
+							{{ index + 1 }}
+						</span>
+
+						<span>
+							{{ step }}
+						</span>
+					</p>
+				</div>
+
+				<button
+					[style.background]="project.branding.buttonColor"
+					[style.color]="project.branding.buttonTxtColor"
+					mat-raised-button
+					color="primary"
+					class="mb-5"
+					(click)="openUploadFile()"
+				>
+					{{ "step_two.file" | transloco }}
+				</button>
+			</div>
 		</div>
 		<!-- end of first section -->
 
@@ -33,17 +48,33 @@
 				{{ "step_two.manual_description" | transloco }}
 			</h2>
 
-			<img src="https://cdn.verifik.co/demo/scan2x.png" alt="" class="scan-img" />
-			<button
-				[style.background]="project.branding.buttonColor"
-				[style.color]="project.branding.buttonTxtColor"
-				mat-raised-button
-				color="primary"
-				class="mb-5"
-				(click)="openCamera()"
-			>
-				{{ "step_two.manual" | transloco }}
-			</button>
+			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
+				<img src="https://cdn.verifik.co/demo/scan2x.png" />
+
+				<!-- steps here -->
+				<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+					<p *ngFor="let step of scanSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1">
+						<span class="instruction-number">
+							{{ index + 1 }}
+						</span>
+
+						<span>
+							{{ step }}
+						</span>
+					</p>
+				</div>
+
+				<button
+					[style.background]="project.branding.buttonColor"
+					[style.color]="project.branding.buttonTxtColor"
+					mat-raised-button
+					color="primary"
+					class="mb-5"
+					(click)="openCamera()"
+				>
+					{{ "step_two.manual" | transloco }}
+				</button>
+			</div>
 		</div>
 	</div>
 

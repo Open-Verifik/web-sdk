@@ -53,7 +53,7 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
-		this.attempts = this.appRegistration.failedDocumentValidations?.length || 0;
+		this.attempts = this.appRegistration?.failedDocumentValidations?.length || 0;
 
 		this.attemptsLimit = this.projectFlow.onboardingSettings.document.maxAttempts;
 

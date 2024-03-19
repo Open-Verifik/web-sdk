@@ -29,6 +29,36 @@ h2 {
 	height: 100px;
 }
 
+.kyc-document-instruction-card {
+	z-index: 2;
+	width: 50%;
+	max-width: 500px;
+	min-height: 500px;
+	background: white;
+	border: 1px solid #cccccc65;
+	/* Shadow */
+	box-shadow: 3px 3px 3px 3px rgb(0 0 0 / 5%);
+
+	img {
+		padding: 4px;
+		width: 90%;
+	}
+
+	p {
+		padding-left: 12px;
+	}
+
+	.instruction-number {
+		text-align: center;
+		padding-top: 4px;
+		margin-right: 8px;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background-color: #dce1ff;
+	}
+}
+
 // Extra small screens
 @media (max-height: 599px) {
 	.title-margin {

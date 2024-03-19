@@ -44,6 +44,8 @@ export class KycDocumentComponent implements OnInit {
 	project: Project;
 	projectFlow: ProjectFlow;
 	navigation: any;
+	uploadSteps: Array<string>;
+	scanSteps: Array<string>;
 
 	constructor(private _demoService: DemoService, private dialog: MatDialog, private _KYCService: KYCService) {
 		this.demoData = this._demoService.getDemoData();
@@ -57,6 +59,14 @@ export class KycDocumentComponent implements OnInit {
 		this.navigation = this._KYCService.getNavigation();
 
 		this.selectOption = "";
+
+		this._initSteps();
+	}
+
+	_initSteps(): void {
+		this.uploadSteps = ["open_your_files_or_drop_it", "select_allowed_document", "confirm_upload"];
+
+		this.scanSteps = ["open_your_camera", "give_permissions", "place_your_document", "press_scan_manually"];
 	}
 
 	ngOnInit(): void {
@@ -85,7 +95,7 @@ export class KycDocumentComponent implements OnInit {
 	}
 
 	openCamera() {
-		const attempts = this.appRegistration.failedDocumentValidations?.length || 0;
+		const attempts = this.appRegistration?.failedDocumentValidations?.length || 0;
 
 		const attemptsLimit = this.projectFlow.onboardingSettings.document?.maxAttempts || 3;
 

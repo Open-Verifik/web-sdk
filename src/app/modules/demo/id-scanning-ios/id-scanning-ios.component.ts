@@ -83,7 +83,7 @@ export class IdScanningIOSComponent implements OnInit {
 
 			this.navigation = this._KYCService.getNavigation();
 
-			this.attempts = this.appRegistration.failedDocumentValidations?.length || 0;
+			this.attempts = this.appRegistration?.failedDocumentValidations?.length || 0;
 
 			this.attemptsLimit = this.projectFlow.onboardingSettings.document.maxAttempts;
 		}
