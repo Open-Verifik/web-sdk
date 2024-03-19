@@ -11,35 +11,96 @@ import { WebcamImage, WebcamInitError, WebcamModule } from "ngx-webcam";
 import { Observable, Subject } from "rxjs";
 import { CameraData, FacingMode, IdCard, Intervals, ResponseData } from "../models/sdk.models";
 import * as faceapi from "@vladmandic/face-api";
+import { Project, ProjectFlow } from "app/modules/auth/project";
+import { Router } from "@angular/router";
+import { KYCService } from "app/modules/auth/kyc.service";
+import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
 
 @Component({
 	selector: "id-scanning-ios",
 	templateUrl: "./id-scanning-ios.component.html",
 	styleUrls: ["./id-scanning-ios.component.scss", "../demo-root/demo-root.component.scss"],
 	standalone: true,
-	imports: [FlexLayoutModule, MatCheckboxModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, TranslocoModule, WebcamModule],
+	imports: [
+		FlexLayoutModule,
+		MatCheckboxModule,
+		MatButtonModule,
+		CommonModule,
+		MatProgressSpinnerModule,
+		TranslocoModule,
+		WebcamModule,
+		DocumentErrorsDisplayComponent,
+	],
 })
 export class IdScanningIOSComponent implements OnInit {
 	@ViewChild("maskResult", { static: false }) public maskResultCanvasRef: ElementRef;
 	@ViewChild("toSend", { static: false }) public ToSendCanvasRef: ElementRef;
 	@ViewChild("cardIdFace", { static: false }) cardIdFaceRef: ElementRef;
 
-	attempts: any;
+	attempts: number;
+	attemptsLimit: number;
 	demoData: any;
 	camera: CameraData;
 	response: ResponseData;
 	interval: Intervals;
-
+	view: string;
+	appRegistration: any;
+	project: Project;
+	projectFlow: ProjectFlow;
 	idCard: IdCard;
-
+	navigation: any;
 	aspectRatio = 85.6 / 53.98;
-
-	private takePicture: Subject<void> = new Subject<void>();
+	errorContent: any;
+	errorResult: boolean;
 	errorFace: any;
 	checkFaceTimeout: any;
 
+	private takePicture: Subject<void> = new Subject<void>();
+
 	public get takePicture$(): Observable<void> {
 		return this.takePicture.asObservable();
+	}
+
+	constructor(
+		private _dom: ElementRef,
+		private _demoService: DemoService,
+		private _splashScreenService: FuseSplashScreenService,
+		private _translocoService: TranslocoService,
+		private renderer: Renderer2,
+		private _router: Router,
+		private _KYCService: KYCService
+	) {
+		this.demoData = this._demoService.getDemoData();
+
+		this.view = this._router.url.includes("/kyc") ? "kyc" : "demo";
+
+		if (this.view === "kyc") {
+			this.appRegistration = this._KYCService.appRegistration;
+
+			this.project = this._KYCService.currentProject;
+
+			this.projectFlow = this._KYCService.currentProjectFlow;
+
+			this.navigation = this._KYCService.getNavigation();
+
+			this.attempts = this.appRegistration.failedDocumentValidations?.length || 0;
+
+			this.attemptsLimit = this.projectFlow.onboardingSettings.document.maxAttempts;
+		}
+
+		this.errorContent = {
+			message: "",
+		};
+
+		this.startDefaultValues();
+
+		this.setDefaultInterval();
+
+		this.renderer.listen("window", "resize", () => {
+			this.interval.checkNgxVideo = setInterval(() => {
+				this.setVideoNgxCameraData();
+			}, this.demoData.time);
+		});
 	}
 
 	setDefaultCamera = () => {
@@ -68,39 +129,12 @@ export class IdScanningIOSComponent implements OnInit {
 		this.interval = {};
 	};
 
-	setDefaultAttempts = () => {
-		this.attempts = {
-			current: 0,
-			limit: 3,
-		};
-	};
-
 	setDefaultResponse = () => {
 		this.response = {
 			isLoading: false,
 			isFailed: false,
 		};
 	};
-
-	constructor(
-		private _dom: ElementRef,
-		private _demoService: DemoService,
-		private _splashScreenService: FuseSplashScreenService,
-		private _translocoService: TranslocoService,
-		private renderer: Renderer2
-	) {
-		this.demoData = this._demoService.getDemoData();
-
-		this.startDefaultValues();
-		this.setDefaultAttempts();
-		this.setDefaultInterval();
-
-		this.renderer.listen("window", "resize", () => {
-			this.interval.checkNgxVideo = setInterval(() => {
-				this.setVideoNgxCameraData();
-			}, this.demoData.time);
-		});
-	}
 
 	ngOnInit(): void {
 		this.startDefaultValues();
@@ -296,10 +330,11 @@ export class IdScanningIOSComponent implements OnInit {
 			}
 
 			const faceBiggest = this._demoService.getBiggestFace(faces.map((face) => face.detection.box));
+
 			this.idCard = {
 				face: this._demoService.cutFaceIdCard(img, faceBiggest, this.cardIdFaceRef.nativeElement),
 			};
-			
+
 			this.camera.dimensions.real = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
 			this.setResultDimensions(this.camera.dimensions.real, img.height, img.width);
 
@@ -344,15 +379,45 @@ export class IdScanningIOSComponent implements OnInit {
 	async continue(): Promise<void> {
 		const dataToSend = {
 			image: this.response.base64Image.replace("data:image/jpeg;base64", ""),
+			force: this.appRegistration?.forceUpload || false,
 		};
 
 		this.loading({ result: true });
 
-		https: this._demoService.sendDocument(dataToSend).subscribe(
+		if (this.view === "kyc") {
+			this._KYCService
+				.createDocumentValidation({
+					...dataToSend,
+					documentFace: this.idCard.face,
+				})
+				.subscribe({
+					next: (response) => {
+						this.appRegistration.documentValidation = response.data.documentValidation;
+
+						this._KYCService.navigateTo("next");
+					},
+					error: (exception) => {
+						this.errorResult = true;
+
+						this.errorContent = exception.error;
+
+						this.loading({ isLoading: false });
+
+						this._splashScreenService.hide();
+					},
+					complete: () => {
+						this.loading({ isLoading: false });
+					},
+				});
+
+			return;
+		}
+
+		this._demoService.sendDocument(dataToSend).subscribe(
 			(response) => {
 				this._demoService.setDemoDocument(response.data);
 
-				localStorage.setItem('idCardFaceImage',this.idCard.face)
+				localStorage.setItem("idCardFaceImage", this.idCard.face);
 				localStorage.setItem("documentId", response.data._id);
 
 				this.loading({ isLoading: false });
@@ -367,11 +432,16 @@ export class IdScanningIOSComponent implements OnInit {
 	}
 
 	tryAgain(): void {
-		this.attempts.current++;
+		this.attempts++;
+
 		this.ngOnInit();
 	}
 
 	restartDemo(): void {
 		this._demoService.restart();
+	}
+
+	onErrorCallback(payload: any) {
+		window.location.reload();
 	}
 }

@@ -91,7 +91,7 @@ export class IdScanningComponent implements OnInit {
 
 		this.view = this._router.url.includes("/kyc") ? "kyc" : "demo";
 
-		if (this.view) {
+		if (this.view === "kyc") {
 			this.appRegistration = this._KYCService.appRegistration;
 
 			this.project = this._KYCService.currentProject;

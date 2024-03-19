@@ -2,15 +2,17 @@
 	fxLayout="column"
 	fxLayoutAlign="center center"
 	class="bg-white rounded-lg shadow-lg m-5 p-4 w-full"
-	*ngIf="!response.isFailed && camera.hasPermissions"
+	*ngIf="!response.isFailed && camera.hasPermissions && !errorResult"
 >
 	<canvas #cardIdFace hidden="true"></canvas>
+
 	<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
 		<div *ngIf="errorFace && !loadingResults">
 			<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
 			<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
 		</div>
 	</div>
+
 	<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
 		<webcam
 			[height]="camera.dimensions.video.max.height"
@@ -78,6 +80,16 @@
 		{{ "id_scanning.camera_not_found_description" | transloco }}
 	</p>
 </div>
+
+<kyc-document-errors-display
+	class="m-16"
+	*ngIf="errorContent.message"
+	[errorContent]="errorContent"
+	[attempts]="attempts"
+	[attemptsLimit]="attemptsLimit"
+	[callback]="onErrorCallback"
+>
+</kyc-document-errors-display>
 
 <div *ngIf="response.isFailed" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
 	<img
