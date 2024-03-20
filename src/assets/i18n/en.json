@@ -250,16 +250,16 @@
 		},
 		"document": {
 			"passport": "Passport",
-			"government_ID": "Government ID",
+			"government_ID": "ID",
 			"driver_license": "Driver License",
 			"allowed_documents": "Allowed documents",
 			"upload_methods": "Select your verification method",
 			"open_your_files_or_drop_it": "Open your file system and find your document",
 			"select_allowed_document": "Make sure it's an allowed document (.jpeg, .png, .jpg)",
 			"confirm_upload": "Confirm the document and review the details",
-			"get_your_document_in_place": "Get your document and put it in a place with proper ilumination",
+			"get_your_document_in_place": "Grab your physical document",
 			"open_your_camera": "Give the camera permissions to the browser",
-			"place_your_document_properly": "Put the document centered in the rectangle, and make sure it is fully visible"
+			"place_your_document_properly": "Put the full document centered and make sure it's fully visible"
 		},
 		"end_step": {
 			"title": "Sucessful registration",

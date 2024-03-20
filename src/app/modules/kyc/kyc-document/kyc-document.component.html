@@ -1,32 +1,76 @@
 <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+	<div class="w-full" fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" fxLayoutAlign.xs="center center" *ngIf="!selectOption">
+		<div
+			class="w-50p mt-4 mb-4"
+			ngClass.xs="w-full"
+			ngClass.sm="w-3/4"
+			fxLayout="column"
+			fxLayoutAlign="start center"
+			fxLayoutAlign.xs="start center"
+		>
+			<h2 [style.color]="project.branding.titleColor" class="pt-0">
+				{{ "signup.document.allowed_documents" | transloco }}
+			</h2>
+
+			<div class="w-full" fxLayout="row" fxLayoutAlign="center center">
+				<!-- options here inside -->
+
+				<div class="kyc-documents-allowed-card" fxLayout="column" fxLayoutAlign="center center">
+					<img [src]="'https://cdn.verifik.co/assets/biometric-services/Passport.svg'" alt="" class="kyc-passport-img" />
+					<h3>
+						{{ "signup.document.passport" | transloco }}
+					</h3>
+				</div>
+
+				<div class="kyc-documents-allowed-card" fxLayout="column" fxLayoutAlign="center center">
+					<img [src]="'https://cdn.verifik.co/assets/biometric-services/driverLicense.svg'" alt="" class="kyc-gov-id-img" />
+					<h3>
+						{{ "signup.document.driver_license" | transloco }}
+					</h3>
+				</div>
+
+				<div class="kyc-documents-allowed-card" fxLayout="column" fxLayoutAlign="center center">
+					<img [src]="'https://cdn.verifik.co/assets/biometric-services/governmentID.svg'" alt="" class="kyc-gov-id-img" />
+					<h3>
+						{{ "signup.document.government_ID" | transloco }}
+					</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div
 		class="id-details-body w-full"
 		fxLayout="row"
 		fxLayout.xs="column"
+		fxLayout.sm="column"
 		fxLayoutAlign="start start"
 		fxLayoutAlign.xs="center center"
+		fxLayoutAlign.sm="center center"
 		*ngIf="!selectOption"
 	>
 		<!-- first section -->
-		<div class="w-50p upload-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center">
+		<div class="w-50p upload-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center" ngClass.sm="w-full">
 			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
 				<h2 class="title-margin" [style.color]="project.branding.titleColor">
 					{{ "step_two.file_description" | transloco }}
 				</h2>
 
-				<img src="https://cdn.verifik.co/assets/kyc/upload.gif" class="" alt="" />
+				<div class="w-full" fxLayout="row" fxLayoutAlign="start start" fxLayout.xs="column" fxLayoutAlign.xs="center center">
+					<img src="https://cdn.verifik.co/assets/kyc/upload.gif" class="" alt="" />
 
-				<!-- steps here -->
-				<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
-					<p *ngFor="let step of uploadSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1">
-						<span class="instruction-number">
-							{{ index + 1 }}
-						</span>
+					<!-- steps here -->
+					<div fxLayout="column" fxLayoutAlign="center center" fxLayoutAlign.xs="center start" class="w-full">
+						<p *ngFor="let step of uploadSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1">
+							<span class="instruction-number">
+								{{ index + 1 }}
+							</span>
 
-						<span class="w-3/4">
-							{{ "signup.document." + step | transloco }}
-						</span>
-					</p>
+							<span class="w-3/4">
+								{{ "signup.document." + step | transloco }}
+							</span>
+						</p>
+					</div>
 				</div>
 
 				<button
@@ -34,7 +78,7 @@
 					[style.color]="project.branding.buttonTxtColor"
 					mat-raised-button
 					color="primary"
-					class="mb-5 mt-5"
+					class="mb-5"
 					(click)="openUploadFile()"
 				>
 					{{ "step_two.file" | transloco }}
@@ -43,25 +87,27 @@
 		</div>
 		<!-- end of first section -->
 
-		<div class="w-50p scan-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center">
+		<div class="w-50p scan-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center" ngClass.sm="w-full">
 			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
 				<h2 class="title-margin" [style.color]="project.branding.titleColor">
 					{{ "step_two.manual_description" | transloco }}
 				</h2>
 
-				<img src="https://cdn.verifik.co/assets/kyc/scanOCR.gif" />
+				<div class="w-full" fxLayout="row" fxLayoutAlign="start start" fxLayout.xs="column" fxLayoutAlign.xs="center center">
+					<img src="https://cdn.verifik.co/assets/kyc/scanOCR.gif" />
 
-				<!-- steps here -->
-				<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
-					<p *ngFor="let step of scanSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1">
-						<span class="instruction-number">
-							{{ index + 1 }}
-						</span>
+					<!-- steps here -->
+					<div fxLayout="column" fxLayoutAlign="start start" class="w-full">
+						<p *ngFor="let step of scanSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1 w-full">
+							<span class="instruction-number">
+								{{ index + 1 }}
+							</span>
 
-						<span class="w-3/4">
-							{{ "signup.document." + step | transloco }}
-						</span>
-					</p>
+							<span class="w-3/4">
+								{{ "signup.document." + step | transloco }}
+							</span>
+						</p>
+					</div>
 				</div>
 
 				<button
