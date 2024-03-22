@@ -165,6 +165,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
+
+				this.location.os = this.deviceDetails?.platform;
+				this.location.type = "desktop";
+
+				localStorage.setItem("loginLocation", JSON.stringify(this.location));
 			},
 			error: (exception) => {},
 			complete: () => {},
@@ -304,45 +309,53 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	_signInWithEmail(dataForm): void {
-		this._passwordlessService.confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm.value.authenticatorOTP).subscribe(
-			(response) => {
-				if (response.data.message) {
-					this.secondFactorData = response.data;
+		this._passwordlessService
+			.confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm.value.authenticatorOTP, this.location)
+			.subscribe(
+				(response) => {
+					if (response.data.message) {
+						this.secondFactorData = response.data;
 
-					this.secondFactorData.emailOTP = dataForm.emailOTP;
+						this.secondFactorData.emailOTP = dataForm.emailOTP;
 
-					return;
+						return;
+					}
+
+					this.appLoginToken = response.data.token;
+
+					localStorage.setItem("defaultEmail", dataForm.email);
+
+					if (response.data?.showFaceLivenessRecommendation) {
+						this.showFaceLivenessRecommendation = true;
+
+						return;
+					}
+
+					this.loading = false;
+
+					return this.successLogin(response.data.token);
+				},
+				(err) => {
+					console.error({
+						err: err.error.message,
+					});
+
+					this.errorLogin(err.error.message);
+
+					this.loading = false;
 				}
-
-				this.appLoginToken = response.data.token;
-
-				localStorage.setItem("defaultEmail", dataForm.email);
-
-				if (response.data?.showFaceLivenessRecommendation) {
-					this.showFaceLivenessRecommendation = true;
-
-					return;
-				}
-
-				this.loading = false;
-
-				return this.successLogin(response.data.token);
-			},
-			(err) => {
-				console.error({
-					err: err.error.message,
-				});
-
-				this.errorLogin(err.error.message);
-
-				this.loading = false;
-			}
-		);
+			);
 	}
 
 	_signInWithPhone(dataForm): void {
 		this._passwordlessService
-			.confirmPhoneValidation(dataForm.countryCode, dataForm.phone, dataForm.phoneOTP, this.secondFactorForm.value.authenticatorOTP)
+			.confirmPhoneValidation(
+				dataForm.countryCode,
+				dataForm.phone,
+				dataForm.phoneOTP,
+				this.secondFactorForm.value.authenticatorOTP,
+				this.location
+			)
 			.subscribe(
 				(response) => {
 					if (!response.data) return;
@@ -455,22 +468,24 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				break;
 
 			case "phone":
-				this._passwordlessService.sendPhoneValidation(this.signInForm.value.countryCode, this.signInForm.value.phone, gateway).subscribe(
-					(response) => {
-						this.phoneValidation = response.data;
+				this._passwordlessService
+					.sendPhoneValidation(this.signInForm.value.countryCode, this.signInForm.value.phone, gateway, this.location)
+					.subscribe(
+						(response) => {
+							this.phoneValidation = response.data;
 
-						this.smsSent = true;
+							this.smsSent = true;
 
-						this.startTimer(this.typeLogin);
+							this.startTimer(this.typeLogin);
 
-						this.sendingOTP = false;
-					},
-					(err) => {
-						this.errorLogin(err?.error?.message);
+							this.sendingOTP = false;
+						},
+						(err) => {
+							this.errorLogin(err?.error?.message);
 
-						this.sendingOTP = false;
-					}
-				);
+							this.sendingOTP = false;
+						}
+					);
 				break;
 		}
 	}

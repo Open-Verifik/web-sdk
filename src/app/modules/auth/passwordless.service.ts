@@ -43,7 +43,7 @@ export class PasswordlessService {
 			.pipe(tap((response: any) => {}));
 	}
 
-	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
+	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string, location?: any): Observable<any> {
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
 				phone,
@@ -54,11 +54,12 @@ export class PasswordlessService {
 				type: "login",
 				language: this._translocoService.getActiveLang(),
 				validationMethod: "verificationCode",
+				location,
 			})
 			.pipe(tap((response: any) => {}));
 	}
 
-	confirmPhoneValidation(countryCode: string, phone: string, otp: string, authenticatorOTP: string): Observable<any> {
+	confirmPhoneValidation(countryCode: string, phone: string, otp: string, authenticatorOTP: string, location?: any): Observable<any> {
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/phone-validations/validate`, {
 				projectFlow: this.currentProject.currentProjectFlow._id,
@@ -67,17 +68,19 @@ export class PasswordlessService {
 				otp,
 				authenticatorOTP,
 				type: "login",
+				location,
 				// ipData: JSON.parse(localStorage.getItem("ipData")),
 			})
 			.pipe(tap((response: any) => {}));
 	}
 
-	confirmEmailValidation(email: string, otp: string, authenticatorOTP: string): Observable<any> {
+	confirmEmailValidation(email: string, otp: string, authenticatorOTP: string, location?: any): Observable<any> {
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/email-validations/validate`, {
 				email,
 				otp,
 				projectFlow: this.currentProject.currentProjectFlow._id,
+				location,
 				// authenticatorOTP,
 				// ipData: JSON.parse(localStorage.getItem("ipData")),
 			})
@@ -94,6 +97,12 @@ export class PasswordlessService {
 
 	createLivenessSession(data: any): Observable<any> {
 		const appLoginToken = localStorage.getItem("accessToken");
+
+		const location = localStorage.getItem("loginLocation");
+		
+		if(location){
+			data.location = JSON.parse(location)
+		}
 
 		let url = `${this.baseUrl}/v2/biometric-validations`;
 
@@ -116,6 +125,12 @@ export class PasswordlessService {
 	}
 
 	validateBiometrics(data: any): Observable<any> {
+		const location = localStorage.getItem("loginLocation");
+
+		if(location){
+			data.location = JSON.parse(location)
+		}
+
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/validate`, data);
 	}
 
