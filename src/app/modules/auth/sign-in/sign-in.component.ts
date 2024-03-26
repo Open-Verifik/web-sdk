@@ -1,19 +1,19 @@
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID } from "@angular/core";
-import { FormGroup, FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewEncapsulation, PLATFORM_ID } from "@angular/core";
+import { FormGroup, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -99,6 +99,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		ph: "ph",
 	};
 	location: any;
+	selectedCountryCode: string;
 
 	/**
 	 * Constructor
@@ -128,8 +129,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		localStorage.removeItem("accessToken");
 
 		this.deviceDetails = this._demoService.getDeviceDetails();
-
-		// console.log(this.deviceDetails);
 
 		this.sendingOTP = false;
 
@@ -174,6 +173,18 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 			error: (exception) => {},
 			complete: () => {},
 		});
+	}
+
+	onCountryCodeChange(value: string) {
+		if (!value || !this.typeLogin) return;
+
+		this.phoneValidation = null;
+
+		this.smsSent = false;
+
+		this.stopTimer();
+
+		this.sendingOTP = false;
 	}
 
 	ngOnDestroy(): void {
@@ -530,7 +541,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				this.phoneValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
 
 				interval = setInterval(() => {
-					if (this.phoneValidation.diff > 0) {
+					if (this.phoneValidation?.diff > 0) {
 						this.phoneValidation.diff--;
 					} else {
 						clearInterval(interval);
@@ -539,6 +550,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 						this.phoneValidation = null;
 					}
+
 					this.buttonSendOtp();
 
 					this._changeDetectorRef.detectChanges();
@@ -546,6 +558,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 				break;
 		}
+	}
+
+	stopTimer(): void {
+		if (this.emailValidation) this.emailValidation.diff = 0;
+		if (this.phoneValidation) this.phoneValidation.diff = 0;
 	}
 
 	showBiometricsLogin(): void {

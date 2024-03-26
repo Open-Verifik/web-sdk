@@ -101,7 +101,13 @@
 									<div class="mt-2" *ngIf="groupFields.phone" fxLayout="row" fxLayoutAlign="start start">
 										<mat-form-field class="w-120px">
 											<mat-label [style.color]="project.branding.txtColor">{{ "login.country_code" | transloco }}</mat-label>
-											<mat-select *ngIf="countries" [formControl]="signInForm.get('countryCode')" matPrefix>
+											<mat-select
+												*ngIf="countries"
+												[formControl]="signInForm.get('countryCode')"
+												matPrefix
+												[(ngModel)]="selectedCountryCode"
+												(ngModelChange)="onCountryCodeChange($event)"
+											>
 												<mat-select-trigger>
 													<span class="flex items-center">
 														<span class="sm:mx-0.5 font-medium text-default">{{
