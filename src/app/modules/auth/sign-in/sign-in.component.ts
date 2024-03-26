@@ -166,7 +166,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 
 				this.location.os = this.deviceDetails?.platform;
-				this.location.type = "desktop";
+				this.location.type = "browser";
 
 				localStorage.setItem("loginLocation", JSON.stringify(this.location));
 			},

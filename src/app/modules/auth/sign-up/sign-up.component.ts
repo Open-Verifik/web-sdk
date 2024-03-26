@@ -190,7 +190,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
 				this.location.os = this.deviceDetails?.platform
-				this.location.type = "desktop"
+				this.location.type = "browser"
 
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
