@@ -505,7 +505,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		let interval;
 
 		const dateToCompare = moment(
-			this.emailValidation ? this.emailValidation.createdAt : this.phoneValidation ? this.phoneValidation.createdAt : new Date()
+			this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
 		).add(2, "minute");
 
 		switch (field) {
