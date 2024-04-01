@@ -170,7 +170,8 @@
 		"person_already_set": "您的注册已链接生物特征",
 		"replace_person_button": "好的，替换生物特征",
 		"Duplicated_person": "生物特征正在用于另一个记录",
-		"Liveness_score_not_acceptable": "活体检测分数不可接受"
+		"Liveness_score_not_acceptable": "活体检测分数不可接受",
+		"min_liveness_score_is": "最低活性评分是："
 	},
 	"login": {
 		"title_1": "欢迎",

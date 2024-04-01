@@ -171,7 +171,8 @@
 		"replace_person_button": "Ok, palitan ang biometrics",
 		"Duplicated_person": "Ginagamit ang mga biometrics sa isa pang rekord",
 		"liveness_failed": "Nabigo ang pagtukoy ng buhay",
-		"Liveness_score_not_acceptable": "Hindi katanggap-tanggap ang iskor ng pagiging buhay"
+		"Liveness_score_not_acceptable": "Hindi katanggap-tanggap ang iskor ng pagiging buhay",
+		"min_liveness_score_is": "Ang minimum na iskor ng pagiging buhay ay: "
 	},
 	"login": {
 		"title_1": "Maligayang Pagdating",

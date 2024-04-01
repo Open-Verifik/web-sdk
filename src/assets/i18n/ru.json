@@ -171,7 +171,8 @@
 		"replace_person_button": "Ок, заменить биометрию",
 		"Duplicated_person": "Биометрия используется в другой записи",
 		"liveness_failed": "Проверка на живучесть не удалась",
-		"Liveness_score_not_acceptable": "Уровень подтверждения живучести неприемлем"
+		"Liveness_score_not_acceptable": "Уровень подтверждения живучести неприемлем",
+		"min_liveness_score_is": "Минимальный показатель живости: "
 	},
 	"login": {
 		"title_1": "Добро пожаловать",

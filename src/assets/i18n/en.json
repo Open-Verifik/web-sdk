@@ -171,7 +171,8 @@
 		"replace_person_button": "Ok, replace biometrics",
 		"Duplicated_person": "Biometrics is being used into another record",
 		"liveness_failed": "Liveness detection failed",
-		"Liveness_score_not_acceptable": "Liveness score is not acceptable"
+		"Liveness_score_not_acceptable": "Liveness score is not acceptable",
+		"min_liveness_score_is": "The minimum liveness score is: "
 	},
 	"login": {
 		"title_1": "Welcome",

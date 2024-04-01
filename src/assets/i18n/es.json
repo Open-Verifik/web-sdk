@@ -171,7 +171,8 @@
 		"replace_person_button": "Ok, reemplazar los datos biométricos",
 		"Duplicated_person": "Los datos biométricos se están utilizando en otro registro",
 		"liveness_failed": "Detección de vida fallida",
-		"Liveness_score_not_acceptable": "La puntuación de viveza no es aceptable"
+		"Liveness_score_not_acceptable": "La puntuación de viveza no es aceptable",
+		"min_liveness_score_is": "La puntuación mínima de vivacidad es: "
 	},
 	"login": {
 		"title_1": "Bienvenido",

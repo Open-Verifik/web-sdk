@@ -171,7 +171,8 @@
 		"replace_person_button": "Ok, remplacer les biométriques",
 		"Duplicated_person": "Les biométriques sont utilisés dans un autre enregistrement",
 		"liveness_failed": "Échec de la vérification de vie",
-		"Liveness_score_not_acceptable": "Le score de vivacité n'est pas acceptable"
+		"Liveness_score_not_acceptable": "Le score de vivacité n'est pas acceptable",
+		"min_liveness_score_is": "Le score de vivacité minimum est : "
 	},
 	"login": {
 		"title_1": "Bienvenue",

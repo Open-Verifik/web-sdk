@@ -171,7 +171,8 @@
 		"replace_person_button": "ठीक है, बायोमेट्रिक्स बदलें",
 		"Duplicated_person": "बायोमेट्रिक्स किसी अन्य रिकॉर्ड में इस्तेमाल की जा रही है",
 		"liveness_failed": "सजीवता पहचान विफल रही",
-		"Liveness_score_not_acceptable": "लाइवनेस स्कोर स्वीकार्य नहीं है"
+		"Liveness_score_not_acceptable": "लाइवनेस स्कोर स्वीकार्य नहीं है",
+		"min_liveness_score_is": "न्यूनतम जीवंतता स्कोर है: "
 	},
 	"login": {
 		"title_1": "स्वागत है",

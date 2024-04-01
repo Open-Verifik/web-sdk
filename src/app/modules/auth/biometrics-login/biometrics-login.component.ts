@@ -5,7 +5,6 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "app/modules/demo/demo.service";
-import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
 
 import * as faceapi from "@vladmandic/face-api";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
@@ -580,10 +579,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		const payload: any = {
 			image: this.base64Image,
 			os: this.osInfo,
-			// id: this.project._id,
-			// liveness_min_score: 0.55,
-			// min_score: 0.7,
-			// search_mode: "FAST",
 		};
 
 		this._passwordlessService.validateBiometrics(payload).subscribe({
@@ -591,10 +586,17 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				this.successLogin(response.data.token);
 			},
 			error: (err) => {
-				console.error({ errorFromValidatingBiometrics: err });
 				this.showError = true;
 
 				this.errorContent = err.error;
+
+				if (this.errorContent.message) {
+					const split = this.errorContent.message.split("@");
+
+					this.errorContent.message = split[0];
+
+					this.errorContent.livenessScore = Number(split[1] || 0);
+				}
 
 				this._splashScreenService.hide();
 			},

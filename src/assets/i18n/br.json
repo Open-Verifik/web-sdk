@@ -170,7 +170,8 @@
 		"person_already_set": "Seu registro já possui biometrias vinculadas",
 		"replace_person_button": "Ok, substituir biometrias",
 		"Duplicated_person": "A biometria está sendo usada em outro registro",
-		"Liveness_score_not_acceptable": "A pontuação de vivacidade não é aceitável"
+		"Liveness_score_not_acceptable": "A pontuação de vivacidade não é aceitável",
+		"min_liveness_score_is": "A pontuação mínima de vivacidade é: "
 	},
 	"login": {
 		"title_1": "Bem-vindo",

@@ -171,7 +171,8 @@
 		"replace_person_button": "확인, 생체 인식 교체",
 		"Duplicated_person": "생체 인식이 다른 기록에 사용되고 있습니다",
 		"liveness_failed": "생체 인식 실패",
-		"Liveness_score_not_acceptable": "생체 인식 점수가 허용되지 않습니다"
+		"Liveness_score_not_acceptable": "생체 인식 점수가 허용되지 않습니다",
+		"min_liveness_score_is": "최소 생동감 점수는: "
 	},
 	"login": {
 		"title_1": "환영합니다",
