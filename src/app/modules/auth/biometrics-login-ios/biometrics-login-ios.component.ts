@@ -28,6 +28,7 @@ import {
 import { environment } from "environments/environment";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
+import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
 
 @Component({
 	selector: "app-biometrics-login-ios",
@@ -41,6 +42,7 @@ import { Project, ProjectFlow } from "../project";
 		MatProgressBarModule,
 		MatProgressSpinnerModule,
 		WebcamModule,
+		AuthBiometricErrorsDisplayComponent,
 	],
 	templateUrl: "./biometrics-login-ios.component.html",
 	styleUrls: ["./biometrics-login-ios.component.scss"],

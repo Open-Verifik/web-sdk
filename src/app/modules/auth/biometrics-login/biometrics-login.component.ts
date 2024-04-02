@@ -14,13 +14,25 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
 import { environment } from "environments/environment";
+import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
+
+let _biometricLoginThis = null;
 
 @Component({
 	selector: "app-biometrics-login",
 	standalone: true,
 	templateUrl: "./biometrics-login.component.html",
 	styleUrls: ["./biometrics-login.component.scss"],
-	imports: [FlexLayoutModule, CommonModule, MatDialogModule, TranslocoModule, MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule],
+	imports: [
+		FlexLayoutModule,
+		CommonModule,
+		MatDialogModule,
+		TranslocoModule,
+		MatButtonModule,
+		MatProgressBarModule,
+		MatProgressSpinnerModule,
+		AuthBiometricErrorsDisplayComponent,
+	],
 })
 export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	private _matDialog: MatDialog = inject(MatDialog);
@@ -104,6 +116,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2,
 		private _passwordlessService: PasswordlessService
 	) {
+		_biometricLoginThis = this;
+
 		this.loadingModel = true;
 
 		this.lowCamera = false;
@@ -586,19 +600,11 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				this.successLogin(response.data.token);
 			},
 			error: (err) => {
-				this.showError = true;
-
 				this.errorContent = err.error;
 
-				if (this.errorContent.message) {
-					const split = this.errorContent.message.split("@");
-
-					this.errorContent.message = split[0];
-
-					this.errorContent.livenessScore = Number(split[1] || 0);
-				}
-
 				this._splashScreenService.hide();
+
+				this.showError = true;
 			},
 			complete: () => {},
 		});
@@ -646,15 +652,5 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	continueRedirection(): void {
-		if (this.showError && ["person_not_found", "liveness_failed"].includes(this.errorContent.message)) {
-			window.location.reload();
-
-			return;
-		}
-
-		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
-
-		window.location.href = `${redirectUrl}?type=login&token=${this.appLoginToken}`;
-	}
+	continueRedirection(event: any): void {}
 }
