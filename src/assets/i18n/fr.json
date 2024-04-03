@@ -268,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "Informations de base"
-		}
+		},
+		"change_your_phone_title": "Mettez à jour votre téléphone",
+		"change_your_phone_description": "Configurez correctement votre téléphone afin que nous puissions vous envoyer un code de vérification à 6 chiffres",
+		"change_your_phone_button": "Mettre à jour"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Sélectionnez la méthode par laquelle vous souhaitez recevoir le code de vérification à 6 chiffres",

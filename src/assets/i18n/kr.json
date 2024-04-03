@@ -268,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "기본 정보"
-		}
+		},
+		"change_your_phone_title": "전화번호 업데이트",
+		"change_your_phone_description": "6자리 인증 코드를 보낼 수 있도록 전화번호를 올바르게 설정하세요",
+		"change_your_phone_button": "업데이트"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "6자리 인증 코드를 받고 싶은 방법을 선택하세요",

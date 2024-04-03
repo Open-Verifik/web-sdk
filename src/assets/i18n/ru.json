@@ -268,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "Основная информация"
-		}
+		},
+		"change_your_phone_title": "Обновите ваш телефон",
+		"change_your_phone_description": "Настройте ваш телефон правильно, чтобы мы могли отправить вам 6-значный код подтверждения",
+		"change_your_phone_button": "Обновить"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Выберите метод, которым вы хотите получить 6-значный код подтверждения",

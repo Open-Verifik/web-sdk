@@ -268,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "Basic Information"
-		}
+		},
+		"change_your_phone_title": "Update your phone",
+		"change_your_phone_description": "Set your phone properly so we can send you a 6-digits verification code",
+		"change_your_phone_button": "Update"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Select which method you wish to receive the 6-Digit verification code",
