@@ -15,7 +15,7 @@ import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
 import { environment } from "environments/environment";
 import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
-
+import { AuthSignInComponent } from "../sign-in/sign-in.component";
 let _biometricLoginThis = null;
 
 @Component({
@@ -32,6 +32,7 @@ let _biometricLoginThis = null;
 		MatProgressBarModule,
 		MatProgressSpinnerModule,
 		AuthBiometricErrorsDisplayComponent,
+		AuthSignInComponent,
 	],
 })
 export class BiometricsLoginComponent implements OnInit, OnDestroy {
@@ -110,6 +111,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
+		private _signInComponent: AuthSignInComponent,
 		private _demoService: DemoService,
 		private _translocoService: TranslocoService,
 		private _splashScreenService: FuseSplashScreenService,
@@ -243,7 +245,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				video: this.videoOptions,
 				audio: false,
 			});
-
+			console.log(this.stream);
 			this.videoInput = this.video.nativeElement as HTMLVideoElement;
 
 			this.videoInput.srcObject = this.stream;
@@ -280,7 +282,12 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				// }, 100);
 			});
 		} catch (error) {
-			alert(`${error.message}`);
+			this._splashScreenService.hide();
+
+			this._signInComponent.showBiometrics = false;
+			this._signInComponent.webcamError = true;
+
+			alert(`Video ${error.message}`);
 
 			console.error("SHOW ERROR", error);
 		}

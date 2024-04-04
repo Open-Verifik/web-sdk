@@ -4,7 +4,7 @@
 			<img [src]="project.branding.logo" class="main-logo w-14" />
 		</div>
 
-		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
+		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics && !webcamError">
 			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
 				<div class="w-400 mx-auto sm:mx-0">
 					<!-- Title -->
@@ -234,7 +234,10 @@
 						</div>
 
 						<!-- Separator -->
-						<div class="flex items-center mt-8" *ngIf="projectFlow.loginSettings.faceLiveness">
+						<div
+							*ngIf="projectFlow.loginSettings.faceLiveness && (projectFlow.loginSettings.email || projectFlow.loginSettings.phone)"
+							class="flex items-center mt-8"
+						>
 							<div class="flex-auto mt-px border-t"></div>
 							<div class="mx-2 text-secondary" [style.color]="project.branding.txtColor">{{ "login.or_continue" | transloco }}</div>
 							<div class="flex-auto mt-px border-t"></div>
@@ -341,8 +344,32 @@
 			<app-biometrics-login *ngIf="demoData.OS !== 'IOS'" fxLayoutAlign="center center" class="w-full h-full mb-6"></app-biometrics-login>
 		</div>
 
+		<!-- webcamError container -->
+		<div class="flex flex-col rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="webcamError">
+			<div class="flex flex-col justify-center w-full sm:w-100 py-8 px-4 sm:p-12 mx-auto sm:mx-0">
+				<div class="w-full flex justify-center">
+					<svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M78.0694 54.1548V34.7582C78.0694 31.4948 74.1094 29.8448 71.7994 32.1548L63.4028 40.5882V27.7548C63.4028 25.7382 61.7528 24.0882 59.7361 24.0882H39.1661L71.8361 56.7582C74.1094 59.0682 78.0694 57.4182 78.0694 54.1548ZM11.0061 11.4748C9.57609 12.9048 9.57609 15.2148 11.0061 16.6448L18.4128 24.0882H15.7361C13.7194 24.0882 12.0694 25.7382 12.0694 27.7548V64.4215C12.0694 66.4382 13.7194 68.0882 15.7361 68.0882H59.7361C60.5061 68.0882 61.1661 67.7948 61.7528 67.4282L70.8461 76.5215C72.2761 77.9515 74.5861 77.9515 76.0161 76.5215C77.4461 75.0915 77.4461 72.7815 76.0161 71.3515L16.1761 11.4748C14.7461 10.0448 12.4361 10.0448 11.0061 11.4748Z"
+							fill="#F27274"
+						/>
+					</svg>
+				</div>
+				<h1 class="webcam-error">No se ha encontrado una cámara en el dispositivo o está momentáneamente desactivada.</h1>
+				<button
+					mat-stroked-button
+					class="w-full mt-4"
+					(click)="webcamError = false"
+					[style.background]="project.branding.buttonColor"
+					[style.color]="project.branding.buttonTxtColor"
+				>
+					<span> {{ "login.webcam-error-button" | transloco }} </span>
+				</button>
+			</div>
+		</div>
+		<!-- end of webcamError container -->
 		<!-- locationError container -->
-		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="locationError">
+		<div class="flex rounded-2xl shadow bg-card overflow-hidde n sign-in-content" *ngIf="locationError">
 			show error content here
 			<h1>location error</h1>
 		</div>

@@ -175,6 +175,8 @@
 		"min_liveness_score_is": "최소 생동감 점수는: "
 	},
 	"login": {
+		"webcam-error-button": "돌아가기",
+		"webcam-error": "장치에서 카메라를 찾을 수 없거나 일시적으로 비활성화되었습니다.",
 		"title_1": "환영합니다",
 		"title_2": "로그인",
 		"no_account": "아직 계정이 없으신가요?",

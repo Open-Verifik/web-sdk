@@ -175,6 +175,8 @@
 		"min_liveness_score_is": "Le score de vivacité minimum est : "
 	},
 	"login": {
+		"webcam-error-button": "Retour",
+		"webcam-error": "Aucune caméra n'a été trouvée sur l'appareil ou elle est temporairement désactivée.",
 		"title_1": "Bienvenue",
 		"title_2": "Se connecter",
 		"no_account": "Vous n'avez pas encore de compte ?",

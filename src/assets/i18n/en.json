@@ -175,6 +175,8 @@
 		"min_liveness_score_is": "The minimum liveness score is: "
 	},
 	"login": {
+		"webcam-error-button": "Back",
+		"webcam-error": "No camera found on the device or it is temporarily disabled.",
 		"title_1": "Welcome",
 		"title_2": "Sign in",
 		"no_account": "Don't have an account yet?",

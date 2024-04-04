@@ -175,6 +175,8 @@
 		"min_liveness_score_is": "Ang minimum na iskor ng pagiging buhay ay: "
 	},
 	"login": {
+		"webcam-error-button": "Bumalik",
+		"webcam-error": "Walang natagpuang webcam sa device o pansamantalang hindi ito gumagana.",
 		"title_1": "Maligayang Pagdating",
 		"title_2": "Mag-sign in",
 		"no_account": "Wala pang account?",
