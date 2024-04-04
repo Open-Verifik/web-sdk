@@ -200,7 +200,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				this.project = new ProjectModel({ ...v.data, type: "login" });
 
 				this.projectFlow = this.project.currentProjectFlow;
-				console.log(this.projectFlow);
 				for (let index = 0; index < v.data.projectFlows.length; index++) {
 					const projectFlow = v.data.projectFlows[index];
 
