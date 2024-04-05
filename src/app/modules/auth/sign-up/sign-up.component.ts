@@ -18,7 +18,7 @@ import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 import { Subject } from "rxjs";
 import { environment } from "environments/environment";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { TranslocoModule } from "@ngneat/transloco";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
@@ -161,6 +161,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		if (!isPlatformBrowser(this.platformId)) {
 			this.language = "en";
 		}
+
 		// Get the browser's language setting
 		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
 		// Check if the browser's language is one of the specified options, otherwise default to 'en'
@@ -168,10 +169,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		localStorage.setItem("currentLanguage", this.language);
 	}
-
-	// -----------------------------------------------------------------------------------------------------
-	// @ Lifecycle hooks
-	// -----------------------------------------------------------------------------------------------------
 
 	/**
 	 * On init
@@ -197,6 +194,28 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			error: (exception) => {},
 			complete: () => {},
 		});
+	}
+
+	removeSpacesFromEmail() {
+		const emailFormControl = this.signUpForm.get("email");
+
+		if (emailFormControl.value) {
+			let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
+
+			if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
+				cleanedEmail = cleanedEmail.replace(/@/g, "");
+			}
+			emailFormControl.patchValue(cleanedEmail);
+		}
+	}
+
+	removeSpacesFromPhone() {
+		const phoneFormControl = this.signUpForm.get("phone");
+
+		if (phoneFormControl.value) {
+			const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
+			phoneFormControl.patchValue(cleanedPhone);
+		}
 	}
 
 	requestProject(projectId: string): void {
@@ -268,17 +287,17 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.fields = {};
 
 		if (this.OnboardingSignUpForm.fullName && !this.OnboardingSignUpForm.firstName) {
-			this.fields["fullName"] = [demoData.fullName, Validators.required];
+			this.fields["fullName"] = [demoData.fullName, [Validators.required]];
 		}
 
 		if (this.OnboardingSignUpForm.firstName) {
-			this.fields["firstName"] = [demoData.firstName, Validators.required];
+			this.fields["firstName"] = [demoData.firstName, [Validators.required]];
 
-			this.fields["lastName"] = [demoData.lastName, Validators.required];
+			this.fields["lastName"] = [demoData.lastName, [Validators.required]];
 		}
 
 		if (this.OnboardingSignUpForm.email) {
-			this.fields["email"] = [demoData.email, Validators.required];
+			this.fields["email"] = [demoData.email, [Validators.email, Validators.required]];
 
 			if (environment.production) {
 				this.fields["email"].push(Validators.email);
