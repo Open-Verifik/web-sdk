@@ -171,7 +171,8 @@
 		"replace_person_button": "Ok, sostituire le biometrie",
 		"Duplicated_person": "Le biometrie sono utilizzate in un altro record",
 		"liveness_failed": "Rilevamento della presenza fallito",
-		"Liveness_score_not_acceptable": "Il punteggio di vivacità non è accettabile"
+		"Liveness_score_not_acceptable": "Il punteggio di vivacità non è accettabile",
+		"min_liveness_score_is": "Il punteggio minimo di vivacità è: "
 	},
 	"login": {
 		"title_1": "Benvenuto",
@@ -267,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "Informazioni di Base"
-		}
+		},
+		"change_your_phone_title": "Aggiorna il tuo telefono",
+		"change_your_phone_description": "Imposta correttamente il tuo telefono in modo che possiamo inviarti un codice di verifica a 6 cifre",
+		"change_your_phone_button": "Aggiorna"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Seleziona il metodo con cui desideri ricevere il codice di verifica a 6 cifre",

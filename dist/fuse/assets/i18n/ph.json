@@ -171,7 +171,8 @@
 		"replace_person_button": "Ok, palitan ang biometrics",
 		"Duplicated_person": "Ginagamit ang mga biometrics sa isa pang rekord",
 		"liveness_failed": "Nabigo ang pagtukoy ng buhay",
-		"Liveness_score_not_acceptable": "Hindi katanggap-tanggap ang iskor ng pagiging buhay"
+		"Liveness_score_not_acceptable": "Hindi katanggap-tanggap ang iskor ng pagiging buhay",
+		"min_liveness_score_is": "Ang minimum na iskor ng pagiging buhay ay: "
 	},
 	"login": {
 		"title_1": "Maligayang Pagdating",
@@ -267,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "Pangunahing Impormasyon"
-		}
+		},
+		"change_your_phone_title": "I-update ang iyong telepono",
+		"change_your_phone_description": "I-set up nang maayos ang iyong telepono para maipadala namin sa iyo ang 6-digit na verification code",
+		"change_your_phone_button": "I-update"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Piliin kung paano mo nais na matanggap ang 6-digit na verification code",

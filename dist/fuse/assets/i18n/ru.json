@@ -171,7 +171,8 @@
 		"replace_person_button": "Ок, заменить биометрию",
 		"Duplicated_person": "Биометрия используется в другой записи",
 		"liveness_failed": "Проверка на живучесть не удалась",
-		"Liveness_score_not_acceptable": "Уровень подтверждения живучести неприемлем"
+		"Liveness_score_not_acceptable": "Уровень подтверждения живучести неприемлем",
+		"min_liveness_score_is": "Минимальный показатель живости: "
 	},
 	"login": {
 		"title_1": "Добро пожаловать",
@@ -267,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "Основная информация"
-		}
+		},
+		"change_your_phone_title": "Обновите ваш телефон",
+		"change_your_phone_description": "Настройте ваш телефон правильно, чтобы мы могли отправить вам 6-значный код подтверждения",
+		"change_your_phone_button": "Обновить"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Выберите метод, которым вы хотите получить 6-значный код подтверждения",

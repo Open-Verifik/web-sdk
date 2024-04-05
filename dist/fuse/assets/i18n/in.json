@@ -171,7 +171,8 @@
 		"replace_person_button": "ठीक है, बायोमेट्रिक्स बदलें",
 		"Duplicated_person": "बायोमेट्रिक्स किसी अन्य रिकॉर्ड में इस्तेमाल की जा रही है",
 		"liveness_failed": "सजीवता पहचान विफल रही",
-		"Liveness_score_not_acceptable": "लाइवनेस स्कोर स्वीकार्य नहीं है"
+		"Liveness_score_not_acceptable": "लाइवनेस स्कोर स्वीकार्य नहीं है",
+		"min_liveness_score_is": "न्यूनतम जीवंतता स्कोर है: "
 	},
 	"login": {
 		"title_1": "स्वागत है",
@@ -267,7 +268,10 @@
 		},
 		"basic_information": {
 			"title": "मूल जानकारी"
-		}
+		},
+		"change_your_phone_title": "अपने फ़ोन को अपडेट करें",
+		"change_your_phone_description": "अपने फ़ोन को सही ढंग से सेट करें ताकि हम आपको 6 अंकों का सत्यापन कोड भेज सकें",
+		"change_your_phone_button": "अपडेट करें"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "चुनें कि आप 6-अंकीय सत्यापन कोड किस प्रकार प्राप्त करना चाहते हैं",
