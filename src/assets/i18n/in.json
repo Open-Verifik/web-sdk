@@ -172,7 +172,9 @@
 		"Duplicated_person": "बायोमेट्रिक्स किसी अन्य रिकॉर्ड में इस्तेमाल की जा रही है",
 		"liveness_failed": "सजीवता पहचान विफल रही",
 		"Liveness_score_not_acceptable": "लाइवनेस स्कोर स्वीकार्य नहीं है",
-		"min_liveness_score_is": "न्यूनतम जीवंतता स्कोर है: "
+		"min_liveness_score_is": "न्यूनतम जीवंतता स्कोर है: ",
+		"phone_or_email_is_not_unique": "फोन या ईमेल पहले से ही उपयोग किया गया है, कृपया कोई अलग उपयोग करें",
+		"something_went_wrong": "कुछ गलत हो गया है, कृपया पुनः प्रयास करें"
 	},
 	"login": {
 		"title_1": "स्वागत है",

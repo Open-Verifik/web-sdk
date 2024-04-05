@@ -171,7 +171,9 @@
 		"replace_person_button": "好的，替换生物特征",
 		"Duplicated_person": "生物特征正在用于另一个记录",
 		"Liveness_score_not_acceptable": "活体检测分数不可接受",
-		"min_liveness_score_is": "最低活性评分是："
+		"min_liveness_score_is": "最低活性评分是：",
+		"phone_or_email_is_not_unique": "电话或电子邮件已被使用，请尝试使用其他的",
+		"something_went_wrong": "出了点问题，请重试"
 	},
 	"login": {
 		"title_1": "欢迎",

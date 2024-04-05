@@ -225,6 +225,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			},
 			error: (e) => {
 				console.info({ errorHERE: e });
+
 				if (e.error.code === "InternalServer") {
 					alert("something went wrong, try  again");
 				}
@@ -372,23 +373,40 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				error: (e) => {
 					console.info({ errorHERE: e });
 
+					if (e.error.message === "phone, email, projectFlow must be unique") {
+					}
 					this.alert = {
 						type: "error",
-						message: "Something went wrong, please try again.",
+						message:
+							e.error.message === "phone, email, projectFlow must be unique"
+								? "errors.phone_or_email_is_not_unique"
+								: "errors.something_went_wrong",
 					};
 
 					this.showAlert = true;
 
 					this._splashScreenService.hide();
+
+					this._reEnableForm();
 				},
 				complete: () => {
-					this.signUpForm.enable();
-
-					this.signUpNgForm.resetForm();
-
 					if (!this.showAlert) this._router.navigateByUrl(`/confirmation-required/${appRegistration._id}?token=${appRegistration.token}`);
+
+					this._reEnableForm();
 				},
 			});
+	}
+
+	_reEnableForm(): void {
+		setTimeout(() => {
+			this.showAlert = false;
+
+			this.alert = null;
+
+			this.signUpForm.enable();
+
+			this.signUpNgForm.resetForm();
+		}, 5000); // hide after 5 seconds
 	}
 
 	ngOnDestroy(): void {

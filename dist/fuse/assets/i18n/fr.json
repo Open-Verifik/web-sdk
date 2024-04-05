@@ -172,7 +172,9 @@
 		"Duplicated_person": "Les biométriques sont utilisés dans un autre enregistrement",
 		"liveness_failed": "Échec de la vérification de vie",
 		"Liveness_score_not_acceptable": "Le score de vivacité n'est pas acceptable",
-		"min_liveness_score_is": "Le score de vivacité minimum est : "
+		"min_liveness_score_is": "Le score de vivacité minimum est : ",
+		"phone_or_email_is_not_unique": "Le téléphone ou l'e-mail a déjà été utilisé, essayez-en un autre",
+		"something_went_wrong": "Quelque chose s'est mal passé, veuillez réessayer"
 	},
 	"login": {
 		"title_1": "Bienvenue",

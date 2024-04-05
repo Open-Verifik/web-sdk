@@ -172,7 +172,9 @@
 		"Duplicated_person": "Le biometrie sono utilizzate in un altro record",
 		"liveness_failed": "Rilevamento della presenza fallito",
 		"Liveness_score_not_acceptable": "Il punteggio di vivacità non è accettabile",
-		"min_liveness_score_is": "Il punteggio minimo di vivacità è: "
+		"min_liveness_score_is": "Il punteggio minimo di vivacità è: ",
+		"phone_or_email_is_not_unique": "Il telefono o l'email è già stato utilizzato, prova con uno diverso",
+		"something_went_wrong": "Qualcosa è andato storto, per favore riprova"
 	},
 	"login": {
 		"title_1": "Benvenuto",

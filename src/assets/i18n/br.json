@@ -171,7 +171,9 @@
 		"replace_person_button": "Ok, substituir biometrias",
 		"Duplicated_person": "A biometria está sendo usada em outro registro",
 		"Liveness_score_not_acceptable": "A pontuação de vivacidade não é aceitável",
-		"min_liveness_score_is": "A pontuação mínima de vivacidade é: "
+		"min_liveness_score_is": "A pontuação mínima de vivacidade é: ",
+		"phone_or_email_is_not_unique": "O telefone ou o e-mail já foi utilizado, tente outro diferente",
+		"something_went_wrong": "Algo deu errado, por favor tente novamente"
 	},
 	"login": {
 		"title_1": "Bem-vindo",
