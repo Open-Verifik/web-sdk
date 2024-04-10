@@ -237,8 +237,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		console.log({ phoneGateway: this.phoneGateway, appRegistration: this.appRegistration, current: this.currentValidation });
-
 		if (!["whatsapp", "sms"].includes(this.phoneGateway)) return;
 
 		if (this.appRegistration.phoneValidation?.status === "validated") return;
@@ -249,7 +247,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 		this._splashScreenService.show();
 
-		this._KYCService.sendPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone).subscribe({
+		this._KYCService.sendPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone, this.phoneGateway).subscribe({
 			next: (response) => {
 				this.currentValidation = response.data;
 

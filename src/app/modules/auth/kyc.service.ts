@@ -156,7 +156,7 @@ export class KYCService {
 			.pipe(tap((response: any) => {}));
 	}
 
-	sendPhoneValidation(countryCode: string, phone: string): Observable<any> {
+	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
 				countryCode,
@@ -166,6 +166,7 @@ export class KYCService {
 				type: "onboarding",
 				validationMethod: "verificationCode",
 				language: this._translocoService.getActiveLang(),
+				phoneGateway: phoneGateway || "sms",
 			})
 			.pipe(tap((response: any) => {}));
 	}
