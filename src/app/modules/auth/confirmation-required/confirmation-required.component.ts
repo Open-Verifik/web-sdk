@@ -130,6 +130,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 			})
 			.subscribe({
 				next: (response) => {
+					console.log({ appRegistration: this.appRegistration });
+
 					this.appRegistration = response.data;
 
 					this.project = new ProjectModel(this.appRegistration.project);
