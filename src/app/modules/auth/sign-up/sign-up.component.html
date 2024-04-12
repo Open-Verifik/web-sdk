@@ -37,7 +37,7 @@
 					</fuse-alert>
 
 					<!-- Sign Up form -->
-					<form class="mt-8" [formGroup]="signUpForm" #signUpNgForm="ngForm">
+					<form id="access-verifik-form" class="mt-8" [formGroup]="signUpForm" #signUpNgForm="ngForm">
 						<!-- Name field -->
 						<mat-form-field class="w-full" *ngIf="fields.fullName && !fields.firstName">
 							<mat-label>{{ "signup.fullName" | transloco }}</mat-label>
