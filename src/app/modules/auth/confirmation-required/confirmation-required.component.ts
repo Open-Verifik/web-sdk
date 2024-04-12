@@ -283,19 +283,23 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	}
 
 	_initForm(): void {
-		this.otpForm = this._formBuilder.group({ otp: ["", [Validators.required]] });
+		try {
+			this.otpForm = this._formBuilder.group({ otp: ["", [Validators.required]] });
 
-		const fields = {};
+			const fields = {};
 
-		fields["countryCode"] = [this.location?.countryCode || "+1", Validators.required];
+			fields["countryCode"] = [this.location?.countryCode || "+1", Validators.required];
 
-		fields["phone"] = [this.appRegistration.phone, Validators.required];
+			fields["phone"] = [this.appRegistration.phone, Validators.required];
 
-		if (environment.production) {
-			fields["phone"].push(Validators.min(8), Validators.max(10));
+			if (environment.production) {
+				fields["phone"].push(Validators.min(8), Validators.max(10));
+			}
+
+			this.phoneForm = this._formBuilder.group(fields);
+		} catch (exception) {
+			console.error({ exception });
 		}
-
-		this.phoneForm = this._formBuilder.group(fields);
 	}
 
 	private startCountdown() {
