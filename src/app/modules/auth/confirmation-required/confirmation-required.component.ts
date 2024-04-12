@@ -115,8 +115,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this.location.type = "desktop";
 
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
-
-				console.log({ location: this.location });
 			},
 			error: (exception) => {},
 			complete: () => {},
@@ -288,12 +286,12 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 			const fields = {};
 
-			fields["countryCode"] = [this.location?.countryCode || "+1", Validators.required];
+			fields["countryCode"] = [this.location?.countryCode || "+1", [Validators.required]];
 
-			fields["phone"] = [this.appRegistration.phone, Validators.required];
+			fields["phone"] = [this.appRegistration.phone, [Validators.required]];
 
 			if (environment.production) {
-				fields["phone"].push(Validators.min(8), Validators.max(10));
+				fields["phone"][1].push(Validators.min(8), Validators.max(10));
 			}
 
 			this.phoneForm = this._formBuilder.group(fields);
