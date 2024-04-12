@@ -142,11 +142,15 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 						this.project._id === environment.verifikProject || this.project._id === environment.sandboxProject
 					);
 
+					this.isVerifikProject = false;
+
 					const steps = this.projectFlow.onboardingSettings.steps;
 
 					const mandatorySteps = ["basicInformation", "document", "form", "liveness"];
 
 					this.showSkipDoingKYC = !mandatorySteps.some((step) => steps[step] === "mandatory");
+
+					console.log({ mandatorySteps, showSkipDoingKYC: this.showSkipDoingKYC });
 				},
 				error: (exception) => {
 					this.errorContent = exception.error;
