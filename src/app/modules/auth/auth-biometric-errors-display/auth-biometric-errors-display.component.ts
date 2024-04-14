@@ -21,13 +21,13 @@ export class AuthBiometricErrorsDisplayComponent implements OnInit {
 	@Input() appLoginToken: any;
 
 	ngOnInit(): void {
-		if (this.errorContent) {
-			const split = this.errorContent.message.split("@");
+		if (!this.errorContent) return;
 
-			this.errorContent.message = split[0];
+		const split = this.errorContent.message.split("@");
 
-			this.errorContent.livenessScore = Number(split[1] || 0);
-		}
+		this.errorContent.message = split[0];
+
+		this.errorContent.livenessScore = Math.round(Number(split[1] * 100 || 0));
 	}
 
 	callbackFunction(): void {
