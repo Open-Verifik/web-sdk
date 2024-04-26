@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { environment } from "environments/environment";
+import { HttpClient } from "@angular/common/http";
 import { HttpWrapperService } from "../demo/http-wrapper.service";
 import { TranslocoService } from "@ngneat/transloco";
 import { Observable, tap } from "rxjs";
@@ -15,7 +16,7 @@ export class KYCService {
 	currentProjectFlow: ProjectFlow;
 	navigation: any;
 
-	constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService) {}
+	constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService, private _http: HttpClient) {}
 
 	getNavigation(): any {
 		return this.navigation;
@@ -209,6 +210,25 @@ export class KYCService {
 
 	createBiometricValidation(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/app-registration`, data);
+	}
+
+	// const authToken: string = localStorage.getItem("accessToken");
+	// let headers: any = {
+	// 	timeout: 20,
+	// };
+
+	// if (authToken) {
+	// 	headers["Authorization"] = `Bearer ${authToken}`;
+	// }
+	// return this._http.put(`${this.baseUrl}/v2/information-validations/${data._id}/background-check`, {}, headers);
+	updateInformationValidationWithCriminalRecords(data: any): Observable<any> {
+		console.log(data);
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/information-validations/${data._id}/background-check`);
+	}
+
+	updateDocumentValidationNameValidation(data: any): Observable<any> {
+		console.log(data);
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`);
 	}
 
 	/////////////////////// identity images /////////////////////////
