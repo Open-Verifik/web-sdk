@@ -18,7 +18,7 @@ import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 import { Subject } from "rxjs";
 import { environment } from "environments/environment";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { TranslocoModule } from "@ngneat/transloco";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
@@ -161,6 +161,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		if (!isPlatformBrowser(this.platformId)) {
 			this.language = "en";
 		}
+
 		// Get the browser's language setting
 		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
 		// Check if the browser's language is one of the specified options, otherwise default to 'en'
@@ -168,10 +169,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		localStorage.setItem("currentLanguage", this.language);
 	}
-
-	// -----------------------------------------------------------------------------------------------------
-	// @ Lifecycle hooks
-	// -----------------------------------------------------------------------------------------------------
 
 	/**
 	 * On init
@@ -189,14 +186,36 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
-				this.location.os = this.deviceDetails?.platform
-				this.location.type = "browser"
+				this.location.os = this.deviceDetails?.platform;
+				this.location.type = "browser";
 
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
 			error: (exception) => {},
 			complete: () => {},
 		});
+	}
+
+	removeSpacesFromEmail() {
+		const emailFormControl = this.signUpForm.get("email");
+
+		if (emailFormControl.value) {
+			let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
+
+			if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
+				cleanedEmail = cleanedEmail.replace(/@/g, "");
+			}
+			emailFormControl.patchValue(cleanedEmail);
+		}
+	}
+
+	removeSpacesFromPhone() {
+		const phoneFormControl = this.signUpForm.get("phone");
+
+		if (phoneFormControl.value) {
+			const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
+			phoneFormControl.patchValue(cleanedPhone);
+		}
 	}
 
 	requestProject(projectId: string): void {
@@ -206,6 +225,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			},
 			error: (e) => {
 				console.info({ errorHERE: e });
+
 				if (e.error.code === "InternalServer") {
 					alert("something went wrong, try  again");
 				}
@@ -268,17 +288,17 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.fields = {};
 
 		if (this.OnboardingSignUpForm.fullName && !this.OnboardingSignUpForm.firstName) {
-			this.fields["fullName"] = [demoData.fullName, Validators.required];
+			this.fields["fullName"] = [demoData.fullName, [Validators.required]];
 		}
 
 		if (this.OnboardingSignUpForm.firstName) {
-			this.fields["firstName"] = [demoData.firstName, Validators.required];
+			this.fields["firstName"] = [demoData.firstName, [Validators.required]];
 
-			this.fields["lastName"] = [demoData.lastName, Validators.required];
+			this.fields["lastName"] = [demoData.lastName, [Validators.required]];
 		}
 
 		if (this.OnboardingSignUpForm.email) {
-			this.fields["email"] = [demoData.email, Validators.required];
+			this.fields["email"] = [demoData.email, [Validators.email, Validators.required]];
 
 			if (environment.production) {
 				this.fields["email"].push(Validators.email);
@@ -353,23 +373,40 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				error: (e) => {
 					console.info({ errorHERE: e });
 
+					if (e.error.message === "phone, email, projectFlow must be unique") {
+					}
 					this.alert = {
 						type: "error",
-						message: "Something went wrong, please try again.",
+						message:
+							e.error.message === "phone, email, projectFlow must be unique"
+								? "errors.phone_or_email_is_not_unique"
+								: "errors.something_went_wrong",
 					};
 
 					this.showAlert = true;
 
 					this._splashScreenService.hide();
+
+					this._reEnableForm();
 				},
 				complete: () => {
-					this.signUpForm.enable();
-
-					this.signUpNgForm.resetForm();
-
 					if (!this.showAlert) this._router.navigateByUrl(`/confirmation-required/${appRegistration._id}?token=${appRegistration.token}`);
+
+					this._reEnableForm();
 				},
 			});
+	}
+
+	_reEnableForm(): void {
+		setTimeout(() => {
+			this.showAlert = false;
+
+			this.alert = null;
+
+			this.signUpForm.enable();
+
+			this.signUpNgForm.resetForm();
+		}, 5000); // hide after 5 seconds
 	}
 
 	ngOnDestroy(): void {

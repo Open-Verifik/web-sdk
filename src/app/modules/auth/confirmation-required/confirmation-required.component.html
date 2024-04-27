@@ -3,7 +3,15 @@
 		fxLayout="row"
 		fxLayoutAlign="center end"
 		class="flex w-full"
-		*ngIf="!errorContent && appRegistration && project && otpForm && currentValidation && currentValidation._id"
+		*ngIf="
+			!errorContent &&
+			appRegistration &&
+			project &&
+			otpForm &&
+			currentValidation &&
+			currentValidation._id &&
+			currentValidation.countryCode !== '-1'
+		"
 	>
 		<div fxLayout="row" fxLayoutAlign="start center">
 			<img [src]="project.branding.logo" class="main-logo w-14" />
@@ -17,16 +25,24 @@
 						class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
 						*ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')"
 					>
-						{{
-							"signup.verify_code_sent"
-								| transloco
-									: { destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone }
-						}}
+						<span>
+							{{
+								"signup.verify_code_sent"
+									| transloco
+										: { destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone }
+							}}
+						</span>
 					</div>
 
+					<!-- PICK GATEWAY -->
 					<div class="mt-8 text-2xl font-extrabold tracking-tight leading-tight" *ngIf="currentValidation.phone && phoneGateway === 'both'">
 						{{ "confirmation.pick_phone_gateway_title" | transloco }}
 					</div>
+					<!-- end of PICK GATEWAY -->
+
+					<small class="cursor-pointer underline" (click)="showUpdatePhoneCard()">
+						{{ "signup.change_your_phone_title" | transloco }}
+					</small>
 
 					<!-- no account -->
 					<div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
@@ -49,7 +65,7 @@
 						{{ alert.message | transloco }}
 					</fuse-alert>
 
-					<!-- FORM HERE -->
+					<!-- FORM HERE WHEN GATEWAY HAS BEEN SELECTED -->
 					<form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm">
 						<mat-form-field class="w-full" *ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')">
 							<mat-label>{{ "login.email_otp" | transloco }}</mat-label>
@@ -232,17 +248,82 @@
 		</div>
 	</div>
 
+	<!--  -->
+	<!--  -->
+	<!--  -->
+	<!-- COUNTRY CODE -1 -->
+	<!--  -->
+	<!--  -->
+	<!--  -->
+	<div
+		*ngIf="!errorContent && currentValidation && currentValidation.countryCode === '-1'"
+		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+	>
+		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+			<!-- Title -->
+			<div class="text-4xl font-extrabold tracking-tight leading-tight">
+				{{ "signup.change_your_phone_title" | transloco }}
+			</div>
+			<div class="flex items-baseline mt-0.5 font-medium">
+				<div>{{ "signup.change_your_phone_description" | transloco }}</div>
+			</div>
+
+			<form class="mt-8" [formGroup]="phoneForm" #phoneNgForm="ngForm">
+				<div fxLayout="row" fxLayoutAlign="start center">
+					<mat-form-field class="w-full mr-2">
+						<mat-label> {{ "login.country_code" | transloco }}</mat-label>
+						<mat-select *ngIf="countries" class="mr-1.5" [formControl]="phoneForm.get('countryCode')" matPrefix>
+							<mat-select-trigger>
+								<span class="flex items-center">
+									<span class="sm:mx-0.5 font-medium text-default">{{ phoneForm.get("countryCode").value }}</span>
+								</span>
+							</mat-select-trigger>
+							<ng-container *ngFor="let country of countries">
+								<mat-option [value]="country.code">
+									<span class="flex items-center">
+										<span class="ml-2">{{ country.name }}</span>
+										<span class="ml-2 font-medium">{{ country.code }}</span>
+									</span>
+								</mat-option>
+							</ng-container>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="w-full">
+						<mat-label>{{ "login.phone" | transloco }}</mat-label>
+						<input id="phone" matInput [formControlName]="'phone'" />
+						<mat-error *ngIf="phoneForm.get('phone').hasError('required')">
+							{{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
+						</mat-error>
+						<mat-error *ngIf="phoneForm.get('phone').hasError('phone')">
+							{{ "signup.please_enter_a_valid" | transloco }} {{ "login.phone" | transloco }}
+						</mat-error>
+					</mat-form-field>
+				</div>
+			</form>
+
+			<button
+				mat-stroked-button
+				class="w-full mt-4"
+				color="primary"
+				(click)="updatePhone($event)"
+				[class.col-span-2]="phoneGateway !== 'both'"
+				[disabled]="!canUpdatePhone()"
+				[style.color]="project.branding.buttonTxtColor"
+				[style.background]="project.branding.buttonColor"
+			>
+				<span> {{ "signup.change_your_phone_button" | transloco }} </span>
+			</button>
+		</div>
+	</div>
+	<!-- END:: when the projectflow is not set properly, show the error here -->
+
 	<!-- when the projectflow is not set properly, show the error here -->
 	<div
 		*ngIf="!errorContent && (!project || !projectFlow || !projectFlow._id || !project._id)"
 		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
 	>
 		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-			<!-- Logo -->
-			<!-- <div class="w-12">
-				<img [src]="project.branding.logo" />
-			</div> -->
-
 			<!-- Title -->
 			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
 				{{ "signup.project_flow_not_set" | transloco }}

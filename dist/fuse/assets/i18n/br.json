@@ -170,7 +170,10 @@
 		"person_already_set": "Seu registro já possui biometrias vinculadas",
 		"replace_person_button": "Ok, substituir biometrias",
 		"Duplicated_person": "A biometria está sendo usada em outro registro",
-		"Liveness_score_not_acceptable": "A pontuação de vivacidade não é aceitável"
+		"Liveness_score_not_acceptable": "A pontuação de vivacidade não é aceitável",
+		"min_liveness_score_is": "A pontuação mínima de vivacidade é: ",
+		"phone_or_email_is_not_unique": "O telefone ou o e-mail já foi utilizado, tente outro diferente",
+		"something_went_wrong": "Algo deu errado, por favor tente novamente"
 	},
 	"login": {
 		"title_1": "Bem-vindo",
@@ -266,7 +269,10 @@
 		},
 		"basic_information": {
 			"title": "Informações Básicas"
-		}
+		},
+		"change_your_phone_title": "Atualize seu telefone",
+		"change_your_phone_description": "Configure seu telefone corretamente para que possamos enviar-lhe um código de verificação de 6 dígitos",
+		"change_your_phone_button": "Atualizar"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Selecione o método pelo qual deseja receber o código de verificação de 6 dígitos",

@@ -4,7 +4,7 @@ import { fuseAnimations } from "@fuse/animations";
 import { KYCService } from "../kyc.service";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { environment } from "environments/environment";
-import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
+import { ProjectFlowModel, ProjectModel } from "../project";
 import { CommonModule, NgIf } from "@angular/common";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -20,6 +20,8 @@ import { FuseAlertComponent } from "@fuse/components/alert";
 import { Subscription, interval } from "rxjs";
 import moment from "moment";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
+import { CountriesService } from "app/modules/demo/countries.service";
+import { DemoService } from "app/modules/demo/demo.service";
 @Component({
 	selector: "auth-confirmation-required",
 	templateUrl: "./confirmation-required.component.html",
@@ -48,6 +50,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 })
 export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	@ViewChild("otpNgForm") otpNgForm: NgForm;
+	@ViewChild("signUpNgForm") signUpNgForm: NgForm;
 	isVerifikProject: Boolean;
 	onboardingSettings: any;
 	appRegistration: any;
@@ -58,6 +61,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	emailValidation: any;
 	phoneValidation: any;
 	otpForm: UntypedFormGroup;
+	phoneForm: UntypedFormGroup;
 	currentValidation: any;
 	errorContent: any;
 	remainingTime: string;
@@ -68,6 +72,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	private countdownSubscription: Subscription;
 	token: string;
 	showSkipDoingKYC: boolean;
+	countries: Array<any>;
+	location: any;
+	deviceDetails: any;
 
 	/**
 	 * Constructor
@@ -78,20 +85,39 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		private _activatedRoute: ActivatedRoute,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _router: Router,
-		private _formBuilder: UntypedFormBuilder
+		private _formBuilder: UntypedFormBuilder,
+		private _countries: CountriesService,
+		private _demoService: DemoService
 	) {
 		this._splashScreenService.show();
+
+		this.countries = this._countries.countryCodes;
+
+		this.deviceDetails = this._demoService.getDeviceDetails();
 	}
 
 	ngOnInit(): void {
-		this._initForm();
-
 		this._activatedRoute.params.subscribe((params) => {
 			this.token = this._router.url.split("?token=")[1];
 
 			localStorage.setItem("accessToken", this.token);
 
 			this._requestAppRegistration();
+		});
+
+		this._demoService.geoLocation$.subscribe({
+			next: async (response) => {
+				if (!response || this.location) return;
+
+				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+
+				this.location.os = this.deviceDetails?.platform;
+				this.location.type = "desktop";
+
+				this.location.countryCode = this._countries.findCountryCode(this.location.country);
+			},
+			error: (exception) => {},
+			complete: () => {},
 		});
 	}
 
@@ -108,9 +134,13 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
 
+					this._initForm();
+
 					this.isVerifikProject = Boolean(
 						this.project._id === environment.verifikProject || this.project._id === environment.sandboxProject
 					);
+
+					this.isVerifikProject = false;
 
 					const steps = this.projectFlow.onboardingSettings.steps;
 
@@ -187,6 +217,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	_initPhoneValidation(phoneGateway?: string): boolean {
 		this.phoneGateway = phoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway;
 
+		if (this.appRegistration.countryCode === "-1") this.phoneGateway = "both";
+
 		if (this.phoneGateway === "both" && !this.currentValidation) {
 			this.currentValidation = !this.appRegistration.phoneValidation
 				? {
@@ -215,7 +247,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 		this._splashScreenService.show();
 
-		this._KYCService.sendPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone).subscribe({
+		this._KYCService.sendPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone, this.phoneGateway).subscribe({
 			next: (response) => {
 				this.currentValidation = response.data;
 
@@ -245,7 +277,23 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	}
 
 	_initForm(): void {
-		this.otpForm = this._formBuilder.group({ otp: ["", [Validators.required]] });
+		try {
+			this.otpForm = this._formBuilder.group({ otp: ["", [Validators.required]] });
+
+			const fields = {};
+
+			fields["countryCode"] = [this.location?.countryCode || "+1", [Validators.required]];
+
+			fields["phone"] = [this.appRegistration.phone, [Validators.required]];
+
+			if (environment.production) {
+				fields["phone"][1].push(Validators.min(8), Validators.max(10));
+			}
+
+			this.phoneForm = this._formBuilder.group(fields);
+		} catch (exception) {
+			console.error({ exception });
+		}
 	}
 
 	private startCountdown() {
@@ -356,6 +404,12 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		return Boolean(!this.sendingOTP && !this.loading);
 	}
 
+	canUpdatePhone(): boolean {
+		const isValid = Boolean(this.phoneForm.value.phone?.length >= 8 && this.phoneForm.value.countryCode);
+
+		return isValid;
+	}
+
 	sendPhoneOTP(event, phoneGateway): void {
 		this._initPhoneValidation(phoneGateway);
 	}
@@ -437,6 +491,37 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 	continueWithoutKYC(): void {
 		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+	}
+
+	showUpdatePhoneCard(): void {
+		if (this.currentValidation) {
+			this.currentValidation.countryCode = "-1";
+		}
+
+		this._changeDetectorRef.detectChanges();
+	}
+
+	updatePhone(event): void {
+		this._KYCService
+			.updateAppRegistration({
+				_id: this.appRegistration._id,
+				countryCode: this.phoneForm.value.countryCode,
+				phone: this.phoneForm.value.phone,
+				replacePhone: true,
+			})
+			.subscribe((response) => {
+				this.appRegistration.countryCode = response.data.countryCode;
+
+				this.appRegistration.phone = response.data.phone;
+
+				this.currentValidation.countryCode = response.data.countryCode;
+
+				this.currentValidation.phone = response.data.phone;
+
+				this._initValidations();
+
+				this._changeDetectorRef.detectChanges();
+			});
 	}
 
 	ngOnDestroy(): void {

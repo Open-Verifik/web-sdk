@@ -170,7 +170,10 @@
 		"person_already_set": "您的注册已链接生物特征",
 		"replace_person_button": "好的，替换生物特征",
 		"Duplicated_person": "生物特征正在用于另一个记录",
-		"Liveness_score_not_acceptable": "活体检测分数不可接受"
+		"Liveness_score_not_acceptable": "活体检测分数不可接受",
+		"min_liveness_score_is": "最低活性评分是：",
+		"phone_or_email_is_not_unique": "电话或电子邮件已被使用，请尝试使用其他的",
+		"something_went_wrong": "出了点问题，请重试"
 	},
 	"login": {
 		"title_1": "欢迎",
@@ -266,7 +269,10 @@
 		},
 		"basic_information": {
 			"title": "基本信息"
-		}
+		},
+		"change_your_phone_title": "更新您的电话",
+		"change_your_phone_description": "请正确设置您的电话，以便我们可以向您发送6位数的验证码",
+		"change_your_phone_button": "更新"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "选择您希望接收6位验证码的方法",

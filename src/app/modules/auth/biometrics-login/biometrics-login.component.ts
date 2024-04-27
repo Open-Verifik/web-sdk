@@ -5,7 +5,6 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "app/modules/demo/demo.service";
-import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
 
 import * as faceapi from "@vladmandic/face-api";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
@@ -15,13 +14,25 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
 import { environment } from "environments/environment";
+import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
+
+let _biometricLoginThis = null;
 
 @Component({
 	selector: "app-biometrics-login",
 	standalone: true,
 	templateUrl: "./biometrics-login.component.html",
 	styleUrls: ["./biometrics-login.component.scss"],
-	imports: [FlexLayoutModule, CommonModule, MatDialogModule, TranslocoModule, MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule],
+	imports: [
+		FlexLayoutModule,
+		CommonModule,
+		MatDialogModule,
+		TranslocoModule,
+		MatButtonModule,
+		MatProgressBarModule,
+		MatProgressSpinnerModule,
+		AuthBiometricErrorsDisplayComponent,
+	],
 })
 export class BiometricsLoginComponent implements OnInit, OnDestroy {
 	private _matDialog: MatDialog = inject(MatDialog);
@@ -105,6 +116,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2,
 		private _passwordlessService: PasswordlessService
 	) {
+		_biometricLoginThis = this;
+
 		this.loadingModel = true;
 
 		this.lowCamera = false;
@@ -580,10 +593,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		const payload: any = {
 			image: this.base64Image,
 			os: this.osInfo,
-			// id: this.project._id,
-			// liveness_min_score: 0.55,
-			// min_score: 0.7,
-			// search_mode: "FAST",
 		};
 
 		this._passwordlessService.validateBiometrics(payload).subscribe({
@@ -591,12 +600,11 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 				this.successLogin(response.data.token);
 			},
 			error: (err) => {
-				console.error({ errorFromValidatingBiometrics: err });
-				this.showError = true;
-
 				this.errorContent = err.error;
 
 				this._splashScreenService.hide();
+
+				this.showError = true;
 			},
 			complete: () => {},
 		});
@@ -644,15 +652,5 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	continueRedirection(): void {
-		if (this.showError && ["person_not_found", "liveness_failed"].includes(this.errorContent.message)) {
-			window.location.reload();
-
-			return;
-		}
-
-		const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
-
-		window.location.href = `${redirectUrl}?type=login&token=${this.appLoginToken}`;
-	}
+	continueRedirection(event: any): void {}
 }

@@ -171,7 +171,10 @@
 		"replace_person_button": "Ok, reemplazar los datos biométricos",
 		"Duplicated_person": "Los datos biométricos se están utilizando en otro registro",
 		"liveness_failed": "Detección de vida fallida",
-		"Liveness_score_not_acceptable": "La puntuación de viveza no es aceptable"
+		"Liveness_score_not_acceptable": "La puntuación de viveza no es aceptable",
+		"min_liveness_score_is": "La puntuación mínima de vivacidad es: ",
+		"phone_or_email_is_not_unique": "El teléfono o el correo electrónico ya se han utilizado, intente con uno diferente",
+		"something_went_wrong": "Algo salió mal, por favor inténtalo de nuevo"
 	},
 	"login": {
 		"title_1": "Bienvenido",
@@ -267,7 +270,10 @@
 		},
 		"basic_information": {
 			"title": "Información Básica"
-		}
+		},
+		"change_your_phone_title": "Actualiza tu teléfono",
+		"change_your_phone_description": "Configura tu teléfono correctamente para que podamos enviarte un código de verificación de 6 dígitos",
+		"change_your_phone_button": "Actualizar"
 	},
 	"confirmation": {
 		"pick_phone_gateway_title": "Seleccione el método por el cual desea recibir el código de verificación de 6 dígitos",

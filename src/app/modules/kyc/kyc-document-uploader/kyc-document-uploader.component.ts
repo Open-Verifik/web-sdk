@@ -179,11 +179,6 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 			error: (exception) => {
 				this.errorContent = exception.error;
 
-				console.log({
-					errorContent: this.errorContent,
-					appRegistration: this.appRegistration,
-				});
-
 				this.errorResult = true;
 
 				this._splashScreenService.hide();

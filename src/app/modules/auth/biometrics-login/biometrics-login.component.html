@@ -40,20 +40,12 @@
 	</div>
 </div>
 
-<div *ngIf="showError" fxLayout="column" fxLayoutAlign="center center" class="flex w-full">
-	<div class="rounded-2xl shadow overflow-hidden bg-card error-dialog" fxLayout="column" fxLayoutAlign="start center">
-		<img src="https://cdn.verifik.co/access/warning.svg" alt="" />
-
-		<h1 [style.color]="project.branding.titleColor">
-			{{ "errors." + errorContent.message | transloco }}
-		</h1>
-
-		<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-			<button mat-stroked-button class="w-11/12 mt-4" (click)="continueRedirection()">
-				<span [style.color]="project.branding.txtColor">
-					{{ "errors.continue_without_biometrics" | transloco }}
-				</span>
-			</button>
-		</div>
-	</div>
-</div>
+<auth-biometric-errors-display
+	*ngIf="showError && errorContent"
+	[errorContent]="errorContent"
+	[project]="project"
+	[projectFlow]="projectFlow"
+	[callback]="continueRedirection"
+	[appLoginToken]="appLoginToken"
+>
+</auth-biometric-errors-display>
