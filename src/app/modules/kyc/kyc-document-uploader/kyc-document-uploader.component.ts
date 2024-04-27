@@ -5,7 +5,7 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule } from "@ngneat/transloco";
 import { DemoService } from "app/modules/demo/demo.service";
 import { UploadFileComponent } from "app/modules/demo/upload-file/upload-file.component";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, catchError, forkJoin, of, takeUntil, throwError } from "rxjs";
 import * as faceapi from "@vladmandic/face-api";
 import { CommonModule } from "@angular/common";
 import { FlexLayoutModule } from "@angular/flex-layout";
@@ -14,6 +14,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { Project, ProjectFlow } from "app/modules/auth/project";
 import { DocumentErrorsDisplayComponent } from "../document-errors-display/document-errors-display.component";
+import { result } from "lodash";
 
 @Component({
 	selector: "kyc-document-uploader",
@@ -37,6 +38,7 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 	appRegistration: any;
 	project: Project;
 	projectFlow: ProjectFlow;
+	responseData: any;
 
 	constructor(
 		private _demoService: DemoService,
@@ -171,9 +173,11 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 			documentFace: this.faceIdCard,
 			force: Boolean(this.appRegistration?.forceUpload),
 		};
-
+		let responseData = undefined;
 		this._KYCService.createDocumentValidation(body).subscribe({
 			next: (response) => {
+				this.responseData = response.data;
+
 				this.dialogRef.close(response.data);
 			},
 			error: (exception) => {
@@ -184,6 +188,22 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 				this._splashScreenService.hide();
 			},
 			complete: () => {
+				if (this.responseData && this.responseData.appRegistration && this.responseData.appRegistration.informationValidation) {
+					forkJoin([
+						this._KYCService.updateDocumentValidationNameValidation({ _id: this.responseData.documentValidation._id }),
+						this._KYCService.updateInformationValidationWithCriminalRecords({
+							_id: this.responseData.appRegistration.informationValidation._id,
+						}),
+					])
+						.pipe(
+							catchError((error) => {
+								console.error("Error occurred:", error);
+								return of(error);
+							})
+						)
+						.subscribe((result) => {});
+				}
+
 				this.demoData.loading = false;
 
 				this._splashScreenService.hide();
