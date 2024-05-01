@@ -24,6 +24,7 @@
 					<div
 						class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
 						*ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')"
+						[style.color]="project.branding.titleColor"
 					>
 						<span>
 							{{
@@ -35,12 +36,21 @@
 					</div>
 
 					<!-- PICK GATEWAY -->
-					<div class="mt-8 text-2xl font-extrabold tracking-tight leading-tight" *ngIf="currentValidation.phone && phoneGateway === 'both'">
+					<div
+						class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
+						*ngIf="currentValidation.phone && phoneGateway === 'both'"
+						[style.color]="project.branding.titleColor"
+					>
 						{{ "confirmation.pick_phone_gateway_title" | transloco }}
 					</div>
 					<!-- end of PICK GATEWAY -->
 
-					<small class="cursor-pointer underline" (click)="showUpdatePhoneCard()">
+					<small
+						[style.color]="project.branding.txtColor"
+						class="cursor-pointer underline"
+						(click)="showUpdatePhoneCard()"
+						*ngIf="currentValidation.countryCode"
+					>
 						{{ "signup.change_your_phone_title" | transloco }}
 					</small>
 
@@ -68,7 +78,7 @@
 					<!-- FORM HERE WHEN GATEWAY HAS BEEN SELECTED -->
 					<form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm">
 						<mat-form-field class="w-full" *ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')">
-							<mat-label>{{ "login.email_otp" | transloco }}</mat-label>
+							<mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
 
 							<input
 								id="otp"
@@ -271,7 +281,7 @@
 			<form class="mt-8" [formGroup]="phoneForm" #phoneNgForm="ngForm">
 				<div fxLayout="row" fxLayoutAlign="start center">
 					<mat-form-field class="w-full mr-2">
-						<mat-label> {{ "login.country_code" | transloco }}</mat-label>
+						<mat-label [style.color]="project.branding.txtColor"> {{ "login.country_code" | transloco }}</mat-label>
 						<mat-select *ngIf="countries" class="mr-1.5" [formControl]="phoneForm.get('countryCode')" matPrefix>
 							<mat-select-trigger>
 								<span class="flex items-center">
@@ -290,7 +300,7 @@
 					</mat-form-field>
 
 					<mat-form-field class="w-full">
-						<mat-label>{{ "login.phone" | transloco }}</mat-label>
+						<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
 						<input id="phone" matInput [formControlName]="'phone'" />
 						<mat-error *ngIf="phoneForm.get('phone').hasError('required')">
 							{{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
@@ -307,10 +317,11 @@
 				class="w-full mt-4"
 				color="primary"
 				(click)="updatePhone($event)"
-				[class.col-span-2]="phoneGateway !== 'both'"
+				[class.col-span-2]="phoneGateway === 'sms' || phoneGateway === 'whatsapp'"
 				[disabled]="!canUpdatePhone()"
 				[style.color]="project.branding.buttonTxtColor"
 				[style.background]="project.branding.buttonColor"
+				*ngIf="currentValidation.countryCode"
 			>
 				<span> {{ "signup.change_your_phone_button" | transloco }} </span>
 			</button>

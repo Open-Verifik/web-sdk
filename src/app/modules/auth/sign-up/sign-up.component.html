@@ -7,21 +7,14 @@
 					<div fxLayout="row" fxLayoutAlign="start center">
 						<img [src]="project.branding.logo" class="w-14" />
 					</div>
-					<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">{{ "signup.title" | transloco }}</div>
+					<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight" [style.color]="project.branding.titleColor">
+						{{ "signup.title" | transloco }}
+					</div>
 					<div class="flex items-baseline mt-0.5 font-medium">
-						<div>{{ "signup.auth_question" | transloco }}</div>
+						<div [style.color]="project.branding.txtColor">{{ "signup.auth_question" | transloco }}</div>
 						<a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-in', project._id]"
 							>{{ "signup.auth_link" | transloco }}
 						</a>
-					</div>
-
-					<!-- no account -->
-					<div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
-						<div>{{ "login.no_account" | transloco }}</div>
-						<!--  -->
-						<a class="ml-1 text-primary-500 hover:underline cursor-pointer" [routerLink]="['/sign-up', project._id]">{{
-							"login.register_here_link" | transloco
-						}}</a>
 					</div>
 
 					<!-- Alert -->
@@ -40,7 +33,7 @@
 					<form id="access-verifik-form" class="mt-8" [formGroup]="signUpForm" #signUpNgForm="ngForm">
 						<!-- Name field -->
 						<mat-form-field class="w-full" *ngIf="fields.fullName && !fields.firstName">
-							<mat-label>{{ "signup.fullName" | transloco }}</mat-label>
+							<mat-label [style.color]="project.branding.txtColor">{{ "signup.fullName" | transloco }}</mat-label>
 							<input id="fullName" matInput [formControlName]="'fullName'" />
 							<mat-error *ngIf="signUpForm.get('fullName').hasError('required')">
 								{{ "signup.fullName" | transloco }} {{ "signup.is_required" | transloco }}
@@ -49,7 +42,7 @@
 
 						<div fxLayout="row" fxLayoutAlign="start center" *ngIf="!fields.fullName && fields.firstName">
 							<mat-form-field class="w-full mr-2" *ngIf="fields.firstName">
-								<mat-label>{{ "signup.firstName" | transloco }}</mat-label>
+								<mat-label [style.color]="project.branding.txtColor">{{ "signup.firstName" | transloco }}</mat-label>
 								<input id="firstName" matInput [formControlName]="'firstName'" />
 								<mat-error *ngIf="signUpForm.get('firstName').hasError('required')">
 									{{ "signup.firstName" | transloco }} {{ "signup.is_required" | transloco }}
@@ -57,7 +50,7 @@
 							</mat-form-field>
 
 							<mat-form-field class="w-full" *ngIf="fields.lastName">
-								<mat-label>{{ "signup.lastName" | transloco }}</mat-label>
+								<mat-label [style.color]="project.branding.txtColor">{{ "signup.lastName" | transloco }}</mat-label>
 								<input id="lastName" matInput [formControlName]="'lastName'" />
 								<mat-error *ngIf="signUpForm.get('lastName').hasError('required')">
 									{{ "signup.lastName" | transloco }} {{ "signup.is_required" | transloco }}
@@ -67,7 +60,7 @@
 
 						<!-- Email field -->
 						<mat-form-field class="w-full" *ngIf="fields.email">
-							<mat-label>{{ "login.email" | transloco }}</mat-label>
+							<mat-label [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</mat-label>
 							<input id="email" matInput [formControlName]="'email'" (input)="removeSpacesFromEmail()" />
 							<mat-error *ngIf="signUpForm.get('email').hasError('required')">
 								{{ "login.email" | transloco }} {{ "signup.is_required" | transloco }}
@@ -79,7 +72,7 @@
 
 						<div *ngIf="fields.phone" fxLayout="row" fxLayoutAlign="start center">
 							<mat-form-field class="w-full mr-2">
-								<mat-label> {{ "login.country_code" | transloco }}</mat-label>
+								<mat-label [style.color]="project.branding.txtColor"> {{ "login.country_code" | transloco }}</mat-label>
 								<mat-select *ngIf="countries" class="mr-1.5" [formControl]="signUpForm.get('countryCode')" matPrefix>
 									<mat-select-trigger>
 										<span class="flex items-center">
@@ -98,7 +91,7 @@
 							</mat-form-field>
 
 							<mat-form-field class="w-full">
-								<mat-label>{{ "login.phone" | transloco }}</mat-label>
+								<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
 								<input id="phone" matInput [formControlName]="'phone'" (input)="removeSpacesFromPhone()" />
 								<mat-error *ngIf="signUpForm.get('phone').hasError('required')">
 									{{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
@@ -111,12 +104,12 @@
 
 						<!-- Company field -->
 						<mat-form-field class="w-full" *ngIf="fields.company">
-							<mat-label>{{ "signup.company" | transloco }}</mat-label>
+							<mat-label [style.color]="project.branding.txtColor">{{ "signup.company" | transloco }}</mat-label>
 							<input id="company-confirm" matInput [formControlName]="'company'" />
 						</mat-form-field>
 
 						<mat-form-field class="w-full mr-2" *ngIf="fields.role && roles">
-							<mat-label> {{ "signup.role" | transloco }}</mat-label>
+							<mat-label [style.color]="project.branding.txtColor"> {{ "signup.role" | transloco }}</mat-label>
 							<mat-select class="mr-1.5" [formControl]="signUpForm.get('role')" matPrefix>
 								<mat-select-trigger>
 									<span class="flex items-center">
@@ -136,7 +129,7 @@
 						<!-- ToS and PP -->
 						<div class="inline-flex items-end w-full mt-1.5" *ngIf="fields.agreements">
 							<mat-checkbox class="-ml-2" [color]="'primary'" [formControlName]="'agreements'">
-								<span>{{ "signup.agreement1" | transloco }} </span>
+								<span [style.color]="project.branding.txtColor">{{ "signup.agreement1" | transloco }} </span>
 								<a
 									class="ml-1 text-primary-500 hover:underline"
 									[href]="project.termsAndConditionsUrl"
@@ -144,9 +137,11 @@
 									>{{ "signup.terms" | transloco }}
 								</a>
 
-								<span *ngIf="this.OnboardingSignUpForm.showTermsAndConditions && OnboardingSignUpForm.showPrivacyNotice">{{
-									"signup.and" | transloco
-								}}</span>
+								<span
+									*ngIf="this.OnboardingSignUpForm.showTermsAndConditions && OnboardingSignUpForm.showPrivacyNotice"
+									[style.color]="project.branding.txtColor"
+									>{{ "signup.and" | transloco }}</span
+								>
 
 								<a
 									class="ml-1 text-primary-500 hover:underline"
@@ -232,8 +227,7 @@
 
 						<h3 class="credits-h3">{{ "add_biometrics.content" | transloco }}</h3>
 					</div>
-					<!-- end of content -->
-					<!-- Title -->
+					<!-- end of Title -->
 
 					<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
 						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="showBiometricsLogin()">
