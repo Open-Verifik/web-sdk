@@ -414,6 +414,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	isFormDisabled(): boolean {
-		return Boolean(this.signUpForm.invalid || !this.signUpForm.value.agreements);
+		return Boolean(this.signUpForm.invalid || (this.signUpForm.value.agreements !== undefined && !this.signUpForm.value.agreements));
 	}
 }
