@@ -237,7 +237,7 @@
 		"create_account_button": "अपना खाता बनाएं",
 		"project_flow_not_set": "परियोजना अभी तक सेट नहीं हुई है",
 		"project_flow_not_set_description": "यदि आप प्रशासक हैं, तो app.verifik.co पर चरणों को पूरा करें",
-		"verify_code_sent": "{{destination}} पर भेजे गए 6-अंकीय सत्यापन कोड दर्ज करें",
+		"verify_code_sent": "{{method}} द्वारा {{destination}} पर भेजे गए सत्यापन कोड को दर्ज करें",
 		"error_expired_token": "टोकन समाप्त हो गया है, वापस जाएं और प्रक्रिया को फिर से शुरू करें",
 		"error_security_not_set": "परियोजना ठीक से कॉन्फ़िगर नहीं की गई है। सुरक्षा सेटिंग्स गायब हैं",
 		"kyc_start_popup": {

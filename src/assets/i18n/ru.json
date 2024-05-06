@@ -237,7 +237,7 @@
 		"create_account_button": "Создать аккаунт",
 		"project_flow_not_set": "Проект еще не настроен",
 		"project_flow_not_set_description": "Если вы администратор, выполните шаги на app.verifik.co",
-		"verify_code_sent": "Введите 6-значный код подтверждения, отправленный на {{destination}}",
+		"verify_code_sent": "Введите код подтверждения, отправленный {{method}} на {{destination}}",
 		"error_expired_token": "Токен истек, вернитесь и начните процесс заново",
 		"error_security_not_set": "Проект настроен неправильно. Отсутствуют настройки безопасности",
 		"kyc_start_popup": {

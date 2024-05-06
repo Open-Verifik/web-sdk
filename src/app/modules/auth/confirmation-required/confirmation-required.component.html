@@ -30,7 +30,10 @@
 							{{
 								"signup.verify_code_sent"
 									| transloco
-										: { destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone }
+										: {
+												method: currentValidation.email ? "Verifik" : (phoneGateway | uppercase),
+												destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone
+										  }
 							}}
 						</span>
 					</div>

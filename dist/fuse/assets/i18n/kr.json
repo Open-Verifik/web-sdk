@@ -237,7 +237,7 @@
 		"create_account_button": "계정 생성",
 		"project_flow_not_set": "프로젝트가 아직 설정되지 않았습니다",
 		"project_flow_not_set_description": "관리자이시라면 app.verifik.co에서 단계를 완료하세요",
-		"verify_code_sent": "{{destination}}으로 보낸 6자리 인증 코드를 입력하세요",
+		"verify_code_sent": "{{method}}에서 {{destination}}(으)로 보낸 인증 코드를 입력하세요",
 		"error_expired_token": "토큰이 만료되었습니다. 뒤로 가서 다시 시작하세요",
 		"error_security_not_set": "프로젝트가 제대로 설정되지 않았습니다. 보안 설정이 누락되었습니다",
 		"kyc_start_popup": {

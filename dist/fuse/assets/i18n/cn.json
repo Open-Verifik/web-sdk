@@ -236,7 +236,7 @@
 		"create_account_button": "创建您的账户",
 		"project_flow_not_set": "项目尚未设置",
 		"project_flow_not_set_description": "如果您是管理员，请在 app.verifik.co 完成步骤",
-		"verify_code_sent": "请输入发送至 {{destination}} 的6位验证码",
+		"verify_code_sent": "输入{{method}}发送至{{destination}}的验证码",
 		"error_expired_token": "令牌已过期，请返回并重新开始过程",
 		"error_security_not_set": "项目配置不正确。缺少安全设置",
 		"kyc_start_popup": {

@@ -237,7 +237,7 @@
 		"create_account_button": "Gumawa ng iyong account",
 		"project_flow_not_set": "Hindi pa naitakda ang proyekto",
 		"project_flow_not_set_description": "Kung ikaw ang administrator, kumpletuhin ang mga hakbang sa app.verifik.co",
-		"verify_code_sent": "Ipasok ang 6-digit na verification code na ipinadala sa {{destination}}",
+		"verify_code_sent": "Ilagay ang verification code na ipinadala ng {{method}} sa {{destination}}",
 		"error_expired_token": "Nag-expire na ang token, bumalik at simulan muli ang proseso",
 		"error_security_not_set": "Hindi wasto ang pagkakakonpigura ng proyekto. Nawawala ang mga setting ng seguridad",
 		"kyc_start_popup": {
