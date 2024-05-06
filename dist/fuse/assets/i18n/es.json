@@ -231,9 +231,9 @@
 			"ciso": "Director de seguridad de la información"
 		},
 		"agreement1": "Estoy de acuerdo con",
-		"terms": "los términos y condiciones",
+		"terms": "términos y condiciones",
 		"and": "&",
-		"privacyPolicy": "la política de privacidad",
+		"privacyPolicy": "política de privacidad",
 		"create_account_button": "Crea tu cuenta",
 		"project_flow_not_set": "El proyecto aún no está configurado",
 		"project_flow_not_set_description": "Si eres el administrador, completa los pasos en app.verifik.co",
