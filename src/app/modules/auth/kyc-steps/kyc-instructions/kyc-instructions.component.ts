@@ -88,6 +88,8 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 	}
 
 	invalidForm(): boolean {
+		if (!this.project.termsAndConditionsUrl && !this.project.privacyUrl) return false;
+
 		return !Boolean(this.acceptanceForm.value.legalAgreement);
 	}
 }
