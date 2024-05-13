@@ -32,6 +32,14 @@
 			</h1>
 		</div>
 
+		<div *ngSwitchCase="'face_not_found'" fxLayout="column" fxLayoutAlign="center center">
+			<img [src]="'https://cdn.verifik.co/demo/redstop.svg'" alt="" class="face_not_found" />
+
+			<h1 class="mt-4">
+				{{ "id_scanning.face_not_found" | transloco }}
+			</h1>
+		</div>
+
 		<div *ngSwitchDefault fxLayout="column" fxLayoutAlign="center center">
 			<img
 				[src]="

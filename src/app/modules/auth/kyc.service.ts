@@ -222,12 +222,10 @@ export class KYCService {
 	// }
 	// return this._http.put(`${this.baseUrl}/v2/information-validations/${data._id}/background-check`, {}, headers);
 	updateInformationValidationWithCriminalRecords(data: any): Observable<any> {
-		console.log(data);
 		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/information-validations/${data._id}/background-check`);
 	}
 
 	updateDocumentValidationNameValidation(data: any): Observable<any> {
-		console.log(data);
 		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`);
 	}
 

@@ -107,10 +107,12 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 					this._splashScreenService.hide();
 
+					console.log({ FACES: faces });
+
 					if (!faces) {
 						this.errorResult = true;
 
-						this.errorContent = { message: "id_scanning.face_not_found" };
+						this.errorContent = { message: "face_not_found" };
 
 						return;
 					}
@@ -131,7 +133,9 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 	async detectFace(image) {
 		try {
-			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 })).withFaceLandmarks();
+
+			console.log({ faces });
 
 			if (faces.length) {
 				return faces.map((face) => face.detection.box);
