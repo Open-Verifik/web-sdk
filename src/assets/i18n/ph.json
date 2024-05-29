@@ -114,6 +114,8 @@
 		"country_not_allowed": "Hindi pinapayagan ang dokumento mula sa bansang ito"
 	},
 	"user_location": {
+		"town": "Bayan",
+		"state_district": "Distrito ng estado",
 		"amenity": "Amenidad",
 		"house_number": "Numero ng Bahay",
 		"region": "Rehiyon",

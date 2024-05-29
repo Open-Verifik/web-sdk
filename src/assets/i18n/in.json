@@ -114,6 +114,8 @@
 		"country_not_allowed": "इस देश के दस्तावेज़ की अनुमति नहीं है"
 	},
 	"user_location": {
+		"town": "कस्बा",
+		"state_district": "राज्य जिला",
 		"amenity": "सुविधा",
 		"house_number": "घर का नंबर",
 		"region": "क्षेत्र",

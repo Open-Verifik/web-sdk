@@ -114,6 +114,8 @@
 		"country_not_allowed": "Document from this country is not allowed"
 	},
 	"user_location": {
+		"town": "Town",
+		"state_district": "State district",
 		"amenity": "Amenity",
 		"house_number": "House Number",
 		"region": "Region",

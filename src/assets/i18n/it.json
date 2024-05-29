@@ -114,6 +114,8 @@
 		"country_not_allowed": "Documento di questo paese non consentito"
 	},
 	"user_location": {
+		"town": "Città",
+		"state_district": "Distretto statale",
 		"amenity": "Struttura",
 		"house_number": "Numero di Casa",
 		"region": "Regione",
