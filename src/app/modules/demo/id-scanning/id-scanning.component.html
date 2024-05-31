@@ -1,7 +1,7 @@
 <div
 	fxLayout="column"
 	fxLayoutAlign="center center"
-	class="bg-white rounded-lg shadow-lg m-5 p-4 items-center w-full"
+	class="bg-white rounded-lg shadow-lg items-center w-full"
 	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera && !errorResult"
 >
 	<canvas #cardIdFace hidden="true"></canvas>
@@ -12,9 +12,21 @@
 				<div [style.color]="project ? project.branding.txtColor : null" class="text-gray-600">{{ errorFace.subtitle }}</div>
 			</div>
 		</div>
-		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
+		<div
+			*ngIf="!failedToDetectDocument"
+			fxLayout="column"
+			fxLayoutAlign="center center"
+			class="w-full h-full"
+			[ngClass]="{ 'mobile-height': phoneMode }"
+		>
 			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
-				<video #videoElement autoplay class="absolute top-0 left-0 w-full max-h-[75vh]" [class.hidden]="base64Images"></video>
+				<video
+					#videoElement
+					autoplay
+					class="absolute top-0 left-0 w-full"
+					[ngClass]="{ 'max-h-[75vh]': !phoneMode }"
+					[class.hidden]="base64Images"
+				></video>
 				<canvas
 					#canvas
 					class="absolute top-0 left-0"
@@ -25,7 +37,7 @@
 				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>
 				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
 			</div>
-			<div fxLayout="row" fxLayoutAlign="center center">
+			<div class="relative -top-18" fxLayout="row" fxLayoutAlign="center center">
 				<button
 					mat-raised-button
 					class="m-4 z-index-2"
