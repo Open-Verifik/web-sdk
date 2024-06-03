@@ -222,11 +222,11 @@ export class KYCService {
 	// }
 	// return this._http.put(`${this.baseUrl}/v2/information-validations/${data._id}/background-check`, {}, headers);
 	updateInformationValidationWithCriminalRecords(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/information-validations/${data._id}/background-check`);
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/information-validations/${data._id}/background-check`, data);
 	}
 
 	updateDocumentValidationNameValidation(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`);
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`, data);
 	}
 
 	/////////////////////// identity images /////////////////////////
