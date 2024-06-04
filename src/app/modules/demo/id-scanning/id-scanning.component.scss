@@ -24,6 +24,16 @@
 	width: 40%;
 }
 
+.height-full {
+	height: calc(100vh - 189px);
+}
+.height-full-canvas {
+	height: calc(100vh - 269px);
+}
+.height-full-button {
+	height: calc(100vh - 480px);
+}
+
 .id-scanning-failed-document-img {
 	width: 40%;
 }

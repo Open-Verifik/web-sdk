@@ -8,13 +8,14 @@ import { DemoService } from "../demo.service";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { WebcamImage, WebcamInitError, WebcamModule } from "ngx-webcam";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 import { CameraData, FacingMode, IdCard, Intervals, ResponseData } from "../models/sdk.models";
 import * as faceapi from "@vladmandic/face-api";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "app/modules/auth/project";
 import { Router } from "@angular/router";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
+import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 
 @Component({
 	selector: "id-scanning-ios",
@@ -60,7 +61,9 @@ export class IdScanningIOSComponent implements OnInit {
 	public get takePicture$(): Observable<void> {
 		return this.takePicture.asObservable();
 	}
-
+	phoneMode: boolean;
+	tabletMode: boolean;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
 	constructor(
 		private _dom: ElementRef,
 		private _demoService: DemoService,
@@ -68,8 +71,12 @@ export class IdScanningIOSComponent implements OnInit {
 		private _translocoService: TranslocoService,
 		private renderer: Renderer2,
 		private _router: Router,
+		private _changeDetectorRef: ChangeDetectorRef,
+		private _fuseMediaWatcherService: FuseMediaWatcherService,
 		private _KYCService: KYCService
 	) {
+		this._ObserveDomMedia();
+
 		this.demoData = this._demoService.getDemoData();
 
 		this.view = this._router.url.includes("/kyc") ? "kyc" : "demo";
@@ -105,6 +112,7 @@ export class IdScanningIOSComponent implements OnInit {
 				this.setVideoNgxCameraData();
 			}, this.demoData.time);
 		});
+		this._changeDetectorRef.markForCheck();
 	}
 
 	setDefaultCamera = () => {
@@ -128,6 +136,16 @@ export class IdScanningIOSComponent implements OnInit {
 			},
 		};
 	};
+
+	_ObserveDomMedia(): void {
+		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
+			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
+
+			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
+			console.log(this.tabletMode, this.phoneMode);
+			this._changeDetectorRef.markForCheck();
+		});
+	}
 
 	setDefaultInterval = () => {
 		this.interval = {};
@@ -166,6 +184,7 @@ export class IdScanningIOSComponent implements OnInit {
 		this.setDefaultResponse();
 		this.setDefaultCamera();
 		this.setMaxVideoDimensions();
+		this._changeDetectorRef.markForCheck();
 	}
 
 	setVideoNgxCameraData = () => {

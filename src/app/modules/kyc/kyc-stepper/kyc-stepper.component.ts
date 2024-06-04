@@ -1,14 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule } from "@ngneat/transloco";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { Project, ProjectFlow } from "app/modules/auth/project";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
 	selector: "kyc-stepper",
@@ -23,8 +25,18 @@ export class KycStepperComponent implements OnInit {
 	projectFlow: ProjectFlow;
 	navigation: any;
 	steps: any;
+	phoneMode: boolean;
+	tabletMode: boolean;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-	constructor(private _KYCService: KYCService, private _splashScreenService: FuseSplashScreenService) {
+	constructor(
+		private _KYCService: KYCService,
+		private _splashScreenService: FuseSplashScreenService,
+		private _changeDetectorRef: ChangeDetectorRef,
+		private _fuseMediaWatcherService: FuseMediaWatcherService
+	) {
+		this._ObserveDomMedia();
+
 		this.appRegistration = this._KYCService.appRegistration;
 
 		this.project = this._KYCService.currentProject;
@@ -44,5 +56,15 @@ export class KycStepperComponent implements OnInit {
 
 			this.steps.push(step);
 		}
+	}
+
+	_ObserveDomMedia(): void {
+		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
+			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
+
+			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
+
+			this._changeDetectorRef.markForCheck();
+		});
 	}
 }

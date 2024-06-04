@@ -12,6 +12,8 @@ import { Router } from "@angular/router";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
+import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
 	selector: "id-scanning",
@@ -63,6 +65,9 @@ export class IdScanningComponent implements OnInit {
 	errorContent: any;
 	loading: any;
 	errorResult: boolean;
+	phoneMode: boolean;
+	tabletMode: boolean;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
 	constructor(
 		private _demoService: DemoService,
@@ -70,9 +75,12 @@ export class IdScanningComponent implements OnInit {
 		private _splashScreenService: FuseSplashScreenService,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _translocoService: TranslocoService,
+		private _fuseMediaWatcherService: FuseMediaWatcherService,
 		private renderer: Renderer2,
 		private _KYCService: KYCService
 	) {
+		this._ObserveDomMedia();
+
 		this.attemptsLimit = 3;
 
 		this.loadingCamera = false;
@@ -133,6 +141,16 @@ export class IdScanningComponent implements OnInit {
 			if (isLoaded) {
 				this.startCamera();
 			}
+		});
+	}
+
+	_ObserveDomMedia(): void {
+		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
+			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
+
+			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
+			console.log(this.tabletMode, this.phoneMode);
+			this._changeDetectorRef.markForCheck();
 		});
 	}
 

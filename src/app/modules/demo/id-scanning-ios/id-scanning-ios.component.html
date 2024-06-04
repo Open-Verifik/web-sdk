@@ -1,69 +1,150 @@
-<div
-	fxLayout="column"
-	fxLayoutAlign="center center"
-	class="bg-white rounded-lg shadow-lg m-5 p-4 w-full"
-	*ngIf="!response.isFailed && camera.hasPermissions && !errorResult"
->
-	<canvas #cardIdFace hidden="true"></canvas>
+<ng-container>
+	<div
+		fxLayout="column"
+		fxLayoutAlign="center center"
+		class="bg-white rounded-lg shadow-lg m-5 p-4 w-full"
+		*ngIf="!response.isFailed && camera.hasPermissions && !errorResult && !phoneMode && !tabletMode"
+	>
+		<canvas #cardIdFace hidden="true"></canvas>
 
-	<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
-		<div *ngIf="errorFace && !loadingResults">
-			<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
-			<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
+		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
+			<div *ngIf="errorFace && !loadingResults">
+				<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
+			</div>
+		</div>
+
+		<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
+			<webcam
+				[height]="camera.dimensions.video.max.height"
+				[width]="camera.dimensions.video.max.width"
+				[videoOptions]="camera.configuration"
+				[imageQuality]="1"
+				[captureImageData]="true"
+				[allowCameraSwitch]="false"
+				[trigger]="takePicture$"
+				[mirrorImage]="demoData.isMobile ? 'never' : 'always'"
+				(imageCapture)="proccessImage($event)"
+				(initError)="cameraError($event)"
+				*ngIf="!response.base64Image"
+			></webcam>
+			<canvas
+				#maskResult
+				class="absolute top-0 left-0"
+				[style.width.px]="response.base64Image ? camera.dimensions.result.width : camera.dimensions.video.width"
+				[style.height.px]="response.base64Image ? camera.dimensions.result.height : camera.dimensions.video.height"
+			></canvas>
+			<canvas #toSend [class.hidden]="true"></canvas>
+		</div>
+		<div fxLayout="row" fxLayoutAlign="center center">
+			<button
+				mat-raised-button
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
+				class="m-4 z-index-2"
+				[class.hidden]="response.base64Image"
+				(click)="takePictureSnapshot()"
+				[disabled]="errorFace"
+			>
+				{{ "id_scanning.manual_capture_button" | transloco }}
+			</button>
+
+			<button
+				mat-stroked-button
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
+				class="m-4 z-index-2"
+				[class.hidden]="!response.base64Image"
+				(click)="ngOnInit()"
+			>
+				{{ "id_scanning.retry" | transloco }}
+			</button>
+
+			<button
+				mat-raised-button
+				[style.color]="project.branding.txtColor"
+				class="mx-2"
+				[class.hidden]="!response.base64Image"
+				(click)="continue()"
+			>
+				{{ "continue" | transloco }}
+			</button>
 		</div>
 	</div>
+</ng-container>
+<ng-container>
+	<div
+		fxLayout="column"
+		fxLayoutAlign="start center"
+		class="bg-white rounded-lg shadow-lg w-full"
+		*ngIf="!response.isFailed && camera.hasPermissions && !errorResult"
+	>
+		<canvas #cardIdFace hidden="true"></canvas>
 
-	<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
-		<webcam
-			[height]="camera.dimensions.video.max.height"
-			[width]="camera.dimensions.video.max.width"
-			[videoOptions]="camera.configuration"
-			[imageQuality]="1"
-			[captureImageData]="true"
-			[allowCameraSwitch]="false"
-			[trigger]="takePicture$"
-			[mirrorImage]="demoData.isMobile ? 'never' : 'always'"
-			(imageCapture)="proccessImage($event)"
-			(initError)="cameraError($event)"
-			*ngIf="!response.base64Image"
-		></webcam>
-		<canvas
-			#maskResult
-			class="absolute top-0 left-0"
-			[style.width.px]="response.base64Image ? camera.dimensions.result.width : camera.dimensions.video.width"
-			[style.height.px]="response.base64Image ? camera.dimensions.result.height : camera.dimensions.video.height"
-		></canvas>
-		<canvas #toSend [class.hidden]="true"></canvas>
+		<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
+			<webcam
+				[height]="camera.dimensions.video.max.height"
+				[width]="camera.dimensions.video.max.width"
+				[videoOptions]="camera.configuration"
+				[imageQuality]="1"
+				[captureImageData]="true"
+				[allowCameraSwitch]="false"
+				[trigger]="takePicture$"
+				[mirrorImage]="demoData.isMobile ? 'never' : 'always'"
+				(imageCapture)="proccessImage($event)"
+				(initError)="cameraError($event)"
+				*ngIf="!response.base64Image"
+			></webcam>
+			<canvas
+				#maskResult
+				class="absolute top-0 left-0"
+				[style.width.px]="response.base64Image ? camera.dimensions.result.width : camera.dimensions.video.width"
+				[style.height.px]="response.base64Image ? camera.dimensions.result.height : camera.dimensions.video.height"
+			></canvas>
+			<canvas #toSend [class.hidden]="true"></canvas>
+		</div>
+		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
+			<div *ngIf="errorFace && !loadingResults">
+				<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
+				<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
+			</div>
+		</div>
+		<div fxLayout="row" fxLayoutAlign="end center">
+			<button
+				mat-raised-button
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
+				class="m-4 z-index-2"
+				[class.hidden]="response.base64Image"
+				(click)="takePictureSnapshot()"
+				[disabled]="errorFace"
+			>
+				{{ "id_scanning.manual_capture_button" | transloco }}
+			</button>
+
+			<button
+				mat-stroked-button
+				[style.background]="project.branding.buttonColor"
+				[style.color]="project.branding.buttonTxtColor"
+				class="m-4 z-index-2"
+				[class.hidden]="!response.base64Image"
+				(click)="ngOnInit()"
+			>
+				{{ "id_scanning.retry" | transloco }}
+			</button>
+
+			<button
+				mat-raised-button
+				[style.color]="project.branding.txtColor"
+				class="mx-2"
+				[class.hidden]="!response.base64Image"
+				(click)="continue()"
+			>
+				{{ "continue" | transloco }}
+			</button>
+		</div>
 	</div>
-	<div fxLayout="row" fxLayoutAlign="center center">
-		<button
-			mat-raised-button
-			[style.background]="project.branding.buttonColor"
-			[style.color]="project.branding.buttonTxtColor"
-			class="m-4 z-index-2"
-			[class.hidden]="response.base64Image"
-			(click)="takePictureSnapshot()"
-			[disabled]="errorFace"
-		>
-			{{ "id_scanning.manual_capture_button" | transloco }}
-		</button>
-
-		<button
-			mat-stroked-button
-			[style.background]="project.branding.buttonColor"
-			[style.color]="project.branding.buttonTxtColor"
-			class="m-4 z-index-2"
-			[class.hidden]="!response.base64Image"
-			(click)="ngOnInit()"
-		>
-			{{ "id_scanning.retry" | transloco }}
-		</button>
-
-		<button mat-raised-button [style.color]="project.branding.txtColor" class="mx-2" [class.hidden]="!response.base64Image" (click)="continue()">
-			{{ "continue" | transloco }}
-		</button>
-	</div>
-</div>
+</ng-container>
 
 <!-- it doesnt have permissions -->
 <div

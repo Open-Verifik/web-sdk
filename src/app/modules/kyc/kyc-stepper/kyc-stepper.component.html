@@ -1,4 +1,4 @@
-<div fxLayout="column" fxLayoutAlign="start start" *ngIf="navigation">
+<div fxLayout="column" fxLayoutAlign="start start" *ngIf="navigation && !phoneMode && !tabletMode">
 	<div class="verifik-stepper" fxLayout="row" fxLayoutAlign="space-between center">
 		<div fxLayout="row" fxLayoutAlign="start center" *ngFor="let step of navigation.displayableSteps; let i = index">
 			<span
@@ -16,6 +16,20 @@
 				fxHide.xs="true"
 				>{{ "header." + step.code | transloco }}
 			</span>
+		</div>
+	</div>
+</div>
+<div fxLayout="column" fxLayoutAlign="start start" *ngIf="navigation && (phoneMode || tabletMode)">
+	<div class="verifik-stepper" fxLayout="column" fxLayoutAlign="center">
+		<div [style.color]="project.branding.txtColor" class="font-bold w-full flex-row justify-center items-center flex my-1">
+			{{ "header." + navigation.currentStep | transloco }}
+		</div>
+		<div class="w-full flex-row justify-center items-center flex my-1">
+			<ng-container *ngFor="let step of navigation.displayableSteps; let i = index">
+				<div *ngIf="navigation.currentStep === step.code" [style.background]="project.branding.buttonColor" class="dot"></div>
+
+				<div *ngIf="navigation.currentStep !== step.code" class="dot"></div>
+			</ng-container>
 		</div>
 	</div>
 </div>
