@@ -19,7 +19,9 @@
 		text-align: center;
 	}
 }
-
+.mobile-height {
+	height: calc(100vh - 190px);
+}
 .id-scanning-no-camera-enabled-img {
 	width: 40%;
 }

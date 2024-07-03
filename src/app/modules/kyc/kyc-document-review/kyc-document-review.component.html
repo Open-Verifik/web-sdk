@@ -82,6 +82,7 @@
 
 		<div fxLayout="row" fxLayoutAlign="start start" class="w-full">
 			<button
+				[disabled]="!completed"
 				mat-stroked-button
 				color="primary"
 				class="m-4 z-index-2 start-demo-button"
@@ -92,6 +93,7 @@
 			</button>
 
 			<button
+				[disabled]="!completed"
 				mat-raised-button
 				color="primary"
 				class="m-4 z-index-2 start-demo-button"

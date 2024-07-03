@@ -12,63 +12,21 @@
 				<div [style.color]="project ? project.branding.txtColor : null" class="text-gray-600">{{ errorFace.subtitle }}</div>
 			</div>
 		</div>
-		<div *ngIf="!failedToDetectDocument && !phoneMode && !tabletMode" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
-			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
-				<video #videoElement autoplay class="absolute top-0 left-0 w-full max-h-[75vh]" [class.hidden]="base64Images"></video>
-				<canvas
-					#canvas
-					class="absolute top-0 left-0"
-					[style.width.px]="WIDTH"
-					[style.height.px]="HEIGHT"
-					[class.hidden]="base64Images"
-				></canvas>
-				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>
-				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
-			</div>
-			<div [ngClass]="{ 'relative -top-16': !phonemode && !tabletMode }" fxLayout="row" fxLayoutAlign="center center">
-				<button
-					mat-raised-button
-					class="m-4 z-index-2"
-					[class.hidden]="base64Images"
-					(click)="takePicture()"
-					[disabled]="errorFace"
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-				>
-					{{ "id_scanning.manual_capture_button" | transloco }}
-				</button>
-
-				<button
-					mat-stroked-button
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-					class="m-4 z-index-2"
-					[class.hidden]="!base64Images"
-					(click)="tryAgain()"
-				>
-					{{ "id_scanning.retry" | transloco }}
-				</button>
-
-				<button
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-					mat-raised-button
-					class="mx-2"
-					[class.hidden]="!base64Images"
-					(click)="continue()"
-				>
-					{{ "continue" | transloco }}
-				</button>
-			</div>
-		</div>
 		<div
-			*ngIf="!failedToDetectDocument && (phoneMode || tabletMode)"
+			*ngIf="!failedToDetectDocument"
 			fxLayout="column"
-			fxLayoutAlign="start center"
-			class="w-full height-full-canvas"
+			fxLayoutAlign="center center"
+			class="w-full h-full"
+			[ngClass]="{ 'mobile-height': phoneMode }"
 		>
 			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
-				<video #videoElement autoplay class="absolute top-0 left-0 w-full max-h-[75vh]" [class.hidden]="base64Images"></video>
+				<video
+					#videoElement
+					autoplay
+					class="absolute top-0 left-0 w-full"
+					[ngClass]="{ 'max-h-[75vh]': !phoneMode }"
+					[class.hidden]="base64Images"
+				></video>
 				<canvas
 					#canvas
 					class="absolute top-0 left-0"
@@ -79,7 +37,7 @@
 				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>
 				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
 			</div>
-			<div *ngIf="phoneMode || tabletMode" class="height-full-button" fxLayout="row" fxLayoutAlign="end center">
+			<div class="relative -top-18" fxLayout="row" fxLayoutAlign="center center">
 				<button
 					mat-raised-button
 					class="m-4 z-index-2"
