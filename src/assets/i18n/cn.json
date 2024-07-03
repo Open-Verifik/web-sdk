@@ -114,6 +114,8 @@
 		"country_not_allowed": "不允许该国家的文件"
 	},
 	"user_location": {
+		"town": "城镇",
+		"state_district": "州区",
 		"amenity": "便利设施",
 		"house_number": "房屋号码",
 		"region": "地区",
