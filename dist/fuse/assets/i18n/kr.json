@@ -114,6 +114,8 @@
 		"country_not_allowed": "이 나라의 문서는 허용되지 않습니다"
 	},
 	"user_location": {
+		"town": "마을",
+		"state_district": "주 구역",
 		"amenity": "시설",
 		"house_number": "집 번호",
 		"region": "지역",

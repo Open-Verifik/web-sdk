@@ -114,6 +114,8 @@
 		"country_not_allowed": "Документ из этой страны не разрешен"
 	},
 	"user_location": {
+		"town": "Город",
+		"state_district": "Областной округ",
 		"amenity": "Удобство",
 		"house_number": "Номер дома",
 		"region": "Регион",
