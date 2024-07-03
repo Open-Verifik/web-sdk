@@ -13,7 +13,6 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { IdScanningIOSComponent } from "app/modules/demo/id-scanning-ios/id-scanning-ios.component";
 import { IdScanningComponent } from "app/modules/demo/id-scanning/id-scanning.component";
 import { StepperComponent } from "app/modules/demo/stepper/stepper.component";
-import { Subject, catchError, forkJoin, of, takeUntil, throwError } from "rxjs";
 import { environment } from "environments/environment";
 
 @Component({
@@ -55,6 +54,7 @@ export class KycDocumentReviewComponent implements OnInit {
 		private _changeDetectorRef: ChangeDetectorRef
 	) {
 		this.completed = false;
+
 		this.demoData = this._demoService.getDemoData();
 
 		this.appRegistration = this._KYCService.appRegistration;
@@ -129,39 +129,41 @@ export class KycDocumentReviewComponent implements OnInit {
 		this._KYCService.navigateTo("document");
 	}
 
-	sendDocumentValidationAndNameValidation() {
-		const promises = [];
+	async sendDocumentValidationAndNameValidation() {
 		const settings = this.projectFlow.onboardingSettings.document;
+		const promises = [];
+
 		if (settings.verifyNames) {
 			const payload = {
 				_id: this.appRegistration.documentValidation._id,
 				force: true,
 			};
-			// environment.production ? delete payload.force : "forced update";
 			promises.push(this._KYCService.updateDocumentValidationNameValidation(payload));
 		}
+
 		if (settings.verifyCriminalHistory) {
 			const payload = {
 				_id: this.appRegistration.informationValidation._id,
 				force: environment.production,
 			};
-			// environment.production ? delete payload.force : "forced update";
 			promises.push(this._KYCService.updateInformationValidationWithCriminalRecords(payload));
 		}
-		forkJoin(promises)
-			.pipe(
-				catchError((error) => {
-					console.error("Error occurred:", error);
-					return of(error);
-				})
-			)
-			.subscribe({
-				next: (results) => {},
-				error: (error) => {},
-				complete: () => {
-					this.completed = true;
-					this._changeDetectorRef.markForCheck();
-				},
+
+		try {
+			const results = await Promise.allSettled(promises);
+
+			results.forEach((result) => {
+				if (result.status === "fulfilled") {
+					console.log("Promise fulfilled:", result.value);
+				} else {
+					console.error("Promise rejected:", result.reason);
+				}
 			});
+
+			this.completed = true;
+			this._changeDetectorRef.markForCheck();
+		} catch (error) {
+			console.error("Unexpected error occurred:", error);
+		}
 	}
 }
