@@ -61,6 +61,67 @@ h2 {
 	}
 }
 
+.kyc-documents-allowed-title {
+	height: 55px;
+}
+
+.kyc-documents-allowed-card {
+	z-index: 2;
+	width: 33%;
+	max-width: 500px;
+	min-height: 150px;
+	background: white;
+	border: 1px solid #cccccc65;
+	/* Shadow */
+	box-shadow: 2px 2px 2px 2px rgb(0 0 0 / 2%);
+	text-align: center;
+	border-radius: 22px;
+	margin: 2px;
+
+	.kyc-gov-id-img {
+		width: 55%;
+		height: 95px;
+	}
+
+	.kyc-passport-img {
+		width: 35%;
+		height: 95px;
+	}
+}
+
+.kyc-document-instruction-card {
+	z-index: 2;
+	width: 92%;
+	margin-top: 24px;
+	height: 400px;
+	min-width: 350px;
+	min-height: 400px;
+	background: white;
+	border: 1px solid #cccccc65;
+	/* Shadow */
+	box-shadow: 3px 3px 3px 3px rgb(0 0 0 / 5%);
+	border-radius: 25px;
+
+	img {
+		padding: 4px;
+		width: 50%;
+	}
+
+	p {
+		padding-left: 12px;
+	}
+
+	.instruction-number {
+		text-align: center;
+		padding-top: 4px;
+		margin-right: 8px;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background-color: #dce1ff;
+	}
+}
+
 @media (max-width: 599px) {
 	.upload-file-section {
 		width: 95% !important;
@@ -82,6 +143,10 @@ h2 {
 			padding: 8px;
 			height: 65px !important;
 		}
+	}
+
+	.kyc-document-instruction-card {
+		height: 550px;
 	}
 }
 
