@@ -36,144 +36,146 @@
 
 					<!-- Sign in form -->
 					<form class="mt-8" [formGroup]="signInForm">
-						<mat-tab-group selectedIndex="{{ typeLogin == 'email' ? 0 : 1 }}" (selectedTabChange)="selectLogin($event)">
-							<mat-tab *ngIf="projectFlow.loginSettings.email" class="m-0 p-0 px-16">
-								<ng-template mat-tab-label>
+						<mat-tab-group
+							*ngIf="projectFlow.loginSettings.email && projectFlow.loginSettings.phone"
+							selectedIndex="{{ typeLogin == 'email' ? 0 : 1 }}"
+							(selectedTabChange)="selectLogin($event)"
+						>
+							<mat-tab class="m-0 p-0 px-16">
+								<ng-template mat-tab-label *ngIf="projectFlow.loginSettings.email">
 									<span [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</span>
 								</ng-template>
-								<ng-template matTabContent>
-									<!-- email -->
-									<mat-form-field class="w-full mt-1">
-										<mat-label [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</mat-label>
-
-										<input id="email" matInput [formControlName]="'email'" />
-
-										<mat-error *ngIf="signInForm.get('email').hasError('required')" class="p-1">
-											{{ "login.required_email" | transloco }}
-										</mat-error>
-
-										<mat-error *ngIf="signInForm.get('email').hasError('email')" class="p-1">
-											{{ "login.invalid_email" | transloco }}
-										</mat-error>
-									</mat-form-field>
-
-									<!-- OTP -->
-									<mat-form-field class="w-full" *ngIf="emailSent">
-										<mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
-										<input
-											id="emailOTP"
-											matInput
-											type="password"
-											[formControlName]="'emailOTP'"
-											#passwordField
-											(input)="onInput($event)"
-											(keyup)="checkSixDigits('emailOTP')"
-										/>
-										<button
-											mat-icon-button
-											type="button"
-											(click)="
-												passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')
-											"
-											matSuffix
-										>
-											<mat-icon
-												class="icon-size-5"
-												*ngIf="passwordField.type === 'password'"
-												[svgIcon]="'heroicons_solid:eye'"
-											></mat-icon>
-											<mat-icon
-												class="icon-size-5"
-												*ngIf="passwordField.type === 'text'"
-												[svgIcon]="'heroicons_solid:eye-off'"
-											></mat-icon>
-										</button>
-										<mat-error> {{ "login.required_otp" | transloco }} </mat-error>
-									</mat-form-field>
-								</ng-template>
+								<ng-template matTabContent> </ng-template>
 							</mat-tab>
 							<mat-tab *ngIf="projectFlow.loginSettings.phone" disabled="{{ !projectFlow.loginSettings.phone }}">
 								<ng-template mat-tab-label>
 									<span [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</span>
 								</ng-template>
-								<ng-template matTabContent>
-									<!-- phone-->
-									<div class="mt-2" *ngIf="groupFields.phone" fxLayout="row" fxLayoutAlign="start start">
-										<mat-form-field class="w-120px">
-											<mat-label [style.color]="project.branding.txtColor">{{ "login.country_code" | transloco }}</mat-label>
-											<mat-select
-												*ngIf="countries"
-												[formControl]="signInForm.get('countryCode')"
-												matPrefix
-												[(ngModel)]="selectedCountryCode"
-												(ngModelChange)="onCountryCodeChange($event)"
-											>
-												<mat-select-trigger>
-													<span class="flex items-center">
-														<span class="sm:mx-0.5 font-medium text-default">{{
-															signInForm.get("countryCode").value
-														}}</span>
-													</span>
-												</mat-select-trigger>
-
-												<mat-option [value]="country.code" *ngFor="let country of countries; trackBy: trackByFn">
-													<span class="flex items-center">
-														<span class="ml-2 font-medium">[{{ country.code }}] {{ country.name }}</span>
-													</span>
-												</mat-option>
-											</mat-select>
-										</mat-form-field>
-										<mat-form-field class="w-full" *ngIf="groupFields.phone">
-											<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
-											<input id="phone" matInput [formControlName]="'phone'" />
-
-											<mat-error *ngIf="signInForm.get('phone').hasError('required')" class="p-1">
-												{{ "login.required_phone" | transloco }}
-											</mat-error>
-
-											<mat-error *ngIf="signInForm.get('phone').hasError('phone')" class="p-1">
-												{{ "login.invalid_phone" | transloco }}
-											</mat-error>
-										</mat-form-field>
-									</div>
-									<!-- phoneOTP -->
-									<mat-form-field class="w-full" *ngIf="smsSent">
-										<mat-label [style.color]="project.branding.txtColor"> {{ "login.phone_otp" | transloco }}</mat-label>
-										<input
-											id="phoneOTP"
-											matInput
-											type="password"
-											[formControlName]="'phoneOTP'"
-											#passwordField
-											(input)="onInput($event)"
-											(keyup)="checkSixDigits('phoneOTP')"
-										/>
-										<button
-											mat-icon-button
-											type="button"
-											(click)="
-												passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')
-											"
-											matSuffix
-										>
-											<mat-icon
-												class="icon-size-5"
-												*ngIf="passwordField.type === 'password'"
-												[svgIcon]="'heroicons_solid:eye'"
-											></mat-icon>
-											<mat-icon
-												class="icon-size-5"
-												*ngIf="passwordField.type === 'text'"
-												[svgIcon]="'heroicons_solid:eye-off'"
-											></mat-icon>
-										</button>
-										<mat-error class="p-1">
-											{{ "login.required_otp" | transloco }}
-										</mat-error>
-									</mat-form-field>
-								</ng-template>
+								<ng-template matTabContent> </ng-template>
 							</mat-tab>
 						</mat-tab-group>
+
+						<div *ngIf="projectFlow.loginSettings.email && typeLogin == 'email'">
+							<!-- email -->
+							<mat-form-field class="w-full mt-1">
+								<mat-label [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</mat-label>
+
+								<input id="email" matInput [formControlName]="'email'" />
+
+								<mat-error *ngIf="signInForm.get('email').hasError('required')" class="p-1">
+									{{ "login.required_email" | transloco }}
+								</mat-error>
+
+								<mat-error *ngIf="signInForm.get('email').hasError('email')" class="p-1">
+									{{ "login.invalid_email" | transloco }}
+								</mat-error>
+							</mat-form-field>
+
+							<!-- OTP -->
+							<mat-form-field class="w-full" *ngIf="emailSent">
+								<mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
+								<input
+									id="emailOTP"
+									matInput
+									type="password"
+									[formControlName]="'emailOTP'"
+									#passwordField
+									(input)="onInput($event)"
+									(keyup)="checkSixDigits('emailOTP')"
+								/>
+								<button
+									mat-icon-button
+									type="button"
+									(click)="passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')"
+									matSuffix
+								>
+									<mat-icon
+										class="icon-size-5"
+										*ngIf="passwordField.type === 'password'"
+										[svgIcon]="'heroicons_solid:eye'"
+									></mat-icon>
+									<mat-icon
+										class="icon-size-5"
+										*ngIf="passwordField.type === 'text'"
+										[svgIcon]="'heroicons_solid:eye-off'"
+									></mat-icon>
+								</button>
+								<mat-error> {{ "login.required_otp" | transloco }} </mat-error>
+							</mat-form-field>
+						</div>
+
+						<div *ngIf="projectFlow.loginSettings.phone && typeLogin == 'phone'">
+							<!-- phone-->
+							<div class="mt-2" *ngIf="groupFields.phone" fxLayout="row" fxLayoutAlign="start start">
+								<mat-form-field class="w-120px">
+									<mat-label [style.color]="project.branding.txtColor">{{ "login.country_code" | transloco }}</mat-label>
+									<mat-select
+										*ngIf="countries"
+										[formControl]="signInForm.get('countryCode')"
+										matPrefix
+										[(ngModel)]="selectedCountryCode"
+										(ngModelChange)="onCountryCodeChange($event)"
+									>
+										<mat-select-trigger>
+											<span class="flex items-center">
+												<span class="sm:mx-0.5 font-medium text-default">{{ signInForm.get("countryCode").value }}</span>
+											</span>
+										</mat-select-trigger>
+
+										<mat-option [value]="country.code" *ngFor="let country of countries; trackBy: trackByFn">
+											<span class="flex items-center">
+												<span class="ml-2 font-medium">[{{ country.code }}] {{ country.name }}</span>
+											</span>
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field class="w-full" *ngIf="groupFields.phone">
+									<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
+									<input id="phone" matInput [formControlName]="'phone'" />
+
+									<mat-error *ngIf="signInForm.get('phone').hasError('required')" class="p-1">
+										{{ "login.required_phone" | transloco }}
+									</mat-error>
+
+									<mat-error *ngIf="signInForm.get('phone').hasError('phone')" class="p-1">
+										{{ "login.invalid_phone" | transloco }}
+									</mat-error>
+								</mat-form-field>
+							</div>
+							<!-- phoneOTP -->
+							<mat-form-field class="w-full" *ngIf="smsSent">
+								<mat-label [style.color]="project.branding.txtColor"> {{ "login.phone_otp" | transloco }}</mat-label>
+								<input
+									id="phoneOTP"
+									matInput
+									type="password"
+									[formControlName]="'phoneOTP'"
+									#passwordField
+									(input)="onInput($event)"
+									(keyup)="checkSixDigits('phoneOTP')"
+								/>
+								<button
+									mat-icon-button
+									type="button"
+									(click)="passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')"
+									matSuffix
+								>
+									<mat-icon
+										class="icon-size-5"
+										*ngIf="passwordField.type === 'password'"
+										[svgIcon]="'heroicons_solid:eye'"
+									></mat-icon>
+									<mat-icon
+										class="icon-size-5"
+										*ngIf="passwordField.type === 'text'"
+										[svgIcon]="'heroicons_solid:eye-off'"
+									></mat-icon>
+								</button>
+								<mat-error class="p-1">
+									{{ "login.required_otp" | transloco }}
+								</mat-error>
+							</mat-form-field>
+						</div>
 
 						<!-- buttons -->
 						<div class="flex flex-col flex-auto w-full items-center sm:justify-center">
@@ -234,9 +236,14 @@
 						</div>
 
 						<!-- Separator -->
-						<div class="flex items-center mt-8" *ngIf="projectFlow.loginSettings.faceLiveness">
+						<div
+							class="flex items-center mt-8"
+							*ngIf="projectFlow.loginSettings.faceLiveness && (projectFlow.loginSettings.phone || projectFlow.loginSettings.email)"
+						>
 							<div class="flex-auto mt-px border-t"></div>
-							<div class="mx-2 text-secondary" [style.color]="project.branding.txtColor">{{ "login.or_continue" | transloco }}</div>
+							<div class="mx-2 text-secondary" [style.color]="project.branding.txtColor">
+								{{ "login.or_continue" | transloco }}
+							</div>
 							<div class="flex-auto mt-px border-t"></div>
 						</div>
 

@@ -12,8 +12,8 @@ import { Router } from "@angular/router";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
-import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 import { Subject, takeUntil } from "rxjs";
+import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 
 @Component({
 	selector: "id-scanning",
@@ -137,6 +137,8 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		this._ObserveDomMedia();
+
 		this._demoService.faceapi$.subscribe((isLoaded) => {
 			if (isLoaded) {
 				this.startCamera();
@@ -149,7 +151,6 @@ export class IdScanningComponent implements OnInit {
 			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
 
 			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
-			console.log(this.tabletMode, this.phoneMode);
 			this._changeDetectorRef.markForCheck();
 		});
 	}

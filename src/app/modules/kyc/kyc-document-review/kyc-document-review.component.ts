@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -13,6 +13,7 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { IdScanningIOSComponent } from "app/modules/demo/id-scanning-ios/id-scanning-ios.component";
 import { IdScanningComponent } from "app/modules/demo/id-scanning/id-scanning.component";
 import { StepperComponent } from "app/modules/demo/stepper/stepper.component";
+import { environment } from "environments/environment";
 
 @Component({
 	selector: "kyc-document-review",
@@ -44,12 +45,19 @@ export class KycDocumentReviewComponent implements OnInit {
 	locationLoading: boolean;
 	extractedData: any;
 	documentFrontSideUrl: string;
+	completed: boolean;
 
-	constructor(private _demoService: DemoService, private dialog: MatDialog, private _KYCService: KYCService) {
+	constructor(
+		private _demoService: DemoService,
+		private dialog: MatDialog,
+		private _KYCService: KYCService,
+		private _changeDetectorRef: ChangeDetectorRef
+	) {
+		this.completed = false;
+
 		this.demoData = this._demoService.getDemoData();
 
 		this.appRegistration = this._KYCService.appRegistration;
-
 		this.project = this._KYCService.currentProject;
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
@@ -59,6 +67,8 @@ export class KycDocumentReviewComponent implements OnInit {
 		this.selectOption = "";
 
 		this.extractedData = [];
+
+		this.sendDocumentValidationAndNameValidation();
 	}
 
 	ngOnInit(): void {
@@ -117,5 +127,43 @@ export class KycDocumentReviewComponent implements OnInit {
 		this.appRegistration.forceUpload = true;
 
 		this._KYCService.navigateTo("document");
+	}
+
+	async sendDocumentValidationAndNameValidation() {
+		const settings = this.projectFlow.onboardingSettings.document;
+		const promises = [];
+
+		if (settings.verifyNames) {
+			const payload = {
+				_id: this.appRegistration.documentValidation._id,
+				force: true,
+			};
+			promises.push(this._KYCService.updateDocumentValidationNameValidation(payload));
+		}
+
+		if (settings.verifyCriminalHistory) {
+			const payload = {
+				_id: this.appRegistration.informationValidation._id,
+				force: environment.production,
+			};
+			promises.push(this._KYCService.updateInformationValidationWithCriminalRecords(payload));
+		}
+
+		try {
+			const results = await Promise.allSettled(promises);
+
+			results.forEach((result) => {
+				if (result.status === "fulfilled") {
+					console.log("Promise fulfilled:", result.value);
+				} else {
+					console.error("Promise rejected:", result.reason);
+				}
+			});
+
+			this.completed = true;
+			this._changeDetectorRef.markForCheck();
+		} catch (error) {
+			console.error("Unexpected error occurred:", error);
+		}
 	}
 }
