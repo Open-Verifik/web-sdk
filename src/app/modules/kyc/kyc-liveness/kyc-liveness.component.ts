@@ -612,7 +612,11 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 
 				this.errorContent = err.error;
 
-				console.error({ errorContent: this.errorContent });
+				const split = this.errorContent.message.split("@");
+
+				this.errorContent.message = split[0];
+
+				this.errorContent.livenessScore = Math.round(Number(split[1] * 100 || 0));
 
 				this._splashScreenService.hide();
 
