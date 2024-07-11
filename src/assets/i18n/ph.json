@@ -213,6 +213,8 @@
 		"dismiss": "I-dismiss"
 	},
 	"signup": {
+		"invalid_email": "Hindi wasto ang email",
+		"invalid_phone": "Hindi wasto ang telepono",
 		"title": "Gumawa ng Account",
 		"auth_question": "Mayroon ka na bang account?",
 		"auth_link": "Mag-sign in",

@@ -213,6 +213,8 @@
 		"dismiss": "Dismiss"
 	},
 	"signup": {
+		"invalid_email": "Email is invalid",
+		"invalid_phone": "Phone is invalid",
 		"title": "Create an account",
 		"auth_question": "Already have an account?",
 		"auth_link": "Sign in",

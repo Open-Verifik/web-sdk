@@ -213,6 +213,8 @@
 		"dismiss": "닫기"
 	},
 	"signup": {
+		"invalid_email": "잘못된 이메일",
+		"invalid_phone": "잘못된 전화번호",
 		"title": "계정 만들기",
 		"auth_question": "이미 계정이 있으신가요?",
 		"auth_link": "로그인",
