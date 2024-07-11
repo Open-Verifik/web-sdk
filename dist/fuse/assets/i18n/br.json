@@ -212,6 +212,8 @@
 		"dismiss": "Descartar"
 	},
 	"signup": {
+		"invalid_email": "E-mail inválido",
+		"invalid_phone": "Telefone inválido",
 		"title": "Criar uma conta",
 		"auth_question": "Já tem uma conta?",
 		"auth_link": "Entrar",
