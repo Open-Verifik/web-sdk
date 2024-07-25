@@ -134,9 +134,15 @@ mat-tab-body {
 }
 
 /* For tablets (768px to 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 960px) and (max-width: 1023px) {
 	.left-card {
-		width: 50%;
+		width: 50% !important;
+
+		.left-card-inner-div {
+			width: 99% !important;
+			max-width: 99% !important;
+			padding: 12px;
+		}
 	}
 }
 
@@ -183,6 +189,7 @@ mat-tab-body {
 
 	.whole-card {
 		width: 75%;
+		height: 800px;
 		max-height: 94.5vh !important;
 	}
 
