@@ -55,6 +55,10 @@ mat-tab-body {
 	width: 60% !important;
 }
 
+.main-div {
+	padding: 2rem;
+}
+
 .half-width-image {
 	width: 50vw; /* vw stands for viewport width */
 	object-fit: fill;
@@ -130,9 +134,27 @@ mat-tab-body {
 }
 
 /* For small laptops (1024px to 1279px) */
-@media (min-width: 1024px) and (max-width: 1499px) {
+@media (min-width: 1024px) and (max-width: 1249px) {
 	.whole-card {
-		width: 100%;
+		width: 98%;
+		max-height: 93vh !important;
+	}
+
+	.left-card {
+		width: 47% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+		}
+	}
+}
+
+/* For small laptops (1024px to 1279px) */
+@media (min-width: 1250px) and (max-width: 1499px) {
+	.whole-card {
+		width: 85%;
+		max-height: 93vh !important;
 	}
 
 	.left-card {
@@ -147,6 +169,10 @@ mat-tab-body {
 
 /* For desktops (1280px and above) */
 @media (min-width: 1500px) {
+	.main-div {
+		padding: 1rem !important;
+	}
+
 	.whole-card {
 		width: 75%;
 		max-height: 93vh !important;
