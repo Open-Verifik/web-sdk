@@ -77,6 +77,10 @@ mat-tab-body {
 
 /* For mobile devices (up to 599px) */
 @media (max-width: 599px) {
+	.main-div {
+		padding: 4px;
+	}
+
 	.whole-card {
 		width: 90%;
 	}
@@ -87,7 +91,10 @@ mat-tab-body {
 		.left-card-inner-div {
 			width: 90% !important;
 			max-width: 90% !important;
-			padding: 18px;
+			padding-left: 8px;
+			padding-right: 8px;
+			padding-top: 12px;
+			padding-bottom: 12px;
 		}
 	}
 }
@@ -158,11 +165,11 @@ mat-tab-body {
 	}
 
 	.left-card {
-		width: 47% !important;
+		width: 42% !important;
 
 		.left-card-inner-div {
-			width: 90% !important;
-			max-width: 90% !important;
+			width: 100% !important;
+			max-width: 100% !important;
 		}
 	}
 }
@@ -179,12 +186,15 @@ mat-tab-body {
 	}
 
 	.left-card {
-		width: 44% !important;
+		width: 40% !important;
 
 		.left-card-inner-div {
 			width: 100% !important;
 			max-width: 100% !important;
-			padding: 32px;
+			padding-top: 20px;
+			padding-left: 20px;
+			padding-bottom: 10px;
+			padding-right: 20px;
 		}
 	}
 }
