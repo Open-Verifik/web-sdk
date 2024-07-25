@@ -60,3 +60,101 @@ mat-tab-body {
 	object-fit: fill;
 	height: 100%;
 }
+
+.full-size-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.left-card-inner-div {
+	max-width: 20rem;
+}
+
+/* For mobile devices (up to 599px) */
+@media (max-width: 599px) {
+	.whole-card {
+		width: 90%;
+	}
+
+	.left-card {
+		width: 100% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+		}
+	}
+}
+
+/* For small tablets (600px to 767px) */
+@media (min-width: 600px) and (max-width: 767px) {
+	.whole-card {
+		width: 70%;
+	}
+
+	.left-card {
+		width: 100% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+		}
+	}
+}
+
+/* For (700 to 959px) */
+@media (min-width: 768px) and (max-width: 959px) {
+	.whole-card {
+		width: 60%;
+	}
+
+	.left-card {
+		width: 100% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+		}
+	}
+}
+
+/* For tablets (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+	.left-card {
+		width: 50%;
+	}
+}
+
+/* For small laptops (1024px to 1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+	.whole-card {
+		width: 95%;
+	}
+
+	.left-card {
+		width: 40%;
+	}
+}
+
+/* For small laptops (1024px to 1279px) */
+@media (min-width: 1080px) and (max-width: 1499px) {
+	.whole-card {
+		width: 90%;
+	}
+
+	.left-card {
+		width: 40%;
+	}
+}
+
+/* For desktops (1280px and above) */
+@media (min-width: 1500px) {
+	.whole-card {
+		width: 70%;
+	}
+
+	.left-card {
+		width: 50%;
+	}
+}
