@@ -133,7 +133,12 @@ mat-tab-body {
 	}
 
 	.left-card {
-		width: 40%;
+		width: 40% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+		}
 	}
 }
 
@@ -144,7 +149,12 @@ mat-tab-body {
 	}
 
 	.left-card {
-		width: 40%;
+		width: 47% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+		}
 	}
 }
 
