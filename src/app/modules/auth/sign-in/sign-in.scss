@@ -83,6 +83,7 @@ mat-tab-body {
 		.left-card-inner-div {
 			width: 90% !important;
 			max-width: 90% !important;
+			padding: 18px;
 		}
 	}
 }
@@ -99,6 +100,7 @@ mat-tab-body {
 		.left-card-inner-div {
 			width: 90% !important;
 			max-width: 90% !important;
+			padding: 24px;
 		}
 	}
 }
@@ -115,6 +117,7 @@ mat-tab-body {
 		.left-card-inner-div {
 			width: 90% !important;
 			max-width: 90% !important;
+			padding: 24px;
 		}
 	}
 }
@@ -127,13 +130,13 @@ mat-tab-body {
 }
 
 /* For small laptops (1024px to 1279px) */
-@media (min-width: 1024px) and (max-width: 1279px) {
+@media (min-width: 1024px) and (max-width: 1499px) {
 	.whole-card {
-		width: 95%;
+		width: 100%;
 	}
 
 	.left-card {
-		width: 40% !important;
+		width: 47% !important;
 
 		.left-card-inner-div {
 			width: 90% !important;
@@ -142,34 +145,19 @@ mat-tab-body {
 	}
 }
 
-/* For small laptops (1024px to 1279px) */
-@media (min-width: 1080px) and (max-width: 1499px) {
-	.whole-card {
-		width: 90%;
-	}
-
-	.left-card {
-		width: 47% !important;
-
-		.left-card-inner-div {
-			width: 95% !important;
-			max-width: 95% !important;
-		}
-	}
-}
-
 /* For desktops (1280px and above) */
 @media (min-width: 1500px) {
 	.whole-card {
-		width: 70%;
+		width: 75%;
 	}
 
 	.left-card {
-		width: 46% !important;
+		width: 44% !important;
 
 		.left-card-inner-div {
 			width: 100% !important;
 			max-width: 100% !important;
+			padding: 32px;
 		}
 	}
 }
