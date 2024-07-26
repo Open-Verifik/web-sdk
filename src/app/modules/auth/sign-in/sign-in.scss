@@ -32,6 +32,7 @@ bg-white {
 .biometrics-button {
 	background-color: #82269e;
 	color: white !important;
+	width: 80% !important;
 }
 
 mat-form-field {
@@ -75,8 +76,16 @@ mat-tab-body {
 	max-width: 20rem;
 }
 
+.biometric-instructions {
+	min-width: 400px;
+}
+
 /* For mobile devices (up to 599px) */
 @media (max-width: 599px) {
+	.biometric-instructions {
+		min-width: 300px !important;
+	}
+
 	.main-div {
 		padding: 4px;
 	}
