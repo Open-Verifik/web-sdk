@@ -597,6 +597,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
 		this._passwordlessService.validateBiometrics(payload).subscribe({
 			next: (response) => {
+				console.log({ response });
+
 				this.successLogin(response.data.token);
 			},
 			error: (err) => {

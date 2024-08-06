@@ -3,9 +3,19 @@
 	*ngIf="project && signInForm"
 	[style.background]="project.branding.bgColor"
 >
-	<div class="flex overflow-hidden bg-card rounded-2xl shadow whole-card" *ngIf="!showBiometrics">
+	<div
+		class="flex overflow-hidden bg-card rounded-2xl shadow whole-card"
+		*ngIf="!showBiometrics"
+		[ngClass]="{ 'whole-card-without-image': !project.branding.rightImage }"
+	>
 		<!-- LEFT part -->
-		<div class="w-full sm:w-auto left-card" fxLayout="row" fxLayoutAlign="center center" *ngIf="!showFaceLivenessRecommendation">
+		<div
+			class="w-full sm:w-auto left-card"
+			[ngClass]="{ 'left-card-without-image': !project.branding.rightImage }"
+			fxLayout="row"
+			fxLayoutAlign="center center"
+			*ngIf="!showFaceLivenessRecommendation"
+		>
 			<div class="mx-auto w-full sm:mx-0 sm:w-80 left-card-inner-div">
 				<!-- Logo -->
 				<div class="w-14">
@@ -304,7 +314,10 @@
 			</div>
 		</div>
 
-		<div class="relative hidden h-full flex-auto items-center justify-center overflow-hidden bg-gray-800 dark:border-l md:flex">
+		<div
+			class="relative hidden h-full flex-auto items-center justify-center overflow-hidden bg-gray-800 dark:border-l md:flex"
+			*ngIf="project.branding.rightImage"
+		>
 			<img [src]="project.branding.rightImage" alt="" class="full-size-image" />
 		</div>
 	</div>

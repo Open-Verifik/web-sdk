@@ -144,14 +144,22 @@ mat-tab-body {
 
 /* For tablets (768px to 1023px) */
 @media (min-width: 960px) and (max-width: 1023px) {
+	.whole-card-without-image {
+		width: 55%;
+	}
+
 	.left-card {
 		width: 50% !important;
 
 		.left-card-inner-div {
 			width: 99% !important;
 			max-width: 99% !important;
-			padding: 12px;
+			padding: 20px;
 		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
 	}
 }
 
@@ -162,13 +170,22 @@ mat-tab-body {
 		max-height: 93vh !important;
 	}
 
+	.whole-card-without-image {
+		width: 47% !important;
+	}
+
 	.left-card {
 		width: 47% !important;
 
 		.left-card-inner-div {
+			padding-top: 16px;
 			width: 90% !important;
 			max-width: 90% !important;
 		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
 	}
 }
 
@@ -179,6 +196,10 @@ mat-tab-body {
 		max-height: 93vh !important;
 	}
 
+	.whole-card-without-image {
+		width: 42% !important;
+	}
+
 	.left-card {
 		width: 42% !important;
 
@@ -187,6 +208,10 @@ mat-tab-body {
 			max-width: 100% !important;
 			padding: 24px;
 		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
 	}
 }
 
@@ -202,6 +227,10 @@ mat-tab-body {
 		max-height: 94.5vh !important;
 	}
 
+	.whole-card-without-image {
+		width: 33% !important;
+	}
+
 	.left-card {
 		width: 40% !important;
 
@@ -213,5 +242,9 @@ mat-tab-body {
 			padding-bottom: 10px;
 			padding-right: 20px;
 		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
 	}
 }
