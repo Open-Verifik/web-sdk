@@ -107,8 +107,6 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 					this._splashScreenService.hide();
 
-					console.log({ FACES: faces });
-
 					if (!faces) {
 						this.errorResult = true;
 
@@ -134,8 +132,6 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 	async detectFace(image) {
 		try {
 			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 })).withFaceLandmarks();
-
-			console.log({ faces });
 
 			if (faces.length) {
 				return faces.map((face) => face.detection.box);

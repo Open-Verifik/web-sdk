@@ -7,12 +7,13 @@
 	"cancel": "Cancelar",
 	"powered_by_verifik": "Asegurado por Verifik",
 	"header": {
+		"partner": "Asóciate con nosotros",
+		"talk": "Habla con ventas",
 		"document": "Escaneo de ID",
-		"documentLivenessReview": "Resultados",
 		"documentReview": "Detalles del documento",
 		"liveness": "Verificación de vitalidad",
-		"partner": "Asóciate con nosotros",
-		"talk": "Habla con ventas"
+		"documentLivenessReview": "Resultados",
+		"end": "Resultados"
 	},
 	"step_one": {
 		"title": "Explora el futuro de la validación de identidad con Verifik",

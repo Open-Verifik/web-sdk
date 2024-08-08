@@ -12,7 +12,8 @@
 		"documentReview": "文件详情",
 		"liveness": "活体检测",
 		"partner": "与我们合作",
-		"talk": "联系销售"
+		"talk": "联系销售",
+		"end": "结果"
 	},
 	"step_one": {
 		"title": "与Verifik一起探索身份验证的未来",

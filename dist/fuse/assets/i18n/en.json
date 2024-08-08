@@ -12,7 +12,8 @@
 		"document": "ID Scanning",
 		"documentReview": "Document details",
 		"liveness": "Liveness check",
-		"documentLivenessReview": "Results"
+		"documentLivenessReview": "Results",
+		"end": "Results"
 	},
 	"step_one": {
 		"title": "Explore the future of identity validation with Verifik",

@@ -138,6 +138,7 @@ export class KycDocumentReviewComponent implements OnInit {
 				_id: this.appRegistration.documentValidation._id,
 				force: true,
 			};
+
 			promises.push(this._KYCService.updateDocumentValidationNameValidation(payload));
 		}
 
@@ -146,21 +147,25 @@ export class KycDocumentReviewComponent implements OnInit {
 				_id: this.appRegistration.informationValidation._id,
 				force: environment.production,
 			};
+
 			promises.push(this._KYCService.updateInformationValidationWithCriminalRecords(payload));
 		}
 
 		try {
 			const results = await Promise.allSettled(promises);
 
-			results.forEach((result) => {
-				if (result.status === "fulfilled") {
-					console.log("Promise fulfilled:", result.value);
-				} else {
-					console.error("Promise rejected:", result.reason);
-				}
-			});
+			if (!environment.production) {
+				results.forEach((result) => {
+					if (result.status === "fulfilled") {
+						console.log("Promise fulfilled:", result.value);
+					} else {
+						console.error("Promise rejected:", result.reason);
+					}
+				});
+			}
 
 			this.completed = true;
+
 			this._changeDetectorRef.markForCheck();
 		} catch (error) {
 			console.error("Unexpected error occurred:", error);

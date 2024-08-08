@@ -12,7 +12,8 @@
 		"documentReview": "문서 상세정보",
 		"liveness": "생체확인 검사",
 		"partner": "파트너십 체결",
-		"talk": "영업팀과 상담"
+		"talk": "영업팀과 상담",
+		"end": "결과"
 	},
 	"step_one": {
 		"title": "Verifik와 함께 신분증명의 미래를 탐험하세요",
