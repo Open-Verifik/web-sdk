@@ -14,6 +14,7 @@ import { IdScanningIOSComponent } from "app/modules/demo/id-scanning-ios/id-scan
 import { IdScanningComponent } from "app/modules/demo/id-scanning/id-scanning.component";
 import { StepperComponent } from "app/modules/demo/stepper/stepper.component";
 import { environment } from "environments/environment";
+import { catchError, forkJoin, map, of } from "rxjs";
 
 @Component({
 	selector: "kyc-document-review",
@@ -129,10 +130,10 @@ export class KycDocumentReviewComponent implements OnInit {
 		this._KYCService.navigateTo("document");
 	}
 
-	async sendDocumentValidationAndNameValidation(): Promise<any> {
+	sendDocumentValidationAndNameValidation(): void {
 		const settings = this.projectFlow.onboardingSettings.document;
 
-		const promises = [];
+		const observables = [];
 
 		console.log({ verifyNames: settings.verifyNames, verifyCriminal: settings.verifyCriminalHistory });
 
@@ -142,7 +143,12 @@ export class KycDocumentReviewComponent implements OnInit {
 				force: true,
 			};
 
-			promises.push(this._KYCService.updateDocumentValidationNameValidation(payload));
+			observables.push(
+				this._KYCService.updateDocumentValidationNameValidation(payload).pipe(
+					map((result) => ({ status: "fulfilled", value: result })),
+					catchError((error) => of({ status: "rejected", reason: error }))
+				)
+			);
 		}
 
 		if (settings.verifyCriminalHistory) {
@@ -151,25 +157,30 @@ export class KycDocumentReviewComponent implements OnInit {
 				force: environment.production,
 			};
 
-			promises.push(this._KYCService.updateInformationValidationWithCriminalRecords(payload));
+			observables.push(
+				this._KYCService.updateInformationValidationWithCriminalRecords(payload).pipe(
+					map((result) => ({ status: "fulfilled", value: result })),
+					catchError((error) => of({ status: "rejected", reason: error }))
+				)
+			);
 		}
 
-		try {
-			const results = await Promise.allSettled(promises);
+		forkJoin(observables).subscribe(
+			(results) => {
+				results.forEach((result) => {
+					if (result.status === "fulfilled") {
+						console.log("Observable fulfilled:", { result });
+					} else {
+						console.error("Observable rejected:", { result });
+					}
+				});
 
-			results.forEach((result) => {
-				if (result.status === "fulfilled") {
-					console.log("Promise fulfilled:", { result });
-				} else {
-					console.error("Promise rejected:", { result });
-				}
-			});
-
-			this.completed = true;
-
-			this._changeDetectorRef.markForCheck();
-		} catch (error) {
-			console.error("Unexpected error occurred:", error);
-		}
+				this.completed = true;
+				this._changeDetectorRef.markForCheck();
+			},
+			(error) => {
+				console.error("Unexpected error occurred:", error);
+			}
+		);
 	}
 }
