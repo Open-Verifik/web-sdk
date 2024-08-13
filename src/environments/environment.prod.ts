@@ -2,7 +2,7 @@ export const environment = {
 	production: true,
 	baseUrl: "/",
 	apiUrl: "",
-	appUrl: "https://app.verifik.co",
+	appUrl: "/",
 	kycUrl: "https://kyc.verifik.co",
 	verifikProject: "6332941ccde4f719d9c00f9e",
 	sandboxUrl: "https://sandbox.verifik.co",

@@ -129,7 +129,7 @@ export class KycDocumentReviewComponent implements OnInit {
 		this._KYCService.navigateTo("document");
 	}
 
-	async sendDocumentValidationAndNameValidation() {
+	async sendDocumentValidationAndNameValidation(): Promise<any> {
 		const settings = this.projectFlow.onboardingSettings.document;
 
 		const promises = [];
@@ -141,11 +141,6 @@ export class KycDocumentReviewComponent implements OnInit {
 				_id: this.appRegistration.documentValidation._id,
 				force: true,
 			};
-
-			console.log({
-				_id: this.appRegistration.documentValidation._id,
-				force: true,
-			});
 
 			promises.push(this._KYCService.updateDocumentValidationNameValidation(payload));
 		}
@@ -164,9 +159,9 @@ export class KycDocumentReviewComponent implements OnInit {
 
 			results.forEach((result) => {
 				if (result.status === "fulfilled") {
-					console.log("Promise fulfilled:", result.value);
+					console.log("Promise fulfilled:", { result });
 				} else {
-					console.error("Promise rejected:", result.reason);
+					console.error("Promise rejected:", { result });
 				}
 			});
 
