@@ -142,6 +142,11 @@ export class KycDocumentReviewComponent implements OnInit {
 				force: true,
 			};
 
+			console.log({
+				_id: this.appRegistration.documentValidation._id,
+				force: true,
+			});
+
 			promises.push(this._KYCService.updateDocumentValidationNameValidation(payload));
 		}
 
@@ -157,15 +162,13 @@ export class KycDocumentReviewComponent implements OnInit {
 		try {
 			const results = await Promise.allSettled(promises);
 
-			if (!environment.production) {
-				results.forEach((result) => {
-					if (result.status === "fulfilled") {
-						console.log("Promise fulfilled:", result.value);
-					} else {
-						console.error("Promise rejected:", result.reason);
-					}
-				});
-			}
+			results.forEach((result) => {
+				if (result.status === "fulfilled") {
+					console.log("Promise fulfilled:", result.value);
+				} else {
+					console.error("Promise rejected:", result.reason);
+				}
+			});
 
 			this.completed = true;
 
