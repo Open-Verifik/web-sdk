@@ -14,6 +14,7 @@ export interface ProjectFlow {
 	webAuthN: boolean;
 	documentValidation: boolean;
 	appQRCode: boolean;
+	systemForm?: any;
 	loginSettings?: {
 		steps?: any;
 		email: boolean;
@@ -118,7 +119,7 @@ export interface Project {
 	phoneAuthyEnabled?: boolean;
 	faceLivenessEnabled: boolean;
 	faceLivenessAuthyEnabled: boolean;
-	currentProjectFlow?: any;
+	currentProjectFlow?: ProjectFlow;
 	usesWhiteList: boolean;
 	whiteListLength: number;
 	currentStep: number;
@@ -313,6 +314,7 @@ export class ProjectFlowModel implements ProjectFlow {
 	webAuthN: boolean;
 	documentValidation: boolean;
 	appQRCode: boolean;
+	systemForm?: any;
 	loginSettings?: {
 		steps?: any;
 		email: boolean;
@@ -395,6 +397,7 @@ export class ProjectFlowModel implements ProjectFlow {
 		this.documentValidation = data.documentValidation;
 		this.appQRCode = data.appQRCode;
 		this.loginSettings = data.loginSettings;
+		this.systemForm = data.systemForm;
 
 		this.onboardingSettings = data.onboardingSettings || {
 			basicInformation: {

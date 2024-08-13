@@ -227,13 +227,15 @@
 		"company": "Empresa",
 		"role": "Rol",
 		"roles": {
-			"founder": "Fundador/Cofundador",
+			"founder": "Fundador/Co-Fundador",
 			"high_management": "CEO/Director",
 			"manager": "Gerente",
 			"developer": "Desarrollador",
 			"compliance": "Oficial de Cumplimiento",
 			"marketing": "Marketing",
-			"ciso": "Director de seguridad de la información"
+			"ciso": "Director de seguridad de la información",
+			"employee": "Empleado",
+			"other": "Otro"
 		},
 		"agreement1": "Estoy de acuerdo con",
 		"terms": "términos y condiciones",

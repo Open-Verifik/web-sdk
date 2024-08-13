@@ -231,9 +231,11 @@
 			"high_management": "CEO/Direttore",
 			"manager": "Manager",
 			"developer": "Sviluppatore",
-			"compliance": "Ufficiale di Conformità",
+			"compliance": "Responsabile della conformità",
 			"marketing": "Marketing",
-			"ciso": "Responsabile della Sicurezza delle Informazioni"
+			"ciso": "Responsabile della sicurezza delle informazioni",
+			"employee": "Dipendente",
+			"other": "Altro"
 		},
 		"agreement1": "Accetto",
 		"terms": "i termini e le condizioni",

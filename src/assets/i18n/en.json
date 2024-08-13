@@ -233,7 +233,9 @@
 			"developer": "Developer",
 			"compliance": "Compliance Officer",
 			"marketing": "Marketing",
-			"ciso": "Chief information security officer"
+			"ciso": "Chief information security officer",
+			"employee": "Employee",
+			"other": "Other"
 		},
 		"agreement1": "I agree with",
 		"terms": "terms and conditions",

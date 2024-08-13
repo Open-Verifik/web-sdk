@@ -131,7 +131,10 @@ export class KycDocumentReviewComponent implements OnInit {
 
 	async sendDocumentValidationAndNameValidation() {
 		const settings = this.projectFlow.onboardingSettings.document;
+
 		const promises = [];
+
+		console.log({ verifyNames: settings.verifyNames, verifyCriminal: settings.verifyCriminalHistory });
 
 		if (settings.verifyNames) {
 			const payload = {

@@ -548,6 +548,7 @@ export class DemoService {
 
 		for (const face of faces) {
 			const tempArea = face.width * face.height;
+
 			if (tempArea > maxArea) {
 				faceBigest = face;
 				maxArea = tempArea;
@@ -685,5 +686,123 @@ export class DemoService {
 		}
 
 		return hash.toString();
+	}
+
+	detectEdges(faceImage) {
+		const ctx = faceImage.getContext("2d");
+		const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
+		const pixels = imgData.data;
+		const width = imgData.width;
+		const height = imgData.height;
+
+		const sobelData = [];
+		const kernelX = [
+			[-1, 0, 1],
+			[-2, 0, 2],
+			[-1, 0, 1],
+		];
+		const kernelY = [
+			[-1, -2, -1],
+			[0, 0, 0],
+			[1, 2, 1],
+		];
+
+		for (let y = 1; y < height - 1; y++) {
+			for (let x = 1; x < width - 1; x++) {
+				let pixelX =
+					kernelX[0][0] * this.getPixel(pixels, x - 1, y - 1, width) +
+					kernelX[0][1] * this.getPixel(pixels, x, y - 1, width) +
+					kernelX[0][2] * this.getPixel(pixels, x + 1, y - 1, width) +
+					kernelX[1][0] * this.getPixel(pixels, x - 1, y, width) +
+					kernelX[1][2] * this.getPixel(pixels, x + 1, y, width) +
+					kernelX[2][0] * this.getPixel(pixels, x - 1, y + 1, width) +
+					kernelX[2][1] * this.getPixel(pixels, x, y + 1, width) +
+					kernelX[2][2] * this.getPixel(pixels, x + 1, y + 1, width);
+
+				let pixelY =
+					kernelY[0][0] * this.getPixel(pixels, x - 1, y - 1, width) +
+					kernelY[0][1] * this.getPixel(pixels, x, y - 1, width) +
+					kernelY[0][2] * this.getPixel(pixels, x + 1, y - 1, width) +
+					kernelY[1][0] * this.getPixel(pixels, x - 1, y, width) +
+					kernelY[1][2] * this.getPixel(pixels, x + 1, y, width) +
+					kernelY[2][0] * this.getPixel(pixels, x - 1, y + 1, width) +
+					kernelY[2][1] * this.getPixel(pixels, x, y + 1, width) +
+					kernelY[2][2] * this.getPixel(pixels, x + 1, y + 1, width);
+
+				const magnitude = Math.sqrt(pixelX * pixelX + pixelY * pixelY) >>> 0;
+
+				sobelData.push(magnitude, magnitude, magnitude, 255);
+			}
+		}
+
+		// Edge detection threshold
+		const threshold = 100;
+
+		const edgesFound = sobelData.some((val, idx) => idx % 4 === 0 && val > threshold);
+
+		return edgesFound;
+	}
+
+	getPixel(pixels, x, y, width) {
+		const i = (y * width + x) * 4;
+		const r = pixels[i];
+		const g = pixels[i + 1];
+		const b = pixels[i + 2];
+		return (r + g + b) / 3; // Convert to grayscale
+	}
+
+	analyzeBlurNoise(faceImage) {
+		const ctx = faceImage.getContext("2d");
+		const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
+		const pixels = imgData.data;
+		let sum = 0;
+		let sumSquare = 0;
+
+		for (let i = 0; i < pixels.length; i += 4) {
+			const intensity = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+			sum += intensity;
+			sumSquare += intensity * intensity;
+		}
+
+		const mean = sum / (pixels.length / 4);
+		const variance = sumSquare / (pixels.length / 4) - mean * mean;
+
+		// Set thresholds based on empirical testing
+		return variance > 50 && mean > 20;
+	}
+
+	extractBackgroundImage(image, faceBox) {
+		// Extract a portion of the ID that doesn't include the face
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d");
+		canvas.width = image.width;
+		canvas.height = image.height;
+		ctx.drawImage(image, 0, 0);
+
+		// Crop out the face area (this is a basic method, more sophisticated approaches can be used)
+		ctx.clearRect(faceBox.x, faceBox.y, faceBox.width, faceBox.height);
+		return canvas;
+	}
+
+	checkLightingConsistency(faceImage, idBackground) {
+		const ctxFace = faceImage.getContext("2d");
+		const ctxBackground = idBackground.getContext("2d");
+
+		const faceData = ctxFace.getImageData(0, 0, faceImage.width, faceImage.height).data;
+		const bgData = ctxBackground.getImageData(0, 0, idBackground.width, idBackground.height).data;
+
+		const faceAvgBrightness = this.calculateAverageBrightness(faceData);
+		const bgAvgBrightness = this.calculateAverageBrightness(bgData);
+
+		return Math.abs(faceAvgBrightness - bgAvgBrightness) < 20; // Adjust threshold based on testing
+	}
+
+	calculateAverageBrightness(data) {
+		let sum = 0;
+		for (let i = 0; i < data.length; i += 4) {
+			const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+			sum += brightness;
+		}
+		return sum / (data.length / 4);
 	}
 }

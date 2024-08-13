@@ -131,16 +131,119 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 	async detectFace(image) {
 		try {
-			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 })).withFaceLandmarks();
+			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
 			if (faces.length) {
-				return faces.map((face) => face.detection.box);
+				const faceBoxes = faces.map((face) => face.detection.box);
+
+				for (let box of faceBoxes) {
+					const margin = 10; // Adjust as needed
+					const { faceImage, backgroundImage } = this.extractRegions(image, box, margin);
+
+					// const faceImage = this.extractFaceImage(image, face);
+
+					const edgesFound = this._demoService.detectEdges(faceImage);
+
+					const blurAnalysis = this._demoService.analyzeBlurNoise(faceImage);
+
+					const idBackground = this._demoService.extractBackgroundImage(image, box);
+
+					const colorConsistency = this.compareColorConsistency(faceImage, backgroundImage);
+
+					const lightConsistency = this._demoService.checkLightingConsistency(faceImage, idBackground);
+
+					console.log({ colorConsistency });
+				}
+
+				return faceBoxes;
 			}
 
 			return undefined;
 		} catch (error) {
 			alert(error.message);
 		}
+	}
+
+	compareColorConsistency(faceImage, backgroundImage) {
+		const faceAverageColor = this.calculateAverageColor(faceImage);
+		const backgroundAverageColor = this.calculateAverageColor(backgroundImage);
+
+		const colorDifference = Math.sqrt(
+			Math.pow(faceAverageColor.r - backgroundAverageColor.r, 2) +
+				Math.pow(faceAverageColor.g - backgroundAverageColor.g, 2) +
+				Math.pow(faceAverageColor.b - backgroundAverageColor.b, 2)
+		);
+
+		// Define a threshold for acceptable color difference
+		const threshold = 50;
+		return colorDifference < threshold;
+	}
+
+	calculateAverageColor(image) {
+		const ctx = image.getContext("2d");
+		const imgData = ctx.getImageData(0, 0, image.width, image.height);
+		const pixels = imgData.data;
+
+		let r = 0,
+			g = 0,
+			b = 0;
+		const numPixels = pixels.length / 4;
+
+		for (let i = 0; i < pixels.length; i += 4) {
+			r += pixels[i];
+			g += pixels[i + 1];
+			b += pixels[i + 2];
+		}
+
+		return {
+			r: r / numPixels,
+			g: g / numPixels,
+			b: b / numPixels,
+		};
+	}
+
+	extractRegions(image, box, margin) {
+		const canvasFace = document.createElement("canvas");
+		const ctxFace = canvasFace.getContext("2d");
+		const canvasBackground = document.createElement("canvas");
+		const ctxBackground = canvasBackground.getContext("2d");
+
+		// Calculate the region for the face/photo
+		const faceX = Math.max(0, box.x - margin);
+		const faceY = Math.max(0, box.y - margin);
+		const faceWidth = Math.min(image.width, box.width + 2 * margin);
+		const faceHeight = Math.min(image.height, box.height + 2 * margin);
+
+		// Crop the face/photo region
+		canvasFace.width = faceWidth;
+		canvasFace.height = faceHeight;
+		ctxFace.drawImage(image, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight);
+
+		// Create a mask to exclude the face/photo region from the background
+		canvasBackground.width = image.width;
+		canvasBackground.height = image.height;
+		ctxBackground.drawImage(image, 0, 0);
+
+		// Clear the area of the face/photo in the background canvas
+		ctxBackground.clearRect(faceX, faceY, faceWidth, faceHeight);
+
+		return {
+			faceImage: canvasFace,
+			backgroundImage: canvasBackground,
+		};
+	}
+
+	// start of light
+
+	// end of light
+
+	extractFaceImage(image, box) {
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d");
+		canvas.width = box.width;
+		canvas.height = box.height;
+		ctx.drawImage(image, box.x, box.y, box.width, box.height, 0, 0, box.width, box.height);
+		return canvas;
 	}
 
 	cancelUpload() {

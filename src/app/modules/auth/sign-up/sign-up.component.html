@@ -113,7 +113,9 @@
 							<mat-select class="mr-1.5" [formControl]="signUpForm.get('role')" matPrefix>
 								<mat-select-trigger>
 									<span class="flex items-center">
-										<span class="sm:mx-0.5 font-medium text-default">{{ signUpForm.get("role").value }}</span>
+										<span class="sm:mx-0.5 font-medium text-default">{{
+											"signup.roles." + signUpForm.get("role").value | transloco
+										}}</span>
 									</span>
 								</mat-select-trigger>
 								<ng-container *ngFor="let role of roles">

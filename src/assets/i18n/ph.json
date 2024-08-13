@@ -227,13 +227,15 @@
 		"company": "Kumpanya",
 		"role": "Papel",
 		"roles": {
-			"founder": "Tagapagtatag/Kasamang Tagapagtatag",
+			"founder": "Tagapagtatag/Co-Tagapagtatag",
 			"high_management": "CEO/Direktor",
 			"manager": "Tagapamahala",
 			"developer": "Developer",
 			"compliance": "Opisyal ng Pagsunod",
-			"marketing": "Marketing",
-			"ciso": "Punong Opisyal ng Seguridad sa Impormasyon"
+			"marketing": "Pagmemerkado",
+			"ciso": "Punong Opisyal sa Seguridad ng Impormasyon",
+			"employee": "Empleyado",
+			"other": "Iba pa"
 		},
 		"agreement1": "Sumasang-ayon ako sa",
 		"terms": "mga tuntunin at kondisyon",

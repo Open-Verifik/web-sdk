@@ -228,12 +228,14 @@
 		"role": "역할",
 		"roles": {
 			"founder": "창립자/공동 창립자",
-			"high_management": "CEO/디렉터",
+			"high_management": "CEO/이사",
 			"manager": "매니저",
 			"developer": "개발자",
-			"compliance": "준수 담당자",
+			"compliance": "준법감시인",
 			"marketing": "마케팅",
-			"ciso": "정보보안 최고책임자"
+			"ciso": "정보 보안 최고 책임자",
+			"employee": "직원",
+			"other": "기타"
 		},
 		"agreement1": "약관 및 조건에 동의합니다",
 		"terms": "이용 약관",

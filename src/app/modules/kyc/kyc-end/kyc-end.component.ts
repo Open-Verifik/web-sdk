@@ -121,8 +121,6 @@ export class KycEndComponent implements OnInit, OnDestroy {
 
 		this._splashScreenService.show();
 
-		alert(`send this status -== ${this.appRegistration.status}`);
-
 		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
 			next: (response) => {
 				_response = response.data;
