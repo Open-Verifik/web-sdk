@@ -67,13 +67,6 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		if (livenessScore && livenessScore < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
 			this.appRegistration.status = "FAILED";
 		}
-
-		console.log({
-			appregistration: this.appRegistration,
-			projectFlow: this.projectFlow,
-			livenessScore,
-			status: this.appRegistration.status,
-		});
 	}
 
 	_requestIdentityImages(): void {

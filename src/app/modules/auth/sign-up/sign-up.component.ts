@@ -242,7 +242,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.projectFlow = this.project.currentProjectFlow;
 
 		if (this.projectFlow.systemForm) {
-			console.log("assign roles");
 			this._assignRoles(this.projectFlow.systemForm);
 		}
 
@@ -344,8 +343,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				break;
 			}
 		}
-
-		console.log({ roleField });
 
 		if (!roleField) return;
 

@@ -22,9 +22,9 @@
 					*ngIf="projectFlow.onboardingSettings.document.usePassport"
 				>
 					<img [src]="'https://cdn.verifik.co/assets/biometric-services/Passport.svg'" alt="" class="kyc-passport-img" />
-					<h3>
+					<h4>
 						{{ "signup.document.passport" | transloco }}
-					</h3>
+					</h4>
 				</div>
 
 				<div
@@ -34,9 +34,9 @@
 					*ngIf="projectFlow.onboardingSettings.document.useLicense"
 				>
 					<img [src]="'https://cdn.verifik.co/assets/biometric-services/driverLicense.svg'" alt="" class="kyc-gov-id-img" />
-					<h3>
+					<h4>
 						{{ "signup.document.driver_license" | transloco }}
-					</h3>
+					</h4>
 				</div>
 
 				<div
@@ -46,9 +46,9 @@
 					*ngIf="projectFlow.onboardingSettings.document.useGovernmentID"
 				>
 					<img [src]="'https://cdn.verifik.co/assets/biometric-services/governmentID.svg'" alt="" class="kyc-gov-id-img" />
-					<h3>
+					<h4>
 						{{ "signup.document.government_ID" | transloco }}
-					</h3>
+					</h4>
 				</div>
 			</div>
 		</div>
@@ -59,13 +59,20 @@
 		fxLayout="row"
 		fxLayout.xs="column"
 		fxLayout.sm="column"
-		fxLayoutAlign="start start"
+		fxLayoutAlign="center center"
 		fxLayoutAlign.xs="center center"
 		fxLayoutAlign.sm="center center"
 		*ngIf="!selectOption"
 	>
 		<!-- first section -->
-		<div class="w-50p upload-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center" ngClass.sm="w-full">
+		<div
+			class="w-50p upload-file-section"
+			fxLayout="column"
+			fxLayoutAlign="start center"
+			fxLayoutAlign.xs="start center"
+			ngClass.sm="w-full"
+			*ngIf="documentSettings.uploadDocumentAllowed"
+		>
 			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
 				<h2 class="title-margin" [style.color]="project.branding.titleColor">
 					{{ "step_two.file_description" | transloco }}
@@ -75,7 +82,7 @@
 					<img src="https://cdn.verifik.co/assets/kyc/upload.gif" class="" alt="" />
 
 					<!-- steps here -->
-					<div fxLayout="column" fxLayoutAlign="center center" fxLayoutAlign.xs="center start" class="w-full">
+					<div fxLayout="column" fxLayoutAlign="center start" fxLayoutAlign.xs="center start" class="w-full">
 						<p *ngFor="let step of uploadSteps; let index = index" fxLayout="row" fxLayoutAlign="start center" class="m-1">
 							<span class="instruction-number">
 								{{ index + 1 }}
@@ -102,7 +109,14 @@
 		</div>
 		<!-- end of first section -->
 
-		<div class="w-50p scan-file-section" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.xs="start center" ngClass.sm="w-full">
+		<div
+			class="w-50p scan-file-section"
+			fxLayout="column"
+			fxLayoutAlign="start center"
+			fxLayoutAlign.xs="start center"
+			ngClass.sm="w-full"
+			*ngIf="documentSettings.scanDocumentAllowed"
+		>
 			<div class="kyc-document-instruction-card" fxLayout="column" fxLayoutAlign="space-between center">
 				<h2 class="title-margin" [style.color]="project.branding.titleColor">
 					{{ "step_two.manual_description" | transloco }}

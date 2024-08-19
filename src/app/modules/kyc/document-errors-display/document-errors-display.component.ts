@@ -19,9 +19,7 @@ export class DocumentErrorsDisplayComponent implements OnInit {
 	@Input() dialogRef: any;
 	@Input() callback: any;
 
-	ngOnInit(): void {
-		console.log({ errorContent: this.errorContent, attempts: this.attempts });
-	}
+	ngOnInit(): void {}
 
 	tryAgain(reset: boolean): void {
 		this.dialogRef ? this.dialogRef.close({ addAttempt: 1 }) : "do nothing";

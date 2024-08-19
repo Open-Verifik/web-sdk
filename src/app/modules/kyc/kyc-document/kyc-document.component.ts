@@ -46,6 +46,7 @@ export class KycDocumentComponent implements OnInit {
 	navigation: any;
 	uploadSteps: Array<string>;
 	scanSteps: Array<string>;
+	documentSettings: any;
 
 	constructor(private _demoService: DemoService, private dialog: MatDialog, private _KYCService: KYCService) {
 		this.demoData = this._demoService.getDemoData();
@@ -56,11 +57,15 @@ export class KycDocumentComponent implements OnInit {
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
+		this.documentSettings = this.projectFlow.onboardingSettings.document;
+
 		this.navigation = this._KYCService.getNavigation();
 
 		this.selectOption = "";
 
 		this._initSteps();
+
+		console.log({ documentSettings: this.documentSettings });
 	}
 
 	_initSteps(): void {

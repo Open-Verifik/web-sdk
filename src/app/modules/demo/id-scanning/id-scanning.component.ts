@@ -280,8 +280,6 @@ export class IdScanningComponent implements OnInit {
 
 		const faces = await this.detectFace(this.canvasToSendRef.nativeElement);
 
-		console.log({ faces });
-
 		if (!faces.length) {
 			this.errorResult = true;
 

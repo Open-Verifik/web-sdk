@@ -135,8 +135,6 @@ export class KycDocumentReviewComponent implements OnInit {
 
 		const observables = [];
 
-		console.log({ verifyNames: settings.verifyNames, verifyCriminal: settings.verifyCriminalHistory });
-
 		if (settings.verifyNames) {
 			const payload = {
 				_id: this.appRegistration.documentValidation._id,
