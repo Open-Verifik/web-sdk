@@ -260,7 +260,7 @@
 		},
 		"document": {
 			"passport": "Passport",
-			"government_ID": "ID",
+			"government_ID": "Government ID",
 			"driver_license": "Driver License",
 			"allowed_documents": "Allowed documents",
 			"upload_methods": "Select your verification method",
