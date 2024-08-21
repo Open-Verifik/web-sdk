@@ -140,8 +140,6 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 					const margin = 10; // Adjust as needed
 					const { faceImage, backgroundImage } = this.extractRegions(image, box, margin);
 
-					// const faceImage = this.extractFaceImage(image, face);
-
 					const edgesFound = this._demoService.detectEdges(faceImage);
 
 					const blurAnalysis = this._demoService.analyzeBlurNoise(faceImage);
@@ -275,8 +273,11 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 			image: this.base64Image.replace(/^data:image\/.*;base64,/, ""),
 			documentFace: this.faceIdCard,
 			force: Boolean(this.appRegistration?.forceUpload),
+			inputMethod: "FILE_UPLOAD",
 		};
+
 		let responseData = undefined;
+
 		this._KYCService.createDocumentValidation(body).subscribe({
 			next: (response) => {
 				this.responseData = response.data;
@@ -291,22 +292,6 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 				this._splashScreenService.hide();
 			},
 			complete: () => {
-				if (this.responseData && this.responseData.appRegistration && this.responseData.appRegistration.informationValidation) {
-					forkJoin([
-						this._KYCService.updateDocumentValidationNameValidation({ _id: this.responseData.documentValidation._id }),
-						this._KYCService.updateInformationValidationWithCriminalRecords({
-							_id: this.responseData.appRegistration.informationValidation._id,
-						}),
-					])
-						.pipe(
-							catchError((error) => {
-								console.error("Error occurred:", error);
-								return of(error);
-							})
-						)
-						.subscribe((result) => {});
-				}
-
 				this.demoData.loading = false;
 
 				this._splashScreenService.hide();

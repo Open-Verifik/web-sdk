@@ -544,18 +544,20 @@ export class DemoService {
 
 	getBiggestFace(faces) {
 		let maxArea = 0;
-		let faceBigest;
+
+		let biggestFace;
 
 		for (const face of faces) {
 			const tempArea = face.width * face.height;
 
 			if (tempArea > maxArea) {
-				faceBigest = face;
+				biggestFace = face;
+
 				maxArea = tempArea;
 			}
 		}
 
-		return faceBigest;
+		return biggestFace;
 	}
 
 	cutFaceIdCard(image, face, cardIdCanvas: HTMLCanvasElement) {
