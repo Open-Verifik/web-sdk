@@ -42,6 +42,14 @@
 
 // Extra small screens
 @media (max-width: 599px) {
+	.capture_button {
+		position: absolute;
+		bottom: 100px;
+		z-index: 100;
+		left: 50%;
+		margin: 0px !important;
+		transform: translateX(-50%);
+	}
 }
 
 // Small screens

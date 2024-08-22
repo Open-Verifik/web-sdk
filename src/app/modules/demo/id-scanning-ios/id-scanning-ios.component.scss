@@ -31,6 +31,7 @@
 // Extra small screens
 @media (max-width: 599px) {
 	.capture_button {
+		z-index: 100;
 		position: absolute;
 		bottom: 100px;
 		left: 50%;
