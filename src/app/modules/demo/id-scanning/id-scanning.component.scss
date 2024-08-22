@@ -43,9 +43,9 @@
 // Extra small screens
 @media (max-width: 599px) {
 	.capture_button {
+		z-index: 100;
 		position: absolute;
 		bottom: 100px;
-		z-index: 100;
 		left: 50%;
 		margin: 0px !important;
 		transform: translateX(-50%);
@@ -60,6 +60,15 @@
 		z-index: 100;
 		background: #80808024;
 		border-radius: 25px;
+	}
+
+	.captured-image {
+		max-width: 100%;
+		max-height: 50vh;
+		width: auto;
+		height: auto;
+		display: block;
+		margin: 0 auto;
 	}
 }
 

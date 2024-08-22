@@ -39,10 +39,12 @@
 					[style.height.px]="HEIGHT"
 					[class.hidden]="base64Images"
 				></canvas>
-				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>
+
+				<img [src]="response.base64Image" class="captured-image" *ngIf="response.base64Image" alt="" />
+
 				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
 			</div>
-			<div class="relative -top-18" fxLayout="row" fxLayoutAlign="center center">
+			<div class="capture_button" fxLayout="row" fxLayoutAlign="center center">
 				<button
 					mat-raised-button
 					class="m-4 z-index-2 capture_button"
