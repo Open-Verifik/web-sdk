@@ -6,7 +6,12 @@
 >
 	<canvas #cardIdFace hidden="true"></canvas>
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full height-full">
-		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
+		<div
+			fxLayout="column"
+			fxLayoutAlign="center center"
+			class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2"
+			[ngClass]="{ 'id-scanning-error-container': errorFace && errorFace.title }"
+		>
 			<div *ngIf="errorFace && !loadingResults">
 				<div [style.color]="project ? project.branding.titleColor : null" class="text-3xl font-bold">{{ errorFace.title }}</div>
 				<div [style.color]="project ? project.branding.txtColor : null" class="text-gray-600">{{ errorFace.subtitle }}</div>

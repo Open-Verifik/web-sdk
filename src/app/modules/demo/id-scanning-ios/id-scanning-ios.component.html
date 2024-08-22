@@ -29,7 +29,12 @@
 			></canvas>
 			<canvas #toSend [class.hidden]="true"></canvas>
 		</div>
-		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2">
+		<div
+			fxLayout="column"
+			fxLayoutAlign="center center"
+			class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2"
+			[ngClass]="{ 'id-scanning-error-container': errorFace && errorFace.title }"
+		>
 			<div *ngIf="errorFace && !loadingResults">
 				<div [style.color]="project.branding.titleColor" class="text-3xl font-bold">{{ errorFace.title }}</div>
 				<div [style.color]="project.branding.txtColor" class="text-gray-600">{{ errorFace.subtitle }}</div>
