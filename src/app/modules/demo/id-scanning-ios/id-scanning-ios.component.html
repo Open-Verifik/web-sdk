@@ -40,7 +40,7 @@
 				mat-raised-button
 				[style.background]="project.branding.buttonColor"
 				[style.color]="project.branding.buttonTxtColor"
-				class="m-4 z-index-2"
+				class="m-4 z-index-2 capture_button"
 				[class.hidden]="response.base64Image"
 				(click)="takePictureSnapshot()"
 				[disabled]="errorFace"
