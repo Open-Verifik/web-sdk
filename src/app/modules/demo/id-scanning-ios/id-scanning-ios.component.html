@@ -7,10 +7,10 @@
 	>
 		<canvas #cardIdFace hidden="true"></canvas>
 
-		<div class="relative" [style.width.px]="camera.dimensions.video.width" [style.height.px]="camera.dimensions.video.height">
+		<div class="relative" [style.width.px]="camera.dimensions.video.width * 1.2" [style.height.px]="camera.dimensions.video.height">
 			<webcam
 				[height]="camera.dimensions.video.max.height"
-				[width]="camera.dimensions.video.max.width"
+				[width]="camera.dimensions.video.max.width * 1.2"
 				[videoOptions]="camera.configuration"
 				[imageQuality]="1"
 				[captureImageData]="true"
