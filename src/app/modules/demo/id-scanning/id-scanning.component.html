@@ -6,6 +6,7 @@
 >
 	<canvas #cardIdFace hidden="true"></canvas>
 	<div
+		*ngIf="errorFace && errorFace.title"
 		fxLayout="column"
 		fxLayoutAlign="center center"
 		class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2"
@@ -40,7 +41,7 @@
 					[class.hidden]="base64Images"
 				></canvas>
 
-				<canvas #result class="absolute top-0 left-0" [class.hidden]="!base64Images"></canvas>
+				<canvas #result class="" [class.hidden]="!base64Images"></canvas>
 
 				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
 			</div>
