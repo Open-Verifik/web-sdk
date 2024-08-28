@@ -75,6 +75,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	countries: Array<any>;
 	location: any;
 	deviceDetails: any;
+	endstep: boolean;
 
 	/**
 	 * Constructor
@@ -147,6 +148,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 					const mandatorySteps = ["basicInformation", "document", "form", "liveness"];
 
 					this.showSkipDoingKYC = !mandatorySteps.some((step) => steps[step] === "mandatory");
+					if (steps.document === "skip" && steps.liveness === "skip") {
+						this.endstep = true;
+					}
 				},
 				error: (exception) => {
 					this.errorContent = exception.error;

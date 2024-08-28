@@ -211,48 +211,74 @@
 		<!-- end of verifik project -->
 
 		<!-- client project -->
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
-			<!-- content -->
-			<div fxLayout="column" fxLayoutAlign="start center">
-				<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
-					{{ "signup.kyc_start_popup.project_title" | transloco }} {{ project.name }}
-				</h1>
+		<ng-container *ngIf="!endstep">
+			<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
+				<!-- content -->
+				<div fxLayout="column" fxLayoutAlign="start center">
+					<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
+						{{ "signup.kyc_start_popup.project_title" | transloco }} {{ project.name }}
+					</h1>
 
-				<img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
+					<img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
 
-				<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
+					<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
 
-				<h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.txtColor">
-					{{ "signup.kyc_start_popup.title" | transloco }}
-				</h2>
+					<h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.txtColor">
+						{{ "signup.kyc_start_popup.title" | transloco }}
+					</h2>
 
-				<h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content" | transloco }}</h3>
+					<h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content" | transloco }}</h3>
+				</div>
+				<!-- end of content -->
+				<!-- Title -->
+
+				<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+					<button
+						mat-stroked-button
+						class="w-11/12 mt-4 biometrics-button"
+						[style.color]="project.branding.buttonTxtColor"
+						[style.background]="project.branding.buttonColor"
+						(click)="startKYC()"
+					>
+						<span>{{ "add_biometrics.button" | transloco }} </span>
+					</button>
+
+					<button
+						mat-stroked-button
+						class="w-11/12 mt-4 biometrics-button"
+						color="primary"
+						(click)="continueWithoutKYC()"
+						*ngIf="showSkipDoingKYC"
+					>
+						<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
+					</button>
+				</div>
 			</div>
-			<!-- end of content -->
-			<!-- Title -->
+		</ng-container>
+		<ng-container *ngIf="endstep">
+			<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
+				<!-- content -->
+				<div fxLayout="column" fxLayoutAlign="start center">
+					<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
+						{{ "signup.end_step.title" | transloco }}
+					</h1>
 
-			<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-				<button
-					mat-stroked-button
-					class="w-11/12 mt-4 biometrics-button"
-					[style.color]="project.branding.buttonTxtColor"
-					[style.background]="project.branding.buttonColor"
-					(click)="startKYC()"
-				>
-					<span>{{ "add_biometrics.button" | transloco }} </span>
-				</button>
+					<img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
 
-				<button
-					mat-stroked-button
-					class="w-11/12 mt-4 biometrics-button"
-					color="primary"
-					(click)="continueWithoutKYC()"
-					*ngIf="showSkipDoingKYC"
-				>
-					<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
-				</button>
+					<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
+
+					<h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content_end" | transloco }}</h3>
+				</div>
+				<!-- end of content -->
+				<!-- Title -->
+
+				<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+					<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWithoutKYC()">
+						<span [style.color]="project.branding.txtColor"> {{ "signup.kyc_start_popup.end" | transloco }} </span>
+					</button>
+				</div>
 			</div>
-		</div>
+		</ng-container>
 
 		<!-- END client project -->
 		<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
