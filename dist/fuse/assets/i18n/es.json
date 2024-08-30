@@ -248,6 +248,8 @@
 		"error_expired_token": "El token ha expirado, regresa y comienza el proceso de nuevo",
 		"error_security_not_set": "El proyecto no está configurado correctamente. Faltan ajustes de seguridad",
 		"kyc_start_popup": {
+			"content_end": "Hemos validado sus datos para garantizar la seguridad de su identidad, ahora puede comenzar a utilizar nuestros servicios.",
+			"end": "Finalizar registro",
 			"project_title": "Valida tu identidad con",
 			"title": "Verificación KYC",
 			"content": "Para garantizar la seguridad y el cumplimiento de nuestros servicios, necesitamos verificar tu identidad. Este proceso rápido y sencillo asegura tu seguridad y cumple con los estándares regulatorios. ¡Empecemos!"

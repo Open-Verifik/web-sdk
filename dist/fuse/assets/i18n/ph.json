@@ -248,6 +248,8 @@
 		"error_expired_token": "Nag-expire na ang token, bumalik at simulan muli ang proseso",
 		"error_security_not_set": "Hindi wasto ang pagkakakonpigura ng proyekto. Nawawala ang mga setting ng seguridad",
 		"kyc_start_popup": {
+			"content_end": "Na-validate na namin ang iyong data upang matiyak ang seguridad ng iyong pagkakakilanlan, ngayon maaari ka nang magsimulang gumamit ng aming mga serbisyo.",
+			"end": "Tapusin ang pagpaparehistro",
 			"project_title": "Patunayan ang iyong pagkakakilanlan gamit ang",
 			"title": "KYC Verification",
 			"content": "Upang matiyak ang seguridad at pagsunod ng aming mga serbisyo, kailangan naming beripikahin ang iyong pagkakakilanlan. Ang mabilis at madaling prosesong ito ay tinitiyak ang iyong kaligtasan at pagsunod sa mga pamantayang regulasyon. Simulan na natin!"

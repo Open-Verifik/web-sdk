@@ -248,6 +248,8 @@
 		"error_expired_token": "Le jeton a expiré, retournez et recommencez le processus",
 		"error_security_not_set": "Le projet n'est pas correctement configuré. Paramètres de sécurité manquants",
 		"kyc_start_popup": {
+			"content_end": "Nous avons validé vos données pour assurer la sécurité de votre identité, vous pouvez maintenant commencer à utiliser nos services.",
+			"end": "Terminer l'enregistrement",
 			"project_title": "Validez votre identité avec",
 			"title": "Vérification KYC",
 			"content": "Pour garantir la sécurité et la conformité de nos services, nous devons vérifier votre identité. Ce processus rapide et facile assure votre sécurité et se conforme aux normes réglementaires. Commençons !"
