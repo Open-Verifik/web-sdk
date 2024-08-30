@@ -224,8 +224,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this._onProjectNext(v.data);
 			},
 			error: (e) => {
-				console.info({ errorHERE: e });
-
 				if (e.error.code === "InternalServer") {
 					alert("something went wrong, try  again");
 				}
@@ -242,6 +240,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.project = new ProjectModel({ ...data, type: "onboarding" });
 
 		this.projectFlow = this.project.currentProjectFlow;
+
+		if (this.projectFlow.systemForm) {
+			this._assignRoles(this.projectFlow.systemForm);
+		}
 
 		this.OnboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
 
@@ -327,6 +329,33 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		// Create the form
 		this.signUpForm = this._formBuilder.group(this.fields);
+	}
+
+	_assignRoles(systemForm): void {
+		let roleField = null;
+
+		for (let index = 0; index < systemForm.formFields.length; index++) {
+			const formField = systemForm.formFields[index];
+
+			if (formField.label === "role") {
+				roleField = formField;
+
+				break;
+			}
+		}
+
+		if (!roleField) return;
+
+		this.roles.length = 0;
+
+		for (let index = 0; index < roleField.options.length; index++) {
+			const option = roleField.options[index];
+
+			this.roles.push({
+				label: `signup.roles.${option}`,
+				code: option,
+			});
+		}
 	}
 
 	// -----------------------------------------------------------------------------------------------------

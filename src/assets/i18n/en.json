@@ -12,7 +12,8 @@
 		"document": "ID Scanning",
 		"documentReview": "Document details",
 		"liveness": "Liveness check",
-		"documentLivenessReview": "Results"
+		"documentLivenessReview": "Results",
+		"end": "Results"
 	},
 	"step_one": {
 		"title": "Explore the future of identity validation with Verifik",
@@ -213,6 +214,8 @@
 		"dismiss": "Dismiss"
 	},
 	"signup": {
+		"invalid_email": "Email is invalid",
+		"invalid_phone": "Phone is invalid",
 		"title": "Create an account",
 		"auth_question": "Already have an account?",
 		"auth_link": "Sign in",
@@ -230,7 +233,9 @@
 			"developer": "Developer",
 			"compliance": "Compliance Officer",
 			"marketing": "Marketing",
-			"ciso": "Chief information security officer"
+			"ciso": "Chief information security officer",
+			"employee": "Employee",
+			"other": "Other"
 		},
 		"agreement1": "I agree with",
 		"terms": "terms and conditions",
@@ -257,7 +262,7 @@
 		},
 		"document": {
 			"passport": "Passport",
-			"government_ID": "ID",
+			"government_ID": "Government ID",
 			"driver_license": "Driver License",
 			"allowed_documents": "Allowed documents",
 			"upload_methods": "Select your verification method",

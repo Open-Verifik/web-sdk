@@ -7,12 +7,13 @@
 	"cancel": "Cancelar",
 	"powered_by_verifik": "Asegurado por Verifik",
 	"header": {
+		"partner": "Asóciate con nosotros",
+		"talk": "Habla con ventas",
 		"document": "Escaneo de ID",
-		"documentLivenessReview": "Resultados",
 		"documentReview": "Detalles del documento",
 		"liveness": "Verificación de vitalidad",
-		"partner": "Asóciate con nosotros",
-		"talk": "Habla con ventas"
+		"documentLivenessReview": "Resultados",
+		"end": "Resultados"
 	},
 	"step_one": {
 		"title": "Explora el futuro de la validación de identidad con Verifik",
@@ -213,6 +214,8 @@
 		"dismiss": "Descartar"
 	},
 	"signup": {
+		"invalid_phone": "El teléfono no es válido",
+		"invalid_email": "El correo electrónico no es válido",
 		"title": "Crear una cuenta",
 		"auth_question": "¿Ya tienes una cuenta?",
 		"auth_link": "Iniciar sesión",
@@ -224,13 +227,15 @@
 		"company": "Empresa",
 		"role": "Rol",
 		"roles": {
-			"founder": "Fundador/Cofundador",
+			"founder": "Fundador/Co-Fundador",
 			"high_management": "CEO/Director",
 			"manager": "Gerente",
 			"developer": "Desarrollador",
 			"compliance": "Oficial de Cumplimiento",
 			"marketing": "Marketing",
-			"ciso": "Director de seguridad de la información"
+			"ciso": "Director de seguridad de la información",
+			"employee": "Empleado",
+			"other": "Otro"
 		},
 		"agreement1": "Estoy de acuerdo con",
 		"terms": "términos y condiciones",

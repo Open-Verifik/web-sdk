@@ -12,7 +12,8 @@
 		"documentReview": "Détails du document",
 		"liveness": "Contrôle de vivacité",
 		"partner": "Partenariat avec nous",
-		"talk": "Parler aux ventes"
+		"talk": "Parler aux ventes",
+		"end": "Résultats"
 	},
 	"step_one": {
 		"title": "Explorez l'avenir de la validation d'identité avec Verifik",
@@ -213,6 +214,8 @@
 		"dismiss": "Ignorer"
 	},
 	"signup": {
+		"invalid_email": "L'e-mail est invalide",
+		"invalid_phone": "Le téléphone est invalide",
 		"title": "Créer un compte",
 		"auth_question": "Vous avez déjà un compte ?",
 		"auth_link": "Se connecter",
@@ -225,12 +228,14 @@
 		"role": "Rôle",
 		"roles": {
 			"founder": "Fondateur/Co-Fondateur",
-			"high_management": "PDG/Directeur",
+			"high_management": "CEO/Directeur",
 			"manager": "Gestionnaire",
 			"developer": "Développeur",
-			"compliance": "Responsable de la conformité",
+			"compliance": "Agent de Conformité",
 			"marketing": "Marketing",
-			"ciso": "Directeur de la sécurité de l'information"
+			"ciso": "Responsable de la sécurité des informations",
+			"employee": "Employé",
+			"other": "Autre"
 		},
 		"agreement1": "J'accepte",
 		"terms": "les termes et conditions",

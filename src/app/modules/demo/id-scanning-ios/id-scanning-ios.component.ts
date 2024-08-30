@@ -142,7 +142,7 @@ export class IdScanningIOSComponent implements OnInit {
 			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
 
 			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
-			console.log(this.tabletMode, this.phoneMode);
+
 			this._changeDetectorRef.markForCheck();
 		});
 	}

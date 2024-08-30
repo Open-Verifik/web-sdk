@@ -28,6 +28,7 @@ export class KycEndComponent implements OnInit, OnDestroy {
 	projectFlow: ProjectFlow;
 	loading: boolean;
 	face: any;
+	finalStatus: string;
 
 	constructor(private _KYCService: KYCService, private _splashScreenService: FuseSplashScreenService) {
 		this.showError = false;
@@ -54,6 +55,18 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
 		this.navigation = this._KYCService.getNavigation();
+
+		const compareFaceVerification = this.appRegistration.compareFaceVerification;
+
+		const livenessScore = this.appRegistration.biometricValidation.livenessScore || 0;
+
+		if (compareFaceVerification && compareFaceVerification.result.score < this.projectFlow.onboardingSettings.document.compareMinScore) {
+			this.appRegistration.status = "FAILED";
+		}
+
+		if (livenessScore && livenessScore < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
+			this.appRegistration.status = "FAILED";
+		}
 	}
 
 	_requestIdentityImages(): void {
@@ -101,7 +114,7 @@ export class KycEndComponent implements OnInit, OnDestroy {
 
 		this._splashScreenService.show();
 
-		this._KYCService.syncAppRegistration("end", "COMPLETED").subscribe({
+		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
 			next: (response) => {
 				_response = response.data;
 			},

@@ -12,7 +12,8 @@
 		"documentReview": "文件详情",
 		"liveness": "活体检测",
 		"partner": "与我们合作",
-		"talk": "联系销售"
+		"talk": "联系销售",
+		"end": "结果"
 	},
 	"step_one": {
 		"title": "与Verifik一起探索身份验证的未来",
@@ -212,6 +213,8 @@
 		"dismiss": "忽略"
 	},
 	"signup": {
+		"invalid_email": "电子邮件无效",
+		"invalid_phone": "电话号码无效",
 		"title": "创建账户",
 		"auth_question": "已经拥有账户？",
 		"auth_link": "登录",
@@ -224,12 +227,14 @@
 		"role": "角色",
 		"roles": {
 			"founder": "创始人/联合创始人",
-			"high_management": "首席执行官/总监",
+			"high_management": "首席执行官/董事",
 			"manager": "经理",
-			"developer": "开发者",
+			"developer": "开发人员",
 			"compliance": "合规官",
 			"marketing": "市场营销",
-			"ciso": "首席信息安全官"
+			"ciso": "首席信息安全官",
+			"employee": "员工",
+			"other": "其他"
 		},
 		"agreement1": "我同意",
 		"terms": "条款和条件",

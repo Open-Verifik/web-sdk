@@ -32,6 +32,7 @@ bg-white {
 .biometrics-button {
 	background-color: #82269e;
 	color: white !important;
+	width: 80% !important;
 }
 
 mat-form-field {
@@ -55,8 +56,195 @@ mat-tab-body {
 	width: 60% !important;
 }
 
+.main-div {
+	padding: 2rem;
+}
+
 .half-width-image {
 	width: 50vw; /* vw stands for viewport width */
 	object-fit: fill;
 	height: 100%;
+}
+
+.full-size-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.left-card-inner-div {
+	max-width: 20rem;
+}
+
+.biometric-instructions {
+	min-width: 400px;
+}
+
+/* For mobile devices (up to 599px) */
+@media (max-width: 599px) {
+	.biometric-instructions {
+		min-width: 300px !important;
+	}
+
+	.main-div {
+		padding: 4px;
+	}
+
+	.whole-card {
+		width: 90%;
+	}
+
+	.left-card {
+		width: 100% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+			padding-left: 8px;
+			padding-right: 8px;
+			padding-top: 12px;
+			padding-bottom: 12px;
+		}
+	}
+}
+
+/* For small tablets (600px to 767px) */
+@media (min-width: 600px) and (max-width: 767px) {
+	.whole-card {
+		width: 70%;
+	}
+
+	.left-card {
+		width: 100% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+			padding: 24px;
+		}
+	}
+}
+
+/* For (700 to 959px) */
+@media (min-width: 768px) and (max-width: 959px) {
+	.whole-card {
+		width: 60%;
+	}
+
+	.left-card {
+		width: 100% !important;
+
+		.left-card-inner-div {
+			width: 90% !important;
+			max-width: 90% !important;
+			padding: 24px;
+		}
+	}
+}
+
+/* For tablets (768px to 1023px) */
+@media (min-width: 960px) and (max-width: 1023px) {
+	.whole-card-without-image {
+		width: 55%;
+	}
+
+	.left-card {
+		width: 50% !important;
+
+		.left-card-inner-div {
+			width: 99% !important;
+			max-width: 99% !important;
+			padding: 20px;
+		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
+	}
+}
+
+/* For small laptops (1024px to 1279px) */
+@media (min-width: 1024px) and (max-width: 1249px) {
+	.whole-card {
+		width: 98%;
+		max-height: 93vh !important;
+	}
+
+	.whole-card-without-image {
+		width: 47% !important;
+	}
+
+	.left-card {
+		width: 47% !important;
+
+		.left-card-inner-div {
+			padding-top: 16px;
+			width: 90% !important;
+			max-width: 90% !important;
+		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
+	}
+}
+
+/* For small laptops (1024px to 1279px) */
+@media (min-width: 1250px) and (max-width: 1499px) {
+	.whole-card {
+		width: 85%;
+		max-height: 93vh !important;
+	}
+
+	.whole-card-without-image {
+		width: 42% !important;
+	}
+
+	.left-card {
+		width: 42% !important;
+
+		.left-card-inner-div {
+			width: 100% !important;
+			max-width: 100% !important;
+			padding: 24px;
+		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
+	}
+}
+
+/* For desktops (1280px and above) */
+@media (min-width: 1500px) {
+	.main-div {
+		padding: 1rem !important;
+	}
+
+	.whole-card {
+		width: 75%;
+		height: 800px;
+		max-height: 94.5vh !important;
+	}
+
+	.whole-card-without-image {
+		width: 33% !important;
+	}
+
+	.left-card {
+		width: 40% !important;
+
+		.left-card-inner-div {
+			width: 100% !important;
+			max-width: 100% !important;
+			padding-top: 20px;
+			padding-left: 20px;
+			padding-bottom: 10px;
+			padding-right: 20px;
+		}
+	}
+
+	.left-card-without-image {
+		width: 100% !important;
+	}
 }
