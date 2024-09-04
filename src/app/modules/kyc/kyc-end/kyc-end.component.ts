@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogModule } from "@angular/material/dialog";
@@ -29,7 +29,11 @@ export class KycEndComponent implements OnInit, OnDestroy {
 	loading: boolean;
 	face: any;
 
-	constructor(private _KYCService: KYCService, private _splashScreenService: FuseSplashScreenService) {
+	constructor(
+		private _KYCService: KYCService,
+		private _splashScreenService: FuseSplashScreenService,
+		private _changeDetectorRef: ChangeDetectorRef
+	) {
 		this.showError = false;
 
 		this.errorContent = {
@@ -57,11 +61,13 @@ export class KycEndComponent implements OnInit, OnDestroy {
 	}
 
 	_requestIdentityImages(): void {
+		console.log(this.appRegistration);
 		if (this.appRegistration.face?._id) {
 			this.face = this.appRegistration.face;
 
 			if (!this.face.base64.includes("data:image")) {
 				this.face["base64"] = `data:image/jpeg;base64,${this.face.base64}`;
+				this._changeDetectorRef.markForCheck();
 			}
 
 			return;

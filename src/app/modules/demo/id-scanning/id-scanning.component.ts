@@ -234,9 +234,8 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	setCanvasDimensions = () => {
-		this.HEIGHT = this.videoElement.nativeElement.clientHeight;
+		this.HEIGHT = this.videoElement.nativeElement.clientHeight - 80;
 		this.WIDTH = this.videoElement.nativeElement.clientWidth;
-
 		const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
 		canvas.height = this.HEIGHT;
 		canvas.width = this.WIDTH;

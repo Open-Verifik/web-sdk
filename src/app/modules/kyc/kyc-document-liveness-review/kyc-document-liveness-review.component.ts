@@ -194,9 +194,13 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 
 			if (identityImage.category === "face" || this.appRegistration.face?._id === identityImage._id) {
 				this.face = identityImage;
-
 				this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-
+				console.log(this.face);
+				const splittedString = this.face["base64"].split("data:image/jpeg;base64,");
+				if (splittedString.length === 3) {
+					this.face["base64"] = identityImage.base64.replace("data:image/jpeg;base64,", "");
+				}
+				console.log(this.face);
 				this.appRegistration.face = this.face;
 			}
 
