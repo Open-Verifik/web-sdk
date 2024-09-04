@@ -61,13 +61,16 @@ export class KycEndComponent implements OnInit, OnDestroy {
 	}
 
 	_requestIdentityImages(): void {
-		console.log(this.appRegistration);
 		if (this.appRegistration.face?._id) {
 			this.face = this.appRegistration.face;
 
 			if (!this.face.base64.includes("data:image")) {
 				this.face["base64"] = `data:image/jpeg;base64,${this.face.base64}`;
 				this._changeDetectorRef.markForCheck();
+			}
+			const splittedString = this.face["base64"].split("data:image/jpeg;base64,");
+			if (splittedString.length === 3) {
+				this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
 			}
 
 			return;
@@ -90,6 +93,10 @@ export class KycEndComponent implements OnInit, OnDestroy {
 				this.face = identityImage;
 
 				this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
+			}
+			const splittedString = this.face["base64"].split("data:image/jpeg;base64,");
+			if (splittedString.length === 3) {
+				this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
 			}
 		}
 	}
