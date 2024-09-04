@@ -213,6 +213,8 @@
 		"dismiss": "खारिज करें"
 	},
 	"signup": {
+		"invalid_email": "ईमेल अमान्य है",
+		"invalid_phone": "फोन अमान्य है",
 		"title": "खाता बनाएं",
 		"auth_question": "क्या आपका पहले से ही खाता है?",
 		"auth_link": "साइन इन करें",

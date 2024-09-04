@@ -171,7 +171,7 @@
 		"collection_not_set": "Project is not configured properly. Collection not assigned yet",
 		"person_already_set": "Your registration has biometrics linked already",
 		"replace_person_button": "Ok, replace biometrics",
-		"Duplicated_person": "Biometrics is being used into another record",
+		"duplicated_person": "Biometrics is being used into another record",
 		"liveness_failed": "Liveness detection failed",
 		"Liveness_score_not_acceptable": "Liveness score is not acceptable",
 		"min_liveness_score_is": "The minimum liveness score is: ",
@@ -213,6 +213,8 @@
 		"dismiss": "Dismiss"
 	},
 	"signup": {
+		"invalid_email": "Email is invalid",
+		"invalid_phone": "Phone is invalid",
 		"title": "Create an account",
 		"auth_question": "Already have an account?",
 		"auth_link": "Sign in",

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -52,11 +52,15 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 	livenessMinScore: number;
 	basicInformation: any;
 
-	constructor(private _demoService: DemoService, private _translocoService: TranslocoService, private _KYCService: KYCService) {
+	constructor(
+		private _demoService: DemoService,
+		private _translocoService: TranslocoService,
+		private _KYCService: KYCService,
+		private _changeDetectorRef: ChangeDetectorRef
+	) {
 		this.demoData = this._demoService.getDemoData();
 
 		this.appRegistration = this._KYCService.appRegistration;
-
 		this.project = this._KYCService.currentProject;
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
@@ -207,6 +211,7 @@ export class KycDocumentLivenessReviewComponent implements OnInit {
 
 				this.appRegistration.documentFace = this.documentFace;
 			}
+			this._changeDetectorRef.markForCheck();
 		}
 	}
 

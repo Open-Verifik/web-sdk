@@ -212,6 +212,8 @@
 		"dismiss": "忽略"
 	},
 	"signup": {
+		"invalid_email": "电子邮件无效",
+		"invalid_phone": "电话号码无效",
 		"title": "创建账户",
 		"auth_question": "已经拥有账户？",
 		"auth_link": "登录",
