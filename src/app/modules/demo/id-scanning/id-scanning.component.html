@@ -29,6 +29,7 @@
 				<video
 					#videoElement
 					autoplay
+					[style.height.px]="HEIGHT"
 					class="absolute top-0 left-0 w-full"
 					[ngClass]="{ 'max-h-[75vh]': !phoneMode }"
 					[class.hidden]="base64Images"

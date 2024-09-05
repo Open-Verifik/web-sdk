@@ -94,5 +94,16 @@
 
 			<p>{{ "errors.min_liveness_score_is" | transloco }} {{ projectFlow.onboardingSettings.liveness.livenessMinScore }}</p>
 		</div>
+		<div fxLayout="row" fxLayoutAlign="center center" class="w-full">
+			<button
+				mat-stroked-button
+				color="primary"
+				class="m-4 z-index-2 start-demo-button"
+				(click)="retry()"
+				[style.color]="project.branding.txtColor"
+			>
+				{{ "step_three.scan_again" | transloco }}
+			</button>
+		</div>
 	</div>
 </div>

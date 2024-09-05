@@ -1,12 +1,12 @@
 <div *ngIf="!showError && appRegistration && appRegistration.person" fxLayout="column" fxLayoutAlign="center center" class="flex w-full">
-	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11" fxLayout="column" fxLayoutAlign="center center">
-		<img src="https://cdn.verifik.co/access/check.svg" class="w-20" alt="" />
+	<div class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-4 mt-4" fxLayout="column" fxLayoutAlign="center center">
+		<img src="https://cdn.verifik.co/access/check.svg" class="w-16" alt="" />
 
-		<h1 class="text-center text-3xl pt-4 pb-2" [style.color]="project.branding.titleColor">{{ "signup.end_step.title" | transloco }}</h1>
+		<h1 class="text-center text-2xl pt-2 pb-2" [style.color]="project.branding.titleColor">{{ "signup.end_step.title" | transloco }}</h1>
 
 		<img [src]="face.base64" alt="" class="mt-4 box-shadow-3px final-face" />
 
-		<h3 class="text-center pt-4" [style.color]="project.branding.txtColor">
+		<h3 class="text-center pt-2" [style.color]="project.branding.txtColor">
 			{{ appRegistration.person.name }}
 		</h3>
 
