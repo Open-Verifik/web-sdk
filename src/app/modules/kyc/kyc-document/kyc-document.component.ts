@@ -112,4 +112,11 @@ export class KycDocumentComponent implements OnInit {
 
 		this.selectOption = "idscan";
 	}
+
+	continue(): void {
+		if (this.projectFlow.onboardingSettings.steps.document === "optional") {
+			this._KYCService.navigateTo("liveness");
+			return;
+		}
+	}
 }

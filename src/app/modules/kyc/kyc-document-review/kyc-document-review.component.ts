@@ -63,6 +63,8 @@ export class KycDocumentReviewComponent implements OnInit {
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
+		console.log(this.projectFlow.onboardingSettings.steps);
+
 		this.navigation = this._KYCService.getNavigation();
 
 		this.selectOption = "";
@@ -119,6 +121,10 @@ export class KycDocumentReviewComponent implements OnInit {
 	}
 
 	continue(): void {
+		if (this.projectFlow.onboardingSettings.steps.liveness === "skip") {
+			this._KYCService.navigateTo("end");
+			return;
+		}
 		this._KYCService.navigateTo("next");
 	}
 
