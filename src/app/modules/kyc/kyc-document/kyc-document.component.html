@@ -152,6 +152,9 @@
 			</div>
 		</div>
 	</div>
+	<div *ngIf="projectFlow.onboardingSettings.steps.document === 'optional'" class="w-full flex flex-col justify-end items-end p-8">
+		<div (click)="continue()" class="text-underline cursor-pointer">{{ "skip" | transloco }}</div>
+	</div>
 
 	<div class="white-background" *ngIf="!selectOption" fxHide.xs="true"></div>
 

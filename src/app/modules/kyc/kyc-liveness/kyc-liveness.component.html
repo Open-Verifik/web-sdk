@@ -1,5 +1,7 @@
 <canvas #credentialCanvas hidden="true" *ngIf="!showError && project"></canvas>
-
+<div *ngIf="projectFlow.onboardingSettings.steps.liveness === 'optional'" class="w-full flex flex-col justify-end items-end p-8">
+	<div (click)="continue()" class="text-underline cursor-pointer">{{ "skip" | transloco }}</div>
+</div>
 <div *ngIf="!showError && project" fxLayout="column" fxLayoutAlign="center center" class="min-h-[60vh] justify-center p-4 sm:p-1 xs:p-1 w-full">
 	<div fxLayout="column" fxLayoutAlign="center center" class="w-full" *ngIf="!loadingModel && !lowCamera">
 		<div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 sm:h-8 xs:h-8 my-2">

@@ -135,6 +135,7 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		this.listenModeDebug();
 
 		this.appLoginToken = localStorage.getItem("accessToken");
+		console.log(this.projectFlow);
 	}
 
 	_initAppRegistrationData(): boolean {
@@ -716,5 +717,11 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 
 	retry(): void {
 		this._KYCService.navigateTo("instructions");
+	}
+	continue(): void {
+		if (this.projectFlow.onboardingSettings.steps.liveness === "optional") {
+			this._KYCService.navigateTo("end");
+			return;
+		}
 	}
 }
