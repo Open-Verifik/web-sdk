@@ -227,7 +227,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	initForm(): void {
-		// Create the form
 		this.typeLogin = this.projectFlow.loginSettings.email ? "email" : "phone";
 
 		this.buttonSendOtp();
@@ -235,6 +234,18 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this.setFieldRequiredInForm();
 
 		this._init2FAForm();
+
+		this._activatedRoute.queryParams.subscribe((queryParams) => {
+			const email = queryParams.email;
+			const emailOTP = queryParams.otp;
+
+			if (!email || !emailOTP) return;
+
+			this._signInWithEmail({
+				email,
+				emailOTP,
+			});
+		});
 	}
 
 	_init2FAForm(): void {
@@ -321,7 +332,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 	_signInWithEmail(dataForm): void {
 		this._passwordlessService
-			.confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm.value.authenticatorOTP, this.location)
+			.confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm?.value?.authenticatorOTP, this.location)
 			.subscribe(
 				(response) => {
 					if (response.data.message) {
