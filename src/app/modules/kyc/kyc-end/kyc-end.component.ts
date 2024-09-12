@@ -133,6 +133,8 @@ export class KycEndComponent implements OnInit, OnDestroy {
 					? `${environment.appUrl}/sign-in`
 					: this.projectFlow.redirectUrl;
 
+				console.log("here");
+
 				window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
 			},
 		});
