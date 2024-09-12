@@ -236,6 +236,14 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this._init2FAForm();
 
 		this._activatedRoute.queryParams.subscribe((queryParams) => {
+			const type = queryParams.type;
+
+			if (type === "liveness") {
+				this.showBiometricsLogin();
+
+				return;
+			}
+
 			const email = queryParams.email;
 			const emailOTP = queryParams.otp;
 
