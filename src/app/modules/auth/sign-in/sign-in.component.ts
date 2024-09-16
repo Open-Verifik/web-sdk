@@ -13,7 +13,7 @@ import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
-import { Subject, Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -280,13 +280,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 		switch (this.typeLogin) {
 			case "email":
-				this.groupFields["email"][1] = [Validators.required, Validators.email];
+				this.groupFields["email"][1] = [Validators.required, Validators.email, Validators.minLength(8), Validators.maxLength(60)];
 				this.groupFields["emailOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 				break;
 
 			case "phone":
 				this.groupFields["countryCode"][1] = [Validators.required];
-				this.groupFields["phone"][1] = [Validators.required, Validators.minLength(8)];
+				this.groupFields["phone"][1] = [Validators.required, Validators.minLength(8), Validators.max(12)];
 				this.groupFields["phoneOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 				break;
 		}

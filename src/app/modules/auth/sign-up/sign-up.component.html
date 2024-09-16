@@ -34,7 +34,7 @@
 						<!-- Name field -->
 						<mat-form-field class="w-full" *ngIf="fields.fullName && !fields.firstName">
 							<mat-label [style.color]="project.branding.txtColor">{{ "signup.fullName" | transloco }}</mat-label>
-							<input id="fullName" matInput [formControlName]="'fullName'" />
+							<input id="fullName" matInput [formControlName]="'fullName'" maxlength="120" minlength="3" pattern="^[a-zA-Z\s]+$" />
 							<mat-error *ngIf="signUpForm.get('fullName').hasError('required')">
 								{{ "signup.fullName" | transloco }} {{ "signup.is_required" | transloco }}
 							</mat-error>
@@ -43,7 +43,7 @@
 						<div fxLayout="row" fxLayoutAlign="start center" *ngIf="!fields.fullName && fields.firstName">
 							<mat-form-field class="w-full mr-2" *ngIf="fields.firstName">
 								<mat-label [style.color]="project.branding.txtColor">{{ "signup.firstName" | transloco }}</mat-label>
-								<input id="firstName" matInput [formControlName]="'firstName'" />
+								<input id="firstName" matInput [formControlName]="'firstName'" maxlength="40" minlength="3" pattern="^[a-zA-Z\s]+$" />
 								<mat-error *ngIf="signUpForm.get('firstName').hasError('required')">
 									{{ "signup.firstName" | transloco }} {{ "signup.is_required" | transloco }}
 								</mat-error>
@@ -51,7 +51,7 @@
 
 							<mat-form-field class="w-full" *ngIf="fields.lastName">
 								<mat-label [style.color]="project.branding.txtColor">{{ "signup.lastName" | transloco }}</mat-label>
-								<input id="lastName" matInput [formControlName]="'lastName'" />
+								<input id="lastName" matInput [formControlName]="'lastName'" maxlength="40" minlength="3" pattern="^[a-zA-Z\s]+$" />
 								<mat-error *ngIf="signUpForm.get('lastName').hasError('required')">
 									{{ "signup.lastName" | transloco }} {{ "signup.is_required" | transloco }}
 								</mat-error>
