@@ -15,18 +15,20 @@ export class PasswordlessService {
 	constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService) {}
 
 	requestProject(projectId: string, type: string = "onboarding"): Observable<any> {
-		return this._httpWrapper
-			.sendRequest("get", `${this.baseUrl}/v2/projects/kyc`, {
-				id: projectId,
+		const request = this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/projects/kyc`, {
+			id: projectId,
+		});
+
+		request.pipe(
+			tap((response: any) => {
+				this.currentProject = new ProjectModel({
+					...response.data,
+					type,
+				});
 			})
-			.pipe(
-				tap((response: any) => {
-					this.currentProject = new ProjectModel({
-						...response.data,
-						type,
-					});
-				})
-			);
+		);
+
+		return request;
 	}
 
 	sendEmailValidation(email: string, location: any): Observable<any> {
@@ -99,9 +101,9 @@ export class PasswordlessService {
 		const appLoginToken = localStorage.getItem("accessToken");
 
 		const location = localStorage.getItem("loginLocation");
-		
-		if(location){
-			data.location = JSON.parse(location)
+
+		if (location) {
+			data.location = JSON.parse(location);
 		}
 
 		let url = `${this.baseUrl}/v2/biometric-validations`;
@@ -127,8 +129,8 @@ export class PasswordlessService {
 	validateBiometrics(data: any): Observable<any> {
 		const location = localStorage.getItem("loginLocation");
 
-		if(location){
-			data.location = JSON.parse(location)
+		if (location) {
+			data.location = JSON.parse(location);
 		}
 
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/validate`, data);

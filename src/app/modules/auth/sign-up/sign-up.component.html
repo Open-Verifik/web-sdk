@@ -135,12 +135,12 @@
 								<a
 									class="ml-1 text-primary-500 hover:underline"
 									[href]="project.termsAndConditionsUrl"
-									*ngIf="this.OnboardingSignUpForm.showTermsAndConditions"
+									*ngIf="this.onboardingSignUpForm.showTermsAndConditions"
 									>{{ "signup.terms" | transloco }}
 								</a>
 
 								<span
-									*ngIf="this.OnboardingSignUpForm.showTermsAndConditions && OnboardingSignUpForm.showPrivacyNotice"
+									*ngIf="this.onboardingSignUpForm.showTermsAndConditions && onboardingSignUpForm.showPrivacyNotice"
 									[style.color]="project.branding.txtColor"
 									>{{ "signup.and" | transloco }}</span
 								>
@@ -148,7 +148,7 @@
 								<a
 									class="ml-1 text-primary-500 hover:underline"
 									[href]="project.privacyUrl"
-									*ngIf="OnboardingSignUpForm.showPrivacyNotice"
+									*ngIf="onboardingSignUpForm.showPrivacyNotice"
 									>{{ "signup.privacyPolicy" | transloco }}
 								</a>
 							</mat-checkbox>
