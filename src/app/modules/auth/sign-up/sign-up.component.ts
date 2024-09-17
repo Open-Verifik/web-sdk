@@ -276,13 +276,13 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		const randomNumber = Math.floor(Math.random() * 1234567);
 
 		const demoData = {
-			fullName: environment.production ? " " : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
-			firstName: environment.production ? " " : this._demoService.sampleFirstNames[r2],
-			lastName: environment.production ? " " : this._demoService.sampleLastNames[r1],
-			email: environment.production ? " " : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-			phone: environment.production ? " " : this.generateRandomPhoneNumber(),
+			fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
+			firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
+			lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
+			email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
+			phone: environment.production ? "" : this.generateRandomPhoneNumber(),
 			countryCode: environment.production ? "+1" : "+1",
-			company: environment.production ? " " : `company ${randomNumber}`,
+			company: environment.production ? "" : `company ${randomNumber}`,
 			role: environment.production ? this.roles[1].code : this.roles[3].code,
 			agreements: !Boolean(environment.production),
 		};
@@ -296,12 +296,12 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		if (this.onboardingSignUpForm?.firstName) {
 			this.fields["firstName"] = [
 				demoData.firstName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Zs]+$")],
+				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Z\\s]+$")],
 			];
 
 			this.fields["lastName"] = [
 				demoData.lastName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Zs]+$")],
+				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Z\\s]+$")],
 			];
 		}
 
