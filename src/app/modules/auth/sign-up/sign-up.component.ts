@@ -289,45 +289,37 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this.fields = {};
 
-		if (this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
+		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
 			this.fields["fullName"] = [demoData.fullName, [Validators.required]];
 		}
 
-		if (this.onboardingSignUpForm?.firstName) {
+		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.firstName) {
 			this.fields["firstName"] = [
 				demoData.firstName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Z\\s]+$")],
+				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
 			];
 
 			this.fields["lastName"] = [
 				demoData.lastName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Z\\s]+$")],
+				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
 			];
 		}
 
-		if (this.onboardingSignUpForm?.email) {
+		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.email) {
 			this.fields["email"] = [demoData.email, [Validators.email, Validators.required]];
-
-			if (environment.production) {
-				this.fields["email"].push(Validators.email);
-			}
 		}
 
-		if (this.onboardingSignUpForm?.phone) {
+		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
 			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
-			this.fields["phone"] = [demoData.phone, Validators.required];
-
-			if (environment.production) {
-				this.fields["phone"].push(Validators.min(8), Validators.max(10));
-			}
+			this.fields["phone"] = [demoData.phone, [Validators.required]];
 		}
 
-		if (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice) {
+		if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {
 			this.fields["agreements"] = ["", Validators.requiredTrue];
 		}
 
-		if (Array.isArray(this.onboardingSignUpForm?.extraFields)) {
+		if (this.onboardingSignUpForm && Array.isArray(this.onboardingSignUpForm?.extraFields)) {
 			for (const field of this.onboardingSignUpForm?.extraFields) {
 				this.fields[field] = [demoData[field] || "", Validators.required];
 			}
@@ -372,7 +364,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 * Sign up
 	 */
 	signUp(): void {
-		if (this.signUpForm.invalid) return;
+		if (this.signUpForm.invalid) return null;
 
 		// Push the event to the dataLayer
 		dataLayer.push({
@@ -406,8 +398,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					appRegistration.token = v?.data?.token;
 				},
 				error: (e) => {
-					console.info({ errorHERE: e });
-
 					if (e.error.message === "phone, email, projectFlow must be unique") {
 					}
 					this.alert = {
