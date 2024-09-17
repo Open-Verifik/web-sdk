@@ -174,13 +174,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 * On init
 	 */
 	ngOnInit(): void {
-		if (this._activatedRoute.params) {
-			this._activatedRoute.params?.subscribe((params) => {
-				this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
+		this._activatedRoute.params.subscribe((params) => {
+			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 
-				this.requestProject(params.id);
-			});
-		}
+			this.requestProject(params.id);
+		});
 
 		this._demoService.geoLocation$.subscribe({
 			next: async (response) => {
