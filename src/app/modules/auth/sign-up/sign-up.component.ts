@@ -294,15 +294,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		}
 
 		if (this.OnboardingSignUpForm.firstName) {
-			this.fields["firstName"] = [
-				demoData.firstName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Zs]+$")],
-			];
+			this.fields["firstName"] = [demoData.firstName, [Validators.required, Validators.minLength(3), Validators.maxLength(40)]]; //Validators.pattern("^[a-zA-Zs]+$")
+			// Validators.pattern("^[a-zA-Zs]+$");
 
-			this.fields["lastName"] = [
-				demoData.lastName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Zs]+$")],
-			];
+			this.fields["lastName"] = [demoData.lastName, [Validators.required, Validators.minLength(3), Validators.maxLength(40)]];
 		}
 
 		if (this.OnboardingSignUpForm.email) {
