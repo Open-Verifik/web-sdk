@@ -132,6 +132,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 		this.sendingOTP = false;
 
+		this.smsSent = false;
+
 		this.showFaceLivenessRecommendation = false;
 	}
 
@@ -270,10 +272,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	setFieldRequiredInForm() {
+		this.selectedCountryCode = localStorage.getItem("defaultCountryCode") || this.location?.countryCode || "+1";
+
 		this.groupFields = {
 			email: [localStorage.getItem("defaultEmail") || ""],
 			emailOTP: [,],
-			countryCode: [localStorage.getItem("defaultCountryCode") || this.location?.countryCode || ""],
+			countryCode: [this.selectedCountryCode],
 			phone: [localStorage.getItem("defaultPhone") || ""],
 			phoneOTP: [,],
 		};

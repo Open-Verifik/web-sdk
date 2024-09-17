@@ -145,7 +145,7 @@
 							</mat-form-field>
 						</div>
 
-						<mat-form-field class="w-full" *ngIf="smsSent">
+						<mat-form-field class="w-full" *ngIf="typeLogin === 'phone' && smsSent">
 							<mat-label [style.color]="project.branding.txtColor"> {{ "login.phone_otp" | transloco }}</mat-label>
 							<input
 								id="phoneOTP"

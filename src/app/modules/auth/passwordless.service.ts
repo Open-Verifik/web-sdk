@@ -19,14 +19,12 @@ export class PasswordlessService {
 			id: projectId,
 		});
 
-		request.pipe(
-			tap((response: any) => {
-				this.currentProject = new ProjectModel({
-					...response.data,
-					type,
-				});
-			})
-		);
+		request.subscribe((response) => {
+			this.currentProject = new ProjectModel({
+				...response.data,
+				type,
+			});
+		});
 
 		return request;
 	}
@@ -46,6 +44,7 @@ export class PasswordlessService {
 	}
 
 	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string, location?: any): Observable<any> {
+		console.log({ currentProject: this.currentProject });
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
 				phone,
