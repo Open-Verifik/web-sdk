@@ -71,7 +71,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	isVerifikProject: Boolean;
 	demoData: any;
 	sendingOTP: Boolean;
-	OnboardingSignUpForm: any;
+	onboardingSignUpForm: any;
 	fields: any;
 	language: string;
 	flagCodes = {
@@ -245,7 +245,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			this._assignRoles(this.projectFlow.systemForm);
 		}
 
-		this.OnboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+		this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
 
 		for (let index = 0; index < data.projectFlows.length; index++) {
 			const projectFlow = data.projectFlows[index];
@@ -276,31 +276,36 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		const randomNumber = Math.floor(Math.random() * 1234567);
 
 		const demoData = {
-			fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
-			firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
-			lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
-			email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-			phone: environment.production ? "" : this.generateRandomPhoneNumber(),
-			countryCode: environment.production ? "" : "+1",
-			company: environment.production ? "" : `company ${randomNumber}`,
-			role: environment.production ? "" : this.roles[3].code,
+			fullName: environment.production ? " " : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
+			firstName: environment.production ? " " : this._demoService.sampleFirstNames[r2],
+			lastName: environment.production ? " " : this._demoService.sampleLastNames[r1],
+			email: environment.production ? " " : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
+			phone: environment.production ? " " : this.generateRandomPhoneNumber(),
+			countryCode: environment.production ? "+1" : "+1",
+			company: environment.production ? " " : `company ${randomNumber}`,
+			role: environment.production ? this.roles[1].code : this.roles[3].code,
 			agreements: !Boolean(environment.production),
 		};
 
 		this.fields = {};
 
-		if (this.OnboardingSignUpForm.fullName && !this.OnboardingSignUpForm.firstName) {
+		if (this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
 			this.fields["fullName"] = [demoData.fullName, [Validators.required]];
 		}
 
-		if (this.OnboardingSignUpForm.firstName) {
-			this.fields["firstName"] = [demoData.firstName, [Validators.required, Validators.minLength(3), Validators.maxLength(40)]]; //Validators.pattern("^[a-zA-Zs]+$")
-			// Validators.pattern("^[a-zA-Zs]+$");
+		if (this.onboardingSignUpForm?.firstName) {
+			this.fields["firstName"] = [
+				demoData.firstName,
+				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Zs]+$")],
+			];
 
-			this.fields["lastName"] = [demoData.lastName, [Validators.required, Validators.minLength(3), Validators.maxLength(40)]];
+			this.fields["lastName"] = [
+				demoData.lastName,
+				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-Zs]+$")],
+			];
 		}
 
-		if (this.OnboardingSignUpForm.email) {
+		if (this.onboardingSignUpForm?.email) {
 			this.fields["email"] = [demoData.email, [Validators.email, Validators.required]];
 
 			if (environment.production) {
@@ -308,7 +313,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		if (this.OnboardingSignUpForm.phone) {
+		if (this.onboardingSignUpForm?.phone) {
 			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
 			this.fields["phone"] = [demoData.phone, Validators.required];
@@ -318,12 +323,12 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		if (this.OnboardingSignUpForm.showTermsAndConditions || this.OnboardingSignUpForm.showPrivacyNotice) {
+		if (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice) {
 			this.fields["agreements"] = ["", Validators.requiredTrue];
 		}
 
-		if (Array.isArray(this.OnboardingSignUpForm.extraFields)) {
-			for (const field of this.OnboardingSignUpForm.extraFields) {
+		if (Array.isArray(this.onboardingSignUpForm?.extraFields)) {
+			for (const field of this.onboardingSignUpForm?.extraFields) {
 				this.fields[field] = [demoData[field] || "", Validators.required];
 			}
 		}
