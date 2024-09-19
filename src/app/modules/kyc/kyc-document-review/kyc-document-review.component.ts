@@ -63,8 +63,6 @@ export class KycDocumentReviewComponent implements OnInit {
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
-		console.log(this.projectFlow.onboardingSettings.steps);
-
 		this.navigation = this._KYCService.getNavigation();
 
 		this.selectOption = "";
@@ -138,7 +136,6 @@ export class KycDocumentReviewComponent implements OnInit {
 
 	sendDocumentValidationAndNameValidation(): void {
 		const settings = this.projectFlow.onboardingSettings.document;
-
 		const observables = [];
 
 		if (settings.verifyNames) {
@@ -168,7 +165,11 @@ export class KycDocumentReviewComponent implements OnInit {
 				)
 			);
 		}
-
+		if (observables.length === 0) {
+			this.completed = true;
+			this._changeDetectorRef.markForCheck();
+			return;
+		}
 		forkJoin(observables).subscribe(
 			(results) => {
 				results.forEach((result) => {
