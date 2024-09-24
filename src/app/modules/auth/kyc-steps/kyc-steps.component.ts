@@ -133,7 +133,6 @@ export class KYCStepsComponent implements OnInit {
 			.subscribe({
 				next: (response) => {
 					this.appRegistration = response.data;
-
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
@@ -145,6 +144,13 @@ export class KYCStepsComponent implements OnInit {
 				},
 				complete: () => {
 					this._splashScreenService.hide();
+					if (
+						(this.projectFlow.onboardingSettings.signUpForm.phone && !this.appRegistration.phoneValidation) ||
+						(this.projectFlow.onboardingSettings.signUpForm.email && !this.appRegistration.emailValidation)
+					) {
+						const token = localStorage.getItem("accessToken");
+						this._router.navigateByUrl(`/confirmation-required/${this.appRegistration._id}?token=${token}`);
+					}
 
 					this.navigation = this._KYCService.initNavigation();
 
