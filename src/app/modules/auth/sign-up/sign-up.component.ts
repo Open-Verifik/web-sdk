@@ -290,18 +290,21 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.fields = {};
 
 		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
-			this.fields["fullName"] = [demoData.fullName, [Validators.required]];
+			this.fields["fullName"] = [
+				demoData.fullName,
+				[Validators.required, Validators.maxLength(50), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+			];
 		}
 
 		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.firstName) {
 			this.fields["firstName"] = [
 				demoData.firstName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+				[Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
 			];
 
 			this.fields["lastName"] = [
 				demoData.lastName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+				[Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
 			];
 		}
 
