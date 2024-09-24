@@ -493,6 +493,10 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		this._syncAppRegistration("instructions", "ONGOING", "redirect");
 	}
 
+	goBack(): void {
+		this._router.navigate(["sign-up", this.project._id]);
+	}
+
 	continueWithoutKYC(): void {
 		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
 	}

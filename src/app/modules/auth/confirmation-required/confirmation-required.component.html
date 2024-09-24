@@ -375,13 +375,24 @@
 	</div>
 	<!-- END:: when the projectflow is not set properly, show the error here -->
 
-	<div *ngIf="errorContent" class="flex items-center justify-center sm:w-auto p-16 rounded-2xl shadow bg-card">
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+	<div *ngIf="errorContent" class="flex mr-3 sm:w-auto p-16 rounded-2xl shadow bg-card" fxLayout="column" fxLayoutAlign="center center">
+		<div class="w-full text-center sm:w-80 mx-auto sm:mx-0">
 			<!-- Title -->
-			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
-				{{ "signup.error_" + errorContent.message | transloco }}
+			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
+				{{ "signup." + errorContent.message | transloco }}
 			</div>
 		</div>
+
+		<button
+			mat-stroked-button
+			class="w-full mt-4"
+			color="primary"
+			(click)="goBack()"
+			[style.color]="project.branding.buttonTxtColor"
+			[style.background]="project.branding.buttonColor"
+		>
+			<span> {{ "go_back" | transloco }} </span>
+		</button>
 	</div>
 
 	<div
