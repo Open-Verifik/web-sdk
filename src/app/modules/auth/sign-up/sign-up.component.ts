@@ -118,7 +118,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			},
 			{
 				label: "signup.roles.high_management",
-				code: "highManagement",
+				code: "high_management",
 			},
 			{
 				label: "signup.roles.manager",
