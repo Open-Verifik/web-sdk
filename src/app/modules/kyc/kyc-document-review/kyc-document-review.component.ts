@@ -59,6 +59,7 @@ export class KycDocumentReviewComponent implements OnInit {
 		this.demoData = this._demoService.getDemoData();
 
 		this.appRegistration = this._KYCService.appRegistration;
+
 		this.project = this._KYCService.currentProject;
 
 		this.projectFlow = this._KYCService.currentProjectFlow;

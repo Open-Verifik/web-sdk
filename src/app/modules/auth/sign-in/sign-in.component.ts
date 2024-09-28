@@ -537,8 +537,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 			this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
 		).add(2, "minute");
 
-		console.log({ dateToCompare, timeToHideButtons });
-
 		switch (field) {
 			case "email":
 				if (!this.emailValidation) {

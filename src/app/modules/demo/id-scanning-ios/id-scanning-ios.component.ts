@@ -159,7 +159,6 @@ export class IdScanningIOSComponent implements OnInit {
 	};
 
 	ngOnInit(): void {
-		console.log("here in ios");
 		this.startDefaultValues();
 
 		this.camera.hasPermissions = true;

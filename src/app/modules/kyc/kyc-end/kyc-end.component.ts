@@ -57,7 +57,7 @@ export class KycEndComponent implements OnInit, OnDestroy {
 		this.project = this._KYCService.currentProject;
 
 		this.projectFlow = this._KYCService.currentProjectFlow;
-		console.log(this.appRegistration);
+
 		this.navigation = this._KYCService.getNavigation();
 		const compareFaceVerification = this.appRegistration.compareFaceVerification;
 		let livenessScore = null;
