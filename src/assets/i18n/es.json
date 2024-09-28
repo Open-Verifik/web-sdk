@@ -178,9 +178,13 @@
 		"Liveness_score_not_acceptable": "La puntuación de viveza no es aceptable",
 		"min_liveness_score_is": "La puntuación mínima de vivacidad es: ",
 		"phone_or_email_is_not_unique": "El teléfono o el correo electrónico ya se han utilizado, intente con uno diferente",
-		"something_went_wrong": "Algo salió mal, por favor inténtalo de nuevo"
+		"something_went_wrong": "Algo salió mal, por favor inténtalo de nuevo",
+		"invalid_email": "El correo electrónico no es válido",
+		"invalid_phone": "El teléfono no es válido"
 	},
 	"login": {
+		"invalid_email": "El correo electrónico no es válido",
+		"invalid_phone": "El teléfono no es válido",
 		"title_1": "Bienvenido",
 		"title_2": "Iniciar sesión",
 		"no_account": "¿No tienes una cuenta todavía?",
@@ -196,8 +200,6 @@
 		"use_biometrics_button": "Verificación facial",
 		"required_email": "El correo electrónico es obligatorio",
 		"required_phone": "El teléfono es obligatorio",
-		"invalid_email": "El correo electrónico no es válido",
-		"invalid_phone": "El teléfono no es válido",
 		"required_otp": "El OTP es obligatorio",
 		"user_not_found": "Usuario no encontrado",
 		"projectFlow_not_found": "Proyecto no encontrado",

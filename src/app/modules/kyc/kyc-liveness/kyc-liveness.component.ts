@@ -135,7 +135,6 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		this.listenModeDebug();
 
 		this.appLoginToken = localStorage.getItem("accessToken");
-		console.log(this.projectFlow);
 	}
 
 	_initAppRegistrationData(): boolean {

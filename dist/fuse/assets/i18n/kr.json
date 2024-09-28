@@ -178,7 +178,9 @@
 		"Liveness_score_not_acceptable": "생체 인식 점수가 허용되지 않습니다",
 		"min_liveness_score_is": "최소 생동감 점수는: ",
 		"phone_or_email_is_not_unique": "전화 또는 이메일이 이미 사용되었습니다. 다른 것을 시도하세요",
-		"something_went_wrong": "문제가 발생했습니다. 다시 시도해주세요"
+		"something_went_wrong": "문제가 발생했습니다. 다시 시도해주세요",
+		"invalid_email": "잘못된 이메일",
+		"invalid_phone": "잘못된 전화번호"
 	},
 	"login": {
 		"title_1": "환영합니다",

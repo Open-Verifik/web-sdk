@@ -125,12 +125,11 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	_requestAppRegistration(): void {
 		this._KYCService
 			.getAppRegistration({
-				populates: ["project", "projectFlow", "emailValidation", "phoneValidation"],
+				populates: ["project", "projectFlow", "emailValidation", "phoneValidation", "informationValidation"],
 			})
 			.subscribe({
 				next: (response) => {
 					this.appRegistration = response.data;
-
 					this.project = new ProjectModel(this.appRegistration.project);
 
 					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);

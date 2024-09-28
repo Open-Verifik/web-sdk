@@ -64,8 +64,6 @@ export class KycDocumentComponent implements OnInit {
 		this.selectOption = "";
 
 		this._initSteps();
-
-		console.log({ documentSettings: this.documentSettings });
 	}
 
 	_initSteps(): void {

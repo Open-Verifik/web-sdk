@@ -44,7 +44,6 @@ export class PasswordlessService {
 	}
 
 	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string, location?: any): Observable<any> {
-		console.log({ currentProject: this.currentProject });
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
 				phone,

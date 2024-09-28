@@ -280,6 +280,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
 			lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
 			email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
+
 			phone: environment.production ? "" : this.generateRandomPhoneNumber(),
 			countryCode: environment.production ? "+1" : "+1",
 			company: environment.production ? "" : `company ${randomNumber}`,
@@ -400,15 +401,13 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 					appRegistration.token = v?.data?.token;
 				},
-				error: (e) => {
-					if (e.error.message === "phone, email, projectFlow must be unique") {
-					}
+				error: (exception) => {
 					this.alert = {
 						type: "error",
 						message:
-							e.error.message === "phone, email, projectFlow must be unique"
+							exception.error.message === "phone, email, projectFlow must be unique"
 								? "errors.phone_or_email_is_not_unique"
-								: "errors.something_went_wrong",
+								: `errors.${exception.error.message}`,
 					};
 
 					this.showAlert = true;

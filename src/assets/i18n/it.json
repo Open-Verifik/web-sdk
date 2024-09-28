@@ -178,7 +178,9 @@
 		"Liveness_score_not_acceptable": "Il punteggio di vivacità non è accettabile",
 		"min_liveness_score_is": "Il punteggio minimo di vivacità è: ",
 		"phone_or_email_is_not_unique": "Il telefono o l'email è già stato utilizzato, prova con uno diverso",
-		"something_went_wrong": "Qualcosa è andato storto, per favore riprova"
+		"something_went_wrong": "Qualcosa è andato storto, per favore riprova",
+		"invalid_email": "Email non valida",
+		"invalid_phone": "Telefono non valido"
 	},
 	"login": {
 		"title_1": "Benvenuto",
