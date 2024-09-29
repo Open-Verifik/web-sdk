@@ -180,7 +180,14 @@
 		"phone_or_email_is_not_unique": "Ang telepono o email ay mayroon nang ginamit, subukang iba",
 		"something_went_wrong": "May nangyaring mali, subukan muli",
 		"invalid_email": "Hindi wasto ang email",
-		"invalid_phone": "Hindi wasto ang telepono"
+		"invalid_phone": "Hindi wasto ang telepono",
+		"geolocation": {
+			"user_denied_request": "Kinakailangan ang pag-access sa lokasyon upang lumikha ng account",
+			"user_denied_request_subtitle": "Paki-enable ang mga serbisyo ng lokasyon sa iyong mga setting ng browser upang magpatuloy.",
+			"enabled_it": "Na-enable ko na",
+			"country_not_allowed": "Kinakailangan ang Pag-verify ng Lokasyon",
+			"country_not_allowed_subtitle": "Hindi namin maaaring iproseso ang iyong kahilingan mula sa bansang ito dahil sa pagsunod. Mangyaring makipag-ugnayan sa suporta para sa tulong."
+		}
 	},
 	"login": {
 		"title_1": "Maligayang Pagdating",

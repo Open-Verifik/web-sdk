@@ -180,7 +180,14 @@
 		"phone_or_email_is_not_unique": "El teléfono o el correo electrónico ya se han utilizado, intente con uno diferente",
 		"something_went_wrong": "Algo salió mal, por favor inténtalo de nuevo",
 		"invalid_email": "El correo electrónico no es válido",
-		"invalid_phone": "El teléfono no es válido"
+		"invalid_phone": "El teléfono no es válido",
+		"geolocation": {
+			"user_denied_request": "Es necesario acceder a tu ubicación para crear una cuenta",
+			"user_denied_request_subtitle": "Activa los servicios de ubicación en la configuración de tu navegador para continuar.",
+			"enabled_it": "Lo habilité",
+			"country_not_allowed": "Verificación de ubicación requerida",
+			"country_not_allowed_subtitle": "No podemos procesar su solicitud desde este país debido a cumplimiento. Por favor, contacte al soporte para obtener ayuda."
+		}
 	},
 	"login": {
 		"invalid_email": "El correo electrónico no es válido",
