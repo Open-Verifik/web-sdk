@@ -173,7 +173,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 				localStorage.setItem("loginLocation", JSON.stringify(this.location));
 			},
-			error: (exception) => {},
+			error: (exception) => {
+				console.log({ exception });
+			},
 			complete: () => {},
 		});
 	}

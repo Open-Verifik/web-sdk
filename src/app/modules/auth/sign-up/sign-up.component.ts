@@ -88,6 +88,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	};
 	deviceDetails: any;
 	location: any;
+	locationError: any;
 
 	/**
 	 * Constructor
@@ -110,6 +111,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.project = null;
 
 		this.location = null;
+		this.locationError = null;
 
 		this.roles = [
 			{
@@ -182,18 +184,51 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this._demoService.geoLocation$.subscribe({
 			next: async (response) => {
+				if (response.errorMessage) {
+					this.locationError = response;
+
+					return;
+				}
+
 				if (!response || this.location) return;
 
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
+				console.log({ location: this.location });
+
 				this.location.os = this.deviceDetails?.platform;
+
 				this.location.type = "browser";
 
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
-			error: (exception) => {},
+			error: (exception) => {
+				console.log({ exception });
+			},
 			complete: () => {},
 		});
+	}
+
+	showLocationError(): boolean {
+		return Boolean(this.locationError);
+	}
+
+	showNoProjectError(): boolean {
+		return Boolean(!this.projectFlow?._id || !this.project?._id);
+	}
+
+	showMainContainer(): boolean {
+		return Boolean(
+			!this.locationError && this.projectFlow?._id && this.project?._id && this.project?.allowedCountries.includes(this.location?.country)
+		);
+	}
+
+	showCountriNotAllowed(): boolean {
+		return Boolean(!this.project?.allowedCountries.includes(this.location?.country));
+	}
+
+	enabledIt(): void {
+		window.location.reload();
 	}
 
 	removeSpacesFromEmail() {
