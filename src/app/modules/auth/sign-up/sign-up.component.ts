@@ -210,7 +210,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	showLocationError(): boolean {
-		return Boolean(this.locationError);
+		return Boolean(this.locationError && !this.showCountriNotAllowed());
 	}
 
 	showNoProjectError(): boolean {
@@ -224,7 +224,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	showCountriNotAllowed(): boolean {
-		return Boolean(!this.project?.allowedCountries.includes(this.location?.country));
+		return Boolean(!this.locationError && !this.project?.allowedCountries.includes(this.location?.country));
 	}
 
 	enabledIt(): void {
