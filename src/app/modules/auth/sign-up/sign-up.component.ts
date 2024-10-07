@@ -29,7 +29,7 @@ declare var dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 @Component({
 	selector: "auth-sign-up",
 	templateUrl: "./sign-up.component.html",
-	styleUrls: ["../sign-in/sign-in.scss"],
+	styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
@@ -89,6 +89,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	deviceDetails: any;
 	location: any;
 	locationError: any;
+	currentPage: number;
+	totalPages: number;
+	pages: Array<number>;
 
 	/**
 	 * Constructor
@@ -107,11 +110,12 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.setLanguage();
 
 		this.countries = this._countries.countryCodes;
-
-		this.project = null;
-
+		this.currentPage = 1;
 		this.location = null;
 		this.locationError = null;
+		this.pages = [1, 2, 3];
+		this.project = null;
+		this.totalPages = 3;
 
 		this.roles = [
 			{
@@ -193,8 +197,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				if (!response || this.location) return;
 
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
-
-				console.log({ location: this.location });
 
 				this.location.os = this.deviceDetails?.platform;
 

@@ -1,0 +1,17 @@
+.signup__pages {
+    padding: 4px;
+}
+
+.signup__page {
+    background-color: #C4C6D0;
+    border-radius: 4px;
+    height: 8px;
+    transition: width 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+    width: 8px;
+    margin-right: 4px;
+
+    &--wide {
+        background-color: #0140EC;
+        width: 24px;
+    }
+}

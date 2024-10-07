@@ -1,18 +1,32 @@
 <div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signUpForm" class="w-full" [style.background]="project.branding.bgColor">
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showMainContainer()">
-		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
-			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
+		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
+			<div class="w-full sm:w-auto py-7 px-8" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
 				<div class="w-400 mx-auto sm:mx-0">
 					<!-- Title -->
-					<div fxLayout="row" fxLayoutAlign="start center">
+					<div fxLayout="row" fxLayoutAlign="start center" class="mt-8 mb-8 ml-2">
 						<img [src]="project.branding.logo" class="w-14" />
 					</div>
-					<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight" [style.color]="project.branding.titleColor">
-						{{ "signup.title" | transloco }}
+
+					<div class="flex">
+						<small class="font-bold tracking-wider text-secondary">{{ "signup.step" | transloco: {current: currentPage, total: totalPages} | uppercase }}</small>
+
+						<div class="signup__pages flex">
+							<div
+								class="signup__page"
+								*ngFor="let page of pages"
+								[ngClass]="{ 'signup__page--wide': page === currentPage }"
+								[style.color]="page === currentPage ? project.branding.titleColor : ''"
+							></div>
+						</div>
 					</div>
-					<div class="flex items-baseline mt-0.5 font-medium">
-						<div [style.color]="project.branding.txtColor">{{ "signup.auth_question" | transloco }}</div>
-						<a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-in', project._id]"
+
+					<h5 class="text-3xl mt-2">{{ "signup.title" | transloco }}</h5>
+
+					<div class="flex items-baseline mt-2 font-medium">
+						<div>{{ "signup.auth_question" | transloco }}</div>
+
+						<a class="ml-1 text-primary-500 underline" [routerLink]="['/sign-in', project._id]"
 							>{{ "signup.auth_link" | transloco }}
 						</a>
 					</div>
@@ -129,11 +143,12 @@
 						</mat-form-field>
 
 						<!-- ToS and PP -->
-						<div class="inline-flex items-end w-full mt-1.5" *ngIf="fields.agreements">
+						<div class="inline-flex items-end w-full mt-6" *ngIf="fields.agreements">
 							<mat-checkbox class="-ml-2" [color]="'primary'" [formControlName]="'agreements'">
-								<span [style.color]="project.branding.txtColor">{{ "signup.agreement1" | transloco }} </span>
+								<span>{{ "signup.agreement1" | transloco }} </span>
+
 								<a
-									class="ml-1 text-primary-500 hover:underline"
+									class="text-primary-500 hover:underline"
 									[href]="project.termsAndConditionsUrl"
 									*ngIf="this.onboardingSignUpForm.showTermsAndConditions"
 									>{{ "signup.terms" | transloco }}
@@ -141,7 +156,6 @@
 
 								<span
 									*ngIf="this.onboardingSignUpForm.showTermsAndConditions && onboardingSignUpForm.showPrivacyNotice"
-									[style.color]="project.branding.txtColor"
 									>{{ "signup.and" | transloco }}</span
 								>
 
@@ -156,22 +170,32 @@
 
 						<!-- Submit button -->
 						<button
-							[style.background]="project.branding.buttonColor"
-							[style.color]="project.branding.buttonTxtColor"
-							class="fuse-mat-button-large w-full mt-6"
-							mat-flat-button
-							[disabled]="isFormDisabled()"
 							(click)="signUp()"
+							[disabled]="isFormDisabled()"
 							[id]="'signUp-' + project._id"
+							[style.background]="isFormDisabled() ? '' : project.branding.buttonColor"
+							[style.color]="isFormDisabled() ? '' : project.branding.buttonTxtColor"
+							class="fuse-mat-button-large w-full mt-8"
+							mat-flat-button
 						>
-							<span *ngIf="!signUpForm.disabled">{{ "signup.create_account_button" | transloco }}</span>
+							<span *ngIf="!signUpForm.disabled">{{ "step_two.continue_button" | transloco }}</span>
 							<mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
 						</button>
 					</form>
 
-					<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
-						<small> Powered by Verifik </small>
-						<languages [colorText]="project.branding.txtColor"></languages>
+					<div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
+						<div class="signup__pages flex">
+							<div
+								class="signup__page"
+								*ngFor="let page of pages"
+								[ngClass]="{ 'signup__page--wide': page === currentPage }"
+								[style.color]="page === currentPage ? project.branding.titleColor : ''"
+							></div>
+						</div>
+					</div>
+
+					<div class="w-full text-center mt-8 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+						{{ "powered_by_verifik" | transloco }}
 					</div>
 				</div>
 			</div>
