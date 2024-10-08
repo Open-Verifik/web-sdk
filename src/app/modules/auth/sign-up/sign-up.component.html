@@ -1,364 +1,631 @@
-<div fxLayout="row" fxLayoutAlign="center center" *ngIf="project && signUpForm" class="w-full" [style.background]="project.branding.bgColor">
-	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showMainContainer()">
-		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content" *ngIf="!showBiometrics">
-			<div class="w-full sm:w-auto py-7 px-8" *ngIf="!showFaceLivenessRecommendation" fxLayout="row" fxLayoutAlign="start center">
-				<div class="w-400 mx-auto sm:mx-0">
-					<!-- Title -->
-					<div fxLayout="row" fxLayoutAlign="start center" class="mt-8 mb-8 ml-2">
-						<img [src]="project.branding.logo" class="w-14" />
-					</div>
+<fuse-loading-bar></fuse-loading-bar>
 
-					<div class="flex">
-						<small class="font-bold tracking-wider text-secondary">{{ "signup.step" | transloco: {current: currentPage, total: totalPages} | uppercase }}</small>
+<div
+  fxLayout="row"
+  fxLayoutAlign="center center"
+  *ngIf="project && signUpForm"
+  class="w-full"
+  [style.background]="project.branding.bgColor"
+>
+  <div
+    fxLayout="row"
+    fxLayoutAlign="center end"
+    class="flex w-full"
+    *ngIf="showMainContainer()"
+  >
+    <div
+      class="flex rounded-2xl bg-card overflow-hidden sign-in-content"
+      *ngIf="!showBiometrics"
+    >
+      <div
+        class="w-full sm:w-auto py-7 px-8"
+        *ngIf="!showFaceLivenessRecommendation"
+        fxLayout="row"
+        fxLayoutAlign="start center"
+      >
+        <div class="w-400 mx-auto sm:mx-0">
+          <!-- Title -->
+          <div
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            class="mt-8 mb-8 ml-2"
+          >
+            <img [src]="project.branding.logo" class="w-14" />
+          </div>
 
-						<div class="signup__pages flex">
-							<div
-								class="signup__page"
-								*ngFor="let page of pages"
-								[ngClass]="{ 'signup__page--wide': page === currentPage }"
-								[style.color]="page === currentPage ? project.branding.titleColor : ''"
-							></div>
-						</div>
-					</div>
+          <div class="flex">
+            <small class="font-bold tracking-wider text-secondary">
+              {{
+                "signup.step"
+                  | transloco : { current: currentStep, total: steps.length }
+                  | uppercase
+              }}
+            </small>
 
-					<h5 class="text-3xl mt-2">{{ "signup.title" | transloco }}</h5>
+            <div class="signup__steps flex">
+              <div
+                class="signup__step"
+                *ngFor="let step of steps"
+                [ngClass]="{ 'signup__step--wide': step === currentStep }"
+                [style.color]="
+                  step === currentStep ? project.branding.titleColor : ''
+                "
+              ></div>
+            </div>
+          </div>
 
-					<div class="flex items-baseline mt-2 font-medium">
-						<div>{{ "signup.auth_question" | transloco }}</div>
+          <h5 class="text-3xl mt-2">{{ "signup.title" | transloco }}</h5>
 
-						<a class="ml-1 text-primary-500 underline" [routerLink]="['/sign-in', project._id]"
-							>{{ "signup.auth_link" | transloco }}
-						</a>
-					</div>
+          <div class="flex items-baseline mt-2 font-medium">
+            <div [style.color]="project.branding.txtColor">
+              {{ "signup.auth_question" | transloco }}
+            </div>
 
-					<!-- Alert -->
-					<fuse-alert
-						class="mt-8 -mb-4"
-						*ngIf="showAlert"
-						[appearance]="'outline'"
-						[showIcon]="false"
-						[type]="alert.type"
-						[@shake]="alert.type === 'error'"
-					>
-						{{ alert.message | transloco }}
-					</fuse-alert>
+            <a
+              class="ml-1 text-primary-500 underline"
+              [routerLink]="['/sign-in', project._id]"
+            >
+              {{ "signup.auth_link" | transloco }}
+            </a>
+          </div>
 
-					<!-- Sign Up form -->
-					<form id="access-verifik-form" class="mt-8" [formGroup]="signUpForm" #signUpNgForm="ngForm">
-						<!-- Name field -->
-						<mat-form-field class="w-full" *ngIf="fields.fullName && !fields.firstName">
-							<mat-label [style.color]="project.branding.txtColor">{{ "signup.fullName" | transloco }}</mat-label>
-							<input id="fullName" matInput [formControlName]="'fullName'" maxlength="50" minlength="3" />
-							<mat-error *ngIf="signUpForm.get('fullName').hasError('required')">
-								{{ "signup.fullName" | transloco }} {{ "signup.is_required" | transloco }}
-							</mat-error>
-						</mat-form-field>
+          <!-- Alert -->
+          <fuse-alert
+            class="mt-8 -mb-4"
+            *ngIf="showAlert"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type"
+            [@shake]="alert.type === 'error'"
+          >
+            {{ alert.message | transloco }}
+          </fuse-alert>
 
-						<div fxLayout="row" fxLayoutAlign="start center" *ngIf="!fields.fullName && fields.firstName">
-							<mat-form-field class="w-full mr-2" *ngIf="fields.firstName">
-								<mat-label [style.color]="project.branding.txtColor">{{ "signup.firstName" | transloco }}</mat-label>
-								<input id="firstName" matInput [formControlName]="'firstName'" maxlength="20" minlength="3" />
-								<mat-error *ngIf="signUpForm.get('firstName').hasError('required')">
-									{{ "signup.firstName" | transloco }} {{ "signup.is_required" | transloco }}
-								</mat-error>
-							</mat-form-field>
+          <!-- Sign Up form -->
+          <form
+            id="access-verifik-form"
+            class="mt-8"
+            [formGroup]="signUpForm"
+            #signUpNgForm="ngForm"
+          >
+            <!-- Name field -->
+            <mat-form-field
+              class="w-full"
+              *ngIf="fields.fullName && !fields.firstName"
+            >
+              <mat-label [style.color]="project.branding.txtColor">
+                {{ "signup.fullName" | transloco }}
+              </mat-label>
 
-							<mat-form-field class="w-full" *ngIf="fields.lastName">
-								<mat-label [style.color]="project.branding.txtColor">{{ "signup.lastName" | transloco }}</mat-label>
-								<input id="lastName" matInput [formControlName]="'lastName'" maxlength="20" minlength="3" />
-								<mat-error *ngIf="signUpForm.get('lastName').hasError('required')">
-									{{ "signup.lastName" | transloco }} {{ "signup.is_required" | transloco }}
-								</mat-error>
-							</mat-form-field>
-						</div>
+              <input
+                id="fullName"
+                matInput
+                [formControlName]="'fullName'"
+                maxlength="50"
+                minlength="3"
+              />
 
-						<!-- Email field -->
-						<mat-form-field class="w-full" *ngIf="fields.email">
-							<mat-label [style.color]="project.branding.txtColor">{{ "login.email" | transloco }}</mat-label>
-							<input id="email" matInput [formControlName]="'email'" (input)="removeSpacesFromEmail()" />
-							<mat-error *ngIf="signUpForm.get('email').hasError('required')">
-								{{ "login.email" | transloco }} {{ "signup.is_required" | transloco }}
-							</mat-error>
-							<mat-error *ngIf="signUpForm.get('email').hasError('email')">
-								{{ "signup.please_enter_a_valid" | transloco }} {{ "login.email" | transloco }}
-							</mat-error>
-						</mat-form-field>
+              <mat-error
+                *ngIf="signUpForm.get('fullName').hasError('required')"
+              >
+                {{ "signup.fullName" | transloco }}
+                {{ "signup.is_required" | transloco }}
+              </mat-error>
+            </mat-form-field>
 
-						<div *ngIf="fields.phone" fxLayout="row" fxLayoutAlign="start center">
-							<mat-form-field class="w-full mr-2">
-								<mat-label [style.color]="project.branding.txtColor"> {{ "login.country_code" | transloco }}</mat-label>
-								<mat-select *ngIf="countries" class="mr-1.5" [formControl]="signUpForm.get('countryCode')" matPrefix>
-									<mat-select-trigger>
-										<span class="flex items-center">
-											<span class="sm:mx-0.5 font-medium text-default">{{ signUpForm.get("countryCode").value }}</span>
-										</span>
-									</mat-select-trigger>
-									<ng-container *ngFor="let country of countries">
-										<mat-option [value]="country.code">
-											<span class="flex items-center">
-												<span class="ml-2">{{ country.name }}</span>
-												<span class="ml-2 font-medium">{{ country.code }}</span>
-											</span>
-										</mat-option>
-									</ng-container>
-								</mat-select>
-							</mat-form-field>
+            <div
+              fxLayout="row"
+              fxLayoutAlign="start center"
+              *ngIf="!fields.fullName && fields.firstName"
+            >
+              <mat-form-field class="w-full mr-2" *ngIf="fields.firstName">
+                <mat-label [style.color]="project.branding.txtColor">
+                  {{ "signup.firstName" | transloco }}
+                </mat-label>
 
-							<mat-form-field class="w-full">
-								<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
-								<input id="phone" matInput [formControlName]="'phone'" (input)="removeSpacesFromPhone()" />
-								<mat-error *ngIf="signUpForm.get('phone').hasError('required')">
-									{{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
-								</mat-error>
-								<mat-error *ngIf="signUpForm.get('phone').hasError('phone')">
-									{{ "signup.please_enter_a_valid" | transloco }} {{ "login.phone" | transloco }}
-								</mat-error>
-							</mat-form-field>
-						</div>
+                <input
+                  id="firstName"
+                  matInput
+                  [formControlName]="'firstName'"
+                  maxlength="20"
+                  minlength="3"
+                />
 
-						<!-- Company field -->
-						<mat-form-field class="w-full" *ngIf="fields.company">
-							<mat-label [style.color]="project.branding.txtColor">{{ "signup.company" | transloco }}</mat-label>
-							<input id="company-confirm" matInput [formControlName]="'company'" />
-						</mat-form-field>
+                <mat-error
+                  *ngIf="signUpForm.get('firstName').hasError('required')"
+                >
+                  {{ "signup.firstName" | transloco }}
+                  {{ "signup.is_required" | transloco }}
+                </mat-error>
+              </mat-form-field>
 
-						<mat-form-field class="w-full mr-2" *ngIf="fields.role && roles">
-							<mat-label [style.color]="project.branding.txtColor"> {{ "signup.role" | transloco }}</mat-label>
-							<mat-select class="mr-1.5" [formControl]="signUpForm.get('role')" matPrefix>
-								<mat-select-trigger>
-									<span class="flex items-center">
-										<span class="sm:mx-0.5 font-medium text-default">{{
-											"signup.roles." + signUpForm.get("role").value | transloco
-										}}</span>
-									</span>
-								</mat-select-trigger>
-								<ng-container *ngFor="let role of roles">
-									<mat-option [value]="role.code">
-										<span class="flex items-center">
-											<span class="ml-2">{{ role.label | transloco }}</span>
-										</span>
-									</mat-option>
-								</ng-container>
-							</mat-select>
-						</mat-form-field>
+              <mat-form-field class="w-full" *ngIf="fields.lastName">
+                <mat-label [style.color]="project.branding.txtColor">
+                  {{ "signup.lastName" | transloco }}
+                </mat-label>
 
-						<!-- ToS and PP -->
-						<div class="inline-flex items-end w-full mt-6" *ngIf="fields.agreements">
-							<mat-checkbox class="-ml-2" [color]="'primary'" [formControlName]="'agreements'">
-								<span>{{ "signup.agreement1" | transloco }} </span>
+                <input
+                  id="lastName"
+                  matInput
+                  [formControlName]="'lastName'"
+                  maxlength="20"
+                  minlength="3"
+                />
 
-								<a
-									class="text-primary-500 hover:underline"
-									[href]="project.termsAndConditionsUrl"
-									*ngIf="this.onboardingSignUpForm.showTermsAndConditions"
-									>{{ "signup.terms" | transloco }}
-								</a>
+                <mat-error
+                  *ngIf="signUpForm.get('lastName').hasError('required')"
+                >
+                  {{ "signup.lastName" | transloco }}
+                  {{ "signup.is_required" | transloco }}
+                </mat-error>
+              </mat-form-field>
+            </div>
 
-								<span
-									*ngIf="this.onboardingSignUpForm.showTermsAndConditions && onboardingSignUpForm.showPrivacyNotice"
-									>{{ "signup.and" | transloco }}</span
-								>
+            <!-- Email field -->
+            <mat-form-field class="w-full" *ngIf="fields.email">
+              <mat-label [style.color]="project.branding.txtColor">
+                {{ "login.email" | transloco }}
+              </mat-label>
 
-								<a
-									class="ml-1 text-primary-500 hover:underline"
-									[href]="project.privacyUrl"
-									*ngIf="onboardingSignUpForm.showPrivacyNotice"
-									>{{ "signup.privacyPolicy" | transloco }}
-								</a>
-							</mat-checkbox>
-						</div>
+              <input
+                id="email"
+                matInput
+                [formControlName]="'email'"
+                (input)="removeSpacesFromEmail()"
+              />
 
-						<!-- Submit button -->
-						<button
-							(click)="signUp()"
-							[disabled]="isFormDisabled()"
-							[id]="'signUp-' + project._id"
-							[style.background]="isFormDisabled() ? '' : project.branding.buttonColor"
-							[style.color]="isFormDisabled() ? '' : project.branding.buttonTxtColor"
-							class="fuse-mat-button-large w-full mt-8"
-							mat-flat-button
-						>
-							<span *ngIf="!signUpForm.disabled">{{ "step_two.continue_button" | transloco }}</span>
-							<mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
-						</button>
-					</form>
+              <mat-error *ngIf="signUpForm.get('email').hasError('required')">
+                {{ "login.email" | transloco }}
+                {{ "signup.is_required" | transloco }}
+              </mat-error>
 
-					<div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
-						<div class="signup__pages flex">
-							<div
-								class="signup__page"
-								*ngFor="let page of pages"
-								[ngClass]="{ 'signup__page--wide': page === currentPage }"
-								[style.color]="page === currentPage ? project.branding.titleColor : ''"
-							></div>
-						</div>
-					</div>
+              <mat-error *ngIf="signUpForm.get('email').hasError('email')">
+                {{ "signup.please_enter_a_valid" | transloco }}
+                {{ "login.email" | transloco }}
+              </mat-error>
+            </mat-form-field>
 
-					<div class="w-full text-center mt-8 text-secondary" fxLayout="row" fxLayoutAlign="center center">
-						{{ "powered_by_verifik" | transloco }}
-					</div>
-				</div>
-			</div>
+            <div
+              *ngIf="fields.phone"
+              fxLayout="row"
+              fxLayoutAlign="start center"
+            >
+              <mat-form-field class="w-full">
+                <mat-label [style.color]="project.branding.txtColor">
+                  {{ "login.phone" | transloco }}
+                </mat-label>
 
-			<div
-				class="w-full sm:w-auto py-8 lg:px-4 sm:p-12 xs:m-2"
-				*ngIf="showFaceLivenessRecommendation"
-				fxLayout="column"
-				fxLayoutAlign="start center"
-			>
-				<!-- for verifik project -->
-				<div class="w-400 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="isVerifikProject">
-					<!-- content -->
-					<div fxLayout="column" fxLayoutAlign="start center">
-						<img src="https://cdn.verifik.co/access/goldcoins3x.png" alt="" class="w-36" />
+                <input
+                  id="phone"
+                  matInput
+                  [formControlName]="'phone'"
+                  (input)="removeSpacesFromPhone()"
+                />
 
-						<h2 class="pt-2 credits-h2">
-							{{ "add_biometrics.verifik_title" | transloco }}
-						</h2>
+                <mat-select
+                  *ngIf="countries"
+                  [formControl]="signUpForm.get('countryCode')"
+                  matPrefix
+                >
+                  <mat-select-trigger>
+                    <span class="flex items-center">
+                      <span class="sm:mx-0.5 font-medium text-default">{{
+                        signUpForm.get("countryCode").value
+                      }}</span>
+                    </span>
+                  </mat-select-trigger>
 
-						<h3 class="credits-h3">{{ "add_biometrics.verifik_content" | transloco }}</h3>
-					</div>
-					<!-- end of content -->
+                  <mat-option
+                    *ngFor="let country of countries"
+                    [value]="country.code"
+                  >
+                    <span class="flex items-center">
+                      <span class="ml-2">{{ country.name }}</span>
+                      <span class="ml-2 font-medium">{{ country.code }}</span>
+                    </span>
+                  </mat-option>
+                </mat-select>
 
-					<!-- Title -->
-					<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="showBiometricsLogin()">
-							<span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_button" | transloco }} </span>
-						</button>
+                <mat-error *ngIf="signUpForm.get('phone').hasError('required')">
+                  {{ "login.phone" | transloco }}
+                  {{ "signup.is_required" | transloco }}
+                </mat-error>
 
-						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueRedirection()">
-							...
-							<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.verifik_dismiss" | transloco }} </span>
-						</button>
-					</div>
-					<!-- end of title -->
-				</div>
-				<!-- end of verifik project -->
+                <mat-error *ngIf="signUpForm.get('phone').hasError('phone')">
+                  {{ "signup.please_enter_a_valid" | transloco }}
+                  {{ "login.phone" | transloco }}
+                </mat-error>
+              </mat-form-field>
+            </div>
 
-				<!-- client project -->
-				<div class="w-400 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
-					<!-- content -->
-					<div fxLayout="column" fxLayoutAlign="start center">
-						<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight" [style.color]="project.branding.titleColor">
-							{{ "add_biometrics.project_title" | transloco }} {{ project.name }}
-						</h1>
+            <!-- Company field -->
+            <mat-form-field class="w-full" *ngIf="fields.company">
+              <mat-label [style.color]="project.branding.txtColor">
+                {{ "signup.company" | transloco }}
+              </mat-label>
 
-						<img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
+              <input
+                id="company-confirm"
+                matInput
+                [formControlName]="'company'"
+              />
+            </mat-form-field>
 
-						<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
+            <mat-form-field class="w-full mr-2" *ngIf="fields.role && roles">
+              <mat-label [style.color]="project.branding.txtColor">
+                {{ "signup.role" | transloco }}
+              </mat-label>
 
-						<h2 class="pt-2 credits-h2">
-							{{ "add_biometrics.title" | transloco }}
-						</h2>
+              <mat-select
+                class="mr-1.5"
+                [formControl]="signUpForm.get('role')"
+                matPrefix
+              >
+                <mat-select-trigger>
+                  <span class="flex items-center">
+                    <span class="sm:mx-0.5 font-medium text-default">
+                      {{
+                        "signup.roles." + signUpForm.get("role").value
+                          | transloco
+                      }}
+                    </span>
+                  </span>
+                </mat-select-trigger>
 
-						<h3 class="credits-h3">{{ "add_biometrics.content" | transloco }}</h3>
-					</div>
-					<!-- end of Title -->
+                <ng-container *ngFor="let role of roles">
+                  <mat-option [value]="role.code">
+                    <span class="flex items-center">
+                      <span class="ml-2">{{ role.label | transloco }}</span>
+                    </span>
+                  </mat-option>
+                </ng-container>
+              </mat-select>
+            </mat-form-field>
 
-					<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="showBiometricsLogin()">
-							<span [style.color]="project.branding.txtColor">{{ "add_biometrics.button" | transloco }} </span>
-						</button>
+            <!-- ToS and PP -->
+            <div
+              class="inline-flex items-end w-full mt-6"
+              *ngIf="fields.agreements"
+            >
+              <mat-checkbox
+                class="-ml-2"
+                [color]="'primary'"
+                [formControlName]="'agreements'"
+              >
+                <span [style.color]="project.branding.txtColor">
+                  {{ "signup.agreement1" | transloco }}
+                </span>
 
-						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueRedirection()">
-							<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
-						</button>
-					</div>
-				</div>
-				<!-- END client project -->
-				<div class="w-full text-center mt-6">
-					<languages [colorText]="project.branding.txtColor" *ngIf="project.branding.txtColor"></languages>
-				</div>
-			</div>
-		</div>
+                <a
+                  class="text-primary-500 hover:underline"
+                  [href]="project.termsAndConditionsUrl"
+                  *ngIf="this.onboardingSignUpForm.showTermsAndConditions"
+                >
+                  {{ "signup.terms" | transloco }}
+                </a>
 
-		<div *ngIf="showBiometrics">
-			<app-biometrics-login-ios
-				*ngIf="demoData.OS === 'IOS'"
-				fxLayoutAlign="center center"
-				class="w-full h-full mb-6"
-			></app-biometrics-login-ios>
+                <span
+                  *ngIf="
+                    this.onboardingSignUpForm.showTermsAndConditions &&
+                    onboardingSignUpForm.showPrivacyNotice
+                  "
+                  [style.color]="project.branding.txtColor"
+                >
+                  {{ "signup.and" | transloco }}
+                </span>
 
-			<app-biometrics-login *ngIf="demoData.OS !== 'IOS'" fxLayoutAlign="center center" class="w-full h-full mb-6"></app-biometrics-login>
-		</div>
-	</div>
+                <a
+                  class="text-primary-500 hover:underline"
+                  [href]="project.privacyUrl"
+                  *ngIf="onboardingSignUpForm.showPrivacyNotice"
+                >
+                  {{ "signup.privacyPolicy" | transloco }}
+                </a>
+              </mat-checkbox>
+            </div>
 
-	<div
-		*ngIf="showNoProjectError()"
-		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
-	>
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-			<!-- Logo -->
-			<div class="w-12">
-				<img [src]="project.branding.logo" />
-			</div>
+            <!-- Submit button -->
+            <button
+              (click)="signUp()"
+              [disabled]="isFormDisabled()"
+              [id]="'signUp-' + project._id"
+              [style.background]="
+                isFormDisabled() ? '' : project.branding.buttonColor
+              "
+              [style.color]="
+                isFormDisabled() ? '' : project.branding.buttonTxtColor
+              "
+              class="fuse-mat-button-large w-full mt-8"
+              mat-flat-button
+            >
+              <span *ngIf="!signUpForm.disabled">{{
+                "step_two.continue_button" | transloco
+              }}</span>
 
-			<!-- Title -->
-			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
-				{{ "signup.project_flow_not_set" | transloco }}
-			</div>
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
-			</div>
-		</div>
-	</div>
+              <mat-progress-spinner
+                *ngIf="signUpForm.disabled"
+                [diameter]="24"
+                [mode]="'indeterminate'"
+              ></mat-progress-spinner>
+            </button>
+          </form>
 
-	<div *ngIf="showLocationError()" class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card">
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
-			<!-- Logo -->
-			<div class="w-12">
-				<img [src]="project.branding.logo" />
-			</div>
+          <div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
+            <div class="signup__steps flex">
+              <div
+                class="signup__step"
+                *ngFor="let step of steps"
+                [ngClass]="{ 'signup__step--wide': step === currentStep }"
+                [style.color]="
+                  step === currentStep ? project.branding.titleColor : ''
+                "
+              ></div>
+            </div>
+          </div>
 
-			<!-- Title -->
-			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
-				{{ "errors." + locationError.errorMessage | transloco }}
-			</div>
+          <div
+            class="w-full text-center mt-8 text-secondary"
+            fxLayout="row"
+            fxLayoutAlign="center center"
+          >
+            {{ "powered_by_verifik" | transloco }}
+          </div>
+        </div>
+      </div>
 
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>{{ "errors." + locationError.errorMessage + "_subtitle" | transloco }}</div>
-			</div>
+      <div
+        class="w-full sm:w-auto py-8 lg:px-4 sm:p-12 xs:m-2"
+        *ngIf="showFaceLivenessRecommendation"
+        fxLayout="column"
+        fxLayoutAlign="start center"
+      >
+        <!-- for verifik project -->
+        <div
+          class="w-400 mx-auto sm:mx-0"
+          fxLayout="column"
+          fxLayoutAlign="start center"
+          *ngIf="isVerifikProject"
+        >
+          <!-- content -->
+          <div fxLayout="column" fxLayoutAlign="start center">
+            <img
+              src="https://cdn.verifik.co/access/goldcoins3x.png"
+              alt=""
+              class="w-36"
+            />
 
-			<div *ngIf="locationError.errorMessage === 'geolocation.user_denied_request'" fxLayout="column" fxLayoutAlign="center center">
-				<img src="https://cdn.verifik.co/assets/auth/enable_your_location.png" alt="" />
-				<button
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-					class="fuse-mat-button-large w-full mt-6"
-					mat-flat-button
-					(click)="enabledIt()"
-					[id]="'enable_your_location-' + project._id"
-				>
-					<span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
-				</button>
-			</div>
-		</div>
-	</div>
+            <h2 class="pt-2 credits-h2">
+              {{ "add_biometrics.verifik_title" | transloco }}
+            </h2>
 
-	<div *ngIf="showCountriNotAllowed()" class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card">
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
-			<!-- Logo -->
-			<div class="w-12" fxLayout="column" fxLayoutAlign="center center">
-				<img [src]="project.branding.logo" />
-			</div>
+            <h3 class="credits-h3">
+              {{ "add_biometrics.verifik_content" | transloco }}
+            </h3>
+          </div>
+          <!-- end of content -->
 
-			<!-- Title -->
-			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight text-center">
-				{{ "errors.geolocation.country_not_allowed" | transloco }}
-			</div>
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>{{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}</div>
-			</div>
-		</div>
-	</div>
+          <!-- Title -->
+          <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+            <button
+              mat-stroked-button
+              class="w-11/12 mt-4 biometrics-button"
+              color="primary"
+              (click)="showBiometricsLogin()"
+            >
+              <span [style.color]="project.branding.txtColor"
+                >{{ "add_biometrics.verifik_button" | transloco }}
+              </span>
+            </button>
 
-	<div
-		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
-		fxLayout="row"
-		[style.background]="project.branding.rightBackgroundColor"
-		fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
-		*ngIf="!showBiometrics && project.branding.rightImage"
-	>
-		<img [src]="project.branding.rightImage" alt="" class="hhalf-width-image" />
-	</div>
+            <button
+              mat-stroked-button
+              class="w-11/12 mt-4 biometrics-button"
+              color="primary"
+              (click)="continueRedirection()"
+            >
+              ...
+              <span [style.color]="project.branding.txtColor">
+                {{ "add_biometrics.verifik_dismiss" | transloco }}
+              </span>
+            </button>
+          </div>
+          <!-- end of title -->
+        </div>
+        <!-- end of verifik project -->
+
+        <!-- client project -->
+        <div
+          class="w-400 mx-auto sm:mx-0"
+          fxLayout="column"
+          fxLayoutAlign="start center"
+          *ngIf="!isVerifikProject"
+        >
+          <!-- content -->
+          <div fxLayout="column" fxLayoutAlign="start center">
+            <h1
+              class="mt-4 text-4xl font-extrabold tracking-tight leading-tight"
+              [style.color]="project.branding.titleColor"
+            >
+              {{ "add_biometrics.project_title" | transloco }}
+              {{ project.name }}
+            </h1>
+
+            <img
+              src="https://cdn.verifik.co/access/divider.svg"
+              alt=""
+              class="w-full pb-8 pt-8"
+            />
+
+            <img
+              src="https://cdn.verifik.co/access/biometrics_icon.svg"
+              alt=""
+              class="w-28"
+            />
+
+            <h2 class="pt-2 credits-h2">
+              {{ "add_biometrics.title" | transloco }}
+            </h2>
+
+            <h3 class="credits-h3">
+              {{ "add_biometrics.content" | transloco }}
+            </h3>
+          </div>
+          <!-- end of Title -->
+
+          <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+            <button
+              mat-stroked-button
+              class="w-11/12 mt-4 biometrics-button"
+              color="primary"
+              (click)="showBiometricsLogin()"
+            >
+              <span [style.color]="project.branding.txtColor"
+                >{{ "add_biometrics.button" | transloco }}
+              </span>
+            </button>
+
+            <button
+              mat-stroked-button
+              class="w-11/12 mt-4 biometrics-button"
+              color="primary"
+              (click)="continueRedirection()"
+            >
+              <span [style.color]="project.branding.txtColor">
+                {{ "add_biometrics.dismiss" | transloco }}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- END client project -->
+        <div class="w-full text-center mt-6">
+          <languages
+            [colorText]="project.branding.txtColor"
+            *ngIf="project.branding.txtColor"
+          ></languages>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="showBiometrics">
+      <app-biometrics-login-ios
+        *ngIf="demoData.OS === 'IOS'"
+        fxLayoutAlign="center center"
+        class="w-full h-full mb-6"
+      ></app-biometrics-login-ios>
+
+      <app-biometrics-login
+        *ngIf="demoData.OS !== 'IOS'"
+        fxLayoutAlign="center center"
+        class="w-full h-full mb-6"
+      ></app-biometrics-login>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showNoProjectError()"
+    class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+  >
+    <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+      <!-- Logo -->
+      <div class="w-12">
+        <img [src]="project.branding.logo" />
+      </div>
+
+      <!-- Title -->
+      <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
+        {{ "signup.project_flow_not_set" | transloco }}
+      </div>
+
+      <div class="flex items-baseline mt-0.5 font-medium">
+        <div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showLocationError()"
+    class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card"
+  >
+    <div
+      class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0"
+      fxLayout="column"
+      fxLayoutAlign="start center"
+    >
+      <!-- Logo -->
+      <div class="w-12">
+        <img [src]="project.branding.logo" />
+      </div>
+
+      <!-- Title -->
+      <div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
+        {{ "errors." + locationError.errorMessage | transloco }}
+      </div>
+
+      <div class="flex items-baseline mt-0.5 font-medium">
+        <div>
+          {{ "errors." + locationError.errorMessage + "_subtitle" | transloco }}
+        </div>
+      </div>
+
+      <div
+        *ngIf="locationError.errorMessage === 'geolocation.user_denied_request'"
+        fxLayout="column"
+        fxLayoutAlign="center center"
+      >
+        <img
+          src="https://cdn.verifik.co/assets/auth/enable_your_location.png"
+          alt=""
+        />
+
+        <button
+          [style.background]="project.branding.buttonColor"
+          [style.color]="project.branding.buttonTxtColor"
+          class="fuse-mat-button-large w-full mt-6"
+          mat-flat-button
+          (click)="enabledIt()"
+          [id]="'enable_your_location-' + project._id"
+        >
+          <span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showCountriNotAllowed()"
+    class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card"
+  >
+    <div
+      class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0"
+      fxLayout="column"
+      fxLayoutAlign="start center"
+    >
+      <!-- Logo -->
+      <div class="w-12" fxLayout="column" fxLayoutAlign="center center">
+        <img [src]="project.branding.logo" />
+      </div>
+
+      <!-- Title -->
+      <div
+        class="mt-8 text-3xl font-extrabold tracking-tight leading-tight text-center"
+      >
+        {{ "errors.geolocation.country_not_allowed" | transloco }}
+      </div>
+
+      <div class="flex items-baseline mt-0.5 font-medium">
+        <div>
+          {{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    [style.background]="'center / cover no-repeat url(' + project.branding.rightImage + ')'"
+    *ngIf="!showBiometrics && project.branding.rightImage"
+    class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
+    fxLayout="row"
+    fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
+  ></div>
 </div>

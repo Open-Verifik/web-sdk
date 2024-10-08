@@ -1,3 +1,5 @@
+import moment from "moment";
+
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID, Inject } from "@angular/core";
 import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
@@ -14,7 +16,7 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-scr
 
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
-import { PasswordlessService } from "../passwordless.service";
+import { PasswordlessService } from "../passwordless.service";	
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 import { Subject } from "rxjs";
 import { environment } from "environments/environment";
@@ -22,7 +24,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import moment from "moment";
+import { FuseLoadingBarComponent } from "@fuse/components/loading-bar";
 
 declare var dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 
@@ -34,6 +36,7 @@ declare var dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [
+		FuseLoadingBarComponent,
 		FlexLayoutModule,
 		RouterLink,
 		NgIf,
@@ -89,9 +92,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	deviceDetails: any;
 	location: any;
 	locationError: any;
-	currentPage: number;
-	totalPages: number;
-	pages: Array<number>;
+	currentStep: number;
+	steps: Array<number>;
 
 	/**
 	 * Constructor
@@ -107,15 +109,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _changeDetectorRef: ChangeDetectorRef,
 		@Inject(PLATFORM_ID) private platformId: Object
 	) {
+		this._splashScreenService.show();
+
 		this.setLanguage();
 
 		this.countries = this._countries.countryCodes;
-		this.currentPage = 1;
+		this.currentStep = 1;
 		this.location = null;
 		this.locationError = null;
-		this.pages = [1, 2, 3];
+		this.steps = [1, 2, 3];
 		this.project = null;
-		this.totalPages = 3;
 
 		this.roles = [
 			{
@@ -147,8 +150,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				code: "ciso",
 			},
 		];
-
-		this._splashScreenService.show();
 
 		this.demoData = this._demoService.getDemoData();
 
@@ -435,7 +436,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			.subscribe({
 				next: (v) => {
 					appRegistration = v?.data?.appRegistration;
-
 					appRegistration.token = v?.data?.token;
 				},
 				error: (exception) => {
@@ -474,6 +474,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		localStorage.setItem("signUpData", JSON.stringify({}));
 		this._unsubscribeAll.next(null);
 	}
 
