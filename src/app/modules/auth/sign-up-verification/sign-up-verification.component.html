@@ -1,0 +1,299 @@
+<div *ngIf="!loading && project && appRegistration && currentValidation">
+  <div *ngIf="currentValidation.email">
+    <h5 class="text-3xl mt-2" [style.color]="project.branding.titleColor">
+      {{ "signup.verify_email_title" | transloco }}
+    </h5>
+
+    <div class="flex items-baseline mt-2">
+      <div>{{ "signup.verify_email_description" | transloco }}</div>
+    </div>
+
+    <mat-chip
+      (click)="setUpdate()"
+      [style.backgroundColor]="project.branding.bgColor"
+      class="mt-6 verify__chip"
+    >
+      <div fxLayout="row" fxLayoutAlign="center space-between">
+        <mat-icon
+          class="mr-2 verify__icon verify__icon--color-white"
+          [style.backgroundColor]="project.branding.titleColor"
+          matLeadingIcon
+          >email</mat-icon
+        >
+
+        <span class="mr-2" [style.color]="project.branding.titleColor">{{
+          appRegistration.email
+        }}</span>
+
+        <mat-icon
+          class="verify__icon"
+          [style.color]="project.branding.titleColor"
+          matTrailingIcon
+          >edit</mat-icon
+        >
+      </div>
+    </mat-chip>
+  </div>
+
+  <div *ngIf="currentValidation.phone">
+    <h5 class="text-3xl mt-2" [style.color]="project.branding.titleColor">
+      {{ "signup.verify_phone_title" | transloco }}
+    </h5>
+
+    <div class="flex items-baseline mt-2">
+      <div>{{ "signup.verify_phone_description" | transloco }}</div>
+    </div>
+
+    <mat-chip
+      (click)="setUpdate()"
+      [style.backgroundColor]="project.branding.bgColor"
+      class="mt-6 verify__chip"
+    >
+      <div fxLayout="row" fxLayoutAlign="center space-between">
+        <mat-icon
+          [style.backgroundColor]="project.branding.titleColor"
+          class="mr-2 verify__icon verify__icon--color-white"
+          matLeadingIcon
+          >phone</mat-icon
+        >
+
+        <span class="mr-2" [style.color]="project.branding.titleColor"
+          >{{ appRegistration.countryCode }} {{ appRegistration.phone }}</span
+        >
+
+        <mat-icon
+          [style.color]="project.branding.titleColor"
+          class="verify__icon"
+          matTrailingIcon
+          >edit</mat-icon
+        >
+      </div>
+    </mat-chip>
+  </div>
+
+  <form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm" *ngIf="!update">
+    <mat-form-field
+      class="w-full"
+      *ngIf="
+        currentValidation.email ||
+        (currentValidation.phone && selectedPhoneGateway !== 'both')
+      "
+    >
+      <mat-label
+        [style.color]="project.branding.txtColor"
+        *ngIf="currentValidation.email"
+        >{{ "signup.verification_input_label_email" | transloco }}</mat-label
+      >
+      <mat-label
+        [style.color]="project.branding.txtColor"
+        *ngIf="currentValidation.phone && selectedPhoneGateway === 'sms'"
+        >{{ "signup.verification_input_label_sms" | transloco }}</mat-label
+      >
+      <mat-label
+        [style.color]="project.branding.txtColor"
+        *ngIf="currentValidation.phone && selectedPhoneGateway === 'whatsapp'"
+        >{{ "signup.verification_input_label_whatsapp" | transloco }}</mat-label
+      >
+
+      <input
+        (input)="onInput($event)"
+        (keyup)="checkSixDigits()"
+        [formControlName]="'otp'"
+        #passwordField
+        id="otp"
+        matInput
+        type="password"
+      />
+
+      <button
+        mat-icon-button
+        type="button"
+        (click)="
+          passwordField.type === 'password'
+            ? (passwordField.type = 'text')
+            : (passwordField.type = 'password')
+        "
+        matSuffix
+      >
+        <mat-icon
+          class="icon-size-5"
+          [svgIcon]="
+            passwordField.type === 'text'
+              ? 'heroicons_solid:eye-slash'
+              : 'heroicons_solid:eye'
+          "
+        ></mat-icon>
+      </button>
+
+      <mat-error *ngIf="otpForm.get('otp').hasError('required')" class="p-1">
+        {{ "login.required_otp" | transloco }}
+      </mat-error>
+    </mat-form-field>
+
+    <div
+      class="grid grid-cols-2 w-full"
+      *ngIf="
+        !loading && currentValidation.phone && selectedPhoneGateway === 'both'
+      "
+    >
+      <button
+        (click)="sendPhoneOTP($event, 'sms')"
+        [class.col-span-2]="selectedPhoneGateway !== 'both'"
+        [disabled]="!canSendOTP()"
+        [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
+        [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
+        *ngIf="
+          selectedPhoneGateway === 'sms' || selectedPhoneGateway === 'both'
+        "
+        class="fuse-mat-button-large mr-2"
+        mat-flat-button
+      >
+        <span>SMS</span>
+      </button>
+
+      <button
+        (click)="sendPhoneOTP($event, 'whatsapp')"
+        [class.col-span-2]="selectedPhoneGateway !== 'both'"
+        [disabled]="!canSendOTP()"
+        [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
+        [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
+        *ngIf="
+          selectedPhoneGateway === 'whatsapp' || selectedPhoneGateway === 'both'
+        "
+        class="fuse-mat-button-large"
+        mat-flat-button
+      >
+        <span>Whatsapp</span>
+      </button>
+    </div>
+
+    <div
+      class="mt-8"
+      *ngIf="
+        !canResendOTP() &&
+        (remainingTime && remainingTime !== 'Expired')
+      "
+      fxLayout="row"
+      fxLayoutAlign="center"
+    >
+      <mat-icon class="mr-2">refresh</mat-icon>
+      {{ "confirmation.remaining_time" | transloco }} {{ remainingTime }}
+    </div>
+
+    <button
+      (click)="resendVerification()"
+      [disabled]="!canResendOTP()"
+      [style.background]="canResendOTP() ? project.branding.buttonColor : ''"
+      [style.color]="canResendOTP() ? project.branding.buttonTxtColor : ''"
+      *ngIf="canResendOTP()"
+      class="fuse-mat-button-large"
+      mat-flat-button
+    >
+      <mat-icon matLeadingIcon class="mr-2">refresh</mat-icon>
+      <span> {{ "signup.resend" | transloco }} </span>
+    </button>
+  </form>
+
+  <form
+    class="mt-8"
+    [formGroup]="emailForm"
+    #emailNgForm="ngForm"
+    *ngIf="currentValidation?.email && update"
+  >
+    <mat-form-field class="w-full">
+      <mat-label [style.color]="project.branding.txtColor">
+        {{ "login.email" | transloco }}
+      </mat-label>
+
+      <input
+        (input)="removeSpacesFromEmail()"
+        formControlName="email"
+        id="email"
+        matInput
+      />
+
+      <mat-error *ngIf="emailForm.get('email').hasError('required')">
+        {{ "login.email" | transloco }}
+        {{ "signup.is_required" | transloco }}
+      </mat-error>
+
+      <mat-error *ngIf="emailForm.get('email').hasError('email')">
+        {{ "signup.please_enter_a_valid" | transloco }}
+        {{ "login.email" | transloco }}
+      </mat-error>
+    </mat-form-field>
+
+    <button
+      (click)="updateEmail($event)"
+      [disabled]="!canUpdateEmail()"
+      [style.background]="canUpdateEmail() ? project.branding.buttonColor : ''"
+      [style.color]="canUpdateEmail() ? project.branding.buttonTxtColor : ''"
+      class="fuse-mat-button-large w-full mt-6"
+      mat-flat-button
+    >
+      <span> {{ "signup.change_your_phone_button" | transloco }} </span>
+    </button>
+  </form>
+
+  <form
+    class="mt-8"
+    [formGroup]="phoneForm"
+    #phoneNgForm="ngForm"
+    *ngIf="currentValidation?.phone && update"
+  >
+    <mat-form-field class="w-full">
+      <mat-label [style.color]="project.branding.txtColor">
+        {{ "login.phone" | transloco }}
+      </mat-label>
+
+      <input
+        (input)="removeSpacesFromPhone()"
+        formControlName="phone"
+        id="phone"
+        matInput
+      />
+
+      <mat-select
+        *ngIf="countries"
+        [formControl]="phoneForm.get('countryCode')"
+        matPrefix
+      >
+        <mat-select-trigger>
+          <span class="flex items-center">
+            <span class="sm:mx-0.5 font-medium text-default">
+              {{ phoneForm.get("countryCode").value }}
+            </span>
+          </span>
+        </mat-select-trigger>
+
+        <mat-option *ngFor="let country of countries" [value]="country.code">
+          <span class="flex items-center">
+            <span class="ml-2">{{ country.name }}</span>
+            <span class="ml-2 font-medium">{{ country.code }}</span>
+          </span>
+        </mat-option>
+      </mat-select>
+
+      <mat-error *ngIf="phoneForm.get('phone').hasError('required')">
+        {{ "login.phone" | transloco }}
+        {{ "signup.is_required" | transloco }}
+      </mat-error>
+
+      <mat-error *ngIf="phoneForm.get('phone').hasError('phone')">
+        {{ "signup.please_enter_a_valid" | transloco }}
+        {{ "login.phone" | transloco }}
+      </mat-error>
+    </mat-form-field>
+
+    <button
+      (click)="updatePhone($event)"
+      [disabled]="!canUpdatePhone()"
+      [style.background]="canUpdatePhone() ? project.branding.buttonColor : ''"
+      [style.color]="canUpdatePhone() ? project.branding.buttonTxtColor : ''"
+      class="fuse-mat-button-large w-full mt-6"
+      mat-flat-button
+    >
+      <span> {{ "signup.change_your_phone_button" | transloco }} </span>
+    </button>
+  </form>
+</div>

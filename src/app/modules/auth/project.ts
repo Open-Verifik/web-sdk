@@ -104,6 +104,8 @@ export interface Project {
 	branding?: {
 		bgColor?: string;
 		borderColor?: string;
+		buttonColor?: string;
+		buttonTxtColor?: string;
 		txtColor?: string;
 		titleColor?: string;
 		logo?: string;
@@ -509,6 +511,7 @@ export interface AppRegistration {
 	cryptoValidation: any;
 	formSubmittion: any;
 	signature: any;
+	token?: string;
 }
 
 export interface InformationValidation {
