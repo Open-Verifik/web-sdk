@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "Huling Pangalan [1] (MRZ)",
 		"firstNameMRZ": "Unang Pangalan (MRZ)",
 		"locationCode": "Kodigo ng Lokasyon",
-		"DNIPhoto": "DNI sa Larawan"
+		"DNIPhoto": "DNI sa Larawan",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "Edad",
+		"emissionDate": "Petsa ng Paglabas"
 	},
 	"id_scanning": {
 		"camera_not_found": "Walang nakitang kamera sa device o pansamantalang hindi pinagana.",

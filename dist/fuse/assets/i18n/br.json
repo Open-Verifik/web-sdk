@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "Sobrenome [1] (MRZ)",
 		"firstNameMRZ": "Primeiro nome (MRZ)",
 		"locationCode": "Código de localização",
-		"DNIPhoto": "DNI na foto"
+		"DNIPhoto": "DNI na foto",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "Idade",
+		"emissionDate": "Data de emissão"
 	},
 	"id_scanning": {
 		"camera_not_found": "Nenhuma câmera foi encontrada no dispositivo ou está momentaneamente desativada.",

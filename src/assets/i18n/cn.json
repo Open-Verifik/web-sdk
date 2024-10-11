@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "姓氏 [1]（MRZ）",
 		"firstNameMRZ": "名字（MRZ）",
 		"locationCode": "位置代码",
-		"DNIPhoto": "照片上的DNI"
+		"DNIPhoto": "照片上的DNI",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "年龄",
+		"emissionDate": "签发日期"
 	},
 	"id_scanning": {
 		"camera_not_found": "未在设备上找到相机，或相机暂时被禁用。",

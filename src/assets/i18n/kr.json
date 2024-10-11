@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "성 [1] (MRZ)",
 		"firstNameMRZ": "이름 (MRZ)",
 		"locationCode": "위치 코드",
-		"DNIPhoto": "사진의 DNI"
+		"DNIPhoto": "사진의 DNI",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "나이",
+		"emissionDate": "발급일"
 	},
 	"id_scanning": {
 		"camera_not_found": "장치에 카메라가 없거나 일시적으로 비활성화되었습니다.",

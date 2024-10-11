@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "Фамилия [1] (MRZ)",
 		"firstNameMRZ": "Имя (MRZ)",
 		"locationCode": "Код местоположения",
-		"DNIPhoto": "DNI на фото"
+		"DNIPhoto": "DNI на фото",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "Возраст",
+		"emissionDate": "Дата выдачи"
 	},
 	"id_scanning": {
 		"camera_not_found": "Камера не найдена на устройстве или временно отключена.",

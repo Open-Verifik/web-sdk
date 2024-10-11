@@ -464,14 +464,14 @@ export class KycLivenessIosComponent implements OnInit, OnDestroy {
 		if (!isOk) {
 			if (this.errorFace.canvas?.includes("↑")) {
 				const startX = center.x - 20;
-				const startY = center.y - radius.y + 10;
-				ctx.drawImage(this.direction.up, startX, startY, 40, 40);
+				const startY = center.y + radius.y - 50;
+				ctx.drawImage(this.direction.down, startX, startY, 40, 40);
 			}
 
 			if (this.errorFace.canvas?.includes("↓")) {
 				const startX = center.x - 20;
-				const startY = center.y + radius.y - 50;
-				ctx.drawImage(this.direction.down, startX, startY, 40, 40);
+				const startY = center.y - radius.y + 10;
+				ctx.drawImage(this.direction.up, startX, startY, 40, 40);
 			}
 
 			if (this.errorFace.canvas?.includes("→")) {

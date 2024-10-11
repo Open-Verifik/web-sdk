@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "उपनाम [1] (MRZ)",
 		"firstNameMRZ": "पहला नाम (MRZ)",
 		"locationCode": "स्थान कोड",
-		"DNIPhoto": "फोटो पर DNI"
+		"DNIPhoto": "फोटो पर DNI",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "आयु",
+		"emissionDate": "जारी करने की तिथि"
 	},
 	"id_scanning": {
 		"camera_not_found": "उपकरण पर कैमरा नहीं मिला है या अस्थायी रूप से अक्षम है।",

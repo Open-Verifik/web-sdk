@@ -456,14 +456,14 @@ export class KycLivenessComponent implements OnInit, OnDestroy {
 		if (!isOk) {
 			if (this.errorFace.canvas?.includes("↑")) {
 				const startX = this.videoCenterX - 20;
-				const startY = this.videoCenterY - this.OVAL.radiusY + 10;
-				ctx.drawImage(this.up, startX, startY, 40, 40);
+				const startY = this.videoCenterY + this.OVAL.radiusY - 50;
+				ctx.drawImage(this.down, startX, startY, 40, 40);
 			}
 
 			if (this.errorFace.canvas?.includes("↓")) {
 				const startX = this.videoCenterX - 20;
-				const startY = this.videoCenterY + this.OVAL.radiusY - 50;
-				ctx.drawImage(this.down, startX, startY, 40, 40);
+				const startY = this.videoCenterY - this.OVAL.radiusY + 10;
+				ctx.drawImage(this.up, startX, startY, 40, 40);
 			}
 
 			if (this.errorFace.canvas?.includes("→")) {

@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "Cognome [1] (MRZ)",
 		"firstNameMRZ": "Nome (MRZ)",
 		"locationCode": "Codice di localizzazione",
-		"DNIPhoto": "DNI sulla foto"
+		"DNIPhoto": "DNI sulla foto",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "Età",
+		"emissionDate": "Data di emissione"
 	},
 	"id_scanning": {
 		"camera_not_found": "Fotocamera non trovata sul dispositivo o momentaneamente disabilitata.",

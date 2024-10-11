@@ -95,7 +95,11 @@
 		"firstLastNameMRZ": "Apellido [1] (MRZ)",
 		"firstNameMRZ": "Primer nombre (MRZ)",
 		"locationCode": "Código de ubicación",
-		"DNIPhoto": "DNI en la foto"
+		"DNIPhoto": "DNI en la foto",
+		"RUT": "RUT",
+		"RUN": "RUN",
+		"age": "Edad",
+		"emissionDate": "Fecha de emisión"
 	},
 	"id_scanning": {
 		"face_not_found": "Rostro no encontrado",
