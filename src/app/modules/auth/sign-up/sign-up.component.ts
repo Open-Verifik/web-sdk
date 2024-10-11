@@ -345,7 +345,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		}
 
 		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.email) {
-			this.fields["email"] = [demoData.email, [Validators.email, Validators.required]];
+			const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+			this.fields["email"] = [demoData.email, [Validators.email, Validators.required, Validators.pattern(emailPattern)]];
 		}
 
 		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
