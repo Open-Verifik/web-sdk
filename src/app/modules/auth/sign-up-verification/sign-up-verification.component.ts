@@ -59,7 +59,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     @Input("project") project: Project;
     @Input("projectFlow") projectFlow: ProjectFlow;
 
-	accessId: string;
 	countries: Array<any>;
 	currentValidation: any;
 	deviceDetails: any;
@@ -94,8 +93,9 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	ngOnInit(): void {
+		this.loading = true;
+
 		this._activatedRoute.queryParams.subscribe((params) => {
-			this.accessId = params?.accessId;
 			this.token = params?.token;
 
 			this._initValidations();
@@ -132,10 +132,14 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			error: () => {
 				this.otpForm.reset();
 				this.loading = false;
+				this.sendingOTP = false;
+				this.update = false;
 			},
 			complete: () => {
 				this.otpForm.reset();
 				this.loading = false;
+				this.sendingOTP = false;
+				this.update = false;
 
 				this._initValidations();
 			},
@@ -150,10 +154,14 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			error: () => {
 				this.otpForm.reset();
 				this.loading = false;
+				this.sendingOTP = false;
+				this.update = false;
 			},
 			complete: () => {
 				this.otpForm.reset();
 				this.loading = false;
+				this.sendingOTP = false;
+				this.update = false;
 
 				this._initValidations();
 			},
@@ -161,28 +169,32 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	private _completeAppRegistration(): void {
-		if (this.projectFlow.onboardingSettings.signUpForm.emailGateway === "mailgun" && this.appRegistration.emailValidation?.status !== "validated") {
-			return;
-		}
+		const { emailGateway, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
+		const emailStatus = this.appRegistration.emailValidation?.status;
+		const phoneStatus = this.appRegistration.phoneValidation?.status;
 
-		if (
-			["whatsapp", "sms", "both"].includes(this.projectFlow.onboardingSettings.signUpForm.phoneGateway) &&
-			this.appRegistration.phoneValidation?.status !== "validated"
-		) {
-			return;
-		}
-
-		if (this.loading) return;
+		if (emailGateway === "mailgun" && (!emailStatus || emailStatus !== "validated")) return;
+		if (["whatsapp", "sms", "both"].includes(phoneGateway) && (!phoneStatus || phoneStatus !== "validated")) return;
 
 		this._syncAppRegistration("signUpForm", "ONGOING", "redirect");
 	}
 
 	private _initEmailValidation(): void {
+		if (this.sendingOTP) return;
+
 		if (this.projectFlow.onboardingSettings.signUpForm.emailGateway !== "mailgun") return;
 		if (this.appRegistration.emailValidation?.status === "validated") return;
-		if (this.loading) return;
 
-		this.loading = true;
+		if (this.selectedPhoneGateway === 'both') {
+			this.currentValidation = {
+				_id: "new",
+				email: this.appRegistration.email,
+		  };
+
+		  this.update = false;
+		}
+
+		this.sendingOTP = true;
 
 		this._KYCService.sendEmailValidation(this.appRegistration.email).subscribe({
 			next: (response) => {
@@ -193,11 +205,17 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				this._startCountdown();
 
 				this.loading = false;
+				this.sendingOTP = false;
 			},
 			error: (exception) => {
 				this.errorContent = exception.error;
+				this.loading = false;
+				this.sendingOTP = false;
 			},
-			complete: () => {},
+			complete: () => {
+				this.loading = false;
+				this.sendingOTP = false;
+			},
 		});
 	}
 
@@ -226,50 +244,48 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	 * init phone validation
 	 */
 	private _initPhoneValidation(phoneGateway?: string): boolean {
+		if (this.sendingOTP) return;
+
 		this.selectedPhoneGateway = phoneGateway || this.selectedPhoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway;
 
-		if (this.appRegistration.countryCode === "-1") this.phoneGateway = "both";
+		if (this.appRegistration.phoneValidation?.status === "validated") return;
+		if (this.appRegistration.countryCode === "-1") this.selectedPhoneGateway = "both";
 
-		if (this.selectedPhoneGateway === "both" && !this.currentValidation) {
-			this.currentValidation = !this.appRegistration.phoneValidation
-				? {
-						_id: "new",
-						countryCode: this.appRegistration.countryCode,
-						phone: this.appRegistration.phone,
-				  }
-				: this.appRegistration.phoneValidation?.status !== "validated"
-				? this.appRegistration.phoneValidation
-				: null;
+		this.currentValidation = {
+			_id: "new",
+			countryCode: this.appRegistration.countryCode,
+			phone: this.appRegistration.phone,
+		};
 
-			if (this.remainingTime) {
-				this.remainingTime = '';
-				this.countdownSubscription.unsubscribe();
-			}
+		if (this.selectedPhoneGateway === 'both') {
+		  this.loading = false;
+		  this.sendingOTP = false;
+		  this.update = false;
+
+		  return;
 		}
 
-		if (!["whatsapp", "sms"].includes(this.selectedPhoneGateway)) return;
-
-		if (this.appRegistration.phoneValidation?.status === "validated") return;
-		if (this.loading) return;
-
-		this.loading = true;
+		this.sendingOTP = true;
 
 		this._KYCService.sendPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone, this.selectedPhoneGateway).subscribe({
 			next: (response) => {
 				this.currentValidation = response.data;
 
+				this._initForms();
 				this._linkValidation();
 				this._startCountdown();
 
 				this.loading = false;
+				this.sendingOTP = false;
 			},
 			error: (exception) => {
 				this.errorContent = exception.error;
-
 				this.loading = false;
+				this.sendingOTP = false;
 			},
 			complete: () => {
 				this.loading = false;
+				this.sendingOTP = false;
 			},
 		});
 
@@ -277,11 +293,15 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	private _initValidations(): void {
+		this.currentValidation = null;
+		this.countdownSubscription?.unsubscribe();
+		this.remainingTime = '';
+		this.update = false;
+
 		this._initEmailValidation();
 		this._initPhoneValidation();
 
 		this._completeAppRegistration();
-		this._changeDetectorRef.detectChanges();
 	}
 
 	private _linkValidation(): void {
@@ -326,11 +346,17 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 					}
 
 					window.location.href = `${redirectUrl}?type=onboarding&token=${this.syncResponse.token}`;
+
+					return;
 				}
 
-				if (step === "instructions" && action === "redirect") {
-					this._router.navigate(["/kyc"], { queryParams: { token: this.syncResponse.token } });
-				}
+				this._router.navigate(
+					['/sign-up', this.project._id],
+					{
+						queryParams: { token: this.syncResponse.token, step: 'document' },
+						queryParamsHandling: 'merge',
+					}
+				);
 			},
 		});
 
@@ -340,7 +366,13 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	private _startCountdown() {
 		this.countdownSubscription?.unsubscribe();
 
-		const expiresAt = new Date(moment().add(2, "minute").format("YYYY-MM-DD HH:mm:ss")).getTime();
+		const expiresAt = new Date(moment().add(10, "seconds").format("YYYY-MM-DD HH:mm:ss")).getTime();
+
+		const now = new Date().getTime();
+		const distance = expiresAt - now;
+		const seconds = Math.floor((distance / 1000));
+
+		this.remainingTime = `${seconds}s`;
 
 		this.countdownSubscription = interval(1000).subscribe(() => {
 			const now = new Date().getTime();
@@ -359,20 +391,22 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		});
 	}
 
+	canChooseAnotherOTPMethod(): Boolean {
+		return !this.update && !this.loading && !this.sendingOTP && this.currentValidation?.phone &&
+			this.projectFlow.onboardingSettings.signUpForm.phoneGateway === 'both' &&
+			this.selectedPhoneGateway !== 'both';
+	}
+
 	canSendOTP(): Boolean {
-		return Boolean(!this.sendingOTP && !this.loading);
+		return !this.sendingOTP && !this.loading && !this.update;
 	}
 
 	canResendOTP(): Boolean {
-		return this.canSendOTP() && this.remainingTime === 'Expired';
+		return this.remainingTime === 'Expired' && (this.currentValidation.email || this.selectedPhoneGateway !== "both");
 	}
 
-	canUpdateEmail(): Boolean {
+	canUpdateEmailOrPhone(): Boolean {
 		return this.update && !this.loading && !this.emailForm.invalid;
-	}
-
-	canUpdatePhone(): Boolean {
-		return this.update && !this.loading && !this.phoneForm.invalid;
 	}
 
 	checkSixDigits(): void {
@@ -383,10 +417,14 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		this.confirmValidation();
 	}
 
-	confirmValidation(): void {
-		if (this.loading) return;
+	chooseAnotherOTPMethod(): void {
+		this.countdownSubscription?.unsubscribe();
+		this.remainingTime = '';
+		this.selectedPhoneGateway = 'both';
+	}
 
-		this.loading = Boolean(this.currentValidation.email || (this.currentValidation.phone && this.selectedPhoneGateway !== "both"));
+	confirmValidation(): void {
+		if (this.sendingOTP || this.loading) return;
 
 		if (this.currentValidation.email) {
 			this._confirmEmailValidation();
@@ -427,6 +465,14 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		this.update = !this.update;
 	}
 
+	showResendElements(): boolean {
+		return !this.update && !this.sendingOTP && !this.loading;
+	}
+
+	showCountdown(): Boolean {
+		return !this.canResendOTP() && !!this.remainingTime;
+	}
+
 	updateEmail(): void {
 		this._KYCService
 			.updateAppRegistration({
@@ -435,6 +481,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				replaceEmail: true,
 			})
 			.subscribe((response) => {
+				this.update = false;
 				this.appRegistration.email = response.data.email;
 				this.currentValidation.email = response.data.email;
 
@@ -452,6 +499,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				replacePhone: true,
 			})
 			.subscribe((response) => {
+				this.update = false;
 				this.appRegistration.countryCode = response.data.countryCode;
 				this.appRegistration.phone = response.data.phone;
 

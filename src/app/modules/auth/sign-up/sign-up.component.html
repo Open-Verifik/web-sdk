@@ -78,6 +78,13 @@
             *ngIf="currentStep === 'verify'"
           ></auth-sign-up-verification>
 
+          <auth-sign-up-document
+            [project]="project"
+            [projectFlow]="projectFlow"
+            [appRegistration]="appRegistration"
+            *ngIf="currentStep === 'document'"
+          ></auth-sign-up-document>
+
           <div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
             <div class="signup__steps flex">
               <div

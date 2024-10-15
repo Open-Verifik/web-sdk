@@ -67,7 +67,6 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		message: "",
 	};
 
-	accessId: string;
 	appRegistration: AppRegistration;
 	countries: Array<any>;
 	demoData: any;
@@ -340,7 +339,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
                     this._router.navigate(
                         ['/sign-up', this.project._id],
                         {
-                            queryParams: { token: this.appRegistration.token, accessId: this.appRegistration._id },
+                            queryParams: { token: this.appRegistration.token, step: 'verify' },
                             queryParamsHandling: 'merge',
                         }
                     );

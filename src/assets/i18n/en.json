@@ -260,6 +260,7 @@
 		"project_flow_not_set": "The project is not set yet",
 		"project_flow_not_set_description": "If you are the administrator, complete the steps in app.verifik.co",
 		"resend": "Resend",
+		"choose_another": "Choose another verification method",
 		"verify_code_sent": "Enter the verification code sent by {{method}} to {{destination}}",
 		"verify_email_title": "Verify your email",
 		"verify_email_description": "Enter the 6-digit email verification code that was sent to the following address:",

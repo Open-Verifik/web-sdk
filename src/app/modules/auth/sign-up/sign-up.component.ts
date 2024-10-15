@@ -63,7 +63,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		message: "",
 	};
 
-	accessId: string;
 	appRegistration: AppRegistration;
 	currentStep: string = 'create';
 	currentStepIndex: number = 0;
@@ -132,11 +131,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this._activatedRoute.queryParams.subscribe((params) => {
 			this._setToken(params?.token);
-			this.accessId = params?.accessId;
+			const nextStep = params?.step;
 
 			if (!params?.token) return this._setStep('create');
 
-			this._requestAppRegistration();
+			this._requestAppRegistration(nextStep);
 		});
 
 		this._demoService.geoLocation$.subscribe({
@@ -183,10 +182,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._splashScreenService.hide();
 		this._changeDetectorRef.markForCheck();
 
-		if (this.token) this._requestAppRegistration();
+		if (this.token) this._requestAppRegistration('verify');
 	}
 
-	private _requestAppRegistration(): void {
+	private _requestAppRegistration(nextStep: string): void {
 		if (!this.token) return;
 
 		this._KYCService
@@ -195,7 +194,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			})
 			.subscribe({
 				next: (response) => {
-					this._setStep('verify');
+					this._setStep(nextStep);
 					this.appRegistration = response.data;
 				},
 				error: (error) => {

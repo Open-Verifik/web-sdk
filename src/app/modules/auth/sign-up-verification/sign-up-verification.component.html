@@ -1,5 +1,5 @@
-<div *ngIf="!loading && project && appRegistration && currentValidation">
-  <div *ngIf="currentValidation.email">
+<div *ngIf="project && appRegistration">
+  <div *ngIf="currentValidation?.email">
     <h5 class="text-3xl mt-2" [style.color]="project.branding.titleColor">
       {{ "signup.verify_email_title" | transloco }}
     </h5>
@@ -10,6 +10,7 @@
 
     <mat-chip
       (click)="setUpdate()"
+      [disabled]="loading"
       [style.backgroundColor]="project.branding.bgColor"
       class="mt-6 verify__chip"
     >
@@ -35,7 +36,7 @@
     </mat-chip>
   </div>
 
-  <div *ngIf="currentValidation.phone">
+  <div *ngIf="currentValidation?.phone">
     <h5 class="text-3xl mt-2" [style.color]="project.branding.titleColor">
       {{ "signup.verify_phone_title" | transloco }}
     </h5>
@@ -46,6 +47,7 @@
 
     <mat-chip
       (click)="setUpdate()"
+      [disabled]="loading"
       [style.backgroundColor]="project.branding.bgColor"
       class="mt-6 verify__chip"
     >
@@ -71,12 +73,30 @@
     </mat-chip>
   </div>
 
-  <form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm" *ngIf="!update">
+  <div
+    class="h-24"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    *ngIf="sendingOTP || loading"
+  >
+    <mat-progress-spinner
+      diameter="24"
+      progressMode="indeterminate"
+    ></mat-progress-spinner>
+  </div>
+
+  <form
+    class="mt-8"
+    [formGroup]="otpForm"
+    #otpNgForm="ngForm"
+    *ngIf="!update && currentValidation"
+  >
     <mat-form-field
       class="w-full"
       *ngIf="
-        currentValidation.email ||
-        (currentValidation.phone && selectedPhoneGateway !== 'both')
+        !sendingOTP &&
+        (currentValidation?.email ||
+          (currentValidation?.phone && selectedPhoneGateway !== 'both'))
       "
     >
       <mat-label
@@ -132,19 +152,13 @@
 
     <div
       class="grid grid-cols-2 w-full"
-      *ngIf="
-        !loading && currentValidation.phone && selectedPhoneGateway === 'both'
-      "
+      *ngIf="currentValidation?.phone && selectedPhoneGateway === 'both'"
     >
       <button
         (click)="sendPhoneOTP($event, 'sms')"
-        [class.col-span-2]="selectedPhoneGateway !== 'both'"
         [disabled]="!canSendOTP()"
         [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
         [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
-        *ngIf="
-          selectedPhoneGateway === 'sms' || selectedPhoneGateway === 'both'
-        "
         class="fuse-mat-button-large mr-2"
         mat-flat-button
       >
@@ -153,26 +167,21 @@
 
       <button
         (click)="sendPhoneOTP($event, 'whatsapp')"
-        [class.col-span-2]="selectedPhoneGateway !== 'both'"
         [disabled]="!canSendOTP()"
         [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
         [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
-        *ngIf="
-          selectedPhoneGateway === 'whatsapp' || selectedPhoneGateway === 'both'
-        "
         class="fuse-mat-button-large"
         mat-flat-button
       >
         <span>Whatsapp</span>
       </button>
     </div>
+  </form>
 
+  <div *ngIf="showResendElements()">
     <div
-      class="mt-8"
-      *ngIf="
-        !canResendOTP() &&
-        (remainingTime && remainingTime !== 'Expired')
-      "
+      *ngIf="showCountdown()"
+      class="mt-8 h-8"
       fxLayout="row"
       fxLayoutAlign="center"
     >
@@ -181,18 +190,35 @@
     </div>
 
     <button
-      (click)="resendVerification()"
-      [disabled]="!canResendOTP()"
+      (click)="resendOTP()"
       [style.background]="canResendOTP() ? project.branding.buttonColor : ''"
       [style.color]="canResendOTP() ? project.branding.buttonTxtColor : ''"
       *ngIf="canResendOTP()"
-      class="fuse-mat-button-large"
+      class="fuse-mat-button-large w-full mt-6"
       mat-flat-button
     >
-      <mat-icon matLeadingIcon class="mr-2">refresh</mat-icon>
+      <mat-icon matLeadingIcon class="mr-2" *ngIf="!sendingOTP">refresh</mat-icon>
+
+      <mat-progress-spinner
+        *ngIf="sendingOTP"
+        [diameter]="24"
+        [mode]="'indeterminate'"
+      ></mat-progress-spinner>
+
       <span> {{ "signup.resend" | transloco }} </span>
     </button>
-  </form>
+  </div>
+
+  <button
+    (click)="chooseAnotherOTPMethod()"
+    [style.background]="project.branding.buttonColor"
+    [style.color]="project.branding.buttonTxtColor"
+    *ngIf="canChooseAnotherOTPMethod()"
+    class="fuse-mat-button-large w-full mt-3"
+    mat-flat-button
+  >
+    <span> {{ "signup.choose_another" | transloco }} </span>
+  </button>
 
   <form
     class="mt-8"
@@ -225,9 +251,9 @@
 
     <button
       (click)="updateEmail($event)"
-      [disabled]="!canUpdateEmail()"
-      [style.background]="canUpdateEmail() ? project.branding.buttonColor : ''"
-      [style.color]="canUpdateEmail() ? project.branding.buttonTxtColor : ''"
+      [disabled]="!canUpdateEmailOrPhone()"
+      [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
+      [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
       class="fuse-mat-button-large w-full mt-6"
       mat-flat-button
     >
@@ -287,9 +313,9 @@
 
     <button
       (click)="updatePhone($event)"
-      [disabled]="!canUpdatePhone()"
-      [style.background]="canUpdatePhone() ? project.branding.buttonColor : ''"
-      [style.color]="canUpdatePhone() ? project.branding.buttonTxtColor : ''"
+      [disabled]="!canUpdateEmailOrPhone()"
+      [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
+      [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
       class="fuse-mat-button-large w-full mt-6"
       mat-flat-button
     >
