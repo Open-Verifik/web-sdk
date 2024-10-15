@@ -1,6 +1,8 @@
 <div
   [style.background]="project.branding.bgColor"
-  *ngIf="project"
+  @fadeIn
+  @fadeOut
+  *ngIf="project && currentKYCStep === ''"
   class="w-full"
   fxLayout="row"
   fxLayoutAlign="center center"
@@ -11,249 +13,107 @@
     class="flex w-full"
     *ngIf="showMainContainer()"
   >
-    <div
-      class="flex rounded-2xl bg-card overflow-hidden sign-in-content"
-      *ngIf="!showBiometrics"
-    >
+    <div class="flex rounded-2xl bg-card overflow-hidden sign-in-content">
       <div
-        *ngIf="!showFaceLivenessRecommendation"
         class="w-full sm:w-auto py-7 px-8"
         fxLayout="row"
         fxLayoutAlign="start center"
       >
         <div class="w-400 mx-auto sm:mx-0">
-          <!-- Title -->
-          <div
-            fxLayout="row"
-            fxLayoutAlign="start center"
-            class="mt-8 mb-8 ml-2"
-          >
-            <img [src]="project.branding.logo" class="w-14" />
-          </div>
+          <div *ngIf="!verificationComplete">
+            <div
+              fxLayout="row"
+              fxLayoutAlign="start center"
+              class="mt-8 mb-8 ml-2"
+            >
+              <img [src]="project.branding.logo" class="w-14" />
+            </div>
 
-          <div class="flex">
-            <small class="font-bold tracking-wider text-secondary">
-              {{
-                "signup.step"
-                  | transloco : { current: currentStepIndex + 1, total: steps.length }
-                  | uppercase
-              }}
-            </small>
+            <div class="flex">
+              <small class="font-bold tracking-wider text-secondary">
+                {{
+                  "signup.step"
+                    | transloco
+                      : { current: currentStepIndex + 1, total: steps.length }
+                    | uppercase
+                }}
+              </small>
 
-            <div class="signup__steps flex">
-              <div
-                class="signup__step"
-                *ngFor="let step of steps"
-                [ngClass]="{ 'signup__step--wide': step === currentStep }"
-                [style.color]="
-                  step === currentStep ? project.branding.titleColor : ''
-                "
-              ></div>
+              <div class="signup__steps flex">
+                <div
+                  class="signup__step"
+                  *ngFor="let step of steps"
+                  [ngClass]="{ 'signup__step--wide': step === currentStep }"
+                  [style.color]="
+                    step === currentStep ? project.branding.titleColor : ''
+                  "
+                ></div>
+              </div>
+            </div>
+
+            <!-- Alert -->
+            <fuse-alert
+              [@shake]="alert.type === 'error'"
+              [appearance]="'outline'"
+              [showIcon]="false"
+              [type]="alert.type"
+              *ngIf="showAlert"
+              class="mt-8 -mb-4"
+            >
+              {{ alert.message | transloco }}
+            </fuse-alert>
+
+            <auth-sign-up-create-form
+              @fadeIn
+              @fadeOut
+              [location]="location"
+              [project]="project"
+              [projectFlow]="projectFlow"
+              *ngIf="currentStep === 'create'"
+            ></auth-sign-up-create-form>
+
+            <auth-sign-up-verification
+              @fadeIn
+              @fadeOut
+              (changeStep)="onStepChange($event)"
+              [appRegistration]="appRegistration"
+              [project]="project"
+              [projectFlow]="projectFlow"
+              *ngIf="currentStep !== 'create'"
+            ></auth-sign-up-verification>
+
+            <div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
+              <div class="signup__steps flex">
+                <div
+                  class="signup__step"
+                  *ngFor="let step of steps"
+                  [ngClass]="{ 'signup__step--wide': step === currentStep }"
+                  [style.color]="
+                    step === currentStep ? project.branding.titleColor : ''
+                  "
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="w-full text-center mt-8 text-secondary"
+              fxLayout="row"
+              fxLayoutAlign="center center"
+            >
+              {{ "powered_by_verifik" | transloco }}
             </div>
           </div>
 
-          <!-- Alert -->
-          <fuse-alert
-            [@shake]="alert.type === 'error'"
-            [appearance]="'outline'"
-            [showIcon]="false"
-            [type]="alert.type"
-            *ngIf="showAlert"
-            class="mt-8 -mb-4"
-          >
-            {{ alert.message | transloco }}
-          </fuse-alert>
-
-          <auth-sign-up-create-form
-            [project]="project"
-            [projectFlow]="projectFlow"
-            [location]="location"
-            *ngIf="currentStep === 'create'"
-          ></auth-sign-up-create-form>
-
-          <auth-sign-up-verification
-            [project]="project"
-            [projectFlow]="projectFlow"
+          <auth-sign-up-verification-complete
+            (onServiceChange)="onKYCStepChange($event)"
             [appRegistration]="appRegistration"
-            *ngIf="currentStep === 'verify'"
-          ></auth-sign-up-verification>
-
-          <auth-sign-up-document
             [project]="project"
-            [projectFlow]="projectFlow"
-            [appRegistration]="appRegistration"
-            *ngIf="currentStep === 'document'"
-          ></auth-sign-up-document>
-
-          <div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
-            <div class="signup__steps flex">
-              <div
-                class="signup__step"
-                *ngFor="let step of steps"
-                [ngClass]="{ 'signup__step--wide': step === currentStep }"
-                [style.color]="
-                  step === currentStep ? project.branding.titleColor : ''
-                "
-              ></div>
-            </div>
-          </div>
-
-          <div
-            class="w-full text-center mt-8 text-secondary"
-            fxLayout="row"
-            fxLayoutAlign="center center"
-          >
-            {{ "powered_by_verifik" | transloco }}
-          </div>
+            @fadeIn
+            @fadeOut
+            *ngIf="verificationComplete"
+          ></auth-sign-up-verification-complete>
         </div>
       </div>
-
-      <div
-        class="w-full sm:w-auto py-8 lg:px-4 sm:p-12 xs:m-2"
-        *ngIf="showFaceLivenessRecommendation"
-        fxLayout="column"
-        fxLayoutAlign="start center"
-      >
-        <!-- for verifik project -->
-        <div
-          class="w-400 mx-auto sm:mx-0"
-          fxLayout="column"
-          fxLayoutAlign="start center"
-          *ngIf="isVerifikProject"
-        >
-          <!-- content -->
-          <div fxLayout="column" fxLayoutAlign="start center">
-            <img
-              src="https://cdn.verifik.co/access/goldcoins3x.png"
-              alt=""
-              class="w-36"
-            />
-
-            <h2 class="pt-2 credits-h2">
-              {{ "add_biometrics.verifik_title" | transloco }}
-            </h2>
-
-            <h3 class="credits-h3">
-              {{ "add_biometrics.verifik_content" | transloco }}
-            </h3>
-          </div>
-          <!-- end of content -->
-
-          <!-- Title -->
-          <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-            <button
-              mat-stroked-button
-              class="w-11/12 mt-4 biometrics-button"
-              color="primary"
-              (click)="showBiometricsLogin()"
-            >
-              <span [style.color]="project.branding.txtColor"
-                >{{ "add_biometrics.verifik_button" | transloco }}
-              </span>
-            </button>
-
-            <button
-              mat-stroked-button
-              class="w-11/12 mt-4 biometrics-button"
-              color="primary"
-              (click)="continueRedirection()"
-            >
-              ...
-              <span [style.color]="project.branding.txtColor">
-                {{ "add_biometrics.verifik_dismiss" | transloco }}
-              </span>
-            </button>
-          </div>
-          <!-- end of title -->
-        </div>
-        <!-- end of verifik project -->
-
-        <!-- client project -->
-        <div
-          class="w-400 mx-auto sm:mx-0"
-          fxLayout="column"
-          fxLayoutAlign="start center"
-          *ngIf="!isVerifikProject"
-        >
-          <!-- content -->
-          <div fxLayout="column" fxLayoutAlign="start center">
-            <h1
-              class="mt-4 text-4xl font-extrabold tracking-tight leading-tight"
-              [style.color]="project.branding.titleColor"
-            >
-              {{ "add_biometrics.project_title" | transloco }}
-              {{ project.name }}
-            </h1>
-
-            <img
-              src="https://cdn.verifik.co/access/divider.svg"
-              alt=""
-              class="w-full pb-8 pt-8"
-            />
-
-            <img
-              src="https://cdn.verifik.co/access/biometrics_icon.svg"
-              alt=""
-              class="w-28"
-            />
-
-            <h2 class="pt-2 credits-h2">
-              {{ "add_biometrics.title" | transloco }}
-            </h2>
-
-            <h3 class="credits-h3">
-              {{ "add_biometrics.content" | transloco }}
-            </h3>
-          </div>
-          <!-- end of Title -->
-
-          <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-            <button
-              mat-stroked-button
-              class="w-11/12 mt-4 biometrics-button"
-              color="primary"
-              (click)="showBiometricsLogin()"
-            >
-              <span [style.color]="project.branding.txtColor"
-                >{{ "add_biometrics.button" | transloco }}
-              </span>
-            </button>
-
-            <button
-              mat-stroked-button
-              class="w-11/12 mt-4 biometrics-button"
-              color="primary"
-              (click)="continueRedirection()"
-            >
-              <span [style.color]="project.branding.txtColor">
-                {{ "add_biometrics.dismiss" | transloco }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- END client project -->
-        <div class="w-full text-center mt-6">
-          <languages
-            [colorText]="project.branding.txtColor"
-            *ngIf="project.branding.txtColor"
-          ></languages>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="showBiometrics">
-      <app-biometrics-login-ios
-        *ngIf="demoData.OS === 'IOS'"
-        fxLayoutAlign="center center"
-        class="w-full h-full mb-6"
-      ></app-biometrics-login-ios>
-
-      <app-biometrics-login
-        *ngIf="demoData.OS !== 'IOS'"
-        fxLayoutAlign="center center"
-        class="w-full h-full mb-6"
-      ></app-biometrics-login>
     </div>
   </div>
 
@@ -366,3 +226,5 @@
     fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
   ></div>
 </div>
+
+<smart-enroll-app [project]="project" [appRegistration]="appRegistration" @fadeIn @fadeOut *ngIf="currentKYCStep !== ''"></smart-enroll-app>

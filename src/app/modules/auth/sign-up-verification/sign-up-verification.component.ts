@@ -1,8 +1,9 @@
 import moment from "moment";
+import { debounce } from "lodash";
 import { interval, Subject, Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -29,7 +30,7 @@ import { AppRegistration, Project, ProjectFlow } from "../project";
 	encapsulation: ViewEncapsulation.None,
 	selector: "auth-sign-up-verification",
 	standalone: true,
-	styleUrls: ["../sign-in/sign-in.scss", 'sign-up-verification.component.scss'],
+	styleUrls: ["../sign-in/sign-in.scss"],
 	templateUrl: "./sign-up-verification.component.html",
 	imports: [
 		CommonModule,
@@ -58,6 +59,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     @Input("appRegistration") appRegistration: AppRegistration;
     @Input("project") project: Project;
     @Input("projectFlow") projectFlow: ProjectFlow;
+
+	@Output("changeStep") readonly changeStep: EventEmitter<string> = new EventEmitter<string>(); 
 
 	countries: Array<any>;
 	currentValidation: any;
@@ -93,12 +96,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	ngOnInit(): void {
-		this.loading = true;
-
 		this._activatedRoute.queryParams.subscribe((params) => {
 			this.token = params?.token;
-
-			this._initValidations();
 		});
 	}
 
@@ -108,6 +107,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
     ngOnChanges(changes: SimpleChanges): void {
+		this._initForms();
+
         if (changes.project?.currentValue) {
 			const steps = this.projectFlow.onboardingSettings.steps;
 			const mandatorySteps = ["basicInformation", "document", "form", "liveness"];
@@ -120,7 +121,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         }
 
 		if (changes.appRegistration?.currentValue) {
-			this._initForms();
+			console.log("🚀 ~ AuthSignUpVerificationComponent ~ ngOnChanges ~ changes:", changes)
+			debounce(() => this._initValidations())();
 		}
     }
 
@@ -181,19 +183,17 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 	private _initEmailValidation(): void {
 		if (this.sendingOTP) return;
-
 		if (this.projectFlow.onboardingSettings.signUpForm.emailGateway !== "mailgun") return;
 		if (this.appRegistration.emailValidation?.status === "validated") return;
 
-		if (this.selectedPhoneGateway === 'both') {
-			this.currentValidation = {
-				_id: "new",
-				email: this.appRegistration.email,
-		  };
+		this.changeStep.next('verify_email');
 
-		  this.update = false;
-		}
+		this.currentValidation = {
+			_id: "new",
+			email: this.appRegistration.email,
+		};
 
+		this.update = false;
 		this.sendingOTP = true;
 
 		this._KYCService.sendEmailValidation(this.appRegistration.email).subscribe({
@@ -245,8 +245,9 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	 */
 	private _initPhoneValidation(phoneGateway?: string): boolean {
 		if (this.sendingOTP) return;
-
+		
 		this.selectedPhoneGateway = phoneGateway || this.selectedPhoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway;
+		this.changeStep.next('verify_phone');
 
 		if (this.appRegistration.phoneValidation?.status === "validated") return;
 		if (this.appRegistration.countryCode === "-1") this.selectedPhoneGateway = "both";
@@ -349,14 +350,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 					return;
 				}
-
-				this._router.navigate(
-					['/sign-up', this.project._id],
-					{
-						queryParams: { token: this.syncResponse.token, step: 'document' },
-						queryParamsHandling: 'merge',
-					}
-				);
 			},
 		});
 

@@ -1,0 +1,40 @@
+<div class="app" [style.backgroundColor]="project.branding.bgColor">
+  <section
+    class="toolbar toolbar--top"
+    [style.borderBottom]="
+      project.branding.borderColor
+        ? '1px solid ' + project.branding.borderColor
+        : ''
+    "
+  >
+    <div class="toolbar__logo">
+      <img [src]="project.branding.logo" class="w-10" />
+    </div>
+  </section>
+
+  <main class="app__content" [style.backgroundColor]="project.branding.bgColor">
+    <section fxLayout="column" fxLayoutAlign="center">
+        
+    </section>
+  </main>
+
+  <section
+    class="toolbar toolbar--bottom"
+    [style.borderTop]="
+      project.branding.borderColor
+        ? '1px solid ' + project.branding.borderColor
+        : ''
+    "
+    fxLayout="row"
+    fxLayoutAlign="center"
+  >
+    <div fxLayout="column" fxLayoutAlign="center">
+      <p>
+        Verifik &#169; {{ "smart_enroll.copyright" | transloco : { year } }}
+        <a href="" target="_blank">{{
+          "smart_enroll.terms_and_cond" | transloco
+        }}</a>
+      </p>
+    </div>
+  </section>
+</div>

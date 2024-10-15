@@ -227,6 +227,26 @@
 		"verifik_dismiss": "Not Now, Thanks",
 		"dismiss": "Dismiss"
 	},
+	"welcome": {
+		"title": "Welcome to {{projectName}}",
+		"description_a": "The identification document file must be in one of the following formats: .png, .jpeg, .jpg",
+		"steps": {
+			"1": "Scan your ID card",
+			"2": "Verify the extracted information",
+			"3": "Generate a 3D biometric record",
+			"4": "Authenticate your identity"
+		},
+		"agreement": "To continue this process, you must accept our ",
+		"agreement_link": "Agreement on data processing",
+		"skip": "Skip",
+		"start_on_device": "Start on this device",
+		"continue_on_another": "Continue on another device",
+		"validate_identity_subtitle": "Validate your identity with facial biometrics",
+		"validate_identity_description": "Place your face within the frame",
+		"credits_subtitle": "Get $10 Credits with Biometric Data",
+		"credits_description": "Register your data and improve the security of your account to enjoy fast and secure access.",
+		"perform_biometry": "Perform Biometry now"
+	},
 	"signup": {
 		"invalid_email": "Email is invalid",
 		"invalid_phone": "Phone is invalid",
@@ -313,5 +333,9 @@
 		"resend_code_part_one": "Resend the",
 		"resend_code_part_two": "verification code",
 		"remaining_time": "Resend the verifcation code in: "
+	},
+	"smart_enroll": {
+		"copyright": "{{year}} Product of MAT Enterprises | By using Verifik you agree to our ",
+		"terms_and_cond": "terms and conditions"
 	}
 }

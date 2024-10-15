@@ -1,3 +1,7 @@
+auth-sign-up {
+	position: relative;
+}
+
 .main-logo {
 	position: absolute;
 	top: 10px;
@@ -79,6 +83,74 @@ mat-tab-body {
 
 .biometric-instructions {
 	min-width: 400px;
+}
+
+.welcome {
+	&__step-column {
+		margin-top: 24px; 
+	}
+	&__step-row {
+		padding: 12px 0;
+	}
+	&__step {
+		margin-right: 12px;
+		height: 24px;
+		width: 24px;
+		padding: 2px;
+		text-align: center;
+		background-color: #E4E9F1;
+		border-radius: 12px;
+	}
+	&__icon {
+		&--large {
+        	font-size: 128px;
+
+			&.mat-icon {
+				height: 128px;
+				width: 128px;
+			}
+		}
+	}
+}
+
+.verify {
+    &__chip {
+        height: 40px !important;
+		border-radius: 20px !important;
+
+        .mdc-evolution-chip__action {
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+		&--large {
+			height: 48px !important;
+			border-radius: 24px !important;
+
+			.mdc-evolution-chip__action {
+				&:before {
+					border-radius: 24px !important;
+				}
+			}
+		}
+
+		&--no-border {
+			.mdc-evolution-chip__action {
+				&:before {
+					border: none !important;
+				}
+			}
+		}
+    }
+
+    &__icon {
+        font-size: small;
+
+        &--color-white {
+            color: #ffffff;
+            border-radius: 24px;
+        }
+    }
 }
 
 /* For mobile devices (up to 599px) */

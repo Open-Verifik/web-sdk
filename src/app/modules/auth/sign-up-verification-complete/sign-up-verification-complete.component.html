@@ -1,0 +1,207 @@
+<div *ngIf="welcomeStyle === 0">
+  <h5 class="text-3xl text-center" [style.color]="project.branding.titleColor">
+    {{ "welcome.title" | transloco : { projectName: project.name } }}
+  </h5>
+
+  <div class="mt-2 text-center">
+    <div>{{ "welcome.description_a" | transloco }}</div>
+  </div>
+
+  <form [formGroup]="agreementForm" #agreementNgForm="ngForm">
+    <div fxLayout="row" fxLayoutAlign="center">
+      <div class="welcome__step-column">
+        <div class="flex welcome__step-row">
+          <p class="welcome__step">1</p>
+          <p>{{ "welcome.steps.1" | transloco }}</p>
+        </div>
+
+        <div class="flex welcome__step-row">
+          <p class="welcome__step">2</p>
+          <p>{{ "welcome.steps.2" | transloco }}</p>
+        </div>
+
+        <div class="flex welcome__step-row">
+          <p class="welcome__step">3</p>
+          <p>{{ "welcome.steps.3" | transloco }}</p>
+        </div>
+
+        <div class="flex welcome__step-row">
+          <p class="welcome__step">4</p>
+          <p>{{ "welcome.steps.4" | transloco }}</p>
+        </div>
+      </div>
+    </div>
+
+    <mat-checkbox
+      class="mt-8"
+      [formControlName]="'agreement'"
+      [color]="'primary'"
+    >
+      <span [style.color]="project.branding.txtColor">
+        {{ "welcome.agreement" | transloco }}
+      </span>
+
+      <a
+        [href]="project.privacyUrl"
+        [style.color]="project.branding.titleColor"
+        class="hover:underline"
+      >
+        {{ "welcome.agreement_link" | transloco }}
+      </a>
+    </mat-checkbox>
+
+    <div class="mt-4">
+      <button
+        (click)="skipDocumentUpload()"
+        [style.border]="'1px solid' + project.branding.buttonColor"
+        [style.color]="project.branding.buttonColor"
+        class="fuse-mat-button-large w-full mt-6"
+        mat-flat-button
+        type="button"
+      >
+        {{ "welcome.skip" | transloco }}
+      </button>
+
+      <button
+        (click)="goToDocumentUploader()"
+        [style.background]="
+          agreementForm.invalid ? '' : project.branding.buttonColor
+        "
+        [style.color]="
+          agreementForm.invalid ? '' : project.branding.buttonTxtColor
+        "
+        [disabled]="agreementForm.invalid"
+        class="fuse-mat-button-large w-full mt-2"
+        mat-flat-button
+        type="button"
+      >
+        {{ "welcome.start_on_device" | transloco }}
+      </button>
+
+      <button
+        class="fuse-mat-button-large w-full mt-2"
+        mat-flat-button
+        type="button"
+      >
+        <mat-icon matLeadingIcon>smartphone</mat-icon>
+        <span>{{ "welcome.continue_on_another" | transloco }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div
+  class="mt-8"
+  fxLayout="column"
+  fxLayoutAlign="start center"
+  *ngIf="welcomeStyle === 1"
+>
+  <mat-chip
+    [style.backgroundColor]="project.branding.bgColor"
+    class="mt-6 verify__chip verify__chip--large verify__chip--no-border"
+  >
+    <div fxLayout="row" fxLayoutAlign="center space-between">
+      <mat-icon
+        class="mr-2 verify__icon verify__icon--color-white"
+        [style.backgroundColor]="project.branding.titleColor"
+        matLeadingIcon
+        >email</mat-icon
+      >
+
+      <span class="mr-2" [style.color]="project.branding.titleColor">{{
+        appRegistration.email
+      }}</span>
+    </div>
+  </mat-chip>
+
+  <h5
+    class="text-3xl mt-6 text-center"
+    [style.color]="project.branding.titleColor"
+  >
+    {{ "welcome.title" | transloco : { projectName: project.name } }}
+  </h5>
+
+  <div class="mt-4 text-center">
+    <mat-icon
+      class="welcome__icon welcome__icon--large"
+      [style.color]="project.branding.buttonColor"
+      >photo_camera_front</mat-icon
+    >
+    <div class="font-bold text-xl">
+      {{ "welcome.validate_identity_subtitle" | transloco }}
+    </div>
+    <div>{{ "welcome.validate_identity_description" | transloco }}</div>
+  </div>
+
+  <div class="mt-6 w-full">
+    <button
+      (click)="skipBiometrics()"
+      [style.border]="'1px solid' + project.branding.buttonColor"
+      [style.color]="project.branding.buttonColor"
+      class="fuse-mat-button-large w-full mt-6"
+      mat-flat-button
+      type="button"
+    >
+      {{ "welcome.skip" | transloco }}
+    </button>
+
+    <button
+      [style.background]="project.branding.buttonColor"
+      [style.color]="project.branding.buttonTxtColor"
+      class="fuse-mat-button-large w-full mt-2"
+      mat-flat-button
+      type="button"
+    >
+      {{ "continue" | transloco }}
+    </button>
+  </div>
+</div>
+
+<div
+  class="mt-2"
+  fxLayout="column"
+  fxLayoutAlign="start center"
+  *ngIf="welcomeStyle === 2"
+>
+  <h5
+    class="text-3xl mt-6 text-center"
+    [style.color]="project.branding.titleColor"
+  >
+    {{ "welcome.title" | transloco : { projectName: project.name } }}
+  </h5>
+
+  <div class="mt-4 text-center">
+    <mat-icon
+      class="welcome__icon welcome__icon--large"
+      [style.color]="project.branding.buttonColor"
+      >photo_camera_front</mat-icon
+    >
+    <div class="font-bold text-xl">
+      {{ "welcome.credits_subtitle" | transloco }}
+    </div>
+    <div>{{ "welcome.credits_description" | transloco }}</div>
+  </div>
+
+  <div class="mt-6 w-full">
+    <button
+      (click)="skipCredits()"
+      [style.border]="'1px solid' + project.branding.buttonColor"
+      [style.color]="project.branding.buttonColor"
+      class="fuse-mat-button-large w-full mt-6"
+      mat-flat-button
+      type="button"
+    >
+      {{ "welcome.skip" | transloco }}
+    </button>
+
+    <button
+      [style.background]="project.branding.buttonColor"
+      [style.color]="project.branding.buttonTxtColor"
+      class="fuse-mat-button-large w-full mt-2"
+      mat-flat-button
+      type="button"
+    >
+      {{ "welcome.perform_biometry" | transloco }}
+    </button>
+  </div>
+</div>

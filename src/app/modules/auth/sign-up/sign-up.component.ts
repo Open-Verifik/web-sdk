@@ -27,6 +27,8 @@ import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project"
 import { AuthSignUpCreateFormComponent } from "../sign-up-create-form/sign-up-create-form.component";
 import { AuthSignUpVerificationComponent } from "../sign-up-verification/sign-up-verification.component";
 import { KYCService } from "../kyc.service";
+import { AuthSignUpVerificationCompleteComponent } from "../sign-up-verification-complete/sign-up-verification-complete.component";
+import { SmartEnrollApp } from "../smart-enroll-app/smart-enroll-app.component";
 
 @Component({
 	selector: "auth-sign-up",
@@ -38,6 +40,8 @@ import { KYCService } from "../kyc.service";
 	imports: [
 		AuthSignUpCreateFormComponent,
 		AuthSignUpVerificationComponent,
+		AuthSignUpVerificationCompleteComponent,
+		SmartEnrollApp,
 		CommonModule,
 		FlexLayoutModule,
 		FormsModule,
@@ -64,6 +68,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	};
 
 	appRegistration: AppRegistration;
+	currentKYCStep: string = 'document';
 	currentStep: string = 'create';
 	currentStepIndex: number = 0;
 	deviceDetails: any;
@@ -74,9 +79,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	project: Project;
 	projectFlow: ProjectFlow;
 	sendingOTP: Boolean;
-	showFaceLivenessRecommendation: Boolean;
 	steps: Array<string> = ['create'];
 	token: string;
+	verificationComplete: boolean = false;
 
 	flagCodes = {
 		en: "us",
@@ -116,7 +121,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.projectFlow = null;
 
 		this.sendingOTP = false;
-		this.showFaceLivenessRecommendation = false;
 	}
 
 	/**
@@ -131,11 +135,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		this._activatedRoute.queryParams.subscribe((params) => {
 			this._setToken(params?.token);
-			const nextStep = params?.step;
 
 			if (!params?.token) return this._setStep('create');
 
-			this._requestAppRegistration(nextStep);
+			this._requestAppRegistration();
+			this._setStep('');
 		});
 
 		this._demoService.geoLocation$.subscribe({
@@ -169,6 +173,26 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._setToken();
 	}
 
+	private _checkVerification(): void {
+		if (!this.appRegistration || !this.projectFlow) return;
+
+		const {
+			emailValidation: { status: emailStatus },
+			phoneValidation: { status: phoneStatus },
+		} = this.appRegistration;
+
+		const {
+			onboardingSettings: {
+				signUpForm: { email, emailGateway, phone, phoneGateway }
+			}
+		} = this.projectFlow;
+
+		const emailValidated = email && emailGateway !== 'none' && emailStatus === 'validated';
+		const phoneValidated = phone && phoneGateway !== 'none' && phoneStatus === 'validated';
+
+		if (emailValidated && phoneValidated) this.verificationComplete = true;
+	}
+
 	private _onProjectNext(data: any): void {
 		this.project = new ProjectModel({ ...data, type: "onboarding" });
 		this.projectFlow = this.project.currentProjectFlow;
@@ -182,10 +206,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._splashScreenService.hide();
 		this._changeDetectorRef.markForCheck();
 
-		if (this.token) this._requestAppRegistration('verify');
+		if (this.token) this._requestAppRegistration();
 	}
 
-	private _requestAppRegistration(nextStep: string): void {
+	private _requestAppRegistration(): void {
 		if (!this.token) return;
 
 		this._KYCService
@@ -194,10 +218,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			})
 			.subscribe({
 				next: (response) => {
-					this._setStep(nextStep);
 					this.appRegistration = response.data;
+					this._checkVerification();
 				},
-				error: (error) => {
+				error: () => {
                     this._router.navigate(
                         ['/sign-up', this.project._id],
                         { replaceUrl: true }
@@ -233,6 +257,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		localStorage.setItem("currentLanguage", this.language);
 	}
 
+	private _setStep(step: string): void {
+		this.currentStep = step;
+
+		const index = this.steps.indexOf(this.currentStep);
+
+		if (index > -1) {
+			this.currentStepIndex = index;
+		}
+	}
+
 	private _setSteps(): void {
 		if (!this.projectFlow) return;
 
@@ -240,19 +274,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		const { email, emailGateway, phone, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
 
-		if ((email && emailGateway !== 'none') || (phone && phoneGateway !== 'none')) this.steps.push('verify');
-
-		this.steps.push('document', 'biometrics');
+		if (email && emailGateway !== 'none') this.steps.push('verify_email')
+		if (phone && phoneGateway !== 'none') this.steps.push('verify_phone');
 
 		this.currentStepIndex = this.steps.indexOf(this.currentStep);
-	}
-
-	private _setStep(step: string): void {
-		this.currentStep = step;
-
-		const index = this.steps.indexOf(this.currentStep);
-
-		if (index > -1) this.currentStepIndex = index;
 	}
 
 	private _setToken(token?: string): void {
@@ -269,6 +294,14 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 	enabledLocation(): void {
 		window.location.reload();
+	}
+
+	onStepChange(step: string): void {
+		this._setStep(step);
+	}
+
+	onKYCStepChange(kycStep: string): void {
+		this.currentKYCStep = kycStep;
 	}
 
 	showCountryNotAllowed(): boolean {
