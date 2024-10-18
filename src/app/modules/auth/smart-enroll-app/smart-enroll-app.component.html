@@ -1,4 +1,10 @@
-<div class="app" [style.backgroundColor]="project.branding.bgColor">
+<div
+  class="app"
+  [style.backgroundColor]="project.branding.bgColor"
+  @fadeIn
+  @fadeOut
+  *ngIf="project"
+>
   <section
     class="toolbar toolbar--top"
     [style.borderBottom]="
@@ -13,9 +19,7 @@
   </section>
 
   <main class="app__content" [style.backgroundColor]="project.branding.bgColor">
-    <section fxLayout="column" fxLayoutAlign="center">
-        
-    </section>
+    <smart-documents [project]="project"></smart-documents>
   </main>
 
   <section
@@ -29,7 +33,7 @@
     fxLayoutAlign="center"
   >
     <div fxLayout="column" fxLayoutAlign="center">
-      <p>
+      <p [ngClass.lt-md]="'font-small'">
         Verifik &#169; {{ "smart_enroll.copyright" | transloco : { year } }}
         <a href="" target="_blank">{{
           "smart_enroll.terms_and_cond" | transloco

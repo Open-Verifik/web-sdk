@@ -86,12 +86,6 @@ mat-tab-body {
 }
 
 .welcome {
-	&__step-column {
-		margin-top: 24px; 
-	}
-	&__step-row {
-		padding: 12px 0;
-	}
 	&__step {
 		margin-right: 12px;
 		height: 24px;
@@ -100,12 +94,76 @@ mat-tab-body {
 		text-align: center;
 		background-color: #E4E9F1;
 		border-radius: 12px;
+
+		&--large {
+			padding: 4px;
+			font-size: 14px;
+			height: 36px;
+			width: 36px;
+			border-radius: 18px;
+		}
 	}
+
+	&__step-column {
+		margin-top: 24px; 
+	}
+
+	&__step-row {
+		padding: 12px 0;
+
+		&--active {
+			font-weight: 600;
+		}
+	}
+
+	&__step-number {
+		display: block;
+
+		&--large {
+			padding: 2px;
+			width: 24px;
+			height: 24px;
+		}
+	}
+
+	&__step-text {
+		padding: 2px;
+		background-color: #E4E9F1;
+		border-radius: 12px;
+
+		&--large {
+			padding: 8px 12px;
+			font-size: 14px;
+			height: 36px;
+			border-radius: 18px;
+			min-width: 200px;
+		}
+	}
+
 	&__icon {
+		&--medium {
+        	font-size: 64px;
+
+			&.mat-icon {
+				height: 64px;
+				width: 64px;
+			}
+		}
+
 		&--large {
         	font-size: 128px;
 
 			&.mat-icon {
+				height: 128px;
+				width: 128px;
+			}
+		}
+
+		&--rounded {
+        	font-size: 96px;
+
+			&.mat-icon {
+				border-radius: 64px;
 				height: 128px;
 				width: 128px;
 			}

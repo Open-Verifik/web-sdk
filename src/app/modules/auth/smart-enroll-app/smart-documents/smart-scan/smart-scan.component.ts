@@ -7,13 +7,12 @@ import { MatIconModule } from "@angular/material/icon";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { AppRegistration, Project } from "../project";
-import { SmartDocumentsComponent } from "./smart-documents/smart-documents.component";
+import { AppRegistration, Project } from "../../../project";
 
 @Component({
-	selector: "smart-enroll-app",
-	templateUrl: "./smart-enroll-app.component.html",
-	styleUrls: ["smart-enroll-app.component.scss"],
+	selector: "smart-scan",
+	templateUrl: "./smart-scan.component.html",
+	styleUrls: ["../../smart-enroll-app.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
@@ -26,15 +25,12 @@ import { SmartDocumentsComponent } from "./smart-documents/smart-documents.compo
 		MatIconModule,
 		NgIf,
 		ReactiveFormsModule,
-		SmartDocumentsComponent,
 		TranslocoModule,
 	],
 })
-export class SmartEnrollAppComponent {
+export class SmartScanComponent {
     @Input('appRegistration') appRegistration: AppRegistration;
     @Input('project') project: Project;
-
-    year: number = new Date().getFullYear();
 
     constructor() {}
 }

@@ -28,7 +28,7 @@ import { AuthSignUpCreateFormComponent } from "../sign-up-create-form/sign-up-cr
 import { AuthSignUpVerificationComponent } from "../sign-up-verification/sign-up-verification.component";
 import { KYCService } from "../kyc.service";
 import { AuthSignUpVerificationCompleteComponent } from "../sign-up-verification-complete/sign-up-verification-complete.component";
-import { SmartEnrollApp } from "../smart-enroll-app/smart-enroll-app.component";
+import { SmartEnrollAppComponent } from "../smart-enroll-app/smart-enroll-app.component";
 
 @Component({
 	selector: "auth-sign-up",
@@ -41,7 +41,7 @@ import { SmartEnrollApp } from "../smart-enroll-app/smart-enroll-app.component";
 		AuthSignUpCreateFormComponent,
 		AuthSignUpVerificationComponent,
 		AuthSignUpVerificationCompleteComponent,
-		SmartEnrollApp,
+		SmartEnrollAppComponent,
 		CommonModule,
 		FlexLayoutModule,
 		FormsModule,

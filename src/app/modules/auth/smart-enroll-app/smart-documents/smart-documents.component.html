@@ -1,0 +1,187 @@
+<div
+  @fadeIn
+  @fadeOut
+  *ngIf="project && selectedMethod === ''"
+  class="flex px-2 py-4"
+  [ngClass.gt-sm]="'h-full'"
+  fxLayout="row"
+  fxLayoutAlign="center center"
+>
+  <div fxLayout="column" fxLayoutAlign="start center">
+    <div
+      class="smart-documents__heading text-center"
+      fxLayout="column"
+      fxLayoutAlign="start center"
+    >
+      <h5
+        class="text-3xl font-medium mt-2"
+        [style.color]="project.branding.titleColor"
+      >
+        {{ "smart_enroll.documents.scan_or_upload_title" | transloco }}
+      </h5>
+
+      <div class="flex items-baseline mt-4">
+        <div>
+          {{ "smart_enroll.documents.scan_or_upload_subtitle" | transloco }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="mt-6"
+      fxLayout="row"
+      fxLayoutAlign="center"
+      fxLayout.lt-md="column"
+    >
+      <div
+        class="smart-documents__card rounded-2xl bg-card m-4 p-6"
+        fxLayout="column"
+        [style.border]="
+          project.branding.borderColor
+            ? '1px solid ' + project.branding.borderColor
+            : ''
+        "
+      >
+        <mat-card-header class="mt-2">
+          <h5
+            class="text-xl text-center font-medium"
+            [style.color]="project.branding.titleColor"
+          >
+            {{ "smart_enroll.documents.upload_document_title" | transloco }}
+          </h5>
+        </mat-card-header>
+
+        <mat-card-content
+          class="mt-6"
+          fxLayout="column"
+          fxLayoutAlign="start center"
+        >
+          <mat-icon
+            class="welcome__icon welcome__icon--large welcome__icon--rounded"
+            [style.color]="project.branding.buttonColor"
+            [style.background]="getBackgroundGradient()"
+            >file_upload</mat-icon
+          >
+
+          <div fxLayout="row" fxLayoutAlign="center">
+            <div class="welcome__step-column">
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">1</p>
+                <p>{{ "smart_enroll.documents.upload.steps.1" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">2</p>
+                <p>{{ "smart_enroll.documents.upload.steps.2" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">3</p>
+                <p>{{ "smart_enroll.documents.upload.steps.3" | transloco }}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <div fxLayout="column" fxFlex="1 1 0 auto"></div>
+
+        <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
+          <button
+            (click)="selectedMethod = 'upload'"
+            [style.background]="project.branding.buttonColor"
+            [style.color]="project.branding.buttonTxtColor"
+            class="fuse-mat-button-large mt-6"
+            mat-flat-button
+          >
+            <span>{{ "upload" | transloco }}</span>
+          </button>
+        </mat-card-actions>
+      </div>
+
+      <div
+        class="smart-documents__card rounded-2xl bg-card m-4 p-6"
+        fxLayout="column"
+        [style.border]="
+          project.branding.borderColor
+            ? '1px solid ' + project.branding.borderColor
+            : ''
+        "
+      >
+        <mat-card-header class="mt-2">
+          <h5
+            class="text-xl text-center font-medium"
+            [style.color]="project.branding.titleColor"
+          >
+            {{ "smart_enroll.documents.scan_document_title" | transloco }}
+          </h5>
+        </mat-card-header>
+
+        <mat-card-content
+          class="mt-6"
+          fxLayout="column"
+          fxLayoutAlign="start center"
+        >
+          <mat-icon
+            class="welcome__icon welcome__icon--large welcome__icon--rounded"
+            [style.color]="project.branding.buttonColor"
+            [style.background]="getBackgroundGradient()"
+            >camera</mat-icon
+          >
+
+          <div fxLayout="row" fxLayoutAlign="center">
+            <div class="welcome__step-column">
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">1</p>
+                <p>{{ "smart_enroll.documents.scan.steps.1" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">2</p>
+                <p>{{ "smart_enroll.documents.scan.steps.2" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">3</p>
+                <p>{{ "smart_enroll.documents.scan.steps.3" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">4</p>
+                <p>{{ "smart_enroll.documents.scan.steps.4" | transloco }}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <div fxLayout="column" fxFlex="1 1 0 auto"></div>
+
+        <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
+          <button
+            (click)="selectedMethod = 'scan'"
+            [style.background]="project.branding.buttonColor"
+            [style.color]="project.branding.buttonTxtColor"
+            class="fuse-mat-button-large mt-6"
+            mat-flat-button
+          >
+            <span>{{ "scan" | transloco }}</span>
+          </button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </div>
+</div>
+
+<smart-upload
+  *ngIf="selectedMethod === 'upload'"
+  @fadeIn
+  @fadeOut
+  [project]="project"
+  (back)="selectedMethod = ''"
+></smart-upload>
+
+<smart-scan
+  *ngIf="selectedMethod === 'scan'"
+  @fadeIn
+  @fadeOut
+  [project]="project"
+></smart-scan>

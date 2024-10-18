@@ -1,0 +1,128 @@
+<code>StepIndex : {{ stepIndex }}</code>
+
+<div
+  class="flex welcome__step-row"
+  [ngClass]="
+    isActiveStep(1) || isActiveStep(2) ? 'welcome__step-row--active' : ''
+  "
+  [style.color]="
+    isActiveStep(1) || isActiveStep(2) ? project.branding.buttonTxtColor : ''
+  "
+>
+  <p
+    class="welcome__step welcome__step--large"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    [style.background]="
+      isActiveStep(1) || isActiveStep(2) ? project.branding.buttonColor : ''
+    "
+  >
+    <span
+      class="welcome__step-number welcome__step-number--large"
+      *ngIf="stepIndex <= 2"
+      >1</span
+    >
+    <mat-icon *ngIf="stepIndex > 2" [style.color]="project.branding.buttonColor"
+      >check</mat-icon
+    >
+  </p>
+
+  <p
+    class="welcome__step-text welcome__step-text--large"
+    [style.background]="
+      isActiveStep(1) || isActiveStep(2) ? project.branding.buttonColor : ''
+    "
+  >
+    {{ "smart_enroll.documents.upload.step_titles.upload" | transloco }}
+  </p>
+</div>
+
+<div
+  class="flex welcome__step-row"
+  [ngClass]="
+    isActiveStep(3) || isActiveStep(4) ? 'welcome__step-row--active' : ''
+  "
+  [style.color]="
+    isActiveStep(3) || isActiveStep(4) ? project.branding.buttonTxtColor : ''
+  "
+>
+  <p
+    class="welcome__step welcome__step--large"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    [style.background]="
+      isActiveStep(3) || isActiveStep(4) ? project.branding.buttonColor : ''
+    "
+  >
+    <span
+      class="welcome__step-number welcome__step-number--large"
+      *ngIf="stepIndex <= 4"
+      >2</span
+    >
+    <mat-icon *ngIf="stepIndex > 4" [style.color]="project.branding.buttonColor"
+      >check</mat-icon
+    >
+  </p>
+
+  <p
+    class="welcome__step-text welcome__step-text--large"
+    [style.background]="
+      isActiveStep(3) || isActiveStep(4) ? project.branding.buttonColor : ''
+    "
+  >
+    {{ "smart_enroll.documents.upload.step_titles.ocr_details" | transloco }}
+  </p>
+</div>
+
+<div
+  class="flex welcome__step-row"
+  [ngClass]="isActiveStep(5) ? 'welcome__step-row--active' : ''"
+  [style.color]="isActiveStep(5) ? project.branding.buttonTxtColor : ''"
+>
+  <p
+    class="welcome__step welcome__step--large"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    [style.background]="isActiveStep(5) ? project.branding.buttonColor : ''"
+  >
+    <span
+      class="welcome__step-number welcome__step-number--large"
+      *ngIf="stepIndex <= 5"
+      >3</span
+    >
+    <mat-icon *ngIf="stepIndex > 6" [style.color]="project.branding.buttonColor"
+      >check</mat-icon
+    >
+  </p>
+
+  <p
+    class="welcome__step-text welcome__step-text--large"
+    [style.background]="isActiveStep(5) ? project.branding.buttonColor : ''"
+  >
+    {{
+      "smart_enroll.documents.upload.step_titles.biometric_record" | transloco
+    }}
+  </p>
+</div>
+
+<div
+  class="flex welcome__step-row"
+  [ngClass]="isActiveStep(6) ? 'welcome__step-row--active' : ''"
+  [style.color]="isActiveStep(6) ? project.branding.buttonTxtColor : ''"
+>
+  <p
+    class="welcome__step welcome__step--large"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    [style.background]="isActiveStep(6) ? project.branding.buttonColor : ''"
+  >
+    <span class="welcome__step-number welcome__step-number--large">4</span>
+  </p>
+
+  <p
+    class="welcome__step-text welcome__step-text--large"
+    [style.background]="isActiveStep(6) ? project.branding.buttonColor : ''"
+  >
+    {{ "smart_enroll.documents.upload.step_titles.results" | transloco }}
+  </p>
+</div>

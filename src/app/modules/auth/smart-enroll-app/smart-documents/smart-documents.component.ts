@@ -4,16 +4,18 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatCardModule } from '@angular/material/card';
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { AppRegistration, Project } from "../project";
-import { SmartDocumentsComponent } from "./smart-documents/smart-documents.component";
+import { AppRegistration, Project } from "../../project";
+import { SmartScanComponent } from "./smart-scan/smart-scan.component";
+import { SmartUploadComponent } from "./smart-upload/smart-upload.component";
 
 @Component({
-	selector: "smart-enroll-app",
-	templateUrl: "./smart-enroll-app.component.html",
-	styleUrls: ["smart-enroll-app.component.scss"],
+	selector: "smart-documents",
+	templateUrl: "./smart-documents.component.html",
+	styleUrls: ["../smart-enroll-app.component.scss", "../../sign-up/sign-up.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
@@ -23,18 +25,26 @@ import { SmartDocumentsComponent } from "./smart-documents/smart-documents.compo
 		FormsModule,
 		LanguagesComponent,
 		MatButtonModule,
-		MatIconModule,
 		NgIf,
 		ReactiveFormsModule,
-		SmartDocumentsComponent,
+		SmartScanComponent,
+		SmartUploadComponent,
 		TranslocoModule,
+        MatCardModule,
+        MatIconModule,
 	],
 })
-export class SmartEnrollAppComponent {
+export class SmartDocumentsComponent {
     @Input('appRegistration') appRegistration: AppRegistration;
     @Input('project') project: Project;
 
-    year: number = new Date().getFullYear();
+    selectedMethod: string = 'upload';
 
     constructor() {}
+
+    getBackgroundGradient() {
+        if (!this.project.branding.buttonColor) return `linear-gradient(34deg, rgba(0,0,0,0) 25%, rgba(0,0,0,0.2) 120%`;
+
+        return `linear-gradient(34deg, rgba(0,0,0,0) 25%, ${this.project.branding.buttonColor} 230%)`;
+    }
 }

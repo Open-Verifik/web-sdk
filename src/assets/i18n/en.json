@@ -6,6 +6,11 @@
 	"continue": "Continue",
 	"confirm": "Confirm",
 	"cancel": "Cancel",
+	"upload": "Upload",
+	"scan": "Scan",
+	"previous": "Previous",
+	"next": "Next",
+	"log_out": "Log out",
 	"powered_by_verifik": "Powered by Verifik",
 	"header": {
 		"partner": "Partner with us",
@@ -336,6 +341,56 @@
 	},
 	"smart_enroll": {
 		"copyright": "{{year}} Product of MAT Enterprises | By using Verifik you agree to our ",
-		"terms_and_cond": "terms and conditions"
+		"terms_and_cond": "terms and conditions",
+		"camera_disabled_title": "The camera has not been found on this device",
+		"camera_disabled_description": "Confirm that your device has a camera and permissions have been enabled",
+		"biometric_register": "Biometric Register",
+		"preparing_camera": "Preparing the camera...",
+		"documents": {
+			"scan_or_upload_title": "Scan or upload document",
+			"scan_or_upload_subtitle": "To conclude, for security and to confirm your identity, please scan a document. Accepted documents are Passports, Drivers Licenses or other government issued IDs with a photo.",
+			"upload_document_title": "Upload document image",
+			"upload": {
+				"steps": {
+					"1": "Upload an image in .jpeg, .png, or .jpg formats",
+					"2": "Confirm the upload was successful",
+					"3": "Verify the information extracted matches your data"
+				},
+				"step_titles": {
+					"upload": "Upload",
+					"ocr_details": "OCR Details",
+					"biometric_record": "Biometric Record",
+					"results": "Results"
+				},
+				"errors": {
+					"file_too_big": "The file must be no larger than 10MB",
+					"face_not_found": "The document must have your face, and be clearly visible."
+				},
+				"again": "Upload again",
+				"upload_frontside": "Upload Document Front",
+				"upload_backside": "Upload Document Back",
+				"passport": "Passport",
+				"driver_license": "Drivers License",
+				"id": "ID",
+				"find_file": "Find file on your device",
+				"identification_document_tip": "The identification document must be in one of the following formats: .jpeg, .png, or .jpg",
+				"ocr_details_front_title": "OCR Details from Front Side Document",
+				"ocr_details_back_title": "OCR Details from Back Side Document",
+				"document_template": "Document Template",
+				"template_id": "Template ID",
+				"platform": "Platform",
+				"extracted_information": "Extracted Information",
+				"process_information": "Process Information"
+			},
+			"scan_document_title": "Scan document",
+			"scan": {
+				"steps": {
+					"1": "Place the front of the document on a flat, light surface",
+					"2": "Turn your device horizontal",
+					"3": "Hold the camera steady with the document within the marked area",
+					"4": "Verify the information extracted matches your data"
+				}
+			}
+		}
 	}
 }
