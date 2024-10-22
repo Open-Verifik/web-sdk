@@ -1,146 +1,420 @@
+<div fxLayout="column" *ngIf="loadingCamera">
+  <div fxLayout="column" fxLayoutAlign="start center">
+    <mat-progress-spinner
+      mode="indeterminate"
+      strokeWidth="4"
+      diameter="36"
+    ></mat-progress-spinner>
+
+    <h4 class="font-medium mt-6 text-xl">
+      {{ "smart_enroll.preparing_camera" | transloco }}
+    </h4>
+  </div>
+</div>
+
 <div
-	fxLayout="column"
-	fxLayoutAlign="center center"
-	class="bg-white rounded-lg shadow-lg items-center w-full"
-	*ngIf="!failedToDetectDocument && hasCameraPermissions && !loadingCamera && !errorResult"
+  class="smart-documents__card rounded-2xl bg-card m-4 p-6 mt-16 w-full"
+  fxLayout="column"
+  *ngIf="!loadingCamera && !hasCameraPermissions"
+  @fadeIn
+  [style.border]="
+    project.branding.borderColor
+      ? '1px solid ' + project.branding.borderColor
+      : ''
+  "
 >
-	<canvas #cardIdFace hidden="true"></canvas>
-	<div
-		*ngIf="errorFace && errorFace.title"
-		fxLayout="column"
-		fxLayoutAlign="center center"
-		class="text-center h-20 pb-4 sm:h-8 xs:h-8 my-2"
-		[ngClass]="{ 'id-scanning-error-container': errorFace && errorFace.title }"
-	>
-		<div *ngIf="errorFace && !loadingResults">
-			<div [style.color]="project ? project.branding.titleColor : null" class="text-3xl font-bold">{{ errorFace.title }}</div>
-			<div [style.color]="project ? project.branding.txtColor : null" class="text-gray-600">{{ errorFace.subtitle }}</div>
-		</div>
-	</div>
-	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full height-full">
-		<div
-			*ngIf="!failedToDetectDocument"
-			fxLayout="column"
-			fxLayoutAlign="center center"
-			class="w-full h-full"
-			[ngClass]="{ 'mobile-height': phoneMode }"
-		>
-			<div class="relative w-full" [style.width.px]="WIDTH" [style.height.px]="HEIGHT">
-				<video
-					#videoElement
-					autoplay
-					[style.height.px]="HEIGHT"
-					class="absolute top-0 left-0 w-full"
-					[ngClass]="{ 'max-h-[75vh]': !phoneMode }"
-					[class.hidden]="base64Images"
-				></video>
-				<canvas
-					#canvas
-					class="absolute top-0 left-0"
-					[style.width.px]="WIDTH"
-					[style.height.px]="HEIGHT"
-					[class.hidden]="base64Images"
-				></canvas>
+  <mat-card-title class="text-center mt-2">
+    <mat-icon
+      class="welcome__icon welcome__icon--medium"
+      [style.color]="project.branding.buttonColor"
+      svgIcon="heroicons_solid:video-camera-slash"
+    ></mat-icon>
+  </mat-card-title>
 
-				<canvas #result class="" [class.hidden]="!base64Images"></canvas>
+  <mat-card-title
+    class="text-center text-3xl mt-4"
+    [style.color]="project.branding.titleColor"
+  >
+    {{ "smart_enroll.camera_disabled_title" | transloco }}
+  </mat-card-title>
 
-				<canvas #toSend class="absolute top-0 left-0" [class.hidden]="true"></canvas>
-			</div>
-			<div class="capture_button" fxLayout="row" fxLayoutAlign="center center">
-				<button
-					mat-raised-button
-					class="m-4 z-index-2 capture_button"
-					[class.hidden]="base64Images"
-					(click)="takePicture()"
-					[disabled]="errorFace"
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-				>
-					{{ "id_scanning.manual_capture_button" | transloco }}
-				</button>
+  <mat-card-content
+    class="mt-8"
+    fxLayout="column"
+    fxLayoutAlign="start center"
+    @fadeIn
+  >
+    <p class="text-center">
+      {{ "smart_enroll.camera_disabled_description" | transloco }}
+    </p>
+  </mat-card-content>
 
-				<button
-					mat-stroked-button
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-					class="m-4 z-index-2"
-					[class.hidden]="!base64Images"
-					(click)="tryAgain()"
-				>
-					{{ "id_scanning.retry" | transloco }}
-				</button>
+  <div fxLayout="column" fxFlex="1 1 0 auto"></div>
 
-				<button
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-					mat-raised-button
-					class="mx-2"
-					[class.hidden]="!base64Images"
-					(click)="continue()"
-				>
-					{{ "continue" | transloco }}
-				</button>
-			</div>
-		</div>
-	</div>
+  <mat-card-actions class="mt-4" fxLayout="row" fxLayoutAlign="space-between">
+    <button
+      (click)="goPrevious()"
+      [style.border]="'1px solid ' + project.branding.buttonColor"
+      [style.color]="project.branding.buttonColor"
+      class="fuse-mat-button-large mt-6"
+      mat-flat-button
+    >
+      <span>{{ "log_out" | transloco }}</span>
+    </button>
+
+    <button
+      [style.background]="project.branding.buttonColor"
+      [style.color]="project.branding.buttonTxtColor"
+      class="fuse-mat-button-large mt-6"
+      mat-flat-button
+    >
+      <span>{{ "id_scanning.retry" | transloco }}</span>
+    </button>
+  </mat-card-actions>
+</div>
+
+<div
+  fxLayout="column"
+  fxLayoutAlign="center center"
+  class="items-center w-full"
+  *ngIf="
+    !failedToDetectDocument &&
+    hasCameraPermissions &&
+    !loadingCamera &&
+    !errorResult
+  "
+>
+  <ng-content select="[title]"></ng-content>
+
+  <canvas #cardIdFace hidden="true"></canvas>
+
+  <div
+    *ngIf="!loadingCamera && hasCameraPermissions"
+    class="w-full height-full"
+  >
+    <div
+      *ngIf="!failedToDetectDocument"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+      class="w-full h-full"
+      [ngClass]="{ 'mobile-height': phoneMode }"
+    >
+      <div
+        class="relative w-full"
+        [style.width.px]="WIDTH"
+        [style.height.px]="HEIGHT"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+        [class.hidden]="base64Images"
+      >
+        <video
+          [ngClass]="{ 'max-h-[75vh]': !phoneMode }"
+          [style.height.px]="HEIGHT"
+          [style.width.px]="WIDTH"
+          #videoElement
+          autoplay
+          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+        ></video>
+
+        <canvas
+          #canvas
+          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+        ></canvas>
+
+        <code
+          class="absolute top-0 right-0 bottom-0 z-index-2 text-right"
+          *ngIf="faceDetection"
+        >
+          x: {{ faceDetection.alignedRect.box.x }}
+          <br />
+          y: {{ faceDetection.alignedRect.box.y }}
+          <br />
+          width: {{ faceDetection.alignedRect.box.width }}
+          <br />
+          height: {{ faceDetection.alignedRect.box.height }}
+          <br />
+          pitch: {{ faceDetection.angle.pitch }}
+          <br />
+          yaw: {{ faceDetection.angle.yaw }}
+          <br />
+          roll: {{ faceDetection.angle.roll }}
+          <br />
+          <br />
+          <br />
+          corrections:
+          <br />
+          x: {{ faceCorrections.bounds.x }}
+          <br />
+          y: {{ faceCorrections.bounds.y }}
+          <br />
+          width: {{ faceCorrections.resolution.width }}
+          <br />
+          height: {{ faceCorrections.resolution.height }}
+          <br />
+          pitch: {{ faceCorrections.angle.pitch }}
+          <br />
+          yaw: {{ faceCorrections.angle.yaw }}
+          <br />
+          roll: {{ faceCorrections.angle.roll }}
+        </code>
+
+        <div
+          *ngIf="errorFace && errorFace.title"
+          fxLayout="column"
+          fxLayoutAlign="center center"
+          class="text-center m-6 mt-2 rounded-2xl absolute top-0 left-0 right-0"
+          [ngClass]="{ 'id-scanning-error-container': errorFace && errorFace.title }"
+        >
+          <div *ngIf="errorFace && !loadingResults">
+            <div
+              [style.color]="project ? project.branding.titleColor : null"
+              class="text-3xl font-bold"
+            >
+              {{ errorFace.title }}
+            </div>
+      
+            <div
+              [style.color]="project ? project.branding.txtColor : null"
+              class="text-gray-600"
+            >
+              {{ errorFace.subtitle }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="capture_button" fxLayout="row" fxLayoutAlign="center center" [class.hidden]="base64Images">
+        <button
+          (click)="takePicture()"
+          [disabled]="errorFace"
+          [style.background]="errorFace ? '' : project.branding.buttonColor"
+          [style.color]="errorFace ? '' : project.branding.buttonTxtColor"
+          class="m-2 capture_button"
+          mat-flat-button
+        >
+          {{ "id_scanning.manual_capture_button" | transloco }}
+        </button>
+      </div>
+
+      <div
+        class="smart-documents__card smart-documents__card--large rounded-2xl bg-card m-4 p-6 mt-12"
+        fxLayout="row"
+        *ngIf="!base64Images"
+        [style.border]="
+          project.branding.borderColor
+            ? '1px solid ' + project.branding.borderColor
+            : ''
+        "
+      >
+        <mat-icon class="mr-4">warning</mat-icon>
+        <h4>{{ "smart_enroll.face_instructions" | transloco }}</h4>
+      </div>
+
+      <canvas [class.hidden]="true" #toSend></canvas>
+
+      <div
+        class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
+        fxLayout="column"
+        fxLayoutAlign="center center"
+        [class.hidden]="!base64Images"
+        [style.border]="
+          project.branding.borderColor
+            ? '1px solid ' + project.branding.borderColor
+            : ''
+        "
+      >
+        <div
+          class="results__avatar-container"
+          fxLayout="column"
+          fxLayoutAlign="center center"
+        >
+          <div class="results__canvas-crop">
+            <canvas
+              [class.hidden]="!base64Images"
+              #result
+              class="results__canvas"
+            ></canvas>
+          </div>
+
+          <mat-icon
+            fxFlexAlign="end"
+            class="results__check-icon"
+            svgIcon="feather:check"
+            [style.color]="project.branding.buttonColor"
+            [style.background]="project.branding.bgColor"
+          ></mat-icon>
+        </div>
+
+        <div
+          class="results__score uppercase mt-4"
+          [ngClass]="{ 'results__score--green': true }"
+        >
+          <p class="font-medium">
+            {{ "smart_enroll.success_rate" | transloco : { percentile: 100 } }}
+          </p>
+        </div>
+
+        <h4 class="results__score mt-2 font-medium text-2xl">
+          {{ "smart_enroll.successful_outcome" | transloco }}
+        </h4>
+
+        <div
+          class="results__checklist-item rounded-lg mt-16 w-full"
+          fxLayout="row"
+          fxLayoutAlign="space-between center"
+          [style.background]="project.branding.bgColor"
+        >
+          <p class="font-medium text-lg">
+            {{ "smart_enroll.face_was_registered" | transloco }}
+          </p>
+
+          <mat-icon
+            class="results__checklist-icon"
+            [ngClass]="{
+              'results__checklist-icon--green': true,
+              'results__checklist-icon--red': false,
+            }"
+            [svgIcon]="true ? 'feather:check' : 'feather:'"
+          ></mat-icon>
+        </div>
+
+        <div
+          class="results__checklist-item rounded-lg mt-4 w-full"
+          fxLayout="row"
+          fxLayoutAlign="space-between center"
+          [style.background]="project.branding.bgColor"
+        >
+          <p class="font-medium text-lg">
+            {{ "smart_enroll.id_was_registered" | transloco }}
+          </p>
+
+          <mat-icon
+            class="results__checklist-icon"
+            [ngClass]="{
+              'results__checklist-icon--green': true,
+              'results__checklist-icon--red': false,
+            }"
+            [svgIcon]="true ? 'feather:check' : 'feather:x'"
+          ></mat-icon>
+        </div>
+
+        <button
+          [style.background]="project.branding.buttonColor"
+          [style.color]="project.branding.buttonTxtColor"
+          class="fuse-mat-button w-full mt-16"
+          mat-flat-button
+        >
+          {{ "smart_enroll.login_to_platform" | transloco }}
+        </button>
+
+        <div fxLayout="row" fxLayoutAlign="space-between" [class.hidden]="!base64Images">
+          <button
+            (click)="tryAgain()"
+            [style.color]="project.branding.buttonColor"
+            [style.border]="'1px solid' + project.branding.buttonColor"
+            class="m-2"
+            mat-flat-button
+          >
+            {{ "id_scanning.retry" | transloco }}
+          </button>
+
+          <button
+            (click)="continue()"
+            [style.background]="project.branding.buttonColor"
+            [style.color]="project.branding.buttonTxtColor"
+            class="m-2"
+            mat-flat-button
+          >
+            {{ "continue" | transloco }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- it doesnt have permissions -->
 <div
-	*ngIf="!failedToDetectDocument && !hasCameraPermissions && !loadingCamera"
-	fxLayout="column"
-	fxLayoutAlign="center center"
-	class="id-scanning-error-div"
+  *ngIf="!failedToDetectDocument && !hasCameraPermissions && !loadingCamera"
+  fxLayout="column"
+  fxLayoutAlign="center center"
+  class="id-scanning-error-div"
 >
-	<img src="https://cdn.verifik.co/demo/nocameraenabled.svg" alt="" class="id-scanning-no-camera-enabled-img" />
+  <img
+    src="https://cdn.verifik.co/demo/nocameraenabled.svg"
+    alt=""
+    class="id-scanning-no-camera-enabled-img"
+  />
 
-	<h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "id_scanning.camera_not_found" | transloco }}</h1>
+  <h1 class="mt-4" [style.color]="project.branding.titleColor">
+    {{ "id_scanning.camera_not_found" | transloco }}
+  </h1>
 
-	<p class="mt-4" [style.color]="project.branding.txtColor">
-		{{ "id_scanning.camera_not_found_description" | transloco }}
-	</p>
+  <p class="mt-4" [style.color]="project.branding.txtColor">
+    {{ "id_scanning.camera_not_found_description" | transloco }}
+  </p>
 </div>
 
 <kyc-document-errors-display
-	class="mt-16 w-1/2"
-	*ngIf="errorContent.message"
-	[errorContent]="errorContent"
-	[attempts]="attempts"
-	[attemptsLimit]="attemptsLimit"
-	[callback]="onErrorCallback"
+  class="mt-16 w-1/2"
+  *ngIf="errorContent.message"
+  [errorContent]="errorContent"
+  [attempts]="attempts"
+  [attemptsLimit]="attemptsLimit"
+  [callback]="onErrorCallback"
+></kyc-document-errors-display>
+
+<div
+  *ngIf="failedToDetectDocument"
+  fxLayout="column"
+  fxLayoutAlign="center center"
+  class="id-scanning-error-div"
 >
-</kyc-document-errors-display>
+  <img
+    [src]="
+      attemptsLimit - attempts > 0
+        ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png'
+        : 'https://cdn.verifik.co/demo/redstop.svg'
+    "
+    alt=""
+    class="id-scanning-failed-document-img"
+  />
 
-<div *ngIf="failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="id-scanning-error-div">
-	<img
-		[src]="attemptsLimit - attempts > 0 ? 'https://cdn.verifik.co/demo/failedtodetectdocument@3x.png' : 'https://cdn.verifik.co/demo/redstop.svg'"
-		alt=""
-		class="id-scanning-failed-document-img"
-	/>
+  <h1 class="mt-4" [style.color]="project.branding.titleColor">
+    {{
+      (attemptsLimit - attempts > 0
+        ? "id_scanning.document_not_detected"
+        : "id_scanning.failed_to_detect_limit"
+      ) | transloco
+    }}
+  </h1>
 
-	<h1 class="mt-4" [style.color]="project.branding.titleColor">
-		{{ (attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected" : "id_scanning.failed_to_detect_limit") | transloco }}
-	</h1>
+  <p class="mt-4" [style.color]="project.branding.txtColor">
+    {{
+      (attemptsLimit - attempts > 0
+        ? "id_scanning.document_not_detected_description"
+        : "id_scanning.failed_to_detect_limit_description"
+      ) | transloco
+    }}
+  </p>
 
-	<p class="mt-4" [style.color]="project.branding.txtColor">
-		{{
-			(attemptsLimit - attempts > 0 ? "id_scanning.document_not_detected_description" : "id_scanning.failed_to_detect_limit_description")
-				| transloco
-		}}
-	</p>
+  <p
+    class="mt-4"
+    [style.color]="project.branding.txtColor"
+    *ngIf="attemptsLimit - attempts > 0"
+  >
+    {{ "id_scanning.remaining_attempts" | transloco }}
+    {{ attemptsLimit - attempts }}
+  </p>
 
-	<p class="mt-4" [style.color]="project.branding.txtColor" *ngIf="attemptsLimit - attempts > 0">
-		{{ "id_scanning.remaining_attempts" | transloco }} {{ attemptsLimit - attempts }}
-	</p>
-
-	<button
-		mat-raised-button
-		color="primary"
-		class="mt-4 z-index-2 id-scanning-try-again-button"
-		(click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
-		[style.color]="project.branding.buttonTxtColor"
-		[style.background]="project.branding.buttonColor"
-	>
-		{{ (failedToDetectDocument ? "id_scanning.retry" : "restart") | transloco }}
-	</button>
+  <button
+    mat-raised-button
+    color="primary"
+    class="mt-4 z-index-2 id-scanning-try-again-button"
+    (click)="attemptsLimit - attempts > 0 ? tryAgain(true) : restartDemo()"
+    [style.color]="project.branding.buttonTxtColor"
+    [style.background]="project.branding.buttonColor"
+  >
+    {{ (failedToDetectDocument ? "id_scanning.retry" : "restart") | transloco }}
+  </button>
 </div>

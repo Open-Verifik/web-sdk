@@ -65,7 +65,6 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     base64Image: any;
-    cameraStatus: string = 'enabled';
     demoData: any;
     errorContent: any;
     errorResult: boolean;

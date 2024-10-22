@@ -68,7 +68,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	};
 
 	appRegistration: AppRegistration;
-	currentKYCStep: string = 'document';
 	currentStep: string = 'create';
 	currentStepIndex: number = 0;
 	deviceDetails: any;
@@ -79,6 +78,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	project: Project;
 	projectFlow: ProjectFlow;
 	sendingOTP: Boolean;
+	showKYCApp: boolean = false;
 	steps: Array<string> = ['create'];
 	token: string;
 	verificationComplete: boolean = false;
@@ -174,7 +174,15 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _checkVerification(): void {
-		if (!this.appRegistration || !this.projectFlow) return;
+		if (
+			!this.appRegistration?.emailValidation?.status ||
+			!this.appRegistration?.phoneValidation?.status ||
+			!this.projectFlow
+		) {
+			this.verificationComplete = false;
+
+			return;
+		}
 
 		const {
 			emailValidation: { status: emailStatus },
@@ -300,8 +308,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._setStep(step);
 	}
 
-	onKYCStepChange(kycStep: string): void {
-		this.currentKYCStep = kycStep;
+	onKYCStepChange(show: boolean): void {
+		this.showKYCApp = show;
 	}
 
 	showCountryNotAllowed(): boolean {

@@ -1,6 +1,5 @@
 <div
   @fadeIn
-  @fadeOut
   *ngIf="project && selectedMethod === ''"
   class="flex px-2 py-4"
   [ngClass.gt-sm]="'h-full'"
@@ -172,16 +171,16 @@
 </div>
 
 <smart-upload
-  *ngIf="selectedMethod === 'upload'"
-  @fadeIn
-  @fadeOut
-  [project]="project"
   (back)="selectedMethod = ''"
+  [appRegistration]="appRegistration"
+  [project]="project"
+  @fadeIn
+  *ngIf="selectedMethod === 'upload'"
 ></smart-upload>
 
 <smart-scan
-  *ngIf="selectedMethod === 'scan'"
-  @fadeIn
-  @fadeOut
+  [appRegistration]="appRegistration"
   [project]="project"
+  @fadeIn
+  *ngIf="selectedMethod === 'scan'"
 ></smart-scan>

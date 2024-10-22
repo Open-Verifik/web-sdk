@@ -19,7 +19,10 @@
   </section>
 
   <main class="app__content" [style.backgroundColor]="project.branding.bgColor">
-    <smart-documents [project]="project"></smart-documents>
+    <smart-documents
+      [appRegistration]="appRegistration"
+      [project]="project"
+    ></smart-documents>
   </main>
 
   <section

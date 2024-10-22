@@ -346,6 +346,12 @@
 		"camera_disabled_description": "Confirm that your device has a camera and permissions have been enabled",
 		"biometric_register": "Biometric Register",
 		"preparing_camera": "Preparing the camera...",
+		"face_instructions": "Make sure your face is in the center of the screen, remove your glasses, and ensure good lighting",
+		"success_rate": "{{percentile}}% success rate",
+		"successful_outcome": "Successful Outcome",
+		"face_was_registered": "Your face was correctly registered",
+		"id_was_registered": "Your ID was correctly registered",
+		"login_to_platform": "Login to the platform",
 		"documents": {
 			"scan_or_upload_title": "Scan or upload document",
 			"scan_or_upload_subtitle": "To conclude, for security and to confirm your identity, please scan a document. Accepted documents are Passports, Drivers Licenses or other government issued IDs with a photo.",

@@ -44,7 +44,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
     @Input('project') project: Project;
     @Input('appRegistration') appRegistration: AppRegistration;
 
-	@Output('onServiceChange') onServiceChange: EventEmitter<string> = new EventEmitter<string>()
+	@Output('onServiceChange') onServiceChange: EventEmitter<boolean> = new EventEmitter<boolean>()
 
     agreementForm: UntypedFormGroup;
     welcomeStyle: number = 0;
@@ -61,12 +61,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
         this.agreementForm = this._formBuilder.group({ agreement: ["", Validators.requiredTrue] });
 	}
 
-	goToDocumentUploader(): void {
-		this.onServiceChange.next('document');
-	}
-
-	goToBiometrics(): void {
-		this.onServiceChange.next('biometric');
+	goToKYCApp(): void {
+		this.onServiceChange.next(true);
 	}
 
 	skipDocumentUpload(): void {

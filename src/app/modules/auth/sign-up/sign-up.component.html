@@ -1,8 +1,7 @@
 <div
   [style.background]="project.branding.bgColor"
   @fadeIn
-  @fadeOut
-  *ngIf="project && currentKYCStep === ''"
+  *ngIf="project && !showKYCApp"
   class="w-full"
   fxLayout="row"
   fxLayoutAlign="center center"
@@ -65,7 +64,6 @@
 
             <auth-sign-up-create-form
               @fadeIn
-              @fadeOut
               [location]="location"
               [project]="project"
               [projectFlow]="projectFlow"
@@ -74,7 +72,6 @@
 
             <auth-sign-up-verification
               @fadeIn
-              @fadeOut
               (changeStep)="onStepChange($event)"
               [appRegistration]="appRegistration"
               [project]="project"
@@ -109,7 +106,6 @@
             [appRegistration]="appRegistration"
             [project]="project"
             @fadeIn
-            @fadeOut
             *ngIf="verificationComplete"
           ></auth-sign-up-verification-complete>
         </div>
@@ -227,4 +223,9 @@
   ></div>
 </div>
 
-<smart-enroll-app [project]="project" [appRegistration]="appRegistration" @fadeIn @fadeOut *ngIf="currentKYCStep !== ''"></smart-enroll-app>
+<smart-enroll-app
+  [appRegistration]="appRegistration"
+  [project]="project"
+  @fadeIn
+  *ngIf="showKYCApp"
+></smart-enroll-app>

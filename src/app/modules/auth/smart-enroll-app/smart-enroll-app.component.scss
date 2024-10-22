@@ -1,3 +1,69 @@
+smart-enroll-stepper {
+    z-index: 9999;
+}
+
+.results {
+    &__avatar-container {
+        position: relative;
+        height: 176px;
+        border-radius: 34px;
+        width: 176px;
+    }
+
+    &__canvas-crop {
+        border-radius: 88px;
+        height: 176px;
+        overflow: hidden;
+        position: relative;
+        width: 176px;
+    }
+
+    &__canvas {
+        position: absolute;
+        left: -30%;
+        max-height: 100%;
+    }
+
+    &__check-icon {
+        padding: 12px;
+        border-radius: 34px;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        height: 67px!important;
+        width: 67px!important;
+        font-size: 25px;
+        z-index: 2;
+    }
+
+    &__score {
+        padding: 8px 12px;
+        height: 37px;
+        border-radius: 19px;
+
+        &--green {
+            background-color: #C4EED0;
+        }
+
+        &--red {
+            background-color: #F9DEDC;
+        }
+    }
+
+    &__checklist-item {
+        padding: 8px 16px;
+        height: 72px
+    }
+
+    &__checklist-icon {
+        font-size: 24px;
+
+        &--green {
+            color: #30bf17;
+        }
+    }
+}
+
 .app {
     &__content {
         position: absolute;
@@ -75,6 +141,10 @@
 
 .biometrics {
     position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
 }
 
 .drag-and-drop {

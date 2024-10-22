@@ -3,10 +3,10 @@
 <div
   [ngClass.gt-sm]="'h-full'"
   @fadeIn
-  @fadeOut
   class="flex px-8 py-4"
   fxLayout="row"
   fxLayoutAlign="center center"
+  *ngIf="project && appRegistration"
 >
   <smart-enroll-stepper
     fxFlex="25%"
@@ -394,87 +394,24 @@
       </mat-card-actions>
     </div>
 
-    <div @fadeIn *ngIf="stepIndex > 4">
-      <div fxLayout="column" *ngIf="cameraStatus === ''">
-        <div fxLayout="column" fxLayoutAlign="start center">
-          <mat-progress-spinner mode="indeterminate" strokeWidth="4" diameter="36"></mat-progress-spinner>
-          <h4 class="font-medium mt-6 text-xl">{{ "smart_enroll.preparing_camera" | transloco }}</h4>
-        </div>
-      </div>
+    <div class="biometrics" @fadeIn *ngIf="stepIndex > 4">
+      <id-scanning-ios *ngIf="demoData.OS == 'IOS'"></id-scanning-ios>
 
-      <div
-        class="smart-documents__card rounded-2xl bg-card m-4 p-6 mt-16 w-full"
-        fxLayout="column"
-        *ngIf="cameraStatus === 'disabled'"
-        @fadeIn
-        [style.border]="
-          project.branding.borderColor
-            ? '1px solid ' + project.branding.borderColor
-            : ''
-        "
-      >
-        <mat-card-title class="text-center mt-2">
-          <mat-icon class="welcome__icon welcome__icon--medium" [style.color]="project.branding.buttonColor" svgIcon="heroicons_solid:video-camera-slash"></mat-icon>
-        </mat-card-title>
-
-        <mat-card-title class="text-center text-3xl mt-4" [style.color]="project.branding.titleColor">
-          {{ "smart_enroll.camera_disabled_title" | transloco }}
-        </mat-card-title>
-
-        <mat-card-content
-          class="mt-8"
-          fxLayout="column"
-          fxLayoutAlign="start center"
-          @fadeIn
-        >
-          <p class="text-center">{{ "smart_enroll.camera_disabled_description" | transloco }}</p>
-        </mat-card-content>
-
-        <div fxLayout="column" fxFlex="1 1 0 auto"></div>
-
-        <mat-card-actions class="mt-4" fxLayout="row" fxLayoutAlign="space-between">
-          <button
-            (click)="goPrevious()"
-            [style.border]="'1px solid ' + project.branding.buttonColor"
-            [style.color]="project.branding.buttonColor"
-            class="fuse-mat-button-large mt-6"
-            mat-flat-button
-          >
-            <span>{{ "log_out" | transloco }}</span>
-          </button>
-
-          <button
-            [style.background]="project.branding.buttonColor"
-            [style.color]="project.branding.buttonTxtColor"
-            class="fuse-mat-button-large mt-6"
-            mat-flat-button
-          >
-            <span>{{ "id_scanning.retry" | transloco }}</span>
-          </button>
-        </mat-card-actions>
-      </div>
-
-      <div
-        class="biomentrics"
-        fxLayout="column"
-        *ngIf="cameraStatus === 'enabled'"
-        @fadeIn
+      <id-scanning
+        (onNext)="goNext()"
+        (onPrevious)="goPrevious()"
+        *ngIf="demoData.OS != 'IOS'"
+        class="w-full h-full"
+        fxLayoutAlign="center center"
       >
         <h5
-          class="text-3xl font-medium mt-2"
+          class="text-3xl font-medium mt-6 text-center"
           [style.color]="project.branding.titleColor"
+          title
         >
           {{ "smart_enroll.biometric_register" | transloco }}
         </h5>
-
-        <id-scanning-ios *ngIf="demoData.OS == 'IOS'"></id-scanning-ios>
-
-        <id-scanning
-          *ngIf="demoData.OS != 'IOS'"
-          fxLayoutAlign="center center"
-          class="w-full h-full mb-6"
-        ></id-scanning>
-      </div>
+      </id-scanning>
     </div>
   </div>
 

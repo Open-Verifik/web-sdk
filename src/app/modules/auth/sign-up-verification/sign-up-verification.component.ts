@@ -121,7 +121,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         }
 
 		if (changes.appRegistration?.currentValue) {
-			console.log("🚀 ~ AuthSignUpVerificationComponent ~ ngOnChanges ~ changes:", changes)
 			debounce(() => this._initValidations())();
 		}
     }
