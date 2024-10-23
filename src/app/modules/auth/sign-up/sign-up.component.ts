@@ -266,6 +266,14 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _setStep(step: string): void {
+		if (step === 'complete') {
+			this.currentStep = '';
+			this.currentStepIndex = 0;
+			this.verificationComplete = true;
+
+			return;
+		}
+
 		this.currentStep = step;
 
 		const index = this.steps.indexOf(this.currentStep);

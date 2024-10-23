@@ -169,6 +169,16 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		});
 	}
 
+	private _confirmValidation(): void {
+		if (this.sendingOTP || this.loading) return;
+
+		if (this.currentValidation.email) {
+			this._confirmEmailValidation();
+		} else if (this.currentValidation.phone && this.selectedPhoneGateway !== "both") {
+			this._confirmPhoneValidation();
+		}
+	}
+
 	private _completeAppRegistration(): void {
 		const { emailGateway, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
 		const emailStatus = this.appRegistration.emailValidation?.status;
@@ -349,6 +359,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 					return;
 				}
+
+				this.changeStep.next('complete')
 			},
 		});
 
@@ -406,23 +418,13 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 		if (!isValid) return;
 
-		this.confirmValidation();
+		this._confirmValidation();
 	}
 
 	chooseAnotherOTPMethod(): void {
 		this.countdownSubscription?.unsubscribe();
 		this.remainingTime = '';
 		this.selectedPhoneGateway = 'both';
-	}
-
-	confirmValidation(): void {
-		if (this.sendingOTP || this.loading) return;
-
-		if (this.currentValidation.email) {
-			this._confirmEmailValidation();
-		} else if (this.currentValidation.phone && this.selectedPhoneGateway !== "both") {
-			this._confirmPhoneValidation();
-		}
 	}
 
 	onInput(event: Event) {

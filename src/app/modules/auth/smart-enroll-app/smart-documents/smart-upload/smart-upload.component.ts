@@ -59,6 +59,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     @Input('appRegistration') appRegistration: AppRegistration;
     @Input('project') project: Project;
+    @Input('method') method: ''|'scan'|'upload';
 
     @Output('back') backEmit: EventEmitter<void> = new EventEmitter<void>();
 
@@ -72,7 +73,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     file: File;
     fileDataMap: Map<number, { file: File, faceIdCard: string, base64Image: string }> = new Map();
     fileProgress: number;
-    stepIndex: number = 5;
+    stepIndex: number = 1;
 
     constructor(private _demoService: DemoService) {}
 
@@ -253,11 +254,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
                     this._setFileData(this.stepIndex % 2, this.file, this.base64Image, this.faceIdCard);
 				} catch (error) {
 					alert(error.message);
-				}
+                }
 			};
 		};
 
-		fileReader.readAsDataURL(files[0]);
+		fileReader.readAsDataURL(this.file);
     }
   
     fileBrowseHandler(files: Array<File>) {

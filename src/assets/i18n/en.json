@@ -232,26 +232,6 @@
 		"verifik_dismiss": "Not Now, Thanks",
 		"dismiss": "Dismiss"
 	},
-	"welcome": {
-		"title": "Welcome to {{projectName}}",
-		"description_a": "The identification document file must be in one of the following formats: .png, .jpeg, .jpg",
-		"steps": {
-			"1": "Scan your ID card",
-			"2": "Verify the extracted information",
-			"3": "Generate a 3D biometric record",
-			"4": "Authenticate your identity"
-		},
-		"agreement": "To continue this process, you must accept our ",
-		"agreement_link": "Agreement on data processing",
-		"skip": "Skip",
-		"start_on_device": "Start on this device",
-		"continue_on_another": "Continue on another device",
-		"validate_identity_subtitle": "Validate your identity with facial biometrics",
-		"validate_identity_description": "Place your face within the frame",
-		"credits_subtitle": "Get $10 Credits with Biometric Data",
-		"credits_description": "Register your data and improve the security of your account to enjoy fast and secure access.",
-		"perform_biometry": "Perform Biometry now"
-	},
 	"signup": {
 		"invalid_email": "Email is invalid",
 		"invalid_phone": "Phone is invalid",
@@ -352,34 +332,36 @@
 		"face_was_registered": "Your face was correctly registered",
 		"id_was_registered": "Your ID was correctly registered",
 		"login_to_platform": "Login to the platform",
+		"step_titles": {
+			"id_scanning": "ID Scanning",
+			"upload": "Upload",
+			"ocr_details": "OCR Details",
+			"biometric_record": "Biometric Record",
+			"results": "Results"
+		},
 		"documents": {
 			"scan_or_upload_title": "Scan or upload document",
-			"scan_or_upload_subtitle": "To conclude, for security and to confirm your identity, please scan a document. Accepted documents are Passports, Drivers Licenses or other government issued IDs with a photo.",
 			"upload_document_title": "Upload document image",
 			"upload": {
 				"steps": {
-					"1": "Upload an image in .jpeg, .png, or .jpg formats",
-					"2": "Confirm the upload was successful",
-					"3": "Verify the information extracted matches your data"
-				},
-				"step_titles": {
-					"upload": "Upload",
-					"ocr_details": "OCR Details",
-					"biometric_record": "Biometric Record",
-					"results": "Results"
+					"1": "Upload a file in .jpeg, .png, or .jpg formats.",
+					"2": "Confirm the upload was successful.",
+					"3": "Confirm that the result matches your data."
 				},
 				"errors": {
 					"file_too_big": "The file must be no larger than 10MB",
 					"face_not_found": "The document must have your face, and be clearly visible."
 				},
 				"again": "Upload again",
-				"upload_frontside": "Upload Document Front",
-				"upload_backside": "Upload Document Back",
+				"frontside": "Front Side",
+				"backside": "Back Side",
+				"upload_frontside": "Upload Front Side",
+				"upload_backside": "Upload Back Side",
 				"passport": "Passport",
 				"driver_license": "Drivers License",
 				"id": "ID",
 				"find_file": "Find file on your device",
-				"identification_document_tip": "The identification document must be in one of the following formats: .jpeg, .png, or .jpg",
+				"identification_document_tip": "The file must be in one of the following formats: .jpeg, .png, or .jpg",
 				"ocr_details_front_title": "OCR Details from Front Side Document",
 				"ocr_details_back_title": "OCR Details from Back Side Document",
 				"document_template": "Document Template",
@@ -390,13 +372,35 @@
 			},
 			"scan_document_title": "Scan document",
 			"scan": {
+				"scan_front": "Scan Document Front Side",
+				"scan_back": "Scan Document Back Side",
 				"steps": {
-					"1": "Place the front of the document on a flat, light surface",
-					"2": "Turn your device horizontal",
-					"3": "Hold the camera steady with the document within the marked area",
-					"4": "Verify the information extracted matches your data"
+					"1": "Place the document on a flat, well-lit surface.",
+					"2": "Rotate your device so the camera is horizontal.",
+					"3": "Place the document in front of your camera.",
+					"4": "Confirm that the result matches your data."
 				}
 			}
 		}
+	},
+	"welcome": {
+		"title": "Welcome to {{projectName}}",
+		"description": "To finish creating an account for {{projectName}}, you will need to complete the biometric verification steps. Follow the instructions carefully.",
+		"steps": {
+			"1": "Scan or Upload your ID card",
+			"2": "Verify the extracted information",
+			"3": "Generate a 3D biometric record",
+			"4": "Authenticate your identity"
+		},
+		"agreement": "To continue this process, you must accept our ",
+		"agreement_link": "Agreement on data processing",
+		"skip": "Skip",
+		"start_on_device": "Start on this device",
+		"continue_on_another": "Continue on another device",
+		"validate_identity_subtitle": "Validate your identity with facial biometrics",
+		"validate_identity_description": "Place your face within the frame",
+		"credits_subtitle": "Get $10 Credits with Biometric Data",
+		"credits_description": "Register your data and improve the security of your account to enjoy fast and secure access.",
+		"perform_biometry": "Perform Biometry now"
 	}
 }

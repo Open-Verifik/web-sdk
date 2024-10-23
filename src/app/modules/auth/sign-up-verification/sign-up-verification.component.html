@@ -119,6 +119,7 @@
         (input)="onInput($event)"
         (keyup)="checkSixDigits()"
         [formControlName]="'otp'"
+        maxlength="6"
         #passwordField
         id="otp"
         matInput

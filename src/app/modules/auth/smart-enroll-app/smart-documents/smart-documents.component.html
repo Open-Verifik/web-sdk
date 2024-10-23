@@ -18,12 +18,6 @@
       >
         {{ "smart_enroll.documents.scan_or_upload_title" | transloco }}
       </h5>
-
-      <div class="flex items-baseline mt-4">
-        <div>
-          {{ "smart_enroll.documents.scan_or_upload_subtitle" | transloco }}
-        </div>
-      </div>
     </div>
 
     <div
@@ -173,14 +167,8 @@
 <smart-upload
   (back)="selectedMethod = ''"
   [appRegistration]="appRegistration"
+  [method]="selectedMethod"
   [project]="project"
+  *ngIf="selectedMethod !== ''"
   @fadeIn
-  *ngIf="selectedMethod === 'upload'"
 ></smart-upload>
-
-<smart-scan
-  [appRegistration]="appRegistration"
-  [project]="project"
-  @fadeIn
-  *ngIf="selectedMethod === 'scan'"
-></smart-scan>

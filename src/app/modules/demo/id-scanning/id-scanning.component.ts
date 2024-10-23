@@ -3,7 +3,7 @@ import { debounce, DebouncedFunc } from "lodash";
 import { Subject, takeUntil } from "rxjs";
 
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -70,9 +70,11 @@ export class IdScanningComponent implements OnInit {
 	@ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
 	@ViewChild("videoElement") videoElement: ElementRef;
 
+	@Input('source') source: 'document' | 'face';
+
     @Output('onNext') onNext: EventEmitter<void> = new EventEmitter<void>();
     @Output('onPrevious') onPrevious: EventEmitter<void> = new EventEmitter<void>();
-	
+
 	private _detectFaceInterval: any;
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -180,6 +182,12 @@ export class IdScanningComponent implements OnInit {
 		});
 	}
 
+	ngOnDestroy(): void {
+		if (!this.stream) return;
+
+		this.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+	}
+
 	private _setProjectData(): void {
 		if (this.view === 'kyc') return;
 
@@ -194,6 +202,8 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	private _drawMask(ctx: CanvasRenderingContext2D): void {
+		if (this.source === 'document') return;
+
 		const isHorizontal = this.video.height < this.video.width;
 
 		let DRAWING_X = isHorizontal ? 1920 : 1080;
@@ -444,15 +454,15 @@ export class IdScanningComponent implements OnInit {
 		const maxHeight = Math.min(appWindowHeight, this.video.height);
 		const maxWidth = Math.min(appWindowWidth, this.video.width);
 
-		const scaleRatioX = appWindowWidth / this.video.width;
-		const scaleRatioY = appWindowHeight / this.video.height;
+		const scaleRatioX = maxWidth / this.video.width;
+		const scaleRatioY = maxHeight / this.video.height;
 
 		// rescale to maintain aspect ratio
-		if (scaleRatioX < 1) this.HEIGHT = maxHeight * scaleRatioX;
-		else this.HEIGHT = maxHeight;
-		if (scaleRatioY < 1) this.WIDTH = maxWidth * scaleRatioY;
-		else this.WIDTH = maxWidth;
-		
+		if (scaleRatioX < 1) this.HEIGHT = +(maxHeight * scaleRatioX).toFixed(0);
+		else this.HEIGHT = +(maxHeight).toFixed(0);
+		if (scaleRatioY < 1) this.WIDTH = +(maxWidth * scaleRatioY).toFixed(0);
+		else this.WIDTH = +(maxWidth).toFixed(0);
+
 		const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
 
 		canvas.height = this.HEIGHT;
@@ -493,7 +503,7 @@ export class IdScanningComponent implements OnInit {
 				setTimeout(() => {
 					this.videoElement.nativeElement.srcObject = stream;
 					this.videoElement.nativeElement.addEventListener("loadedmetadata", () => {
-						if (!this.demoData.isMobile) {
+						if (!this.demoData.isMobile || height > width) {
 							this.videoElement.nativeElement.style.transform = "scaleX(-1)";
 						}
 
@@ -664,6 +674,7 @@ export class IdScanningComponent implements OnInit {
 		this.base64Images = undefined;
 		this.failedToDetectDocument = false;
 
+		this.faceIsValid = false;
 		this.errorFace = {};
 		this.errorContent.message = null;
 		this.errorResult = false;

@@ -2,6 +2,183 @@ smart-enroll-stepper {
     z-index: 9999;
 }
 
+.app {
+    &__content {
+        position: absolute;
+        top: 57px;
+        bottom: 57px;
+        overflow: auto;
+        left: 0;
+        right: 0;
+    }
+}
+
+.toolbar {
+    background-color: #ffffff;
+    width: 100%;
+    height: 56px;
+    position: absolute;
+    z-index: 9999;
+    padding: 8px 24px;
+
+    &__logo {
+        height: 40;
+    }
+
+    &--top {
+        top: 0;
+        border-bottom: 1px solid #64748B;
+    }
+
+    &--bottom {
+        bottom: 0;
+        border-top: 1px solid #64748B;
+    }
+}
+
+.font-small {
+    font-size: smaller;
+}
+
+.smart-documents {
+    &__heading {
+        max-width: 680px;
+    }
+
+    &__card {
+        min-width: 432px;
+        max-width: 432px;
+
+        &--large {
+            min-width: 526px;
+            max-width: 526px;
+        }
+
+        &--xlarge {
+            min-width: 766px;
+            max-width: 766px;
+
+            @media screen and (max-width: 992px) {
+                min-width: 526px;
+                max-width: 526px;
+            }
+        }
+    }
+}
+
+.ocr {
+    &__scanner {
+        border: 10px solid #FF5638;
+
+        &--green {
+            border-color: #3bf65f;
+        }
+    }
+
+    &__image {
+        height: 100%;
+        width: 100%;
+
+        @media screen and (max-width: 992px) {
+            height: 100%;
+            width: 100%;
+        }
+
+        img {
+            max-height: 216px;
+            max-width: 340px;
+
+            @media screen and (max-width: 992px) {
+                max-height: 474px;
+                max-width: 474px;
+            }
+        }
+    }
+
+    &__subtitle {
+        font-size: small;
+        color: #cccccc;
+    }
+
+    &__template-value {
+        font-size: small;
+        margin: 0;
+    }
+
+    &__line {
+        position: relative;
+        height: 48px;
+
+        &--border {
+            &:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                background-color: #CCCCCC;
+                bottom: 0;
+            }
+        }
+    }
+
+    &__label {
+        color: #cccccc;
+    }
+}
+
+.drag-and-drop {
+    position: relative;
+    height: 340px;
+    transition: background-color cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
+    overflow: hidden;
+
+    &--active {
+        border: 1px dashed #64748B;
+        background-color: rgba(0, 0, 0, 0.08) !important;
+    }
+
+    &__loader {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: 2;
+    }
+
+    &__preview {
+        max-height: 476px;
+        max-width: 340px;
+    }
+
+    &__data {
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 0 16px;
+        font-size: smaller;
+        color: #ffffff;
+        width: 100%;
+        z-index: 2;
+        position: absolute;
+        bottom: 0;
+    }
+
+    input {
+      height: 100%;
+      left: 0;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      z-index: 1;
+    }
+}
+
+.biometrics {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
 .results {
     &__avatar-container {
         position: relative;
@@ -61,156 +238,5 @@ smart-enroll-stepper {
         &--green {
             color: #30bf17;
         }
-    }
-}
-
-.app {
-    &__content {
-        position: absolute;
-        top: 57px;
-        bottom: 57px;
-        overflow: auto;
-        left: 0;
-        right: 0;
-    }
-}
-
-.font-small {
-    font-size: smaller;
-}
-
-.smart-documents {
-    &__heading {
-        max-width: 680px;
-    }
-
-    &__card {
-        max-width: 432px;
-
-        &--large {
-            max-width: 526px;
-        }
-
-        &--xlarge {
-            max-width: 766px;
-        }
-    }
-}
-
-.ocr {
-    &__image {
-        height: 216px;
-        width: 340px;
-
-        img {
-            max-height: 216px;
-            max-width: 340px;
-        }
-    }
-
-    &__subtitle {
-        font-size: small;
-        color: #cccccc;
-    }
-
-    &__template-value {
-        font-size: small;
-        margin: 0;
-    }
-
-    &__line {
-        position: relative;
-        height: 48px;
-
-        &--border {
-            &:after {
-                content: '';
-                position: absolute;
-                width: 100%;
-                height: 1px;
-                background-color: #CCCCCC;
-                bottom: 0;
-            }
-        }
-    }
-
-    &__label {
-        color: #cccccc;
-    }
-}
-
-.biometrics {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-}
-
-.drag-and-drop {
-    position: relative;
-    height: 340px;
-    transition: background-color cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
-    overflow: hidden;
-
-    &--active {
-        border: 1px dashed #64748B;
-        background-color: rgba(0, 0, 0, 0.08) !important;
-    }
-
-    &__loader {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        z-index: 2;
-    }
-
-    &__preview {
-        max-height: 476px;
-        max-width: 340px;
-    }
-
-    &__data {
-        background-color: rgba(0, 0, 0, 0.4);
-        padding: 0 16px;
-        font-size: smaller;
-        color: #ffffff;
-        width: 100%;
-        z-index: 2;
-        position: absolute;
-        bottom: 0;
-    }
-
-    input {
-      height: 100%;
-      left: 0;
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      width: 100%;
-      z-index: 1;
-    }
-}
-
-.toolbar {
-    background-color: #ffffff;
-    width: 100%;
-    height: 56px;
-    position: absolute;
-    z-index: 9999;
-    padding: 8px 24px;
-
-    &__logo {
-        height: 40;
-    }
-
-    &--top {
-        top: 0;
-        border-bottom: 1px solid #64748B;
-    }
-
-    &--bottom {
-        bottom: 0;
-        border-top: 1px solid #64748B;
     }
 }

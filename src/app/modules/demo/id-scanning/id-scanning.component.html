@@ -108,17 +108,24 @@
         [class.hidden]="base64Images"
       >
         <video
-          [ngClass]="{ 'max-h-[75vh]': !phoneMode }"
+          [ngClass]="{
+            'max-h-[75vh]': !phoneMode,
+            'rounded-3xl': source === 'face',
+          }"
           [style.height.px]="HEIGHT"
           [style.width.px]="WIDTH"
           #videoElement
           autoplay
-          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          class="absolute top-0 left-0 right-0 bottom-0 m-auto"
         ></video>
 
         <canvas
           #canvas
           class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          [ngClass]="{
+            'ocr__scanner': source === 'document',
+            'ocr__scanner--green': source === 'document' && faceIsValid,
+          }"
         ></canvas>
 
         <code
@@ -185,11 +192,21 @@
 
       <div class="capture_button" fxLayout="row" fxLayoutAlign="center center" [class.hidden]="base64Images">
         <button
+          (click)="onPrevious.next()"
+          [style.color]="project.branding.buttonColor"
+          [style.border]="'1px solid' + project.branding.buttonColor"
+          class="m-2"
+          mat-flat-button
+        >
+          {{ "go_back" | transloco }}
+        </button>
+
+        <button
           (click)="takePicture()"
           [disabled]="errorFace"
           [style.background]="errorFace ? '' : project.branding.buttonColor"
           [style.color]="errorFace ? '' : project.branding.buttonTxtColor"
-          class="m-2 capture_button"
+          class="m-2"
           mat-flat-button
         >
           {{ "id_scanning.manual_capture_button" | transloco }}

@@ -24,6 +24,7 @@ import { Project } from "../../project";
 export class SmartDocumentsComponent {
     @Input('project') project: Project;
     @Input('stepIndex') stepIndex: number;
+    @Input('method') method: ''|'upload'|'scan';
 
     isActiveStep(step: number): boolean {
         return step === this.stepIndex;

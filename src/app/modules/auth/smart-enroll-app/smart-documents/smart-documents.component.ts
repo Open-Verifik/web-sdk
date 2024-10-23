@@ -9,7 +9,6 @@ import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { AppRegistration, Project } from "../../project";
-import { SmartScanComponent } from "./smart-scan/smart-scan.component";
 import { SmartUploadComponent } from "./smart-upload/smart-upload.component";
 
 @Component({
@@ -27,7 +26,6 @@ import { SmartUploadComponent } from "./smart-upload/smart-upload.component";
 		MatButtonModule,
 		NgIf,
 		ReactiveFormsModule,
-		SmartScanComponent,
 		SmartUploadComponent,
 		TranslocoModule,
         MatCardModule,
@@ -38,7 +36,7 @@ export class SmartDocumentsComponent {
     @Input('appRegistration') appRegistration: AppRegistration;
     @Input('project') project: Project;
 
-    selectedMethod: string = 'upload';
+    selectedMethod: string = '';
 
     constructor() {}
 
