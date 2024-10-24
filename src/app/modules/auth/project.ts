@@ -59,17 +59,18 @@ export interface ProjectFlow {
 			legalDocument?: boolean;
 		};
 		document: {
-			includeOCR?: boolean;
-			useBasicLiveness?: boolean;
-			useProLiveness?: boolean;
-			includeGovernmentVerification?: boolean;
-			useGovernmentID?: boolean;
-			usePassport?: boolean;
-			useLicense?: boolean;
-			verifyNames?: boolean;
-			verifyCriminalHistory?: boolean;
 			compareMinScore?: number;
+			includeGovernmentVerification?: boolean;
+			includeOCR?: boolean;
 			maxAttempts?: number;
+			useBasicLiveness?: boolean;
+			useGovernmentID?: boolean;
+			useLicense?: boolean;
+			usePassport?: boolean;
+			useProLiveness?: boolean;
+			validationMethod?: string;
+			verifyCriminalHistory?: boolean;
+			verifyNames?: boolean;
 		};
 		liveness: {
 			livenessMinScore?: number;
@@ -637,3 +638,84 @@ export class AppRegistrationModel implements AppRegistration {
 		this.signature = data.signature;
 	}
 }
+
+export interface DocumentScan {
+	documentType: DocumentType;
+	pro: any;
+	prompt: Prompt;
+	studio: Studio;
+}
+  
+export interface DocumentType {
+	age: number;
+	category: string;
+	country: string;
+	documentType: string;
+	gender: string;
+	nationality: string;
+	ocrRaw: string;
+	prompt: string;
+}
+
+export interface Prompt {
+	__v: number;
+	_id: string;
+	age: string;
+	client: any;
+	country: string;
+	createdAt: string;
+	documentCategory: string;
+	documentNumber: string;
+	documentType: string;
+	firstNameMatchPercentage: number;
+	fullNameMatchPercentage: number;
+	gender: string;
+	imageValidated: boolean;
+	inputMethod: string;
+	lastNameMatchPercentage: number;
+	namesMatch: boolean;
+	nationality: string;
+	OCRExtraction: OCRExtraction;
+	scoreValidated: boolean;
+	status: string;
+	type: string;
+	updatedAt: string;
+	url: string;
+	validationMethod: string;
+}
+
+export interface OCRExtraction {
+	additionalNotes?: string;
+	address?: string;
+	age?: number;
+	code?: string;
+	country?: string;
+	dateOfBirth?: string;
+	dateOfIssue?: string;
+	documentNumber?: string;
+	documentType?: string;
+	emergencyContact?: string;
+	expirationDate?: string;
+	eyeColor?: string;
+	firstName?: string;
+	fullName?: string;
+	gender?: string;
+	height?: string;
+	issuingAuthority?: string;
+	issuingCountry?: string;
+	lastName?: string;
+	nationality?: string;
+	organDonor?: string;
+	personalNo?: string;
+	photo?: string;
+	signature?: string;
+	state?: string;
+}
+
+export interface Studio {
+	_id: string;
+	documentType: string;
+	error: boolean;
+	message: string;
+}
+  

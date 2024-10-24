@@ -7,8 +7,9 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from '@angular/material/card';
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
+
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { AppRegistration, Project } from "../../project";
+import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { SmartUploadComponent } from "./smart-upload/smart-upload.component";
 
 @Component({
@@ -35,6 +36,7 @@ import { SmartUploadComponent } from "./smart-upload/smart-upload.component";
 export class SmartDocumentsComponent {
     @Input('appRegistration') appRegistration: AppRegistration;
     @Input('project') project: Project;
+    @Input('projectFlow') projectFlow: ProjectFlow;
 
     selectedMethod: string = '';
 

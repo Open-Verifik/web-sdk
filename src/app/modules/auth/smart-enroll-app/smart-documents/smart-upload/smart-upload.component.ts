@@ -8,10 +8,11 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 import { fuseAnimations } from "@fuse/animations";
 
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
 import * as faceapi from "@vladmandic/face-api";
 
@@ -19,11 +20,11 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 import { DragAndDropModule } from "app/modules/auth/drag-and-drop/drag-and-drop.module";
 import { DemoService } from "app/modules/demo/demo.service";
 
-import { AppRegistration, Project } from "../../../project";
+import { AppRegistration, DocumentScan, Project, ProjectFlow, Prompt } from "../../../project";
 import { IdScanningIOSComponent } from "../../../../demo/id-scanning-ios/id-scanning-ios.component";
 import { IdScanningComponent } from "app/modules/demo/id-scanning/id-scanning.component";
 import { SmartDocumentsComponent } from "../../smart-enroll-stepper/smart-enroll-stepper.component";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { OCRService } from "app/modules/ocr/ocr.service";
 
 const MAX_FILE_SIZE = 10485760;
 
@@ -58,8 +59,9 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 	@ViewChild("cardIdFace") cardIdFaceRef: ElementRef;
 
     @Input('appRegistration') appRegistration: AppRegistration;
-    @Input('project') project: Project;
     @Input('method') method: ''|'scan'|'upload';
+    @Input('project') project: Project;
+    @Input('projectFlow') projectFlow: ProjectFlow;
 
     @Output('back') backEmit: EventEmitter<void> = new EventEmitter<void>();
 
@@ -67,15 +69,22 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     base64Image: any;
     demoData: any;
+    documentResponse: Prompt;
     errorContent: any;
     errorResult: boolean;
     faceIdCard: string;
     file: File;
-    fileDataMap: Map<number, { file: File, faceIdCard: string, base64Image: string }> = new Map();
+    fileDataMap: Map<number, { file: File, faceIdCard: string, base64Image: string, response: Prompt }> = new Map();
     fileProgress: number;
+    isExtracting: boolean = false;
     stepIndex: number = 1;
+    requiresBack: boolean = false;
 
-    constructor(private _demoService: DemoService) {}
+    constructor(
+        private translocoService: TranslocoService,
+        private _demoService: DemoService,
+        private _ocrService: OCRService,
+    ) {}
 
 	ngOnInit(): void {
 		this.demoData = this._demoService.getDemoData();
@@ -85,15 +94,12 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 		this._unsubscribeAll.complete();
 	}
 
-    private _setFileData(mapIndex: number, file: File, base64Image: string, faceIdCard: string) {
-        this.fileDataMap.set(mapIndex, {file, base64Image, faceIdCard});
-    };
-
     private _getFileData(mapIndex: number) {
         if (!this.fileDataMap.has(mapIndex)) {
             this.base64Image = '';
             this.file = null;
             this.fileProgress = 0;
+            this.documentResponse = null;
 
             return;
         };
@@ -103,6 +109,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this.base64Image = fileData.base64Image;
         this.file = fileData.file;
         this.fileProgress = 100;
+        this.documentResponse = fileData.response;
     };
 
 	private _calculateAverageColor(image: HTMLCanvasElement) {
@@ -144,6 +151,35 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 		return colorDifference < threshold;
 	}
 
+	private async _detectFace(image: HTMLImageElement) {
+		try {
+			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+
+			if (!faces.length) return;
+
+            const faceBoxes = faces.map((face) => face.detection.box);
+            const progressStep = (50 / faces.length);
+
+            for (let box of faceBoxes) {
+                const margin = 10; // Adjust as needed
+                const { faceImage, backgroundImage } = this._extractRegions(image, box, margin);
+
+                const edgesFound = this._demoService.detectEdges(faceImage);
+                const blurAnalysis = this._demoService.analyzeBlurNoise(faceImage);
+                const idBackground = this._demoService.extractBackgroundImage(image, box);
+                
+                const colorConsistency = this._compareColorConsistency(faceImage, backgroundImage);
+                const lightConsistency = this._demoService.checkLightingConsistency(faceImage, idBackground);
+
+                this.fileProgress += progressStep;
+            }
+
+            return faceBoxes;
+		} catch (error) {
+			alert(error.message);
+		}
+	}
+
 	private _extractRegions(image: HTMLImageElement, box, margin) {
 		const canvasFace = document.createElement("canvas");
 		const ctxFace = canvasFace.getContext("2d");
@@ -172,39 +208,87 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 		ctxBackground.clearRect(faceX, faceY, faceWidth, faceHeight);
 
 		return {
-			faceImage: canvasFace,
 			backgroundImage: canvasBackground,
+			faceImage: canvasFace,
 		};
 	}
 
-	private async _detectFace(image: HTMLImageElement) {
-		try {
-			const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+    private async _fileOnLoad(event: ProgressEvent<FileReader>, img: HTMLImageElement) {
+        try {
+            const thisStep = this.stepIndex;
+            const mapIndex = thisStep % 2;
 
-			if (!faces.length) return;
+            this.fileProgress += 10;
 
-            const faceBoxes = faces.map((face) => face.detection.box);
-            const progressStep = (70 / faces.length);
+            if (this.stepIndex === 1) {
+                const faces = await this._detectFace(img);
 
-            for (let box of faceBoxes) {
-                const margin = 10; // Adjust as needed
-                const { faceImage, backgroundImage } = this._extractRegions(image, box, margin);
+                if (!faces) {
+                    this.fileProgress = 0;
+                    this.errorResult = true;
+                    this.errorContent = { message: "face_not_found" };
 
-                const edgesFound = this._demoService.detectEdges(faceImage);
-                const blurAnalysis = this._demoService.analyzeBlurNoise(faceImage);
-                const idBackground = this._demoService.extractBackgroundImage(image, box);
+                    return;
+                }
 
-                const colorConsistency = this._compareColorConsistency(faceImage, backgroundImage);
-                const lightConsistency = this._demoService.checkLightingConsistency(faceImage, idBackground);
+                const documentFace = this._demoService.getBiggestFace(faces);
 
-                this.fileProgress += progressStep;
+                this.faceIdCard = this._demoService.cutFaceIdCard(img, documentFace, this.cardIdFaceRef.nativeElement);
             }
 
-            return faceBoxes;
-		} catch (error) {
-			alert(error.message);
-		}
-	}
+            this.base64Image = event.target.result;
+
+            this._setFileData(mapIndex, this.file, this.base64Image, this.faceIdCard, {});
+
+            const body = {
+                image: this.base64Image.replace(/^data:image\/.*;base64,/, ""),
+            };
+
+            this.isExtracting = true;
+
+            if (this.projectFlow.onboardingSettings.document.validationMethod === 'SCAN_PROMPT') {
+                this._ocrService
+                    .scanPrompt(body)
+                    .subscribe({
+                        next: (response) => {
+                            const data = response.data as Prompt;
+                            const documentId = data._id;
+
+                            Object.keys(data.OCRExtraction).forEach((key) => {
+                                if (!data.OCRExtraction[key] || this.translocoService
+                                    .translate(`extracted_information.${key}`) === `extracted_information.${key}`)
+                                    {
+                                        delete data.OCRExtraction[key];
+                                    }
+                            });
+
+                            localStorage.setItem("idCardFaceImage", this.faceIdCard);
+                            localStorage.setItem("documentId", documentId);
+
+                            this._setFileData(mapIndex, this.file, this.base64Image, this.faceIdCard, data);
+                            this.documentResponse = data;
+                        },
+                        error: () => {
+                            this.errorResult = true;
+                            this.errorContent = { message: "failed_to_read" };
+                            this.fileProgress = 100;
+                            this.isExtracting = false;
+                        },
+                        complete: () => {
+                            this.fileProgress = 100;
+                            this.isExtracting = false;
+                        }
+                    });
+
+                return;
+            }
+        } catch (error) {
+            this.errorResult = true;
+            this.errorContent = { message: "failed_to_handle_file" };
+            this.fileProgress = 100;
+            this.isExtracting = false;
+        }
+    }
 
     private _prepareFilesList(files: Array<File>) {
         if (this.file) return;
@@ -221,45 +305,23 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         }
 
 		const fileReader = new FileReader();
-        this.fileProgress = 10;
+        this.fileProgress = 25;
 
 		fileReader.onload = (event: any) => {
 			const img = new Image();
 
 			img.src = event.target.result;
 
-			img.onload = async () => {
-				try {
-                    this.fileProgress += 10;
-
-                    if (this.stepIndex === 1) {
-                        const faces = await this._detectFace(img);
-
-                        if (!faces) {
-                            this.fileProgress = 0;
-                            this.errorResult = true;
-                            this.errorContent = { message: "face_not_found" };
-
-                            return;
-                        }
-
-                        const documentFace = this._demoService.getBiggestFace(faces);
-
-                        this.faceIdCard = this._demoService.cutFaceIdCard(img, documentFace, this.cardIdFaceRef.nativeElement);
-                    }
-
-					this.base64Image = event.target.result;
-                    this.fileProgress = 100;
-
-                    this._setFileData(this.stepIndex % 2, this.file, this.base64Image, this.faceIdCard);
-				} catch (error) {
-					alert(error.message);
-                }
-			};
+			img.onload = async () => await this._fileOnLoad(event, img);
 		};
 
 		fileReader.readAsDataURL(this.file);
     }
+
+    private _setFileData(mapIndex: number, file: File, base64Image: string, faceIdCard: string, data?: any) {
+        this.fileDataMap.set(mapIndex, {file, base64Image, faceIdCard, response: data });
+    };
+
   
     fileBrowseHandler(files: Array<File>) {
         this._prepareFilesList(files);
@@ -279,6 +341,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
+        // Skip second/fourth steps if rear document not required
+        if (!this.requiresBack && (this.stepIndex % 2 === 1 && this.stepIndex + 1 < 5)) {
+            this.stepIndex++;
+        }
+
         this.stepIndex++;
 
         this._getFileData(this.stepIndex % 2);
@@ -286,7 +353,13 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     goPrevious(): void {
         if (this.stepIndex <= 1) return this.backEmit.next();
-        else this.stepIndex--;
+
+        // Skip second/fourth steps if rear document not required
+        if (!this.requiresBack && (this.stepIndex % 2 === 1 && this.stepIndex - 1 < 5)) {
+            this.stepIndex--;
+        }
+
+        this.stepIndex--;
 
         this._getFileData(this.stepIndex % 2)
     }
@@ -309,9 +382,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     resetFileUpload(): void {
         this.base64Image = '';
+        this.documentResponse = null;
         this.errorContent = null;
         this.errorResult = false;
         this.file = null;
         this.fileProgress = 0;
+        this.isExtracting = false;
     }
 }

@@ -7,7 +7,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { AppRegistration, Project } from "../project";
+import { AppRegistration, Project, ProjectFlow } from "../project";
 import { SmartDocumentsComponent } from "./smart-documents/smart-documents.component";
 
 @Component({
@@ -33,6 +33,7 @@ import { SmartDocumentsComponent } from "./smart-documents/smart-documents.compo
 export class SmartEnrollAppComponent {
     @Input('appRegistration') appRegistration: AppRegistration;
     @Input('project') project: Project;
+    @Input('projectFlow') projectFlow: ProjectFlow;
 
     year: number = new Date().getFullYear();
 

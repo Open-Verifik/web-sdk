@@ -14,7 +14,6 @@ let _this = null;
 })
 export class DemoService {
 	private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
-
 	private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
 
 	navigation: any;
@@ -540,6 +539,26 @@ export class DemoService {
 		this.session = new Session(JSON.parse(storedSession));
 
 		return this.session;
+	}
+
+	findBiggestFace(detections: faceapi.WithFaceLandmarks<{
+		detection: faceapi.FaceDetection;
+	}, faceapi.FaceLandmarks68>[]) {
+		let maxArea = 0;
+		let biggestFace: faceapi.WithFaceLandmarks<{
+			detection: faceapi.FaceDetection;
+		}, faceapi.FaceLandmarks68>;
+
+		for (const face of detections) {
+			const tempArea = face.alignedRect.box.width * face.alignedRect.box.height;
+
+			if (tempArea > maxArea) {
+				biggestFace = face;
+				maxArea = tempArea;
+			}
+		}
+
+		return biggestFace;
 	}
 
 	getBiggestFace(faces) {

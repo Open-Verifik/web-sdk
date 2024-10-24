@@ -132,19 +132,19 @@
           class="absolute top-0 right-0 bottom-0 z-index-2 text-right"
           *ngIf="faceDetection"
         >
-          x: {{ faceDetection.alignedRect.box.x }}
+          x: {{ faceDetection.alignedRect?.box.x }}
           <br />
-          y: {{ faceDetection.alignedRect.box.y }}
+          y: {{ faceDetection.alignedRect?.box.y }}
           <br />
-          width: {{ faceDetection.alignedRect.box.width }}
+          width: {{ faceDetection.alignedRect?.box.width }}
           <br />
-          height: {{ faceDetection.alignedRect.box.height }}
+          height: {{ faceDetection.alignedRect?.box.height }}
           <br />
-          pitch: {{ faceDetection.angle.pitch }}
+          pitch: {{ faceDetection.angle?.pitch }}
           <br />
-          yaw: {{ faceDetection.angle.yaw }}
+          yaw: {{ faceDetection.angle?.yaw }}
           <br />
-          roll: {{ faceDetection.angle.roll }}
+          roll: {{ faceDetection.angle?.roll }}
           <br />
           <br />
           <br />

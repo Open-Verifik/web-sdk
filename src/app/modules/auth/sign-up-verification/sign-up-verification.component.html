@@ -81,7 +81,7 @@
   >
     <mat-progress-spinner
       diameter="24"
-      progressMode="indeterminate"
+      mode="indeterminate"
     ></mat-progress-spinner>
   </div>
 
@@ -203,7 +203,7 @@
       <mat-progress-spinner
         *ngIf="sendingOTP"
         [diameter]="24"
-        [mode]="'indeterminate'"
+        mode="indeterminate"
       ></mat-progress-spinner>
 
       <span> {{ "signup.resend" | transloco }} </span>

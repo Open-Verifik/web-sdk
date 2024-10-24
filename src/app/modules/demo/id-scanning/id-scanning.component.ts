@@ -170,7 +170,7 @@ export class IdScanningComponent implements OnInit {
 
 		this._activatedRoute.params.subscribe((params) => {
 			const isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
-			this.view = isVerifikProject ? "kyc" : "demo";
+			this.view = isVerifikProject ? this.source : "demo";
 
 			this._setProjectData()
 		});
@@ -189,7 +189,7 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	private _setProjectData(): void {
-		if (this.view === 'kyc') return;
+		if (this.view === 'face') return;
 
 		this.appRegistration = this._KYCService.appRegistration;
 
@@ -338,10 +338,11 @@ export class IdScanningComponent implements OnInit {
 			const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
 			if (detection.length) {
+				this.faceDetection = this._demoService.findBiggestFace(detection);
 				this.checkFaceTimeout = clearTimeout(this.checkFaceTimeout);
 				this.errorFace = null;
 
-				this._evaluateFaceData(detection);
+				this._evaluateFaceData(this.faceDetection);
 
 				return detection;
 			}
@@ -355,7 +356,7 @@ export class IdScanningComponent implements OnInit {
 				}, 3 * this.demoData.time);
 			}
 		} catch (error) {
-			alert(error.message);
+			console.error("🚀 ~ IdScanningComponent ~ _detectFace ~ error:", error)
 		}
 	}
 
@@ -371,13 +372,9 @@ export class IdScanningComponent implements OnInit {
 		The out-of-plane rotation angle (face pitch and yaw) should be no more than ±30 degrees.
 		Fish-eye lenses and sunglass images are not supported.
 	 */
-	private _evaluateFaceData(detection: faceapi.WithFaceLandmarks<{
+	private _evaluateFaceData(face: faceapi.WithFaceLandmarks<{
 		detection: faceapi.FaceDetection;
-	}, faceapi.FaceLandmarks68>[]) {
-		const face = detection[0];
-
-		this.faceDetection = face;
-
+	}, faceapi.FaceLandmarks68>) {
 		const correctResolution = face.alignedRect.box.height > RESOLUTION_LIMIT.HEIGHT_LOW &&
 			face.alignedRect.box.height < RESOLUTION_LIMIT.HEIGHT_HIGH &&
 			face.alignedRect.box.width > RESOLUTION_LIMIT.WIDTH_LOW &&
@@ -556,7 +553,7 @@ export class IdScanningComponent implements OnInit {
 
 		this.demoData.loading = true;
 
-		if (this.view === "kyc") {
+		if (this.source === "face") {
 			this._KYCService
 				.createDocumentValidation({
 					...this.idToSend,
@@ -602,7 +599,7 @@ export class IdScanningComponent implements OnInit {
 	}
 
 	restartDemo(): void {
-		if (this.view === "kyc") this.appRegistration.documentValidation = null;
+		if (this.view === "face") this.appRegistration.documentValidation = null;
 
 		this.ngOnInit();
 	}

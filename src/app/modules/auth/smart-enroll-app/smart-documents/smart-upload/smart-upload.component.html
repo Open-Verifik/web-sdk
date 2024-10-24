@@ -61,7 +61,7 @@
           </p>
         </div>
 
-        <div class="flex welcome__step-row mx-4">
+        <div class="flex welcome__step-row mx-4" *ngIf="requiresBack">
           <p
             class="welcome__step"
             [style.backgroundColor]="
@@ -104,7 +104,35 @@
             ></mat-progress-bar>
           </div>
 
-          <div [ngClass]="file ? 'hidden' : ''" fxLayout="column" fxLayoutAlign="center center">
+          <div
+            class="drag-and-drop__loader-overlay"
+            fxLayout="row"
+            fxLayoutAlign="center center"
+            *ngIf="isExtracting || errorResult"
+          >
+            <div fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtracting">
+              <mat-progress-spinner
+                diameter="36"
+                mode="indeterminate"
+              ></mat-progress-spinner>
+
+              <p class="mt-4">
+                {{ "smart_enroll.extracting_data" | transloco }}...
+              </p>
+            </div>
+
+            <div fxLayout="column" fxLayoutAlign="center center" *ngIf="errorResult">
+              <p class="mt-4 red-500 text-center">
+                {{ "id_scanning." + errorContent.message | transloco }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            [ngClass]="file ? 'hidden' : ''"
+            fxLayout="column"
+            fxLayoutAlign="center center"
+          >
             <input
               (change)="fileBrowseHandler($event.target.files)"
               #fileInput
@@ -137,22 +165,14 @@
               >error</mat-icon
             >
 
-            <div class="drag-and-drop__data">
+            <div class="drag-and-drop__data" *ngIf="!errorContent">
               <div
                 fxLayout="row"
                 fxLayoutAlign="space-between"
-                *ngIf="!errorContent"
               >
                 <h4 class="mr-4">{{ file?.name }}</h4>
                 <p>{{ formatBytes(file?.size) }}</p>
               </div>
-
-              <h4 *ngIf="errorContent">
-                {{
-                  "smart_enroll.documents.upload.errors." + errorContent.message
-                    | transloco
-                }}
-              </h4>
             </div>
           </div>
         </div>
@@ -175,12 +195,17 @@
 
         <button
           (click)="resetFileUpload()"
-          [style.background]="errorContent ? project.branding.buttonColor : ''"
+          [disabled]="isExtracting"
+          [style.background]="
+            errorContent && !isExtracting ? project.branding.buttonColor : ''
+          "
           [style.border]="
-            errorContent ? 'none' : '1px solid' + project.branding.buttonColor
+            errorContent || isExtracting
+              ? 'none'
+              : '1px solid' + project.branding.buttonColor
           "
           [style.color]="
-            errorContent
+            errorContent && !isExtracting
               ? project.branding.buttonTxtColor
               : project.branding.buttonColor
           "
@@ -275,7 +300,7 @@
         *ngIf="isActiveStep(3) || isActiveStep(4)"
       >
         <div fxLayout="row" fxLayout.lt-md="column" fxFill fxLayoutGap="24px">
-          <div class="w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
+          <div class="ocr w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
             <div
               class="ocr__image rounded-2xl"
               [style.background]="project.branding.background"
@@ -334,22 +359,13 @@
               class="ocr__line ocr__line--border"
               fxLayout="row"
               fxLayoutAlign="space-between center"
+              *ngFor="let item of documentResponse.OCRExtraction | keyvalue"
             >
               <p class="ocr__label">
-                {{ "extracted_information.firstName" | transloco }}
+                {{ "extracted_information." + item.key | transloco }}
               </p>
-              <p class="ocr__value">Laura</p>
-            </div>
 
-            <div
-              class="ocr__line"
-              fxLayout="row"
-              fxLayoutAlign="space-between center"
-            >
-              <p class="ocr__label">
-                {{ "extracted_information.lastName" | transloco }}
-              </p>
-              <p class="ocr__value">Walteros</p>
+              <p class="ocr__value text-right">{{ item.value }}</p>
             </div>
 
             <h4 class="font-medium text-xl mt-8">
@@ -410,7 +426,11 @@
       </mat-card-actions>
     </div>
 
-    <div class="biometrics" @fadeIn *ngIf="stepIndex > 4 || (method === 'scan' && stepIndex < 3)">
+    <div
+      class="biometrics"
+      @fadeIn
+      *ngIf="stepIndex > 4 || (method === 'scan' && stepIndex < 3)"
+    >
       <id-scanning-ios *ngIf="demoData.OS == 'IOS'"></id-scanning-ios>
 
       <id-scanning
