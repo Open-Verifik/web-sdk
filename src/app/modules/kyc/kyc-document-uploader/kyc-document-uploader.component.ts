@@ -150,7 +150,7 @@ export class KycDocumentUploaderComponent implements OnDestroy {
 
 					const lightConsistency = this._demoService.checkLightingConsistency(faceImage, idBackground);
 
-					console.log({ colorConsistency });
+					// console.log({ colorConsistency });
 				}
 
 				return faceBoxes;

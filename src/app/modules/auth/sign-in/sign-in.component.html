@@ -8,15 +8,14 @@
 		*ngIf="!showBiometrics"
 		[ngClass]="{ 'whole-card-without-image': !project.branding.rightImage }"
 	>
-		<!-- LEFT part -->
 		<div
 			class="w-full sm:w-auto left-card"
-			[ngClass]="{ 'left-card-without-image': !project.branding.rightImage }"
+			[ngClass]="{ 'left-card-without-image': !project.branding.rightImage || project.branding.rightImage.length < 10 }"
 			fxLayout="row"
 			fxLayoutAlign="center center"
 			*ngIf="!showFaceLivenessRecommendation"
 		>
-			<div class="mx-auto w-full sm:mx-0 sm:w-80 left-card-inner-div">
+			<div class="mx-auto w-full sm:mx-0 left-card-inner-div">
 				<!-- Logo -->
 				<div class="w-14">
 					<img [src]="project.branding.logo" />
@@ -258,7 +257,7 @@
 		</div>
 		<!-- end of LEFT part -->
 
-		<div class="w-full sm:w-auto left-card" *ngIf="showFaceLivenessRecommendation" fxLayout="column" fxLayoutAlign="center center">
+		<div class="w-full sm:w-auto m-4" *ngIf="showFaceLivenessRecommendation" fxLayout="column" fxLayoutAlign="center center">
 			<div class="biometric-instructions mx-auto sm:mx-0 p-2" fxLayout="column" fxLayoutAlign="start center" *ngIf="isVerifikProject">
 				<div fxLayout="column" fxLayoutAlign="start center">
 					<img src="https://cdn.verifik.co/access/goldcoins3x.png" alt="" class="w-36" />

@@ -173,9 +173,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 				localStorage.setItem("loginLocation", JSON.stringify(this.location));
 			},
-			error: (exception) => {
-				console.log({ exception });
-			},
+			error: (exception) => {},
 			complete: () => {},
 		});
 	}
@@ -550,7 +548,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				this.emailValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
 
 				hideInterval = setInterval(() => {
-					if (this.emailValidation.timeToHideInput > 0) {
+					if (this.emailValidation?.timeToHideInput > 0) {
 						this.emailValidation.timeToHideInput--;
 					} else {
 						this.emailValidation = null;

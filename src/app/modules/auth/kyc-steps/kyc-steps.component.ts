@@ -101,6 +101,8 @@ export class KYCStepsComponent implements OnInit {
 			localStorage.setItem("accessToken", token);
 			// Use the token as needed
 
+			console.log({ "got here...": true });
+
 			this._requestAppRegistration();
 
 			this._loadContent();
@@ -144,9 +146,14 @@ export class KYCStepsComponent implements OnInit {
 				},
 				complete: () => {
 					this._splashScreenService.hide();
+
 					if (
-						(this.projectFlow.onboardingSettings.signUpForm.phone && !this.appRegistration.phoneValidation) ||
-						(this.projectFlow.onboardingSettings.signUpForm.email && !this.appRegistration.emailValidation)
+						(this.projectFlow.onboardingSettings.signUpForm.phone &&
+							this.projectFlow.onboardingSettings.signUpForm.phoneGateway !== "none" &&
+							!this.appRegistration.phoneValidation) ||
+						(this.projectFlow.onboardingSettings.signUpForm.email &&
+							this.projectFlow.onboardingSettings.signUpForm.emailGateway !== "none" &&
+							!this.appRegistration.emailValidation)
 					) {
 						const token = localStorage.getItem("accessToken");
 						this._router.navigateByUrl(`/confirmation-required/${this.appRegistration._id}?token=${token}`);

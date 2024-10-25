@@ -175,9 +175,9 @@ export class KycDocumentReviewComponent implements OnInit {
 			(results) => {
 				results.forEach((result) => {
 					if (result.status === "fulfilled") {
-						console.log("Observable fulfilled:", { result });
+						// console.log("Observable fulfilled:", { result });
 					} else {
-						console.error("Observable rejected:", { result });
+						// console.error("Observable rejected:", { result });
 					}
 				});
 

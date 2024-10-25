@@ -194,17 +194,13 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
-				console.log({ location: this.location });
-
 				this.location.os = this.deviceDetails?.platform;
 
 				this.location.type = "browser";
 
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
-			error: (exception) => {
-				console.log({ exception });
-			},
+			error: (exception) => {},
 			complete: () => {},
 		});
 	}
