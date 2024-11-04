@@ -1,79 +1,76 @@
+import { TranslocoModule } from "@ngneat/transloco";
+import { Subject } from "rxjs";
+
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID, Inject } from "@angular/core";
-import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
 
+import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
+
+import { environment } from "environments/environment";
+
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
-import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
-import { Subject } from "rxjs";
-import { environment } from "environments/environment";
-import { TranslocoModule } from "@ngneat/transloco";
-import { FlexLayoutModule } from "@angular/flex-layout";
-import { MatSelectModule } from "@angular/material/select";
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import moment from "moment";
+import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 
-declare var dataLayer: any; // Declare the dataLayer for pushing events to GTM.
+import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
+import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
+import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
+import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 
 @Component({
 	selector: "auth-sign-up",
 	templateUrl: "./sign-up.component.html",
-	styleUrls: ["../sign-in/sign-in.scss"],
+	styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [
-		FlexLayoutModule,
-		RouterLink,
-		NgIf,
-		FuseAlertComponent,
-		FormsModule,
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatButtonModule,
-		MatIconModule,
-		MatCheckboxModule,
-		MatProgressSpinnerModule,
-		TranslocoModule,
+		AuthSignUpCreateFormComponent,
+		AuthSignUpVerificationCompleteComponent,
+		AuthSignUpVerificationComponent,
 		CommonModule,
-		MatSelectModule,
-		LanguagesComponent,
+		FlexLayoutModule,
+		FuseAlertComponent,
+		MatButtonModule,
+		NgIf,
+		SmartEnrollComponent,
+		TranslocoModule,
 	],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
-	@ViewChild("signUpNgForm") signUpNgForm: NgForm;
+	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
 	alert: { type: FuseAlertType; message: string } = {
 		type: "success",
 		message: "",
 	};
-	signUpForm: UntypedFormGroup;
-	showAlert: boolean = false;
-	countries: Array<any>;
-	roles: Array<any>;
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+	appRegistration: AppRegistration;
+	currentStep: string = 'create';
+	currentStepIndex: number = 0;
+	deviceDetails: any;
+	isVerifikProject: Boolean;
+	language: string;
+	location: any;
+	locationError: any;
 	project: Project;
 	projectFlow: ProjectFlow;
-	loginProjectFlow: ProjectFlow;
-	showFaceLivenessRecommendation: Boolean;
-	isVerifikProject: Boolean;
-	demoData: any;
+	enrollStep: EnrollStep;
 	sendingOTP: Boolean;
-	onboardingSignUpForm: any;
-	fields: any;
-	language: string;
+	showKYCApp: boolean = false;
+	steps: Array<string> = ['create'];
+	token: string;
+	verificationComplete: boolean = false;
+
 	flagCodes = {
 		en: "us",
 		es: "es",
@@ -86,90 +83,33 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		cn: "cn",
 		ph: "ph",
 	};
-	deviceDetails: any;
-	location: any;
-	locationError: any;
 
 	/**
 	 * Constructor
 	 */
 	constructor(
-		private _formBuilder: UntypedFormBuilder,
-		private _router: Router,
-		private _countries: CountriesService,
-		private _splashScreenService: FuseSplashScreenService,
 		private _activatedRoute: ActivatedRoute,
-		private _demoService: DemoService,
-		private _passwordlessService: PasswordlessService,
 		private _changeDetectorRef: ChangeDetectorRef,
+		private _countries: CountriesService,
+		private _demoService: DemoService,
+		private _KYCService: KYCService,
+		private _passwordlessService: PasswordlessService,
+		private _router: Router,
+		private _smartEnrollService: SmartEnrollService,
+		private _splashScreenService: FuseSplashScreenService,
 		@Inject(PLATFORM_ID) private platformId: Object
 	) {
-		this.setLanguage();
-
-		this.countries = this._countries.countryCodes;
-
-		this.project = null;
-
-		this.location = null;
-		this.locationError = null;
-
-		this.roles = [
-			{
-				label: "signup.roles.founder",
-				code: "founder",
-			},
-			{
-				label: "signup.roles.high_management",
-				code: "high_management",
-			},
-			{
-				label: "signup.roles.manager",
-				code: "manager",
-			},
-			{
-				label: "signup.roles.developer",
-				code: "developer",
-			},
-			{
-				label: "signup.roles.compliance",
-				code: "compliance",
-			},
-			{
-				label: "signup.roles.marketing",
-				code: "marketing",
-			},
-			{
-				label: "signup.roles.ciso",
-				code: "ciso",
-			},
-		];
-
+		this._setToken();
+		this._setLanguage();
 		this._splashScreenService.show();
 
-		this.demoData = this._demoService.getDemoData();
-
-		this._demoService.cleanVariables();
-
 		this.deviceDetails = this._demoService.getDeviceDetails();
-
-		localStorage.removeItem("accessToken");
+		this.location = null;
+		this.locationError = null;
+		this.project = null;
+		this.projectFlow = null;
 
 		this.sendingOTP = false;
-
-		this.showFaceLivenessRecommendation = false;
-	}
-
-	setLanguage() {
-		if (!isPlatformBrowser(this.platformId)) {
-			this.language = "en";
-		}
-
-		// Get the browser's language setting
-		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
-		// Check if the browser's language is one of the specified options, otherwise default to 'en'
-		this.language = this.flagCodes[browserLang] ? browserLang : "en";
-
-		localStorage.setItem("currentLanguage", this.language);
 	}
 
 	/**
@@ -179,7 +119,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._activatedRoute.params.subscribe((params) => {
 			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 
-			this.requestProject(params.id);
+			this._requestProject(params.id);
+		});
+
+		this._activatedRoute.queryParams.subscribe((params) => {
+			this._setToken(params?.token);
+
+			if (!params?.token) return this._setStep('create');
+
+			this._requestAppRegistration();
+			this._setStep('');
 		});
 
 		this._demoService.geoLocation$.subscribe({
@@ -193,24 +142,212 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				if (!response || this.location) return;
 
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
-
 				this.location.os = this.deviceDetails?.platform;
-
 				this.location.type = "browser";
-
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
-			error: (exception) => {},
-			complete: () => {},
+			error: (exception) => {
+				console.log({ exception });
+				this._splashScreenService.hide();
+			},
+			complete: () => {
+				this._splashScreenService.hide();
+			},
 		});
 	}
 
-	showLocationError(): boolean {
-		return Boolean(this.locationError && !this.showCountriNotAllowed());
+	ngOnDestroy(): void {
+		this._unsubscribeAll.next(null);
+		this._setToken();
 	}
 
-	showNoProjectError(): boolean {
-		return Boolean(!this.projectFlow?._id || !this.project?._id);
+	private _checkVerification(): void {
+		if (
+			!this.appRegistration?.emailValidation?.status ||
+			!this.appRegistration?.phoneValidation?.status ||
+			!this.projectFlow
+		) {
+			this.verificationComplete = false;
+
+			return;
+		}
+
+		const {
+			emailValidation: { status: emailStatus },
+			phoneValidation: { status: phoneStatus },
+		} = this.appRegistration;
+
+		const {
+			onboardingSettings: {
+				signUpForm: { email, emailGateway, phone, phoneGateway }
+			}
+		} = this.projectFlow;
+
+		const emailValidated = email && emailGateway !== 'none' && emailStatus === 'validated';
+		const phoneValidated = phone && phoneGateway !== 'none' && phoneStatus === 'validated';
+
+		if (emailValidated && phoneValidated) this.verificationComplete = true;
+	}
+
+	private _onProjectNext(data: any): void {
+		this.project = new ProjectModel({ ...data, type: "onboarding" });
+		this.projectFlow = this.project.currentProjectFlow;
+
+		this._splashScreenService.setLogo(this.project.branding.logo);
+		this._splashScreenService.setBackgroundColor(this.project.branding.bgColor);
+
+		this._setSteps();
+
+		this._splashScreenService.hide();
+	}
+
+	private _onProjectComplete(): void {
+		this._splashScreenService.hide();
+		this._changeDetectorRef.markForCheck();
+
+		if (this.token) this._requestAppRegistration();
+	}
+
+	private _requestAppRegistration(): void {
+		if (!this.token) return;
+
+		this._KYCService
+			.getAppRegistration({
+				populates: [
+					"biometricValidation",
+					"compareFaceVerification",
+					"documentFace",
+					"documentValidation",
+					"emailValidation",
+					"face",
+					"informationValidation",
+					"person",
+					"phoneValidation",
+					"project",
+					"projectFlow",
+				],
+			})
+			.subscribe({
+				next: (response) => {
+					this.appRegistration = response.data;
+					this._checkVerification();
+				},
+				error: () => {
+                    this._router.navigate(
+                        ['/sign-up', this.project._id],
+                        { replaceUrl: true }
+                    );
+				},
+			});
+	}
+
+	private _requestProject(projectId: string): void {
+		this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
+			next: (v) => this._onProjectNext(v.data),
+			error: (e) => {
+				if (e.error.code === "InternalServer") {
+					alert("something went wrong, try  again");
+				}
+
+				this._splashScreenService.hide();
+			},
+			complete: () => this._onProjectComplete(),
+		});
+	}
+
+	private _setLanguage() {
+		if (!isPlatformBrowser(this.platformId)) {
+			this.language = "en";
+		}
+
+		// Get the browser's language setting
+		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
+		// Check if the browser's language is one of the specified options, otherwise default to 'en'
+		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+		localStorage.setItem("currentLanguage", this.language);
+	}
+
+	private _setStep(step: string): void {
+		if (step === 'complete') {
+			this.currentStep = '';
+			this.currentStepIndex = 0;
+			this.verificationComplete = true;
+
+			return;
+		}
+
+		this.currentStep = step;
+
+		const index = this.steps.indexOf(this.currentStep);
+
+		if (index > -1) {
+			this.currentStepIndex = index;
+		}
+	}
+
+	private _setSteps(): void {
+		if (!this.projectFlow) return;
+
+		this.steps = ['create'];
+
+		const { email, emailGateway, phone, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
+
+		if (email && emailGateway !== 'none') this.steps.push('verify_email')
+		if (phone && phoneGateway !== 'none') this.steps.push('verify_phone');
+
+		this.currentStepIndex = this.steps.indexOf(this.currentStep);
+	}
+
+	private _setToken(token?: string): void {
+		if (!token) return this._unsetToken();
+
+		this.token = token;
+		localStorage.setItem("accessToken", token);
+	}
+
+	private _unsetToken(): void {
+		this.token = null;
+		localStorage.removeItem("accessToken");
+	}
+
+	enabledLocation(): void {
+		window.location.reload();
+	}
+
+	onServiceChange(enrollStep: EnrollStep): void {
+		let method = 'scan' as EnrollDocumentMethod;
+
+		if (enrollStep === 'document') {
+			if (
+				this.projectFlow.onboardingSettings.document.uploadDocumentAllowed &&
+				this.projectFlow.onboardingSettings.document.scanDocumentAllowed
+			) {
+				method = '';
+			} else if (this.projectFlow.onboardingSettings.document.uploadDocumentAllowed) {
+				method = 'upload'
+			} else if (this.projectFlow.onboardingSettings.document.scanDocumentAllowed) {
+				method = 'scan'
+			}
+		}
+
+		setTimeout(() => {
+			this.showKYCApp = true;
+			this._smartEnrollService.setCurrentStep(enrollStep);
+			this._smartEnrollService.setDocumentMethod(method);
+		});
+	}
+
+	onStepChange(step: string): void {
+		this._setStep(step);
+	}
+
+	showCountryNotAllowed(): boolean {
+		return Boolean(!this.locationError && !this.project?.allowedCountries.includes(this.location?.country));
+	}
+
+	showLocationError(): boolean {
+		return Boolean(this.locationError && !this.showCountryNotAllowed());
 	}
 
 	showMainContainer(): boolean {
@@ -219,261 +356,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	showCountriNotAllowed(): boolean {
-		return Boolean(!this.locationError && !this.project?.allowedCountries.includes(this.location?.country));
-	}
-
-	enabledIt(): void {
-		window.location.reload();
-	}
-
-	removeSpacesFromEmail() {
-		const emailFormControl = this.signUpForm.get("email");
-
-		if (emailFormControl.value) {
-			let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
-
-			if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
-				cleanedEmail = cleanedEmail.replace(/@/g, "");
-			}
-			emailFormControl.patchValue(cleanedEmail);
-		}
-	}
-
-	removeSpacesFromPhone() {
-		const phoneFormControl = this.signUpForm.get("phone");
-
-		if (phoneFormControl.value) {
-			const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
-			phoneFormControl.patchValue(cleanedPhone);
-		}
-	}
-
-	requestProject(projectId: string): void {
-		this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
-			next: (v) => {
-				this._onProjectNext(v.data);
-			},
-			error: (e) => {
-				if (e.error.code === "InternalServer") {
-					alert("something went wrong, try  again");
-				}
-
-				this._splashScreenService.hide();
-			},
-			complete: () => {
-				this._onProjectComplete();
-			},
-		});
-	}
-
-	_onProjectNext(data: any): void {
-		this.project = new ProjectModel({ ...data, type: "onboarding" });
-
-		this.projectFlow = this.project.currentProjectFlow;
-
-		if (this.projectFlow.systemForm) {
-			this._assignRoles(this.projectFlow.systemForm);
-		}
-
-		this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
-
-		for (let index = 0; index < data.projectFlows.length; index++) {
-			const projectFlow = data.projectFlows[index];
-
-			if (projectFlow.type === "login") this.loginProjectFlow = new ProjectFlowModel(projectFlow);
-		}
-	}
-
-	_onProjectComplete(): void {
-		this._splashScreenService.hide();
-
-		try {
-			this.initForm();
-		} catch (exception) {
-			console.error({ exception });
-		}
-
-		this._changeDetectorRef.markForCheck();
-	}
-
-	generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
-
-	initForm(): void {
-		const r1 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1) || 0;
-
-		const r2 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1) || 0;
-
-		const randomNumber = Math.floor(Math.random() * 1234567);
-
-		const demoData = {
-			fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
-			firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
-			lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
-			email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-
-			phone: environment.production ? "" : this.generateRandomPhoneNumber(),
-			countryCode: environment.production ? "+1" : "+1",
-			company: environment.production ? "" : `company ${randomNumber}`,
-			role: environment.production ? this.roles[1].code : this.roles[3].code,
-			agreements: !Boolean(environment.production),
-		};
-
-		this.fields = {};
-
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
-			this.fields["fullName"] = [
-				demoData.fullName,
-				[Validators.required, Validators.maxLength(50), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
-		}
-
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.firstName) {
-			this.fields["firstName"] = [
-				demoData.firstName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
-
-			this.fields["lastName"] = [
-				demoData.lastName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
-		}
-
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.email) {
-			const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-			this.fields["email"] = [demoData.email, [Validators.email, Validators.required, Validators.pattern(emailPattern)]];
-		}
-
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
-			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
-
-			this.fields["phone"] = [demoData.phone, [Validators.required]];
-		}
-
-		if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {
-			this.fields["agreements"] = ["", Validators.requiredTrue];
-		}
-
-		if (this.onboardingSignUpForm && Array.isArray(this.onboardingSignUpForm?.extraFields)) {
-			for (const field of this.onboardingSignUpForm?.extraFields) {
-				this.fields[field] = [demoData[field] || "", Validators.required];
-			}
-		}
-
-		// Create the form
-		this.signUpForm = this._formBuilder.group(this.fields);
-	}
-
-	_assignRoles(systemForm): void {
-		let roleField = null;
-
-		for (let index = 0; index < systemForm.formFields.length; index++) {
-			const formField = systemForm.formFields[index];
-
-			if (formField.label === "role") {
-				roleField = formField;
-
-				break;
-			}
-		}
-
-		if (!roleField) return;
-
-		this.roles.length = 0;
-
-		for (let index = 0; index < roleField.options.length; index++) {
-			const option = roleField.options[index];
-
-			this.roles.push({
-				label: `signup.roles.${option}`,
-				code: option,
-			});
-		}
-	}
-
-	// -----------------------------------------------------------------------------------------------------
-	// @ Public methods
-	// -----------------------------------------------------------------------------------------------------
-
-	/**
-	 * Sign up
-	 */
-	signUp(): void {
-		if (this.signUpForm.invalid) return null;
-
-		// Push the event to the dataLayer
-		dataLayer.push({
-			event: "clickEvent",
-			clickId: `form_${this.project._id}`,
-			eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
-		});
-
-		// Disable the for
-		this.signUpForm.disable();
-
-		// Hide the alert
-		this.showAlert = false;
-
-		localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
-
-		let appRegistration = null;
-
-		this._passwordlessService
-			.createAppRegistration({
-				project: this.project._id,
-				projectFlow: this.projectFlow._id,
-				language: this.language,
-				location: this.location,
-				...this.signUpForm.value,
-			})
-			.subscribe({
-				next: (v) => {
-					appRegistration = v?.data?.appRegistration;
-
-					appRegistration.token = v?.data?.token;
-				},
-				error: (exception) => {
-					this.alert = {
-						type: "error",
-						message:
-							exception.error.message === "phone, email, projectFlow must be unique"
-								? "errors.phone_or_email_is_not_unique"
-								: `errors.${exception.error.message}`,
-					};
-
-					this.showAlert = true;
-
-					this._splashScreenService.hide();
-
-					this._reEnableForm();
-				},
-				complete: () => {
-					if (!this.showAlert) this._router.navigateByUrl(`/confirmation-required/${appRegistration._id}?token=${appRegistration.token}`);
-
-					this._reEnableForm();
-				},
-			});
-	}
-
-	_reEnableForm(): void {
-		setTimeout(() => {
-			this.showAlert = false;
-
-			this.alert = null;
-
-			this.signUpForm.enable();
-
-			this.signUpNgForm.resetForm();
-		}, 5000); // hide after 5 seconds
-	}
-
-	ngOnDestroy(): void {
-		this._unsubscribeAll.next(null);
-	}
-
-	isFormDisabled(): boolean {
-		return Boolean(this.signUpForm.invalid || (this.signUpForm.value.agreements !== undefined && !this.signUpForm.value.agreements));
+	showNoProjectError(): boolean {
+		return Boolean(!this.projectFlow?._id || !this.project?._id);
 	}
 }

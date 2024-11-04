@@ -14,7 +14,6 @@ let _this = null;
 })
 export class DemoService {
 	private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
-
 	private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
 
 	navigation: any;
@@ -542,10 +541,30 @@ export class DemoService {
 		return this.session;
 	}
 
-	getBiggestFace(faces) {
+	findBiggestFace(detections: faceapi.WithFaceLandmarks<{
+		detection: faceapi.FaceDetection;
+	}, faceapi.FaceLandmarks68>[]) {
+		let maxArea = 0;
+		let biggestFace: faceapi.WithFaceLandmarks<{
+			detection: faceapi.FaceDetection;
+		}, faceapi.FaceLandmarks68>;
+
+		for (const face of detections) {
+			const tempArea = face.alignedRect.box.width * face.alignedRect.box.height;
+
+			if (tempArea > maxArea) {
+				biggestFace = face;
+				maxArea = tempArea;
+			}
+		}
+
+		return biggestFace;
+	}
+
+	getBiggestFace(faces: faceapi.Box[]) {
 		let maxArea = 0;
 
-		let biggestFace;
+		let biggestFace: faceapi.Box;
 
 		for (const face of faces) {
 			const tempArea = face.width * face.height;
@@ -560,7 +579,7 @@ export class DemoService {
 		return biggestFace;
 	}
 
-	cutFaceIdCard(image, face, cardIdCanvas: HTMLCanvasElement) {
+	cutFaceIdCard(image: HTMLImageElement, face: faceapi.Box, cardIdCanvas: HTMLCanvasElement) {
 		const ctx: CanvasRenderingContext2D = cardIdCanvas.getContext("2d");
 
 		let width = Math.ceil(face.width * 2);
