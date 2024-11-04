@@ -59,20 +59,22 @@ export interface ProjectFlow {
 			legalDocument?: boolean;
 		};
 		document: {
-			includeOCR?: boolean;
-			useBasicLiveness?: boolean;
-			useProLiveness?: boolean;
-			includeGovernmentVerification?: boolean;
-			useGovernmentID?: boolean;
-			usePassport?: boolean;
-			useLicense?: boolean;
-			verifyNames?: boolean;
-			verifyCriminalHistory?: boolean;
 			compareMinScore?: number;
+			includeGovernmentVerification?: boolean;
+			includeOCR?: boolean;
 			maxAttempts?: number;
+			useBasicLiveness?: boolean;
+			useGovernmentID?: boolean;
+			useLicense?: boolean;
+			usePassport?: boolean;
+			useProLiveness?: boolean;
+			validationMethod?: string;
+			verifyCriminalHistory?: boolean;
+			verifyNames?: boolean;
 		};
 		liveness: {
 			livenessMinScore?: number;
+			maxAttempts?: number;
 			searchMode?: string;
 			searchMinScore?: number;
 		};
@@ -104,6 +106,8 @@ export interface Project {
 	branding?: {
 		bgColor?: string;
 		borderColor?: string;
+		buttonColor?: string;
+		buttonTxtColor?: string;
 		txtColor?: string;
 		titleColor?: string;
 		logo?: string;
@@ -490,25 +494,45 @@ export class ProjectFlowFormModel implements ProjectFlowForm {
 		}
 	}
 }
+
 export interface AppRegistration {
 	_id: string;
+	biometricValidation?: BiometricValidation;
 	client: string;
+	compareFaceVerification?: FaceVerification;
+	countryCode: string;
+	cryptoValidation: any;
+	currentStep: string;
+	documentValidation?: DocumentValidation;
+	email: string;
+	emailValidation: any;
+	failedBiometricValidations?: Array<any>,
+	failedDocumentValidations?: Array<any>,
+	forceUpload?: boolean;
+	formSubmittion: any;
+	informationValidation?: any;
+	MATiD: any;
+	person?: any;
+	phone: string;
+	phoneValidation: any;
 	project: any;
 	projectFlow: any;
-	status: string;
-	email: string;
-	phone: string;
-	countryCode: string;
-	currentStep: string;
-	MATiD: any;
-	informationValidation: any;
-	emailValidation: any;
-	phoneValidation: any;
-	biometricValidation: any;
-	documentValidation: any;
-	cryptoValidation: any;
-	formSubmittion: any;
 	signature: any;
+	status: string;
+	token?: string;
+}
+
+export interface FaceVerification {
+	client: string;
+	type: "compare" | "compareLive";
+	search_mode: "FAST" | "ACCURATE";
+	os: string;
+	liveness_min_score: number;
+	gallery: string;
+	probe: string;
+	result: any;
+	comparedAt: string;
+	status: 'success'|'failed';
 }
 
 export interface InformationValidation {
@@ -605,8 +629,8 @@ export class AppRegistrationModel implements AppRegistration {
 	InformationValidation: InformationValidation;
 	emailValidation: any;
 	phoneValidation: any;
-	biometricValidation: any;
-	documentValidation: any;
+	biometricValidation: BiometricValidation;
+	documentValidation: DocumentValidation;
 	cryptoValidation: any;
 	formSubmittion: any;
 	signature: any;
@@ -634,3 +658,128 @@ export class AppRegistrationModel implements AppRegistration {
 		this.signature = data.signature;
 	}
 }
+
+export interface DocumentScan {
+	documentType: DocumentType;
+	pro: any;
+	prompt: Prompt;
+	studio: Studio;
+}
+  
+export interface DocumentType {
+	age: number;
+	category: string;
+	country: string;
+	documentType: string;
+	gender: string;
+	nationality: string;
+	ocrRaw: string;
+	prompt: string;
+}
+
+export interface Prompt {
+	__v: number;
+	_id: string;
+	age: string;
+	client: any;
+	country: string;
+	createdAt: string;
+	documentCategory: string;
+	documentNumber: string;
+	documentType: string;
+	firstNameMatchPercentage: number;
+	fullNameMatchPercentage: number;
+	gender: string;
+	imageValidated: boolean;
+	inputMethod: string;
+	lastNameMatchPercentage: number;
+	namesMatch: boolean;
+	nationality: string;
+	OCRExtraction: OCRExtraction;
+	scoreValidated: boolean;
+	status: string;
+	type: string;
+	updatedAt: string;
+	url: string;
+	validationMethod: string;
+}
+
+export interface OCRExtraction {
+	additionalNotes?: string;
+	address?: string;
+	age?: number;
+	code?: string;
+	country?: string;
+	dateOfBirth?: string;
+	dateOfIssue?: string;
+	documentNumber?: string;
+	documentType?: string;
+	emergencyContact?: string;
+	expirationDate?: string;
+	eyeColor?: string;
+	firstName?: string;
+	fullName?: string;
+	gender?: string;
+	height?: string;
+	issuingAuthority?: string;
+	issuingCountry?: string;
+	lastName?: string;
+	nationality?: string;
+	organDonor?: string;
+	personalNo?: string;
+	photo?: string;
+	signature?: string;
+	state?: string;
+}
+
+export interface Studio {
+	_id: string;
+	documentType: string;
+	error: boolean;
+	message: string;
+}
+
+export interface DocumentValidation {
+	_id: string;
+	OCRExtraction: any;
+	backUrl?: string;
+	createdAt: string;
+	deleted: boolean;
+	documentNumber: string;
+	documentType: string;
+	imageValidated: boolean;
+	MATiD: string;
+	namesMatch: boolean;
+	requires2FA: boolean;
+	requiresBackSide: boolean;
+	scoreValidated: boolean;
+	status: string;
+	type: string;
+	updatedAt: string;
+	url?: string;
+	validationMethod: string;
+}
+
+export interface BiometricValidation {
+	_id: string
+	client: string
+	createdAt: string
+	livenessScore: number
+	livenessSession: string
+	project: Project
+	projectFlow: ProjectFlow
+	requires2FA: boolean
+	status: string
+	type: string
+	updatedAt: string
+	url: string
+}
+
+export type ImageScan = {
+	base64Image: string,
+	rawImage: string,
+	force?: boolean,
+	source?: 'document' | 'face',
+};
+
+export type ServiceType = '' | 'document' | 'biometrics' | 'results';
