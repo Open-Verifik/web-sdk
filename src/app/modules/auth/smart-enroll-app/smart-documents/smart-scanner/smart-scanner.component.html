@@ -317,7 +317,10 @@
         "
       >
         <mat-icon class="mr-4">warning</mat-icon>
-        <h4>{{ "smart_enroll.face_instructions" | transloco }}</h4>
+        <h4>
+          <span *ngIf="source === 'face'">{{ "smart_enroll.face_instructions" | transloco }}</span>
+          <span *ngIf="source === 'document'">{{ "smart_enroll.document_instructions" | transloco }}</span>
+        </h4>
       </div>
 
       <div

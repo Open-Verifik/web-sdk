@@ -1,9 +1,11 @@
+import QRCode from 'qrcode';
+
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, EventEmitter, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
-import { RouterLink } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 
 import { MatIconModule } from "@angular/material/icon";
@@ -42,42 +44,44 @@ import { environment } from "environments/environment";
 })
 export class AuthSignUpVerificationCompleteComponent implements OnInit {
 	@ViewChild("agreementNgForm") agreementNgForm: NgForm;
+	@ViewChild("qrCodeCanvas", { static: true }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 	
 	@Output('onServiceChange') onServiceChange: EventEmitter<ServiceType> = new EventEmitter<ServiceType>()
-	
+
 	agreementForm: UntypedFormGroup;
 	appRegistration: AppRegistration;
+	isVerifikProject: boolean;
 	project: Project;
 	projectFlow: ProjectFlow;
+	showQrCode: boolean = false;
 	welcomeStyle: number = 0;
 
     constructor(
 		private _formBuilder: UntypedFormBuilder,
 		private _KYCService: KYCService,
+		private _activatedRoute: ActivatedRoute,
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
 
+
 		if (this.appRegistration.currentStep === 'signUpForm') {
 			this._syncAppRegistration('instructions');
 		}
 
-		if (this.appRegistration && this.projectFlow.onboardingSettings.steps) {
-			const steps = this.projectFlow.onboardingSettings.steps;
-
-			if (steps.document === 'skip' && steps.liveness === 'skip') {
-				this.welcomeStyle = 2;
-			} else if (steps.document === 'skip') {
-				this.welcomeStyle = 1;
-			} else {
-				this.welcomeStyle = 0;
-			}
-		}
+		this._flowTop();
 	}
 
 	ngOnInit(): void {
+		const canvas = this.qrCodeCanvas.nativeElement;
+
 		this._initForm();
+		this._generateQRCode(canvas, window.location.href);
+
+		this._activatedRoute.params.subscribe((params) => {
+			this.isVerifikProject = !(Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject));
+		});
 
 		if (this.appRegistration.status === 'COMPLETED' || this.appRegistration.status === 'COMPLETED_WITHOUT_KYC') {
 			this.welcomeStyle = 3;
@@ -92,6 +96,28 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 			}
 		}
     }
+
+	private _flowTop() {
+		if (!this.projectFlow.onboardingSettings.steps) return;
+
+		const steps = this.projectFlow.onboardingSettings.steps;
+
+		if (steps.document === 'skip' && steps.liveness === 'skip') {
+			this.welcomeStyle = 2;
+		} else if (steps.document === 'skip') {
+			this.welcomeStyle = 1;
+		} else {
+			this.welcomeStyle = 0;
+		}
+	}
+
+	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+		try {
+			await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: 'L' });
+		} catch (err) {
+			console.error(err);
+		}
+	}
 
 	private _initForm(): void {
         this.agreementForm = this._formBuilder.group({ agreement: ["", Validators.requiredTrue] });
@@ -141,6 +167,16 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 	}
 
 	skipBiometrics(): void {
+		if (this.isVerifikProject) {
+			this.welcomeStyle = 2;
+
+			return;
+		}
+
+		this.skipKYC();
+	}
+
+	skipKYC(): void {
 		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
 	}
 }

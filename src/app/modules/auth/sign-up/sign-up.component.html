@@ -1,7 +1,7 @@
 <div
   [style.background]="project.branding.bgColor"
   @fadeIn
-  *ngIf="project && !showKYCApp"
+  *ngIf="project && projectFlow && !showKYCApp"
   class="w-full"
   fxLayout="row"
   fxLayoutAlign="center center"

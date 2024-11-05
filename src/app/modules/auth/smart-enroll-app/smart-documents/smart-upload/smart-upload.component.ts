@@ -448,7 +448,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 				},
 				error: () => {},
 				complete: () => {
-					if (status !== "COMPLETED_WITHOUT_KYC" || action !== "redirect") return;
+					if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
                     let redirectUrl = this.projectFlow.redirectUrl;
 

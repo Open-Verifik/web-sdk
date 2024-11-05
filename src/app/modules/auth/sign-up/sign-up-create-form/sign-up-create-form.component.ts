@@ -138,6 +138,13 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.project.currentValue) {
             const data = changes.project.currentValue;
+    
+            try {
+				this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+				this.initForm();
+            } catch (exception) {
+                console.error({ exception });
+            }
 
 			for (let index = 0; index < data.projectFlows.length; index++) {
 				const projectFlow = data.projectFlows[index];
@@ -148,14 +155,6 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
     
             if (this.projectFlow.systemForm) {
                 this._assignRoles(this.projectFlow.systemForm);
-            }
-    
-            this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
-
-            try {
-                this.initForm();
-            } catch (exception) {
-                console.error({ exception });
             }
         }
     }
