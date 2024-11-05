@@ -485,7 +485,7 @@
         <h5
           class="text-3xl font-medium mt-6 text-center"
           [style.color]="project.branding.titleColor"
-          *ngIf="method === 'scan' && (isActiveStep(1) || isActiveStep(2))"
+          *ngIf="method === 'scan' && isActiveStep(1)"
           title
         >
           {{ "smart_enroll.documents.scan.scan_front" | transloco }}
@@ -494,7 +494,7 @@
         <h5
           class="text-3xl font-medium mt-6 text-center"
           [style.color]="project.branding.titleColor"
-          *ngIf="method === 'scan' && (isActiveStep(3) || isActiveStep(4))"
+          *ngIf="method === 'scan' && isActiveStep(2)"
           title
         >
           {{ "smart_enroll.documents.scan.scan_back" | transloco }}

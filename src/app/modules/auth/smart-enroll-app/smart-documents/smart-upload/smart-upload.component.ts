@@ -133,12 +133,26 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this._onStepRedirection.unsubscribe();
 	}
 
+    private _cleanOCR(OCRExtraction: any) {
+        if (!OCRExtraction) return;
+
+        Object.keys(OCRExtraction).forEach((key) => {
+            const translationKey = `extracted_information.${key}`;
+
+            if (!OCRExtraction[key] || this.translocoService.translate(translationKey) === translationKey) {
+                delete OCRExtraction[key];
+            }
+        });
+    }
+
     private _checkStep(): void {
         let step = 1;
 
         if (this.appRegistration.documentValidation) {
             this._setFileData(1, null, this.appRegistration.documentValidation.url, null);
             step = 3;
+
+            this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
 
             if (this.appRegistration.documentValidation.backUrl) {
                 this.requiresBack = true;
@@ -218,14 +232,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
                 next: (response) => {
                     const data = response.data.documentValidation as DocumentValidation;
 
-                    Object.keys(data.OCRExtraction).forEach((key) => {
-                        if (!data.OCRExtraction[key] || this.translocoService
-                            .translate(`extracted_information.${key}`) === `extracted_information.${key}`)
-                            {
-                                delete data.OCRExtraction[key];
-                            }
-                    });
-
+                    this._cleanOCR(data.OCRExtraction);
                     this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
 
                     let imageUrl: string;
