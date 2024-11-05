@@ -1,230 +1,175 @@
 <div
-  [style.background]="project.branding.bgColor"
-  @fadeIn
-  *ngIf="project && projectFlow && !showKYCApp"
-  class="w-full"
-  fxLayout="row"
-  fxLayoutAlign="center center"
+	[style.background]="project.branding.bgColor"
+	@fadeIn
+	*ngIf="project && projectFlow && !showKYCApp"
+	class="w-full"
+	fxLayout="row"
+	fxLayoutAlign="center center"
 >
-  <div
-    fxLayout="row"
-    fxLayoutAlign="center end"
-    class="flex w-full"
-    *ngIf="showMainContainer()"
-  >
-    <div class="flex rounded-2xl bg-card overflow-hidden sign-in-content">
-      <div
-        class="w-full sm:w-auto py-7 px-8"
-        fxLayout="row"
-        fxLayoutAlign="start center"
-      >
-        <div class="w-400 mx-auto sm:mx-0">
-          <div *ngIf="!verificationComplete">
-            <div
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              class="mt-8 mb-8 ml-2"
-            >
-              <img [src]="project.branding.logo" class="w-14" />
-            </div>
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showMainContainer()">
+		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content">
+			<div class="w-full sm:w-auto py-4 px-8" fxLayout="row" fxLayoutAlign="start center">
+				<div class="w-400 mx-auto sm:mx-0">
+					<div *ngIf="!verificationComplete">
+						<div fxLayout="row" fxLayoutAlign="start center" class="mt-2 mb-8 ml-2">
+							<img [src]="project.branding.logo" class="w-14" />
+						</div>
 
-            <div class="flex">
-              <small class="font-bold tracking-wider text-secondary">
-                {{
-                  "signup.step"
-                    | transloco
-                      : { current: currentStepIndex + 1, total: steps.length }
-                    | uppercase
-                }}
-              </small>
+						<div class="flex">
+							<small class="font-bold tracking-wider text-secondary">
+								{{ "signup.step" | transloco : { current: currentStepIndex + 1, total: steps.length } | uppercase }}
+							</small>
 
-              <div class="signup__steps flex">
-                <div
-                  class="signup__step"
-                  *ngFor="let step of steps"
-                  [ngClass]="{ 'signup__step--wide': step === currentStep }"
-                  [style.color]="
-                    step === currentStep ? project.branding.titleColor : ''
-                  "
-                ></div>
-              </div>
-            </div>
+							<div class="signup__steps flex">
+								<div
+									class="signup__step"
+									*ngFor="let step of steps"
+									[ngClass]="{ 'signup__step--wide': step === currentStep }"
+									[style.color]="step === currentStep ? project.branding.titleColor : ''"
+								></div>
+							</div>
+						</div>
 
-            <!-- Alert -->
-            <fuse-alert
-              [@shake]="alert.type === 'error'"
-              [appearance]="'outline'"
-              [showIcon]="false"
-              [type]="alert.type"
-              *ngIf="showAlert"
-              class="mt-8 -mb-4"
-            >
-              {{ alert.message | transloco }}
-            </fuse-alert>
+						<!-- Alert -->
+						<fuse-alert
+							[@shake]="alert.type === 'error'"
+							[appearance]="'outline'"
+							[showIcon]="false"
+							[type]="alert.type"
+							*ngIf="showAlert"
+							class="mt-8 -mb-4"
+						>
+							{{ alert.message | transloco }}
+						</fuse-alert>
 
-            <auth-sign-up-create-form
-              @fadeIn
-              [location]="location"
-              [project]="project"
-              [projectFlow]="projectFlow"
-              *ngIf="currentStep === 'create'"
-            ></auth-sign-up-create-form>
+						<auth-sign-up-create-form
+							@fadeIn
+							[location]="location"
+							[project]="project"
+							[projectFlow]="projectFlow"
+							*ngIf="currentStep === 'create'"
+						></auth-sign-up-create-form>
 
-            <auth-sign-up-verification
-              @fadeIn
-              (changeStep)="onStepChange($event)"
-              [appRegistration]="appRegistration"
-              [project]="project"
-              [projectFlow]="projectFlow"
-              *ngIf="currentStep !== 'create'"
-            ></auth-sign-up-verification>
+						<auth-sign-up-verification
+							@fadeIn
+							(changeStep)="onStepChange($event)"
+							[appRegistration]="appRegistration"
+							[project]="project"
+							[projectFlow]="projectFlow"
+							*ngIf="currentStep !== 'create'"
+						></auth-sign-up-verification>
 
-            <div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
-              <div class="signup__steps flex">
-                <div
-                  class="signup__step"
-                  *ngFor="let step of steps"
-                  [ngClass]="{ 'signup__step--wide': step === currentStep }"
-                  [style.color]="
-                    step === currentStep ? project.branding.titleColor : ''
-                  "
-                ></div>
-              </div>
-            </div>
+						<div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
+							<div class="signup__steps flex">
+								<div
+									class="signup__step"
+									*ngFor="let step of steps"
+									[ngClass]="{ 'signup__step--wide': step === currentStep }"
+									[style.color]="step === currentStep ? project.branding.titleColor : ''"
+								></div>
+							</div>
+						</div>
 
-            <div
-              class="w-full text-center mt-8 text-secondary"
-              fxLayout="row"
-              fxLayoutAlign="center center"
-            >
-              {{ "powered_by_verifik" | transloco }}
-            </div>
-          </div>
+						<div class="w-full text-center mt-8 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+							{{ "powered_by_verifik" | transloco }}
+						</div>
+					</div>
 
-          <auth-sign-up-verification-complete
-            (onServiceChange)="onKYCStepChange($event)"
-            [appRegistration]="appRegistration"
-            [project]="project"
-            @fadeIn
-            *ngIf="verificationComplete"
-          ></auth-sign-up-verification-complete>
-        </div>
-      </div>
-    </div>
-  </div>
+					<auth-sign-up-verification-complete
+						(onServiceChange)="onKYCStepChange($event)"
+						[appRegistration]="appRegistration"
+						[project]="project"
+						@fadeIn
+						*ngIf="verificationComplete"
+					></auth-sign-up-verification-complete>
+				</div>
+			</div>
+		</div>
+	</div>
 
-  <div
-    *ngIf="showNoProjectError()"
-    class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
-  >
-    <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-      <!-- Logo -->
-      <div class="w-12">
-        <img [src]="project.branding.logo" />
-      </div>
+	<div
+		*ngIf="showNoProjectError()"
+		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+	>
+		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+			<!-- Logo -->
+			<div class="w-12">
+				<img [src]="project.branding.logo" />
+			</div>
 
-      <!-- Title -->
-      <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
-        {{ "signup.project_flow_not_set" | transloco }}
-      </div>
+			<!-- Title -->
+			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
+				{{ "signup.project_flow_not_set" | transloco }}
+			</div>
 
-      <div class="flex items-baseline mt-0.5 font-medium">
-        <div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
-      </div>
-    </div>
-  </div>
+			<div class="flex items-baseline mt-0.5 font-medium">
+				<div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
+			</div>
+		</div>
+	</div>
 
-  <div
-    *ngIf="showLocationError()"
-    class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card"
-  >
-    <div
-      class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0"
-      fxLayout="column"
-      fxLayoutAlign="start center"
-    >
-      <!-- Logo -->
-      <div class="w-12">
-        <img [src]="project.branding.logo" />
-      </div>
+	<div *ngIf="showLocationError()" class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card">
+		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
+			<!-- Logo -->
+			<div class="w-12">
+				<img [src]="project.branding.logo" />
+			</div>
 
-      <!-- Title -->
-      <div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
-        {{ "errors." + locationError.errorMessage | transloco }}
-      </div>
+			<!-- Title -->
+			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
+				{{ "errors." + locationError.errorMessage | transloco }}
+			</div>
 
-      <div class="flex items-baseline mt-0.5 font-medium">
-        <div>
-          {{ "errors." + locationError.errorMessage + "_subtitle" | transloco }}
-        </div>
-      </div>
+			<div class="flex items-baseline mt-0.5 font-medium">
+				<div>
+					{{ "errors." + locationError.errorMessage + "_subtitle" | transloco }}
+				</div>
+			</div>
 
-      <div
-        *ngIf="locationError.errorMessage === 'geolocation.user_denied_request'"
-        fxLayout="column"
-        fxLayoutAlign="center center"
-      >
-        <img
-          src="https://cdn.verifik.co/assets/auth/enable_your_location.png"
-          alt=""
-        />
+			<div *ngIf="locationError.errorMessage === 'geolocation.user_denied_request'" fxLayout="column" fxLayoutAlign="center center">
+				<img src="https://cdn.verifik.co/assets/auth/enable_your_location.png" alt="" />
 
-        <button
-          (click)="enabledLocation()"
-          [id]="'enable_your_location-' + project._id"
-          [style.background]="project.branding.buttonColor"
-          [style.color]="project.branding.buttonTxtColor"
-          class="fuse-mat-button-large w-full mt-6"
-          mat-flat-button
-        >
-          <span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
-        </button>
-      </div>
-    </div>
-  </div>
+				<button
+					(click)="enabledLocation()"
+					[id]="'enable_your_location-' + project._id"
+					[style.background]="project.branding.buttonColor"
+					[style.color]="project.branding.buttonTxtColor"
+					class="fuse-mat-button-large w-full mt-6"
+					mat-flat-button
+				>
+					<span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
+				</button>
+			</div>
+		</div>
+	</div>
 
-  <div
-    *ngIf="showCountryNotAllowed()"
-    class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card"
-  >
-    <div
-      class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0"
-      fxLayout="column"
-      fxLayoutAlign="start center"
-    >
-      <!-- Logo -->
-      <div class="w-12" fxLayout="column" fxLayoutAlign="center center">
-        <img [src]="project.branding.logo" />
-      </div>
+	<div *ngIf="showCountryNotAllowed()" class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card">
+		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
+			<!-- Logo -->
+			<div class="w-12" fxLayout="column" fxLayoutAlign="center center">
+				<img [src]="project.branding.logo" />
+			</div>
 
-      <!-- Title -->
-      <div
-        class="mt-8 text-3xl font-extrabold tracking-tight leading-tight text-center"
-      >
-        {{ "errors.geolocation.country_not_allowed" | transloco }}
-      </div>
+			<!-- Title -->
+			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight text-center">
+				{{ "errors.geolocation.country_not_allowed" | transloco }}
+			</div>
 
-      <div class="flex items-baseline mt-0.5 font-medium">
-        <div>
-          {{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}
-        </div>
-      </div>
-    </div>
-  </div>
+			<div class="flex items-baseline mt-0.5 font-medium">
+				<div>
+					{{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}
+				</div>
+			</div>
+		</div>
+	</div>
 
-  <div
-    [style.background]="
-      'center / cover no-repeat url(' + project.branding.rightImage + ')'
-    "
-    *ngIf="!showBiometrics && project.branding.rightImage"
-    class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
-    fxLayout="row"
-    fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
-  ></div>
+	<div
+		[style.background]="'center / cover no-repeat url(' + project.branding.rightImage + ')'"
+		*ngIf="!showBiometrics && project.branding.rightImage"
+		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
+		fxLayout="row"
+		fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
+	></div>
 </div>
 
-<smart-enroll-app
-  [service]="service"
-  @fadeIn
-  *ngIf="showKYCApp"
-></smart-enroll-app>
+<smart-enroll-app [service]="service" @fadeIn *ngIf="showKYCApp"></smart-enroll-app>
