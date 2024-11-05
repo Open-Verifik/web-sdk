@@ -216,6 +216,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
                     this.goNext();
                 },
                 complete: () => {
+                    this.biometricsAttemptsRemaining - 1;
                     this.fileProgress = 100;
                 }
             });
@@ -259,6 +260,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
                     this.failedScanUploadSubject.next({ message: this.errorContent.message });
                 },
                 complete: () => {
+                    this.documentAttemptsRemaining - 1;
                     this.fileProgress = 100;
                     this.isExtracting = false;
                 }
