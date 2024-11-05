@@ -79,6 +79,11 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 	ngOnInit(): void {
 		this._initForm();
 
+		if (this.appRegistration.status === 'COMPLETED' || this.appRegistration.status === 'COMPLETED_WITHOUT_KYC') {
+			this.welcomeStyle = 3;
+			return;
+		}
+
 		if (!['signUpForm', 'instructions'].includes(this.appRegistration.currentStep)) {
 			if (this.appRegistration.currentStep === 'document') {
 				this.goToKYCApp('document');

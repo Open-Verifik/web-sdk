@@ -334,9 +334,9 @@
 		"extracting_data": "Extracting data",
 		"face_instructions": "Make sure your face is in the center of the screen, remove your glasses, and ensure good lighting",
 		"face_was_not_registered": "Your face was unable to be registered",
-		"face_was_registered": "Your face was correctly registered",
-		"id_was_not_registered": "Your ID was not registered correctly",
-		"id_was_registered": "Your ID was correctly registered",
+		"face_was_registered": "Your face was registered",
+		"id_was_not_registered": "Your ID was not registered",
+		"id_was_registered": "Your ID was registered",
 		"login_to_platform": "Login to the platform",
 		"preparing_camera": "Preparing the camera...",
 		"remaining_attempts": "Remaining Attempts: {{attempts}}",
@@ -397,6 +397,8 @@
 	},
 	"welcome": {
 		"title": "Welcome to {{projectName}}",
+		"complete_title": "Onboarding Complete",
+		"complete_subtitle": "This user has already completed onboarding.",
 		"description": "To finish creating an account for {{projectName}}, you will need to complete the biometric verification steps. Follow the instructions carefully.",
 		"steps": {
 			"1": "Scan or Upload your ID card",

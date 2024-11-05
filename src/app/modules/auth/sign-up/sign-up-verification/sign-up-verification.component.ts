@@ -200,7 +200,9 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		if (emailGateway === "mailgun" && (!emailStatus || emailStatus !== "validated")) return;
 		if (["whatsapp", "sms", "both"].includes(phoneGateway) && (!phoneStatus || phoneStatus !== "validated")) return;
 
-		this._syncAppRegistration("signUpForm", "ONGOING", "redirect");
+		if (this.appRegistration.status === 'ONGOING' || this.appRegistration.status === 'STARTED') {
+			this._syncAppRegistration("signUpForm", "ONGOING", "redirect");
+		}
 	}
 
 	private _initEmailValidation(): void {

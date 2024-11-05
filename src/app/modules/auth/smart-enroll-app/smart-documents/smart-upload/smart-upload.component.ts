@@ -137,20 +137,16 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         let step = 1;
 
         if (this.appRegistration.documentValidation) {
-            step = 5;
-
             this._setFileData(1, null, this.appRegistration.documentValidation.url, null);
+            step = 3;
 
             if (this.appRegistration.documentValidation.backUrl) {
+                this.requiresBack = true;
                 this._setFileData(0, null, this.appRegistration.documentValidation.backUrl, null);
             } else if (this.appRegistration.documentValidation.requiresBackSide) {
-                this.requiresBack = this.appRegistration.documentValidation.requiresBackSide;
+                this.requiresBack = true;
                 step = 2;
             }
-        }
-
-        if (this.appRegistration.biometricValidation) {
-            step = 6;
         }
 
         this.goToStep(step);
@@ -478,7 +474,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
 	canSkipStep(): boolean {
-		if (this.stepIndex < 5) {
+		if (this.stepIndex < 2) {
 			return this.projectFlow.onboardingSettings.steps.document !== 'mandatory';
 		}
 
@@ -519,15 +515,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     goNext(): void {
         const step = this.stepIndex + 1;
         this.goToStep(step);
-        this._getFileData(this.stepIndex % 2);
     }
 
     goPrevious(): void {
-        if (this.stepIndex <= 1) return this.backEmit.next();
-
         const stepIndex = this.stepIndex - 1;
         this.goToStep(stepIndex);
-        this._getFileData(this.stepIndex % 2)
     }
 
     goToStep(step: number): void {
@@ -548,7 +540,15 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             step > this.stepIndex ? step++ : step--;
         }
 
+        if (step < 1) {
+            this.backEmit.next();
+            this.stepIndex = 1;
+
+            return;
+        }
+
         this.stepIndex = step;
+        this._getFileData(this.stepIndex % 2);
     }
 
     isActiveStep(step: number): boolean {
