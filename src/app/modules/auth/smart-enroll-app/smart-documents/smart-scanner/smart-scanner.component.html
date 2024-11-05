@@ -132,7 +132,7 @@
         ></canvas>
 
         <div
-          class="smart-scanner__loader-overlay"
+          class="smart-scanner__loader-overlay top-0 left-0 right-0 bottom-0 rounded-3xl"
           fxLayout="row"
           fxLayoutAlign="center center"
           *ngIf="uploading || errorResult"
@@ -408,9 +408,9 @@
           <div class="results__canvas-crop">
             <canvas
               [class.hidden]="!base64Image"
+              [ngStyle]="{ left: !isHorizontal ? '15%' : '' }"
               #resultCanvas
               class="results__canvas"
-              [ngStyle]="{ left: isHorizontal ? '15%' : '' }"
             ></canvas>
           </div>
 

@@ -544,6 +544,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             return;
         }
 
+        while (step > 2 && step < 5 && !this.appRegistration.documentValidation) {
+            step > this.stepIndex ? step++ : step--;
+        }
+
         // skip steps 2 and 4 if back is not required.
         if (step % 2 === 0 && step < 5 && !this.requiresBack) {
             step > this.stepIndex ? step++ : step--;

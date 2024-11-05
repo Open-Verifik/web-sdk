@@ -80,7 +80,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 		this._generateQRCode(canvas, window.location.href);
 
 		this._activatedRoute.params.subscribe((params) => {
-			this.isVerifikProject = !(Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject));
+			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 		});
 
 		if (this.appRegistration.status === 'COMPLETED' || this.appRegistration.status === 'COMPLETED_WITHOUT_KYC') {
