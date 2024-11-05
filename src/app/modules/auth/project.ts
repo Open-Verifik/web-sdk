@@ -68,6 +68,8 @@ export interface ProjectFlow {
 			useLicense?: boolean;
 			usePassport?: boolean;
 			useProLiveness?: boolean;
+			scanDocumentAllowed?: boolean;
+			uploadDocumentAllowed?: boolean;
 			validationMethod?: string;
 			verifyCriminalHistory?: boolean;
 			verifyNames?: boolean;
@@ -519,7 +521,23 @@ export interface AppRegistration {
 	projectFlow: any;
 	signature: any;
 	status: string;
+	face: Face;
 	token?: string;
+}
+
+export interface Face {
+	_id?: string;
+	appRegistration?: string;
+	base64?: string;
+	category?: string;
+	client?: string;
+	createdAt?: string;
+	expirationStartedAt?: string;
+	person?: string;
+	project?: string;
+	projectFlow?: string;
+	status?: string;
+	updatedAt?: string;
 }
 
 export interface FaceVerification {
@@ -625,6 +643,7 @@ export class AppRegistrationModel implements AppRegistration {
 	countryCode: string;
 	currentStep: string;
 	MATiD: any;
+	face: Face;
 	informationValidation: InformationValidation | null;
 	InformationValidation: InformationValidation;
 	emailValidation: any;

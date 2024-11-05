@@ -100,14 +100,14 @@
         {{ "welcome.start_on_device" | transloco }}
       </button>
 
-      <button
+      <!-- <button
         class="fuse-mat-button-large w-full mt-2"
         mat-flat-button
         type="button"
       >
         <mat-icon matLeadingIcon>smartphone</mat-icon>
         <span>{{ "welcome.continue_on_another" | transloco }}</span>
-      </button>
+      </button> -->
     </div>
   </form>
 </div>
@@ -223,7 +223,7 @@
 
   <div class="mt-6 w-full">
     <button
-      (click)="skipDocumentAndBiometrics()"
+      (click)="skipBiometrics()"
       [style.border]="'1px solid' + project.branding.buttonColor"
       [style.color]="project.branding.buttonColor"
       class="fuse-mat-button-large w-full mt-6"

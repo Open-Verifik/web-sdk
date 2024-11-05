@@ -16,7 +16,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 
 import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
-import { AppRegistration, ImageScan, Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "app/modules/auth/project";
+import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { environment } from "environments/environment";
 import { DemoService } from "app/modules/demo/demo.service";
@@ -258,6 +258,7 @@ export class SmartScannerComponent implements OnInit {
 
         this.compareMinScore = this.projectFlow.onboardingSettings.document.compareMinScore;
         this.livenessMinScore = this.projectFlow.onboardingSettings.liveness.livenessMinScore;
+		this.livenessScore = (this.appRegistration.biometricValidation?.livenessScore || 0) * 100;
 
 		this._scanner = new jscanify();
 
@@ -296,6 +297,7 @@ export class SmartScannerComponent implements OnInit {
 
 	ngOnInit(): void {
 		this._ObserveDomMedia();
+		this._requestIdentityImages();
 
 		this._onFailedScanUpload = this.failedScanUpload.subscribe((event) => {
 			this.uploading = false;
@@ -319,6 +321,14 @@ export class SmartScannerComponent implements OnInit {
 
 			this._startCamera();
 		});
+	}
+
+	private _requestIdentityImages(): void {
+		if (!this.appRegistration.face?._id) return;
+
+		const face = this.appRegistration.face;
+		this.base64Image = `data:image/jpeg;base64${face["base64"]}`;
+		this._resync();
 	}
 
 	ngOnDestroy(): void {
@@ -807,20 +817,6 @@ export class SmartScannerComponent implements OnInit {
 
 		this.fetchingToken = true;
 
-		if (!this.appRegistration.compareFaceVerification && this.appRegistration.biometricValidation && this.appRegistration.documentValidation) {
-			this._KYCService.compareFaces().subscribe({
-				next: (response) => {
-					this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
-				},
-				error: () => {},
-				complete: () => { 
-					this._resync();
-				},
-			});
-
-			return;
-		}
-
 		const compareFaceVerification = this.appRegistration.compareFaceVerification;
 
 		let _response = {
@@ -830,11 +826,11 @@ export class SmartScannerComponent implements OnInit {
 		if (compareFaceVerification && compareFaceVerification.result.score < this.compareMinScore) {
 			this.appRegistration.status = "FAILED";
 			this.errorResult = true;
-		}
-
-		if (this.livenessScore && this.livenessScore < this.livenessMinScore) {
+		} else if (this.livenessScore && this.livenessScore < this.livenessMinScore) {
 			this.appRegistration.status = "FAILED";
 			this.errorResult = true;
+		} else {
+			this.appRegistration.status = "COMPLETED";
 		}
 
 		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
@@ -847,9 +843,13 @@ export class SmartScannerComponent implements OnInit {
 				this.errorResult = true;
 			},
 			complete: () => {
-				const redirectUrl = Boolean(environment.verifikProject === this.project._id)
-					? `${environment.appUrl}/sign-in`
-					: this.projectFlow.redirectUrl;
+				let redirectUrl = this.projectFlow.redirectUrl;
+
+				if (environment.verifikProject === this.project._id) {
+					redirectUrl = `${environment.appUrl}/sign-in`;
+				} else if (environment.sandboxProject === this.project._id) {
+					redirectUrl = `${environment.sandboxUrl}/sign-in`;
+				}
 
 				this.redirectUrl = `${redirectUrl}?type=onboarding&token=${_response.token}`;
 				this.fetchingToken = false;
@@ -1033,11 +1033,12 @@ export class SmartScannerComponent implements OnInit {
 	}
 
 	tryAgain(): void {
+		this.appRegistration.face = null;
 		this.base64Image = undefined;
-		this.faceIsValid = false;
-		this.errorFace = {};
 		this.errorContent.message = null;
+		this.errorFace = {};
 		this.errorResult = false;
+		this.faceIsValid = false;
 
 		this.onPrevious.next();
 		this._restartScan();

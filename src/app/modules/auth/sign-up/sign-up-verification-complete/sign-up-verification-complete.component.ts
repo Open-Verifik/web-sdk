@@ -16,6 +16,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 
 import { AppRegistration, Project, ProjectFlow, ServiceType } from "../../project";
 import { KYCService } from "../../kyc.service";
+import { environment } from "environments/environment";
 
 @Component({
 	selector: "auth-sign-up-verification-complete",
@@ -58,7 +59,11 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
 
-		if (this.projectFlow.onboardingSettings.steps) {
+		if (this.appRegistration.currentStep === 'signUpForm') {
+			this._syncAppRegistration('instructions');
+		}
+
+		if (this.appRegistration && this.projectFlow.onboardingSettings.steps) {
 			const steps = this.projectFlow.onboardingSettings.steps;
 
 			if (steps.document === 'skip' && steps.liveness === 'skip') {
@@ -72,11 +77,48 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-        this._initForm();
+		this._initForm();
+
+		if (!['signUpForm', 'instructions'].includes(this.appRegistration.currentStep)) {
+			if (this.appRegistration.currentStep === 'document') {
+				this.goToKYCApp('document');
+			} else if (this.appRegistration.currentStep === 'liveness'){
+				this.goToKYCApp('biometrics');
+			}
+		}
     }
 
 	private _initForm(): void {
         this.agreementForm = this._formBuilder.group({ agreement: ["", Validators.requiredTrue] });
+	}
+
+	private _syncAppRegistration(step: string, status?: string, action?: string) {
+		let _response: any = null;
+
+		this._KYCService
+			.syncAppRegistration(step, status)
+			.subscribe({
+				next: (response) => {
+					_response = response.data;
+				},
+				error: () => {},
+				complete: () => {
+					if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
+						let redirectUrl = this.projectFlow.redirectUrl;
+
+						if (environment.verifikProject === this.project._id) {
+							redirectUrl = `${environment.appUrl}/sign-in`;
+						} else if (environment.sandboxProject === this.project._id) {
+							redirectUrl = `${environment.sandboxUrl}/sign-in`;
+						}
+
+						window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+					}
+
+					this.appRegistration.currentStep = step;
+				},
+			}
+		);
 	}
 
 	goToKYCApp(service: ServiceType): void {
@@ -84,14 +126,16 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 	}
 
 	skipDocument(): void {
+		if (this.projectFlow.onboardingSettings.steps.liveness === 'skip') {
+			this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+
+			return;
+		}
+
 		this.welcomeStyle = 1;
 	}
 
 	skipBiometrics(): void {
-		this.welcomeStyle = 2;
-	}
-
-	skipDocumentAndBiometrics(): void {
-		this.onServiceChange.next('results');
+		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
 	}
 }

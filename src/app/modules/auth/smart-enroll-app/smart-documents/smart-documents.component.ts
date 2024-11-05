@@ -52,7 +52,14 @@ export class SmartDocumentsComponent implements OnChanges {
 
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.service?.currentValue) {
-			this.selectedMethod = 'scan';
+			if (this.projectFlow.onboardingSettings.document.scanDocumentAllowed && this.projectFlow.onboardingSettings.document.uploadDocumentAllowed) {
+				this.selectedMethod = '';
+			} else if (this.projectFlow.onboardingSettings.document.scanDocumentAllowed) {
+				this.selectedMethod = 'scan';
+			} else if (this.projectFlow.onboardingSettings.document.uploadDocumentAllowed) {
+				this.selectedMethod = 'upload';
+			}
+
 			setTimeout(() => {
 				this.stepRedirection.next(changes.service?.currentValue === 'document' ? 1 : 5);
 			}, 0);

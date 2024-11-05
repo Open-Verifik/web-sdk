@@ -273,6 +273,23 @@
         </button>
 
         <button
+          (click)="onNext.next()"
+          [disabled]="uploading"
+          [style.color]="uploading ? '' : project.branding.buttonColor"
+          [style.border]="
+            uploading ? '' : '1px solid' + project.branding.buttonColor
+          "
+          class="m-2"
+          *ngIf="
+           (source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
+           (source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
+          "
+          mat-flat-button
+        >
+          {{ "skip" | transloco }}
+        </button>
+
+        <button
           (click)="takePicture()"
           [disabled]="errorFace || uploading"
           [style.background]="

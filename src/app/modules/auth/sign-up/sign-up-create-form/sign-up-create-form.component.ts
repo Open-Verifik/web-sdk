@@ -339,7 +339,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
                     this._router.navigate(
                         ['/sign-up', this.project._id],
                         {
-                            queryParams: { token: this.appRegistration.token, step: 'verify' },
+                            queryParams: { token: this.appRegistration.token },
                             queryParamsHandling: 'merge',
                         }
                     );

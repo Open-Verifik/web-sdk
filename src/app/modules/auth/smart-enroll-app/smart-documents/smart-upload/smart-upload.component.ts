@@ -166,6 +166,28 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
                     const livenessScore = Math.round(+(response.data.biometricValidation.livenessScore || 0) * 100);
 
+                    if (this.appRegistration.documentValidation && this.appRegistration.biometricValidation && !this.appRegistration.compareFaceVerification) {
+                        this._KYCService.compareFaces().subscribe({
+                            next: (response) => {
+                                this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
+                                this._syncAppRegistration("liveness");
+                            },
+                            error: (error) => {
+                                console.error({error});
+
+                                this.failedScanUploadSubject.next({message: 'failed_comparison', livenessScore});
+                                this.goNext();
+                            },
+                            complete: () => {
+                                this.successfulScanUploadSubject.next({livenessScore});
+                                this.goNext();
+                            },
+                        });
+
+                        return;
+                    }
+
+                    this._syncAppRegistration("liveness")
                     this.successfulScanUploadSubject.next({livenessScore});
                     this.goNext();
                 },
@@ -190,6 +212,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     private _createDocumentValidation(body: any, mapIndex: number) {
+        if (this.faceIdCard && body.image) {
+            body.documentFace = this.faceIdCard;
+        }
+
         this._KYCService
             .createDocumentValidation(body)
             .subscribe({
@@ -217,6 +243,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
                     this._setFileData(mapIndex, this.file, imageUrl, this.faceIdCard, data);
                     this._sendDocumentValidationAndNameValidation();
+                    this._syncAppRegistration("document");
                 },
                 error: (error) => {
                     const message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(error?.error?.message) ? error.error.message : 'failed_to_read';
@@ -269,7 +296,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 			);
 		}
 
-        if (observables.length === 0) return;
+        if (observables.length === 0) {
+            this.successfulScanUploadSubject.next({});
+            return;
+        };
 
 		forkJoin([observables]).subscribe({
 			next: (results) => {
@@ -309,15 +339,14 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
             this.fileProgress += 10;
 
-            if (this.stepIndex === 1) await this._setFaceToCanvas(img);
-
             this.base64Image = event.target.result;
             const image = this.base64Image.replace(/^data:image\/.*;base64,/, "");
 
             const body = {
-                image: undefined,
                 backImage: undefined,
+                documentFace: undefined,
                 force: undefined,
+                image: undefined,
                 inputMethod: "FILE_UPLOAD",
             };
 
@@ -327,6 +356,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             } else {
                 body.image = image;
                 body.force = !!this.appRegistration.documentValidation;
+
+                await this._setFaceToCanvas(img);
             }
 
             this.isExtracting = true;
@@ -375,7 +406,6 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
 		fileReader.onload = (event: any) => {
 			const img = new Image();
-
 			img.src = event.target.result;
 
 			img.onload = async () => await this._fileOnLoad(event, img);
@@ -404,6 +434,33 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this.fileDataMap.set(mapIndex, {file, base64Image, faceIdCard, response: data });
     };
 
+	private _syncAppRegistration(step: string, status?: string, action?: string) {
+		let _response: any = null;
+
+		this._KYCService
+			.syncAppRegistration(step, status)
+			.subscribe({
+				next: (response) => {
+					_response = response.data;
+				},
+				error: () => {},
+				complete: () => {
+					if (status !== "COMPLETED_WITHOUT_KYC" || action !== "redirect") return;
+
+                    let redirectUrl = this.projectFlow.redirectUrl;
+
+                    if (environment.verifikProject === this.project._id) {
+                        redirectUrl = `${environment.appUrl}/sign-in`;
+                    } else if (environment.sandboxProject === this.project._id) {
+                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
+                    }
+
+                    window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+				},
+			}
+		);
+	}
+
     backToBeginning(): void {
         this._KYCService.restartKYC().subscribe({
             next: () => {
@@ -422,11 +479,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
 	canSkipStep(): boolean {
 		if (this.stepIndex < 5) {
-			return this.projectFlow.onboardingSettings.steps.document === 'optional';
+			return this.projectFlow.onboardingSettings.steps.document !== 'mandatory';
 		}
 
         if (this.stepIndex === 5) {
-            return this.projectFlow.onboardingSettings.steps.liveness === 'optional';
+            return this.projectFlow.onboardingSettings.steps.liveness !== 'mandatory';
         }
 
         return false;
@@ -460,43 +517,38 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
-        if (this.stepIndex <= 4 && this.projectFlow.onboardingSettings.steps.document === 'skip') {
-            return this.goToStep(5);
-        }
-
-        if (this.stepIndex < 5 && this.projectFlow.onboardingSettings.steps.liveness === 'skip') {
-            return this.goToStep(6);
-        }
-
-        // Skip second/fourth steps if rear document not required
-        if (!this.requiresBack && (this.stepIndex % 2 === 1 && this.stepIndex + 1 < 5)) {
-            this.stepIndex++;
-        }
-
-        this.stepIndex++;
-
+        const step = this.stepIndex + 1;
+        this.goToStep(step);
         this._getFileData(this.stepIndex % 2);
     }
 
     goPrevious(): void {
-        if (this.stepIndex === 5 && this.projectFlow.onboardingSettings.steps.document === 'skip') {
-            return this.backEmit.next();
-        }
-
         if (this.stepIndex <= 1) return this.backEmit.next();
 
-        // Skip second/fourth steps if rear document not required
-        if (!this.requiresBack && (this.stepIndex % 2 === 1 && this.stepIndex - 1 < 5)) {
-            this.stepIndex--;
-        }
-
-        this.stepIndex--;
-
+        const stepIndex = this.stepIndex - 1;
+        this.goToStep(stepIndex);
         this._getFileData(this.stepIndex % 2)
     }
 
-    goToStep(stepIndex: number): void {
-        this.stepIndex = stepIndex;
+    goToStep(step: number): void {
+        // If we're reaching step 6 (results) by skipping everything, just redirect them to the application
+        if (step === 6 &&
+            this.projectFlow.onboardingSettings.steps.liveness !== 'mandatory' &&
+            !this.appRegistration.biometricValidation &&
+            this.projectFlow.onboardingSettings.steps.document !== 'mandatory' &&
+            !this.appRegistration.documentValidation
+        ) {
+			this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+
+            return;
+        }
+
+        // skip steps 2 and 4 if back is not required.
+        if (step % 2 === 0 && step < 5 && !this.requiresBack) {
+            step > this.stepIndex ? step++ : step--;
+        }
+
+        this.stepIndex = step;
     }
 
     isActiveStep(step: number): boolean {
@@ -517,9 +569,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             const mapIndex = thisStep % 2;
 
             const body = {
-                image: undefined,
                 backImage: undefined,
+                documentFace: undefined,
                 force: undefined,
+                image: undefined,
                 inputMethod: "FILE_UPLOAD",
             };
 
@@ -532,7 +585,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
                 const img = new Image();
                 img.src = imageScan.rawImage;
-                this._setFaceToCanvas(img);
+
+                await this._setFaceToCanvas(img);
             }
 
             this.isExtracting = true;
