@@ -1,0 +1,21 @@
+<div
+  class="h-full px-8 py-4"
+  fxLayout="row"
+  fxLayoutAlign="center center"
+  fxLayout.lt-md="column"
+>
+  <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="100%">
+    <smart-stepper></smart-stepper>
+  </div>
+
+  <smart-scanner
+    (onImageScan)="onImageScan($event)"
+    [failedUpload]="failedUploadSubject.asObservable()"
+    [successfulUpload]="successfulUploadSubject.asObservable()"
+    source="face"
+    class="w-full h-full"
+    fxLayoutAlign="center center"
+  ></smart-scanner>
+
+  <div fxFlex="25%" fxFlex.lt-lg="0"></div>
+</div>

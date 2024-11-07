@@ -1,0 +1,172 @@
+<div
+  class="h-full px-8 py-4"
+  fxLayout="row"
+  fxLayoutAlign="center center"
+  fxLayout.lt-md="column"
+>
+    <div fxFlex="25%" fxFlex.lt-md="100%">
+        <smart-stepper></smart-stepper>
+    </div>
+
+    <div
+      class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+      [style.border]="
+        project.branding.borderColor
+          ? '1px solid ' + project.branding.borderColor
+          : ''
+      "
+    >
+      <div
+        class="results__avatar-container"
+        fxLayout="column"
+        fxLayoutAlign="center center"
+      >
+        <div class="results__biometric-avatar" *ngIf="!face" fxLayout="row" fxLayoutAlign="center center">
+          <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+        </div>
+
+        <div class="results__biometric-avatar" *ngIf="face" [style]="{ backgroundImage: 'url('+face.base64+')' }"></div>
+
+        <mat-icon
+          fxFlexAlign="end"
+          class="results__check-icon"
+          [svgIcon]="errorResult ? 'feather:x' : 'feather:check'"
+          [style.color]="project.branding.buttonColor"
+          [style.background]="project.branding.bgColor"
+        ></mat-icon>
+      </div>
+
+      <div fxLayout="row" fxLayoutAlign="space-around" fxLayoutGap="16px">
+        <div
+          class="results__score uppercase mt-4"
+          *ngIf="appRegistration.biometricValidation"
+          [ngClass]="{
+            'results__score--green': !livenessFailed,
+            'results__score--red': livenessFailed,
+          }"
+        >
+          <p class="font-medium">
+            {{
+              "smart_enroll.success_rate"
+                | transloco : { percentile: livenessScore }
+            }}
+          </p>
+        </div>
+
+        <div
+          class="results__score uppercase mt-4"
+          *ngIf="appRegistration.compareFaceVerification"
+          [ngClass]="{
+            'results__score--green': !comparisonFailed,
+            'results__score--red': comparisonFailed,
+          }"
+        >
+          <p class="font-medium">
+            {{
+              "smart_enroll.success_rate"
+                | transloco : { percentile: comparisonScore }
+            }}
+          </p>
+        </div>
+      </div>
+
+      <h4 class="results__title mt-2 font-medium text-2xl">
+        <span *ngIf="!errorResult">{{
+          "smart_enroll.successful_outcome" | transloco
+        }}</span>
+        <span *ngIf="errorResult">{{
+          "smart_enroll.unsuccessful_outcome" | transloco
+        }}</span>
+      </h4>
+
+      <div
+        class="results__checklist-item rounded-lg mt-16 w-full"
+        fxLayout="row"
+        fxLayoutAlign="space-between center"
+        [style.background]="project.branding.bgColor"
+        *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
+      >
+        <p class="font-medium text-lg">
+          <span *ngIf="appRegistration.biometricValidation">{{
+            "smart_enroll.face_was_registered" | transloco
+          }}</span>
+          <span *ngIf="!appRegistration.biometricValidation">{{
+            "smart_enroll.face_was_not_registered" | transloco
+          }}</span>
+        </p>
+
+        <mat-icon
+          class="results__checklist-icon"
+          [ngClass]="{
+            'results__checklist-icon--green': appRegistration.biometricValidation,
+            'results__checklist-icon--red': !appRegistration.biometricValidation,
+          }"
+          [svgIcon]="
+            !appRegistration.biometricValidation
+              ? 'feather:x'
+              : 'feather:check'
+          "
+        ></mat-icon>
+      </div>
+
+      <div
+        class="results__checklist-item rounded-lg mt-4 w-full"
+        fxLayout="row"
+        fxLayoutAlign="space-between center"
+        [style.background]="project.branding.bgColor"
+        *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+      >
+        <p class="font-medium text-lg">
+          <span *ngIf="appRegistration.documentValidation">{{
+            "smart_enroll.id_was_registered" | transloco
+          }}</span>
+          <span *ngIf="!appRegistration.documentValidation">{{
+            "smart_enroll.id_was_not_registered" | transloco
+          }}</span>
+        </p>
+
+        <mat-icon
+          class="results__checklist-icon"
+          [ngClass]="{
+            'results__checklist-icon--green': appRegistration.documentValidation,
+            'results__checklist-icon--red': !appRegistration.documentValidation,
+          }"
+          [svgIcon]="
+            !appRegistration.documentValidation
+              ? 'feather:x'
+              : 'feather:check'
+          "
+        ></mat-icon>
+      </div>
+
+      <button
+        (click)="tryAgain()"
+        [style.background]="project.branding.buttonColor"
+        [style.color]="project.branding.buttonTxtColor"
+        class="fuse-mat-button w-full mt-16"
+        mat-flat-button
+        *ngIf="errorResult"
+      >
+        <span>{{ "id_scanning.retry" | transloco }}</span>
+      </button>
+
+      <button
+        (click)="loginToPlatform()"
+        [disabled]="fetchingToken || !redirectUrl"
+        [style.background]="fetchingToken || !redirectUrl ? '' : project.branding.buttonColor"
+        [style.color]="fetchingToken || !redirectUrl ? '' : project.branding.buttonTxtColor"
+        class="fuse-mat-button w-full mt-16"
+        mat-flat-button
+        *ngIf="!errorResult"
+      >
+        <div fxLayout="row" fxLayoutAlign="center center">
+          <mat-progress-spinner mode="indeterminate" class="mr-4" diameter="14" *ngIf="fetchingToken"></mat-progress-spinner>
+          <span>{{ "smart_enroll.login_to_platform" | transloco }}</span>
+        </div>
+      </button>
+    </div>
+
+    <div fxFlex="25%" fxFlex.lt-lg="0"></div>
+</div>

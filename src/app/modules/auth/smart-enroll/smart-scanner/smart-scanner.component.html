@@ -76,11 +76,77 @@
 <div
   fxLayout="column"
   fxLayoutAlign="center center"
-  class="items-center w-full"
+  class="items-center w-full absolute top-0 left-0 right-0 bottom-0"
   *ngIf="hasCameraPermissions && !loadingCamera"
 >
-  <ng-content select="[title]"></ng-content>
+  <div>
+    <h5
+      class="text-3xl font-medium mt-6 text-center"
+      [style.color]="project.branding.titleColor"
+      *ngIf="source === 'face'"
+      title
+    >
+      {{ "smart_enroll.biometric_register" | transloco }}
+    </h5>
+    <h5
+      class="text-3xl font-medium mt-6 text-center"
+      [style.color]="project.branding.titleColor"
+      *ngIf="source === 'document' && side === 'front'"
+      title
+    >
+      {{ "smart_enroll.document.upload_frontside" | transloco }}
+    </h5>
+    <h5
+      class="text-3xl font-medium mt-6 text-center"
+      [style.color]="project.branding.titleColor"
+      *ngIf="source === 'document' && side === 'back'"
+      title
+    >
+      {{ "smart_enroll.document.upload_backside" | transloco }}
+    </h5>
 
+    <div
+      class="w-full"
+      fxLayout="row"
+      fxLayoutAlign="center space-between"
+      *ngIf="source === 'document'"
+    >
+      <div class="welcome__step-row mx-4">
+        <p
+          class="welcome__step"
+          [style.backgroundColor]="side === 'front' ? project.branding.bgColor : ''"
+          [style.color]="side === 'front' ? project.branding.buttonColor : ''"
+        >
+          <span *ngIf="side === 'front'">1</span>
+          <mat-icon
+            svgIcon="feather:check"
+            *ngIf="side === 'back'"
+            [style.color]="project.branding.buttonColor"
+          ></mat-icon>
+        </p>
+
+        <p class="mt-0.5">
+          {{ "smart_enroll.documents.upload.frontside" | transloco }}
+        </p>
+      </div>
+
+      <div class="flex welcome__step-row mx-4" *ngIf="requiresBack">
+        <p
+          class="welcome__step"
+          [style.backgroundColor]="side === 'back' ? project.branding.bgColor : ''"
+          [style.color]="side === 'back' ? project.branding.buttonColor : ''"
+        >
+          <span>2</span>
+        </p>
+
+        <p class="mt-0.5">
+          {{ "smart_enroll.documents.upload.backside" | transloco }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <canvas #resultCanvas [class.hidden]="true"></canvas>
   <canvas #toSendCanvas [class.hidden]="true"></canvas>
 
   <div
@@ -92,11 +158,9 @@
       fxLayout="column"
       fxLayoutAlign="center center"
       class="w-full h-full"
-      [ngClass]="{ 'mobile-height': phoneMode }"
     >
       <div
         class="relative w-full"
-        [style.width.px]="WIDTH"
         [style.height.px]="HEIGHT"
         fxLayout="row"
         fxLayoutAlign="center center"
@@ -104,7 +168,6 @@
       >
         <video
           [hidden]="source === 'document'"
-          [ngClass]="{ 'max-h-[75vh]': !phoneMode }"
           [style.height.px]="HEIGHT"
           [style.width.px]="WIDTH"
           #videoElement
@@ -260,7 +323,7 @@
         [class.hidden]="base64Image"
       >
         <button
-          (click)="onPrevious.next()"
+          (click)="goPrevious()"
           [disabled]="uploading"
           [style.color]="uploading ? '' : project.branding.buttonColor"
           [style.border]="
@@ -273,7 +336,7 @@
         </button>
 
         <button
-          (click)="onNext.next()"
+          (click)="goNext()"
           [disabled]="uploading"
           [style.color]="uploading ? '' : project.branding.buttonColor"
           [style.border]="
@@ -345,7 +408,7 @@
 
           <div fxLayout="row" fxLayoutAlign="center">
             <button
-              (click)="onNext.next()"
+              (click)="goNext()"
               [style.background]="project.branding.buttonColor"
               [style.color]="project.branding.buttonTxtColor"
               class="fuse-mat-button mt-16"
@@ -387,151 +450,6 @@
             </button>
           </div>
         </div>
-      </div>
-
-      <div
-        class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
-        fxLayout="column"
-        fxLayoutAlign="center center"
-        [class.hidden]="!base64Image || uploading || source === 'document'"
-        [style.border]="
-          project.branding.borderColor
-            ? '1px solid ' + project.branding.borderColor
-            : ''
-        "
-      >
-        <div
-          class="results__avatar-container"
-          fxLayout="column"
-          fxLayoutAlign="center center"
-        >
-          <div class="results__canvas-crop">
-            <canvas
-              [class.hidden]="!base64Image"
-              [ngStyle]="{ left: !isHorizontal ? '15%' : '' }"
-              #resultCanvas
-              class="results__canvas"
-            ></canvas>
-          </div>
-
-          <mat-icon
-            fxFlexAlign="end"
-            class="results__check-icon"
-            [svgIcon]="errorResult ? 'feather:x' : 'feather:check'"
-            [style.color]="project.branding.buttonColor"
-            [style.background]="project.branding.bgColor"
-          ></mat-icon>
-        </div>
-
-        <div
-          class="results__score uppercase mt-4"
-          [ngClass]="{
-            'results__score--green': !errorResult,
-            'results__score--red': errorResult,
-          }"
-        >
-          <p class="font-medium">
-            {{
-              "smart_enroll.success_rate"
-                | transloco : { percentile: livenessScore }
-            }}
-          </p>
-        </div>
-
-        <h4 class="results__title mt-2 font-medium text-2xl">
-          <span *ngIf="!errorResult">{{
-            "smart_enroll.successful_outcome" | transloco
-          }}</span>
-          <span *ngIf="errorResult">{{
-            "smart_enroll.unsuccessful_outcome" | transloco
-          }}</span>
-        </h4>
-
-        <div
-          class="results__checklist-item rounded-lg mt-16 w-full"
-          fxLayout="row"
-          fxLayoutAlign="space-between center"
-          [style.background]="project.branding.bgColor"
-          *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
-        >
-          <p class="font-medium text-lg">
-            <span *ngIf="appRegistration.biometricValidation">{{
-              "smart_enroll.face_was_registered" | transloco
-            }}</span>
-            <span *ngIf="!appRegistration.biometricValidation">{{
-              "smart_enroll.face_was_not_registered" | transloco
-            }}</span>
-          </p>
-
-          <mat-icon
-            class="results__checklist-icon"
-            [ngClass]="{
-              'results__checklist-icon--green': appRegistration.biometricValidation,
-              'results__checklist-icon--red': !appRegistration.biometricValidation,
-            }"
-            [svgIcon]="
-              !appRegistration.biometricValidation
-                ? 'feather:x'
-                : 'feather:check'
-            "
-          ></mat-icon>
-        </div>
-
-        <div
-          class="results__checklist-item rounded-lg mt-4 w-full"
-          fxLayout="row"
-          fxLayoutAlign="space-between center"
-          [style.background]="project.branding.bgColor"
-          *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
-        >
-          <p class="font-medium text-lg">
-            <span *ngIf="appRegistration.documentValidation">{{
-              "smart_enroll.id_was_registered" | transloco
-            }}</span>
-            <span *ngIf="!appRegistration.documentValidation">{{
-              "smart_enroll.id_was_not_registered" | transloco
-            }}</span>
-          </p>
-
-          <mat-icon
-            class="results__checklist-icon"
-            [ngClass]="{
-              'results__checklist-icon--green': appRegistration.documentValidation,
-              'results__checklist-icon--red': !appRegistration.documentValidation,
-            }"
-            [svgIcon]="
-              !appRegistration.documentValidation
-                ? 'feather:x'
-                : 'feather:check'
-            "
-          ></mat-icon>
-        </div>
-
-        <button
-          (click)="tryAgain()"
-          [style.background]="project.branding.buttonColor"
-          [style.color]="project.branding.buttonTxtColor"
-          class="fuse-mat-button w-full mt-16"
-          mat-flat-button
-          *ngIf="errorResult"
-        >
-          <span>{{ "id_scanning.retry" | transloco }}</span>
-        </button>
-
-        <button
-          (click)="loginToPlatform()"
-          [disabled]="fetchingToken || !redirectUrl"
-          [style.background]="fetchingToken || !redirectUrl ? '' : project.branding.buttonColor"
-          [style.color]="fetchingToken || !redirectUrl ? '' : project.branding.buttonTxtColor"
-          class="fuse-mat-button w-full mt-16"
-          mat-flat-button
-          *ngIf="!errorResult"
-        >
-          <div fxLayout="row" fxLayoutAlign="center center">
-            <mat-progress-spinner mode="indeterminate" class="mr-4" diameter="14" *ngIf="fetchingToken"></mat-progress-spinner>
-            <span>{{ "smart_enroll.login_to_platform" | transloco }}</span>
-          </div>
-        </button>
       </div>
     </div>
   </div>

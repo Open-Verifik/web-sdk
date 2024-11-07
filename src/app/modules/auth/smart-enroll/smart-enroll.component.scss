@@ -1,4 +1,4 @@
-smart-enroll-stepper {
+.smart-stepper {
     z-index: 9999;
 }
 
@@ -52,15 +52,20 @@ smart-enroll-stepper {
         &--large {
             min-width: 526px;
             max-width: 526px;
+
+            @media screen and (max-width: 527px) {
+                min-width: 390px;
+                max-width: 390px;
+            }
         }
 
         &--xlarge {
             min-width: 766px;
             max-width: 766px;
 
-            @media screen and (max-width: 992px) {
-                min-width: 526px;
-                max-width: 526px;
+            @media screen and (max-width: 527px) {
+                min-width: 390px;
+                max-width: 390px;
             }
         }
     }
@@ -84,6 +89,10 @@ smart-enroll-stepper {
     }
 
     &__image {
+        height: 220px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         width: 100%;
 
         @media screen and (max-width: 992px) {
@@ -224,18 +233,15 @@ smart-enroll-stepper {
         width: 176px;
     }
 
-    &__canvas-crop {
+    &__biometric-avatar {
         border-radius: 88px;
         height: 176px;
         overflow: hidden;
         position: relative;
         width: 176px;
-    }
-
-    &__canvas {
-        position: absolute;
-        left: -30%;
-        max-height: 100%;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
     }
 
     &__check-icon {

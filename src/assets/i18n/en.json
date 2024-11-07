@@ -355,6 +355,7 @@
 		"documents": {
 			"scan_or_upload_title": "Scan or upload document",
 			"upload_document_title": "Upload document image",
+			"document_review_title": "Review Your Document",
 			"upload": {
 				"steps": {
 					"1": "Upload a file in .jpeg, .png, or .jpg formats.",

@@ -16,9 +16,10 @@ import { fuseAnimations } from "@fuse/animations";
 
 import { TranslocoModule } from "@ngneat/transloco";
 
-import { AppRegistration, Project, ProjectFlow, ServiceType } from "../../project";
+import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { environment } from "environments/environment";
+import { EnrollStep } from '../../smart-enroll/smart-enroll.service';
 
 @Component({
 	selector: "auth-sign-up-verification-complete",
@@ -46,7 +47,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 	@ViewChild("agreementNgForm") agreementNgForm: NgForm;
 	@ViewChild("qrCodeCanvas", { static: true }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 	
-	@Output('onServiceChange') onServiceChange: EventEmitter<ServiceType> = new EventEmitter<ServiceType>()
+	@Output('onServiceChange') onServiceChange: EventEmitter<EnrollStep> = new EventEmitter<EnrollStep>()
 
 	agreementForm: UntypedFormGroup;
 	appRegistration: AppRegistration;
@@ -64,7 +65,6 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
-
 
 		if (this.appRegistration.currentStep === 'signUpForm') {
 			this._syncAppRegistration('instructions');
@@ -90,9 +90,11 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 
 		if (!['signUpForm', 'instructions'].includes(this.appRegistration.currentStep)) {
 			if (this.appRegistration.currentStep === 'document') {
-				this.goToKYCApp('document');
-			} else if (this.appRegistration.currentStep === 'liveness'){
-				this.goToKYCApp('biometrics');
+				this.goToKYCApp('document-review');
+			} else if (this.appRegistration.currentStep === 'liveness') {
+				this.goToKYCApp('biometric');
+			} else if (this.appRegistration.currentStep === 'end'){
+				this.goToKYCApp('result');
 			}
 		}
     }
@@ -152,8 +154,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 		);
 	}
 
-	goToKYCApp(service: ServiceType): void {
-		this.onServiceChange.next(service);
+	goToKYCApp(enrollStep: EnrollStep): void {
+		this.onServiceChange.next(enrollStep);
 	}
 
 	skipDocument(): void {

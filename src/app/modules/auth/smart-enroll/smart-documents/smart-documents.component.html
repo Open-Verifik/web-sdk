@@ -1,12 +1,18 @@
+<canvas #faceCardCanvas hidden></canvas>
+
 <div
-  @fadeIn
-  *ngIf="project && selectedMethod === ''"
-  class="flex px-2 py-4"
-  [ngClass.gt-sm]="'h-full'"
+  class="h-full w-full px-8 py-4"
   fxLayout="row"
   fxLayoutAlign="center center"
+  fxLayout.lt-md="column"
 >
-  <div fxLayout="column" fxLayoutAlign="start center">
+  <div
+    @fadeIn
+    class="w-full"
+    fxLayout="column"
+    fxLayoutAlign="start center"
+    *ngIf="project && !selectedMethod"
+  >
     <div
       class="smart-documents__heading text-center"
       fxLayout="column"
@@ -29,7 +35,7 @@
       <div
         class="smart-documents__card rounded-2xl bg-card m-4 p-6"
         fxLayout="column"
-        *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip' && projectFlow.onboardingSettings.document.uploadDocumentAllowed"
+        *ngIf="projectFlow.onboardingSettings.document.uploadDocumentAllowed"
         [style.border]="
           project.branding.borderColor
             ? '1px solid ' + project.branding.borderColor
@@ -61,17 +67,23 @@
             <div class="welcome__step-column">
               <div class="flex welcome__step-row">
                 <p class="welcome__step">1</p>
-                <p>{{ "smart_enroll.documents.upload.steps.1" | transloco }}</p>
+                <p>
+                  {{ "smart_enroll.documents.upload.steps.1" | transloco }}
+                </p>
               </div>
 
               <div class="flex welcome__step-row">
                 <p class="welcome__step">2</p>
-                <p>{{ "smart_enroll.documents.upload.steps.2" | transloco }}</p>
+                <p>
+                  {{ "smart_enroll.documents.upload.steps.2" | transloco }}
+                </p>
               </div>
 
               <div class="flex welcome__step-row">
                 <p class="welcome__step">3</p>
-                <p>{{ "smart_enroll.documents.upload.steps.3" | transloco }}</p>
+                <p>
+                  {{ "smart_enroll.documents.upload.steps.3" | transloco }}
+                </p>
               </div>
             </div>
           </div>
@@ -81,7 +93,7 @@
 
         <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
           <button
-            (click)="selectedMethod = 'upload'"
+            (click)="updateDocumentMethod('upload')"
             [style.background]="project.branding.buttonColor"
             [style.color]="project.branding.buttonTxtColor"
             class="fuse-mat-button-large mt-6"
@@ -94,7 +106,8 @@
 
       <div
         class="smart-documents__card rounded-2xl bg-card m-4 p-6"
-        fxLayout="column"*ngIf="projectFlow.onboardingSettings.steps.document !== 'skip' && projectFlow.onboardingSettings.document.scanDocumentAllowed"
+        fxLayout="column"
+        *ngIf="projectFlow.onboardingSettings.document.scanDocumentAllowed"
         [style.border]="
           project.branding.borderColor
             ? '1px solid ' + project.branding.borderColor
@@ -151,7 +164,7 @@
 
         <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
           <button
-            (click)="selectedMethod = 'scan'"
+            (click)="updateDocumentMethod('scan')"
             [style.background]="project.branding.buttonColor"
             [style.color]="project.branding.buttonTxtColor"
             class="fuse-mat-button-large mt-6"
@@ -163,12 +176,44 @@
       </div>
     </div>
   </div>
-</div>
 
-<smart-upload
-  (back)="selectedMethod = ''"
-  [method]="selectedMethod"
-  [stepRedirection]="stepRedirection.asObservable()"
-  @fadeIn
-  *ngIf="selectedMethod !== ''"
-></smart-upload>
+  <div
+    @fadeIn
+    class="w-full"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    *ngIf="selectedMethod"
+  >
+    <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="100%">
+      <smart-stepper></smart-stepper>
+    </div>
+
+    <div
+      fxFlex="50%"
+      fxFlex.lt-lg="75%"
+      fxFlex.lt-md="100%"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+      *ngIf="selectedMethod === 'upload'"
+    >
+      <smart-upload
+        (onImageUpload)="onImageScan($event)"
+        [failedUpload]="failedUploadSubject.asObservable()"
+        [successfulUpload]="successfulUploadSubject.asObservable()"
+        @fadeIn
+        source="document"
+      ></smart-upload>
+    </div>
+
+    <div fxFlex="25%" fxFlex.lt-lg="0" *ngIf="selectedMethod === 'scan'"></div>
+
+    <smart-scanner
+      (onImageScan)="onImageScan($event)"
+      [failedUpload]="failedUploadSubject.asObservable()"
+      [successfulUpload]="successfulUploadSubject.asObservable()"
+      @fadeIn
+      *ngIf="selectedMethod === 'scan'"
+      source="document"
+    ></smart-scanner>
+  </div>
+</div>

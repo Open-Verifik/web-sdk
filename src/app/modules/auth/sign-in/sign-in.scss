@@ -138,6 +138,10 @@ mat-tab-body {
 		&--condensed {
 			padding: 8px 0;
 		}
+
+		&--forward {
+			z-index: 9999;
+		}
 	}
 
 	&__step-number {

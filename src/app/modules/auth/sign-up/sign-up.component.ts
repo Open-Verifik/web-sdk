@@ -23,12 +23,13 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 
 import { PasswordlessService } from "../passwordless.service";
-import { AppRegistration, Project, ProjectFlow, ProjectModel, ServiceType } from "../project";
+import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
 import { KYCService } from "../kyc.service";
-import { SmartEnrollAppComponent } from "../smart-enroll-app/smart-enroll-app.component";
+import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
+import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 
 @Component({
 	selector: "auth-sign-up",
@@ -41,7 +42,7 @@ import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-
 		AuthSignUpCreateFormComponent,
 		AuthSignUpVerificationComponent,
 		AuthSignUpVerificationCompleteComponent,
-		SmartEnrollAppComponent,
+		SmartEnrollComponent,
 		CommonModule,
 		FlexLayoutModule,
 		FormsModule,
@@ -77,7 +78,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	locationError: any;
 	project: Project;
 	projectFlow: ProjectFlow;
-	service: ServiceType;
+	enrollStep: EnrollStep;
 	sendingOTP: Boolean;
 	showKYCApp: boolean = false;
 	steps: Array<string> = ['create'];
@@ -108,6 +109,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
 		private _router: Router,
+		private _smartEnrollService: SmartEnrollService,
 		private _splashScreenService: FuseSplashScreenService,
 		@Inject(PLATFORM_ID) private platformId: Object
 	) {
@@ -332,9 +334,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._setStep(step);
 	}
 
-	onKYCStepChange(service: ServiceType): void {
+	onKYCStepChange(enrollStep: EnrollStep): void {
 		this.showKYCApp = true;
-		this.service = service;
+		this._smartEnrollService.setCurrentStep(enrollStep);
 	}
 
 	showCountryNotAllowed(): boolean {

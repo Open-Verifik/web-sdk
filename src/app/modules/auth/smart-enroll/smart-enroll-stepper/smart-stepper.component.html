@@ -1,0 +1,223 @@
+<div
+  class="signup__steps"
+  fxLayout="row"
+  fxLayoutAlign="end center"
+  ngClass.gt-sm="hidden"
+>
+  <div class="mr-2">
+    <p
+      *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+      [hidden]="currentStep !== 'document'"
+    >
+      <span *ngIf="method === 'upload'">{{
+        "smart_enroll.step_titles.upload" | transloco
+      }}</span>
+      <span *ngIf="method === 'scan'">{{
+        "smart_enroll.step_titles.id_scanning" | transloco
+      }}</span>
+    </p>
+
+    <p
+      *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+      [hidden]="currentStep !== 'document-review'"
+    >
+      {{ "smart_enroll.step_titles.ocr_details" | transloco }}
+    </p>
+
+    <p
+      *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
+      [hidden]="currentStep !== 'biometric'"
+    >
+      {{ "smart_enroll.step_titles.biometric_record" | transloco }}
+    </p>
+
+    <p [hidden]="currentStep !== 'result'">
+      {{ "smart_enroll.step_titles.results" | transloco }}
+    </p>
+  </div>
+
+  <div
+    class="signup__step"
+    *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+    [ngClass]="{ 'signup__step--wide': currentStep === 'document' }"
+    [style.color]="
+      currentStep === 'document' ? project.branding.titleColor : ''
+    "
+  ></div>
+
+  <div
+    class="signup__step"
+    *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+    [ngClass]="{ 'signup__step--wide': currentStep === 'document-review' }"
+    [style.color]="
+      currentStep === 'document-review' ? project.branding.titleColor : ''
+    "
+  ></div>
+
+  <div
+    class="signup__step"
+    *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
+    [ngClass]="{ 'signup__step--wide': currentStep === 'biometric' }"
+    [style.color]="
+      currentStep === 'biometric' ? project.branding.titleColor : ''
+    "
+  ></div>
+
+  <div
+    class="signup__step"
+    [ngClass]="{ 'signup__step--wide': currentStep === 'result' }"
+    [style.color]="currentStep === 'result' ? project.branding.titleColor : ''"
+  ></div>
+</div>
+
+<div ngClass.lt-md="hidden">
+  <div
+    class="flex welcome__step-row"
+    *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+    ngClass.lt-md="welcome__step-row--condensed"
+    [ngClass]="currentStep === 'document' ? 'welcome__step-row--active' : ''"
+    [style.color]="
+      currentStep === 'document' ? project.branding.buttonTxtColor : ''
+    "
+  >
+    <p
+      class="welcome__step welcome__step--large"
+      fxLayout="row"
+      fxLayoutAlign="center center"
+      [style.background]="
+        currentStep === 'document' ? project.branding.buttonColor : ''
+      "
+    >
+      <span
+        *ngIf="currentStep === 'document'"
+        class="welcome__step-number welcome__step-number--large"
+        >1</span
+      >
+      <mat-icon
+        *ngIf="currentStep !== 'document'"
+        [style.color]="project.branding.buttonColor"
+        >check</mat-icon
+      >
+    </p>
+
+    <p
+      class="welcome__step-text welcome__step-text--large"
+      [style.background]="
+        currentStep === 'document' ? project.branding.buttonColor : ''
+      "
+    >
+      <span *ngIf="method === 'upload'">{{
+        "smart_enroll.step_titles.upload" | transloco
+      }}</span>
+      <span *ngIf="method === 'scan'">{{
+        "smart_enroll.step_titles.id_scanning" | transloco
+      }}</span>
+    </p>
+  </div>
+
+  <div
+    class="flex welcome__step-row"
+    *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
+    [ngClass]="
+      currentStep === 'document-review' ? 'welcome__step-row--active' : ''
+    "
+    [style.color]="
+      currentStep === 'document-review' ? project.branding.buttonTxtColor : ''
+    "
+  >
+    <p
+      class="welcome__step welcome__step--large"
+      fxLayout="row"
+      fxLayoutAlign="center center"
+      [style.background]="
+        currentStep === 'document-review' ? project.branding.buttonColor : ''
+      "
+    >
+      <span
+        *ngIf="currentStep === 'document' || currentStep === 'document-review'"
+        class="welcome__step-number welcome__step-number--large"
+        >2</span
+      >
+      <mat-icon
+        *ngIf="currentStep !== 'document' && currentStep !== 'document-review'"
+        [style.color]="project.branding.buttonColor"
+        >check</mat-icon
+      >
+    </p>
+
+    <p
+      class="welcome__step-text welcome__step-text--large"
+      [style.background]="
+        currentStep === 'document-review' ? project.branding.buttonColor : ''
+      "
+    >
+      {{ "smart_enroll.step_titles.ocr_details" | transloco }}
+    </p>
+  </div>
+
+  <div
+    class="flex welcome__step-row"
+    *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
+    [ngClass]="currentStep === 'biometric' ? 'welcome__step-row--active' : ''"
+    [style.color]="
+      currentStep === 'biometric' ? project.branding.buttonTxtColor : ''
+    "
+  >
+    <p
+      class="welcome__step welcome__step--large"
+      fxLayout="row"
+      fxLayoutAlign="center center"
+      [style.background]="
+        currentStep === 'biometric' ? project.branding.buttonColor : ''
+      "
+    >
+      <span
+        class="welcome__step-number welcome__step-number--large"
+        *ngIf="currentStep === 'document' || currentStep === 'document-review' || currentStep === 'biometric'"
+        >3</span
+      >
+      <mat-icon
+        *ngIf="currentStep === 'result'"
+        [style.color]="project.branding.buttonColor"
+        >check</mat-icon
+      >
+    </p>
+
+    <p
+      class="welcome__step-text welcome__step-text--large"
+      [style.background]="
+        currentStep === 'biometric' ? project.branding.buttonColor : ''
+      "
+    >
+      {{ "smart_enroll.step_titles.biometric_record" | transloco }}
+    </p>
+  </div>
+
+  <div
+    class="flex welcome__step-row"
+    [ngClass]="currentStep === 'result' ? 'welcome__step-row--active' : ''"
+    [style.color]="
+      currentStep === 'result' ? project.branding.buttonTxtColor : ''
+    "
+  >
+    <p
+      class="welcome__step welcome__step--large"
+      fxLayout="row"
+      fxLayoutAlign="center center"
+      [style.background]="
+        currentStep === 'result' ? project.branding.buttonColor : ''
+      "
+    >
+      <span class="welcome__step-number welcome__step-number--large">4</span>
+    </p>
+
+    <p
+      class="welcome__step-text welcome__step-text--large"
+      [style.background]="
+        currentStep === 'result' ? project.branding.buttonColor : ''
+      "
+    >
+      {{ "smart_enroll.step_titles.results" | transloco }}
+    </p>
+  </div>
+</div>

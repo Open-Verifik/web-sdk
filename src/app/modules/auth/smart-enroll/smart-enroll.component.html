@@ -20,8 +20,24 @@
 
   <main class="app__content" [style.backgroundColor]="project.branding.bgColor">
     <smart-documents
-      [service]="service"
+      class="w-full"
+      *ngIf="currentStep === 'document'"
     ></smart-documents>
+
+    <smart-documents-review
+      class="w-full"
+      *ngIf="currentStep === 'document-review'"
+    ></smart-documents-review>
+
+    <smart-biometrics
+      class="w-full"
+      *ngIf="currentStep === 'biometric'"
+    ></smart-biometrics>
+
+    <smart-results
+      class="w-full"
+      *ngIf="currentStep === 'result'"
+    ></smart-results>
   </main>
 
   <section

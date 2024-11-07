@@ -796,9 +796,9 @@ export interface BiometricValidation {
 
 export type ImageScan = {
 	base64Image: string,
-	rawImage: string,
+	documentFace?: string,
 	force?: boolean,
+	front?: boolean;
+	rawImage: string,
 	source?: 'document' | 'face',
 };
-
-export type ServiceType = '' | 'document' | 'biometrics' | 'results';
