@@ -194,26 +194,32 @@
       fxFlex.lt-md="100%"
       fxLayout="column"
       fxLayoutAlign="center center"
-      *ngIf="selectedMethod === 'upload'"
     >
       <smart-upload
         (onImageUpload)="onImageScan($event)"
-        [failedUpload]="failedUploadSubject.asObservable()"
+        [class.hidden]="errorResult"
         [successfulUpload]="successfulUploadSubject.asObservable()"
         @fadeIn
+        *ngIf="selectedMethod === 'upload' && !errorResult"
         source="document"
       ></smart-upload>
+
+      <smart-scanner
+        (onImageScan)="onImageScan($event)"
+        [class.hidden]="errorResult"
+        [successfulUpload]="successfulUploadSubject.asObservable()"
+        @fadeIn
+        *ngIf="selectedMethod === 'scan' && !errorResult"
+        source="document"
+      ></smart-scanner>
+
+      <smart-error-display
+        (onClearError)="retry()"
+        [errorContent]="errorContent"
+        *ngIf="errorResult"
+      ></smart-error-display>
     </div>
 
-    <div fxFlex="25%" fxFlex.lt-lg="0" *ngIf="selectedMethod === 'scan'"></div>
-
-    <smart-scanner
-      (onImageScan)="onImageScan($event)"
-      [failedUpload]="failedUploadSubject.asObservable()"
-      [successfulUpload]="successfulUploadSubject.asObservable()"
-      @fadeIn
-      *ngIf="selectedMethod === 'scan'"
-      source="document"
-    ></smart-scanner>
+    <div fxFlex="25%" fxFlex.lt-lg="0"></div>
   </div>
 </div>

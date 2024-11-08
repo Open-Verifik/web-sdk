@@ -29,7 +29,7 @@ import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
-import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 
 @Component({
 	selector: "auth-sign-up",
@@ -330,13 +330,29 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		window.location.reload();
 	}
 
-	onStepChange(step: string): void {
-		this._setStep(step);
-	}
+	onServiceChange(enrollStep: EnrollStep): void {
+		let method = 'scan' as EnrollDocumentMethod;
 
-	onKYCStepChange(enrollStep: EnrollStep): void {
+		if (enrollStep === 'document') {
+			if (
+				this.projectFlow.onboardingSettings.document.uploadDocumentAllowed &&
+				this.projectFlow.onboardingSettings.document.scanDocumentAllowed
+			) {
+				method = '';
+			} else if (this.projectFlow.onboardingSettings.document.uploadDocumentAllowed) {
+				method = 'upload'
+			} else if (this.projectFlow.onboardingSettings.document.scanDocumentAllowed) {
+				method = 'scan'
+			}
+		}
+
 		this.showKYCApp = true;
 		this._smartEnrollService.setCurrentStep(enrollStep);
+		this._smartEnrollService.setDocumentMethod(method);
+	}
+
+	onStepChange(step: string): void {
+		this._setStep(step);
 	}
 
 	showCountryNotAllowed(): boolean {

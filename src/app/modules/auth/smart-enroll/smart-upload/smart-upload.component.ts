@@ -3,7 +3,6 @@ import { Observable, Subscription } from "rxjs";
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
@@ -22,7 +21,6 @@ import { DemoService } from "app/modules/demo/demo.service";
 
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "../../project";
 import { KYCService } from "app/modules/auth/kyc.service";
-import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartEnrollService } from "../smart-enroll.service";
 
 const MAX_FILE_SIZE = 10485760;
@@ -38,7 +36,6 @@ const MAX_FILE_SIZE = 10485760;
         CommonModule,
         DragAndDropModule,
         FlexLayoutModule,
-        FormsModule,
         LanguagesComponent,
         MatButtonModule,
         MatCardModule,
@@ -46,8 +43,6 @@ const MAX_FILE_SIZE = 10485760;
         MatProgressBarModule,
         MatProgressSpinnerModule,
         NgIf,
-        ReactiveFormsModule,
-        SmartScannerComponent,
         TranslocoModule,
     ],
 })
@@ -57,10 +52,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     @Output('onImageUpload') onImageUpload: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
-    @Input() failedUpload: Observable<{ message?: string, livenessScore?: number }>;
 	@Input() successfulUpload: Observable<{ livenessScore?: number }>;
 
-	private _onFailedUpload: Subscription;
 	private _onSuccessfulUpload: Subscription;
 
     appRegistration: AppRegistration;
@@ -72,7 +65,6 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     file: File;
     fileProgress: number;
     isExtracting: boolean = false;
-    livenessScore: number = 0;
     project: Project;
     projectFlow: ProjectFlow;
     requiresBack: boolean = false;
@@ -91,28 +83,16 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-		this._onFailedUpload = this.failedUpload.subscribe((event) => {
-            this.fileProgress = 100;
-			this.isExtracting = false;
-			this.errorResult = true;
-			this.errorContent = { message: event.message };
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-
-			this.livenessScore = event.livenessScore || 0;
-		});
-
 		this._onSuccessfulUpload = this.successfulUpload.subscribe((event) => {
-            this.fileProgress = 100;            
+            this.fileProgress = 100;
+            this.errorResult = false;
+            this.errorContent = { message: '' };
             this.isExtracting = false;
-			this.errorResult = false;
-			this.errorContent = null;
             this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-			this.livenessScore = event.livenessScore || 0;
 		});
     }
 
 	ngOnDestroy(): void {
-		this._onFailedUpload.unsubscribe();
 		this._onSuccessfulUpload.unsubscribe();
 	}
 
@@ -253,7 +233,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     resetFileUpload(): void {
         this.base64Image = '';
-        this.errorContent = null;
+        this.errorContent = { message: '' };
         this.errorResult = false;
         this.file = null;
         this.fileProgress = 0;

@@ -98,8 +98,11 @@ export class SmartEnrollComponent implements OnDestroy {
 		this._smartEnrollService.store.biometric.compareMinScore = compareMinScore;
 		this._smartEnrollService.store.biometric.livenessMinScore = livenessMinScore;
 
-		this._smartEnrollService.setAttempts('document', documentAttemptsLimit);
-		this._smartEnrollService.setAttempts('biometric', biometricAttemptsLimit);
+		const remainingBiometricAttempts = biometricAttemptsLimit - (this.appRegistration?.failedBiometricValidations?.length || 0);
+		const remainingDocumentAttempts = documentAttemptsLimit - (this.appRegistration?.failedDocumentValidations?.length || 0);
+
+		this._smartEnrollService.setAttempts('biometric', remainingBiometricAttempts, biometricAttemptsLimit);
+		this._smartEnrollService.setAttempts('document', remainingDocumentAttempts, documentAttemptsLimit);
 	}
 
 	changeStep(step: EnrollStep) {

@@ -1,4 +1,4 @@
-<div fxLayout="column" *ngIf="loadingCamera">
+<div fxLayout="column" fxLayoutAlign="start center" *ngIf="loadingCamera">
   <div fxLayout="column" fxLayoutAlign="start center">
     <mat-progress-spinner
       mode="indeterminate"
@@ -53,7 +53,7 @@
 
   <mat-card-actions class="mt-4" fxLayout="row" fxLayoutAlign="space-between">
     <button
-      (click)="goPrevious()"
+      (click)="exitApplication()"
       [style.border]="'1px solid ' + project.branding.buttonColor"
       [style.color]="project.branding.buttonColor"
       class="fuse-mat-button-large mt-6"
@@ -63,12 +63,20 @@
     </button>
 
     <button
-      [style.background]="project.branding.buttonColor"
-      [style.color]="project.branding.buttonTxtColor"
-      class="fuse-mat-button-large mt-6"
+      (click)="goNext()"
+      [disabled]="uploading"
+      [style.color]="uploading ? '' : project.branding.buttonColor"
+      [style.border]="
+        uploading ? '' : '1px solid' + project.branding.buttonColor
+      "
+      class="m-2"
+      *ngIf="
+       (source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
+       (source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
+      "
       mat-flat-button
     >
-      <span>{{ "id_scanning.retry" | transloco }}</span>
+      {{ "skip" | transloco }}
     </button>
   </mat-card-actions>
 </div>
@@ -94,7 +102,7 @@
       *ngIf="source === 'document' && side === 'front'"
       title
     >
-      {{ "smart_enroll.document.upload_frontside" | transloco }}
+      {{ "smart_enroll.documents.upload.upload_frontside" | transloco }}
     </h5>
     <h5
       class="text-3xl font-medium mt-6 text-center"
@@ -102,7 +110,7 @@
       *ngIf="source === 'document' && side === 'back'"
       title
     >
-      {{ "smart_enroll.document.upload_backside" | transloco }}
+      {{ "smart_enroll.documents.upload.upload_backside" | transloco }}
     </h5>
 
     <div
@@ -111,7 +119,7 @@
       fxLayoutAlign="center space-between"
       *ngIf="source === 'document'"
     >
-      <div class="welcome__step-row mx-4">
+      <div class="flex welcome__step-row mx-4">
         <p
           class="welcome__step"
           [style.backgroundColor]="side === 'front' ? project.branding.bgColor : ''"
@@ -198,7 +206,7 @@
           class="smart-scanner__loader-overlay top-0 left-0 right-0 bottom-0 rounded-3xl"
           fxLayout="row"
           fxLayoutAlign="center center"
-          *ngIf="uploading || errorResult"
+          *ngIf="uploading"
         >
           <div
             fxLayout="column"
@@ -212,16 +220,6 @@
 
             <p class="mt-4">
               {{ "smart_enroll.extracting_data" | transloco }}...
-            </p>
-          </div>
-
-          <div
-            fxLayout="column"
-            fxLayoutAlign="center center"
-            *ngIf="errorResult"
-          >
-            <p class="mt-4 red-500 text-center">
-              {{ "id_scanning." + errorContent.message | transloco }}
             </p>
           </div>
         </div>
@@ -390,7 +388,7 @@
         class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
         fxLayout="column"
         fxLayoutAlign="center center"
-        [class.hidden]="!base64Image || uploading || source === 'face'"
+        [class.hidden]="!base64Image || uploading"
         [style.border]="
           project.branding.borderColor
             ? '1px solid ' + project.branding.borderColor
@@ -398,7 +396,6 @@
         "
       >
         <div
-          *ngIf="!errorResult"
           fxLayout="column"
           fxLayoutAlign="center center"
         >
@@ -415,38 +412,6 @@
               mat-flat-button
             >
               <span>{{ "next" | transloco }}</span>
-            </button>
-          </div>
-        </div>
-
-        <div
-          *ngIf="errorResult"
-          fxLayout="column"
-          fxLayoutAlign="center center"
-        >
-          <h4 class="results__title mt-2 font-medium text-2xl">
-            <span>{{ "smart_enroll.did_not_detect" | transloco }}</span>
-          </h4>
-
-          <div class="results__score mt-4">
-            <p class="font-medium">
-              {{
-                "smart_enroll.remaining_attempts"
-                  | transloco : { attempts: attemptsRemaining }
-              }}
-            </p>
-          </div>
-
-          <div fxLayout="row" fxLayoutAlign="center">
-            <button
-              (click)="tryAgain()"
-              [style.background]="project.branding.buttonColor"
-              [style.color]="project.branding.buttonTxtColor"
-              class="fuse-mat-button mt-16"
-              mat-flat-button
-              *ngIf="errorResult"
-            >
-              <span>{{ "id_scanning.retry" | transloco }}</span>
             </button>
           </div>
         </div>

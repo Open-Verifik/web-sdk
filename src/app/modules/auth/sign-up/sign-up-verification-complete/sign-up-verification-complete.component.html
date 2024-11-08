@@ -81,7 +81,7 @@
 
       <div class="mt-4">
         <button
-          (click)="skipDocument('document')"
+          (click)="skipDocument()"
           [style.border]="'1px solid' + project.branding.buttonColor"
           [style.color]="project.branding.buttonColor"
           *ngIf="projectFlow.onboardingSettings.steps.document === 'optional'"
@@ -93,7 +93,7 @@
         </button>
 
         <button
-          (click)="goToKYCApp()"
+          (click)="goToKYCApp('document')"
           [style.background]="
             agreementForm.invalid ? '' : project.branding.buttonColor
           "

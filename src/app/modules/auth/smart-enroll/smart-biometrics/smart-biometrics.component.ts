@@ -1,11 +1,8 @@
 import { Subject } from "rxjs";
 
-import { CommonModule, NgIf } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, ElementRef, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
 
 import { fuseAnimations } from "@fuse/animations";
 
@@ -16,11 +13,11 @@ import { KYCService } from "../../kyc.service";
 import { EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { AppRegistration, BiometricValidation, ImageScan, Project, ProjectFlow } from "../../project";
 
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 import { environment } from "environments/environment";
+import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 
 @Component({
 	selector: "smart-biometrics",
@@ -32,14 +29,9 @@ import { environment } from "environments/environment";
 	imports: [
 		CommonModule,
 		FlexLayoutModule,
-		FormsModule,
-		LanguagesComponent,
-		MatButtonModule,
-		MatIconModule,
-		NgIf,
-		ReactiveFormsModule,
 		SmartScannerComponent,
 		SmartStepperComponent,
+		SmartErrorDisplayComponent,
 		TranslocoModule,
 	],
 })
@@ -55,8 +47,7 @@ export class SmartBiometricsComponent {
 	errorResult: boolean;
 	errorContent: { message: string };
 
-    failedUploadSubject: Subject<{ message: string, livenessScore?: number }> = new Subject<{message: string, livenessScore: number}>();
-    successfulUploadSubject: Subject<{livenessScore?: number}> = new Subject<{livenessScore?: number}>();
+    successfulUploadSubject: Subject<void> = new Subject<void>();
 
     constructor(
 		private _demoService: DemoService,
@@ -68,18 +59,11 @@ export class SmartBiometricsComponent {
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
 
+		this.errorResult = this._smartEnrollService.store.biometric.remaining === 0;
+		this.errorContent = { message: '' };
+
 		this.demoData = this._demoService.getDemoData();
 	}
-
-    async onImageScan(imageScan: ImageScan) {
-		const body: any = {
-			image: imageScan.base64Image,
-			os: this.demoData.OS,
-			force: !!this.appRegistration.biometricValidation,
-		};
-
-		this._createBiometricValidation(body);
-    }
 
     private _createBiometricValidation(body: any) {
         this._KYCService
@@ -89,19 +73,15 @@ export class SmartBiometricsComponent {
                     this.appRegistration.biometricValidation = response.data.biometricValidation as BiometricValidation;
                     this.appRegistration.person = response.data.person;
 
-                    const livenessScore = Math.round(+(response.data.biometricValidation.livenessScore || 0) * 100);
-
                     if (this.appRegistration.documentValidation && this.appRegistration.biometricValidation && !this.appRegistration.compareFaceVerification) {
                         this._KYCService.compareFaces().subscribe({
                             next: (response) => {
                                 this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
-                                this._syncAppRegistration("liveness");
+                                this._syncAppRegistration("liveness", "ONGOING");
                             },
-                            error: () => {
-                                this.failedUploadSubject.next({ message: 'failed_comparison', livenessScore });
-                            },
-                            complete: () => {
-                                this.successfulUploadSubject.next({ livenessScore });
+                            error: this._handleError,
+							complete: () => {
+								this.successfulUploadSubject.next();
 								this._smartEnrollService.goToNextStep();
                             },
                         });
@@ -109,23 +89,21 @@ export class SmartBiometricsComponent {
                         return;
                     }
 
-                    this._syncAppRegistration("liveness")
-                    this.successfulUploadSubject.next({ livenessScore });
+                    this._syncAppRegistration("liveness", "ONGOING");
+					this._smartEnrollService.goToNextStep();
+                    this.successfulUploadSubject.next();
                 },
-                error: (error) => {
-                    this.errorResult = true;
-                    this.errorContent = { message: error?.error?.message || '' };
-
-                    const split = this.errorContent.message.split("@");
-
-                    this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_read';
-
-                    const livenessScore = Math.round(+(split[1] || 0) * 100);
-
-                    this.failedUploadSubject.next({ message: this.errorContent.message, livenessScore });
-                },
+                error: this._handleError,
             });
     }
+
+	private _handleError(error: any): void {
+		this.errorResult = true;
+		this.errorContent = { message: error?.error?.message || '' };
+
+		const split = this.errorContent.message.split("@");
+		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_read';
+	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {
 		let _response: any = null;
@@ -152,5 +130,21 @@ export class SmartBiometricsComponent {
 				},
 			}
 		);
+	}
+
+    onImageScan(imageScan: ImageScan) {
+		const body: any = {
+			image: imageScan.base64Image,
+			os: this.demoData.OS,
+			force: !!this.appRegistration.biometricValidation,
+		};
+
+		this._createBiometricValidation(body);
+    }
+
+	retry() {
+		this._smartEnrollService.subtractAttempt('biometric');
+		this.errorResult = false;
+		this.errorContent = { message: '' };
 	}
 }

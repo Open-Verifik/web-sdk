@@ -1,17 +1,19 @@
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
+
 import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll.service";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration, Face, Project, ProjectFlow } from "../../project";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { environment } from "environments/environment";
+
+import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 @Component({
 	selector: "smart-results",
@@ -23,12 +25,10 @@ import { environment } from "environments/environment";
 	imports: [
 		CommonModule,
 		FlexLayoutModule,
-		FormsModule,
-		LanguagesComponent,
 		MatButtonModule,
 		MatIconModule,
+		MatProgressSpinnerModule,
 		NgIf,
-		ReactiveFormsModule,
 		SmartStepperComponent,
 		TranslocoModule,
 	],
@@ -73,11 +73,11 @@ export class SmartResultsComponent {
 		for (let index = 0; index < arrayOfImages.length; index++) {
 			const identityImage = arrayOfImages[index];
 
-			if (identityImage.category === "face" && this.appRegistration.face === identityImage._id) {
-				this.face = identityImage;
+			if (identityImage.category !== "face") continue;
 
-				this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-			}
+			this.face = identityImage;
+			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
+
 			const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
 
 			if (stringArr.length === 3) {
@@ -143,6 +143,7 @@ export class SmartResultsComponent {
 			}
 		} else {
 			this.appRegistration.status = "COMPLETED";
+			this.errorResult = false;
 			this.comparisonFailed = false;
 			this.livenessFailed = false;
 		}
@@ -171,13 +172,17 @@ export class SmartResultsComponent {
 		});
 	}
 
+	exitApplication(): void {
+		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+	}
+
 	loginToPlatform(): void {
 		if (this.fetchingToken || !this.redirectUrl) return;
 
 		window.location.href = `${this.redirectUrl}`;
 	}
 
-	tryAgain(): void {
-		this._smartEnrollService.skipToStep('document');
+	tryAgain(step: 'document' | 'biometric'): void {
+		this._smartEnrollService.skipToStep(step);
 	}
 }

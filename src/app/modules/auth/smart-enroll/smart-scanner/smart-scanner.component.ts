@@ -15,13 +15,12 @@ import { MatIconModule } from "@angular/material/icon";
 
 import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
 
-import { DocumentErrorsDisplayComponent } from "app/modules/kyc/document-errors-display/document-errors-display.component";
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
-import { environment } from "environments/environment";
 import { DemoService } from "app/modules/demo/demo.service";
 import { SmartEnrollService } from "../smart-enroll.service";
 
+const JSScanify = new jscanify();
 
 const FACE_H_ANGLE_LIMIT = {
 	PITCH_HIGH: 15,
@@ -150,7 +149,6 @@ type Corrections = {
 	standalone: true,
 	imports: [
 		CommonModule,
-		DocumentErrorsDisplayComponent,
 		FlexLayoutModule,
 		MatButtonModule,
 		MatCheckboxModule,
@@ -167,56 +165,42 @@ export class SmartScannerComponent implements OnInit {
 	@ViewChild("videoResultCanvas", { static: false }) public videoResultCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("videoElement") videoElement: ElementRef<HTMLVideoElement>;
 
-	@Input('attemptsRemaining') attemptsRemaining: number;
 	@Input('source') source: 'document' | 'face';
 	
     @Output('onImageScan') onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 	
-	@Input() failedUpload: Observable<{ message?: string, livenessScore?: number }>;
-	@Input() successfulUpload: Observable<{ livenessScore?: number }>;
+	@Input() successfulUpload: Observable<void>;
 	
 	private _debouncedTakePicture: DebouncedFunc<() => void>
 	private _detectDocumentInterval: ReturnType<typeof setInterval>;
 	private _detectFaceInterval: ReturnType<typeof setInterval>;
-	private _onFailedUpload: Subscription;
 	private _onSuccessfulUpload: Subscription;
+	private _rectCredential: any;
 	private _scanner: jscanify;
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
-	
+
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
-	backUploaded: boolean = false;
 	base64Image: any;
 	checkFaceTimeout: any;
-	compareMinScore: number;
 	demoData: any;
 	documentIsValid: boolean;
-	errorContent: any;
 	errorFace: any;
-	errorResult: boolean;
 	faceIsValid: boolean;
-	fetchingToken: boolean;
-	frontUploaded: boolean = false;
 	hasCameraPermissions: boolean;
 	HEIGHT: number;
-	idToSend: any;
 	isHorizontal: boolean = true;
-	isProduction: boolean = environment.production;
-	livenessMinScore: number;
-	livenessScore: number;
 	loading: any;
 	loadingCamera: boolean;
-	navigation: any;
 	phoneMode: boolean;
 	project: Project;
 	projectFlow: ProjectFlow;
-	rectCredential: any;
-	redirectUrl: string;
 	requiresBack: boolean = false;
 	side: 'back' | 'front' = 'front';
 	stream: MediaStream;
 	tabletMode: boolean;
 	test: string;
+	unsupported: boolean = false;
 	uploading: boolean = false;
 	video: any;
 	WIDTH: number;
@@ -254,37 +238,11 @@ export class SmartScannerComponent implements OnInit {
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService,
 	) {
-		this.appRegistration = this._KYCService.appRegistration;
-		this.project = this._KYCService.currentProject;
-		this.projectFlow = this._KYCService.currentProjectFlow;
-		this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-
-        this.compareMinScore = this.projectFlow.onboardingSettings.document.compareMinScore;
-        this.livenessMinScore = this.projectFlow.onboardingSettings.liveness.livenessMinScore;
-		this.livenessScore = (this.appRegistration.biometricValidation?.livenessScore || 0) * 100;
-
-		this._scanner = new jscanify();
-
-		this.demoData = this._demoService.getDemoData();
-
-		this.base64Image = undefined;
-		this.hasCameraPermissions = false;
-		this.loadingCamera = false;
-		this.loading = false;
-
-		this.errorFace = {};
-		this.errorContent = { message: "" };
-		this.errorResult = false;
-
-		let key = this.demoData.isMobile ? "width" : "height";
-
-		this.videoOptions[key] = { ideal: 1080 };
-		this.videoOptions.facingMode = this.demoData.isMobile ? "environment" : "user";
-		this.rectCredential = {};
-		this.video = {};
+		this._resetVariables();
 
 		this._renderer.listen("window", "resize", () => {
 			if (!this.videoElement) return;
+
 			this._stopRecord();
 			this._startCamera();
 		});
@@ -293,23 +251,9 @@ export class SmartScannerComponent implements OnInit {
 	ngOnInit(): void {
 		this._ObserveDomMedia();
 
-		this._onFailedUpload = this.failedUpload.subscribe((event) => {
+		this._onSuccessfulUpload = this.successfulUpload.subscribe(() => {
 			this.uploading = false;
-			this.errorResult = true;
-			this.errorContent = { message: event.message };
             this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-
-			this.livenessScore = event.livenessScore || 0;
-		});
-
-		this._onSuccessfulUpload = this.successfulUpload.subscribe((event) => {
-			this.uploading = false;
-			this.errorResult = false;
-			this.errorContent = null;
-			this.livenessScore = event.livenessScore || 0;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-
-			this._resync();
 		});
 
 		this._demoService.faceapi$.subscribe((isLoaded) => {
@@ -321,8 +265,8 @@ export class SmartScannerComponent implements OnInit {
 
 	ngOnDestroy(): void {
 		this._stopRecord();
-		this._onFailedUpload.unsubscribe();
 		this._onSuccessfulUpload.unsubscribe();
+		this._unsubscribeAll.complete();
 	}
 
 	private _detectDocument(
@@ -604,8 +548,8 @@ export class SmartScannerComponent implements OnInit {
 			this._drawIdMask(ctx);
 		}
 
-		this.setDimensions(this.video.height, this.video.width, this.rectCredential);
-		this.setDimensions(this.video.height, this.video.width, this.video);
+		this._setDimensions(this.video.height, this.video.width, this._rectCredential);
+		this._setDimensions(this.video.height, this.video.width, this.video);
 	}
 
 	/**
@@ -794,61 +738,30 @@ export class SmartScannerComponent implements OnInit {
 		this._debouncedTakePicture();
 	}
 
-	private _restartScan(): void {
-		this.ngOnInit();
-	}
-
 	private _resetVariables() {
+		this.appRegistration = this._KYCService.appRegistration;
+		this.project = this._KYCService.currentProject;
+		this.projectFlow = this._KYCService.currentProjectFlow;
+		this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+
+		this._rectCredential = {};
+		this._scanner = JSScanify;
+
+		this.demoData = this._demoService.getDemoData();
+
 		this.base64Image = undefined;
-		this.errorContent.message = null;
+		this.hasCameraPermissions = false;
+		this.loading = false;
+		this.loadingCamera = false;
+
 		this.errorFace = {};
-		this.errorResult = false;
+		this.documentIsValid = false;
 		this.faceIsValid = false;
-	}
 
-	private _resync() {
-		if (!this.appRegistration.biometricValidation) return;
+		let key = this.demoData.isMobile ? "width" : "height";
 
-		this.fetchingToken = true;
-
-		const compareFaceVerification = this.appRegistration.compareFaceVerification;
-
-		let _response = {
-			token: null,
-		};
-
-		if (compareFaceVerification && compareFaceVerification.result.score < this.compareMinScore) {
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
-		} else if (this.livenessScore && this.livenessScore < this.livenessMinScore) {
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
-		} else {
-			this.appRegistration.status = "COMPLETED";
-		}
-
-		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
-			next: (response) => {
-				_response = response.data;
-			},
-			error: (exception) => {
-				console.error({ exception });
-				this.fetchingToken = false;
-				this.errorResult = true;
-			},
-			complete: () => {
-				let redirectUrl = this.projectFlow.redirectUrl;
-
-				if (environment.verifikProject === this.project._id) {
-					redirectUrl = `${environment.appUrl}/sign-in`;
-				} else if (environment.sandboxProject === this.project._id) {
-					redirectUrl = `${environment.sandboxUrl}/sign-in`;
-				}
-
-				this.redirectUrl = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-				this.fetchingToken = false;
-			},
-		});
+		this.video = {};
+		this.videoOptions[key] = { ideal: 1080 };
 	}
 
 	private _setCanvasDimensions = () => {
@@ -879,11 +792,26 @@ export class SmartScannerComponent implements OnInit {
 		this._drawMask(canvasCtx);
 	};
 
+	private _setDimensions(height: number, width: number, data: any) {
+		if (this.isHorizontal) {
+			data.y = Math.floor(height * 0.1);
+			data.rectHeight = Math.floor(height * 0.8);
+			data.rectWidth = Math.floor(this.aspectRatio * data.rectHeight);
+			data.x = Math.floor((width - data.rectWidth) / 2);
+		} else {
+			data.x = Math.floor(width * 0.1);
+			data.rectWidth = Math.floor(width * 0.8);
+			data.rectHeight = Math.floor(this.aspectRatio * data.rectWidth);
+			data.y = Math.floor((height - data.rectHeight) / 2);
+		}
+	}
+
 	private _startCamera() {
 		if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
 			console.error("Browser does not support getUserMedia API.");
 
 			this.hasCameraPermissions = false;
+			this.loadingCamera = false;
 
 			return;
 		}
@@ -967,12 +895,16 @@ export class SmartScannerComponent implements OnInit {
 		this.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
 	}
 
+	exitApplication(): void {
+		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+	}
+
     goNext(): void {
 		if (this.source === 'document') {
 			if (this.requiresBack && this.side !== 'back') {
 				this.side = 'back';
 				this._resetVariables();
-				this._restartScan();
+				this._startCamera();
 			} else {
 				this._smartEnrollService.goToNextStep();
 			}
@@ -986,7 +918,7 @@ export class SmartScannerComponent implements OnInit {
 			if (this.requiresBack && this.side !== 'front') {
 				this.side = 'front';
 				this._resetVariables();
-				this._restartScan();
+				this._startCamera();
 			} else {
 				this._smartEnrollService.goToPreviousStep();
 			}
@@ -994,12 +926,6 @@ export class SmartScannerComponent implements OnInit {
 			this._smartEnrollService.goToPreviousStep();
 		}
     }
-
-	loginToPlatform(): void {
-		if (this.fetchingToken || !this.redirectUrl) return;
-
-		window.location.href = `${this.redirectUrl}`;
-	}
 
 	setPictureInCanvas(canvas: HTMLCanvasElement, dimensions: any, dimensionsOriginals?: any) {
 		const context = canvas.getContext("2d");
@@ -1029,20 +955,6 @@ export class SmartScannerComponent implements OnInit {
 		);
 	}
 
-	setDimensions(height: number, width: number, data: any) {
-		if (this.isHorizontal) {
-			data.y = Math.floor(height * 0.1);
-			data.rectHeight = Math.floor(height * 0.8);
-			data.rectWidth = Math.floor(this.aspectRatio * data.rectHeight);
-			data.x = Math.floor((width - data.rectWidth) / 2);
-		} else {
-			data.x = Math.floor(width * 0.1);
-			data.rectWidth = Math.floor(width * 0.8);
-			data.rectHeight = Math.floor(this.aspectRatio * data.rectWidth);
-			data.y = Math.floor((height - data.rectHeight) / 2);
-		}
-	}
-
 	async takePicture() {
 		clearInterval(this._detectFaceInterval);
 		clearInterval(this._detectDocumentInterval);
@@ -1053,7 +965,7 @@ export class SmartScannerComponent implements OnInit {
 		const canvasToSend = this.toSendCanvas.nativeElement;
 		const canvasResult = this.resultCanvas.nativeElement;
 
-		this.setPictureInCanvas(canvasResult, this.rectCredential, this.video);
+		this.setPictureInCanvas(canvasResult, this._rectCredential, this.video);
 		this.setPictureInCanvas(canvasToSend, this.video);
 
 		this.base64Image = canvasToSend.toDataURL("image/jpeg");
@@ -1064,10 +976,5 @@ export class SmartScannerComponent implements OnInit {
 
 		this.onImageScan.next({ base64Image, source: this.source, rawImage: this.base64Image, front: isFront });
 		this._stopRecord();
-	}
-	tryAgain(): void {
-		this._smartEnrollService.subtractAttempt(this.source === 'document' ? 'document' : 'biometric');
-		this._resetVariables();
-		this._restartScan();
 	}
 }

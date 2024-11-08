@@ -3,7 +3,6 @@ import { catchError, forkJoin, map, of, Subject, Subscription } from "rxjs";
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from '@angular/material/card';
@@ -15,11 +14,11 @@ import { AppRegistration, Project, ProjectFlow, DocumentValidation, ImageScan } 
 import { KYCService } from "../../kyc.service";
 import { EnrollDocumentMethod, SmartEnrollService } from "../smart-enroll.service";
 
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { environment } from "environments/environment";
+import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 
 @Component({
 	selector: "smart-documents",
@@ -31,14 +30,12 @@ import { environment } from "environments/environment";
 	imports: [
 		CommonModule,
 		FlexLayoutModule,
-		FormsModule,
-		LanguagesComponent,
 		MatButtonModule,
 		NgIf,
-		ReactiveFormsModule,
 		SmartUploadComponent,
 		SmartStepperComponent,
 		SmartScannerComponent,
+		SmartErrorDisplayComponent,
 		TranslocoModule,
         MatCardModule,
         MatIconModule,
@@ -54,9 +51,10 @@ export class SmartDocumentsComponent implements OnDestroy {
 	project: Project;
 	projectFlow: ProjectFlow;
     selectedMethod: EnrollDocumentMethod = '';
+	errorResult: boolean;
+	errorContent: { message: string };
 
-    failedUploadSubject: Subject<{ message?: string, livenessScore?: number }> = new Subject<{message?: string, livenessScore: number}>();
-    successfulUploadSubject: Subject<{livenessScore?: number}> = new Subject<{livenessScore?: number}>();
+    successfulUploadSubject: Subject<void> = new Subject<void>();
 
     constructor(
 		private _smartEnrollService: SmartEnrollService,
@@ -67,7 +65,10 @@ export class SmartDocumentsComponent implements OnDestroy {
         this.projectFlow = this._KYCService.currentProjectFlow;
 
         const settings = this._smartEnrollService.enrollSettings;
+
         this.selectedMethod = settings.documentMethod;
+		this.errorResult = this._smartEnrollService.store.document.remaining === 0;
+		this.errorContent = { message: '' };
 
 		this._smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onDocumentMethodChange(enrollSettings.documentMethod)
@@ -76,7 +77,6 @@ export class SmartDocumentsComponent implements OnDestroy {
 
 	ngOnDestroy() {
 		this._smartEnrollSettingsSubscription.unsubscribe();
-        this.failedUploadSubject.unsubscribe();
         this.successfulUploadSubject.unsubscribe();
 	}
 
@@ -88,18 +88,21 @@ export class SmartDocumentsComponent implements OnDestroy {
                     this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
                     this._sendDocumentValidationAndNameValidation();
                 },
-                error: (error) => {
-                    const message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(error?.error?.message) ? error.error.message : 'failed_to_read';
-
-                    this._smartEnrollService.subtractAttempt('document');
-					this.failedUploadSubject.next({ message });
-                },
+                error: this._handleError,
             });
     }
 
+	private _handleError(error: any): void {
+		this.errorResult = true;
+		this.errorContent = { message: error?.error?.message || '' };
+
+		const split = this.errorContent.message.split("@");
+		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_read';
+	}
+
 	private _sendDocumentValidationAndNameValidation(): void {
         if (!this.appRegistration.documentValidation._id) {
-			this.successfulUploadSubject.next({});
+			this.successfulUploadSubject.next();
             this._syncAppRegistration('document', "ONGOING");
 
             return;
@@ -137,7 +140,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 		}
 
         if (observables.length === 0) {
-			this.successfulUploadSubject.next({});
+			this.successfulUploadSubject.next();
             this._syncAppRegistration('document', "ONGOING");
 
             return;
@@ -153,11 +156,9 @@ export class SmartDocumentsComponent implements OnDestroy {
 					}
 				});
 			},
-			error: (error) => {
-				console.error("Unexpected error occurred:", error);
-			},
+			error: this._handleError,
             complete: () => {
-				this.successfulUploadSubject.next({});
+				this.successfulUploadSubject.next();
                 this._syncAppRegistration('document', "ONGOING");
             }
 		});
@@ -201,15 +202,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 
 	}
 
-	updateDocumentMethod(method: EnrollDocumentMethod) {
-		if (this.appRegistration.documentValidation) {
-			this._smartEnrollService.setCurrentStep('document-review');
-		}
-
-		this._smartEnrollService.setDocumentMethod(method);
-	}
-
-    async onImageScan(imageScan: ImageScan) {
+    onImageScan(imageScan: ImageScan) {
 		const body = {
 			backImage: undefined,
 			documentFace: undefined,
@@ -229,4 +222,18 @@ export class SmartDocumentsComponent implements OnDestroy {
 
 		this._createDocumentValidation(body);
     }
+
+	retry() {
+		this._smartEnrollService.subtractAttempt('document');
+		this.errorResult = false;
+		this.errorContent = { message: '' };
+	}
+
+	updateDocumentMethod(method: EnrollDocumentMethod) {
+		if (this.appRegistration.documentValidation) {
+			this._smartEnrollService.setCurrentStep('document-review');
+		}
+
+		this._smartEnrollService.setDocumentMethod(method);
+	}
 }

@@ -38,9 +38,9 @@
         ></mat-icon>
       </div>
 
-      <div fxLayout="row" fxLayoutAlign="space-around" fxLayoutGap="16px">
+      <div class="mt-6" fxLayout="column" fxLayoutAlign="center" fxLayoutGap="24">
         <div
-          class="results__score uppercase mt-4"
+          class="results__score uppercase text-center"
           *ngIf="appRegistration.biometricValidation"
           [ngClass]="{
             'results__score--green': !livenessFailed,
@@ -49,14 +49,14 @@
         >
           <p class="font-medium">
             {{
-              "smart_enroll.success_rate"
+              "smart_enroll.liveness_score"
                 | transloco : { percentile: livenessScore }
             }}
           </p>
         </div>
 
         <div
-          class="results__score uppercase mt-4"
+          class="results__score uppercase text-center"
           *ngIf="appRegistration.compareFaceVerification"
           [ngClass]="{
             'results__score--green': !comparisonFailed,
@@ -65,14 +65,14 @@
         >
           <p class="font-medium">
             {{
-              "smart_enroll.success_rate"
+              "smart_enroll.comparison_score"
                 | transloco : { percentile: comparisonScore }
             }}
           </p>
         </div>
       </div>
 
-      <h4 class="results__title mt-2 font-medium text-2xl">
+      <h4 class="results__title mt-6 font-medium text-2xl">
         <span *ngIf="!errorResult">{{
           "smart_enroll.successful_outcome" | transloco
         }}</span>
@@ -142,14 +142,27 @@
       </div>
 
       <button
-        (click)="tryAgain()"
-        [style.background]="project.branding.buttonColor"
-        [style.color]="project.branding.buttonTxtColor"
+        (click)="tryAgain('document')"
+        [disabled]="enrollStore.document.remaining < 1"
+        [style.background]="enrollStore.document.remaining > 0 ? project.branding.buttonColor : ''"
+        [style.color]="enrollStore.document.remaining > 0 ? project.branding.buttonTxtColor : ''"
         class="fuse-mat-button w-full mt-16"
         mat-flat-button
         *ngIf="errorResult"
       >
-        <span>{{ "id_scanning.retry" | transloco }}</span>
+        <span>{{ "id_scanning.retry_document" | transloco }}</span>
+      </button>
+
+      <button
+        (click)="tryAgain('biometric')"
+        [disabled]="enrollStore.biometric.remaining < 1"
+        [style.background]="enrollStore.biometric.remaining > 0 ? project.branding.buttonColor : ''"
+        [style.color]="enrollStore.biometric.remaining > 0 ? project.branding.buttonTxtColor : ''"
+        class="fuse-mat-button w-full mt-4"
+        mat-flat-button
+        *ngIf="errorResult"
+      >
+        <span>{{ "id_scanning.retry_biometric" | transloco }}</span>
       </button>
 
       <button

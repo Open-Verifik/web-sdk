@@ -93,8 +93,6 @@ export class SmartEnrollService {
     }
 
     setCurrentStep(step: EnrollStep) {
-        if (step !== 'document' && this._enrollSettings.documentMethod === '') this._enrollSettings.documentMethod = 'upload';
-
         this.enrollSettings = {
             ...this._enrollSettings,
             currentStep: step,
@@ -108,10 +106,10 @@ export class SmartEnrollService {
         };
     }
 
-    setAttempts(step: 'document' | 'biometric', limit: number) {
-        this.store[step].attempts = 0;
+    setAttempts(step: 'document' | 'biometric', remaining: number, limit: number) {
+        this.store[step].attempts = (limit - remaining) | 0;
         this.store[step].limit = limit;
-        this.store[step].remaining = limit;
+        this.store[step].remaining = remaining;
     }
 
     subtractAttempt(step: 'document' | 'biometric') {

@@ -1,18 +1,16 @@
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
-import { MatCardModule } from '@angular/material/card';
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { SmartEnrollService } from "../smart-enroll.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { MatCardModule } from "@angular/material/card";
 
 @Component({
 	selector: "smart-documents-review",
@@ -24,15 +22,12 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 	imports: [
 		CommonModule,
 		FlexLayoutModule,
-		FormsModule,
-		LanguagesComponent,
 		MatButtonModule,
+		MatIconModule,
 		NgIf,
-		ReactiveFormsModule,
-		TranslocoModule,
 		SmartStepperComponent,
         MatCardModule,
-        MatIconModule,
+		TranslocoModule,
 	],
 })
 export class SmartDocumentsReviewComponent {
@@ -50,6 +45,12 @@ export class SmartDocumentsReviewComponent {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
+
+		if (!this.appRegistration.documentValidation) {
+			this.onPreviousStep();
+
+			return;
+		}
 
 		this._cleanOCR(this.appRegistration.documentValidation?.OCRExtraction);
 	}

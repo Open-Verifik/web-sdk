@@ -8,14 +8,29 @@
     <smart-stepper></smart-stepper>
   </div>
 
-  <smart-scanner
-    (onImageScan)="onImageScan($event)"
-    [failedUpload]="failedUploadSubject.asObservable()"
-    [successfulUpload]="successfulUploadSubject.asObservable()"
-    source="face"
-    class="w-full h-full"
+
+  <div
+    fxFlex="50%"
+    fxFlex.lt-lg="75%"
+    fxFlex.lt-md="100%"
+    fxLayout="column"
     fxLayoutAlign="center center"
-  ></smart-scanner>
+  >
+    <smart-scanner
+      (onImageScan)="onImageScan($event)"
+      [successfulUpload]="successfulUploadSubject.asObservable()"
+      *ngIf="!errorResult"
+      class="w-full h-full"
+      fxLayoutAlign="center center"
+      source="face"
+    ></smart-scanner>
+
+    <smart-error-display
+      (onClearError)="retry()"
+      [errorContent]="errorContent"
+      *ngIf="errorResult"
+    ></smart-error-display>
+  </div>
 
   <div fxFlex="25%" fxFlex.lt-lg="0"></div>
 </div>
