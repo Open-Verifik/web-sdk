@@ -79,7 +79,7 @@ export class SmartBiometricsComponent {
                                 this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
                                 this._syncAppRegistration("liveness", "ONGOING");
                             },
-                            error: this._handleError,
+                            error: (error) => this._handleError(error),
 							complete: () => {
 								this.successfulUploadSubject.next();
 								this._smartEnrollService.goToNextStep();
@@ -93,16 +93,18 @@ export class SmartBiometricsComponent {
 					this._smartEnrollService.goToNextStep();
                     this.successfulUploadSubject.next();
                 },
-                error: this._handleError,
+                error: (error) => this._handleError(error),
             });
     }
 
 	private _handleError(error: any): void {
+		this._smartEnrollService.subtractAttempt('biometric');
+
 		this.errorResult = true;
 		this.errorContent = { message: error?.error?.message || '' };
 
 		const split = this.errorContent.message.split("@");
-		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_read';
+		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_scan';
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {
@@ -143,7 +145,6 @@ export class SmartBiometricsComponent {
     }
 
 	retry() {
-		this._smartEnrollService.subtractAttempt('biometric');
 		this.errorResult = false;
 		this.errorContent = { message: '' };
 	}

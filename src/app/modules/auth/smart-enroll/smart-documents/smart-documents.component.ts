@@ -88,11 +88,13 @@ export class SmartDocumentsComponent implements OnDestroy {
                     this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
                     this._sendDocumentValidationAndNameValidation();
                 },
-                error: this._handleError,
+                error: (error) => this._handleError(error),
             });
     }
 
 	private _handleError(error: any): void {
+		this._smartEnrollService.subtractAttempt('document');
+
 		this.errorResult = true;
 		this.errorContent = { message: error?.error?.message || '' };
 
@@ -156,7 +158,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 					}
 				});
 			},
-			error: this._handleError,
+			error: (error) => this._handleError(error),
             complete: () => {
 				this.successfulUploadSubject.next();
                 this._syncAppRegistration('document', "ONGOING");
@@ -224,7 +226,6 @@ export class SmartDocumentsComponent implements OnDestroy {
     }
 
 	retry() {
-		this._smartEnrollService.subtractAttempt('document');
 		this.errorResult = false;
 		this.errorContent = { message: '' };
 	}

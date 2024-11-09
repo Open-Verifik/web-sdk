@@ -124,6 +124,7 @@
 		"failed_to_detect_limit": "You have exhausted all attempts to scan your legal document",
 		"failed_to_handle_file": "Failed to read the provided file. The file must be in one of the following formats: .jpeg, .png, or .jpg. The file must be no bigger than 20mb.",
 		"failed_to_read": "Failed to extract information from the provided file. Ensure text is clear and readable.",
+		"failed_to_scan": "Failed to extract face information. Please try again. Ensure your face is well lit and you have a solid background.",
 		"government_id_not_allowed": "Government ID not allowed",
 		"manual_capture_button": "Capture manually",
 		"passport_not_allowed": "Passport not allowed",
@@ -349,7 +350,7 @@
 		"liveness_score": "{{percentile}}% liveness score",
 		"successful_outcome": "Successful Outcome",
 		"terms_and_cond": "terms and conditions",
-		"unsuccessful_outcome": "Successful Outcome",
+		"unsuccessful_outcome": "Unsuccessful Outcome",
 		"step_titles": {
 			"id_scanning": "ID Scanning",
 			"upload": "Upload",

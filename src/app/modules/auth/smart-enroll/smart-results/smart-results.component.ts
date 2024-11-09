@@ -53,11 +53,13 @@ export class SmartResultsComponent {
 		private _smartEnrollService: SmartEnrollService,
 		private _KYCService: KYCService,
 	) {
+		this.appRegistration = this._KYCService.appRegistration;
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
 		this.enrollStore = this._smartEnrollService.store;
-        this.appRegistration = this._KYCService.appRegistration;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+		this.project = this._KYCService.currentProject;
+		this.projectFlow = this._KYCService.currentProjectFlow;
+
+		this.errorResult = false;
 
 		this._resync();
 	}
@@ -133,19 +135,16 @@ export class SmartResultsComponent {
 			} else {
 				this.comparisonFailed = false;
 			}
-		} else if (livenessScore) {
+		}
+
+		if (livenessScore) {
 			if (livenessScore < this.enrollStore.biometric.livenessMinScore) {
-				this.livenessFailed = false;
+				this.livenessFailed = true;
 				this.appRegistration.status = "FAILED";
 				this.errorResult = true;
 			} else {
 				this.livenessFailed = false;
 			}
-		} else {
-			this.appRegistration.status = "COMPLETED";
-			this.errorResult = false;
-			this.comparisonFailed = false;
-			this.livenessFailed = false;
 		}
 
 		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({

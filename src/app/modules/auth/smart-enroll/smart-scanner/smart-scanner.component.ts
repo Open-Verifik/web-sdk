@@ -158,6 +158,7 @@ type Corrections = {
 	],
 })
 export class SmartScannerComponent implements OnInit {
+	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("maskCanvas", { static: false }) public maskCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("resultCanvas", { static: false }) public resultCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("toSendCanvas", { static: false }) public toSendCanvas: ElementRef<HTMLCanvasElement>;
@@ -192,6 +193,7 @@ export class SmartScannerComponent implements OnInit {
 	isHorizontal: boolean = true;
 	loading: any;
 	loadingCamera: boolean;
+    faceIdCard: string;
 	phoneMode: boolean;
 	project: Project;
 	projectFlow: ProjectFlow;
@@ -972,9 +974,30 @@ export class SmartScannerComponent implements OnInit {
 		const base64Image = this.base64Image.replace(/^data:.*;base64,/, "");
 		const isFront = this.side === 'front';
 
+		if (this.source === 'document' && isFront) {
+			const img = new Image();
+			img.src = this.base64Image;
+
+			const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+			const faces = detections.map((face) => face.detection.box)
+
+			if (faces.length) {
+				const documentFace = this._demoService.getBiggestFace(faces);
+	
+				this.faceIdCard = this._demoService.cutFaceIdCard(img, documentFace, this.faceCardCanvas.nativeElement);
+			}
+		}
+
 		this.uploading = true;
 
-		this.onImageScan.next({ base64Image, source: this.source, rawImage: this.base64Image, front: isFront });
+		this.onImageScan.next({
+			base64Image,
+			documentFace: this.faceIdCard,
+			front: isFront,
+			rawImage: this.base64Image,
+			source: this.source,
+		});
+
 		this._stopRecord();
 	}
 }
