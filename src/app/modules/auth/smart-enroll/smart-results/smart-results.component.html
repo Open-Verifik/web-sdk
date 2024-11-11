@@ -148,7 +148,7 @@
         [style.color]="enrollStore.document.remaining > 0 ? project.branding.buttonTxtColor : ''"
         class="fuse-mat-button w-full mt-16"
         mat-flat-button
-        *ngIf="errorResult"
+        *ngIf="errorResult && projectFlow.onboardingSettings.steps.document !== 'skip'"
       >
         <span>{{ "id_scanning.retry_document" | transloco }}</span>
       </button>
@@ -160,7 +160,7 @@
         [style.color]="enrollStore.biometric.remaining > 0 ? project.branding.buttonTxtColor : ''"
         class="fuse-mat-button w-full mt-4"
         mat-flat-button
-        *ngIf="errorResult"
+        *ngIf="errorResult && projectFlow.onboardingSettings.steps.liveness !== 'skip'"
       >
         <span>{{ "id_scanning.retry_biometric" | transloco }}</span>
       </button>
