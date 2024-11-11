@@ -66,10 +66,10 @@
 
     <button
       (click)="goNext()"
-      [disabled]="uploading"
-      [style.color]="uploading ? '' : project.branding.buttonColor"
+      [disabled]="!canGoNext()"
+      [style.color]="!canGoNext() ? '' : project.branding.buttonColor"
       [style.border]="
-        uploading ? '' : '1px solid' + project.branding.buttonColor
+        !canGoNext() ? '' : '1px solid' + project.branding.buttonColor
       "
       class="m-2"
       *ngIf="
@@ -187,6 +187,8 @@
 
         <canvas
           [hidden]="source === 'face'"
+          [style.height.px]="HEIGHT"
+          [style.width.px]="WIDTH"
           #videoCanvas
           class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
         ></canvas>
@@ -201,11 +203,25 @@
 
         <canvas
           #maskCanvas
+          [style.height.px]="HEIGHT"
+          [style.width.px]="WIDTH"
           class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
         ></canvas>
 
+        <smart-scanner-corrections
+          [angle]="corrections.angle"
+          [bounds]="corrections.bounds"
+          [resolution]="corrections.resolution"
+          [isHorizontal]="isHorizontal"
+          [height]="HEIGHT"
+          [width]="WIDTH"
+          class="rounded-3xl"
+        ></smart-scanner-corrections>
+
         <div
-          class="smart-scanner__loader-overlay top-0 left-0 right-0 bottom-0 rounded-3xl"
+          class="smart-scanner__loader-overlay top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          [style.height.px]="HEIGHT"
+          [style.width.px]="WIDTH"
           fxLayout="row"
           fxLayoutAlign="center center"
           *ngIf="uploading"
@@ -231,7 +247,7 @@
           *ngIf="!isProduction && faceDetection"
         >
           <div>
-            Face:
+            face:
             <br />
             x: {{ faceDetection.alignedRect?.box.x }}
             <br />
@@ -249,34 +265,7 @@
             <br />
             <br />
             <br />
-          </div>
-
-          <div>
-            document:
-            <br />
-            x: {{ documentDetection?.x }}
-            <br />
-            y: {{ documentDetection?.y }}
-            <br />
-            width: {{ documentDetection?.width }}
-            <br />
-            height: {{ documentDetection?.height }}
-            <br />
-            <br />
-            <br />
-          </div>
-
-          <div>
-            corrections:
-            <br />
-            document x: {{ corrections.document.x }}
-            <br />
-            document y: {{ corrections.document.y }}
-            <br />
-            documentResolution height:
-            {{ corrections.documentResolution.height }}
-            <br />
-            documentResolution width: {{ corrections.documentResolution.width }}
+            face corrections:
             <br />
             x: {{ corrections.bounds.x }}
             <br />
@@ -291,6 +280,37 @@
             yaw: {{ corrections.angle.yaw }}
             <br />
             roll: {{ corrections.angle.roll }}
+            <br />
+            <br />
+            <br />
+          </div>
+
+          <div *ngIf="source === 'document'">
+            document:
+            <br />
+            x: {{ documentDetection?.x }}
+            <br />
+            y: {{ documentDetection?.y }}
+            <br />
+            width: {{ documentDetection?.width }}
+            <br />
+            height: {{ documentDetection?.height }}
+            <br />
+            <br />
+            <br />
+            document corrections:
+            <br />
+            document x: {{ corrections.document.x }}
+            <br />
+            document y: {{ corrections.document.y }}
+            <br />
+            documentResolution height:
+            {{ corrections.documentResolution.height }}
+            <br />
+            documentResolution width: {{ corrections.documentResolution.width }}
+            <br />
+            <br />
+            <br />
           </div>
         </code>
 
@@ -324,7 +344,7 @@
       >
         <button
           (click)="goPrevious()"
-          [disabled]="uploading"
+          [disabled]="!canGoPrevious()"
           [style.color]="uploading ? '' : project.branding.buttonColor"
           [style.border]="
             uploading ? '' : '1px solid' + project.branding.buttonColor
@@ -337,10 +357,10 @@
 
         <button
           (click)="goNext()"
-          [disabled]="uploading"
-          [style.color]="uploading ? '' : project.branding.buttonColor"
+          [disabled]="!canGoNext()"
+          [style.color]="!canGoNext() ? '' : project.branding.buttonColor"
           [style.border]="
-            uploading ? '' : '1px solid' + project.branding.buttonColor
+            !canGoNext() ? '' : '1px solid' + project.branding.buttonColor
           "
           class="m-2"
           *ngIf="

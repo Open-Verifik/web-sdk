@@ -1,10 +1,11 @@
 <canvas #faceCardCanvas hidden></canvas>
 
 <div
-  class="h-full w-full px-8 py-4"
+  class="w-full px-8 py-4"
   fxLayout="row"
   fxLayoutAlign="center center"
   fxLayout.lt-md="column"
+  ngClass.gt-sm="h-full"
 >
   <div
     @fadeIn
@@ -182,9 +183,10 @@
     class="w-full"
     fxLayout="row"
     fxLayoutAlign="center center"
+    fxLayout.lt-md="column"
     *ngIf="selectedMethod"
   >
-    <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="100%">
+    <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
       <smart-stepper></smart-stepper>
     </div>
 

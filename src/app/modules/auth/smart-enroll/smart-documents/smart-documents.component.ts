@@ -1,7 +1,7 @@
 import { catchError, forkJoin, map, of, Subject, Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";

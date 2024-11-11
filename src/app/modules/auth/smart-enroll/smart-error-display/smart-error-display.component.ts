@@ -9,7 +9,6 @@ import { Subscription } from "rxjs";
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { EnrollSettings, EnrollStep, SmartEnrollService } from "../smart-enroll.service";
 import { KYCService } from "../../kyc.service";
-import { environment } from "environments/environment";
 import { MatButtonModule } from "@angular/material/button";
 
 @Component({
@@ -67,57 +66,6 @@ export class SmartErrorDisplayComponent implements OnDestroy {
 	ngOnDestroy() {
 		this._smartEnrollSettingsSubscription.unsubscribe();
 	}
-
-	private _syncAppRegistration(step: string, status?: string, action?: string) {
-		let _response: any = null;
-
-		this._KYCService
-			.syncAppRegistration(step, status)
-			.subscribe({
-				next: (response) => {
-					_response = response.data;
-				},
-				error: () => {},
-				complete: () => {
-					if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
-
-                    let redirectUrl = this.projectFlow.redirectUrl;
-
-                    if (environment.verifikProject === this.project._id) {
-                        redirectUrl = `${environment.appUrl}/sign-in`;
-                    } else if (environment.sandboxProject === this.project._id) {
-                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                    }
-
-                    window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-            },
-			}
-		);
-	}
-
-    canSkipStep() {
-        if (this.currentStep === 'document') {
-            return this.projectFlow.onboardingSettings.steps.document === 'optional';
-        }
-
-        return this.projectFlow.onboardingSettings.steps.liveness === 'optional';
-    }
-
-    skipStep() {
-        if (this.currentStep === 'document') {
-            this.appRegistration.documentValidation = null;
-
-            if (this.projectFlow.onboardingSettings.steps.liveness === 'skip') {
-			    return this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
-            }
-
-            this._smartEnrollService.skipToStep('biometric');
-
-            return;
-        }
-
-        return this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
-    }
 
 	onSettingsChange(settings: EnrollSettings) {
 		this.currentStep = settings.currentStep;

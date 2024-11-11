@@ -4,32 +4,27 @@ import { Subject } from "rxjs";
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
 
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { CountriesService } from "app/modules/demo/countries.service";
-import { DemoService } from "app/modules/demo/demo.service";
+import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
+
 import { environment } from "environments/environment";
 
-import { PasswordlessService } from "../passwordless.service";
-import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
+import { CountriesService } from "app/modules/demo/countries.service";
+import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../kyc.service";
+import { PasswordlessService } from "../passwordless.service";
+import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+
 import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
-import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
-import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 
 @Component({
 	selector: "auth-sign-up",
@@ -40,23 +35,14 @@ import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-e
 	standalone: true,
 	imports: [
 		AuthSignUpCreateFormComponent,
-		AuthSignUpVerificationComponent,
 		AuthSignUpVerificationCompleteComponent,
-		SmartEnrollComponent,
+		AuthSignUpVerificationComponent,
 		CommonModule,
 		FlexLayoutModule,
-		FormsModule,
 		FuseAlertComponent,
-		LanguagesComponent,
 		MatButtonModule,
-		MatCheckboxModule,
-		MatFormFieldModule,
-		MatIconModule,
-		MatInputModule,
-		MatProgressSpinnerModule,
 		NgIf,
-		ReactiveFormsModule,
-		RouterLink,
+		SmartEnrollComponent,
 		TranslocoModule,
 	],
 })
@@ -346,9 +332,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		this.showKYCApp = true;
-		this._smartEnrollService.setCurrentStep(enrollStep);
-		this._smartEnrollService.setDocumentMethod(method);
+		setTimeout(() => {
+			this.showKYCApp = true;
+			this._smartEnrollService.setCurrentStep(enrollStep);
+			this._smartEnrollService.setDocumentMethod(method);
+		});
 	}
 
 	onStepChange(step: string): void {

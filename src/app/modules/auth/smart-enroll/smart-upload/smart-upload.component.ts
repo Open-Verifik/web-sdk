@@ -209,8 +209,12 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         if (this.requiresBack && this.side !== 'back') {
             this.side = 'back';
             this.resetFileUpload();
-        } else {
+        } else if (this.appRegistration.documentValidation) {
             this._smartEnrollService.goToNextStep();
+        } else if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip') {
+            this._smartEnrollService.skipToStep('biometric');
+        } else {
+            this._smartEnrollService.skipToStep('result');   
         }
     }
 
@@ -219,6 +223,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             this.side = 'front';
             this.resetFileUpload();
         } else {
+            this._smartEnrollService.setDocumentMethod('');
             this._smartEnrollService.goToPreviousStep();
         }
     }

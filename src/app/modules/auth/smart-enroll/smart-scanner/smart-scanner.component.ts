@@ -5,7 +5,7 @@ import { debounce, DebouncedFunc } from "lodash";
 import { Observable, Subject, Subscription, takeUntil } from "rxjs";
 
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -19,6 +19,7 @@ import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/au
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { SmartEnrollService } from "../smart-enroll.service";
+import { Corrections, SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 
 const JSScanify = new jscanify();
 
@@ -75,16 +76,16 @@ const DOCUMENT_H_ANGLE_LIMIT = {
 	ROLL_LOW: -15,
 };
 const DOCUMENT_H_BOUNDS_LIMIT = {
-	X_HIGH: 2000,
-	X_LOW: 1100,
-	Y_HIGH: 1200,
-	Y_LOW: 650,
+	X_HIGH: 1000,
+	X_LOW: 700,
+	Y_HIGH: 550,
+	Y_LOW: 400,
 };
 const DOCUMENT_H_RESOLUTION_LIMIT = {
 	WIDTH_HIGH: 1400,
-	WIDTH_LOW: 650,
+	WIDTH_LOW: 850,
 	HEIGHT_HIGH: 700,
-	HEIGHT_LOW: 400,
+	HEIGHT_LOW: 500,
 };
 const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
 	WIDTH_HIGH: 500,
@@ -133,15 +134,6 @@ const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
 };
 
 
-
-type Corrections = {
-	angle: { pitch: string; roll: string; yaw: string },
-	bounds: { x: string; y: string; },
-	document: { x: string; y: string; },
-	documentResolution: { height: string; width: string; },
-	resolution: { height: string; width: string; },
-}
-
 @Component({
 	selector: "smart-scanner",
 	templateUrl: "./smart-scanner.component.html",
@@ -154,10 +146,11 @@ type Corrections = {
 		MatCheckboxModule,
 		MatIconModule,
 		MatProgressSpinnerModule,
+		SmartScannerCorrectionsComponent,
 		TranslocoModule,
 	],
 })
-export class SmartScannerComponent implements OnInit {
+export class SmartScannerComponent implements OnInit, OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("maskCanvas", { static: false }) public maskCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("resultCanvas", { static: false }) public resultCanvas: ElementRef<HTMLCanvasElement>;
@@ -185,15 +178,16 @@ export class SmartScannerComponent implements OnInit {
 	base64Image: any;
 	checkFaceTimeout: any;
 	demoData: any;
+	documentContours: string;
 	documentIsValid: boolean;
 	errorFace: any;
+	faceIdCard: string;
 	faceIsValid: boolean;
 	hasCameraPermissions: boolean;
 	HEIGHT: number;
 	isHorizontal: boolean = true;
 	loading: any;
 	loadingCamera: boolean;
-    faceIdCard: string;
 	phoneMode: boolean;
 	project: Project;
 	projectFlow: ProjectFlow;
@@ -224,7 +218,7 @@ export class SmartScannerComponent implements OnInit {
 		y: number,
 		height: number,
 		width: number,
-		contours: Contour,
+		contours?: Contour,
 	};
 
 	faceDetection: faceapi.WithFaceLandmarks<{
@@ -576,17 +570,20 @@ export class SmartScannerComponent implements OnInit {
 
 	private _evaluateDocumentContours(contours: Contour): void {
 		let BOUNDS = this.isHorizontal ? {
-			angle: DOCUMENT_H_ANGLE_LIMIT,
-			bounds: DOCUMENT_H_BOUNDS_LIMIT,
-			res: DOCUMENT_H_RESOLUTION_LIMIT,
+			angle: { ...DOCUMENT_H_ANGLE_LIMIT },
+			bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
+			res: { ...DOCUMENT_H_RESOLUTION_LIMIT },
 		} : {
-			angle: DOCUMENT_V_ANGLE_LIMIT,
-			bounds: DOCUMENT_V_BOUNDS_LIMIT,
-			res: DOCUMENT_V_RESOLUTION_LIMIT,
+			angle: { ...DOCUMENT_V_ANGLE_LIMIT },
+			bounds: { ...DOCUMENT_V_BOUNDS_LIMIT },
+			res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
 		};
 
-		const shapeWidth = contours.bottomRightCorner.x - contours.bottomLeftCorner.x;
-		const shapeHeight = contours.bottomLeftCorner.y - contours.topLeftCorner.y;
+		const scaleRatioX = this.WIDTH / this.video.width;
+		const scaleRatioY = this.HEIGHT / this.video.height;
+
+		const shapeWidth = Math.floor(contours.bottomRightCorner.x - contours.bottomLeftCorner.x * scaleRatioX);
+		const shapeHeight = Math.floor(contours.bottomLeftCorner.y - contours.topLeftCorner.y * scaleRatioY);
 
 		const correctResolution = shapeHeight > BOUNDS.res.HEIGHT_LOW &&
 			shapeHeight < BOUNDS.res.HEIGHT_HIGH &&
@@ -594,8 +591,8 @@ export class SmartScannerComponent implements OnInit {
 			shapeWidth < BOUNDS.res.WIDTH_HIGH;
 
 		const centerPoint = {
-			x: Math.floor(contours.bottomRightCorner.x + contours.bottomLeftCorner.x / 2),
-			y: Math.floor(contours.bottomLeftCorner.y + contours.topLeftCorner.y / 2),
+			x: Math.floor(((contours.bottomRightCorner.x + contours.bottomLeftCorner.x + contours.topLeftCorner.x + contours.topRightCorner.x) / 4) * scaleRatioX),
+			y: Math.floor(((contours.bottomRightCorner.y + contours.bottomLeftCorner.y + contours.topLeftCorner.y + contours.topRightCorner.y) / 4) * scaleRatioY),
 		}
 
 		const fallsInBounds = centerPoint.x > BOUNDS.bounds.X_LOW &&
@@ -639,21 +636,21 @@ export class SmartScannerComponent implements OnInit {
 
 		if (this.source === 'face') {
 			BOUNDS = this.isHorizontal ? {
-				angle: FACE_H_ANGLE_LIMIT,
-				bounds: FACE_H_BOUNDS_LIMIT,
-				res: FACE_H_RESOLUTION_LIMIT,
+				angle: { ...FACE_H_ANGLE_LIMIT },
+				bounds: { ...FACE_H_BOUNDS_LIMIT },
+				res: { ...FACE_H_RESOLUTION_LIMIT },
 			} : {
-				angle: FACE_V_ANGLE_LIMIT,
-				bounds: FACE_V_BOUNDS_LIMIT,
-				res: FACE_V_RESOLUTION_LIMIT,
+				angle: { ...FACE_V_ANGLE_LIMIT },
+				bounds: { ...FACE_V_BOUNDS_LIMIT },
+				res: { ...FACE_V_RESOLUTION_LIMIT },
 			};
 		} else {
 			BOUNDS = this.isHorizontal ? {
-				bounds: DOCUMENT_FACE_H_BOUNDS_LIMIT,
-				res: DOCUMENT_FACE_H_RESOLUTION_LIMIT,
+				bounds: { ...DOCUMENT_FACE_H_BOUNDS_LIMIT },
+				res: { ...DOCUMENT_FACE_H_RESOLUTION_LIMIT },
 			} : {
-				bounds: DOCUMENT_FACE_V_BOUNDS_LIMIT,
-				res: DOCUMENT_FACE_V_RESOLUTION_LIMIT,
+				bounds: { ...DOCUMENT_FACE_V_BOUNDS_LIMIT },
+				res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
 			};
 		}
 
@@ -736,7 +733,11 @@ export class SmartScannerComponent implements OnInit {
 
 		if (this._debouncedTakePicture) return;
 
-		this._debouncedTakePicture = debounce(() => this.takePicture(), 1000);
+		let debounceWait = 1000;
+
+		if (this.source === 'document') debounceWait = 1500;
+
+		this._debouncedTakePicture = debounce(() => this.takePicture(), debounceWait);
 		this._debouncedTakePicture();
 	}
 
@@ -907,13 +908,29 @@ export class SmartScannerComponent implements OnInit {
 				this.side = 'back';
 				this._resetVariables();
 				this._startCamera();
+			} else if (this.appRegistration.documentValidation) {
+				this._smartEnrollService.goToNextStep(); // go to document-review
+			} else if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip') {
+				this._smartEnrollService.skipToStep('biometric'); // go to liveness
 			} else {
-				this._smartEnrollService.goToNextStep();
+				this._smartEnrollService.skipToStep('result');
 			}
 		} else {
 			this._smartEnrollService.goToNextStep();
 		}
     }
+
+	canGoPrevious(): boolean {
+		return !this.uploading &&
+			(
+				this.source === 'document' ||
+				(this.source === 'face' && this.projectFlow.onboardingSettings.steps.document !== 'skip')
+			);
+	}
+
+	canGoNext(): boolean {
+		return !this.uploading;
+	}
 
     goPrevious(): void {
 		if (this.source === 'document') {
@@ -922,10 +939,13 @@ export class SmartScannerComponent implements OnInit {
 				this._resetVariables();
 				this._startCamera();
 			} else {
-				this._smartEnrollService.goToPreviousStep();
+				this._smartEnrollService.setDocumentMethod('');
+				this._smartEnrollService.skipToStep('document');
 			}
-		} else {
+		} else if (this.appRegistration.documentValidation) {
 			this._smartEnrollService.goToPreviousStep();
+		} else {
+			this._smartEnrollService.skipToStep('document');
 		}
     }
 

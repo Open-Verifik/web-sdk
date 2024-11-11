@@ -136,11 +136,11 @@
         <mat-icon
           [style.color]="project.branding.buttonColor"
           class="welcome__icon welcome__icon--medium"
-          *ngIf="errorContent"
+          *ngIf="errorResult"
           >error</mat-icon
         >
 
-        <div class="drag-and-drop__data" *ngIf="!errorContent">
+        <div class="drag-and-drop__data" *ngIf="!errorResult">
           <div fxLayout="row" fxLayoutAlign="space-between">
             <h4 class="mr-4">{{ file?.name }}</h4>
             <p>{{ formatBytes(file?.size) }}</p>
@@ -169,15 +169,15 @@
       (click)="resetFileUpload()"
       [disabled]="isExtracting"
       [style.background]="
-        errorContent && !isExtracting ? project.branding.buttonColor : ''
+        errorResult && !isExtracting ? project.branding.buttonColor : ''
       "
       [style.border]="
-        errorContent || isExtracting
+        errorResult || isExtracting
           ? 'none'
           : '1px solid' + project.branding.buttonColor
       "
       [style.color]="
-        errorContent && !isExtracting
+        errorResult && !isExtracting
           ? project.branding.buttonTxtColor
           : project.branding.buttonColor
       "
