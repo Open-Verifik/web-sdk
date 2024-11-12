@@ -353,10 +353,10 @@
 		"minimum_liveness": "The minimum liveness score is {{min}}%",
 		"minimum_comparison": "The minimum comparison score is {{min}}%",
 		"failed": {
-			"document_registered_incorrectly": "Your document was not registered correctly",
+			"document_registered_incorrectly": "Your ID was not registered correctly",
 			"liveness_registered_incorrectly": "Your face was not registered correctly",
 			"liveness": "Your biometric image scored too low.",
-			"compare": "A comparison of your document and biometrics scored too low"
+			"compare": "A comparison of your ID and biometrics scored too low"
 		},
 		"step_titles": {
 			"id_scanning": "ID Scanning",

@@ -117,24 +117,19 @@ export class SmartResultsComponent {
 			token: null,
 		};
 
-		if (compareFaceVerification) {
-			if (compareFaceVerification.result.score < this.enrollStore.biometric.compareMinScore) {
-				this.comparisonFailed = true;
-				this.appRegistration.status = "FAILED";
-				this.errorResult = true;
-			} else {
-				this.comparisonFailed = false;
-			}
+		this.livenessFailed = false;
+		this.comparisonFailed = false;
+
+		if (compareFaceVerification && compareFaceVerification.result.score < this.enrollStore.biometric.compareMinScore) {
+			this.comparisonFailed = true;
+			this.appRegistration.status = "FAILED";
+			this.errorResult = true;
 		}
 
-		if (livenessScore) {
-			if (livenessScore < this.enrollStore.biometric.livenessMinScore) {
-				this.livenessFailed = true;
-				this.appRegistration.status = "FAILED";
-				this.errorResult = true;
-			} else {
-				this.livenessFailed = false;
-			}
+		if (livenessScore && livenessScore < this.enrollStore.biometric.livenessMinScore) {
+			this.livenessFailed = true;
+			this.appRegistration.status = "FAILED";
+			this.errorResult = true;
 		}
 
 		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
@@ -186,6 +181,13 @@ export class SmartResultsComponent {
 	}
 
 	tryAgain(step: 'document' | 'biometric'): void {
+		if (step === 'document' && this.projectFlow.onboardingSettings.document.scanDocumentAllowed && this.projectFlow.onboardingSettings.document.uploadDocumentAllowed) {
+			this._smartEnrollService.setDocumentMethod('');
+		}
+
+		if (step === 'document') this.appRegistration.documentValidation = null;
+		if (step === 'biometric') this.appRegistration.biometricValidation = null;
+
 		this._smartEnrollService.skipToStep(step);
 	}
 }

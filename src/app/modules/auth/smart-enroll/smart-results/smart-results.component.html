@@ -38,7 +38,7 @@
         ></mat-icon>
       </div>
 
-      <div class="mt-6" fxLayout="column" fxLayoutAlign="center" fxLayoutGap="24">
+      <div class="mt-6" fxLayout="column" fxLayoutAlign="center" fxLayoutGap="16">
         <div
           class="results__score uppercase text-center"
           *ngIf="appRegistration.biometricValidation"
@@ -81,11 +81,11 @@
         }}</span>
       </h4>
 
-      <p class="font-medium" *ngIf="appRegistration.biometricValidation && livenessFailed">
+      <p *ngIf="appRegistration.biometricValidation && livenessFailed">
         {{ "smart_enroll.minimum_liveness" | transloco: { min: enrollStore.biometric.compareMinScore * 100 } }}
       </p>
 
-      <p class="font-medium" *ngIf="appRegistration.compareFaceVerification && comparisonFailed">
+      <p *ngIf="appRegistration.compareFaceVerification && comparisonFailed">
         {{ "smart_enroll.minimum_comparison" | transloco: { min: enrollStore.biometric.livenessMinScore * 100 } }}
       </p>
 
@@ -99,14 +99,10 @@
         <mat-icon
           class="results__checklist-icon"
           [ngClass]="{
-            'results__checklist-icon--green': appRegistration.biometricValidation,
-            'results__checklist-icon--red': !appRegistration.biometricValidation,
+            'results__checklist-icon--green': !livenessFailed,
+            'results__checklist-icon--red': livenessFailed,
           }"
-          [svgIcon]="
-            !appRegistration.biometricValidation
-              ? 'feather:x'
-              : 'feather:check'
-          "
+          [svgIcon]="livenessFailed ? 'feather:x' : 'feather:check'"
         ></mat-icon>
 
         <div>
@@ -124,7 +120,7 @@
             </span>
           </p>
 
-          <p class="font-medium" *ngIf="appRegistration.biometricValidation && livenessFailed">
+          <p *ngIf="appRegistration.biometricValidation && livenessFailed">
             {{ "smart_enroll.failed.liveness" | transloco }}
           </p>
         </div>
@@ -140,14 +136,10 @@
         <mat-icon
           class="results__checklist-icon"
           [ngClass]="{
-            'results__checklist-icon--green': appRegistration.documentValidation,
-            'results__checklist-icon--red': !appRegistration.documentValidation,
+            'results__checklist-icon--green': !comparisonFailed,
+            'results__checklist-icon--red': comparisonFailed,
           }"
-          [svgIcon]="
-            !appRegistration.documentValidation
-              ? 'feather:x'
-              : 'feather:check'
-          "
+          [svgIcon]="comparisonFailed ? 'feather:x' : 'feather:check'"
         ></mat-icon>
 
         <div>
@@ -165,7 +157,7 @@
             </span>
           </p>
 
-          <p class="font-medium" *ngIf="appRegistration.documentValidation && comparisonFailed">
+          <p *ngIf="appRegistration.documentValidation && comparisonFailed">
             {{ "smart_enroll.failed.compare" | transloco }}
           </p>
         </div>

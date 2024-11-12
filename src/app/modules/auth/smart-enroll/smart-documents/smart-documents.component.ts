@@ -201,7 +201,6 @@ export class SmartDocumentsComponent implements OnDestroy {
 
 	onDocumentMethodChange(method: EnrollDocumentMethod) {
 		this.selectedMethod = method;
-
 	}
 
     onImageScan(imageScan: ImageScan) {

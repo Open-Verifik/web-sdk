@@ -280,32 +280,31 @@ smart-scanner-corrections {
         padding: 8px 12px;
         height: 37px;
         border-radius: 19px;
-        background-color: #dbdbdb;
 
         &--green {
-            background-color: #C4EED0;
+            background-color: #b7fab4;
         }
 
         &--red {
-            background-color: #F9DEDC;
+            background-color: #ffcac5;
         }
     }
 
     &__checklist-item {
-        padding: 8px 16px;
-        height: 72px
+        padding: 12px 16px;
+        min-height: 72px
     }
 
     &__checklist-icon {
         font-size: 24px;
-        margin-right: 8px;
+        margin-right: 12px;
 
-        &--green {
-            color: #30bf17;
+        &--red {
+            color: #e90909;
         }
 
         &--green {
-            color: #bf1717;
+            color: #35d219;
         }
     }
 }

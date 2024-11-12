@@ -25,7 +25,7 @@
 									class="signup__step"
 									*ngFor="let step of steps"
 									[ngClass]="{ 'signup__step--wide': step === currentStep }"
-									[style.color]="step === currentStep ? project.branding.titleColor : ''"
+									[style.backgroundColor]="step === currentStep ? project.branding.buttonColor : ''"
 								></div>
 							</div>
 						</div>
@@ -65,7 +65,7 @@
 									class="signup__step"
 									*ngFor="let step of steps"
 									[ngClass]="{ 'signup__step--wide': step === currentStep }"
-									[style.color]="step === currentStep ? project.branding.titleColor : ''"
+									[style.backgroundColor]="step === currentStep ? project.branding.buttonColor : ''"
 								></div>
 							</div>
 						</div>

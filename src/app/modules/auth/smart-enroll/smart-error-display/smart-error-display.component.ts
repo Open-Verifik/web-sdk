@@ -68,6 +68,10 @@ export class SmartErrorDisplayComponent implements OnDestroy {
 		this._smartEnrollSettingsSubscription.unsubscribe();
 	}
 
+	exitApplication(): void {
+		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+	}
+
 	onSettingsChange(settings: EnrollSettings) {
 		this.currentStep = settings.currentStep;
 
