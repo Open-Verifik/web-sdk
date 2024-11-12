@@ -1,0 +1,173 @@
+<!-- Horizontal -->
+<div *ngIf="isHorizontal">
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:move-left"
+        *ngIf="bounds.x === 'left'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:move-right"
+        *ngIf="bounds.x === 'right'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:move-up"
+        *ngIf="bounds.y === 'up'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:move-down"
+        *ngIf="bounds.y === 'down'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:pitch-up"
+        *ngIf="angle.pitch === 'up'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:pitch-down"
+        *ngIf="angle.pitch === 'down'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:tilt-left"
+        *ngIf="angle.roll === 'left'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:tilt-right"
+        *ngIf="angle.roll === 'right'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:rotate-left"
+        *ngIf="angle.yaw === 'left'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:rotate-right"
+        *ngIf="angle.yaw === 'right'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:move-forward"
+        *ngIf="resolution.height === 'forward'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_h:move-back"
+        *ngIf="resolution.height === 'back'"
+    ></mat-icon>
+</div>
+
+<!-- Vertical -->
+<div *ngIf="!isHorizontal" class="absolute top-0 left-0 right-0 bottom-0 m-auto">
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:move-left"
+        *ngIf="bounds.x === 'left'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:move-right"
+        *ngIf="bounds.x === 'right'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:move-up"
+        *ngIf="bounds.y === 'up'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:move-down"
+        *ngIf="bounds.y === 'down'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:pitch-up"
+        *ngIf="angle.pitch === 'up'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:pitch-down"
+        *ngIf="angle.pitch === 'down'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:tilt-left"
+        *ngIf="angle.roll === 'left'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:tilt-right"
+        *ngIf="angle.roll === 'right'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:rotate-left"
+        *ngIf="angle.yaw === 'left'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:rotate-right"
+        *ngIf="angle.yaw === 'right'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:move-forward"
+        *ngIf="resolution.height === 'forward'"
+    ></mat-icon>
+
+    <mat-icon
+        [style.height.px]="height"
+        [style.width.px]="width"
+        svgIcon="face_corrections_v:move-back"
+        *ngIf="resolution.height === 'back'"
+    ></mat-icon>
+</div>

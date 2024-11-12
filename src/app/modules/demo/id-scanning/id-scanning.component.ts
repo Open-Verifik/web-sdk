@@ -256,7 +256,7 @@ export class IdScanningComponent implements OnInit {
 
 		this.errorResult = false;
 
-		this.restartDemo();
+		this.startCamera();
 	}
 
 	restartDemo(): void {
@@ -265,8 +265,6 @@ export class IdScanningComponent implements OnInit {
 		}
 
 		this._demoService.restart();
-
-		window.location.reload();
 	}
 
 	async continue() {

@@ -1,0 +1,82 @@
+<div
+  class="smart-documents__card rounded-2xl bg-card m-4 p-6 w-full"
+  fxLayout="column"
+  [style.border]="
+    project.branding.borderColor
+      ? '1px solid ' + project.branding.borderColor
+      : ''
+  "
+>
+  <div
+    fxLayout="column"
+    fxLayoutAlign="center center"
+    *ngIf="attemptsRemaining"
+  >
+    <div class="results__score mt-4">
+      <p class="font-medium">
+        {{ "smart_enroll.remaining_attempts" | transloco : { attempts: attemptsRemaining } }}
+      </p>
+    </div>
+
+    <p
+      class="text-center mt-8"
+      *ngIf="source === 'document'"
+    >
+     {{ "id_scanning." + errorContent.message | transloco }}
+    </p>
+    <p
+      class="text-center mt-8"
+      *ngIf="source === 'face'"
+    >
+     {{ "liveness." + errorContent.message | transloco }}
+    </p>
+
+    <div class="mt-16 w-full" fxLayout="row" fxLayoutAlign="space-between center">
+      <button
+        (click)="tryAgain()"
+        [style.background]="project.branding.buttonColor"
+        [style.color]="project.branding.buttonTxtColor"
+        class="fuse-mat-button-large"
+        mat-flat-button
+      >
+        <span>{{ "id_scanning.retry" | transloco }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div
+    fxLayout="column"
+    fxLayoutAlign="center center"
+    *ngIf="!attemptsRemaining"
+  >
+    <h4
+      class="mt-2 font-medium text-2xl"
+      [style.color]="project.branding.titleColor"
+    >
+      {{ "no_more_attempts_title" | transloco }}
+    </h4>
+
+    <p class="mt-4">
+      {{
+        "no_more_attempts_description"
+          | transloco
+            : {
+                recordName:
+                  currentStep === "document" ? "document" : "biometric"
+              }
+      }}
+    </p>
+
+    <div class="mt-16 w-full" fxLayout="row">
+      <button
+        (click)="exitApplication()"
+        [style.background]="project.branding.buttonColor"
+        [style.color]="project.branding.buttonTxtColor"
+        class="fuse-mat-button-large w-full"
+        mat-flat-button
+      >
+        <span>{{ "log_out" | transloco }}</span>
+      </button>
+    </div>
+  </div>
+</div>
