@@ -77,26 +77,25 @@
           "smart_enroll.successful_outcome" | transloco
         }}</span>
         <span *ngIf="errorResult">{{
-          "smart_enroll.unsuccessful_outcome" | transloco
+          "smart_enroll.negative_outcome" | transloco
         }}</span>
       </h4>
 
+      <p class="font-medium" *ngIf="appRegistration.biometricValidation && livenessFailed">
+        {{ "smart_enroll.minimum_liveness" | transloco: { min: enrollStore.biometric.compareMinScore * 100 } }}
+      </p>
+
+      <p class="font-medium" *ngIf="appRegistration.compareFaceVerification && comparisonFailed">
+        {{ "smart_enroll.minimum_comparison" | transloco: { min: enrollStore.biometric.livenessMinScore * 100 } }}
+      </p>
+
       <div
-        class="results__checklist-item rounded-lg mt-16 w-full"
+        class="results__checklist-item rounded-lg mt-10 w-full"
         fxLayout="row"
-        fxLayoutAlign="space-between center"
+        fxLayoutAlign="start center"
         [style.background]="project.branding.bgColor"
         *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
       >
-        <p class="font-medium text-lg">
-          <span *ngIf="appRegistration.biometricValidation">{{
-            "smart_enroll.face_was_registered" | transloco
-          }}</span>
-          <span *ngIf="!appRegistration.biometricValidation">{{
-            "smart_enroll.face_was_not_registered" | transloco
-          }}</span>
-        </p>
-
         <mat-icon
           class="results__checklist-icon"
           [ngClass]="{
@@ -109,24 +108,35 @@
               : 'feather:check'
           "
         ></mat-icon>
+
+        <div>
+          <p class="font-medium text-lg">
+            <span *ngIf="appRegistration.biometricValidation && !livenessFailed">
+              {{ "smart_enroll.face_was_registered" | transloco }}
+            </span>
+
+            <span *ngIf="appRegistration.biometricValidation && livenessFailed">
+              {{ "smart_enroll.failed.liveness_registered_incorrectly" | transloco }}
+            </span>
+
+            <span *ngIf="!appRegistration.biometricValidation">
+              {{"smart_enroll.face_was_not_registered" | transloco }}
+            </span>
+          </p>
+
+          <p class="font-medium" *ngIf="appRegistration.biometricValidation && livenessFailed">
+            {{ "smart_enroll.failed.liveness" | transloco }}
+          </p>
+        </div>
       </div>
 
       <div
         class="results__checklist-item rounded-lg mt-4 w-full"
         fxLayout="row"
-        fxLayoutAlign="space-between center"
+        fxLayoutAlign="start center"
         [style.background]="project.branding.bgColor"
         *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
       >
-        <p class="font-medium text-lg">
-          <span *ngIf="appRegistration.documentValidation">{{
-            "smart_enroll.id_was_registered" | transloco
-          }}</span>
-          <span *ngIf="!appRegistration.documentValidation">{{
-            "smart_enroll.id_was_not_registered" | transloco
-          }}</span>
-        </p>
-
         <mat-icon
           class="results__checklist-icon"
           [ngClass]="{
@@ -139,6 +149,26 @@
               : 'feather:check'
           "
         ></mat-icon>
+
+        <div>
+          <p class="font-medium text-lg">
+            <span *ngIf="appRegistration.documentValidation && !comparisonFailed">
+              {{ "smart_enroll.id_was_registered" | transloco }}
+            </span>
+
+            <span *ngIf="appRegistration.documentValidation && comparisonFailed">
+              {{ "smart_enroll.failed.document_registered_incorrectly" | transloco }}
+            </span>
+
+            <span *ngIf="!appRegistration.documentValidation">
+              {{"smart_enroll.id_was_not_registered" | transloco }}
+            </span>
+          </p>
+
+          <p class="font-medium" *ngIf="appRegistration.documentValidation && comparisonFailed">
+            {{ "smart_enroll.failed.compare" | transloco }}
+          </p>
+        </div>
       </div>
 
       <button
@@ -146,7 +176,7 @@
         [disabled]="enrollStore.document.remaining < 1"
         [style.background]="enrollStore.document.remaining > 0 ? project.branding.buttonColor : ''"
         [style.color]="enrollStore.document.remaining > 0 ? project.branding.buttonTxtColor : ''"
-        class="fuse-mat-button w-full mt-16"
+        class="fuse-mat-button-large w-full mt-16"
         mat-flat-button
         *ngIf="errorResult && projectFlow.onboardingSettings.steps.document !== 'skip'"
       >
@@ -158,7 +188,7 @@
         [disabled]="enrollStore.biometric.remaining < 1"
         [style.background]="enrollStore.biometric.remaining > 0 ? project.branding.buttonColor : ''"
         [style.color]="enrollStore.biometric.remaining > 0 ? project.branding.buttonTxtColor : ''"
-        class="fuse-mat-button w-full mt-4"
+        class="fuse-mat-button-large w-full mt-4"
         mat-flat-button
         *ngIf="errorResult && projectFlow.onboardingSettings.steps.liveness !== 'skip'"
       >
@@ -170,7 +200,7 @@
         [disabled]="fetchingToken || !redirectUrl"
         [style.background]="fetchingToken || !redirectUrl ? '' : project.branding.buttonColor"
         [style.color]="fetchingToken || !redirectUrl ? '' : project.branding.buttonTxtColor"
-        class="fuse-mat-button w-full mt-16"
+        class="fuse-mat-button-large w-full mt-16"
         mat-flat-button
         *ngIf="!errorResult"
       >

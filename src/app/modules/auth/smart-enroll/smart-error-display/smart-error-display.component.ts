@@ -27,6 +27,7 @@ import { MatButtonModule } from "@angular/material/button";
 })
 export class SmartErrorDisplayComponent implements OnDestroy {
     @Input('errorContent') errorContent: { message?: string, title?: string };
+    @Input('source') source: 'face' | 'document';
 
     @Output('onClearError') onClearError: EventEmitter<void> = new EventEmitter();
 

@@ -163,7 +163,7 @@
       currentStep === 'biometric' ? project.branding.buttonTxtColor : ''
     "
   >
-    <p
+    <div
       class="welcome__step welcome__step--large"
       fxLayout="row"
       fxLayoutAlign="center center"
@@ -171,17 +171,28 @@
         currentStep === 'biometric' ? project.branding.buttonColor : ''
       "
     >
-      <span
+      <div
         class="welcome__step-number welcome__step-number--large"
-        *ngIf="currentStep === 'document' || currentStep === 'document-review' || currentStep === 'biometric'"
-        >3</span
+        *ngIf="
+          currentStep === 'document' ||
+          currentStep === 'document-review' ||
+          currentStep === 'biometric'
+        "
       >
+        <p *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'">
+          3
+        </p>
+        <p *ngIf="projectFlow.onboardingSettings.steps.document === 'skip'">
+          1
+        </p>
+      </div>
+
       <mat-icon
         *ngIf="currentStep === 'result'"
         [style.color]="project.branding.buttonColor"
         >check</mat-icon
       >
-    </p>
+    </div>
 
     <p
       class="welcome__step-text welcome__step-text--large"
@@ -208,7 +219,10 @@
         currentStep === 'result' ? project.branding.buttonColor : ''
       "
     >
-      <span class="welcome__step-number welcome__step-number--large">4</span>
+      <span
+        class="welcome__step-number welcome__step-number--large"
+        >{{ 4 - (projectFlow.onboardingSettings.steps.document === 'skip' ? 2 : 0) - (projectFlow.onboardingSettings.steps.liveness === 'skip' ? 1 : 0) }}</span
+      >
     </p>
 
     <p

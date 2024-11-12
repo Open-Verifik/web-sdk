@@ -27,6 +27,7 @@
     <smart-error-display
       (onClearError)="retry()"
       [errorContent]="errorContent"
+      source="face"
       *ngIf="errorResult"
     ></smart-error-display>
   </div>

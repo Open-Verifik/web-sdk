@@ -72,35 +72,25 @@ export class SmartResultsComponent {
 	}
 
 	private _extractFaces(arrayOfImages: Face[]): void {
+		let fallbackFace: Face;
+
 		for (let index = 0; index < arrayOfImages.length; index++) {
 			const identityImage = arrayOfImages[index];
 
-			if (identityImage.category !== "face") continue;
-
-			this.face = identityImage;
-			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-
-			const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
-
-			if (stringArr.length === 3) {
-				this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
+			if (identityImage.category !== "face") {
+				fallbackFace = identityImage;
+				continue;
 			}
+
+			this._setFace(identityImage);
 		}
+
+		if (!this.face) this._setFace(fallbackFace);
 	}
 
 	private _requestIdentityImages(): void {
 		if (this.appRegistration.face?._id) {
-			this.face = this.appRegistration.face;
-
-			if (!this.face.base64.includes("data:image")) {
-				this.face["base64"] = `data:image/jpeg;base64,${this.face.base64}`;
-			}
-
-			const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
-
-			if (stringArr.length === 3) {
-				this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
-			}
+			this._setFace(this.appRegistration.face);
 
 			return;
 		}
@@ -169,6 +159,20 @@ export class SmartResultsComponent {
 				this.fetchingToken = false;
 			},
 		});
+	}
+
+	private _setFace(identityImage: Face) {
+		this.face = identityImage;
+
+		if (!this.face.base64.includes("data:image")) {
+			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
+		}
+
+		const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
+
+		if (stringArr.length === 3) {
+			this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
+		}
 	}
 
 	exitApplication(): void {

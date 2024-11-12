@@ -1,8 +1,4 @@
 smart-scanner-corrections {
-    position: absolute;
-    inset: 0;
-    margin: 0 auto;
-
     div {
         position: absolute;
         inset: 0;
@@ -160,9 +156,16 @@ smart-scanner-corrections {
 }
 
 .smart-scanner {
+    &__absolute-scanner {
+        position: absolute;
+        inset: auto;
+        margin: 0 auto;
+    }
+
     &__loader-overlay {
         position: absolute;
-        inset: 0;
+        inset: auto;
+        margin: 0 auto;
         width: 100%;
         z-index: 2;
         background-color: rgba(255, 2555, 255, 0.9);
@@ -295,6 +298,7 @@ smart-scanner-corrections {
 
     &__checklist-icon {
         font-size: 24px;
+        margin-right: 8px;
 
         &--green {
             color: #30bf17;

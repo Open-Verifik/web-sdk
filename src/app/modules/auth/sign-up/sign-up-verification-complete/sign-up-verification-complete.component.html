@@ -298,6 +298,20 @@
       <div>{{ "welcome.complete_subtitle" | transloco }}</div>
     </div>
   </div>
+
+  <div
+    class="mt-2"
+    fxLayout="column"
+    fxLayoutAlign="start center"
+    *ngIf="welcomeStyle === 4"
+  >
+    <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+
+    <div class="mt-4 text-center">
+      <div class="font-bold text-xl">{{ "welcome.enrolled_title" | transloco }}</div>
+      <div>{{ "welcome.enrolled_subtitle" | transloco }}</div>
+    </div>
+  </div>
 </div>
 
 <div

@@ -151,13 +151,16 @@ const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
 	],
 })
 export class SmartScannerComponent implements OnInit, OnDestroy {
+	@ViewChild("canvasContainer") canvasContainer: ElementRef<HTMLDivElement>;
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+
 	@ViewChild("maskCanvas", { static: false }) public maskCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("resultCanvas", { static: false }) public resultCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("toSendCanvas", { static: false }) public toSendCanvas: ElementRef<HTMLCanvasElement>;
+
 	@ViewChild("videoCanvas", { static: false }) public videoCanvas: ElementRef<HTMLCanvasElement>;
-	@ViewChild("videoResultCanvas", { static: false }) public videoResultCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("videoElement") videoElement: ElementRef<HTMLVideoElement>;
+	@ViewChild("videoResultCanvas", { static: false }) public videoResultCanvas: ElementRef<HTMLCanvasElement>;
 
 	@Input('source') source: 'document' | 'face';
 	
@@ -768,10 +771,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _setCanvasDimensions = () => {
-		const appBody = document.body.querySelector('.app__content');
+		const canvasContainer = this.canvasContainer.nativeElement;
 
-		const appWindowHeight = appBody.clientHeight;
-		const appWindowWidth = appBody.clientWidth;
+		const appWindowHeight = canvasContainer.clientHeight;
+		const appWindowWidth = canvasContainer.clientWidth;
 
 		const maxHeight = Math.min(appWindowHeight, this.video.height);
 		const maxWidth = Math.min(appWindowWidth, this.video.width);
@@ -856,11 +859,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 					video.srcObject = stream;
 					video.addEventListener('loadedmetadata', () => {
-						if (!this.demoData.isMobile || height > width) {
+						this._setCanvasDimensions();
+
+						if (!facingModeSupported || this.videoOptions.facingMode === 'user') {
 							video.style.transform = "scaleX(-1)";
 						}
-
-						this._setCanvasDimensions();
 
 						videoCanvas.height = this.HEIGHT;
 						videoCanvas.width = this.WIDTH;
@@ -928,8 +931,17 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			);
 	}
 
-	canGoNext(): boolean {
-		return !this.uploading;
+	canSkip(): boolean {
+		return !this.uploading && (
+			(
+				this.source === 'document' &&
+				(this.projectFlow.onboardingSettings.steps.document !== 'mandatory' || !this.appRegistration.documentValidation)
+			) ||
+			(
+				this.source === 'face' &&
+				(this.projectFlow.onboardingSettings.steps.liveness !== 'mandatory' || !this.appRegistration.biometricValidation)
+			)
+		);
 	}
 
     goPrevious(): void {

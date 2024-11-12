@@ -73,7 +73,7 @@ export class SmartBiometricsComponent {
                     this.appRegistration.biometricValidation = response.data.biometricValidation as BiometricValidation;
                     this.appRegistration.person = response.data.person;
 
-                    if (this.appRegistration.documentValidation && this.appRegistration.biometricValidation && !this.appRegistration.compareFaceVerification) {
+                    if (this.appRegistration.documentValidation && this.appRegistration.biometricValidation) {
                         this._KYCService.compareFaces().subscribe({
                             next: (response) => {
                                 this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
@@ -104,7 +104,7 @@ export class SmartBiometricsComponent {
 		this.errorContent = { message: error?.error?.message || '' };
 
 		const split = this.errorContent.message.split("@");
-		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_scan';
+		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'liveness_failed';
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {

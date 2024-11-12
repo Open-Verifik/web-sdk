@@ -66,10 +66,10 @@
 
     <button
       (click)="goNext()"
-      [disabled]="!canGoNext()"
-      [style.color]="!canGoNext() ? '' : project.branding.buttonColor"
+      [disabled]="!canSkip()"
+      [style.color]="!canSkip() ? '' : project.branding.buttonColor"
       [style.border]="
-        !canGoNext() ? '' : '1px solid' + project.branding.buttonColor
+        !canSkip() ? '' : '1px solid' + project.branding.buttonColor
       "
       class="m-2"
       *ngIf="
@@ -89,11 +89,12 @@
   class="items-center w-full absolute top-0 left-0 right-0 bottom-0"
   *ngIf="hasCameraPermissions && !loadingCamera"
 >
-  <div>
+  <div class="z-index-2">
     <h5
       class="text-3xl font-medium mt-6 text-center"
       [style.color]="project.branding.titleColor"
       *ngIf="source === 'face'"
+      ngClass.gt-sm="hidden"
       title
     >
       {{ "smart_enroll.biometric_register" | transloco }}
@@ -102,6 +103,7 @@
       class="text-3xl font-medium mt-6 text-center"
       [style.color]="project.branding.titleColor"
       *ngIf="source === 'document' && side === 'front'"
+      ngClass.gt-sm="hidden"
       title
     >
       {{ "smart_enroll.documents.upload.upload_frontside" | transloco }}
@@ -110,6 +112,7 @@
       class="text-3xl font-medium mt-6 text-center"
       [style.color]="project.branding.titleColor"
       *ngIf="source === 'document' && side === 'back'"
+      ngClass.gt-sm="hidden"
       title
     >
       {{ "smart_enroll.documents.upload.upload_backside" | transloco }}
@@ -170,11 +173,12 @@
       class="w-full h-full"
     >
       <div
-        class="relative w-full"
-        [style.height.px]="HEIGHT"
+        class="w-full"
+        #canvasContainer
         fxLayout="row"
         fxLayoutAlign="center center"
         [class.hidden]="base64Image && !uploading"
+        style="height: 100%"
       >
         <video
           [hidden]="source === 'document'"
@@ -182,7 +186,7 @@
           [style.width.px]="WIDTH"
           #videoElement
           autoplay
-          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          class="smart-scanner__absolute-scanner rounded-3xl"
         ></video>
 
         <canvas
@@ -190,7 +194,7 @@
           [style.height.px]="HEIGHT"
           [style.width.px]="WIDTH"
           #videoCanvas
-          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          class="smart-scanner__absolute-scanner rounded-3xl"
         ></canvas>
 
         <canvas
@@ -198,14 +202,14 @@
           [style.height.px]="HEIGHT"
           [style.width.px]="WIDTH"
           #videoResultCanvas
-          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          class="smart-scanner__absolute-scanner rounded-3xl"
         ></canvas>
 
         <canvas
           #maskCanvas
           [style.height.px]="HEIGHT"
           [style.width.px]="WIDTH"
-          class="absolute top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          class="smart-scanner__absolute-scanner rounded-3xl"
         ></canvas>
 
         <smart-scanner-corrections
@@ -213,13 +217,15 @@
           [bounds]="corrections.bounds"
           [resolution]="corrections.resolution"
           [isHorizontal]="isHorizontal"
+          [style.height.px]="HEIGHT"
+          [style.width.px]="WIDTH"
           [height]="HEIGHT"
           [width]="WIDTH"
-          class="rounded-3xl"
+          class="smart-scanner__absolute-scanner rounded-3xl"
         ></smart-scanner-corrections>
 
         <div
-          class="smart-scanner__loader-overlay top-0 left-0 right-0 bottom-0 rounded-3xl m-auto"
+          class="smart-scanner__loader-overlay rounded-3xl"
           [style.height.px]="HEIGHT"
           [style.width.px]="WIDTH"
           fxLayout="row"
@@ -345,9 +351,9 @@
         <button
           (click)="goPrevious()"
           [disabled]="!canGoPrevious()"
-          [style.color]="uploading ? '' : project.branding.buttonColor"
+          [style.color]="!canGoPrevious() ? '' : project.branding.buttonColor"
           [style.border]="
-            uploading ? '' : '1px solid' + project.branding.buttonColor
+            !canGoPrevious() ? '' : '1px solid' + project.branding.buttonColor
           "
           class="m-2"
           mat-flat-button
@@ -357,10 +363,10 @@
 
         <button
           (click)="goNext()"
-          [disabled]="!canGoNext()"
-          [style.color]="!canGoNext() ? '' : project.branding.buttonColor"
+          [disabled]="!canSkip()"
+          [style.color]="!canSkip() ? '' : project.branding.buttonColor"
           [style.border]="
-            !canGoNext() ? '' : '1px solid' + project.branding.buttonColor
+            !canSkip() ? '' : '1px solid' + project.branding.buttonColor
           "
           class="m-2"
           *ngIf="
@@ -390,7 +396,7 @@
       </div>
 
       <div
-        class="smart-documents__card smart-documents__card--large rounded-2xl bg-card m-4 p-6 mt-12"
+        class="smart-documents__card smart-documents__card--large rounded-2xl bg-card m-4 p-6 mt-12 z-index-2"
         fxLayout="row"
         *ngIf="!base64Image && !uploading"
         [style.border]="
