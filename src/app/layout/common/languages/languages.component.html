@@ -1,24 +1,93 @@
-<!-- Button -->
-<button mat-icon-button [matMenuTriggerFor]="languages">
-	<ng-container *ngTemplateOutlet="flagImage; context: { $implicit: activeLang }"></ng-container>
+<button
+  (menuClosed)="open = false"
+  (onMenuOpen)="open = true"
+  [matMenuTriggerFor]="languages"
+  class="language-activator fuse-mat-button"
+  mat-button
+>
+  <ng-container
+    *ngTemplateOutlet="activator; context: { $implicit: activeLang }"
+  ></ng-container>
 </button>
 
-<!-- Language menu -->
-<mat-menu [xPosition]="'before'" #languages="matMenu">
-	<ng-container *ngFor="let lang of availableLangs; trackBy: trackByFn">
-		<button mat-menu-item (click)="setActiveLang(lang.id)">
-			<span class="flex items-center">
-				<ng-container *ngTemplateOutlet="flagImage; context: { $implicit: lang.id }"></ng-container>
-				<span class="ml-3">{{ lang.label }}</span>
-			</span>
-		</button>
-	</ng-container>
+<mat-menu [xPosition]="'before'" #languages="matMenu" class="rounded-2xl py-4">
+  <ng-container *ngFor="let lang of availableLangs; trackBy: trackByFn">
+    <button
+      (click)="setActiveLang(lang.id)"
+      class="language-picker px-8"
+      mat-menu-item
+    >
+      <div
+        class="w-full"
+        fxLayout="row"
+        fxLayoutAlign="space-between center"
+      >
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <ng-container
+            *ngTemplateOutlet="flagImage; context: { $implicit: lang.id }"
+          ></ng-container>
+
+          <span class="mr-8">{{ lang.label }}</span>
+        </div>
+
+        <div
+          class="language-picker__check-container"
+          fxLayout="row"
+          fxLayoutAlign="center center"
+          [ngClass]="{
+            'language-picker__check-container--active': lang.id === activeLang
+          }"
+        >
+          <mat-icon
+            class="language-picker__check"
+            svgIcon="mat_solid:check"
+            *ngIf="lang.id === activeLang"
+          ></mat-icon>
+        </div>
+      </div>
+    </button>
+  </ng-container>
 </mat-menu>
 
-<!-- Flag image template -->
+<ng-template let-lang #activator>
+  <div
+    class="language-activator__container rounded-2xl"
+    fxLayout="row"
+    fxLayoutAlign="space-between center"
+  >
+    <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+      <div
+        class="language-activator__icon-container rounded-2xl mr-2"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+      >
+        <mat-icon
+          class="language-activator__icon"
+          svgIcon="mat_solid:language"
+        ></mat-icon>
+      </div>
+
+      <p>{{ lang | uppercase }}</p>
+    </div>
+
+    <mat-icon
+      [ngClass]="{ 'language-activator__arrow--rotate': open }"
+      class="language-activator__arrow"
+      svgIcon="mat_solid:keyboard_arrow_down"
+    ></mat-icon>
+  </div>
+</ng-template>
+
 <ng-template let-lang #flagImage>
-	<span class="relative w-6 shadow rounded-sm overflow-hidden">
-		<span class="absolute inset-0 ring-1 ring-inset ring-black ring-opacity-10"></span>
-		<img class="w-full" [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'" [alt]="'Flag image for ' + lang" />
-	</span>
+  <div
+    class="language-picker__flag-container rounded-2xl mr-4"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+  >
+    <img
+      [alt]="'Flag image for ' + lang"
+      [src]="'assets/images/flags/' + flagCodes[lang].toUpperCase() + '.svg'"
+      class="language-picker__flag"
+    />
+  </div>
 </ng-template>

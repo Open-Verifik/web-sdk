@@ -25,6 +25,7 @@ import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
 import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 
 @Component({
 	selector: "auth-sign-up",
@@ -40,6 +41,7 @@ import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-
 		CommonModule,
 		FlexLayoutModule,
 		FuseAlertComponent,
+		LanguagesComponent,
 		MatButtonModule,
 		NgIf,
 		SmartEnrollComponent,
