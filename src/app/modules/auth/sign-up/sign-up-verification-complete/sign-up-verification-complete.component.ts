@@ -3,24 +3,22 @@ import QRCode from 'qrcode';
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
+import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
-import { ActivatedRoute, RouterLink } from "@angular/router";
-import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
-
-import { MatIconModule } from "@angular/material/icon";
 import { MatChipsModule } from "@angular/material/chips";
-import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
 
 import { TranslocoModule } from "@ngneat/transloco";
 
-import { AppRegistration, Project, ProjectFlow } from "../../project";
-import { KYCService } from "../../kyc.service";
 import { environment } from "environments/environment";
+import { KYCService } from "../../kyc.service";
+import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { EnrollStep } from '../../smart-enroll/smart-enroll.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
 	selector: "auth-sign-up-verification-complete",
@@ -36,12 +34,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 		MatButtonModule,
 		MatCheckboxModule,
 		MatChipsModule,
-		MatFormFieldModule,
 		MatIconModule,
 		MatProgressSpinnerModule,
 		NgIf,
 		ReactiveFormsModule,
-		RouterLink,
 		TranslocoModule,
 	],
 })
@@ -88,9 +84,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 		if (!['signUpForm', 'instructions'].includes(this.appRegistration.currentStep)) {
 			if (this.appRegistration.currentStep === 'document') {
 				this.goToKYCApp('document-review');
-			} else if (this.appRegistration.currentStep === 'liveness') {
-				this.goToKYCApp('biometric');
-			} else if (this.appRegistration.currentStep === 'end'){
+			} else if (this.appRegistration.currentStep === 'liveness' || this.appRegistration.currentStep === 'end') {
 				this.goToKYCApp('result');
 			}
 		}

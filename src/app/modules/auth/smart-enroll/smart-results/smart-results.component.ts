@@ -60,14 +60,13 @@ export class SmartResultsComponent {
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
 		this.errorResult = false;
-
-		this._resync();
 	}
 
 	/**
 	 * On init
 	 */
 	ngOnInit(): void {
+		this._checkScoreStatus();
 		this._requestIdentityImages();
 	}
 
@@ -104,56 +103,30 @@ export class SmartResultsComponent {
 		});
 	}
 
-	private _resync() {
-		this.fetchingToken = true;
-
+	private _checkScoreStatus() {
 		const compareFaceVerification = this.appRegistration.compareFaceVerification;
-		const livenessScore = this.appRegistration.biometricValidation?.livenessScore;
 
+		const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
+		const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
+
+		this.comparisonScore = (compareScore || 0) * 100;
 		this.livenessScore = (livenessScore || 0) * 100;
-		this.comparisonScore = (compareFaceVerification?.result?.score || 0) * 100;
 
-		let _response = {
-			token: null,
-		};
-
-		this.livenessFailed = false;
 		this.comparisonFailed = false;
+		this.errorResult = false;
+		this.livenessFailed = false;
 
-		if (compareFaceVerification && compareFaceVerification.result.score < this.enrollStore.biometric.compareMinScore) {
+		if (compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
+			this.appRegistration.status = "FAILED";
 			this.comparisonFailed = true;
-			this.appRegistration.status = "FAILED";
 			this.errorResult = true;
 		}
 
-		if (livenessScore && livenessScore < this.enrollStore.biometric.livenessMinScore) {
+		if (livenessScore < this.enrollStore.biometric.livenessMinScore) {
+			this.appRegistration.status = "FAILED";
+			this.errorResult = true;
 			this.livenessFailed = true;
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
 		}
-
-		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
-			next: (response) => {
-				_response = response.data;
-			},
-			error: (exception) => {
-				console.error({ exception });
-				this.fetchingToken = false;
-				this.errorResult = true;
-			},
-			complete: () => {
-				let redirectUrl = this.projectFlow.redirectUrl;
-
-				if (environment.verifikProject === this.project._id) {
-					redirectUrl = `${environment.appUrl}/sign-in`;
-				} else if (environment.sandboxProject === this.project._id) {
-					redirectUrl = `${environment.sandboxUrl}/sign-in`;
-				}
-
-				this.redirectUrl = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-				this.fetchingToken = false;
-			},
-		});
 	}
 
 	private _setFace(identityImage: Face) {
@@ -170,14 +143,47 @@ export class SmartResultsComponent {
 		}
 	}
 
+	private _endAndRedirect() {
+		this.fetchingToken = true;
+
+		let _response = { token: null };
+
+		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
+			next: (response) => {
+				_response = response.data;
+			},
+			error: (exception) => {
+				console.error({ exception });
+				this.errorResult = true;
+				this.fetchingToken = false;
+			},
+			complete: () => {
+				let redirectUrl = this.projectFlow.redirectUrl;
+
+				if (environment.verifikProject === this.project._id) {
+					redirectUrl = `${environment.appUrl}/sign-in`;
+				} else if (environment.sandboxProject === this.project._id) {
+					redirectUrl = `${environment.sandboxUrl}/sign-in`;
+				}
+
+				window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+				this.fetchingToken = false;
+			},
+		});
+	}
+
 	exitApplication(): void {
 		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
 	}
 
-	loginToPlatform(): void {
-		if (this.fetchingToken || !this.redirectUrl) return;
+	isLoginToPlatformDisabled() {
+		return this.fetchingToken || this.appRegistration.status === 'FAILED' || this.comparisonFailed || this.livenessFailed;
+	}
 
-		window.location.href = `${this.redirectUrl}`;
+	loginToPlatform(): void {
+		if (this.fetchingToken) return;
+
+		this._endAndRedirect();
 	}
 
 	tryAgain(step: 'document' | 'biometric'): void {

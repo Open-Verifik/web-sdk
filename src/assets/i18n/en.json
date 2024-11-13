@@ -127,7 +127,6 @@
 		"government_id_not_allowed": "Government ID not allowed",
 		"manual_capture_button": "Capture manually",
 		"passport_not_allowed": "Passport not allowed",
-		"person_linked_to_another_email": "Your biometrics are linked to another email.",
 		"remaining_attempts": "Remaining attempts",
 		"retry": "Try again",
 		"retry_document": "Retry Document",
@@ -157,6 +156,7 @@
 		"get_closer_subtitle": "Please come a bit closer for better face recognition.",
 		"liveness_failed": "Liveness detection failed",
 		"liveness_error_message": "The liveness check has failed with the following error:<br><strong>{{error}}</strong><br>Do you want to try again?",
+		"person_linked_to_another_email": "Your biometrics are linked to another email.",
 		"loading_stream": "Loading Camera"
 	},
 	"results": {

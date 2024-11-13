@@ -32,16 +32,16 @@ const FACE_H_ANGLE_LIMIT = {
 	YAW_LOW: -20,
 };
 const FACE_H_BOUNDS_LIMIT = {
-	X_HIGH: 800,
+	X_HIGH: 900,
 	X_LOW: 500,
 	Y_HIGH: 400,
 	Y_LOW: 225,
 };
 const FACE_H_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 800,
-	WIDTH_LOW: 600,
-	HEIGHT_HIGH: 800,
-	HEIGHT_LOW: 600,
+	WIDTH_HIGH: 750,
+	WIDTH_LOW: 500,
+	HEIGHT_HIGH: 750,
+	HEIGHT_LOW: 500,
 };
 
 
@@ -890,13 +890,13 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _stopRecord(): void {
-		if (!this.stream) return;
-
 		clearInterval(this._detectDocumentInterval);
 		clearInterval(this._detectFaceInterval);
 
 		this._detectDocumentInterval = null;
 		this._detectFaceInterval = null;
+
+		if (!this.stream) return;
 
 		this.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
 	}

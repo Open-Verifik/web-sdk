@@ -209,6 +209,10 @@ mat-tab-body {
         .mdc-evolution-chip__action {
             padding-left: 4px;
             padding-right: 4px;
+
+			&:before {
+				border-radius: 20px !important;
+			}
         }
 
 		&--large {

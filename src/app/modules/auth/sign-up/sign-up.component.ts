@@ -230,6 +230,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			.subscribe({
 				next: (response) => {
 					this.appRegistration = response.data;
+
+					this._smartEnrollService.setLivenessScore(this.appRegistration?.biometricValidation?.livenessScore || 0);
+					this._smartEnrollService.setCompareScore(this.appRegistration?.compareFaceVerification?.result?.score || 0);
+
 					this._checkVerification();
 				},
 				error: () => {

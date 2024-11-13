@@ -16,7 +16,6 @@ import { AppRegistration, BiometricValidation, ImageScan, Project, ProjectFlow }
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
-import { environment } from "environments/environment";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 
 @Component({
@@ -73,11 +72,16 @@ export class SmartBiometricsComponent {
                     this.appRegistration.biometricValidation = response.data.biometricValidation as BiometricValidation;
                     this.appRegistration.person = response.data.person;
 
+					this._smartEnrollService.setLivenessScore(response.data.biometricValidation.livenessScore);
+
                     if (this.appRegistration.documentValidation && this.appRegistration.biometricValidation) {
                         this._KYCService.compareFaces().subscribe({
                             next: (response) => {
                                 this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
-                                this._syncAppRegistration("liveness", "ONGOING");
+
+								this._smartEnrollService.setCompareScore(response.data.compareFaceVerification.result.score);
+
+								this._syncAppRegistration("liveness", "ONGOING");
                             },
                             error: (error) => this._handleError(error),
 							complete: () => {
@@ -99,12 +103,19 @@ export class SmartBiometricsComponent {
 
 	private _handleError(error: any): void {
 		this._smartEnrollService.subtractAttempt('biometric');
-
-		this.errorResult = true;
 		this.errorContent = { message: error?.error?.message || '' };
 
-		const split = this.errorContent.message.split("@");
-		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'liveness_failed';
+		const str = this.errorContent.message.split("@");
+
+		if (str.length > 1) {
+			this._smartEnrollService.setLivenessScore(parseFloat(str[1]) || 0);
+			this._smartEnrollService.goToNextStep();
+
+			return;
+		}
+
+		this.errorResult = true;
+		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(str[0]) ? str[0] : 'liveness_failed';
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {
@@ -117,19 +128,7 @@ export class SmartBiometricsComponent {
 					_response = response.data;
 				},
 				error: () => {},
-				complete: () => {
-					if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
-
-                    let redirectUrl = this.projectFlow.redirectUrl;
-
-                    if (environment.verifikProject === this.project._id) {
-                        redirectUrl = `${environment.appUrl}/sign-in`;
-                    } else if (environment.sandboxProject === this.project._id) {
-                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                    }
-
-                    window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-				},
+				complete: () => {},
 			}
 		);
 	}
@@ -145,6 +144,7 @@ export class SmartBiometricsComponent {
     }
 
 	retry() {
+
 		this.errorResult = false;
 		this.errorContent = { message: '' };
 	}

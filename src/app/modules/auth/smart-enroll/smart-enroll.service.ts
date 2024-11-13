@@ -17,7 +17,9 @@ export interface EnrollStore {
         remaining: number,
         limit: number,
         compareMinScore: number,
+        compareScore: number,
         livenessMinScore: number,
+        livenessScore: number,
     },
 };
 
@@ -50,7 +52,9 @@ export class SmartEnrollService {
                 remaining: 3,
                 limit: 3,
                 compareMinScore: 0.62,
+                compareScore: 0,
                 livenessMinScore: 0.64,
+                livenessScore: 0,
             },
         };
     }
@@ -92,6 +96,16 @@ export class SmartEnrollService {
         this.setCurrentStep(step);
     }
 
+    setAttempts(step: 'document' | 'biometric', remaining: number, limit: number) {
+        this.store[step].attempts = (limit - remaining) | 0;
+        this.store[step].limit = limit;
+        this.store[step].remaining = remaining;
+    }
+
+    setCompareScore(score: number) {
+        this.store.biometric.compareScore = score;
+    }
+
     setCurrentStep(step: EnrollStep) {
         this.enrollSettings = {
             ...this._enrollSettings,
@@ -106,10 +120,8 @@ export class SmartEnrollService {
         };
     }
 
-    setAttempts(step: 'document' | 'biometric', remaining: number, limit: number) {
-        this.store[step].attempts = (limit - remaining) | 0;
-        this.store[step].limit = limit;
-        this.store[step].remaining = remaining;
+    setLivenessScore(score: number) {
+        this.store.biometric.livenessScore = score;
     }
 
     subtractAttempt(step: 'document' | 'biometric') {

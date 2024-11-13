@@ -38,10 +38,9 @@
         ></mat-icon>
       </div>
 
-      <div class="mt-6" fxLayout="column" fxLayoutAlign="center" fxLayoutGap="16">
+      <div class="mt-6" fxLayout="column" fxLayoutAlign="start center" fxLayoutGap="16">
         <div
           class="results__score uppercase text-center"
-          *ngIf="appRegistration.biometricValidation"
           [ngClass]="{
             'results__score--green': !livenessFailed,
             'results__score--red': livenessFailed,
@@ -189,9 +188,9 @@
 
       <button
         (click)="loginToPlatform()"
-        [disabled]="fetchingToken || !redirectUrl"
-        [style.background]="fetchingToken || !redirectUrl ? '' : project.branding.buttonColor"
-        [style.color]="fetchingToken || !redirectUrl ? '' : project.branding.buttonTxtColor"
+        [disabled]="isLoginToPlatformDisabled()"
+        [style.background]="isLoginToPlatformDisabled() ? '' : project.branding.buttonColor"
+        [style.color]="isLoginToPlatformDisabled() ? '' : project.branding.buttonTxtColor"
         class="fuse-mat-button-large w-full mt-16"
         mat-flat-button
         *ngIf="!errorResult"
