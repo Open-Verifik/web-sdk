@@ -18,7 +18,7 @@ bg-white {
 }
 
 .sign-in-content {
-	border: 1px solid #C4C6D0;
+	border: 1px solid #c4c6d0;
 	z-index: 2 !important;
 }
 
@@ -87,7 +87,7 @@ mat-tab-body {
 
 .welcome {
 	&__step {
-		background-color: #E4E9F1;
+		background-color: #e4e9f1;
 		border-radius: 12px;
 		height: 24px;
 		margin-right: 12px;
@@ -98,7 +98,7 @@ mat-tab-body {
 		width: 24px;
 
 		mat-icon {
-			transform: scale(.8);
+			transform: scale(0.8);
 			margin-left: -2px;
 			margin-top: -1px;
 		}
@@ -113,7 +113,7 @@ mat-tab-body {
 			width: 36px;
 
 			mat-icon {
-				transform: scale(.8);
+				transform: scale(0.8);
 				margin-left: -1px;
 				margin-top: -1px;
 			}
@@ -125,7 +125,7 @@ mat-tab-body {
 	}
 
 	&__step-column {
-		margin-top: 24px; 
+		margin-top: 24px;
 	}
 
 	&__step-row {
@@ -158,7 +158,7 @@ mat-tab-body {
 
 	&__step-text {
 		padding: 2px;
-		background-color: #E4E9F1;
+		background-color: #e4e9f1;
 		border-radius: 12px;
 
 		&--large {
@@ -172,7 +172,7 @@ mat-tab-body {
 
 	&__icon {
 		&--medium {
-        	font-size: 64px;
+			font-size: 64px;
 
 			&.mat-icon {
 				height: 64px;
@@ -181,7 +181,7 @@ mat-tab-body {
 		}
 
 		&--large {
-        	font-size: 128px;
+			font-size: 128px;
 
 			&.mat-icon {
 				height: 128px;
@@ -190,7 +190,7 @@ mat-tab-body {
 		}
 
 		&--rounded {
-        	font-size: 96px;
+			font-size: 96px;
 
 			&.mat-icon {
 				border-radius: 64px;
@@ -202,14 +202,18 @@ mat-tab-body {
 }
 
 .verify {
-    &__chip {
-        height: 40px !important;
+	&__chip {
+		height: 40px !important;
 		border-radius: 20px !important;
 
-        .mdc-evolution-chip__action {
-            padding-left: 4px;
-            padding-right: 4px;
-        }
+		.mdc-evolution-chip__action {
+			padding-left: 4px;
+			padding-right: 4px;
+
+			&:before {
+				border-radius: 20px !important;
+			}
+		}
 
 		&--large {
 			height: 48px !important;
@@ -229,16 +233,16 @@ mat-tab-body {
 				}
 			}
 		}
-    }
+	}
 
-    &__icon {
-        font-size: small;
+	&__icon {
+		font-size: small;
 
-        &--color-white {
-            color: #ffffff;
-            border-radius: 24px;
-        }
-    }
+		&--color-white {
+			color: #ffffff;
+			border-radius: 24px;
+		}
+	}
 }
 
 /* For mobile devices (up to 599px) */

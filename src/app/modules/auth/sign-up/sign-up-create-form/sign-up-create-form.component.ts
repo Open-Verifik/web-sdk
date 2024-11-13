@@ -15,7 +15,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { Router, RouterLink } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
-import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
+import { FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 
 import { TranslocoModule } from "@ngneat/transloco";
@@ -39,7 +39,6 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 	imports: [
 		CommonModule,
 		FlexLayoutModule,
-		FuseAlertComponent,
 		MatButtonModule,
 		MatCheckboxModule,
 		MatFormFieldModule,
@@ -56,9 +55,9 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	@ViewChild("signUpNgForm") signUpNgForm: NgForm;
 
-    @Input("location") location: any;
-    @Input("project") project: Project;
-    @Input("projectFlow") projectFlow: ProjectFlow;
+	@Input("location") location: any;
+	@Input("project") project: Project;
+	@Input("projectFlow") projectFlow: ProjectFlow;
 
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -89,10 +88,10 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		private _formBuilder: UntypedFormBuilder,
 		private _passwordlessService: PasswordlessService,
 		private _router: Router,
-		private _splashScreenService: FuseSplashScreenService,
+		private _splashScreenService: FuseSplashScreenService
 	) {
 		this.countries = this._countries.countryCodes;
-        this.fields = {};
+		this.fields = {};
 
 		this.roles = [
 			{
@@ -135,29 +134,29 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		this._unsubscribeAll.next(null);
 	}
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.project.currentValue) {
-            const data = changes.project.currentValue;
-    
-            try {
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes.project.currentValue) {
+			const data = changes.project.currentValue;
+
+			try {
 				this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
 				this.initForm();
-            } catch (exception) {
-                console.error({ exception });
-            }
+			} catch (exception) {
+				console.error({ exception });
+			}
 
 			for (let index = 0; index < data.projectFlows.length; index++) {
 				const projectFlow = data.projectFlows[index];
-	
+
 				if (projectFlow.status !== "active") continue;
 				if (projectFlow.type === "login") this.hasLogin = true;
 			}
-    
-            if (this.projectFlow.systemForm) {
-                this._assignRoles(this.projectFlow.systemForm);
-            }
-        }
-    }
+
+			if (this.projectFlow.systemForm) {
+				this._assignRoles(this.projectFlow.systemForm);
+			}
+		}
+	}
 
 	private _assignRoles(systemForm: ProjectFlow["systemForm"]): void {
 		let roleField = null;
@@ -335,13 +334,10 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 				complete: () => {
 					if (this.showAlert) this._reEnableForm();
 
-                    this._router.navigate(
-                        ['/sign-up', this.project._id],
-                        {
-                            queryParams: { token: this.appRegistration.token },
-                            queryParamsHandling: 'merge',
-                        }
-                    );
+					this._router.navigate(["/sign-up", this.project._id], {
+						queryParams: { token: this.appRegistration.token },
+						queryParamsHandling: "merge",
+					});
 				},
 			});
 	}
