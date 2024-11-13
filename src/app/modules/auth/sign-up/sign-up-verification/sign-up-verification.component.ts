@@ -3,7 +3,19 @@ import { debounce } from "lodash";
 import { interval, Subject, Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import {
+	ChangeDetectorRef,
+	Component,
+	EventEmitter,
+	Input,
+	OnChanges,
+	OnDestroy,
+	OnInit,
+	Output,
+	SimpleChanges,
+	ViewChild,
+	ViewEncapsulation,
+} from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -58,11 +70,11 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	@ViewChild("emailNgForm") updateEmailNgForm: NgForm;
 	@ViewChild("phoneNgForm") updatePhoneNgForm: NgForm;
 
-    @Input("appRegistration") appRegistration: AppRegistration;
-    @Input("project") project: Project;
-    @Input("projectFlow") projectFlow: ProjectFlow;
+	@Input("appRegistration") appRegistration: AppRegistration;
+	@Input("project") project: Project;
+	@Input("projectFlow") projectFlow: ProjectFlow;
 
-	@Output("changeStep") readonly changeStep: EventEmitter<string> = new EventEmitter<string>(); 
+	@Output("changeStep") readonly changeStep: EventEmitter<string> = new EventEmitter<string>();
 
 	countries: Array<any>;
 	currentValidation: any;
@@ -86,12 +98,12 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	token: string;
 	update: boolean;
 
-    constructor(
+	constructor(
 		private _activatedRoute: ActivatedRoute,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _countries: CountriesService,
 		private _formBuilder: UntypedFormBuilder,
-		private _KYCService: KYCService,
+		private _KYCService: KYCService
 	) {
 		this.countries = this._countries.countryCodes;
 	}
@@ -107,10 +119,10 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		this.countdownSubscription?.unsubscribe();
 	}
 
-    ngOnChanges(changes: SimpleChanges): void {
+	ngOnChanges(changes: SimpleChanges): void {
 		this._initForms();
 
-        if (changes.project?.currentValue) {
+		if (changes.project?.currentValue) {
 			const steps = this.projectFlow.onboardingSettings.steps;
 			const mandatorySteps = ["basicInformation", "document", "form", "liveness"];
 
@@ -119,12 +131,12 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			if (steps.document === "skip" && steps.liveness === "skip") {
 				this.endstep = true;
 			}
-        }
+		}
 
 		if (changes.appRegistration?.currentValue) {
 			debounce(() => this._initValidations())();
 		}
-    }
+	}
 
 	private _confirmEmailValidation(): void {
 		if (this._validatingEmail) return;
@@ -192,7 +204,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		if (emailGateway !== "none" && emailStatus !== "validated") return;
 		if (phoneGateway !== "none" && phoneStatus !== "validated") return;
 
-		if (this.appRegistration.status === 'ONGOING' || this.appRegistration.status === 'STARTED') {
+		if (this.appRegistration.status === "ONGOING" || this.appRegistration.status === "STARTED") {
 			this._syncAppRegistration("signUpForm", "ONGOING");
 		}
 	}
@@ -202,7 +214,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		if (this.projectFlow.onboardingSettings.signUpForm.emailGateway !== "mailgun") return;
 		if (this.appRegistration.emailValidation?.status === "validated") return;
 
-		this.changeStep.next('verify_email');
+		this.changeStep.next("verify_email");
 
 		this.currentValidation = {
 			_id: "new",
@@ -236,12 +248,14 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 	private _initForms(): void {
 		try {
-			const emailFields = { email: [this.appRegistration.email, [Validators.email, Validators.required]] };
+			console.log({ app: this.appRegistration });
+
+			const emailFields = { email: [this.appRegistration?.email || "", [Validators.email, Validators.required]] };
 			const otpFields = { otp: ["", [Validators.required]] };
 			const phoneFields = {};
 
 			phoneFields["countryCode"] = [this.location?.countryCode || "+1", [Validators.required]];
-			phoneFields["phone"] = [this.appRegistration.phone, [Validators.required]];
+			phoneFields["phone"] = [this.appRegistration?.phone || "", [Validators.required]];
 
 			if (environment.production) {
 				phoneFields["phone"][1].push(Validators.min(8), Validators.max(10));
@@ -260,9 +274,9 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	 */
 	private _initPhoneValidation(phoneGateway?: string): boolean {
 		if (this.sendingOTP) return;
-		
+
 		this.selectedPhoneGateway = phoneGateway || this.selectedPhoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway;
-		this.changeStep.next('verify_phone');
+		this.changeStep.next("verify_phone");
 
 		if (this.appRegistration.phoneValidation?.status === "validated") return;
 		if (this.appRegistration.countryCode === "-1") this.selectedPhoneGateway = "both";
@@ -273,12 +287,12 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			phone: this.appRegistration.phone,
 		};
 
-		if (this.selectedPhoneGateway === 'both') {
-		  this.loading = false;
-		  this.sendingOTP = false;
-		  this.update = false;
+		if (this.selectedPhoneGateway === "both") {
+			this.loading = false;
+			this.sendingOTP = false;
+			this.update = false;
 
-		  return;
+			return;
 		}
 
 		this.sendingOTP = true;
@@ -315,7 +329,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		this.update = false;
 		this.currentValidation = null;
 		this.countdownSubscription?.unsubscribe();
-		this.remainingTime = '';
+		this.remainingTime = "";
 		this.update = false;
 
 		this._initEmailValidation();
@@ -334,7 +348,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			},
 			error: () => {},
 			complete: () => {
-				this.changeStep.next('complete');
+				this.changeStep.next("complete");
 			},
 		});
 
@@ -348,7 +362,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 		const now = new Date().getTime();
 		const distance = expiresAt - now;
-		const seconds = Math.floor((distance / 1000));
+		const seconds = Math.floor(distance / 1000);
 
 		this.remainingTime = `${seconds}s`;
 
@@ -363,16 +377,21 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				return;
 			}
 
-			const seconds = Math.floor((distance / 1000));
+			const seconds = Math.floor(distance / 1000);
 
 			this.remainingTime = `${seconds}s`;
 		});
 	}
 
 	canChooseAnotherOTPMethod(): Boolean {
-		return !this.update && !this.loading && !this.sendingOTP && this.currentValidation?.phone &&
-			this.projectFlow.onboardingSettings.signUpForm.phoneGateway === 'both' &&
-			this.selectedPhoneGateway !== 'both';
+		return (
+			!this.update &&
+			!this.loading &&
+			!this.sendingOTP &&
+			this.currentValidation?.phone &&
+			this.projectFlow.onboardingSettings.signUpForm.phoneGateway === "both" &&
+			this.selectedPhoneGateway !== "both"
+		);
 	}
 
 	canSendOTP(): Boolean {
@@ -380,7 +399,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	canResendOTP(): Boolean {
-		return this.remainingTime === 'Expired' && (this.currentValidation.email || this.selectedPhoneGateway !== "both");
+		return this.remainingTime === "Expired" && (this.currentValidation.email || this.selectedPhoneGateway !== "both");
 	}
 
 	canUpdateEmailOrPhone(): Boolean {
@@ -397,8 +416,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 	chooseAnotherOTPMethod(): void {
 		this.countdownSubscription?.unsubscribe();
-		this.remainingTime = '';
-		this.selectedPhoneGateway = 'both';
+		this.remainingTime = "";
+		this.selectedPhoneGateway = "both";
 	}
 
 	onInput(event: Event) {
