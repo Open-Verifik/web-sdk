@@ -143,10 +143,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				this._validatingEmail = false;
 			},
 			complete: () => {
-				this.otpForm.reset();
-				this.loading = false;
-				this.sendingOTP = false;
-				this.update = false;
 				this._validatingEmail = false;
 
 				this._initValidations();
@@ -171,10 +167,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				this._validatingPhone = false;
 			},
 			complete: () => {
-				this.otpForm.reset();
-				this.loading = false;
-				this.sendingOTP = false;
-				this.update = false;
 				this._validatingPhone = false;
 
 				this._initValidations();
@@ -197,11 +189,11 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		const emailStatus = this.appRegistration.emailValidation?.status;
 		const phoneStatus = this.appRegistration.phoneValidation?.status;
 
-		if (emailGateway === "mailgun" && (!emailStatus || emailStatus !== "validated")) return;
-		if (["whatsapp", "sms", "both"].includes(phoneGateway) && (!phoneStatus || phoneStatus !== "validated")) return;
+		if (emailGateway !== "none" && emailStatus !== "validated") return;
+		if (phoneGateway !== "none" && phoneStatus !== "validated") return;
 
 		if (this.appRegistration.status === 'ONGOING' || this.appRegistration.status === 'STARTED') {
-			this._syncAppRegistration("signUpForm", "ONGOING", "redirect");
+			this._syncAppRegistration("signUpForm", "ONGOING");
 		}
 	}
 
@@ -316,6 +308,11 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	private _initValidations(): void {
+		if (this.otpForm?.reset) this.otpForm.reset();
+
+		this.loading = false;
+		this.sendingOTP = false;
+		this.update = false;
 		this.currentValidation = null;
 		this.countdownSubscription?.unsubscribe();
 		this.remainingTime = '';
@@ -327,7 +324,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		this._completeAppRegistration();
 	}
 
-	private _syncAppRegistration(step: string, status: string, action: string) {
+	private _syncAppRegistration(step: string, status: string) {
 		const promise = this._KYCService.syncAppRegistration(step, status);
 
 		promise.subscribe({
@@ -337,20 +334,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			},
 			error: () => {},
 			complete: () => {
-				if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
-					let redirectUrl = this.projectFlow.redirectUrl;
-
-					if (environment.verifikProject === this.project._id) {
-						redirectUrl = `${environment.appUrl}/sign-in`;
-					} else if (environment.sandboxProject === this.project._id) {
-						redirectUrl = `${environment.sandboxUrl}/sign-in`;
-					}
-
-					window.location.href = `${redirectUrl}?type=onboarding&token=${this.syncResponse.token}`;
-
-					return;
-				}
-
 				this.changeStep.next('complete');
 			},
 		});
@@ -435,6 +418,15 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			}
 
 			emailFormControl.patchValue(cleanedEmail);
+		}
+	}
+
+	removeSpacesFromPhone() {
+		const phoneFormControl = this.phoneForm.get("phone");
+
+		if (phoneFormControl.value) {
+			const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
+			phoneFormControl.patchValue(cleanedPhone);
 		}
 	}
 
