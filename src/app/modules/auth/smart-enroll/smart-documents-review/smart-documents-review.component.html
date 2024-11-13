@@ -1,0 +1,144 @@
+<canvas #faceCardCanvas hidden></canvas>
+
+<div
+  class="px-8 py-4"
+  fxLayout="row"
+  fxLayoutAlign="center center"
+  fxLayout.lt-md="column"
+  fxLayoutAlign.lt-md="start center"
+  ngClass.gt-sm="h-full"
+>
+  <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
+    <smart-stepper></smart-stepper>
+  </div>
+
+  <div
+    fxFlex="50%"
+    fxFlex.lt-lg="75%"
+    fxFlex.lt-md="100%"
+    fxLayout="column"
+    fxLayoutAlign="center center"
+  >
+    <div
+      class="smart-documents__card smart-documents__card--xlarge rounded-2xl bg-card m-4 p-6 mt-16 w-full"
+      fxLayout="column"
+      [style.border]="
+        project.branding.borderColor
+          ? '1px solid ' + project.branding.borderColor
+          : ''
+      "
+    >
+      <mat-card-title
+        class="w-full"
+        fxLayout="row"
+        fxLayoutAlign="center space-between"
+      >
+        <h5
+          class="text-3xl font-medium mt-2"
+          [style.color]="project.branding.titleColor"
+        >
+          {{ "smart_enroll.documents.document_review_title" | transloco }}
+        </h5>
+      </mat-card-title>
+
+      <mat-card-content
+        class="w-full mt-4"
+        fxLayout="column"
+        fxLayoutAlign="start center"
+      >
+        <div fxLayout="row" fxLayout.lt-md="column" fxFill fxLayoutGap="24px">
+          <div class="ocr w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
+            <div
+              class="ocr__image rounded-2xl"
+              [style.background]="project.branding.background"
+              [style.backgroundImage]="
+                'url(' + appRegistration.documentValidation.url + ')'
+              "
+              *ngIf="appRegistration.documentValidation.url"
+            ></div>
+
+            <div
+              class="mt-6 ocr__image rounded-2xl"
+              [style.background]="project.branding.background"
+              [style.backgroundImage]="
+                'url(' + appRegistration.documentValidation.backUrl + ')'
+              "
+              *ngIf="appRegistration.documentValidation.backUrl"
+            ></div>
+
+            <button
+              (click)="onTryAgain()"
+              [style.border]="'1px solid ' + project.branding.buttonColor"
+              [style.color]="project.branding.buttonColor"
+              class="fuse-mat-button-large mt-6"
+              mat-flat-button
+            >
+              {{ "smart_enroll.documents.upload.again" | transloco }}
+            </button>
+          </div>
+
+          <div class="w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
+            <h4 class="font-medium text-xl">
+              {{
+                "smart_enroll.documents.upload.extracted_information" | transloco
+              }}
+            </h4>
+
+            <div
+              class="ocr__line ocr__line--border"
+              fxLayout="row"
+              fxLayoutAlign="space-between center"
+              *ngFor="
+                let item of appRegistration?.documentValidation?.OCRExtraction
+                  | keyvalue
+              "
+            >
+              <p class="ocr__label">
+                {{ "extracted_information." + item.key | transloco }}
+              </p>
+
+              <p class="ocr__value text-right">{{ item.value }}</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <div fxLayout="column" fxFlex="1 1 0 auto"></div>
+
+      <mat-card-actions
+        class="mt-12"
+        fxLayout="row"
+        fxLayoutAlign="space-between end"
+      >
+        <button
+          (click)="onPreviousStep()"
+          [style.border]="'1px solid ' + project.branding.buttonColor"
+          [style.color]="project.branding.buttonColor"
+          class="fuse-mat-button-large mt-6"
+          mat-flat-button
+        >
+          <span>{{ "previous" | transloco }}</span>
+        </button>
+
+        <button
+          (click)="onNextStep()"
+          [disabled]="!appRegistration.documentValidation"
+          [style.background]="
+            appRegistration.documentValidation ? project.branding.buttonColor : ''
+          "
+          [style.color]="
+            appRegistration.documentValidation
+              ? project.branding.buttonTxtColor
+              : ''
+          "
+          class="fuse-mat-button-large"
+          mat-flat-button
+        >
+          <span>{{ "continue" | transloco }}</span>
+        </button>
+      </mat-card-actions>
+    </div>
+  </div>
+
+  <div fxFlex="25%" fxFlex.lt-lg="0"></div>
+</div>

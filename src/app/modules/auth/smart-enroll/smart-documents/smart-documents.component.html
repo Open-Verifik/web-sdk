@@ -1,0 +1,228 @@
+<canvas #faceCardCanvas hidden></canvas>
+
+<div
+  class="w-full px-8 py-4"
+  fxLayout="row"
+  fxLayoutAlign="center center"
+  fxLayout.lt-md="column"
+  ngClass.gt-sm="h-full"
+>
+  <div
+    @fadeIn
+    class="w-full"
+    fxLayout="column"
+    fxLayoutAlign="start center"
+    *ngIf="project && !selectedMethod"
+  >
+    <div
+      class="smart-documents__heading text-center"
+      fxLayout="column"
+      fxLayoutAlign="start center"
+    >
+      <h5
+        class="text-3xl font-medium mt-2"
+        [style.color]="project.branding.titleColor"
+      >
+        {{ "smart_enroll.documents.scan_or_upload_title" | transloco }}
+      </h5>
+    </div>
+
+    <div
+      class="mt-6"
+      fxLayout="row"
+      fxLayoutAlign="center"
+      fxLayout.lt-md="column"
+    >
+      <div
+        class="smart-documents__card rounded-2xl bg-card m-4 p-6"
+        fxLayout="column"
+        *ngIf="projectFlow.onboardingSettings.document.uploadDocumentAllowed"
+        [style.border]="
+          project.branding.borderColor
+            ? '1px solid ' + project.branding.borderColor
+            : ''
+        "
+      >
+        <mat-card-header class="mt-2">
+          <h5
+            class="text-xl text-center font-medium"
+            [style.color]="project.branding.titleColor"
+          >
+            {{ "smart_enroll.documents.upload_document_title" | transloco }}
+          </h5>
+        </mat-card-header>
+
+        <mat-card-content
+          class="mt-6"
+          fxLayout="column"
+          fxLayoutAlign="start center"
+        >
+          <mat-icon
+            class="welcome__icon welcome__icon--large welcome__icon--rounded"
+            [style.color]="project.branding.buttonColor"
+            [style.background]="getBackgroundGradient()"
+            >file_upload</mat-icon
+          >
+
+          <div fxLayout="row" fxLayoutAlign="center">
+            <div class="welcome__step-column">
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">1</p>
+                <p>
+                  {{ "smart_enroll.documents.upload.steps.1" | transloco }}
+                </p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">2</p>
+                <p>
+                  {{ "smart_enroll.documents.upload.steps.2" | transloco }}
+                </p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">3</p>
+                <p>
+                  {{ "smart_enroll.documents.upload.steps.3" | transloco }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <div fxLayout="column" fxFlex="1 1 0 auto"></div>
+
+        <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
+          <button
+            (click)="updateDocumentMethod('upload')"
+            [style.background]="project.branding.buttonColor"
+            [style.color]="project.branding.buttonTxtColor"
+            class="fuse-mat-button-large mt-6"
+            mat-flat-button
+          >
+            <span>{{ "upload" | transloco }}</span>
+          </button>
+        </mat-card-actions>
+      </div>
+
+      <div
+        class="smart-documents__card rounded-2xl bg-card m-4 p-6"
+        fxLayout="column"
+        *ngIf="projectFlow.onboardingSettings.document.scanDocumentAllowed"
+        [style.border]="
+          project.branding.borderColor
+            ? '1px solid ' + project.branding.borderColor
+            : ''
+        "
+      >
+        <mat-card-header class="mt-2">
+          <h5
+            class="text-xl text-center font-medium"
+            [style.color]="project.branding.titleColor"
+          >
+            {{ "smart_enroll.documents.scan_document_title" | transloco }}
+          </h5>
+        </mat-card-header>
+
+        <mat-card-content
+          class="mt-6"
+          fxLayout="column"
+          fxLayoutAlign="start center"
+        >
+          <mat-icon
+            class="welcome__icon welcome__icon--large welcome__icon--rounded"
+            [style.color]="project.branding.buttonColor"
+            [style.background]="getBackgroundGradient()"
+            >camera</mat-icon
+          >
+
+          <div fxLayout="row" fxLayoutAlign="center">
+            <div class="welcome__step-column">
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">1</p>
+                <p>{{ "smart_enroll.documents.scan.steps.1" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">2</p>
+                <p>{{ "smart_enroll.documents.scan.steps.2" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">3</p>
+                <p>{{ "smart_enroll.documents.scan.steps.3" | transloco }}</p>
+              </div>
+
+              <div class="flex welcome__step-row">
+                <p class="welcome__step">4</p>
+                <p>{{ "smart_enroll.documents.scan.steps.4" | transloco }}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <div fxLayout="column" fxFlex="1 1 0 auto"></div>
+
+        <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
+          <button
+            (click)="updateDocumentMethod('scan')"
+            [style.background]="project.branding.buttonColor"
+            [style.color]="project.branding.buttonTxtColor"
+            class="fuse-mat-button-large mt-6"
+            mat-flat-button
+          >
+            <span>{{ "scan" | transloco }}</span>
+          </button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </div>
+
+  <div
+    @fadeIn
+    class="w-full"
+    fxLayout="row"
+    fxLayoutAlign="center center"
+    fxLayout.lt-md="column"
+    *ngIf="selectedMethod"
+  >
+    <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
+      <smart-stepper></smart-stepper>
+    </div>
+
+    <div
+      fxFlex="50%"
+      fxFlex.lt-lg="75%"
+      fxFlex.lt-md="100%"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+    >
+      <smart-upload
+        (onImageUpload)="onImageScan($event)"
+        [class.hidden]="errorResult"
+        [successfulUpload]="successfulUploadSubject.asObservable()"
+        @fadeIn
+        *ngIf="selectedMethod === 'upload' && !errorResult"
+        source="document"
+      ></smart-upload>
+
+      <smart-scanner
+        (onImageScan)="onImageScan($event)"
+        [class.hidden]="errorResult"
+        [successfulUpload]="successfulUploadSubject.asObservable()"
+        @fadeIn
+        *ngIf="selectedMethod === 'scan' && !errorResult"
+        source="document"
+      ></smart-scanner>
+
+      <smart-error-display
+        (onClearError)="retry()"
+        [errorContent]="errorContent"
+        source="document"
+        *ngIf="errorResult"
+      ></smart-error-display>
+    </div>
+
+    <div fxFlex="25%" fxFlex.lt-lg="0"></div>
+  </div>
+</div>
