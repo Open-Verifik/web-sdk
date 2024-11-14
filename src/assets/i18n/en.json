@@ -255,6 +255,7 @@
 		"lastName": "Last name",
 		"company": "Company",
 		"role": "Role",
+		"type_as_appears": "Please enter your name exactly as it appears on your ID card",
 		"roles": {
 			"founder": "Founder/Co-Founder",
 			"high_management": "CEO/Director",

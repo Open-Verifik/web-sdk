@@ -1,5 +1,27 @@
-.signup__steps {
-    padding: 4px;
+.signup {
+    &__steps {
+        padding: 4px;
+    }
+    
+    &__step {
+        background-color: #C4C6D0;
+        border-radius: 4px;
+        height: 8px;
+        transition: width 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+        width: 8px;
+        margin-right: 4px;
+    
+        &--wide {
+            background-color: #0140EC;
+            width: 24px;
+        }
+    }
+
+    &__hint {
+        background-color: #EDEFF2;
+        width: 100%;
+        padding: 12px;
+    }
 }
 
 .language-selector {
@@ -10,19 +32,5 @@
 
     @media screen and (max-width: 959px) {
         margin: 16px;
-    }
-}
-
-.signup__step {
-    background-color: #C4C6D0;
-    border-radius: 4px;
-    height: 8px;
-    transition: width 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-    width: 8px;
-    margin-right: 4px;
-
-    &--wide {
-        background-color: #0140EC;
-        width: 24px;
     }
 }
