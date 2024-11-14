@@ -760,7 +760,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _isCaptureValid(): boolean {
-		return this.source === "document" ? this.documentIsValid && this.faceIsValid : this.faceIsValid;
+		return this.source === "document" ? this.documentIsValid && ((this.side === 'front' && this.faceIsValid) || this.side === 'back') : this.faceIsValid;
 	}
 
 	private _ObserveDomMedia(): void {
@@ -927,7 +927,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 							);
 						}
 
-						this._detectFaceInterval = setInterval(() => this._detectFace(video), this.demoData.time);
+						if (this.side === 'front' || this.source === 'face') {
+							this._detectFaceInterval = setInterval(() => this._detectFace(video), this.demoData.time);
+						}
 					});
 				});
 			})

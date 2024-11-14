@@ -314,9 +314,9 @@
 
 				<button
 					(click)="takePicture()"
-					[disabled]="errorFace || uploading"
-					[style.background]="errorFace || uploading ? '' : project.branding.buttonColor"
-					[style.color]="errorFace || uploading ? '' : project.branding.buttonTxtColor"
+					[disabled]="(side === 'front' && errorFace) || uploading"
+					[style.background]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonColor"
+					[style.color]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonTxtColor"
 					class="m-2"
 					mat-flat-button
 					*ngIf="source === 'document'"
