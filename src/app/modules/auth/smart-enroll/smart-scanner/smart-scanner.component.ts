@@ -2,10 +2,10 @@ import * as faceapi from "@vladmandic/face-api";
 import jscanify, { Contour } from "libs/jscanify";
 
 import { debounce, DebouncedFunc } from "lodash";
-import { Observable, Subject, Subscription, takeUntil } from "rxjs";
+import { Observable, Subject, Subscription } from "rxjs";
 
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { MatIconModule } from "@angular/material/icon";
 
-import { FuseMediaWatcherService } from "@fuse/services/media-watcher";
+import { fuseAnimations } from "@fuse/animations";
 
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
@@ -72,16 +72,16 @@ const DOCUMENT_H_ANGLE_LIMIT = {
 	ROLL_LOW: -15,
 };
 const DOCUMENT_H_BOUNDS_LIMIT = {
-	X_HIGH: 1000,
-	X_LOW: 700,
-	Y_HIGH: 550,
+	X_HIGH: 1200,
+	X_LOW: 450,
+	Y_HIGH: 700,
 	Y_LOW: 400,
 };
 const DOCUMENT_H_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 1400,
-	WIDTH_LOW: 850,
-	HEIGHT_HIGH: 700,
-	HEIGHT_LOW: 500,
+	WIDTH_HIGH: 1500,
+	WIDTH_LOW: 1000,
+	HEIGHT_HIGH: 825,
+	HEIGHT_LOW: 600,
 };
 const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
 	WIDTH_HIGH: 500,
@@ -128,10 +128,11 @@ const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
 };
 
 @Component({
+	animations: fuseAnimations,
 	selector: "smart-scanner",
-	templateUrl: "./smart-scanner.component.html",
-	styleUrls: ["./smart-scanner.component.scss"],
 	standalone: true,
+	styleUrls: ["./smart-scanner.component.scss"],
+	templateUrl: "./smart-scanner.component.html",
 	imports: [
 		CommonModule,
 		FlexLayoutModule,
@@ -153,7 +154,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	@ViewChild("videoCanvas", { static: false }) public videoCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("videoElement") videoElement: ElementRef<HTMLVideoElement>;
-	@ViewChild("videoResultCanvas", { static: false }) public videoResultCanvas: ElementRef<HTMLCanvasElement>;
 
 	@Input("source") source: "document" | "face";
 
@@ -162,6 +162,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	@Input() successfulUpload: Observable<void>;
 
 	private _debouncedTakePicture: DebouncedFunc<() => void>;
+	private _debouncedWindowResize: DebouncedFunc<() => void>;
 	private _detectDocumentInterval: ReturnType<typeof setInterval>;
 	private _detectFaceInterval: ReturnType<typeof setInterval>;
 	private _onSuccessfulUpload: Subscription;
@@ -172,7 +173,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
 	base64Image: any;
-	checkFaceTimeout: any;
+	_checkFaceTimeout: any;
 	demoData: any;
 	documentContours: string;
 	documentIsValid: boolean;
@@ -184,13 +185,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	isHorizontal: boolean = true;
 	loading: any;
 	loadingCamera: boolean;
-	phoneMode: boolean;
 	project: Project;
 	projectFlow: ProjectFlow;
 	requiresBack: boolean = false;
 	side: "back" | "front" = "front";
 	stream: MediaStream;
-	tabletMode: boolean;
 	test: string;
 	unsupported: boolean = false;
 	uploading: boolean = false;
@@ -225,9 +224,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	>;
 
 	constructor(
-		private _changeDetectorRef: ChangeDetectorRef,
 		private _demoService: DemoService,
-		private _fuseMediaWatcherService: FuseMediaWatcherService,
 		private _KYCService: KYCService,
 		private _renderer: Renderer2,
 		private _smartEnrollService: SmartEnrollService,
@@ -235,17 +232,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	) {
 		this._resetVariables();
 
-		this._renderer.listen("window", "resize", () => {
+		this._debouncedWindowResize = debounce(() => {
 			if (!this.videoElement) return;
 
 			this._stopRecord();
-			this._startCamera();
-		});
+
+			setTimeout(() => this._startCamera());
+		}, 300);
+
+		this._renderer.listen("window", "resize", this._debouncedWindowResize);
 	}
 
 	ngOnInit(): void {
-		this._ObserveDomMedia();
-
 		this._onSuccessfulUpload = this.successfulUpload.subscribe(() => {
 			this.uploading = false;
 			this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
@@ -254,28 +252,26 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._demoService.faceapi$.subscribe((isLoaded) => {
 			if (!isLoaded || this.stream) return;
 
-			this._startCamera();
+			setTimeout(() => this._startCamera());
 		});
 	}
 
 	ngOnDestroy(): void {
-		this._stopRecord();
+		this._debouncedTakePicture?.cancel();
+		this._debouncedWindowResize?.cancel();
 		this._onSuccessfulUpload.unsubscribe();
 		this._unsubscribeAll.complete();
+		this._stopRecord();
 	}
 
 	private _detectDocument(
 		video: HTMLVideoElement,
 		videoCanvas: HTMLCanvasElement,
 		videoCanvasCtx: CanvasRenderingContext2D,
-		videoResultCanvasCtx: CanvasRenderingContext2D
 	) {
 		try {
 			const vRatio = (videoCanvas.height / video.videoHeight) * video.videoWidth;
 			videoCanvasCtx.drawImage(video, 0, 0, vRatio, videoCanvas.height);
-
-			const resultCanvas = this._scanner.highlightPaper(videoCanvas);
-			videoResultCanvasCtx.drawImage(resultCanvas, 0, 0);
 
 			try {
 				const img = cv.imread(videoCanvas);
@@ -300,7 +296,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 			if (detection.length) {
 				this.faceDetection = this._demoService.findBiggestFace(detection);
-				this.checkFaceTimeout = clearTimeout(this.checkFaceTimeout);
+
+				this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 				this.errorFace = null;
 
 				this._evaluateFaceData(this.faceDetection);
@@ -308,8 +305,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				return detection;
 			}
 
-			if (!this.checkFaceTimeout) {
-				this.checkFaceTimeout = setTimeout(() => {
+			if (!this._checkFaceTimeout) {
+				this._checkFaceTimeout = setTimeout(() => {
 					this.errorFace = {
 						title: this._translocoService.translate("id_scanning.face_not_found"),
 						subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
@@ -567,7 +564,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			faceapi.FaceLandmarks68
 		>
 	) {
-		this._setCanvasDimensions();
+		this._paintMaskCanvas();
 		this._evaluateFace(face);
 		this._readyAutoCapture();
 	}
@@ -585,11 +582,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 					res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
 			  };
 
-		const scaleRatioX = this.WIDTH / this.video.width;
-		const scaleRatioY = this.HEIGHT / this.video.height;
-
-		const shapeWidth = Math.floor(contours.bottomRightCorner.x - contours.bottomLeftCorner.x * scaleRatioX);
-		const shapeHeight = Math.floor(contours.bottomLeftCorner.y - contours.topLeftCorner.y * scaleRatioY);
+		const shapeWidth = Math.floor(contours.bottomRightCorner.x - contours.bottomLeftCorner.x);
+		const shapeHeight = Math.floor(contours.bottomLeftCorner.y - contours.topLeftCorner.y);
 
 		const correctResolution =
 			shapeHeight > BOUNDS.res.HEIGHT_LOW &&
@@ -599,12 +593,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		const centerPoint = {
 			x: Math.floor(
-				((contours.bottomRightCorner.x + contours.bottomLeftCorner.x + contours.topLeftCorner.x + contours.topRightCorner.x) / 4) *
-					scaleRatioX
+				(contours.bottomRightCorner.x + contours.bottomLeftCorner.x + contours.topLeftCorner.x + contours.topRightCorner.x) / 4
 			),
 			y: Math.floor(
-				((contours.bottomRightCorner.y + contours.bottomLeftCorner.y + contours.topLeftCorner.y + contours.topRightCorner.y) / 4) *
-					scaleRatioY
+				(contours.bottomRightCorner.y + contours.bottomLeftCorner.y + contours.topLeftCorner.y + contours.topRightCorner.y) / 4
 			),
 		};
 
@@ -760,16 +752,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _isCaptureValid(): boolean {
-		return this.source === "document" ? this.documentIsValid && this.faceIsValid : this.faceIsValid;
-	}
-
-	private _ObserveDomMedia(): void {
-		this._fuseMediaWatcherService.onMediaChange$.pipe(takeUntil(this._unsubscribeAll)).subscribe(({ matchingAliases }) => {
-			this.phoneMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && !matchingAliases.includes("sm"));
-			this.tabletMode = Boolean(!matchingAliases.includes("lg") && !matchingAliases.includes("md") && matchingAliases.includes("sm"));
-
-			this._changeDetectorRef.markForCheck();
-		});
+		return this.source === "document" ? this.documentIsValid && ((this.side === 'front' && this.faceIsValid) || this.side === 'back') : this.faceIsValid;
 	}
 
 	private _readyAutoCapture() {
@@ -819,22 +802,24 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _setCanvasDimensions = () => {
 		const canvasContainer = this.canvasContainer.nativeElement;
 
-		const appWindowHeight = canvasContainer.clientHeight;
-		const appWindowWidth = canvasContainer.clientWidth;
+		const containerHeight = canvasContainer.clientHeight;
+		const containerWidth = canvasContainer.clientWidth;
 
-		const maxHeight = Math.min(appWindowHeight, this.video.height);
-		const maxWidth = Math.min(appWindowWidth, this.video.width);
+		const maxHeight = Math.min(containerHeight, this.video.height);
+		const maxWidth = Math.min(containerWidth, this.video.width);
 
-		const scaleRatioX = maxWidth / this.video.width;
-		const scaleRatioY = maxHeight / this.video.height;
+		const aspectRatio = Math.min(this.video.width, this.video.height) / Math.max(this.video.width, this.video.height);
 
-		// rescale to maintain aspect ratio
-		if (scaleRatioX < 1) this.HEIGHT = +(maxHeight * scaleRatioX).toFixed(0);
-		else this.HEIGHT = +maxHeight.toFixed(0);
+		if (this.isHorizontal) {
+			this.HEIGHT = +(maxWidth * aspectRatio).toFixed(0);
+			this.WIDTH = +maxWidth.toFixed(0);
+		} else {
+			this.HEIGHT = +maxHeight.toFixed(0);
+			this.WIDTH = +(maxHeight * aspectRatio).toFixed(0);
+		}
+	};
 
-		if (scaleRatioY < 1) this.WIDTH = +(maxWidth * scaleRatioY).toFixed(0);
-		else this.WIDTH = +maxWidth.toFixed(0);
-
+	private _paintMaskCanvas() {
 		const maskCanvas: HTMLCanvasElement = this.maskCanvas.nativeElement;
 
 		maskCanvas.height = this.HEIGHT;
@@ -842,7 +827,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		const canvasCtx = maskCanvas.getContext("2d");
 		this._drawMask(canvasCtx);
-	};
+	}
 
 	private _setDimensions(height: number, width: number, data: any) {
 		if (this.isHorizontal) {
@@ -867,6 +852,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 			return;
 		}
+
+		if (this.stream) this._stopRecord();
 
 		this.loadingCamera = true;
 
@@ -901,34 +888,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 				setTimeout(() => {
 					const video: HTMLVideoElement = this.videoElement.nativeElement;
-					const videoCanvas: HTMLCanvasElement = this.videoCanvas.nativeElement;
-					const videoResultCanvas: HTMLCanvasElement = this.videoResultCanvas.nativeElement;
 
 					video.srcObject = stream;
-					video.addEventListener("loadedmetadata", () => {
-						this._setCanvasDimensions();
-
-						if (!facingModeSupported || this.videoOptions.facingMode === "user") {
-							video.style.transform = "scaleX(-1)";
-						}
-
-						videoCanvas.height = this.HEIGHT;
-						videoCanvas.width = this.WIDTH;
-						videoResultCanvas.height = this.HEIGHT;
-						videoResultCanvas.width = this.WIDTH;
-
-						if (this.source === "document") {
-							const videoCanvasCtx = videoCanvas.getContext("2d");
-							const videoResultCanvasCtx = videoResultCanvas.getContext("2d");
-
-							this._detectDocumentInterval = setInterval(
-								() => this._detectDocument(video, videoCanvas, videoCanvasCtx, videoResultCanvasCtx),
-								50
-							);
-						}
-
-						this._detectFaceInterval = setInterval(() => this._detectFace(video), this.demoData.time);
-					});
+					video.removeEventListener("loadedmetadata", this._onVideoLoaded, true);
+					video.addEventListener("loadedmetadata", this._onVideoLoaded, true);
 				});
 			})
 			.catch((error) => {
@@ -937,6 +900,31 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this.loadingCamera = false;
 				this.hasCameraPermissions = false;
 			});
+	}
+
+	private _onVideoLoaded = () => {
+		const video: HTMLVideoElement = this.videoElement.nativeElement;
+		const videoCanvas: HTMLCanvasElement = this.videoCanvas.nativeElement;
+
+		this._setCanvasDimensions();
+		this._paintMaskCanvas();
+
+		if (this.videoOptions.facingMode === "user" || this.isHorizontal) {
+			video.style.transform = "scaleX(-1)";
+		}
+
+		if (this.source === "document") {
+			const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
+
+			this._detectDocumentInterval = setInterval(
+				() => this._detectDocument(video, videoCanvas, videoCanvasCtx),
+				50
+			);
+		}
+
+		if (this.side === 'front' || this.source === 'face') {
+			this._detectFaceInterval = setInterval(() => this._detectFace(video), this.demoData.time);
+		}
 	}
 
 	private _stopRecord(): void {
@@ -949,6 +937,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		if (!this.stream) return;
 
 		this.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+		this.stream = null;
 	}
 
 	exitApplication(): void {
@@ -1008,7 +997,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	setPictureInCanvas(canvas: HTMLCanvasElement, dimensions: any, dimensionsOriginals?: any) {
-		const context = canvas.getContext("2d");
+		const context = canvas.getContext("2d", { willReadFrequently: true });
 
 		canvas.width = dimensions.rectWidth;
 		canvas.height = dimensions.rectHeight;

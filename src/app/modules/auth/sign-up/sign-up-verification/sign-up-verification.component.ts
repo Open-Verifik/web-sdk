@@ -248,8 +248,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 	private _initForms(): void {
 		try {
-			console.log({ app: this.appRegistration });
-
 			const emailFields = { email: [this.appRegistration?.email || "", [Validators.email, Validators.required]] };
 			const otpFields = { otp: ["", [Validators.required]] };
 			const phoneFields = {};

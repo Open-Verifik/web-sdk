@@ -156,6 +156,33 @@ smart-scanner-corrections {
 }
 
 .smart-scanner {
+	&__title {
+		z-index: 4;
+
+		@media screen and (max-width: 992px) {
+			margin-top: 48px;
+		}
+	}
+
+	&__container {
+		position: relative;
+		height: 100%;
+		width: 100%;
+	}
+
+	&__buttons {
+		position: absolute;
+		left: 0;
+		bottom: 24px;
+		right: 0;
+	}
+
+	&__tip {
+		z-index: 4;
+		padding: 24px;
+		margin-top: 12px;
+	}
+
 	&__absolute-scanner {
 		position: absolute;
 		inset: auto;

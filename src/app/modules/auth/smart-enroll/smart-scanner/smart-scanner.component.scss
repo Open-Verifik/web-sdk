@@ -155,15 +155,6 @@ h2 {
 
 // Extra small screens
 @media (max-width: 599px) {
-	.capture_button {
-		z-index: 100;
-		position: absolute;
-		bottom: 45px;
-		left: 50%;
-		margin: 0px !important;
-		transform: translateX(-50%);
-	}
-
 	.id-scanning-error-container {
 		position: absolute;
 		top: 30%;
