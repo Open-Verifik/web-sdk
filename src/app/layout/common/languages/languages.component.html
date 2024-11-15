@@ -10,7 +10,7 @@
   ></ng-container>
 </button>
 
-<mat-menu [xPosition]="'before'" #languages="matMenu" class="rounded-2xl py-4">
+<mat-menu [xPosition]="'before'" #languages="matMenu" class="rounded-2xl py-4 mt-4">
   <ng-container *ngFor="let lang of availableLangs; trackBy: trackByFn">
     <button
       (click)="setActiveLang(lang.id)"

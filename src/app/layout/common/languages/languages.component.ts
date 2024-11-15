@@ -1,14 +1,13 @@
 import { Subscription } from "rxjs";
 
 import { CommonModule, NgFor, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatMenuModule } from "@angular/material/menu";
 
 import { AvailableLangs, TranslocoService } from "@ngneat/transloco";
 
-import { Project } from "app/modules/auth/project";
 import { MatIconModule } from "@angular/material/icon";
 
 @Component({
@@ -30,8 +29,6 @@ import { MatIconModule } from "@angular/material/icon";
 	],
 })
 export class LanguagesComponent implements OnInit, OnDestroy {
-	@Input('project') project: Project;
-
 	private _languageSubscription: Subscription;
 
 	activeLang: string;
