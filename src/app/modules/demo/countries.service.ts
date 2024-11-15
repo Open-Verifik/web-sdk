@@ -82,6 +82,7 @@ export class CountriesService {
 		{
 			code: "+52",
 			name: "Mexico",
+			nameWithSpecials: "México",
 		},
 		{
 			code: "+31",
@@ -98,6 +99,7 @@ export class CountriesService {
 		{
 			code: "+507",
 			name: "Panama",
+			nameWithSpecials: "Panamá",
 		},
 		{
 			code: "+595",
@@ -106,6 +108,7 @@ export class CountriesService {
 		{
 			code: "+51",
 			name: "Peru",
+			nameWithSpecials: "Perú",
 		},
 		{
 			code: "+351",
@@ -126,6 +129,7 @@ export class CountriesService {
 		{
 			code: "+34",
 			name: "Spain",
+			nameWithSpecials: "España",
 		},
 		{
 			code: "+46",
@@ -162,6 +166,22 @@ export class CountriesService {
 	findCountryCode(countryName): any {
 		const country = this.countryCodes.find((c) => c.name === countryName);
 
+		if (!country) {
+			const countrySpecial = this.countryCodes.find((c) => c.nameWithSpecials === countryName);
+
+			return countrySpecial ? countrySpecial.code : null; // Returns null if no match is found
+		}
 		return country ? country.code : null; // Returns null if no match is found
+	}
+
+	findCountry(countryName): any {
+		const country = this.countryCodes.find((c) => c.name === countryName);
+
+		if (!country) {
+			const countrySpecial = this.countryCodes.find((c) => c.nameWithSpecials === countryName);
+
+			return countrySpecial ? countrySpecial.name : null; // Returns null if no match is found
+		}
+		return country ? country.name : null; // Returns null if no match is found
 	}
 }
