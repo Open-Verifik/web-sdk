@@ -53,7 +53,7 @@
 			[disabled]="!canSkip()"
 			[style.color]="!canSkip() ? '' : project.branding.buttonColor"
 			[style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
-			class="m-2"
+			class="fuse-mat-button-large mt-6"
 			*ngIf="
 				(source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
 				(source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
@@ -71,12 +71,12 @@
 	class="items-center w-full absolute top-0 left-0 right-0 bottom-0"
 	*ngIf="hasCameraPermissions && !loadingCamera"
 >
-	<div class="z-index-2">
+	<div class="smart-scanner__title">
 		<h5
 			class="text-3xl font-medium mt-6 text-center"
 			[style.color]="project.branding.titleColor"
 			*ngIf="source === 'face'"
-			ngClass.gt-sm="hidden"
+			ngClass.lt-md="hidden"
 			title
 		>
 			{{ "smart_enroll.biometric_register" | transloco }}
@@ -85,7 +85,7 @@
 			class="text-3xl font-medium mt-6 text-center"
 			[style.color]="project.branding.titleColor"
 			*ngIf="source === 'document' && side === 'front'"
-			ngClass.gt-sm="hidden"
+			ngClass.lt-md="hidden"
 			title
 		>
 			{{ "smart_enroll.documents.upload.upload_frontside" | transloco }}
@@ -94,7 +94,7 @@
 			class="text-3xl font-medium mt-6 text-center"
 			[style.color]="project.branding.titleColor"
 			*ngIf="source === 'document' && side === 'back'"
-			ngClass.gt-sm="hidden"
+			ngClass.lt-md="hidden"
 			title
 		>
 			{{ "smart_enroll.documents.upload.upload_backside" | transloco }}
@@ -138,7 +138,7 @@
 	<div *ngIf="!loadingCamera && hasCameraPermissions" class="w-full height-full">
 		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
 			<div
-				class="w-full"
+				class="smart-scanner__container"
 				#canvasContainer
 				fxLayout="row"
 				fxLayoutAlign="center center"
@@ -152,34 +152,36 @@
 					#videoElement
 					autoplay
 					class="smart-scanner__absolute-scanner rounded-3xl"
+					muted
 				></video>
 
 				<canvas
+					[height]="video.height"
 					[hidden]="source === 'face'"
 					[style.height.px]="HEIGHT"
 					[style.width.px]="WIDTH"
+					[width]="video.width"
 					#videoCanvas
 					class="smart-scanner__absolute-scanner rounded-3xl"
 				></canvas>
 
 				<canvas
-					[hidden]="source === 'face'"
+					[height]="video.height"
 					[style.height.px]="HEIGHT"
 					[style.width.px]="WIDTH"
-					#videoResultCanvas
+					[width]="video.width"
+					#maskCanvas
 					class="smart-scanner__absolute-scanner rounded-3xl"
 				></canvas>
-
-				<canvas #maskCanvas [style.height.px]="HEIGHT" [style.width.px]="WIDTH" class="smart-scanner__absolute-scanner rounded-3xl"></canvas>
 
 				<smart-scanner-corrections
 					[angle]="corrections.angle"
 					[bounds]="corrections.bounds"
-					[resolution]="corrections.resolution"
+					[height]="HEIGHT"
 					[isHorizontal]="isHorizontal"
+					[resolution]="corrections.resolution"
 					[style.height.px]="HEIGHT"
 					[style.width.px]="WIDTH"
-					[height]="HEIGHT"
 					[width]="WIDTH"
 					*ngIf="source === 'face'"
 					class="smart-scanner__absolute-scanner rounded-3xl"
@@ -283,50 +285,50 @@
 						{{ errorFace.subtitle }}
 					</div>
 				</div>
-			</div>
 
-			<div class="capture_button" fxLayout="row" fxLayoutAlign="center center" [class.hidden]="base64Image">
-				<button
-					(click)="goPrevious()"
-					[disabled]="!canGoPrevious()"
-					[style.color]="!canGoPrevious() ? '' : project.branding.buttonColor"
-					[style.border]="!canGoPrevious() ? '' : '1px solid' + project.branding.buttonColor"
-					class="m-2"
-					mat-flat-button
-				>
-					{{ "go_back" | transloco }}
-				</button>
+				<div class="smart-scanner__buttons" fxLayout="row" fxLayoutAlign="center center" [class.hidden]="base64Image">
+					<button
+						(click)="goPrevious()"
+						[disabled]="!canGoPrevious()"
+						[style.color]="!canGoPrevious() ? '' : project.branding.buttonColor"
+						[style.border]="!canGoPrevious() ? '' : '1px solid' + project.branding.buttonColor"
+						class="m-2"
+						mat-flat-button
+					>
+						{{ "go_back" | transloco }}
+					</button>
 
-				<button
-					(click)="goNext()"
-					[disabled]="!canSkip()"
-					[style.color]="!canSkip() ? '' : project.branding.buttonColor"
-					[style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
-					class="m-2"
-					*ngIf="
-						(source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
-						(source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
-					"
-					mat-flat-button
-				>
-					{{ "skip" | transloco }}
-				</button>
+					<button
+						(click)="goNext()"
+						[disabled]="!canSkip()"
+						[style.color]="!canSkip() ? '' : project.branding.buttonColor"
+						[style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
+						class="m-2"
+						*ngIf="
+							(source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
+							(source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
+						"
+						mat-flat-button
+					>
+						{{ "skip" | transloco }}
+					</button>
 
-				<button
-					(click)="takePicture()"
-					[disabled]="(side === 'front' && errorFace) || uploading"
-					[style.background]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonColor"
-					[style.color]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonTxtColor"
-					class="m-2"
-					mat-flat-button
-					*ngIf="source === 'document'"
-				>
-					{{ "id_scanning.manual_capture_button" | transloco }}
-				</button>
+					<button
+						(click)="takePicture()"
+						[disabled]="(side === 'front' && errorFace) || uploading"
+						[style.background]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonColor"
+						[style.color]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonTxtColor"
+						class="m-2"
+						mat-flat-button
+						*ngIf="source === 'document'"
+					>
+						{{ "id_scanning.manual_capture_button" | transloco }}
+					</button>
+				</div>
 			</div>
 
 			<div
-				class="smart-documents__card smart-documents__card--large rounded-2xl bg-card m-4 p-6 mt-12 z-index-2"
+				class="smart-documents__card smart-documents__card--large rounded-2xl smart-scanner__tip bg-card"
 				fxLayout="row"
 				*ngIf="!base64Image && !uploading"
 				[style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
