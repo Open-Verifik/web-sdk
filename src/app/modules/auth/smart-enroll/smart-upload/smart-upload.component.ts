@@ -15,7 +15,6 @@ import { TranslocoModule } from "@ngneat/transloco";
 
 import * as faceapi from "@vladmandic/face-api";
 
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { DragAndDropModule } from "app/modules/auth/drag-and-drop/drag-and-drop.module";
 import { DemoService } from "app/modules/demo/demo.service";
 
@@ -36,7 +35,6 @@ const MAX_FILE_SIZE = 10485760;
         CommonModule,
         DragAndDropModule,
         FlexLayoutModule,
-        LanguagesComponent,
         MatButtonModule,
         MatCardModule,
         MatIconModule,
