@@ -16,8 +16,8 @@
   </a>
 </div>
 
-<div class="signup__hint" fxLayout="row" fxLayoutAlign="start start">
-  <mat-icon class="mr-2" svgIcon="mat_solid:warning"></mat-icon>
+<div class="signup__hint mt-4" fxLayout="row" fxLayoutAlign="start center">
+  <mat-icon class="mr-4" svgIcon="mat_solid:warning"></mat-icon>
 
   <p>{{ "signup.type_as_appears" | transloco }}</p>
 </div>
@@ -176,7 +176,7 @@
       {{ "signup.role" | transloco }}
     </mat-label>
 
-    <mat-select class="mr-1.5" [formControl]="signUpForm.get('role')" matPrefix>
+    <mat-select class="mr-1.5" [formControl]="signUpForm.get('role')">
       <mat-select-trigger>
         <span class="flex items-center">
           <span class="sm:mx-0.5 font-medium text-default">
@@ -194,6 +194,12 @@
       </ng-container>
     </mat-select>
   </mat-form-field>
+
+  <div class="signup__hint signup__hint--red mt-4" fxLayout="row" fxLayoutAlign="start start" *ngIf="showError">
+    <mat-icon class="mr-4" svgIcon="mat_solid:warning"></mat-icon>
+  
+    <p>{{ alert.message | transloco }}</p>
+  </div>
 
   <div class="inline-flex items-end w-full mt-6" *ngIf="fields.agreements">
     <mat-checkbox
