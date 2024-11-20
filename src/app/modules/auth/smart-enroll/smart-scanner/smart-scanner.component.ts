@@ -651,10 +651,26 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.documentIsValid = false;
 		this.faceIsValid = false;
 
-		let key = this.demoData.isMobile ? "width" : "height";
+		const settings = (
+			this.demoData.isMobile ? {
+				aspectRatio: { ideal: 1080 / 1920 },
+				frameRate: { min: 15, ideal: 30, max: 60 },
+				width: { min: 480, ideal: 1080, max: 1080 },
+				height: { min: 854, ideal: 1920, max: 1920 },
+			} :
+			{
+				aspectRatio: { ideal: 1920 / 1080 },
+				frameRate: { min: 15, ideal: 30, max: 60 },
+				width: { min: 854, ideal: 1920, max: 1920 },
+				height: { min: 480, ideal: 1080, max: 1080 },
+			}
+		) as MediaTrackConstraintSet;
 
 		this.video = {};
-		this.videoOptions[key] = { ideal: 1080 };
+		this.videoOptions = {
+			...this.videoOptions,
+			...settings,
+		};
 	}
 
 	private _setCanvasDimensions = () => {

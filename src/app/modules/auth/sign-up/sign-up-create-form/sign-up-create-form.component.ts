@@ -231,7 +231,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
 			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
-			this.fields["phone"] = [demoData.phone, [Validators.required]];
+			this.fields["phone"] = [demoData.phone, [Validators.minLength(4), Validators.maxLength(15), Validators.required]];
 		}
 
 		if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {

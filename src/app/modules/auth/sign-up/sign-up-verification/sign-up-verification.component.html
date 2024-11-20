@@ -278,8 +278,8 @@
         formControlName="phone"
         id="phone"
         matInput
-        maxlength="11"
-        minlength="7"
+        maxlength="15"
+        minlength="4"
       />
 
       <mat-select
@@ -308,7 +308,7 @@
         {{ "signup.is_required" | transloco }}
       </mat-error>
 
-      <mat-error *ngIf="phoneForm.get('phone').hasError('phone')">
+      <mat-error *ngIf="phoneForm.get('phone').hasError('minlength') || phoneForm.get('phone').hasError('maxlength')">
         {{ "signup.please_enter_a_valid" | transloco }}
         {{ "login.phone" | transloco }}
       </mat-error>
@@ -325,4 +325,10 @@
       <span> {{ "signup.change_your_phone_button" | transloco }} </span>
     </button>
   </form>
+
+  <div class="signup__hint signup__hint--red mt-4" fxLayout="row" fxLayoutAlign="start start" *ngIf="showError">
+    <mat-icon class="mr-4" svgIcon="mat_solid:warning"></mat-icon>
+  
+    <p>{{ 'errors.' + errorContent | transloco }}</p>
+  </div>
 </div>

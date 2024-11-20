@@ -81,6 +81,8 @@ export class SmartDocumentsComponent implements OnDestroy {
 	}
 
     private _createDocumentValidation(body: any) {
+		this._smartEnrollService.subtractAttempt('document');
+
         this._KYCService
             .createDocumentValidation(body)
             .subscribe({
@@ -93,7 +95,6 @@ export class SmartDocumentsComponent implements OnDestroy {
     }
 
 	private _handleError(error: any): void {
-		this._smartEnrollService.subtractAttempt('document');
 
 		this.errorResult = true;
 		this.errorContent = { message: error?.error?.message || '' };

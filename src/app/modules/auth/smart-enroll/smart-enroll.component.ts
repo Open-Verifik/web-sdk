@@ -1,17 +1,22 @@
+import { Subscription } from "rxjs";
+
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, OnDestroy, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+
 import { fuseAnimations } from "@fuse/animations";
+
 import { TranslocoModule } from "@ngneat/transloco";
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { AppRegistration, Project, ProjectFlow } from "../project";
-import { SmartDocumentsComponent } from "./smart-documents/smart-documents.component";
+
 import { KYCService } from "../kyc.service";
 import { EnrollDocumentMethod, EnrollSettings, EnrollStep, SmartEnrollService } from "./smart-enroll.service";
-import { Subscription } from "rxjs";
+
+import { AppRegistration, Project, ProjectFlow } from "../project";
+
+import { SmartDocumentsComponent } from "./smart-documents/smart-documents.component";
 import { SmartDocumentsReviewComponent } from "./smart-documents-review/smart-documents-review.component";
 import { SmartBiometricsComponent } from "./smart-biometrics/smart-biometrics.component";
 import { SmartResultsComponent } from "./smart-results/smart-results.component";
@@ -27,7 +32,6 @@ import { SmartResultsComponent } from "./smart-results/smart-results.component";
 		CommonModule,
 		FlexLayoutModule,
 		FormsModule,
-		LanguagesComponent,
 		MatButtonModule,
 		MatIconModule,
 		NgIf,

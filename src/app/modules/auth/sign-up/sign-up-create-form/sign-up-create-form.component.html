@@ -126,8 +126,8 @@
         formControlName="phone"
         id="phone"
         matInput
-        maxlength="11"
-        minlength="7"
+        maxlength="15"
+        minlength="4"
       />
 
       <mat-select
@@ -156,7 +156,7 @@
         {{ "signup.is_required" | transloco }}
       </mat-error>
 
-      <mat-error *ngIf="signUpForm.get('phone').hasError('phone')">
+      <mat-error *ngIf="signUpForm.get('phone').hasError('minlength') || signUpForm.get('phone').hasError('maxlength')">
         {{ "signup.please_enter_a_valid" | transloco }}
         {{ "login.phone" | transloco }}
       </mat-error>

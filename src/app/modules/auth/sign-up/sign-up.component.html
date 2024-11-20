@@ -31,18 +31,6 @@
 							</div>
 						</div>
 
-						<!-- Alert -->
-						<fuse-alert
-							[@shake]="alert.type === 'error'"
-							[appearance]="'outline'"
-							[showIcon]="false"
-							[type]="alert.type"
-							*ngIf="showAlert"
-							class="mt-8 -mb-4"
-						>
-							{{ alert.message | transloco }}
-						</fuse-alert>
-
 						<auth-sign-up-create-form
 							@fadeIn
 							[location]="location"
@@ -57,7 +45,7 @@
 							[appRegistration]="appRegistration"
 							[project]="project"
 							[projectFlow]="projectFlow"
-							*ngIf="currentStep !== 'create'"
+							*ngIf="currentStep === 'verify_email' || currentStep === 'verify_phone'"
 						></auth-sign-up-verification>
 
 						<div class="mt-8" fxLayout="row" fxLayoutAlign="center center">

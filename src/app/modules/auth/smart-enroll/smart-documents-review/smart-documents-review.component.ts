@@ -72,7 +72,6 @@ export class SmartDocumentsReviewComponent {
 	}
 
 	onTryAgain(): void {
-		this._smartEnrollService.subtractAttempt('document');
 		this._smartEnrollService.goToPreviousStep();
 	}
 

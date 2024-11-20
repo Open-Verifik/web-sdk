@@ -54,6 +54,8 @@ export class SmartBiometricsComponent {
 	}
 
 	private _createBiometricValidation(body: any) {
+		this._smartEnrollService.subtractAttempt("biometric");
+
 		this._KYCService.createBiometricValidation(body).subscribe({
 			next: (response) => {
 				this.appRegistration.biometricValidation = response.data.biometricValidation as BiometricValidation;
@@ -89,7 +91,6 @@ export class SmartBiometricsComponent {
 	}
 
 	private _handleError(error: any): void {
-		this._smartEnrollService.subtractAttempt("biometric");
 		this.errorContent = { message: error?.error?.message || "" };
 
 		const str = this.errorContent.message.split("@");

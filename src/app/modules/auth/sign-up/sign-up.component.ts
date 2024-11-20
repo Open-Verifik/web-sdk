@@ -1,5 +1,5 @@
 import { TranslocoModule } from "@ngneat/transloco";
-import { Subject } from "rxjs";
+import { combineLatest, map, Subject } from "rxjs";
 
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
@@ -8,7 +8,6 @@ import { MatButtonModule } from "@angular/material/button";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
-import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
 
 import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
@@ -40,7 +39,6 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 		AuthSignUpVerificationComponent,
 		CommonModule,
 		FlexLayoutModule,
-		FuseAlertComponent,
 		LanguagesComponent,
 		MatButtonModule,
 		NgIf,
@@ -50,11 +48,6 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
 	private _unsubscribeAll: Subject<any> = new Subject<any>();
-
-	alert: { type: FuseAlertType; message: string } = {
-		type: "success",
-		message: "",
-	};
 
 	appRegistration: AppRegistration;
 	currentStep: string = "create";
@@ -118,20 +111,20 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	 * On init
 	 */
 	ngOnInit(): void {
-		this._activatedRoute.params.subscribe((params) => {
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
+		this._splashScreenService.show();
 
-			this._requestProject(params.id);
-		});
+		combineLatest([this._activatedRoute.params, this._activatedRoute.queryParams])
+			.pipe(map(results => ({id: results[0].id, token: results[1].token})))
+			.subscribe(results => {
+				this._setToken(results?.token);
 
-		this._activatedRoute.queryParams.subscribe((params) => {
-			this._setToken(params?.token);
-
-			if (!params?.token) return this._setStep("create");
-
-			this._requestAppRegistration();
-			this._setStep("");
-		});
+				if (this.projectFlow) {
+					this._requestAppRegistration();
+				} else {
+					this.isVerifikProject = Boolean(results.id === environment.verifikProject || results.id === environment.sandboxProject);
+					this._requestProject(results.id);
+				}
+			});
 
 		this._demoService.geoLocation$.subscribe({
 			next: async (response) => {
@@ -148,13 +141,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this.location.type = "browser";
 				this.location.countryCode = this._countries.findCountryCode(this.location.country);
 			},
-			error: (exception) => {
-				console.log({ exception });
-				this._splashScreenService.hide();
-			},
-			complete: () => {
-				this._splashScreenService.hide();
-			},
 		});
 	}
 
@@ -164,16 +150,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _checkVerification(): void {
-		if (!this.appRegistration?.emailValidation?.status || !this.appRegistration?.phoneValidation?.status || !this.projectFlow) {
-			this.verificationComplete = false;
-
-			return;
-		}
-
-		const {
-			emailValidation: { status: emailStatus },
-			phoneValidation: { status: phoneStatus },
-		} = this.appRegistration;
+		const emailStatus = this.appRegistration?.emailValidation?.status;
+		const phoneStatus = this.appRegistration?.phoneValidation?.status;
 
 		const {
 			onboardingSettings: {
@@ -181,29 +159,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			},
 		} = this.projectFlow;
 
-		const emailValidated = email && emailGateway !== "none" && emailStatus === "validated";
-		const phoneValidated = phone && phoneGateway !== "none" && phoneStatus === "validated";
+		const emailVerificationEnabled = email && emailGateway !== "none";
+		const phoneVerificationEnabled = phone && phoneGateway !== "none";
 
-		if (emailValidated && phoneValidated) this.verificationComplete = true;
-	}
-
-	private _onProjectNext(data: any): void {
-		this.project = new ProjectModel({ ...data, type: "onboarding" });
-		this.projectFlow = this.project.currentProjectFlow;
-
-		this._splashScreenService.setLogo(this.project.branding.logo);
-		this._splashScreenService.setBackgroundColor(this.project.branding.bgColor);
-
-		this._setSteps();
-
-		this._splashScreenService.hide();
-	}
-
-	private _onProjectComplete(): void {
-		this._splashScreenService.hide();
-		this._changeDetectorRef.markForCheck();
-
-		if (this.token) this._requestAppRegistration();
+		if (emailVerificationEnabled && emailStatus !== 'validated') {
+			this._setStep('verify_email');
+		} else if (phoneVerificationEnabled && phoneStatus !== 'validated') {
+			this._setStep('verify_phone');
+		} else {
+			this.verificationComplete = true;
+		}
 	}
 
 	private _requestAppRegistration(): void {
@@ -236,13 +201,22 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				},
 				error: () => {
 					this._router.navigate(["/sign-up", this.project._id], { replaceUrl: true });
+					this._splashScreenService.hide();
 				},
+				complete: () => {
+					this._splashScreenService.hide();
+				}
 			});
 	}
 
 	private _requestProject(projectId: string): void {
 		this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
-			next: (v) => this._onProjectNext(v.data),
+			next: (v) => {
+				this.project = new ProjectModel({ ...v.data, type: "onboarding" });
+				this.projectFlow = this.project.currentProjectFlow;
+
+				this._setSteps();
+			},
 			error: (e) => {
 				if (e.error.code === "InternalServer") {
 					alert("something went wrong, try  again");
@@ -250,7 +224,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 				this._splashScreenService.hide();
 			},
-			complete: () => this._onProjectComplete(),
+			complete: () => {
+				this._changeDetectorRef.markForCheck();
+
+				if (this.token) {
+					this._requestAppRegistration();
+				} else {
+					this._splashScreenService.hide();
+					this._setStep('create');
+				}
+			},
 		});
 	}
 
@@ -269,9 +252,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 	private _setStep(step: string): void {
 		if (step === "complete") {
+			this.verificationComplete = true;
 			this.currentStep = "";
 			this.currentStepIndex = 0;
-			this.verificationComplete = true;
 
 			return;
 		}
