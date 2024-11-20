@@ -23,110 +23,6 @@ import { Corrections, SmartScannerCorrectionsComponent } from "./smart-scanner-c
 
 const JSScanify = new jscanify();
 
-const FACE_H_ANGLE_LIMIT = {
-	PITCH_HIGH: 15,
-	PITCH_LOW: -15,
-	ROLL_HIGH: 15,
-	ROLL_LOW: -15,
-	YAW_HIGH: 20,
-	YAW_LOW: -20,
-};
-const FACE_H_BOUNDS_LIMIT = {
-	X_HIGH: 900,
-	X_LOW: 500,
-	Y_HIGH: 400,
-	Y_LOW: 225,
-};
-const FACE_H_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 750,
-	WIDTH_LOW: 500,
-	HEIGHT_HIGH: 750,
-	HEIGHT_LOW: 500,
-};
-
-const FACE_V_ANGLE_LIMIT = {
-	PITCH_HIGH: 15,
-	PITCH_LOW: -15,
-	ROLL_HIGH: 15,
-	ROLL_LOW: -15,
-	YAW_HIGH: 15,
-	YAW_LOW: -15,
-};
-const FACE_V_BOUNDS_LIMIT = {
-	X_HIGH: 170,
-	X_LOW: 0,
-	Y_HIGH: 620,
-	Y_LOW: 430,
-};
-const FACE_V_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 950,
-	WIDTH_LOW: 800,
-	HEIGHT_HIGH: 1000,
-	HEIGHT_LOW: 850,
-};
-
-const DOCUMENT_H_ANGLE_LIMIT = {
-	PITCH_HIGH: 15,
-	PITCH_LOW: -15,
-	ROLL_HIGH: 15,
-	ROLL_LOW: -15,
-};
-const DOCUMENT_H_BOUNDS_LIMIT = {
-	X_HIGH: 1200,
-	X_LOW: 450,
-	Y_HIGH: 700,
-	Y_LOW: 400,
-};
-const DOCUMENT_H_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 1500,
-	WIDTH_LOW: 1000,
-	HEIGHT_HIGH: 825,
-	HEIGHT_LOW: 600,
-};
-const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 500,
-	WIDTH_LOW: 150,
-	HEIGHT_HIGH: 500,
-	HEIGHT_LOW: 150,
-};
-const DOCUMENT_FACE_H_BOUNDS_LIMIT = {
-	X_HIGH: 1500,
-	X_LOW: 200,
-	Y_HIGH: 600,
-	Y_LOW: 200,
-};
-
-const DOCUMENT_V_ANGLE_LIMIT = {
-	PITCH_HIGH: 15,
-	PITCH_LOW: -15,
-	ROLL_HIGH: 15,
-	ROLL_LOW: -15,
-};
-const DOCUMENT_V_BOUNDS_LIMIT = {
-	X_HIGH: 610,
-	X_LOW: 400,
-	Y_HIGH: 850,
-	Y_LOW: 600,
-};
-const DOCUMENT_V_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 500,
-	WIDTH_LOW: 350,
-	HEIGHT_HIGH: 280,
-	HEIGHT_LOW: 200,
-};
-const DOCUMENT_FACE_V_RESOLUTION_LIMIT = {
-	WIDTH_HIGH: 350,
-	WIDTH_LOW: 100,
-	HEIGHT_HIGH: 325,
-	HEIGHT_LOW: 100,
-};
-const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
-	X_HIGH: 750,
-	X_LOW: 75,
-	Y_HIGH: 1200,
-	Y_LOW: 750,
-};
-
 @Component({
 	animations: fuseAnimations,
 	selector: "smart-scanner",
@@ -195,6 +91,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	uploading: boolean = false;
 	video: any;
 	WIDTH: number;
+	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
 
 	videoOptions: any = {
 		frameRate: { ideal: 30, max: 30 },
@@ -566,17 +463,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _evaluateDocumentContours(contours: Contour): void {
-		let BOUNDS = this.isHorizontal
-			? {
-					angle: { ...DOCUMENT_H_ANGLE_LIMIT },
-					bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
-					res: { ...DOCUMENT_H_RESOLUTION_LIMIT },
-			  }
-			: {
-					angle: { ...DOCUMENT_V_ANGLE_LIMIT },
-					bounds: { ...DOCUMENT_V_BOUNDS_LIMIT },
-					res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
-			  };
+		const BOUNDS = this.BOUNDS.document;
 
 		const shapeWidth = Math.floor(contours.bottomRightCorner.x - contours.bottomLeftCorner.x);
 		const shapeHeight = Math.floor(contours.bottomLeftCorner.y - contours.topLeftCorner.y);
@@ -636,32 +523,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			faceapi.FaceLandmarks68
 		>
 	): void {
-		let BOUNDS: any;
-		let correctAngle: boolean = true;
+		const BOUNDS = this.BOUNDS.face;
 
-		if (this.source === "face") {
-			BOUNDS = this.isHorizontal
-				? {
-						angle: { ...FACE_H_ANGLE_LIMIT },
-						bounds: { ...FACE_H_BOUNDS_LIMIT },
-						res: { ...FACE_H_RESOLUTION_LIMIT },
-				  }
-				: {
-						angle: { ...FACE_V_ANGLE_LIMIT },
-						bounds: { ...FACE_V_BOUNDS_LIMIT },
-						res: { ...FACE_V_RESOLUTION_LIMIT },
-				  };
-		} else {
-			BOUNDS = this.isHorizontal
-				? {
-						bounds: { ...DOCUMENT_FACE_H_BOUNDS_LIMIT },
-						res: { ...DOCUMENT_FACE_H_RESOLUTION_LIMIT },
-				  }
-				: {
-						bounds: { ...DOCUMENT_FACE_V_BOUNDS_LIMIT },
-						res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
-				  };
-		}
+		let correctAngle: boolean = true;
 
 		const correctResolution =
 			face.alignedRect.box.height > BOUNDS.res.HEIGHT_LOW &&
@@ -880,6 +744,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 				this.isHorizontal = this.video.height < this.video.width;
 
+				this._setBounds();
+
 				setTimeout(() => {
 					const video: HTMLVideoElement = this.videoElement.nativeElement;
 
@@ -894,6 +760,160 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this.loadingCamera = false;
 				this.hasCameraPermissions = false;
 			});
+	}
+
+	private _setBounds() {
+		const currentArea = (this.video.width + this.video.height) / 2;
+		const idealArea = (1080 + 1920) / 2;
+
+		const areaDiffPercent = currentArea / idealArea;
+		const rescale = areaDiffPercent === 1 ? 1 : 1 - areaDiffPercent;
+		console.log("🚀 ~ SmartScannerComponent ~ _setBounds ~ rescale:", rescale)
+
+		const __rescaleCalc = (val: number) => {
+			return rescale === 1 ? val : Math.floor(val * rescale);
+		}
+
+		const FACE_H_ANGLE_LIMIT = {
+			PITCH_HIGH: 15,
+			PITCH_LOW: -15,
+			ROLL_HIGH: 15,
+			ROLL_LOW: -15,
+			YAW_HIGH: 20,
+			YAW_LOW: -20,
+		};
+		const FACE_V_ANGLE_LIMIT = {
+			PITCH_HIGH: 15,
+			PITCH_LOW: -15,
+			ROLL_HIGH: 15,
+			ROLL_LOW: -15,
+			YAW_HIGH: 20,
+			YAW_LOW: -20,
+		};
+		const DOCUMENT_H_ANGLE_LIMIT = {
+			PITCH_HIGH: 15,
+			PITCH_LOW: -15,
+			ROLL_HIGH: 15,
+			ROLL_LOW: -15,
+		};
+		const DOCUMENT_V_ANGLE_LIMIT = {
+			PITCH_HIGH: 15,
+			PITCH_LOW: -15,
+			ROLL_HIGH: 15,
+			ROLL_LOW: -15,
+		};
+
+		const FACE_H_RESOLUTION_LIMIT = {
+			WIDTH_HIGH: __rescaleCalc(750),
+			WIDTH_LOW: __rescaleCalc(500),
+			HEIGHT_HIGH: __rescaleCalc(750),
+			HEIGHT_LOW: __rescaleCalc(500),
+		};
+		const FACE_V_RESOLUTION_LIMIT = {
+			WIDTH_HIGH: __rescaleCalc(950),
+			WIDTH_LOW: __rescaleCalc(800),
+			HEIGHT_HIGH: __rescaleCalc(1000),
+			HEIGHT_LOW: __rescaleCalc(850),
+		};
+		const DOCUMENT_H_RESOLUTION_LIMIT = {
+			WIDTH_HIGH: __rescaleCalc(1500),
+			WIDTH_LOW: __rescaleCalc(1000),
+			HEIGHT_HIGH: __rescaleCalc(825),
+			HEIGHT_LOW: __rescaleCalc(600),
+		};
+		const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
+			WIDTH_HIGH: __rescaleCalc(500),
+			WIDTH_LOW: __rescaleCalc(150),
+			HEIGHT_HIGH: __rescaleCalc(500),
+			HEIGHT_LOW: __rescaleCalc(150),
+		};
+		const DOCUMENT_V_RESOLUTION_LIMIT = {
+			WIDTH_HIGH: __rescaleCalc(500),
+			WIDTH_LOW: __rescaleCalc(350),
+			HEIGHT_HIGH: __rescaleCalc(280),
+			HEIGHT_LOW: __rescaleCalc(200),
+		};
+		const DOCUMENT_FACE_V_RESOLUTION_LIMIT = {
+			WIDTH_HIGH: __rescaleCalc(350),
+			WIDTH_LOW: __rescaleCalc(100),
+			HEIGHT_HIGH: __rescaleCalc(325),
+			HEIGHT_LOW: __rescaleCalc(100),
+		};
+
+		const FACE_H_BOUNDS_LIMIT = {
+			X_HIGH: __rescaleCalc(900),
+			X_LOW: __rescaleCalc(500),
+			Y_HIGH: __rescaleCalc(400),
+			Y_LOW: __rescaleCalc(225),
+		};
+		const FACE_V_BOUNDS_LIMIT = {
+			X_HIGH: __rescaleCalc(170),
+			X_LOW: 0,
+			Y_HIGH: __rescaleCalc(620),
+			Y_LOW: __rescaleCalc(430),
+		};
+		const DOCUMENT_H_BOUNDS_LIMIT = {
+			X_HIGH: __rescaleCalc(1200),
+			X_LOW: __rescaleCalc(450),
+			Y_HIGH: __rescaleCalc(700),
+			Y_LOW: __rescaleCalc(400),
+		};
+		const DOCUMENT_FACE_H_BOUNDS_LIMIT = {
+			X_HIGH: __rescaleCalc(1500),
+			X_LOW: __rescaleCalc(200),
+			Y_HIGH: __rescaleCalc(600),
+			Y_LOW: __rescaleCalc(200),
+		};
+		const DOCUMENT_V_BOUNDS_LIMIT = {
+			X_HIGH: __rescaleCalc(610),
+			X_LOW: __rescaleCalc(400),
+			Y_HIGH: __rescaleCalc(850),
+			Y_LOW: __rescaleCalc(600),
+		};
+		const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
+			X_HIGH: __rescaleCalc(750),
+			X_LOW: __rescaleCalc(75),
+			Y_HIGH: __rescaleCalc(1200),
+			Y_LOW: __rescaleCalc(750),
+		};
+
+		if (this.source === 'face') {
+			this.BOUNDS.face = this.isHorizontal
+				? {
+						angle: { ...FACE_H_ANGLE_LIMIT },
+						bounds: { ...FACE_H_BOUNDS_LIMIT },
+						res: { ...FACE_H_RESOLUTION_LIMIT },
+				}
+				: {
+						angle: { ...FACE_V_ANGLE_LIMIT },
+						bounds: { ...FACE_V_BOUNDS_LIMIT },
+						res: { ...FACE_V_RESOLUTION_LIMIT },
+				};
+		} else {
+			this.BOUNDS.face = this.isHorizontal
+				? {
+						bounds: { ...DOCUMENT_FACE_H_BOUNDS_LIMIT },
+						res: { ...DOCUMENT_FACE_H_RESOLUTION_LIMIT },
+				}
+				: {
+						bounds: { ...DOCUMENT_FACE_V_BOUNDS_LIMIT },
+						res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
+				}
+			
+			this.BOUNDS.document = this.isHorizontal
+				? {
+						angle: { ...DOCUMENT_H_ANGLE_LIMIT },
+						bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
+						res: { ...DOCUMENT_H_RESOLUTION_LIMIT },
+				}
+				: {
+						angle: { ...DOCUMENT_V_ANGLE_LIMIT },
+						bounds: { ...DOCUMENT_V_BOUNDS_LIMIT },
+						res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
+				}
+		}
+
+		console.log(this.BOUNDS);
 	}
 
 	private _onVideoLoaded = () => {

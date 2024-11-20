@@ -16,7 +16,6 @@ import { Router, RouterLink } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertType } from "@fuse/components/alert";
-import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 
 import { TranslocoModule } from "@ngneat/transloco";
 
@@ -75,7 +74,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	loginProjectFlow: ProjectFlow;
 	onboardingSignUpForm: any;
 	roles: Array<any>;
-	showAlert: boolean = false;
+	showError: boolean = false;
 	signUpForm: UntypedFormGroup;
 	token: string;
 
@@ -88,7 +87,6 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		private _formBuilder: UntypedFormBuilder,
 		private _passwordlessService: PasswordlessService,
 		private _router: Router,
-		private _splashScreenService: FuseSplashScreenService
 	) {
 		this.countries = this._countries.countryCodes;
 		this.fields = {};
@@ -187,16 +185,6 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 	private _generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
 
-	private _reEnableForm(): void {
-		setTimeout(() => {
-			this.showAlert = false;
-			this.alert = null;
-
-			this.signUpForm.enable();
-			this.signUpNgForm.resetForm();
-		}, 5000);
-	}
-
 	initForm(): void {
 		const r1 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1) || 0;
 		const r2 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1) || 0;
@@ -258,6 +246,10 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 		// Create the form
 		this.signUpForm = this._formBuilder.group(this.fields);
+		this.signUpForm.valueChanges.subscribe(() => {
+			this.showError = false;
+			this.alert = null;
+		});
 	}
 
 	isFormDisabled(): boolean {
@@ -290,18 +282,15 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	signUp(): void {
 		if (!this.project || this.signUpForm.invalid) return null;
 
-		// Push the event to the dataLayer
 		dataLayer.push({
 			event: "clickEvent",
 			clickId: `form_${this.project._id}`,
 			eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
 		});
 
-		// Disable the for
 		this.signUpForm.disable();
-
-		// Hide the alert
-		this.showAlert = false;
+		this.showError = false;
+		this.alert = null;
 
 		localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
 
@@ -319,21 +308,21 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 					this.appRegistration.token = v?.data?.token;
 				},
 				error: (exception) => {
-					this.alert = {
-						type: "error",
-						message:
-							exception.error?.message === "phone, email, projectFlow must be unique"
-								? "errors.phone_or_email_is_not_unique"
-								: `errors.${exception.error?.message}`,
-					};
+					this.signUpForm.enable();
+					this.signUpNgForm.resetForm({ countryCode: this.location?.countryCode || "+1" });
 
-					this.showAlert = true;
-					this._splashScreenService.hide();
-					this._reEnableForm();
+					setTimeout(() => {
+						this.showError = true;
+						this.alert = {
+							type: "error",
+							message:
+								exception.error?.message === "phone, email, projectFlow must be unique"
+									? "errors.phone_or_email_is_not_unique"
+									: `errors.${exception.error?.message}`,
+						};
+					});
 				},
 				complete: () => {
-					if (this.showAlert) this._reEnableForm();
-
 					this._router.navigate(["/sign-up", this.project._id], {
 						queryParams: { token: this.appRegistration.token },
 						queryParamsHandling: "merge",
