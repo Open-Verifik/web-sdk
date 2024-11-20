@@ -784,7 +784,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		const areaDiffPercent = currentArea / idealArea;
 		const rescale = areaDiffPercent === 1 ? 1 : 1 - areaDiffPercent;
-		console.log("🚀 ~ SmartScannerComponent ~ _setBounds ~ rescale:", rescale)
 
 		const __rescaleCalc = (val: number) => {
 			return rescale === 1 ? val : Math.floor(val * rescale);
@@ -928,8 +927,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 						res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
 				}
 		}
-
-		console.log(this.BOUNDS);
 	}
 
 	private _onVideoLoaded = () => {
