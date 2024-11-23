@@ -1,9 +1,10 @@
 <div
-  class="app"
   [style.backgroundColor]="project.branding.bgColor"
   @fadeIn
-  @fadeOut
   *ngIf="project"
+  class="app"
+  fxLayout="column"
+  fxLayoutAlign="center center"
 >
   <section
     class="toolbar toolbar--top"
@@ -18,26 +19,34 @@
     </div>
   </section>
 
-  <main class="app__content" [style.backgroundColor]="project.branding.bgColor">
-    <smart-documents
-      class="w-full"
-      *ngIf="currentStep === 'document'"
-    ></smart-documents>
+  <main
+    #appContent
+    class="app__content"
+    fxLayout="row"
+  >
+      <smart-documents
+        @fadeIn
+        *ngIf="currentStep === 'document'"
+        class="app__page"
+      ></smart-documents>
 
-    <smart-documents-review
-      class="w-full"
-      *ngIf="currentStep === 'document-review'"
-    ></smart-documents-review>
+      <smart-documents-review
+        @fadeIn
+        *ngIf="currentStep === 'document-review'"
+        class="app__page"
+      ></smart-documents-review>
 
-    <smart-biometrics
-      class="w-full"
-      *ngIf="currentStep === 'biometric'"
-    ></smart-biometrics>
+      <smart-biometrics
+        @fadeIn
+        *ngIf="currentStep === 'biometric'"
+        class="app__page"
+      ></smart-biometrics>
 
-    <smart-results
-      class="w-full"
-      *ngIf="currentStep === 'result'"
-    ></smart-results>
+      <smart-results
+        @fadeIn
+        *ngIf="currentStep === 'result'"
+        class="app__page"
+      ></smart-results>
   </main>
 
   <section

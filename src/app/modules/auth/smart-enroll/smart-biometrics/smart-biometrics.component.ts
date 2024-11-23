@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 
 import { fuseAnimations } from "@fuse/animations";
@@ -22,12 +22,11 @@ import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-d
 	selector: "smart-biometrics",
 	templateUrl: "./smart-biometrics.component.html",
 	styleUrls: ["../smart-enroll.component.scss"],
-	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [CommonModule, FlexLayoutModule, SmartScannerComponent, SmartStepperComponent, SmartErrorDisplayComponent, TranslocoModule],
 })
-export class SmartBiometricsComponent {
+export class SmartBiometricsComponent implements OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
 	appRegistration: AppRegistration;
@@ -38,8 +37,8 @@ export class SmartBiometricsComponent {
 	projectFlow: ProjectFlow;
 	errorResult: boolean;
 	errorContent: { message: string };
-
 	successfulUploadSubject: Subject<void> = new Subject<void>();
+	
 
 	constructor(private _demoService: DemoService, private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -51,6 +50,10 @@ export class SmartBiometricsComponent {
 		this.errorContent = { message: "" };
 
 		this.demoData = this._demoService.getDemoData();
+	}
+
+	ngOnDestroy() {
+        this.successfulUploadSubject.complete();
 	}
 
 	private _createBiometricValidation(body: any) {

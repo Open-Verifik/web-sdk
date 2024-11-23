@@ -31,7 +31,7 @@ export class SmartErrorDisplayComponent implements OnDestroy {
 
     @Output('onClearError') onClearError: EventEmitter<void> = new EventEmitter();
 
-	private _smartEnrollSettingsSubscription = new Subscription();
+	private smartEnrollSettings$ = new Subscription();
 
 	appRegistration: AppRegistration;
     attemptsRemaining: number;
@@ -59,13 +59,13 @@ export class SmartErrorDisplayComponent implements OnDestroy {
             this.attemptsRemaining = this._smartEnrollService.store.biometric.remaining;
         }
 
-		this._smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
+		this.smartEnrollSettings$ = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onSettingsChange(enrollSettings)
 		});
     }
 
 	ngOnDestroy() {
-		this._smartEnrollSettingsSubscription.unsubscribe();
+		this.smartEnrollSettings$.unsubscribe();
 	}
 
 	exitApplication(): void {

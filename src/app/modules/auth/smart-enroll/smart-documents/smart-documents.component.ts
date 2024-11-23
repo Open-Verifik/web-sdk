@@ -1,7 +1,7 @@
 import { catchError, forkJoin, map, of, Subject, Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -24,7 +24,6 @@ import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-d
 	selector: "smart-documents",
 	templateUrl: "./smart-documents.component.html",
 	styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
-	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [
@@ -44,17 +43,16 @@ import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-d
 export class SmartDocumentsComponent implements OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
-	private _smartEnrollSettingsSubscription = new Subscription();
+	private smartEnrollSettingsSubscription = new Subscription();
 	
 	appRegistration: AppRegistration;
-    faceIdCard: string;
+	errorContent: { message: string };
+	errorResult: boolean;
+	faceIdCard: string;
 	project: Project;
 	projectFlow: ProjectFlow;
-    selectedMethod: EnrollDocumentMethod = '';
-	errorResult: boolean;
-	errorContent: { message: string };
-
-    successfulUploadSubject: Subject<void> = new Subject<void>();
+	selectedMethod: EnrollDocumentMethod = '';
+	successfulUploadSubject: Subject<void> = new Subject<void>();
 
     constructor(
 		private _smartEnrollService: SmartEnrollService,
@@ -70,14 +68,14 @@ export class SmartDocumentsComponent implements OnDestroy {
 		this.errorResult = this._smartEnrollService.store.document.remaining === 0;
 		this.errorContent = { message: '' };
 
-		this._smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
+		this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onDocumentMethodChange(enrollSettings.documentMethod)
 		});
 	}
 
 	ngOnDestroy() {
-		this._smartEnrollSettingsSubscription.unsubscribe();
-        this.successfulUploadSubject.unsubscribe();
+		this.smartEnrollSettingsSubscription.unsubscribe();
+        this.successfulUploadSubject.complete();
 	}
 
     private _createDocumentValidation(body: any) {

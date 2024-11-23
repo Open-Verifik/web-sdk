@@ -66,10 +66,11 @@
 </div>
 
 <div
+	*ngIf="hasCameraPermissions && !loadingCamera"
+	#canvasContainer
+	class="items-center w-full absolute top-0 left-0 right-0 bottom-0"
 	fxLayout="column"
 	fxLayoutAlign="center center"
-	class="items-center w-full absolute top-0 left-0 right-0 bottom-0"
-	*ngIf="hasCameraPermissions && !loadingCamera"
 >
 	<div class="smart-scanner__title">
 		<h5
@@ -80,24 +81,6 @@
 			title
 		>
 			{{ "smart_enroll.biometric_register" | transloco }}
-		</h5>
-		<h5
-			class="text-3xl font-medium mt-6 text-center"
-			[style.color]="project.branding.titleColor"
-			*ngIf="source === 'document' && side === 'front'"
-			ngClass.lt-md="hidden"
-			title
-		>
-			{{ "smart_enroll.documents.upload.upload_frontside" | transloco }}
-		</h5>
-		<h5
-			class="text-3xl font-medium mt-6 text-center"
-			[style.color]="project.branding.titleColor"
-			*ngIf="source === 'document' && side === 'back'"
-			ngClass.lt-md="hidden"
-			title
-		>
-			{{ "smart_enroll.documents.upload.upload_backside" | transloco }}
 		</h5>
 
 		<div class="w-full" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
@@ -139,7 +122,6 @@
 		<div *ngIf="!failedToDetectDocument" fxLayout="column" fxLayoutAlign="center center" class="w-full h-full">
 			<div
 				class="smart-scanner__container"
-				#canvasContainer
 				fxLayout="row"
 				fxLayoutAlign="center center"
 				[class.hidden]="base64Image && !uploading"
@@ -202,7 +184,7 @@
 					</div>
 				</div>
 
-				<code class="absolute top-0 right-0 bottom-0 z-index-2 text-right" *ngIf="!isProduction && faceDetection">
+				<!-- <code class="absolute top-0 right-0 bottom-0 z-index-2 text-right" *ngIf="!isProduction && faceDetection">
 					<div>
 						face:
 						<br />
@@ -269,7 +251,7 @@
 						<br />
 						<br />
 					</div>
-				</code>
+				</code> -->
 
 				<div
 					*ngIf="errorFace && errorFace.title && !loadingResults"
@@ -286,13 +268,13 @@
 					</div>
 				</div>
 
-				<div class="smart-scanner__buttons" fxLayout="row" fxLayoutAlign="center center" [class.hidden]="base64Image">
+				<div class="smart-scanner__buttons" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="12px" [class.hidden]="base64Image">
 					<button
 						(click)="goPrevious()"
 						[disabled]="!canGoPrevious()"
 						[style.color]="!canGoPrevious() ? '' : project.branding.buttonColor"
 						[style.border]="!canGoPrevious() ? '' : '1px solid' + project.branding.buttonColor"
-						class="m-2"
+						class="fuse-mat-button"
 						mat-flat-button
 					>
 						{{ "go_back" | transloco }}
@@ -303,11 +285,11 @@
 						[disabled]="!canSkip()"
 						[style.color]="!canSkip() ? '' : project.branding.buttonColor"
 						[style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
-						class="m-2"
 						*ngIf="
 							(source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
 							(source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
 						"
+						class="fuse-mat-button"
 						mat-flat-button
 					>
 						{{ "skip" | transloco }}
@@ -318,9 +300,9 @@
 						[disabled]="(side === 'front' && errorFace) || uploading"
 						[style.background]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonColor"
 						[style.color]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonTxtColor"
-						class="m-2"
-						mat-flat-button
 						*ngIf="source === 'document'"
+						class="fuse-mat-button"
+						mat-flat-button
 					>
 						{{ "id_scanning.manual_capture_button" | transloco }}
 					</button>

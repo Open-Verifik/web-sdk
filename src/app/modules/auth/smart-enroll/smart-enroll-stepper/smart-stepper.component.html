@@ -41,7 +41,7 @@
     *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
     [ngClass]="{ 'signup__step--wide': currentStep === 'document' }"
     [style.color]="
-      currentStep === 'document' ? project.branding.titleColor : ''
+      currentStep === 'document' ? project.branding.buttonColor : ''
     "
   ></div>
 
@@ -50,7 +50,7 @@
     *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
     [ngClass]="{ 'signup__step--wide': currentStep === 'document-review' }"
     [style.color]="
-      currentStep === 'document-review' ? project.branding.titleColor : ''
+      currentStep === 'document-review' ? project.branding.buttonColor : ''
     "
   ></div>
 
@@ -59,14 +59,14 @@
     *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
     [ngClass]="{ 'signup__step--wide': currentStep === 'biometric' }"
     [style.color]="
-      currentStep === 'biometric' ? project.branding.titleColor : ''
+      currentStep === 'biometric' ? project.branding.buttonColor : ''
     "
   ></div>
 
   <div
     class="signup__step"
     [ngClass]="{ 'signup__step--wide': currentStep === 'result' }"
-    [style.color]="currentStep === 'result' ? project.branding.titleColor : ''"
+    [style.color]="currentStep === 'result' ? project.branding.buttonColor : ''"
   ></div>
 </div>
 

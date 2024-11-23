@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ElementRef, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -16,7 +16,6 @@ import { MatCardModule } from "@angular/material/card";
 	selector: "smart-documents-review",
 	templateUrl: "./smart-documents-review.component.html",
 	styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
-	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
 	imports: [
@@ -31,8 +30,6 @@ import { MatCardModule } from "@angular/material/card";
 	],
 })
 export class SmartDocumentsReviewComponent {
-	@ViewChild("faceCardCanvas") faceCardCanvas: ElementRef<HTMLCanvasElement>;
-
 	appRegistration: AppRegistration;
 	project: Project;
 	projectFlow: ProjectFlow;

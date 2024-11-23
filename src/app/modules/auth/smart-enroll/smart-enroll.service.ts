@@ -31,7 +31,7 @@ export type EnrollDocumentMethod = "" | "scan" | "upload";
 })
 export class SmartEnrollService {
 	private _enrollSettings: EnrollSettings;
-	private _enrollSettingsSubject: Subject<EnrollSettings> = new Subject<EnrollSettings>();
+	private _enrollSettings$: Subject<EnrollSettings> = new Subject<EnrollSettings>();
 
 	availableSteps: EnrollStep[];
 	enrollSettings$: Observable<EnrollSettings>;
@@ -39,7 +39,7 @@ export class SmartEnrollService {
 
 	constructor() {
 		this._enrollSettings = { currentStep: "", documentMethod: "" };
-		this.enrollSettings$ = this._enrollSettingsSubject.asObservable();
+		this.enrollSettings$ = this._enrollSettings$.asObservable();
 
 		this.store = {
 			document: {
@@ -64,8 +64,8 @@ export class SmartEnrollService {
 	}
 
 	set enrollSettings(updatedSettings: EnrollSettings) {
-		this._enrollSettings = updatedSettings;
-		this._enrollSettingsSubject.next(this._enrollSettings);
+		this._enrollSettings = { ...updatedSettings };
+		this._enrollSettings$.next(this._enrollSettings);
 	}
 
 	get enrollSettings(): EnrollSettings {

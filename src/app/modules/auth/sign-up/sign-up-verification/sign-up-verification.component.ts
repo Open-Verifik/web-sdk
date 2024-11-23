@@ -1,6 +1,6 @@
 import moment from "moment";
 import { debounce } from "lodash";
-import { interval, Subject, Subscription } from "rxjs";
+import { interval, Subject, Subscription, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
 
@@ -61,9 +61,9 @@ import { AppRegistration, Project, ProjectFlow } from "../../project";
 	],
 })
 export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDestroy {
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
-
 	private countdownSubscription: Subscription;
+	private unsubscriber$: Subject<any> = new Subject<any>();
+
 	private _validatingPhone: boolean;
 	private _validatingEmail: boolean;
 
@@ -111,14 +111,18 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	}
 
 	ngOnInit(): void {
-		this._activatedRoute.queryParams.subscribe((params) => {
-			this.token = params?.token;
-		});
+		this._activatedRoute.queryParams
+			.pipe(takeUntil(this.unsubscriber$))
+			.subscribe((params) => {
+				this.token = params?.token;
+			});
 	}
 
 	ngOnDestroy(): void {
-		this._unsubscribeAll.next(null);
 		this.countdownSubscription?.unsubscribe();
+
+		this.unsubscriber$.next(null);
+		this.unsubscriber$.complete();
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -392,7 +396,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	private _startCountdown() {
 		this.countdownSubscription?.unsubscribe();
 
-		const expiresAt = new Date(moment().add(1, "second").format("YYYY-MM-DD HH:mm:ss")).getTime();
+		const expiresAt = new Date(moment().add(2, "minutes").format("YYYY-MM-DD HH:mm:ss")).getTime();
 
 		const now = new Date().getTime();
 		const distance = expiresAt - now;

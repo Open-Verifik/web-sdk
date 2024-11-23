@@ -1,7 +1,7 @@
 import { Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, OnDestroy, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -44,7 +44,9 @@ import { SmartResultsComponent } from "./smart-results/smart-results.component";
 	],
 })
 export class SmartEnrollComponent implements OnDestroy {
-	private _smartEnrollSettingsSubscription = new Subscription();
+	@ViewChild('appContent') appContent: ElementRef<HTMLElement>;
+
+	private smartEnrollSettingsSubscription = new Subscription();
 
 	appRegistration: AppRegistration;
 	currentStep: EnrollStep;
@@ -64,7 +66,7 @@ export class SmartEnrollComponent implements OnDestroy {
 		this.project = this._KYCService.currentProject;
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
-		this._smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
+		this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onSettingsChange(enrollSettings)
 		});
         
@@ -77,7 +79,7 @@ export class SmartEnrollComponent implements OnDestroy {
 	}
 
 	ngOnDestroy() {
-		this._smartEnrollSettingsSubscription.unsubscribe();
+		this.smartEnrollSettingsSubscription.unsubscribe();
 	}
 
 	private _prepareEnroll(): void {
@@ -116,5 +118,6 @@ export class SmartEnrollComponent implements OnDestroy {
 	onSettingsChange(settings: EnrollSettings) {
 		this.currentStep = settings.currentStep;
 		this.method = settings.documentMethod;
+		this.appContent.nativeElement.scrollTop = 0;
 	}
 }

@@ -1,4 +1,4 @@
-import { Observable, Subscription } from "rxjs";
+import { Observable, Subject, Subscription, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
@@ -52,7 +52,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
 	@Input() successfulUpload: Observable<{ livenessScore?: number }>;
 
-	private _onSuccessfulUpload: Subscription;
+	private unsubscriber$: Subject<any> = new Subject<any>();
 
     appRegistration: AppRegistration;
     base64Image: any;
@@ -81,17 +81,20 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-		this._onSuccessfulUpload = this.successfulUpload.subscribe((event) => {
-            this.fileProgress = 100;
-            this.errorResult = false;
-            this.errorContent = { message: '' };
-            this.isExtracting = false;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-		});
+		this.successfulUpload
+            .pipe(takeUntil(this.unsubscriber$))
+            .subscribe(() => {
+                this.fileProgress = 100;
+                this.errorResult = false;
+                this.errorContent = { message: '' };
+                this.isExtracting = false;
+                this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+            });
     }
 
 	ngOnDestroy(): void {
-		this._onSuccessfulUpload.unsubscribe();
+		this.unsubscriber$.next(null);
+		this.unsubscriber$.complete();
 	}
 
 	private async _detectFace(image: HTMLImageElement) {

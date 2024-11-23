@@ -2,7 +2,7 @@ import * as faceapi from "@vladmandic/face-api";
 import jscanify, { Contour } from "libs/jscanify";
 
 import { debounce, DebouncedFunc } from "lodash";
-import { Observable, Subject, Subscription } from "rxjs";
+import { Observable, Subject, take, takeUntil } from "rxjs";
 
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
@@ -57,19 +57,19 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	@Input() successfulUpload: Observable<void>;
 
+	private unsubscriber$: Subject<any> = new Subject<any>();
+
+	private _checkFaceTimeout: any;
 	private _debouncedTakePicture: DebouncedFunc<() => void>;
 	private _debouncedWindowResize: DebouncedFunc<() => void>;
 	private _detectDocumentInterval: ReturnType<typeof setInterval>;
 	private _detectFaceInterval: ReturnType<typeof setInterval>;
-	private _onSuccessfulUpload: Subscription;
 	private _rectCredential: any;
 	private _scanner: jscanify;
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
 
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
 	base64Image: any;
-	_checkFaceTimeout: any;
 	demoData: any;
 	documentContours: string;
 	documentIsValid: boolean;
@@ -141,12 +141,14 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this._onSuccessfulUpload = this.successfulUpload.subscribe(() => {
-			this.uploading = false;
-			this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-		});
+		this.successfulUpload
+			.pipe(takeUntil(this.unsubscriber$))
+			.subscribe(() => {
+				this.uploading = false;
+				this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+			});
 
-		this._demoService.faceapi$.subscribe((isLoaded) => {
+		this._demoService.faceapi$.pipe(take(1)).subscribe((isLoaded) => {
 			if (!isLoaded || this.stream) return;
 
 			setTimeout(() => this._startCamera());
@@ -156,8 +158,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this._debouncedTakePicture?.cancel();
 		this._debouncedWindowResize?.cancel();
-		this._onSuccessfulUpload.unsubscribe();
-		this._unsubscribeAll.complete();
+
+		this.unsubscriber$.next(null);
+		this.unsubscriber$.complete();
+
 		this._stopRecord();
 	}
 
@@ -673,24 +677,36 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		};
 	}
 
+	private _calculateMaxDimensions(
+		boxA: {height: number, width: number},
+		boxB: {height: number, width: number}
+	) {
+		const scaleFactorWidth = boxB.width / boxA.width;
+		const scaleFactorHeight = boxB.height / boxA.height;
+	
+		const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
+	
+		const scaledWidth = Math.floor(boxA.width * scaleFactor);
+		const scaledHeight = Math.floor(boxA.height * scaleFactor);
+	
+		return { width: scaledWidth, height: scaledHeight };
+	}
+
 	private _setCanvasDimensions = () => {
 		const canvasContainer = this.canvasContainer.nativeElement;
 
 		const containerHeight = canvasContainer.clientHeight;
 		const containerWidth = canvasContainer.clientWidth;
 
-		const maxHeight = Math.min(containerHeight, this.video.height);
-		const maxWidth = Math.min(containerWidth, this.video.width);
+		const containerToFit = {
+			height: Math.min(containerHeight, this.video.height),
+			width: Math.min(containerWidth, this.video.width)
+		};
 
-		const aspectRatio = Math.min(this.video.width, this.video.height) / Math.max(this.video.width, this.video.height);
+		const rescaledProportions = this._calculateMaxDimensions(this.video, containerToFit);
 
-		if (this.isHorizontal) {
-			this.HEIGHT = +(maxWidth * aspectRatio).toFixed(0);
-			this.WIDTH = +maxWidth.toFixed(0);
-		} else {
-			this.HEIGHT = +maxHeight.toFixed(0);
-			this.WIDTH = +(maxHeight * aspectRatio).toFixed(0);
-		}
+		this.HEIGHT = rescaledProportions.height;
+		this.WIDTH = rescaledProportions.width;
 	};
 
 	private _paintMaskCanvas() {

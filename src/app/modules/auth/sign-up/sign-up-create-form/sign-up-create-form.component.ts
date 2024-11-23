@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
@@ -58,7 +58,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	@Input("project") project: Project;
 	@Input("projectFlow") projectFlow: ProjectFlow;
 
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<any> = new Subject<any>();
 
 	alert: { type: FuseAlertType; message: string } = {
 		type: "success",
@@ -129,7 +129,8 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	ngOnDestroy(): void {
 		localStorage.setItem("signUpData", JSON.stringify({}));
 
-		this._unsubscribeAll.next(null);
+		this.unsubscriber$.next(null);
+		this.unsubscriber$.complete();
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -138,6 +139,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 			try {
 				this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+
 				this.initForm();
 			} catch (exception) {
 				console.error({ exception });
@@ -246,10 +248,12 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 		// Create the form
 		this.signUpForm = this._formBuilder.group(this.fields);
-		this.signUpForm.valueChanges.subscribe(() => {
-			this.showError = false;
-			this.alert = null;
-		});
+		this.signUpForm.valueChanges
+			.pipe(takeUntil(this.unsubscriber$))
+			.subscribe(() => {
+				this.showError = false;
+				this.alert = null;
+			});
 	}
 
 	isFormDisabled(): boolean {

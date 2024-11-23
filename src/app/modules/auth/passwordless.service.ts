@@ -15,18 +15,17 @@ export class PasswordlessService {
 	constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService) {}
 
 	requestProject(projectId: string, type: string = "onboarding"): Observable<any> {
-		const request = this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/projects/kyc`, {
-			id: projectId,
-		});
-
-		request.subscribe((response) => {
-			this.currentProject = new ProjectModel({
-				...response.data,
-				type,
-			});
-		});
-
-		return request;
+		return this._httpWrapper
+			.sendRequest("get", `${this.baseUrl}/v2/projects/kyc`, {
+				id: projectId,
+			})
+			.pipe(tap((response) => {
+				this.currentProject = new ProjectModel({
+					...response.data,
+					type,
+				});
+			})
+		);
 	}
 
 	sendEmailValidation(email: string, location: any): Observable<any> {

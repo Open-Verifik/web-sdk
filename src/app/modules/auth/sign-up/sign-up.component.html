@@ -7,7 +7,8 @@
 	fxLayoutAlign="center center"
 >
 	<languages class="language-selector"></languages>
-	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showMainContainer()">
+
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full my-8" *ngIf="showMainContainer()">
 		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content">
 			<div class="w-full sm:w-auto py-4 px-8" fxLayout="row" fxLayoutAlign="start center">
 				<div class="w-400 mx-auto sm:mx-0">
@@ -161,4 +162,4 @@
 	></div>
 </div>
 
-<smart-enroll [service]="service" @fadeIn *ngIf="showKYCApp"></smart-enroll>
+<smart-enroll class="w-full" [service]="service" @fadeIn *ngIf="showKYCApp"></smart-enroll>

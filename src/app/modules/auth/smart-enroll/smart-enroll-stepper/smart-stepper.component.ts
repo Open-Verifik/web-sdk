@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, Input, ViewEncapsulation } from "@angular/core";
+import { Component, OnDestroy, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatIconModule } from "@angular/material/icon";
 import { fuseAnimations } from "@fuse/animations";
@@ -24,9 +24,8 @@ import { Subscription } from "rxjs";
         TranslocoModule,
 	],
 })
-export class SmartStepperComponent {
-
-	private _smartEnrollSettingsSubscription = new Subscription();
+export class SmartStepperComponent implements OnDestroy {
+	private smartEnrollSettingsSubscription = new Subscription();
 
     currentStep: EnrollStep;
     method: EnrollDocumentMethod;
@@ -45,13 +44,13 @@ export class SmartStepperComponent {
         this.currentStep = settings.currentStep;
         this.method = settings.documentMethod;
 
-		this._smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
+		this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onSettingsChange(enrollSettings)
 		});
     }
 
     ngOnDestroy() {
-        this._smartEnrollSettingsSubscription.unsubscribe();
+        this.smartEnrollSettingsSubscription.unsubscribe();
     }
 
 	onSettingsChange(settings: EnrollSettings) {

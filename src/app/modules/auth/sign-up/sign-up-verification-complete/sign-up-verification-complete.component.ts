@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -19,6 +19,7 @@ import { environment } from "environments/environment";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { EnrollStep } from "../../smart-enroll/smart-enroll.service";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
 	selector: "auth-sign-up-verification-complete",
@@ -41,11 +42,13 @@ import { EnrollStep } from "../../smart-enroll/smart-enroll.service";
 		TranslocoModule,
 	],
 })
-export class AuthSignUpVerificationCompleteComponent implements OnInit {
+export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestroy {
 	@ViewChild("agreementNgForm") agreementNgForm: NgForm;
 	@ViewChild("qrCodeCanvas", { static: true }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
 	@Output("onServiceChange") onServiceChange: EventEmitter<EnrollStep> = new EventEmitter<EnrollStep>();
+
+	private unsubscriber$: Subject<any> = new Subject<any>();
 
 	agreementForm: UntypedFormGroup;
 	appRegistration: AppRegistration;
@@ -73,9 +76,11 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 		this._initForm();
 		this._generateQRCode(canvas, window.location.href);
 
-		this._activatedRoute.params.subscribe((params) => {
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
-		});
+		this._activatedRoute.params
+			.pipe(takeUntil(this.unsubscriber$))
+			.subscribe((params) => {
+				this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
+			});
 
 		if (!["signUpForm", "instructions"].includes(this.appRegistration.currentStep)) {
 			if (this.appRegistration.currentStep === "document") {
@@ -84,6 +89,11 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit {
 				this.goToKYCApp("result");
 			}
 		}
+	}
+
+	ngOnDestroy(): void {
+		this.unsubscriber$.next(null);
+		this.unsubscriber$.complete();
 	}
 
 	private _flowTop() {

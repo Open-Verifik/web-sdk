@@ -1,5 +1,5 @@
 import { TranslocoModule } from "@ngneat/transloco";
-import { combineLatest, map, Subject } from "rxjs";
+import { combineLatest, map, Subject, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
@@ -47,19 +47,19 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 	],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<any> = new Subject<any>();
 
 	appRegistration: AppRegistration;
 	currentStep: string = "create";
 	currentStepIndex: number = 0;
 	deviceDetails: any;
+	enrollStep: EnrollStep;
 	isVerifikProject: Boolean;
 	language: string;
 	location: any;
 	locationError: any;
 	project: Project;
 	projectFlow: ProjectFlow;
-	enrollStep: EnrollStep;
 	sendingOTP: Boolean;
 	showKYCApp: boolean = false;
 	steps: Array<string> = ["create"];
@@ -114,6 +114,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._splashScreenService.show();
 
 		combineLatest([this._activatedRoute.params, this._activatedRoute.queryParams])
+			.pipe(takeUntil(this.unsubscriber$))
 			.pipe(map(results => ({id: results[0].id, token: results[1].token})))
 			.subscribe(results => {
 				this._setToken(results?.token);
@@ -126,27 +127,31 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				}
 			});
 
-		this._demoService.geoLocation$.subscribe({
-			next: async (response) => {
-				if (response.errorMessage) {
-					this.locationError = response;
+		this._demoService.geoLocation$
+			.pipe(takeUntil(this.unsubscriber$))
+			.subscribe({
+				next: async (response) => {
+					if (response.errorMessage) {
+						this.locationError = response;
 
-					return;
-				}
+						return;
+					}
 
-				if (!response || this.location) return;
+					if (!response || this.location) return;
 
-				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
-				this.location.os = this.deviceDetails?.platform;
-				this.location.type = "browser";
-				this.location.countryCode = this._countries.findCountryCode(this.location.country);
-			},
-		});
+					this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+					this.location.os = this.deviceDetails?.platform;
+					this.location.type = "browser";
+					this.location.countryCode = this._countries.findCountryCode(this.location.country);
+				},
+			});
 	}
 
 	ngOnDestroy(): void {
-		this._unsubscribeAll.next(null);
 		this._setToken();
+
+		this.unsubscriber$.next(null);
+		this.unsubscriber$.complete();
 	}
 
 	private _checkVerification(): void {
