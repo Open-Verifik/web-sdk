@@ -135,7 +135,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
             this.onImageUpload.next({
                 base64Image: image,
-                documentFace: this.faceIdCard,
+                face: this.faceIdCard,
                 front: isFront,
                 rawImage: this.base64Image,
                 source: 'document',

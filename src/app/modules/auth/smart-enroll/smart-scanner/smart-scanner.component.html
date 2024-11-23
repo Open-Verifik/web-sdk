@@ -11,11 +11,11 @@
 </div>
 
 <div
-	class="smart-documents__card rounded-2xl bg-card m-4 p-6 mt-16 w-full"
-	fxLayout="column"
-	*ngIf="!loadingCamera && !hasCameraPermissions"
-	@fadeIn
 	[style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
+	@fadeIn
+	*ngIf="!loadingCamera && !hasCameraPermissions"
+	class="smart-documents__card rounded-2xl bg-card p-6 w-full mb-4"
+	fxLayout="column"
 >
 	<mat-card-title class="text-center mt-2">
 		<mat-icon
@@ -26,23 +26,48 @@
 	</mat-card-title>
 
 	<mat-card-title class="text-center text-3xl mt-4" [style.color]="project.branding.titleColor">
-		{{ "smart_enroll.camera_disabled_title" | transloco }}
+		<span *ngIf="!cameraConstraintsInvalid">{{ "smart_enroll.camera_disabled_title" | transloco }}</span>
+		<span *ngIf="cameraConstraintsInvalid">{{ "smart_enroll.camera_constraints" | transloco }}</span>
 	</mat-card-title>
 
 	<mat-card-content class="mt-8" fxLayout="column" fxLayoutAlign="start center" @fadeIn>
 		<p class="text-center">
-			{{ "smart_enroll.camera_disabled_description" | transloco }}
+			<span *ngIf="!cameraConstraintsInvalid">{{ "smart_enroll.camera_disabled_description" | transloco }}</span>
+			<span *ngIf="cameraConstraintsInvalid">{{ "smart_enroll.camera_constraints_description" | transloco }}</span>
 		</p>
+
+		<button
+			(click)="loadQRCode()"
+			[disabled]="revealQRCode"
+			[style.backgroundColor]="!revealQRCode ? project.branding.buttonColor : ''"
+			[style.color]="!revealQRCode ? project.branding.buttonTxtColor : ''"
+			class="fuse-mat-button-large w-full mt-6"
+			mat-flat-button
+		>
+			<mat-icon matLeadingIcon>smartphone</mat-icon>
+			<span>{{ "welcome.continue_on_another" | transloco }}</span>
+		</button>
+
+		<div
+			fxLayout="column"
+			fxLayoutAlign="start center"
+			[class.hidden]="!revealQRCode"
+		>
+			<div fxLayout="row" fxLayoutAlign="center center" style="height: 400px; width: 100%;">
+				<mat-progress-spinner mode="indeterminate" diameter="32" *ngIf="loadingQRCode"></mat-progress-spinner>
+				<canvas @fadeIn [class.hidden]="loadingQRCode" class="m-8" #qrCodeCanvas height="400" width="400"></canvas>
+			</div>
+		</div>
+
+		<hr class="w-full"/>
 	</mat-card-content>
 
-	<div fxLayout="column" fxFlex="1 1 0 auto"></div>
-
-	<mat-card-actions class="mt-4" fxLayout="row" fxLayoutAlign="space-between">
+	<mat-card-actions fxLayout="row" fxLayoutAlign="space-between">
 		<button
 			(click)="exitApplication()"
 			[style.border]="'1px solid ' + project.branding.buttonColor"
 			[style.color]="project.branding.buttonColor"
-			class="fuse-mat-button-large mt-6"
+			class="fuse-mat-button-large"
 			mat-flat-button
 		>
 			<span>{{ "log_out" | transloco }}</span>
@@ -53,7 +78,7 @@
 			[disabled]="!canSkip()"
 			[style.color]="!canSkip() ? '' : project.branding.buttonColor"
 			[style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
-			class="fuse-mat-button-large mt-6"
+			class="fuse-mat-button-large"
 			*ngIf="
 				(source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
 				(source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
@@ -73,16 +98,6 @@
 	fxLayoutAlign="center center"
 >
 	<div class="smart-scanner__title">
-		<h5
-			class="text-3xl font-medium mt-6 text-center"
-			[style.color]="project.branding.titleColor"
-			*ngIf="source === 'face'"
-			ngClass.lt-md="hidden"
-			title
-		>
-			{{ "smart_enroll.biometric_register" | transloco }}
-		</h5>
-
 		<div class="w-full" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
 			<div class="flex welcome__step-row mx-4">
 				<p
@@ -184,7 +199,7 @@
 					</div>
 				</div>
 
-				<!-- <code class="absolute top-0 right-0 bottom-0 z-index-2 text-right" *ngIf="!isProduction && faceDetection">
+				<code class="absolute top-0 right-0 bottom-0 z-index-2 text-right" *ngIf="DEBUG_MODE">
 					<div>
 						face:
 						<br />
@@ -251,7 +266,7 @@
 						<br />
 						<br />
 					</div>
-				</code> -->
+				</code>
 
 				<div
 					*ngIf="errorFace && errorFace.title && !loadingResults"

@@ -796,7 +796,7 @@ export interface BiometricValidation {
 
 export type ImageScan = {
 	base64Image: string,
-	documentFace?: string,
+	face?: string,
 	force?: boolean,
 	front?: boolean;
 	rawImage: string,

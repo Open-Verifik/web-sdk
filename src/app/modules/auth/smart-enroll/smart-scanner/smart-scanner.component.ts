@@ -1,8 +1,9 @@
+import QRCode from "qrcode";
 import * as faceapi from "@vladmandic/face-api";
 import jscanify, { Contour } from "libs/jscanify";
 
 import { debounce, DebouncedFunc } from "lodash";
-import { Observable, Subject, take, takeUntil } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
@@ -43,6 +44,8 @@ const JSScanify = new jscanify();
 export class SmartScannerComponent implements OnInit, OnDestroy {
 	@ViewChild("canvasContainer") canvasContainer: ElementRef<HTMLDivElement>;
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+	
+	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
 	@ViewChild("maskCanvas", { static: false }) public maskCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("resultCanvas", { static: false }) public resultCanvas: ElementRef<HTMLCanvasElement>;
@@ -56,9 +59,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	@Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
 	@Input() successfulUpload: Observable<void>;
-
+	
 	private unsubscriber$: Subject<any> = new Subject<any>();
-
+	
 	private _checkFaceTimeout: any;
 	private _debouncedTakePicture: DebouncedFunc<() => void>;
 	private _debouncedWindowResize: DebouncedFunc<() => void>;
@@ -67,9 +70,12 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _rectCredential: any;
 	private _scanner: jscanify;
 
+	DEBUG_MODE: boolean = false;
+
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
 	base64Image: any;
+	cameraConstraintsInvalid: boolean = false;
 	demoData: any;
 	documentContours: string;
 	documentIsValid: boolean;
@@ -77,21 +83,24 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	faceIdCard: string;
 	faceIsValid: boolean;
 	hasCameraPermissions: boolean;
-	HEIGHT: number;
 	isHorizontal: boolean = true;
 	loading: any;
 	loadingCamera: boolean;
+	loadingQRCode: boolean = true;
 	project: Project;
 	projectFlow: ProjectFlow;
 	requiresBack: boolean = false;
+	revealQRCode: boolean = false;
 	side: "back" | "front" = "front";
 	stream: MediaStream;
 	test: string;
 	unsupported: boolean = false;
 	uploading: boolean = false;
 	video: any;
-	WIDTH: number;
+
 	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
+	HEIGHT: number;
+	WIDTH: number;
 
 	videoOptions: any = {
 		frameRate: { ideal: 30, max: 30 },
@@ -148,7 +157,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
 			});
 
-		this._demoService.faceapi$.pipe(take(1)).subscribe((isLoaded) => {
+		this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
 			if (!isLoaded || this.stream) return;
 
 			setTimeout(() => this._startCamera());
@@ -611,6 +620,14 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+		try {
+			await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
+
+			this.loadingQRCode = false;
+		} catch (e) {}
+	}
+
 	private _isCaptureValid(): boolean {
 		return this.source === "document"
 			? this.documentIsValid && ((this.side === "front" && this.faceIsValid) || this.side === "back")
@@ -651,22 +668,28 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.loading = false;
 		this.loadingCamera = false;
 
-		this.errorFace = {};
+		this.cameraConstraintsInvalid = false;
+		this.revealQRCode = false;
+		this.loadingQRCode = true;
 		this.documentIsValid = false;
+		this.errorFace = {};
 		this.faceIsValid = false;
+
+		const IDEAL_A = 1920;
+		const IDEAL_B = 1080;
 
 		const settings = (
 			this.demoData.isMobile ? {
-				aspectRatio: { ideal: 1080 / 1920 },
+				aspectRatio: { ideal: IDEAL_B / IDEAL_A },
 				frameRate: { min: 15, ideal: 30, max: 60 },
-				width: { min: 480, ideal: 1080, max: 1080 },
-				height: { min: 854, ideal: 1920, max: 1920 },
+				height: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
+				width: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
 			} :
 			{
-				aspectRatio: { ideal: 1920 / 1080 },
+				aspectRatio: { ideal: IDEAL_A / IDEAL_B },
 				frameRate: { min: 15, ideal: 30, max: 60 },
-				width: { min: 854, ideal: 1920, max: 1920 },
-				height: { min: 480, ideal: 1080, max: 1080 },
+				height: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
+				width: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
 			}
 		) as MediaTrackConstraintSet;
 
@@ -787,10 +810,16 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				});
 			})
 			.catch((error) => {
-				console.error("Error accessing the camera:", error);
+				if (error instanceof OverconstrainedError) {
+					this.cameraConstraintsInvalid = true;
+					this.loadingCamera = false;
+					this.hasCameraPermissions = false;
+				} else {
+					console.error("Error accessing the camera:", error);
 
-				this.loadingCamera = false;
-				this.hasCameraPermissions = false;
+					this.loadingCamera = false;
+					this.hasCameraPermissions = false;
+				}
 			});
 	}
 
@@ -1036,6 +1065,13 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	loadQRCode(): void {
+		this.revealQRCode = true;
+
+		const qrCanvas = this.qrCodeCanvas.nativeElement;
+		this._generateQRCode(qrCanvas, window.location.href);
+	}
+
 	setPictureInCanvas(canvas: HTMLCanvasElement, dimensions: any, dimensionsOriginals?: any) {
 		const context = canvas.getContext("2d", { willReadFrequently: true });
 
@@ -1078,10 +1114,13 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.setPictureInCanvas(canvasToSend, this.video);
 
 		this.base64Image = canvasToSend.toDataURL("image/jpeg");
+
 		const base64Image = this.base64Image.replace(/^data:.*;base64,/, "");
 		const isFront = this.side === "front";
 
-		if (this.source === "document" && isFront) {
+		let faceToUpload: string;
+
+		if (isFront) {
 			const img = new Image();
 			img.src = this.base64Image;
 
@@ -1089,9 +1128,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			const faces = detections.map((face) => face.detection.box);
 
 			if (faces.length) {
-				const documentFace = this._demoService.getBiggestFace(faces);
+				const face = this._demoService.getBiggestFace(faces);
 
-				this.faceIdCard = this._demoService.cutFaceIdCard(img, documentFace, this.faceCardCanvas.nativeElement);
+				this.faceIdCard = this._demoService.cutFaceIdCard(img, face, this.faceCardCanvas.nativeElement);
+				faceToUpload = this.faceIdCard.replace(/^data:.*;base64,/, "");
 			}
 		}
 
@@ -1099,7 +1139,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		this.onImageScan.next({
 			base64Image,
-			documentFace: this.faceIdCard,
+			face: faceToUpload,
 			front: isFront,
 			rawImage: this.base64Image,
 			source: this.source,

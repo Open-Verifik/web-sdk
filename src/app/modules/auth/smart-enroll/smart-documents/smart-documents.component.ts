@@ -212,7 +212,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 		};
 
 		if (imageScan.front) {
-			body.documentFace = imageScan.documentFace;
+			body.documentFace = imageScan.face;
 			body.force = !!this.appRegistration.documentValidation;
 			body.image = `${imageScan.base64Image}`;
 		} else {

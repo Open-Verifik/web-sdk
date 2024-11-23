@@ -38,7 +38,6 @@ export class SmartBiometricsComponent implements OnDestroy {
 	errorResult: boolean;
 	errorContent: { message: string };
 	successfulUploadSubject: Subject<void> = new Subject<void>();
-	
 
 	constructor(private _demoService: DemoService, private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -123,7 +122,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 
 	onImageScan(imageScan: ImageScan) {
 		const body: any = {
-			image: imageScan.base64Image,
+			image: imageScan.face,
 			os: this.demoData.OS,
 			force: !!this.appRegistration.biometricValidation,
 		};

@@ -28,7 +28,7 @@ export const provideTransloco = (): Array<Provider | EnvironmentProviders> => {
 					},
 					{
 						id: "cn",
-						label: "Chinesse",
+						label: "Chinese",
 					},
 					{
 						id: "fr",
