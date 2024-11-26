@@ -18,8 +18,18 @@ bg-white {
 }
 
 .sign-in-content {
+	margin: 16px 0;
 	border: 1px solid #c4c6d0;
 	z-index: 2 !important;
+
+	&--small {
+		max-width: 432px;
+	}
+
+	&__icon {
+		height: 80px !important;
+		width: 80px !important;
+	}
 }
 
 .credits-h2 {

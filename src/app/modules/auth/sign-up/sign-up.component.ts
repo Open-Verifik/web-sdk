@@ -1,10 +1,11 @@
 import { TranslocoModule } from "@ngneat/transloco";
 import { combineLatest, map, Subject, takeUntil } from "rxjs";
 
-import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
+import { CommonModule, isPlatformBrowser, NgIf } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
@@ -20,11 +21,11 @@ import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
 import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
 import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
-import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 
 @Component({
 	selector: "auth-sign-up",
@@ -41,6 +42,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 		FlexLayoutModule,
 		LanguagesComponent,
 		MatButtonModule,
+		MatIconModule,
 		NgIf,
 		SmartEnrollComponent,
 		TranslocoModule,
@@ -133,9 +135,12 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				next: async (response) => {
 					if (response.errorMessage) {
 						this.locationError = response;
+						this.showKYCApp = false;
 
 						return;
 					}
+
+					this.locationError = null;
 
 					if (!response || this.location) return;
 
@@ -143,6 +148,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					this.location.os = this.deviceDetails?.platform;
 					this.location.type = "browser";
 					this.location.countryCode = this._countries.findCountryCode(this.location.country);
+				},
+				error(err) {
+					this.locationError = err;
 				},
 			});
 	}
@@ -298,6 +306,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		localStorage.removeItem("accessToken");
 	}
 
+	countryNotAllowedAccept(): void {
+		const redirectUrl = this.projectFlow.redirectUrl;
+
+		if (redirectUrl) {
+			window.location.href = redirectUrl;
+		} else {
+			window.history.back();
+		}
+	}
+
 	enabledLocation(): void {
 		window.location.reload();
 	}
@@ -347,6 +365,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	showNoProjectError(): boolean {
-		return Boolean(!this.projectFlow?._id || !this.project?._id);
+		return Boolean(!this.projectFlow?._id || !this.project?._id || !this.projectFlow);
 	}
 }

@@ -363,7 +363,6 @@ export class DemoService {
 		localStorage.removeItem("locationError");
 
 		const lat = localStorage.getItem("lat");
-
 		const lng = localStorage.getItem("lng");
 
 		if (lat && lng) {
@@ -374,21 +373,22 @@ export class DemoService {
 		}
 
 		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(this.showPosition, this.showError);
+			navigator.geolocation.clearWatch(_this.geoLocationId);
+
+			_this.geoLocationId = null;
+			_this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
 		} else {
 			console.info("Geolocation is not supported by this browser.");
 		}
 	}
 
-	showPosition(position) {
+	showPosition(position: GeolocationPosition) {
 		if (!_this._geoLocation || !position?.coords) return;
 
 		_this.demoData.lat = position?.coords.latitude;
-
 		_this.demoData.lng = position?.coords.longitude;
 
 		localStorage.setItem("lat", _this.demoData.lat);
-
 		localStorage.setItem("lng", _this.demoData.lng);
 
 		_this._geoLocation.next({
@@ -397,13 +397,12 @@ export class DemoService {
 		});
 	}
 
-	showError(error) {
+	showError(error: GeolocationPositionError) {
 		let errorMessage = "";
 
 		switch (error.code) {
 			case error.PERMISSION_DENIED:
 				errorMessage = "geolocation.user_denied_request";
-
 				break;
 			case error.POSITION_UNAVAILABLE:
 				errorMessage = "geolocation.information_unavailable";
@@ -411,18 +410,21 @@ export class DemoService {
 			case error.TIMEOUT:
 				errorMessage = "geolocation.request_timeout";
 				break;
-			case error.UNKNOWN_ERROR:
-				errorMessage = "geolocation.unknown_error";
-
-				break;
-
 			default:
-				return null;
+				errorMessage = "geolocation.information_unavailable";
+				break;
 		}
 
 		localStorage.setItem("locationError", errorMessage);
 
 		_this._geoLocation.next({ errorMessage });
+
+		setTimeout(() => {
+			navigator.geolocation.clearWatch(_this.geoLocationId);
+
+			_this.geoLocationId = null;
+			_this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
+		}, 2000);
 	}
 
 	async reverseGeocodeWithOSM(lat, lng) {

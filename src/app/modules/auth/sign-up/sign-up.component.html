@@ -1,7 +1,7 @@
 <div
 	[style.background]="project.branding.bgColor"
 	@fadeIn
-	*ngIf="project && projectFlow && !showKYCApp"
+	*ngIf="project && !showKYCApp"
 	class="w-full"
 	fxLayout="row"
 	fxLayoutAlign="center center"
@@ -77,77 +77,111 @@
 		</div>
 	</div>
 
-	<div
-		*ngIf="showNoProjectError()"
-		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
-	>
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-			<!-- Logo -->
-			<div class="w-12">
-				<img [src]="project.branding.logo" />
-			</div>
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showLocationError()">
+		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content sign-in-content--small">
+			<div class="w-full sm:w-auto p-10" fxLayout="column" fxLayoutAlign="start start">
+				<div fxLayout="row" fxLayoutAlign="space-between center" class="mt-4 ml-2">
+					<img [src]="project.branding.logo" class="w-14" />
+				</div>
 
-			<!-- Title -->
-			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
-				{{ "signup.project_flow_not_set" | transloco }}
-			</div>
+				<div class="mt-8 text-3xl font-medium tracking-tight leading-tight">
+					{{ "errors." + locationError.errorMessage | transloco }}
+				</div>
 
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
-			</div>
-		</div>
-	</div>
-
-	<div *ngIf="showLocationError()" class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card">
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
-			<!-- Logo -->
-			<div class="w-12">
-				<img [src]="project.branding.logo" />
-			</div>
-
-			<!-- Title -->
-			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
-				{{ "errors." + locationError.errorMessage | transloco }}
-			</div>
-
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>
+				<div class="items-baseline mt-4">
 					{{ "errors." + locationError.errorMessage + "_subtitle" | transloco }}
 				</div>
-			</div>
 
-			<div *ngIf="locationError.errorMessage === 'geolocation.user_denied_request'" fxLayout="column" fxLayoutAlign="center center">
-				<img src="https://cdn.verifik.co/assets/auth/enable_your_location.png" alt="" />
+				<div class="mt-8" *ngIf="locationError.errorMessage === 'geolocation.user_denied_request'" fxLayout="column" fxLayoutAlign="center center">
+					<img src="https://cdn.verifik.co/assets/auth/enable_your_location.png" alt="" />
 
-				<button
-					(click)="enabledLocation()"
-					[id]="'enable_your_location-' + project._id"
-					[style.background]="project.branding.buttonColor"
-					[style.color]="project.branding.buttonTxtColor"
-					class="fuse-mat-button-large w-full mt-6"
-					mat-flat-button
-				>
-					<span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
-				</button>
+					<button
+						(click)="enabledLocation()"
+						[id]="'enable_your_location-' + project._id"
+						[style.background]="project.branding.buttonColor"
+						[style.color]="project.branding.buttonTxtColor"
+						class="fuse-mat-button-large w-full mt-8"
+						mat-flat-button
+					>
+						<span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
+					</button>
+
+					<div class="w-full text-center mt-10 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+						{{ "powered_by_verifik" | transloco }}
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<div *ngIf="showCountryNotAllowed()" class="md:flex md:items-center w-full sm:w-auto py-8 px-4 sm:p-12 md:p-16 rounded-2xl shadow bg-card">
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center">
-			<!-- Logo -->
-			<div class="w-12" fxLayout="column" fxLayoutAlign="center center">
-				<img [src]="project.branding.logo" />
-			</div>
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showCountryNotAllowed()">
+		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content sign-in-content--small">
+			<div class="w-full sm:w-auto p-10" fxLayout="column">
+				<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
+					<mat-icon
+						class="sign-in-content__icon"
+						svgIcon="fa_solid:location-pin-lock"
+						[style.color]="project.branding.buttonColor"
+					></mat-icon>
+				</div>
 
-			<!-- Title -->
-			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight text-center">
-				{{ "errors.geolocation.country_not_allowed" | transloco }}
-			</div>
+				<div class="mt-8 text-3xl font-medium text-center tracking-tight leading-tight">
+					{{ "errors.geolocation.country_not_allowed" | transloco }}
+				</div>
 
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>
+				<div class="items-baseline mt-4 text-center">
 					{{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}
+				</div>
+
+				<div class="w-full" fxLayout="row" fxLayoutAlign="center center">
+					<button
+						(click)="countryNotAllowedAccept()"
+						[style.background]="project.branding.buttonColor"
+						[style.color]="project.branding.buttonTxtColor"
+						class="fuse-mat-button-large mt-12"
+						mat-flat-button
+					>{{ "accept" | transloco }}</button>
+				</div>
+
+				<div class="w-full text-center mt-10 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+					{{ "powered_by_verifik" | transloco }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showNoProjectError()">
+		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content sign-in-content--small">
+			<div class="w-full sm:w-auto p-10" fxLayout="column">
+				<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
+					<mat-icon
+						class="sign-in-content__icon"
+						svgIcon="fa_solid:gears"
+						[style.color]="project.branding.buttonColor"
+					></mat-icon>
+				</div>
+
+				<div class="mt-8 text-3xl font-medium text-center tracking-tight leading-tight">
+					{{ "signup.project_flow_not_set" | transloco }}
+				</div>
+
+				<div class="items-baseline mt-4 text-center">
+					{{ "signup.project_flow_not_set_description" | transloco }}
+				</div>
+
+				<div class="w-full" fxLayout="row" fxLayoutAlign="center center">
+					<a href="https://app.verifik.co" target="_self">
+						<button
+							[style.background]="project.branding.buttonColor"
+							[style.color]="project.branding.buttonTxtColor"
+							class="fuse-mat-button-large mt-12"
+							mat-flat-button
+						>{{ "continue" | transloco }}</button>
+					</a>
+				</div>
+
+				<div class="w-full text-center mt-10 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+					{{ "powered_by_verifik" | transloco }}
 				</div>
 			</div>
 		</div>
@@ -155,7 +189,7 @@
 
 	<div
 		[style.background]="'center / cover no-repeat url(' + project.branding.rightImage + ')'"
-		*ngIf="!showBiometrics && project.branding.rightImage"
+		*ngIf="project.branding.rightImage"
 		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
 		fxLayout="row"
 		fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
