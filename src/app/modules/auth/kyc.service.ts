@@ -29,7 +29,6 @@ export class KYCService {
 		const docValidation = this.appRegistration?.documentValidation;
 
 		if (docValidation.requiresBackSide && !docValidation.backUrl) return false;
-		if (!docValidation.namesMatch) return false;
 
 		return true;
 	}
