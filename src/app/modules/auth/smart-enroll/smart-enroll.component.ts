@@ -69,7 +69,7 @@ export class SmartEnrollComponent implements OnDestroy {
 		this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onSettingsChange(enrollSettings)
 		});
-        
+
         const settings = this._smartEnrollService.enrollSettings;
 
         this.currentStep = settings.currentStep;
@@ -87,8 +87,17 @@ export class SmartEnrollComponent implements OnDestroy {
 
 		this.steps = [];
 
-		if (steps.document !== 'skip') this.steps.push('document', 'document-review');
-		if (steps.liveness !== 'skip') this.steps.push('biometric');
+		if (steps.document !== 'skip') {
+			this.steps.push('document', 'document-review');
+		} else {
+			this._smartEnrollService.setSkippedDocument(true);
+		}
+
+		if (steps.liveness !== 'skip') {
+			this.steps.push('biometric');
+		} else {
+			this._smartEnrollService.setSkippedBiometric(true);
+		}
 
 		this.steps.push('result');
 

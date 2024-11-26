@@ -7,7 +7,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { Project, ProjectFlow } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { EnrollDocumentMethod, EnrollSettings, EnrollStep, SmartEnrollService } from "../smart-enroll.service";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
 	selector: "smart-stepper",
@@ -25,9 +25,11 @@ import { Subscription } from "rxjs";
 	],
 })
 export class SmartStepperComponent implements OnDestroy {
-	private smartEnrollSettingsSubscription = new Subscription();
+	private unsubscriber$: Subject<void> = new Subject<void>;
 
+    biometricSkipped: boolean = false;
     currentStep: EnrollStep;
+    documentSkipped: boolean = false;
     method: EnrollDocumentMethod;
     project: Project;
     projectFlow: ProjectFlow;
@@ -44,13 +46,28 @@ export class SmartStepperComponent implements OnDestroy {
         this.currentStep = settings.currentStep;
         this.method = settings.documentMethod;
 
-		this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
-			next: (enrollSettings) => this.onSettingsChange(enrollSettings)
-		});
+        this.biometricSkipped = this._smartEnrollService.wasSkippedBiometric();
+        this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
+
+		this._smartEnrollService.enrollSettings$
+            .pipe(takeUntil(this.unsubscriber$))
+            .subscribe({
+                next: (enrollSettings) => this.onSettingsChange(enrollSettings)
+            });
+
+		this._smartEnrollService.skipChanged$
+            .pipe(takeUntil(this.unsubscriber$))
+            .subscribe({
+                next: () => {
+                    this.biometricSkipped = this._smartEnrollService.wasSkippedBiometric();
+                    this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
+                }
+            });
     }
 
     ngOnDestroy() {
-        this.smartEnrollSettingsSubscription.unsubscribe();
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
     }
 
 	onSettingsChange(settings: EnrollSettings) {

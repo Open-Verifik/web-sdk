@@ -86,7 +86,9 @@ export class SmartDocumentsComponent implements OnDestroy {
             .subscribe({
                 next: (response) => {
                     this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
-                    this._sendDocumentValidationAndNameValidation();
+
+					this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod)
+					this._sendDocumentValidationAndNameValidation();
                 },
                 error: (error) => this._handleError(error),
             });
@@ -208,7 +210,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 			documentFace: undefined,
 			force: undefined,
 			image: undefined,
-			inputMethod: "FILE_UPLOAD",
+			inputMethod: this.selectedMethod === 'upload' ? "FILE_UPLOAD" : "CAMERA",
 		};
 
 		if (imageScan.front) {

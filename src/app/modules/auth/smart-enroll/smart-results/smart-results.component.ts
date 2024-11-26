@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -22,23 +22,36 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 	encapsulation: ViewEncapsulation.None,
 	animations: fuseAnimations,
 	standalone: true,
-	imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, NgIf, SmartStepperComponent, TranslocoModule],
+	imports: [
+		CommonModule,
+		FlexLayoutModule,
+		MatButtonModule,
+		MatIconModule,
+		MatProgressSpinnerModule,
+		NgIf,
+		SmartStepperComponent,
+		TranslocoModule,
+	],
 })
-export class SmartResultsComponent {
+export class SmartResultsComponent implements OnInit {
 	appRegistration: AppRegistration;
+	biometricSkipped: boolean = false;
+	comparisonFailed: boolean;
+	comparisonScore: number;
 	enrollSettings: EnrollSettings;
 	enrollStore: EnrollStore;
 	errorContent: { message: string };
 	errorResult: boolean = false;
 	face: Face;
-	comparisonFailed: boolean;
-	livenessFailed: boolean;
 	fetchingToken: boolean;
+	identityLoading: boolean = false;
+	livenessFailed: boolean;
 	livenessScore: number;
-	comparisonScore: number;
-	redirectUrl: string;
 	project: Project;
 	projectFlow: ProjectFlow;
+	redirectUrl: string;
+    documentSkipped: boolean = false;
+
 
 	constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
 		this.appRegistration = this._KYCService.appRegistration;
@@ -46,7 +59,6 @@ export class SmartResultsComponent {
 		this.enrollStore = this._smartEnrollService.store;
 		this.project = this._KYCService.currentProject;
 		this.projectFlow = this._KYCService.currentProjectFlow;
-
 		this.errorResult = false;
 	}
 
@@ -54,41 +66,11 @@ export class SmartResultsComponent {
 	 * On init
 	 */
 	ngOnInit(): void {
+        this.biometricSkipped = this._smartEnrollService.wasSkippedBiometric();
+        this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
+
 		this._checkScoreStatus();
 		this._requestIdentityImages();
-	}
-
-	private _extractFaces(arrayOfImages: Face[]): void {
-		let fallbackFace: Face;
-
-		for (let index = 0; index < arrayOfImages.length; index++) {
-			const identityImage = arrayOfImages[index];
-
-			if (identityImage.category !== "face") {
-				fallbackFace = identityImage;
-				continue;
-			}
-
-			this._setFace(identityImage);
-		}
-
-		if (!this.face) this._setFace(fallbackFace);
-	}
-
-	private _requestIdentityImages(): void {
-		if (this.appRegistration.face?._id) {
-			this._setFace(this.appRegistration.face);
-
-			return;
-		}
-
-		this._KYCService.getIdentityImages({}).subscribe({
-			next: (response) => {
-				this._extractFaces(response.data);
-			},
-			error: () => {},
-			complete: () => {},
-		});
 	}
 
 	private _checkScoreStatus() {
@@ -104,30 +86,16 @@ export class SmartResultsComponent {
 		this.errorResult = false;
 		this.livenessFailed = false;
 
-		if (compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
+		if (!this._smartEnrollService.wasSkippedDocument() && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
 			this.appRegistration.status = "FAILED";
 			this.comparisonFailed = true;
 			this.errorResult = true;
 		}
 
-		if (livenessScore < this.enrollStore.biometric.livenessMinScore) {
+		if (!this._smartEnrollService.wasSkippedDocument() && livenessScore < this.enrollStore.biometric.livenessMinScore) {
 			this.appRegistration.status = "FAILED";
 			this.errorResult = true;
 			this.livenessFailed = true;
-		}
-	}
-
-	private _setFace(identityImage: Face) {
-		this.face = identityImage;
-
-		if (!this.face.base64.includes("data:image")) {
-			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-		}
-
-		const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
-
-		if (stringArr.length === 3) {
-			this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
 		}
 	}
 
@@ -158,6 +126,64 @@ export class SmartResultsComponent {
 				this.fetchingToken = false;
 			},
 		});
+	}
+
+	private _extractFaces(arrayOfImages: Face[]): void {
+		let fallbackFace: Face;
+
+		for (let index = 0; index < arrayOfImages.length; index++) {
+			const identityImage = arrayOfImages[index];
+
+			if (identityImage.category !== "face") {
+				fallbackFace = identityImage;
+				continue;
+			}
+
+			this._setFace(identityImage);
+		}
+
+		if (!this.face) this._setFace(fallbackFace);
+	}
+
+	private _requestIdentityImages(): void {
+		if (this.documentSkipped && this.biometricSkipped) {
+			this.identityLoading = false;
+			this.face = null;
+
+			return;
+		}
+
+		this.identityLoading = true;
+
+		if (this.appRegistration.face?._id) {
+			this._setFace(this.appRegistration.face);
+
+			return;
+		}
+
+		this._KYCService.getIdentityImages({}).subscribe({
+			next: (response) => {
+				this._extractFaces(response.data);
+			},
+			error: () => {},
+			complete: () => {},
+		});
+	}
+
+	private _setFace(identityImage: Face) {
+		this.face = identityImage;
+
+		if (!this.face.base64.includes("data:image")) {
+			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
+		}
+
+		const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
+
+		if (stringArr.length === 3) {
+			this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
+		}
+
+		this.identityLoading = false;
 	}
 
 	exitApplication(): void {

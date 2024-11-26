@@ -10,13 +10,29 @@ import { Project, ProjectFlow, ProjectModel } from "./project";
 	providedIn: "root",
 })
 export class KYCService {
-	baseUrl: String = environment.apiUrl;
 	appRegistration: any;
+	baseUrl: String = environment.apiUrl;
 	currentProject: Project;
 	currentProjectFlow: ProjectFlow;
 	navigation: any;
 
 	constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService, private _http: HttpClient) {}
+
+	isDocumentValidAndComplete(): boolean {
+		if (
+			this.currentProjectFlow?.onboardingSettings?.steps?.document !== 'mandatory' &&
+			!this.appRegistration?.documentValidation
+		) {
+			return true;
+		}
+
+		const docValidation = this.appRegistration?.documentValidation;
+
+		if (docValidation.requiresBackSide && !docValidation.backUrl) return false;
+		if (!docValidation.namesMatch) return false;
+
+		return true;
+	}
 
 	getNavigation(): any {
 		return this.navigation;

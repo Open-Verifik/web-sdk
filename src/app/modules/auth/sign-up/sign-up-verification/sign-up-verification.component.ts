@@ -62,7 +62,7 @@ import { AppRegistration, Project, ProjectFlow } from "../../project";
 })
 export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDestroy {
 	private countdownSubscription: Subscription;
-	private unsubscriber$: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<void> = new Subject<void>();
 
 	private _validatingPhone: boolean;
 	private _validatingEmail: boolean;
@@ -121,7 +121,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	ngOnDestroy(): void {
 		this.countdownSubscription?.unsubscribe();
 
-		this.unsubscriber$.next(null);
+		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 	}
 

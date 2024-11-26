@@ -64,6 +64,10 @@ export class SmartDocumentsReviewComponent {
         });
     }
 
+	canContinue(): boolean {
+		return this._KYCService.isDocumentValidAndComplete();
+	}
+
 	onNextStep(): void {
 		this._smartEnrollService.goToNextStep();
 	}

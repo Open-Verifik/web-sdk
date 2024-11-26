@@ -1,4 +1,4 @@
-import { Observable, Subject, Subscription, takeUntil } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
@@ -52,7 +52,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
 	@Input() successfulUpload: Observable<{ livenessScore?: number }>;
 
-	private unsubscriber$: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<void> = new Subject<void>();
 
     appRegistration: AppRegistration;
     base64Image: any;
@@ -93,7 +93,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
 	ngOnDestroy(): void {
-		this.unsubscriber$.next(null);
+		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 	}
 
@@ -188,7 +188,13 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
 	canSkipStep(): boolean {
-        return this.projectFlow.onboardingSettings.steps.document !== 'mandatory';
+		const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
+            (
+                !this.appRegistration.documentValidation ||
+                this._KYCService.isDocumentValidAndComplete()
+            );
+
+        return canSkipDocument;
 	}
   
     fileBrowseHandler(files: Array<File>) {
@@ -210,13 +216,15 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         if (this.requiresBack && this.side !== 'back') {
             this.side = 'back';
             this.resetFileUpload();
-        } else if (this.appRegistration.documentValidation) {
-            this._smartEnrollService.goToNextStep();
-        } else if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip') {
-            this._smartEnrollService.skipToStep('biometric');
-        } else {
-            this._smartEnrollService.skipToStep('result');   
+
+            return
+        } else if (this.appRegistration.documentValidation || !this._smartEnrollService.wasSkippedDocument()) {
+            this._smartEnrollService.goToNextStep(); // document-review
+
+            return
         }
+
+        this.skipStep();
     }
 
     goPrevious(): void {
@@ -247,9 +255,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     skipStep(): void {
-        if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip') {
+        if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(true);
             this._smartEnrollService.skipToStep('biometric');
         } else {
+            this._smartEnrollService.setSkippedBiometric(true);
             this._smartEnrollService.skipToStep('result');
         }
     }

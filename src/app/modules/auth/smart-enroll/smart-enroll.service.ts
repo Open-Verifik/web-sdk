@@ -32,29 +32,36 @@ export type EnrollDocumentMethod = "" | "scan" | "upload";
 export class SmartEnrollService {
 	private _enrollSettings: EnrollSettings;
 	private _enrollSettings$: Subject<EnrollSettings> = new Subject<EnrollSettings>();
+	private _skipChanged$: Subject<void> = new Subject<void>();
 
 	availableSteps: EnrollStep[];
 	enrollSettings$: Observable<EnrollSettings>;
 	store: EnrollStore;
+	skipChanged$: Observable<void>;
 
 	constructor() {
-		this._enrollSettings = { currentStep: "", documentMethod: "" };
+		this._enrollSettings = {
+			currentStep: "",
+			documentMethod: localStorage.getItem("documentMethod") as EnrollDocumentMethod,
+		};
+
 		this.enrollSettings$ = this._enrollSettings$.asObservable();
+		this.skipChanged$ = this._skipChanged$.asObservable();
 
 		this.store = {
 			document: {
 				attempts: 0,
-				remaining: 3,
 				limit: 3,
+				remaining: 3,
 			},
 			biometric: {
 				attempts: 0,
-				remaining: 3,
-				limit: 3,
 				compareMinScore: 0.62,
 				compareScore: 0,
+				limit: 3,
 				livenessMinScore: 0.64,
 				livenessScore: 0,
+				remaining: 3,
 			},
 		};
 	}
@@ -114,10 +121,31 @@ export class SmartEnrollService {
 	}
 
 	setDocumentMethod(method: EnrollDocumentMethod) {
+		localStorage.setItem('documentMethod', method);
+
 		this.enrollSettings = {
 			...this._enrollSettings,
 			documentMethod: method,
 		};
+	}
+
+	setDocumentMethodFromInputMethod(inputMethod: string) {
+		let documentMethod: EnrollDocumentMethod = localStorage.getItem("documentMethod") as EnrollDocumentMethod || '';
+
+		if (inputMethod === 'CAMERA') documentMethod = 'scan';
+		if (inputMethod === 'FILE_UPLOAD') documentMethod = 'upload';
+
+		this.setDocumentMethod(documentMethod);
+	}
+
+	setSkippedBiometric(status: boolean): void {
+		localStorage.setItem('skippedBiometric', `${+status}`);
+		this._skipChanged$.next();
+	}
+
+	setSkippedDocument(status: boolean): void {
+		localStorage.setItem('skippedDocument', `${+status}`);
+		this._skipChanged$.next();
 	}
 
 	setLivenessScore(score: number) {
@@ -127,5 +155,19 @@ export class SmartEnrollService {
 	subtractAttempt(step: "document" | "biometric") {
 		this.store[step].attempts++;
 		this.store[step].remaining--;
+	}
+
+	unsetLocalStorage() {
+		localStorage.removeItem("documentMethod");
+		localStorage.removeItem("skippedBiometric");
+		localStorage.removeItem("skippedDocument");
+	}
+
+	wasSkippedDocument() {
+		return !!+(localStorage.getItem('skippedDocument') || false);
+	}
+
+	wasSkippedBiometric() {
+		return !!+(localStorage.getItem('skippedBiometric') || false);
 	}
 }

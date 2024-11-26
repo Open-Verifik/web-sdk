@@ -18,7 +18,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { environment } from "environments/environment";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration, Project, ProjectFlow } from "../../project";
-import { EnrollStep } from "../../smart-enroll/smart-enroll.service";
+import { EnrollStep, SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 import { Subject, takeUntil } from "rxjs";
 
 @Component({
@@ -48,7 +48,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 
 	@Output("onServiceChange") onServiceChange: EventEmitter<EnrollStep> = new EventEmitter<EnrollStep>();
 
-	private unsubscriber$: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<void> = new Subject<void>();
 
 	agreementForm: UntypedFormGroup;
 	appRegistration: AppRegistration;
@@ -58,7 +58,12 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 	showQrCode: boolean = false;
 	welcomeStyle: number = 0;
 
-	constructor(private _formBuilder: UntypedFormBuilder, private _KYCService: KYCService, private _activatedRoute: ActivatedRoute) {
+	constructor(
+		private _activatedRoute: ActivatedRoute,
+		private _formBuilder: UntypedFormBuilder,
+		private _KYCService: KYCService,
+		private _smartEnrollService: SmartEnrollService,
+	) {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.project = this._KYCService.currentProject;
 		this.projectFlow = this._KYCService.currentProjectFlow;
@@ -82,17 +87,27 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 				this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
 			});
 
-		if (!["signUpForm", "instructions"].includes(this.appRegistration.currentStep)) {
-			if (this.appRegistration.currentStep === "document") {
-				this.goToKYCApp("document-review");
-			} else if (this.appRegistration.currentStep === "liveness" || this.appRegistration.currentStep === "end") {
-				this.goToKYCApp("result");
+		if (["signUpForm", "instructions"].includes(this.appRegistration.currentStep)) {
+			if (this._smartEnrollService.wasSkippedDocument() && this._smartEnrollService.wasSkippedBiometric()) {
+				this.goToKYCApp('result');
+
+				return;
+			} else if (this._smartEnrollService.wasSkippedDocument()) {
+				this.goToKYCApp('biometric');
+
+				return;
 			}
+		}
+
+		if (this.appRegistration.currentStep === "document") {
+			this.goToKYCApp("document-review");
+		} else if (this.appRegistration.currentStep === "liveness" || this.appRegistration.currentStep === "end") {
+			this.goToKYCApp("result");
 		}
 	}
 
 	ngOnDestroy(): void {
-		this.unsubscriber$.next(null);
+		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 	}
 
@@ -150,6 +165,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 					}
 
 					window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+
+					return;
 				}
 
 				this.appRegistration.currentStep = step;
@@ -158,21 +175,35 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 	}
 
 	goToKYCApp(enrollStep: EnrollStep): void {
-		if (this.appRegistration.status === "COMPLETED" || this.appRegistration.status === "FAILED") {
+		if (
+			this.appRegistration.status === "COMPLETED" ||
+			this.appRegistration.status === "FAILED" ||
+			(
+				this._smartEnrollService.wasSkippedBiometric() &&
+				(
+					this._smartEnrollService.wasSkippedDocument() || this._KYCService.isDocumentValidAndComplete()
+				)
+			)
+		) {
 			enrollStep = "result";
 		} else if (
-			this.appRegistration.documentValidation &&
-			!this.appRegistration.biometricValidation &&
-			this.projectFlow.onboardingSettings.steps.liveness !== "skip"
+			(
+				this._KYCService.isDocumentValidAndComplete() &&
+				!this.appRegistration.biometricValidation
+			) || this._smartEnrollService.wasSkippedDocument()
 		) {
 			enrollStep = "biometric";
+		} else if (this._KYCService.isDocumentValidAndComplete()) {
+			enrollStep = "document-review";
 		}
 
 		this.onServiceChange.next(enrollStep);
 	}
 
 	skipDocument(): void {
-		if (this.projectFlow.onboardingSettings.steps.liveness === "skip") {
+		this._smartEnrollService.setSkippedDocument(true);
+
+		if (this.projectFlow.onboardingSettings.steps.liveness === "skip" || this._smartEnrollService.wasSkippedBiometric()) {
 			this.skipKYC();
 
 			return;
@@ -192,7 +223,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 	}
 
 	skipKYC(): void {
-		this.welcomeStyle = 4;
 		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+
+		this.welcomeStyle = 4;
 	}
 }

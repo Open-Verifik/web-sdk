@@ -58,7 +58,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	@Input("project") project: Project;
 	@Input("projectFlow") projectFlow: ProjectFlow;
 
-	private unsubscriber$: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<void> = new Subject<void>();
 
 	alert: { type: FuseAlertType; message: string } = {
 		type: "success",
@@ -129,7 +129,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 	ngOnDestroy(): void {
 		localStorage.setItem("signUpData", JSON.stringify({}));
 
-		this.unsubscriber$.next(null);
+		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 	}
 

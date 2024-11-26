@@ -94,9 +94,14 @@
         >1</span
       >
       <mat-icon
-        *ngIf="currentStep !== 'document'"
+        *ngIf="!documentSkipped && currentStep !== 'document'"
         [style.color]="project.branding.buttonColor"
         >check</mat-icon
+      >
+      <mat-icon
+        *ngIf="documentSkipped && currentStep !== 'document'"
+        svgIcon="heroicons_mini:forward"
+        ></mat-icon
       >
     </p>
 
@@ -106,7 +111,7 @@
         currentStep === 'document' ? project.branding.buttonColor : ''
       "
     >
-      <span *ngIf="method === 'upload'">{{
+      <span *ngIf="!method || method === 'upload'">{{
         "smart_enroll.step_titles.upload" | transloco
       }}</span>
       <span *ngIf="method === 'scan'">{{
@@ -139,9 +144,14 @@
         >2</span
       >
       <mat-icon
-        *ngIf="currentStep !== 'document' && currentStep !== 'document-review'"
+        *ngIf="!documentSkipped && currentStep !== 'document' && currentStep !== 'document-review'"
         [style.color]="project.branding.buttonColor"
         >check</mat-icon
+      >
+      <mat-icon
+        *ngIf="documentSkipped && currentStep !== 'document' && currentStep !== 'document-review'"
+        svgIcon="heroicons_mini:forward"
+        ></mat-icon
       >
     </p>
 
@@ -188,9 +198,14 @@
       </div>
 
       <mat-icon
-        *ngIf="currentStep === 'result'"
+        *ngIf="!biometricSkipped && currentStep === 'result'"
         [style.color]="project.branding.buttonColor"
         >check</mat-icon
+      >
+      <mat-icon
+        *ngIf="biometricSkipped && currentStep === 'result'"
+        svgIcon="heroicons_mini:forward"
+        ></mat-icon
       >
     </div>
 

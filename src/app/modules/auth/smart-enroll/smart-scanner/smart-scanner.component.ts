@@ -60,7 +60,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	@Input() successfulUpload: Observable<void>;
 	
-	private unsubscriber$: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<void> = new Subject<void>();
 	
 	private _checkFaceTimeout: any;
 	private _debouncedTakePicture: DebouncedFunc<() => void>;
@@ -168,7 +168,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._debouncedTakePicture?.cancel();
 		this._debouncedWindowResize?.cancel();
 
-		this.unsubscriber$.next(null);
+		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 
 		this._stopRecord();
@@ -1014,38 +1014,48 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	goNext(): void {
-		if (this.source === "document") {
-			if (this.requiresBack && this.side !== "back") {
-				this.side = "back";
-				this._resetVariables();
-				this._startCamera();
-			} else if (this.appRegistration.documentValidation) {
-				this._smartEnrollService.goToNextStep(); // go to document-review
-			} else if (this.projectFlow.onboardingSettings.steps.liveness !== "skip") {
-				this._smartEnrollService.skipToStep("biometric"); // go to liveness
-			} else {
-				this._smartEnrollService.skipToStep("result");
-			}
-		} else {
-			this._smartEnrollService.goToNextStep();
+		if (this.source === "face") {
+			this._smartEnrollService.setSkippedBiometric(true);
+			this._smartEnrollService.goToNextStep(); // result
+
+			return;
 		}
+
+		if (this.requiresBack && this.side !== "back") {
+			this.side = "back";
+			this._resetVariables();
+			this._startCamera();
+
+			return;
+		} else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+			this._smartEnrollService.goToNextStep(); // document-review
+
+			return;
+		}
+
+		this.skipStep();
 	}
 
 	canGoPrevious(): boolean {
+		const canGoBackToDocument = !!this.appRegistration.documentValidation || this.projectFlow.onboardingSettings.steps.document !== "skip" || !this._smartEnrollService.wasSkippedDocument();
+
 		return (
 			!this.uploading &&
-			(this.source === "document" || (this.source === "face" && this.projectFlow.onboardingSettings.steps.document !== "skip"))
+			(this.source === "document" || (this.source === "face" && canGoBackToDocument))
 		);
 	}
 
 	canSkip(): boolean {
-		return (
-			!this.uploading &&
-			((this.source === "document" &&
-				(this.projectFlow.onboardingSettings.steps.document !== "mandatory" || !this.appRegistration.documentValidation)) ||
-				(this.source === "face" &&
-					(this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation)))
+		const canSkipBiometric = this.source === "face" && (this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation);
+		const canSkipDocument = this.source === "document" && (
+			this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
+            (
+                !this.appRegistration.documentValidation ||
+                this._KYCService.isDocumentValidAndComplete()
+            )
 		);
+
+		return !this.uploading && (canSkipDocument || canSkipBiometric);
 	}
 
 	goPrevious(): void {
@@ -1054,14 +1064,16 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this.side = "front";
 				this._resetVariables();
 				this._startCamera();
-			} else {
-				this._smartEnrollService.setDocumentMethod("");
-				this._smartEnrollService.skipToStep("document");
+			
+				return;
 			}
+
+			this._smartEnrollService.setDocumentMethod("");
+			this._smartEnrollService.skipToStep("document"); // document
 		} else if (this.appRegistration.documentValidation) {
-			this._smartEnrollService.goToPreviousStep();
+			this._smartEnrollService.goToPreviousStep(); // document-review
 		} else {
-			this._smartEnrollService.skipToStep("document");
+			this._smartEnrollService.skipToStep("document"); // document
 		}
 	}
 
@@ -1098,6 +1110,16 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			dimensions.rectWidth,
 			dimensions.rectHeight
 		);
+	}
+
+	skipStep(): void {
+        if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(true);
+            this._smartEnrollService.skipToStep('biometric');
+        } else {
+            this._smartEnrollService.setSkippedBiometric(true);
+            this._smartEnrollService.skipToStep('result');
+        }
 	}
 
 	async takePicture() {

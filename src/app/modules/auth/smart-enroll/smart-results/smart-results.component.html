@@ -25,7 +25,7 @@
     >
       <div
         class="results__biometric-avatar"
-        *ngIf="!face"
+        *ngIf="identityLoading"
         fxLayout="row"
         fxLayoutAlign="center center"
       >
@@ -37,15 +37,36 @@
 
       <div
         class="results__biometric-avatar"
-        *ngIf="face"
+        *ngIf="face && !identityLoading"
         [style]="{ backgroundImage: 'url(' + face.base64 + ')' }"
       ></div>
+
+      <div
+        class="results__biometric-avatar"
+        *ngIf="!face && !identityLoading"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+      >
+        <mat-icon
+          svgIcon="heroicons_solid:user-circle"
+          [style.color]="project.branding.buttonColor"
+        ></mat-icon>
+      </div>
 
       <mat-icon
         fxFlexAlign="end"
         class="results__check-icon"
+        *ngIf="!documentSkipped || !biometricSkipped"
         [svgIcon]="errorResult ? 'feather:x' : 'feather:check'"
         [style.color]="project.branding.buttonColor"
+        [style.background]="project.branding.bgColor"
+      ></mat-icon>
+
+      <mat-icon
+        fxFlexAlign="end"
+        class="results__check-icon"
+        *ngIf="documentSkipped && biometricSkipped"
+        svgIcon="heroicons_solid:forward"
         [style.background]="project.branding.bgColor"
       ></mat-icon>
     </div>
@@ -58,6 +79,7 @@
     >
       <div
         class="results__score uppercase text-center"
+        *ngIf="!biometricSkipped || appRegistration.biometricValidation"
         [ngClass]="{
             'results__score--green': !livenessFailed,
             'results__score--red': livenessFailed,
@@ -73,7 +95,7 @@
 
       <div
         class="results__score uppercase text-center"
-        *ngIf="appRegistration.compareFaceVerification"
+        *ngIf="!documentSkipped || appRegistration.compareFaceVerification"
         [ngClass]="{
             'results__score--green': !comparisonFailed,
             'results__score--red': comparisonFailed,
@@ -120,11 +142,18 @@
     >
       <mat-icon
         class="results__checklist-icon"
+        *ngIf="!biometricSkipped"
         [ngClass]="{
             'results__checklist-icon--green': !livenessFailed,
             'results__checklist-icon--red': livenessFailed,
           }"
         [svgIcon]="livenessFailed ? 'feather:x' : 'feather:check'"
+      ></mat-icon>
+
+      <mat-icon
+        class="results__checklist-icon"
+        *ngIf="biometricSkipped"
+        svgIcon="heroicons_solid:forward"
       ></mat-icon>
 
       <div>
@@ -159,11 +188,18 @@
     >
       <mat-icon
         class="results__checklist-icon"
+        *ngIf="!documentSkipped"
         [ngClass]="{
             'results__checklist-icon--green': !comparisonFailed,
             'results__checklist-icon--red': comparisonFailed,
           }"
         [svgIcon]="comparisonFailed ? 'feather:x' : 'feather:check'"
+      ></mat-icon>
+
+      <mat-icon
+        class="results__checklist-icon"
+        *ngIf="documentSkipped"
+        svgIcon="heroicons_solid:forward"
       ></mat-icon>
 
       <div>

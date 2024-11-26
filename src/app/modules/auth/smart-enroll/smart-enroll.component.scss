@@ -290,6 +290,11 @@ smart-scanner-corrections {
 		background-position: center;
 		background-size: 210px;
 		background-repeat: no-repeat;
+
+		> mat-icon {
+			width: 176px;
+			height: 176px;
+		}
 	}
 
 	&__check-icon {

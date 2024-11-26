@@ -768,6 +768,7 @@ export interface DocumentValidation {
 	documentType: string;
 	imageValidated: boolean;
 	MATiD: string;
+	inputMethod: "" | "CAMERA" | "FILE_UPLOAD" | "NOT_SET", 
 	namesMatch: boolean;
 	requires2FA: boolean;
 	requiresBackSide: boolean;

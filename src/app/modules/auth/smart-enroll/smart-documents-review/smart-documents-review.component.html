@@ -120,14 +120,14 @@
 
         <button
           (click)="onNextStep()"
-          [disabled]="!appRegistration.documentValidation"
+          [disabled]="!canContinue()"
           [style.background]="
-            appRegistration.documentValidation
+            canContinue()
               ? project.branding.buttonColor
               : ''
           "
           [style.color]="
-            appRegistration.documentValidation
+            canContinue()
               ? project.branding.buttonTxtColor
               : ''
           "

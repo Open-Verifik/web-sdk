@@ -19,7 +19,7 @@ import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
-import { EnrollDocumentMethod, EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
@@ -49,7 +49,7 @@ import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-
 	],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
-	private unsubscriber$: Subject<any> = new Subject<any>();
+	private unsubscriber$: Subject<void> = new Subject<void>();
 
 	appRegistration: AppRegistration;
 	currentStep: string = "create";
@@ -96,9 +96,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _splashScreenService: FuseSplashScreenService,
 		@Inject(PLATFORM_ID) private platformId: Object
 	) {
+		this._splashScreenService.show();
+
 		this._setToken();
 		this._setLanguage();
-		this._splashScreenService.show();
 
 		this.deviceDetails = this._demoService.getDeviceDetails();
 		this.location = null;
@@ -120,6 +121,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			.pipe(map(results => ({id: results[0].id, token: results[1].token})))
 			.subscribe(results => {
 				this._setToken(results?.token);
+
+				if (!results?.token) this._smartEnrollService.unsetLocalStorage();
 
 				if (this.projectFlow) {
 					this._requestAppRegistration();
@@ -156,9 +159,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this._setToken();
-
-		this.unsubscriber$.next(null);
+		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 	}
 
@@ -207,6 +208,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				next: (response) => {
 					this.appRegistration = response.data;
 
+					this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod);
 					this._smartEnrollService.setLivenessScore(this.appRegistration?.biometricValidation?.livenessScore || 0);
 					this._smartEnrollService.setCompareScore(this.appRegistration?.compareFaceVerification?.result?.score || 0);
 
@@ -276,9 +278,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		const index = this.steps.indexOf(this.currentStep);
 
-		if (index > -1) {
-			this.currentStepIndex = index;
-		}
+		if (index > -1) this.currentStepIndex = index;
 	}
 
 	private _setSteps(): void {
@@ -295,15 +295,15 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _setToken(token?: string): void {
-		if (!token) return this._unsetToken();
+		if (!token) {
+			this.token = null;
+			localStorage.removeItem("accessToken");
+
+			return;
+		}
 
 		this.token = token;
 		localStorage.setItem("accessToken", token);
-	}
-
-	private _unsetToken(): void {
-		this.token = null;
-		localStorage.removeItem("accessToken");
 	}
 
 	countryNotAllowedAccept(): void {
@@ -321,25 +321,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	onServiceChange(enrollStep: EnrollStep): void {
-		let method = "scan" as EnrollDocumentMethod;
-
-		if (enrollStep === "document") {
-			if (
-				this.projectFlow.onboardingSettings.document.uploadDocumentAllowed &&
-				this.projectFlow.onboardingSettings.document.scanDocumentAllowed
-			) {
-				method = "";
-			} else if (this.projectFlow.onboardingSettings.document.uploadDocumentAllowed) {
-				method = "upload";
-			} else if (this.projectFlow.onboardingSettings.document.scanDocumentAllowed) {
-				method = "scan";
-			}
-		}
-
 		setTimeout(() => {
 			this.showKYCApp = true;
 			this._smartEnrollService.setCurrentStep(enrollStep);
-			this._smartEnrollService.setDocumentMethod(method);
 		});
 	}
 
