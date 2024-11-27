@@ -110,6 +110,7 @@
 		"type": "Type"
 	},
 	"id_scanning": {
+		"already_exists": "Your document has already been uploaded",
 		"camera_not_found_description": "Please make sure that the device on which you are performing the demonstration has a camera and that you have permissions to access it.",
 		"camera_not_found": "A camera has not been found on the device or is momentarily disabled.",
 		"continue": "Continue",
@@ -200,6 +201,14 @@
 		"something_went_wrong": "Something went wrong, please try again",
 		"invalid_email": "Email is invalid",
 		"invalid_phone": "Phone is invalid",
+		"document": {
+			"document_not_supported": "Validation for this document is unavailable.",
+			"incomplete": "You have not uploaded a document.",
+			"mandatory": "Uploading your document is required to complete the onboarding process.",
+			"names_do_not_match": "Submission of your document was rejected. Please verify your document is legitimate and the name matches exactly.",
+			"requires_back": "The document you have submitted requires both sides.",
+			"validation_not_available": "Validation for this document is unavailable."
+		},
 		"geolocation": {
 			"user_denied_request": "Location access is required to create an account",
 			"user_denied_request_subtitle": "Please enable location services in your browser settings to proceed.",
