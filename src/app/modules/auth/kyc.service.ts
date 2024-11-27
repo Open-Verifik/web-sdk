@@ -176,7 +176,7 @@ export class KYCService {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/email-validations/validate`, {
 			email,
 			otp,
-			type: 'onboarding',
+			type: "onboarding",
 			project: this.currentProject._id,
 			projectFlow: this.currentProjectFlow._id,
 		});

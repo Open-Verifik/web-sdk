@@ -19,13 +19,14 @@ export class PasswordlessService {
 			.sendRequest("get", `${this.baseUrl}/v2/projects/kyc`, {
 				id: projectId,
 			})
-			.pipe(tap((response) => {
-				this.currentProject = new ProjectModel({
-					...response.data,
-					type,
-				});
-			})
-		);
+			.pipe(
+				tap((response) => {
+					this.currentProject = new ProjectModel({
+						...response.data,
+						type,
+					});
+				})
+			);
 	}
 
 	sendEmailValidation(email: string, location: any): Observable<any> {
@@ -80,8 +81,7 @@ export class PasswordlessService {
 				otp,
 				projectFlow: this.currentProject.currentProjectFlow._id,
 				location,
-				// authenticatorOTP,
-				// ipData: JSON.parse(localStorage.getItem("ipData")),
+				type: "login",
 			})
 			.pipe(tap((response: any) => {}));
 	}
