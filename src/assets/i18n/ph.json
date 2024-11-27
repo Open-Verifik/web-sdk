@@ -202,6 +202,14 @@
         "something_went_wrong": "May mali, subukan muli",
         "invalid_email": "Hindi wasto ang email",
         "invalid_phone": "Hindi wasto ang telepono",
+        "document": {
+            "document_not_supported": "Ang beripikasyon para sa dokumentong ito ay hindi magagamit.",
+            "incomplete": "Hindi ka pa nag-upload ng dokumento.",
+            "mandatory": "Kinakailangan ang pag-upload ng iyong dokumento upang makumpleto ang proseso ng onboarding.",
+            "names_do_not_match": "Ang isinumiteng dokumento ay tinanggihan. Pakisigurado na ang iyong dokumento ay lehitimo at ang pangalan ay eksaktong tugma.",
+            "requires_back": "Ang dokumentong iyong isinumite ay kailangang may parehong harap at likod.",
+            "validation_not_available": "Ang beripikasyon para sa dokumentong ito ay hindi magagamit."
+        },
         "geolocation": {
             "country_not_allowed_subtitle": "Hindi namin maproseso ang iyong kahilingan mula sa bansang ito dahil sa pagsunod. Mangyaring makipag-ugnayan sa suporta para sa tulong.",
             "country_not_allowed": "Kinakailangan ang pag-verify ng lokasyon",

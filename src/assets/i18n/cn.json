@@ -202,6 +202,14 @@
 		"something_went_wrong": "出现错误，请重试",
 		"invalid_email": "无效的电子邮件",
 		"invalid_phone": "无效的电话",
+		"document": {
+			"document_not_supported": "此文档的验证不可用。",
+			"incomplete": "您尚未上传文档。",
+			"mandatory": "上传您的文档是完成注册流程的必需步骤。",
+			"names_do_not_match": "您的文档提交被拒绝。请验证文档的合法性，并确保姓名完全匹配。",
+			"requires_back": "您提交的文档需要正反两面。",
+			"validation_not_available": "此文档的验证不可用。"
+		},
 		"geolocation": {
 			"country_not_allowed_subtitle": "由于合规问题，我们无法处理来自此国家的请求。请联系支持以寻求帮助。",
 			"country_not_allowed": "需要位置验证",

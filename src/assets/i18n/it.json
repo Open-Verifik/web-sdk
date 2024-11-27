@@ -202,6 +202,14 @@
         "something_went_wrong": "Qualcosa è andato storto, prova di nuovo",
         "invalid_email": "Email non valida",
         "invalid_phone": "Telefono non valido",
+        "document": {
+            "document_not_supported": "La validazione per questo documento non è disponibile.",
+            "incomplete": "Non hai caricato un documento.",
+            "mandatory": "Il caricamento del documento è necessario per completare il processo di onboarding.",
+            "names_do_not_match": "L'invio del tuo documento è stato rifiutato. Verifica che il documento sia legittimo e che il nome corrisponda esattamente.",
+            "requires_back": "Il documento che hai inviato richiede entrambi i lati.",
+            "validation_not_available": "La validazione per questo documento non è disponibile."
+        },
         "geolocation": {
             "country_not_allowed_subtitle": "Non possiamo elaborare la tua richiesta da questo paese a causa della conformità. Si prega di contattare il supporto per assistenza.",
             "country_not_allowed": "Verifica della posizione richiesta",

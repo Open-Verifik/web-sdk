@@ -202,6 +202,14 @@
         "something_went_wrong": "문제가 발생했습니다. 다시 시도해 주세요",
         "invalid_email": "이메일이 유효하지 않습니다",
         "invalid_phone": "전화번호가 유효하지 않습니다",
+        "document": {
+            "document_not_supported": "이 문서에 대한 검증이 불가능합니다.",
+            "incomplete": "문서를 업로드하지 않았습니다.",
+            "mandatory": "온보딩 프로세스를 완료하려면 문서를 업로드해야 합니다.",
+            "names_do_not_match": "문서 제출이 거부되었습니다. 문서가 정당한지 확인하고 이름이 정확히 일치하는지 확인하세요.",
+            "requires_back": "제출한 문서는 양면이 필요합니다.",
+            "validation_not_available": "이 문서에 대한 검증이 불가능합니다."
+        },
         "geolocation": {
             "country_not_allowed_subtitle": "규정 준수 문제로 이 국가에서는 요청을 처리할 수 없습니다. 지원팀에 문의하세요.",
             "country_not_allowed": "위치 검증이 필요합니다",

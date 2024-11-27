@@ -202,6 +202,14 @@
         "something_went_wrong": "Un problème est survenu, veuillez réessayer",
         "invalid_email": "L'e-mail est invalide",
         "invalid_phone": "Le téléphone est invalide",
+        "document": {
+            "document_not_supported": "La validation de ce document n'est pas disponible.",
+            "incomplete": "Vous n'avez pas téléchargé de document.",
+            "mandatory": "Le téléchargement de votre document est requis pour compléter le processus d'intégration.",
+            "names_do_not_match": "La soumission de votre document a été rejetée. Veuillez vérifier que votre document est légitime et que le nom correspond exactement.",
+            "requires_back": "Le document que vous avez soumis nécessite les deux côtés.",
+            "validation_not_available": "La validation de ce document n'est pas disponible."
+        },
         "geolocation": {
             "country_not_allowed_subtitle": "Nous ne pouvons pas traiter votre demande depuis ce pays en raison de la conformité. Veuillez contacter le support pour obtenir de l'aide.",
             "country_not_allowed": "Vérification de l'emplacement requise",
