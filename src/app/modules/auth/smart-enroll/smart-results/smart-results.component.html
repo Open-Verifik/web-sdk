@@ -95,7 +95,7 @@
 
       <div
         class="results__score uppercase text-center"
-        *ngIf="!documentSkipped || appRegistration.compareFaceVerification"
+        *ngIf="!documentSkipped && appRegistration.compareFaceVerification"
         [ngClass]="{
             'results__score--green': !comparisonFailed,
             'results__score--red': comparisonFailed,

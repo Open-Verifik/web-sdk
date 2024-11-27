@@ -512,7 +512,7 @@ export interface AppRegistration {
 	failedDocumentValidations?: Array<any>,
 	forceUpload?: boolean;
 	formSubmittion: any;
-	informationValidation?: any;
+	informationValidation?: InformationValidation;
 	MATiD: any;
 	person?: any;
 	phone: string;
@@ -760,16 +760,21 @@ export interface Studio {
 
 export interface DocumentValidation {
 	_id: string;
-	OCRExtraction: any;
 	backUrl?: string;
 	createdAt: string;
 	deleted: boolean;
 	documentNumber: string;
 	documentType: string;
+	firstNameMatchPercentage?: number;
+	fullNameMatchPercentage?: number;
 	imageValidated: boolean;
-	MATiD: string;
 	inputMethod: "" | "CAMERA" | "FILE_UPLOAD" | "NOT_SET", 
+	infoValidationSupported: boolean;
+	infoValidationSupportedReason?: string;
+	lastNameMatchPercentage?: number;
+	MATiD: string;
 	namesMatch: boolean;
+	OCRExtraction: any;
 	requires2FA: boolean;
 	requiresBackSide: boolean;
 	scoreValidated: boolean;
@@ -801,5 +806,26 @@ export type ImageScan = {
 	force?: boolean,
 	front?: boolean;
 	rawImage: string,
+	inputMethod: 'CAMERA' | 'FILE_UPLOAD';
 	source?: 'document' | 'face',
 };
+
+export type CriminalValidation = {
+	world_api_interpol: {
+		cards: [],
+		person: {
+			firstName: string,
+			lastName: string,
+			fullName: string,
+		},
+		totalCards: number,
+	},
+	world_api_dea: {
+		foundInDEA: boolean,
+	},
+	world_api_europol: {
+		foundInEuropol: boolean,
+	},
+	requestedAt: string,
+	foundKeys: [],
+}

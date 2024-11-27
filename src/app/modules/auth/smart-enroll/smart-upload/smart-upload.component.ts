@@ -112,22 +112,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
             const image = this.base64Image.replace(/^data:image\/.*;base64,/, "");
 
-            const body = {
-                backImage: undefined,
-                documentFace: undefined,
-                force: undefined,
-                image: undefined,
-                inputMethod: "FILE_UPLOAD",
-            };
-
             if (this.side === 'front') {
-                body.image = image;
-                body.force = !!this.appRegistration.documentValidation;
-
                 await this._setFaceToCanvas(img);
-            } else {
-                body.backImage = image;
-                body.force = true;
             }
 
             const isFront = this.side === 'front';
@@ -136,7 +122,9 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             this.onImageUpload.next({
                 base64Image: image,
                 face: this.faceIdCard,
+                force: !isFront || !!this.appRegistration.documentValidation,
                 front: isFront,
+                inputMethod: 'FILE_UPLOAD',
                 rawImage: this.base64Image,
                 source: 'document',
             });
@@ -188,11 +176,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
 	canSkipStep(): boolean {
-		const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
-            (
-                !this.appRegistration.documentValidation ||
-                this._KYCService.isDocumentValidAndComplete()
-            );
+		const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
 
         return canSkipDocument;
 	}
@@ -256,10 +240,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     skipStep(): void {
         if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {
-            this._smartEnrollService.setSkippedDocument(true);
+            this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
             this._smartEnrollService.skipToStep('biometric');
         } else {
-            this._smartEnrollService.setSkippedBiometric(true);
+            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
             this._smartEnrollService.skipToStep('result');
         }
     }

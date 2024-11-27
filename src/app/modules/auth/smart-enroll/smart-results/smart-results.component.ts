@@ -86,13 +86,13 @@ export class SmartResultsComponent implements OnInit {
 		this.errorResult = false;
 		this.livenessFailed = false;
 
-		if (!this._smartEnrollService.wasSkippedDocument() && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
+		if (!this.documentSkipped && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
 			this.appRegistration.status = "FAILED";
-			this.comparisonFailed = true;
 			this.errorResult = true;
+			this.comparisonFailed = true;
 		}
 
-		if (!this._smartEnrollService.wasSkippedDocument() && livenessScore < this.enrollStore.biometric.livenessMinScore) {
+		if (!this.biometricSkipped && livenessScore < this.enrollStore.biometric.livenessMinScore) {
 			this.appRegistration.status = "FAILED";
 			this.errorResult = true;
 			this.livenessFailed = true;
@@ -201,17 +201,7 @@ export class SmartResultsComponent implements OnInit {
 	}
 
 	tryAgain(step: "document" | "biometric"): void {
-		if (
-			step === "document" &&
-			this.projectFlow.onboardingSettings.document.scanDocumentAllowed &&
-			this.projectFlow.onboardingSettings.document.uploadDocumentAllowed
-		) {
-			this._smartEnrollService.setDocumentMethod("");
-		}
-
-		if (step === "document") this.appRegistration.documentValidation = null;
-		if (step === "biometric") this.appRegistration.biometricValidation = null;
-
+		if (step === 'document') this._smartEnrollService.setDocumentMethod('');
 		this._smartEnrollService.skipToStep(step);
 	}
 }

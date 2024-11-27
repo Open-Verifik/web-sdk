@@ -39,7 +39,7 @@
       </mat-card-title>
 
       <mat-card-content
-        class="w-full mt-4"
+        class="w-full mt-8"
         fxLayout="column"
         fxLayoutAlign="start center"
       >
@@ -72,6 +72,18 @@
             >
               {{ "smart_enroll.documents.upload.again" | transloco }}
             </button>
+
+            <div
+              class="ocr__errors rounded-2xl mt-6"
+              *ngIf="showErrors"
+              fxLayoutGap="24px"
+              fxLayout="column"
+            >
+              <p class="text-md" *ngIf="errors.mandatory">{{ 'errors.document.mandatory' | transloco }}</p>
+              <p class="text-md" *ngIf="errors.incomplete">{{ 'errors.document.incomplete' | transloco }}</p>
+              <p class="text-md" *ngIf="errors.requiresBack">{{ 'errors.document.requires_back' | transloco }}</p>
+              <p class="text-md" *ngIf="errors.namesDoNotMatch">{{ 'errors.document.names_do_not_match' | transloco }}</p>
+            </div>
           </div>
 
           <div class="w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
@@ -112,7 +124,7 @@
           (click)="onPreviousStep()"
           [style.border]="'1px solid ' + project.branding.buttonColor"
           [style.color]="project.branding.buttonColor"
-          class="fuse-mat-button-large mt-6"
+          class="fuse-mat-button-large"
           mat-flat-button
         >
           <span>{{ "previous" | transloco }}</span>

@@ -99,32 +99,43 @@
 >
 	<div class="smart-scanner__title">
 		<div class="w-full" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
-			<div class="flex welcome__step-row mx-4">
+			<div
+				class="flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl"
+				[style.border]="side === 'front' ? '2px solid ' + project.branding.buttonColor : ''"
+			>
 				<p
-					class="welcome__step"
-					[style.backgroundColor]="side === 'front' ? project.branding.bgColor : ''"
-					[style.color]="side === 'front' ? project.branding.buttonColor : ''"
+				class="welcome__step"
+				[style.backgroundColor]="side === 'front' ? project.branding.bgColor : ''"
+				[style.color]="side === 'front' ? project.branding.buttonColor : ''"
 				>
-					<span *ngIf="side === 'front'">1</span>
-					<mat-icon svgIcon="feather:check" *ngIf="side === 'back'" [style.color]="project.branding.buttonColor"></mat-icon>
+				<span class="font-medium" *ngIf="side === 'front'">1</span>
+				<mat-icon
+					svgIcon="feather:check"
+					*ngIf="side === 'back'"
+					[style.color]="project.branding.buttonColor"
+				></mat-icon>
 				</p>
-
+		
 				<p class="mt-0.5">
-					{{ "smart_enroll.documents.upload.frontside" | transloco }}
+				{{ "smart_enroll.documents.upload.frontside" | transloco }}
 				</p>
 			</div>
-
-			<div class="flex welcome__step-row mx-4" *ngIf="requiresBack">
+		
+			<div
+				class="flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl"
+				[style.border]="side === 'back' ? '2px solid ' + project.branding.buttonColor : ''"
+				*ngIf="requiresBack"
+			>
 				<p
-					class="welcome__step"
-					[style.backgroundColor]="side === 'back' ? project.branding.bgColor : ''"
-					[style.color]="side === 'back' ? project.branding.buttonColor : ''"
+				class="welcome__step"
+				[style.backgroundColor]="side === 'back' ? project.branding.bgColor : ''"
+				[style.color]="side === 'back' ? project.branding.buttonColor : ''"
 				>
-					<span>2</span>
+				<span class="font-medium">2</span>
 				</p>
-
+		
 				<p class="mt-0.5">
-					{{ "smart_enroll.documents.upload.backside" | transloco }}
+				{{ "smart_enroll.documents.upload.backside" | transloco }}
 				</p>
 			</div>
 		</div>
@@ -203,37 +214,37 @@
 					<div>
 						face:
 						<br />
-						x: {{ faceDetection.alignedRect?.box.x }}
+						x: {{ faceDetection?.alignedRect?.box?.x }}
 						<br />
-						y: {{ faceDetection.alignedRect?.box.y }}
+						y: {{ faceDetection?.alignedRect?.box?.y }}
 						<br />
-						width: {{ faceDetection.alignedRect?.box.width }}
+						width: {{ faceDetection?.alignedRect?.box?.width }}
 						<br />
-						height: {{ faceDetection.alignedRect?.box.height }}
+						height: {{ faceDetection?.alignedRect?.box?.height }}
 						<br />
-						pitch: {{ faceDetection.angle?.pitch }}
+						pitch: {{ faceDetection?.angle?.pitch }}
 						<br />
-						yaw: {{ faceDetection.angle?.yaw }}
+						yaw: {{ faceDetection?.angle?.yaw }}
 						<br />
-						roll: {{ faceDetection.angle?.roll }}
+						roll: {{ faceDetection?.angle?.roll }}
 						<br />
 						<br />
 						<br />
 						face corrections:
 						<br />
-						x: {{ corrections.bounds.x }}
+						x: {{ corrections?.bounds?.x }}
 						<br />
-						y: {{ corrections.bounds.y }}
+						y: {{ corrections?.bounds?.y }}
 						<br />
-						width: {{ corrections.resolution.width }}
+						width: {{ corrections?.resolution?.width }}
 						<br />
-						height: {{ corrections.resolution.height }}
+						height: {{ corrections?.resolution?.height }}
 						<br />
-						pitch: {{ corrections.angle.pitch }}
+						pitch: {{ corrections?.angle?.pitch }}
 						<br />
-						yaw: {{ corrections.angle.yaw }}
+						yaw: {{ corrections?.angle?.yaw }}
 						<br />
-						roll: {{ corrections.angle.roll }}
+						roll: {{ corrections?.angle?.roll }}
 						<br />
 						<br />
 						<br />

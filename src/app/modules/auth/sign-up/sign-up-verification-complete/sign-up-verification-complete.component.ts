@@ -99,10 +99,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 			}
 		}
 
-		if (this.appRegistration.currentStep === "document") {
-			this.goToKYCApp("document-review");
-		} else if (this.appRegistration.currentStep === "liveness" || this.appRegistration.currentStep === "end") {
-			this.goToKYCApp("result");
+		if (['document', 'liveness', 'end'].indexOf(this.appRegistration.currentStep) > -1) {
+			this.goToKYCApp('');
 		}
 	}
 
@@ -179,22 +177,28 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 			this.appRegistration.status === "COMPLETED" ||
 			this.appRegistration.status === "FAILED" ||
 			(
-				this._smartEnrollService.wasSkippedBiometric() &&
 				(
-					this._smartEnrollService.wasSkippedDocument() || this._KYCService.isDocumentValidAndComplete()
+					this._smartEnrollService.wasSkippedBiometric() ||
+					this.appRegistration.biometricValidation
+				) && (
+					this._smartEnrollService.wasSkippedDocument() ||
+					this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration)
 				)
 			)
 		) {
 			enrollStep = "result";
 		} else if (
 			(
-				this._KYCService.isDocumentValidAndComplete() &&
+				this.appRegistration.documentValidation &&
+				this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration) &&
 				!this.appRegistration.biometricValidation
 			) || this._smartEnrollService.wasSkippedDocument()
 		) {
 			enrollStep = "biometric";
-		} else if (this._KYCService.isDocumentValidAndComplete()) {
+		} else if (this.appRegistration.documentValidation) {
 			enrollStep = "document-review";
+		} else if (!enrollStep) {
+			enrollStep = 'document';
 		}
 
 		this.onServiceChange.next(enrollStep);

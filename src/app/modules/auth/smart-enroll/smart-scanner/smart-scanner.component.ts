@@ -175,6 +175,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _detectDocument(video: HTMLVideoElement, videoCanvas: HTMLCanvasElement, videoCanvasCtx: CanvasRenderingContext2D) {
+		this._startAutoCapture();
+		this._paintMaskCanvas();
+
 		try {
 			const vRatio = (videoCanvas.height / video.videoHeight) * video.videoWidth;
 			videoCanvasCtx.drawImage(video, 0, 0, vRatio, videoCanvas.height);
@@ -197,6 +200,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	async _detectFace(image: faceapi.TNetInput) {
+		if (this.source === 'face') {
+			this._startAutoCapture();
+			this._paintMaskCanvas();
+		}
+
 		try {
 			const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
@@ -206,7 +214,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 				this.errorFace = null;
 
-				this._evaluateFaceData(this.faceDetection);
+				this._evaluateFace(this.faceDetection);
 
 				return detection;
 			}
@@ -450,31 +458,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._setDimensions(this.video.height, this.video.width, this.video);
 	}
 
-	/**
-	 * @param detection 
-		There should only be one main face on the image.
-			It should be fully visible within a frame and fully open without any occlusions.
-			No crop is allowed.
-			Small faces in the background are not taken into account.
-		The minimum size of a face box that can be processed is 224x224 pixels.
-		The padding between the face box and the image's borders should be at least 25 pixels.
-		The distance between the pupils on the face should be at least 80 pixels.
-		The out-of-plane rotation angle (face pitch and yaw) should be no more than ±30 degrees.
-		Fish-eye lenses and sunglass images are not supported.
-	 */
-	private _evaluateFaceData(
-		face: faceapi.WithFaceLandmarks<
-			{
-				detection: faceapi.FaceDetection;
-			},
-			faceapi.FaceLandmarks68
-		>
-	) {
-		this._paintMaskCanvas();
-		this._evaluateFace(face);
-		this._readyAutoCapture();
-	}
-
 	private _evaluateDocumentContours(contours: Contour): void {
 		const BOUNDS = this.BOUNDS.document;
 
@@ -634,7 +617,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			: this.faceIsValid;
 	}
 
-	private _readyAutoCapture() {
+	private _startAutoCapture(): void {
 		if (!this._isCaptureValid()) {
 			if (this._debouncedTakePicture) this._debouncedTakePicture.cancel();
 			this._debouncedTakePicture = null;
@@ -645,7 +628,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		if (this._debouncedTakePicture) return;
 
 		let debounceWait = 1000;
-
 		if (this.source === "document") debounceWait = 1500;
 
 		this._debouncedTakePicture = debounce(() => this.takePicture(), debounceWait);
@@ -1015,7 +997,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	goNext(): void {
 		if (this.source === "face") {
-			this._smartEnrollService.setSkippedBiometric(true);
+			this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
 			this._smartEnrollService.goToNextStep(); // result
 
 			return;
@@ -1048,11 +1030,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	canSkip(): boolean {
 		const canSkipBiometric = this.source === "face" && (this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation);
 		const canSkipDocument = this.source === "document" && (
-			this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
-            (
-                !this.appRegistration.documentValidation ||
-                this._KYCService.isDocumentValidAndComplete()
-            )
+			this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation
 		);
 
 		return !this.uploading && (canSkipDocument || canSkipBiometric);
@@ -1114,10 +1092,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	skipStep(): void {
         if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {
-            this._smartEnrollService.setSkippedDocument(true);
+			this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
             this._smartEnrollService.skipToStep('biometric');
         } else {
-            this._smartEnrollService.setSkippedBiometric(true);
+			this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
             this._smartEnrollService.skipToStep('result');
         }
 	}
@@ -1162,7 +1140,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.onImageScan.next({
 			base64Image,
 			face: faceToUpload,
+			force: !isFront || !!this.appRegistration.documentValidation,
 			front: isFront,
+			inputMethod: 'CAMERA',
 			rawImage: this.base64Image,
 			source: this.source,
 		});

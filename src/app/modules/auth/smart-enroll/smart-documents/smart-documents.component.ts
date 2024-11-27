@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 
-import { AppRegistration, Project, ProjectFlow, DocumentValidation, ImageScan } from "../../project";
+import { AppRegistration, Project, ProjectFlow, DocumentValidation, ImageScan, CriminalValidation, FaceVerification } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { EnrollDocumentMethod, SmartEnrollService } from "../smart-enroll.service";
 
@@ -19,6 +19,30 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { environment } from "environments/environment";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
+
+type CombinedValidationResponse = {
+	criminalValidation: CriminalValidationResponse;
+	compareValidation: CompareFaceVerificationResponse;
+	nameValidation: NameValidationResponse;
+}
+
+type CompareFaceVerificationResponse = {
+	status: 'fulfilled' | 'rejected' | 'NA';
+	reason: any;
+	data: FaceVerification;
+}
+
+type CriminalValidationResponse = {
+	status: 'fulfilled' | 'rejected' | 'NA';
+	reason: any;
+	data: CriminalValidation;
+}
+
+type NameValidationResponse = {
+	status: 'fulfilled' | 'rejected' | 'NA';
+	reason: any;
+	data: DocumentValidation;
+}
 
 @Component({
 	selector: "smart-documents",
@@ -73,7 +97,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 		});
 	}
 
-	ngOnDestroy() {
+	ngOnDestroy(): void {
 		this.smartEnrollSettingsSubscription.unsubscribe();
         this.successfulUploadSubject.complete();
 	}
@@ -86,8 +110,15 @@ export class SmartDocumentsComponent implements OnDestroy {
             .subscribe({
                 next: (response) => {
                     this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
+					this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod);
 
-					this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod)
+					if (body.backImage) {
+						this.successfulUploadSubject.next();
+						this._syncAppRegistration('document', "ONGOING");
+			
+						return;
+					};
+
 					this._sendDocumentValidationAndNameValidation();
                 },
                 error: (error) => this._handleError(error),
@@ -95,7 +126,6 @@ export class SmartDocumentsComponent implements OnDestroy {
     }
 
 	private _handleError(error: any): void {
-
 		this.errorResult = true;
 		this.errorContent = { message: error?.error?.message || '' };
 
@@ -106,13 +136,20 @@ export class SmartDocumentsComponent implements OnDestroy {
 	private _sendDocumentValidationAndNameValidation(): void {
         if (!this.appRegistration.documentValidation._id) {
 			this.successfulUploadSubject.next();
-            this._syncAppRegistration('document', "ONGOING");
+
+			if (this.appRegistration.biometricValidation) return;
+
+			this._syncAppRegistration('document', "ONGOING");
 
             return;
         };
 
 		const settings = this.projectFlow.onboardingSettings.document;
-		const observables = [];
+		const observables$ = {
+			criminalValidation: null,
+			nameValidation: null,
+			compareValidation: null,
+		};
 
 		if (settings.verifyNames) {
 			const payload = {
@@ -120,51 +157,87 @@ export class SmartDocumentsComponent implements OnDestroy {
 				force: true,
 			};
 
-			observables.push(
-				this._KYCService.updateDocumentValidationNameValidation(payload).pipe(
-					map((result) => ({ status: "fulfilled", value: result })),
+			const observable$ = this._KYCService
+				.updateDocumentValidationNameValidation(payload)
+				.pipe(
+					map((result) => ({ status: "fulfilled", data: result.data })),
 					catchError((error) => of({ status: "rejected", reason: error }))
-				)
-			);
+				);
+
+			observables$.nameValidation = observable$;
+		} else {
+			observables$.nameValidation = Promise.resolve({ status: 'NA', data: {} });
 		}
 
 		if (settings.verifyCriminalHistory) {
 			const payload = {
-				_id: this.appRegistration.informationValidation._id,
+				_id: typeof this.appRegistration.informationValidation === 'string' ? this.appRegistration.informationValidation : this.appRegistration.informationValidation._id,
 				force: environment.production,
 			};
 
-			observables.push(
-				this._KYCService.updateInformationValidationWithCriminalRecords(payload).pipe(
-					map((result) => ({ status: "fulfilled", value: result })),
+			const observable$ = this._KYCService
+				.updateInformationValidationWithCriminalRecords(payload)
+				.pipe(
+					map((result) => ({ status: "fulfilled", data: result.data })),
 					catchError((error) => of({ status: "rejected", reason: error }))
 				)
-			);
+
+			observables$.criminalValidation = observable$;
+		} else {
+			observables$.criminalValidation = Promise.resolve({ status: 'NA', data: {} });
 		}
 
-        if (observables.length === 0) {
-			this.successfulUploadSubject.next();
-            this._syncAppRegistration('document', "ONGOING");
+		if (this.appRegistration.biometricValidation) {
+			const observable$ = this._KYCService
+				.compareFaces()
+				.pipe(
+					map((result) => ({ status: "fulfilled", data: result.data })),
+					catchError((error) => of({ status: "rejected", reason: error }))
+				);
 
-            return;
-        };
+			observables$.compareValidation = observable$;
+		} else {
+			observables$.compareValidation = Promise.resolve({ status: 'NA', data: {} });
+		}
 
-		forkJoin([observables]).subscribe({
-			next: (results) => {
-				results.forEach((result) => {
-					if (result.status === "fulfilled") {
-						console.log("Observable fulfilled:", { result });
-					} else {
-						console.error("Observable rejected:", { result });
+		forkJoin(observables$)
+			.subscribe({
+				next: (results: CombinedValidationResponse) => {
+					if (results.criminalValidation?.status === 'rejected') {
+						console.error("criminalValidation rejected:", { criminalValidation: results.criminalValidation?.data });
 					}
-				});
-			},
-			error: (error) => this._handleError(error),
-            complete: () => {
-				this.successfulUploadSubject.next();
-                this._syncAppRegistration('document', "ONGOING");
-            }
-		});
+
+					if (results.nameValidation?.status === 'fulfilled') {
+						if (!results.nameValidation?.data?.infoValidationSupported) {
+							this.appRegistration.documentValidation.infoValidationSupported = results.nameValidation?.data?.infoValidationSupported;
+							this.appRegistration.documentValidation.infoValidationSupportedReason = results.nameValidation?.data?.infoValidationSupportedReason;
+
+							return;
+						}
+
+						this.appRegistration.documentValidation.namesMatch = results.nameValidation.data.namesMatch;
+						this.appRegistration.documentValidation.fullNameMatchPercentage = results.nameValidation.data.fullNameMatchPercentage;
+						this.appRegistration.documentValidation.firstNameMatchPercentage = results.nameValidation.data.firstNameMatchPercentage;
+						this.appRegistration.documentValidation.lastNameMatchPercentage = results.nameValidation.data.lastNameMatchPercentage;
+					} else if (results.nameValidation?.status === 'rejected') {
+						console.error("nameValidation rejected:", { nameValidation: results.nameValidation?.reason });
+					}
+
+					if (results.compareValidation?.status === 'fulfilled') {
+						this.appRegistration.compareFaceVerification = results.compareValidation.data;
+					} else if (results.compareValidation?.status === 'rejected') {
+						console.error("compareValidation rejected:", { compareValidation: results.compareValidation?.reason });
+					}
+				},
+				error: (error) => this._handleError(error),
+				complete: () => {
+					this.successfulUploadSubject.next();
+
+					if (this.appRegistration.biometricValidation) return;
+
+					this._syncAppRegistration('document', "ONGOING");
+				}
+			});
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {
@@ -204,22 +277,20 @@ export class SmartDocumentsComponent implements OnDestroy {
 		this.selectedMethod = method;
 	}
 
-    onImageScan(imageScan: ImageScan) {
+    onImageScan(imageScan: ImageScan): void {
 		const body = {
 			backImage: undefined,
 			documentFace: undefined,
-			force: undefined,
+			force: imageScan.force,
 			image: undefined,
-			inputMethod: this.selectedMethod === 'upload' ? "FILE_UPLOAD" : "CAMERA",
+			inputMethod: imageScan.inputMethod,
 		};
 
 		if (imageScan.front) {
 			body.documentFace = imageScan.face;
-			body.force = !!this.appRegistration.documentValidation;
 			body.image = `${imageScan.base64Image}`;
 		} else {
 			body.backImage = `${imageScan.base64Image}`;
-			body.force = true;
 		}
 
 		this._createDocumentValidation(body);
@@ -231,10 +302,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 	}
 
 	updateDocumentMethod(method: EnrollDocumentMethod) {
-		if (this.appRegistration.documentValidation) {
-			this._smartEnrollService.setCurrentStep('document-review');
-		}
-
+		this._smartEnrollService.setCurrentStep('document');
 		this._smartEnrollService.setDocumentMethod(method);
 	}
 }

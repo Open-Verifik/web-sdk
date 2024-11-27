@@ -90,13 +90,13 @@ export class SmartEnrollComponent implements OnDestroy {
 		if (steps.document !== 'skip') {
 			this.steps.push('document', 'document-review');
 		} else {
-			this._smartEnrollService.setSkippedDocument(true);
+			this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
 		}
 
 		if (steps.liveness !== 'skip') {
 			this.steps.push('biometric');
 		} else {
-			this._smartEnrollService.setSkippedBiometric(true);
+			this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
 		}
 
 		this.steps.push('result');

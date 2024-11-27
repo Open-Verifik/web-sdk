@@ -186,7 +186,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _requestAppRegistration(): void {
-		if (!this.token) return;
+		if (!this.token) return this._smartEnrollService.unsetLocalStorage();
 
 		this._KYCService
 			.getAppRegistration({

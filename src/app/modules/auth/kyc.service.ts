@@ -18,21 +18,6 @@ export class KYCService {
 
 	constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService, private _http: HttpClient) {}
 
-	isDocumentValidAndComplete(): boolean {
-		if (
-			this.currentProjectFlow?.onboardingSettings?.steps?.document !== 'mandatory' &&
-			!this.appRegistration?.documentValidation
-		) {
-			return true;
-		}
-
-		const docValidation = this.appRegistration?.documentValidation;
-
-		if (docValidation.requiresBackSide && !docValidation.backUrl) return false;
-
-		return true;
-	}
-
 	getNavigation(): any {
 		return this.navigation;
 	}

@@ -101,6 +101,12 @@ smart-scanner-corrections {
 .ocr {
 	max-height: 75vh;
 
+	&__errors {
+		padding: 12px;
+		background-color: #ffcaca;
+		color: rgb(152, 5, 5);
+	}
+
 	&__scanner {
 		border: 10px solid #ff5638;
 

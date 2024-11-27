@@ -31,8 +31,10 @@ import { MatCardModule } from "@angular/material/card";
 })
 export class SmartDocumentsReviewComponent {
 	appRegistration: AppRegistration;
+	errors: any = {};
 	project: Project;
 	projectFlow: ProjectFlow;
+	showErrors: boolean = false;
 
     constructor(
 		private translocoService: TranslocoService,
@@ -50,6 +52,7 @@ export class SmartDocumentsReviewComponent {
 		}
 
 		this._cleanOCR(this.appRegistration.documentValidation?.OCRExtraction);
+		this._setErrors();
 	}
 
     private _cleanOCR(OCRExtraction: any) {
@@ -64,8 +67,34 @@ export class SmartDocumentsReviewComponent {
         });
     }
 
+	private _setErrors() {
+		if (this.canContinue()) {
+			this.errors = {};
+			this.showErrors = false;
+
+			return;
+		}
+
+		const docValidation = this.appRegistration?.documentValidation;
+
+		if (!docValidation && this.projectFlow.onboardingSettings.steps.document === 'mandatory') {
+			this.errors.mandatory = true;
+			return;
+		}
+
+		if (docValidation?.requiresBackSide && !docValidation?.backUrl) {
+			this.errors.requiresBack = true;
+		}
+
+		if (this.projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && !docValidation?.namesMatch) {
+			this.errors.namesDoNotMatch = true;
+		}
+
+		this.showErrors = Object.keys(this.errors).length > 0;
+	}
+
 	canContinue(): boolean {
-		return this._KYCService.isDocumentValidAndComplete();
+		return this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration);
 	}
 
 	onNextStep(): void {

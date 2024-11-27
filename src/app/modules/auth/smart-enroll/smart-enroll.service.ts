@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
+import { AppRegistration, ProjectFlow } from "../project";
 
 export interface EnrollSettings {
 	currentStep: EnrollStep;
@@ -93,6 +94,19 @@ export class SmartEnrollService {
 		this.setCurrentStep(previousStep);
 
 		if (currentStepIndex - 1 === -1) this.setDocumentMethod("");
+	}
+
+	isDocumentValidAndComplete(projectFlow: ProjectFlow, appRegistration: AppRegistration): boolean {
+		if (projectFlow.onboardingSettings?.steps?.document === 'skip') return true;
+
+		const docValidation = appRegistration?.documentValidation;
+
+		if (!docValidation && projectFlow.onboardingSettings.steps.document === 'mandatory') return false;
+		if (!docValidation && !this.wasSkippedDocument()) return false;
+		if (docValidation?.requiresBackSide && !docValidation?.backUrl) return false;
+		if (projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && !docValidation?.namesMatch) return false;
+
+		return true;
 	}
 
 	setAvailableSteps(steps: EnrollStep[]) {
