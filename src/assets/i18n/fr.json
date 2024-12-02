@@ -151,13 +151,15 @@
         "country_code": "Code du pays"
     },
     "liveness": {
-        "center_yor_face": "Centre ton visage sur l'écran",
-        "center_your_face_subtitle": "Assure-toi que ton visage est centré",
-        "get_closer": "Rapproche-toi",
-        "get_closer_subtitle": "Rapproche-toi un peu plus pour une meilleure reconnaissance faciale.",
+        "center_yor_face": "Centrez votre visage sur l'écran",
+        "center_your_face_subtitle": "Veuillez vous assurer que votre visage est centré",
+        "get_closer": "Rapprochez-vous",
+        "get_closer_subtitle": "Veuillez vous rapprocher un peu pour une meilleure reconnaissance faciale.",
         "liveness_failed": "Échec de la détection de vivacité",
-        "liveness_error_message": "La vérification de vivacité a échoué avec l'erreur suivante :<br><strong>{{error}}</strong><br>Voulez-vous essayer à nouveau ?",
-        "person_linked_to_another_email": "Tes biométries sont liées à un autre e-mail.",
+        "liveness_error_message": "Le test de vivacité a échoué avec l'erreur suivante :<br><strong>{{error}}</strong><br>Voulez-vous réessayer ?",
+        "person_linked_to_another_email": "Vos données biométriques sont liées à un autre e-mail.",
+        "face_not_found_title": "Visage Non Trouvé",
+        "face_not_found_subtitle": "Votre visage ne peut pas être détecté.",
         "loading_stream": "Chargement de la caméra"
     },
     "results": {
@@ -344,6 +346,7 @@
         "copyright": "{{year}} Produit de MAT Enterprises | En utilisant Verifik, vous acceptez notre",
         "detected": "Document détecté avec succès !",
         "did_not_detect": "Nous n'avons pas pu détecter le document",
+        "document_rotate": "Veuillez vous assurer que votre appareil est en orientation paysage",
         "document_instructions": "Placez l'ID sur une surface plate et sombre pour garantir le meilleur résultat.",
         "extracting_data": "Extraction des données",
         "face_instructions": "Assurez-vous que votre visage est au centre de l'écran, retirez vos lunettes et assurez un bon éclairage",
@@ -366,44 +369,48 @@
             "liveness": "Votre image biométrique a obtenu un score trop bas.",
             "compare": "Une comparaison de votre ID et de vos biométries a obtenu un score trop bas"
         },
-        "step_titles": {
+       "step_titles": {
+            "id": "ID",
             "id_scanning": "Numérisation d'ID",
-            "upload": "Téléchargement",
+            "upload": "Téléverser",
             "ocr_details": "Détails OCR",
-            "biometric_record": "Enregistrement biométrique",
+            "biometric_record": "Enregistrement Biométrique",
+            "biometrics": "Biométrie",
             "results": "Résultats"
         },
         "documents": {
-            "scan_or_upload_title": "Scanner ou télécharger un document",
-            "upload_document_title": "Télécharger une image de document",
-            "document_review_title": "Revoir votre document",
+            "scan_or_upload_title": "Numérisez ou téléversez un document",
+            "upload_document_title": "Téléversez une image du document",
+            "document_review_title": "Vérifiez Votre Document",
             "upload": {
                 "steps": {
-                    "1": "Téléchargez un fichier aux formats .jpeg, .png ou .jpg.",
-                    "2": "Confirmez que le téléchargement a été réussi.",
+                    "1": "Téléversez un fichier aux formats .jpeg, .png ou .jpg.",
+                    "2": "Confirmez que le téléversement a réussi.",
                     "3": "Confirmez que le résultat correspond à vos données."
                 },
                 "errors": {
                     "file_too_big": "Le fichier ne doit pas dépasser 10 Mo",
                     "face_not_found": "Le document doit contenir votre visage et être clairement visible."
                 },
-                "again": "Télécharger à nouveau",
-                "frontside": "Face avant",
-                "backside": "Face arrière",
-                "upload_frontside": "Télécharger la face avant",
-                "upload_backside": "Télécharger la face arrière",
+                "again": "Téléverser à nouveau",
+                "frontside": "Côté Avant",
+                "front": "Avant",
+                "backside": "Côté Arrière",
+                "back": "Arrière",
+                "upload_frontside": "Téléverser le Côté Avant",
+                "upload_backside": "Téléverser le Côté Arrière",
                 "passport": "Passeport",
-                "driver_license": "Permis de conduire",
+                "driver_license": "Permis de Conduire",
                 "id": "ID",
-                "find_file": "Trouver le fichier sur votre appareil",
+                "find_file": "Trouver un fichier sur votre appareil",
                 "identification_document_tip": "Le fichier doit être dans l'un des formats suivants : .jpeg, .png ou .jpg",
-                "ocr_details_front_title": "Détails OCR de la face avant du document",
-                "ocr_details_back_title": "Détails OCR de la face arrière du document",
-                "document_template": "Modèle de document",
-                "template_id": "ID du modèle",
+                "ocr_details_front_title": "Détails OCR du Document Avant",
+                "ocr_details_back_title": "Détails OCR du Document Arrière",
+                "document_template": "Modèle de Document",
+                "template_id": "ID du Modèle",
                 "platform": "Plateforme",
-                "extracted_information": "Informations extraites",
-                "process_information": "Processus d'information"
+                "extracted_information": "Informations Extraites",
+                "process_information": "Informations sur le Processus"
             },
             "scan_document_title": "Scanner le document",
             "scan": {

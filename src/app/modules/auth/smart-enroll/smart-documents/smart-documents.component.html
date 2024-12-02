@@ -1,10 +1,13 @@
 <canvas #faceCardCanvas hidden></canvas>
 
 <div
-  class="w-full px-4 py-4 m-auto"
+  class="w-full"
   fxLayout="row"
-  fxLayoutAlign="center center"
+  fxLayoutAlign.gt-sm="center center"
   fxLayout.lt-md="column"
+  fxLayout="start center"
+  ngClass.gt-sm="px-4 py-4 mx-auto"
+  ngClass.lt-md="p-4"
   [ngClass]="{ 'h-full': selectedMethod === 'scan' }"
 >
   <div
@@ -18,9 +21,18 @@
       class="smart-documents__heading text-center"
       fxLayout="column"
       fxLayoutAlign="start center"
+      fxLayoutAlign.lt-md="start start"
+      ngClass.lt-md="w-full text-left"
     >
+      <img
+        [src]="project.branding.logo"
+        ngClass.gt-sm="hidden"
+        class="w-12"
+      />
+
       <h5
         class="text-3xl font-medium mt-2"
+        ngClass.lt-md="text-2xl text-left"
         [style.color]="project.branding.titleColor"
       >
         {{ "smart_enroll.documents.scan_or_upload_title" | transloco }}
@@ -28,22 +40,21 @@
     </div>
 
     <div
-      class="mt-6"
+      ngClass.gt-sm="mt-6"
       fxLayout="row"
       fxLayoutAlign="center"
       fxLayout.lt-md="column"
     >
       <div
-        class="smart-documents__card rounded-2xl bg-card m-4 p-6"
-        fxLayout="column"
+        [ngStyle.lt-md]="{ backgroundColor: project.branding.bgColor }"
+        [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
         *ngIf="projectFlow.onboardingSettings.document.uploadDocumentAllowed"
-        [style.border]="
-          project.branding.borderColor
-            ? '1px solid ' + project.branding.borderColor
-            : ''
-        "
+        class="smart-documents__card rounded-2xl"
+        fxLayout="column"
+        ngClass.gt-sm="m-4 p-6 bg-card"
+        ngClass.lt-md="p-4 mt-6"
       >
-        <mat-card-header class="mt-2">
+        <mat-card-header ngClass.gt-sm="mt-2">
           <h5
             class="text-xl text-center font-medium"
             [style.color]="project.branding.titleColor"
@@ -54,6 +65,7 @@
 
         <mat-card-content
           class="mt-6"
+          ngClass.lt-md="mt-4"
           fxLayout="column"
           fxLayoutAlign="start center"
         >
@@ -92,12 +104,12 @@
 
         <div fxLayout="column" fxFlex="1 1 0 auto"></div>
 
-        <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
+        <mat-card-actions class="mt-6" fxLayout="row" fxLayoutAlign="center end">
           <button
             (click)="updateDocumentMethod('upload')"
             [style.background]="project.branding.buttonColor"
             [style.color]="project.branding.buttonTxtColor"
-            class="fuse-mat-button-large mt-6"
+            class="fuse-mat-button-large"
             mat-flat-button
           >
             <span>{{ "upload" | transloco }}</span>
@@ -106,16 +118,15 @@
       </div>
 
       <div
-        class="smart-documents__card rounded-2xl bg-card m-4 p-6"
-        fxLayout="column"
+        [ngStyle.lt-md]="{ backgroundColor: project.branding.bgColor }"
+        [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
         *ngIf="projectFlow.onboardingSettings.document.scanDocumentAllowed"
-        [style.border]="
-          project.branding.borderColor
-            ? '1px solid ' + project.branding.borderColor
-            : ''
-        "
+        class="smart-documents__card rounded-2xl"
+        fxLayout="column"
+        ngClass.gt-sm="m-4 p-6 bg-card"
+        ngClass.lt-md="p-4 mt-6"
       >
-        <mat-card-header class="mt-2">
+        <mat-card-header ngClass.gt-sm="mt-2">
           <h5
             class="text-xl text-center font-medium"
             [style.color]="project.branding.titleColor"
@@ -126,6 +137,7 @@
 
         <mat-card-content
           class="mt-6"
+          ngClass.lt-md="mt-4"
           fxLayout="column"
           fxLayoutAlign="start center"
         >
@@ -163,12 +175,12 @@
 
         <div fxLayout="column" fxFlex="1 1 0 auto"></div>
 
-        <mat-card-actions fxLayout="row" fxLayoutAlign="center end">
+        <mat-card-actions class="mt-6" fxLayout="row" fxLayoutAlign="center end">
           <button
             (click)="updateDocumentMethod('scan')"
             [style.background]="project.branding.buttonColor"
             [style.color]="project.branding.buttonTxtColor"
-            class="fuse-mat-button-large mt-6"
+            class="fuse-mat-button-large"
             mat-flat-button
           >
             <span>{{ "scan" | transloco }}</span>
@@ -180,46 +192,68 @@
 
   <div
     @fadeIn
-    class="w-full m-auto"
+    *ngIf="selectedMethod"
+    class="w-full min-h-full mx-auto"
+    fxLayout.lt-md="column"
     fxLayout="row"
     fxLayoutAlign="center center"
-    fxLayout.lt-md="column"
-    *ngIf="selectedMethod"
   >
     <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
-      <smart-stepper></smart-stepper>
+      <smart-stepper ngClass.lt-md="hidden"></smart-stepper>
     </div>
 
     <div
+      *ngIf="selectedMethod === 'upload' && !errorResult"
+      @fadeIn
+      class="w-full min-h-full"
+      fxFlex="50%"
+      fxFlex.lt-lg="75%"
+      fxFlex.lt-md="100%"
+      fxLayout="column"
+      fxLayoutAlign="start center"
+    >
+        <smart-upload
+          (onImageUpload)="onImageScan($event)"
+          [class.hidden]="errorResult"
+          [successfulUpload]="successfulUploadSubject.asObservable()"
+          ngClass.lt-md="flex flex-grow"
+          source="document"
+        ></smart-upload>
+    </div>
+
+    <div
+      *ngIf="selectedMethod === 'scan' && !errorResult"
+      @fadeIn
+      class="w-full min-h-full"
       fxFlex="50%"
       fxFlex.lt-lg="75%"
       fxFlex.lt-md="100%"
       fxLayout="column"
       fxLayoutAlign="center center"
     >
-      <smart-upload
-        (onImageUpload)="onImageScan($event)"
-        [class.hidden]="errorResult"
-        [successfulUpload]="successfulUploadSubject.asObservable()"
-        @fadeIn
-        *ngIf="selectedMethod === 'upload' && !errorResult"
-        source="document"
-      ></smart-upload>
-
       <smart-scanner
+        class="w-full min-h-full"
         (onImageScan)="onImageScan($event)"
         [class.hidden]="errorResult"
         [successfulUpload]="successfulUploadSubject.asObservable()"
-        @fadeIn
-        *ngIf="selectedMethod === 'scan' && !errorResult"
         source="document"
       ></smart-scanner>
+    </div>
 
+    <div
+      *ngIf="errorResult"
+      @fadeIn
+      class="w-full min-h-full"
+      fxFlex="50%"
+      fxFlex.lt-lg="75%"
+      fxFlex.lt-md="100%"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+    >
       <smart-error-display
         (onClearError)="retry()"
         [errorContent]="errorContent"
         source="document"
-        *ngIf="errorResult"
       ></smart-error-display>
     </div>
 

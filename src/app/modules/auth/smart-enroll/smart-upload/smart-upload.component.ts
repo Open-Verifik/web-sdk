@@ -21,6 +21,7 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "../../project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { SmartEnrollService } from "../smart-enroll.service";
+import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 const MAX_FILE_SIZE = 10485760;
 
@@ -41,6 +42,7 @@ const MAX_FILE_SIZE = 10485760;
         MatProgressBarModule,
         MatProgressSpinnerModule,
         NgIf,
+        SmartStepperComponent,
         TranslocoModule,
     ],
 })
@@ -176,6 +178,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
 	canSkipStep(): boolean {
+        if (this.isExtracting) return false;
+
 		const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
 
         return canSkipDocument;

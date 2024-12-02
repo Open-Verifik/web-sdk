@@ -5,9 +5,20 @@
   fxLayout.lt-md="column"
   fxLayoutAlign.lt-md="start center"
 >
-  <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
-    <smart-stepper></smart-stepper>
-  </div>
+  <mat-card-header class="-ml-4 mb-4" ngClass.gt-sm="hidden" ngClass.lt-md="w-full">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <button
+        (click)="onPreviousStep()"
+        ngClass.gt-sm="hidden"
+        mat-flat-button
+      >
+        <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
+        <span class="ml-2">{{ "cancel" | transloco }}</span>
+      </button>
+
+      <smart-stepper></smart-stepper>
+    </div>
+  </mat-card-header>
 
   <div
     fxFlex="50%"
@@ -17,13 +28,10 @@
     fxLayoutAlign="center center"
   >
     <div
-      class="smart-documents__card smart-documents__card--xlarge rounded-2xl bg-card m-4 p-6 mt-4 w-full"
+      class="smart-documents__card smart-documents__card--xlarge rounded-2xl bg-card mt-4 w-full"
       fxLayout="column"
-      [style.border]="
-        project.branding.borderColor
-          ? '1px solid ' + project.branding.borderColor
-          : ''
-      "
+      [ngStyle.gt-sm]="{ border: '1px solid ' + project.branding.borderColor }"
+      ngClass.gt-sm="p-6 m-4"
     >
       <mat-card-title
         class="w-full"
@@ -31,7 +39,8 @@
         fxLayoutAlign="center space-between"
       >
         <h5
-          class="text-3xl font-medium mt-2"
+          class="text-3xl font-medium"
+          ngClass.gt-sm="mt-2"
           [style.color]="project.branding.titleColor"
         >
           {{ "smart_enroll.documents.document_review_title" | transloco }}
@@ -103,7 +112,7 @@
                   | keyvalue
               "
             >
-              <p class="ocr__label">
+              <p class="ocr__label mr-2">
                 {{ "extracted_information." + item.key | transloco }}
               </p>
 
@@ -118,7 +127,8 @@
       <mat-card-actions
         class="mt-12"
         fxLayout="row"
-        fxLayoutAlign="space-between end"
+        fxLayoutAlign.gt-sm="space-between end"
+        fxLayoutAlign="end end"
       >
         <button
           (click)="onPreviousStep()"
@@ -126,6 +136,7 @@
           [style.color]="project.branding.buttonColor"
           class="fuse-mat-button-large"
           mat-flat-button
+          ngClass.lt-md="hidden"
         >
           <span>{{ "previous" | transloco }}</span>
         </button>
@@ -133,6 +144,7 @@
         <button
           (click)="onNextStep()"
           [disabled]="!canContinue()"
+          ngClass.lt-md="w-full"
           [style.background]="
             canContinue()
               ? project.branding.buttonColor

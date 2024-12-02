@@ -505,6 +505,7 @@ export interface AppRegistration {
 	countryCode: string;
 	cryptoValidation: any;
 	currentStep: string;
+	documentFace?: Face;
 	documentValidation?: DocumentValidation;
 	email: string;
 	emailValidation: any;

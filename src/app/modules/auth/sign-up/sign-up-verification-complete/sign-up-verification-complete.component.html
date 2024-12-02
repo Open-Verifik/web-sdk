@@ -1,13 +1,28 @@
-<div [class.hidden]="showQrCode">
+<div [class.hidden]="showQrCode" ngClass.lt-md="min-h-full flex flex-col flex-grow">
   <div
+    class="w-full mt-2 mb-4 ml-2"
+    fxLayout="row"
+    fxLayoutAlign="space-between center"
+    ngClass.gt-sm="mb-8"
+  >
+    <img
+      [src]="project.branding.logo"
+      ngClass.gt-sm="hidden"
+      ngClass.lt-md="w-12"
+    />
+  </div>
+
+  <div
+    *ngIf="welcomeStyle === 0"
     fxLayout="column"
     fxLayoutAlign="start center"
-    *ngIf="welcomeStyle === 0"
+    ngClass.lt-md="flex-grow"
   >
     <mat-chip
       [style.backgroundColor]="project.branding.bgColor"
       class="verify__chip verify__chip--large verify__chip--no-border"
       *ngIf="appRegistration.email"
+      ngClass.lt-md="hidden"
     >
       <div fxLayout="row" fxLayoutAlign="center space-between">
         <mat-icon
@@ -17,26 +32,35 @@
           >email</mat-icon
         >
 
-        <span class="mr-2" [style.color]="project.branding.titleColor">{{
-          appRegistration.email
-        }}</span>
+        <span class="mr-2" [style.color]="project.branding.titleColor">
+          {{ appRegistration.email }}
+        </span>
       </div>
     </mat-chip>
 
     <h5
-      class="mt-6 text-3xl text-center"
       [style.color]="project.branding.titleColor"
+      class="mt-4 text-3xl"
+      ngClass.gt-sm="mt-6 text-center"
+      ngClass.lt-md="w-full"
     >
       {{ "welcome.title" | transloco : { projectName: project.name } }}
     </h5>
 
-    <div class="mt-2 text-center">
+    <div
+      class="mt-2"
+      ngClass.gt-sm="text-center"
+    >
       <div>
         {{ "welcome.description" | transloco : { projectName: project.name } }}
       </div>
     </div>
 
-    <form [formGroup]="agreementForm" #agreementNgForm="ngForm">
+    <form
+      [formGroup]="agreementForm"
+      #agreementNgForm="ngForm"
+      ngClass.lt-md="flex flex-col flex-grow justify-end"
+    >
       <div fxLayout="row" fxLayoutAlign="center">
         <div class="welcome__step-column">
           <div class="flex welcome__step-row">
@@ -79,7 +103,7 @@
         </a>
       </mat-checkbox>
 
-      <div class="mt-4">
+      <div class="mt-4" ngClass.lt-md="flex flex-col flex-grow justify-end">
         <button
           (click)="skipDocument()"
           [style.border]="'1px solid' + project.branding.buttonColor"
@@ -122,14 +146,17 @@
   </div>
 
   <div
+    *ngIf="welcomeStyle === 1"
     fxLayout="column"
     fxLayoutAlign="start center"
-    *ngIf="welcomeStyle === 1"
+    fxLayoutAlign.lt-md="start start"
+    ngClass.lt-md="flex-grow"
   >
     <mat-chip
       [style.backgroundColor]="project.branding.bgColor"
-      class="verify__chip verify__chip--large verify__chip--no-border"
       *ngIf="appRegistration.email"
+      class="verify__chip verify__chip--large verify__chip--no-border"
+      ngClass.lt-md="hidden"
     >
       <div fxLayout="row" fxLayoutAlign="center space-between">
         <mat-icon
@@ -139,32 +166,34 @@
           >email</mat-icon
         >
 
-        <span class="mr-2" [style.color]="project.branding.titleColor">{{
-          appRegistration.email
-        }}</span>
+        <span [style.color]="project.branding.titleColor" class="mr-2">
+          {{ appRegistration.email }}
+        </span>
       </div>
     </mat-chip>
 
     <h5
-      class="mt-6 text-3xl mt-6 text-center"
+      class="mt-6 text-3xl text-center"
       [style.color]="project.branding.titleColor"
     >
       {{ "welcome.title" | transloco : { projectName: project.name } }}
     </h5>
 
-    <div class="mt-4 text-center">
+    <div class="mt-4 text-center" ngClass.lt-md="w-full flex flex-col flex-grow items-center justify-center">
       <mat-icon
         class="welcome__icon welcome__icon--large"
         [style.color]="project.branding.buttonColor"
         >photo_camera_front</mat-icon
       >
-      <div class="font-bold text-xl">
+
+      <div class="font-bold text-xl" ngClass.lt-md="w-72">
         {{ "welcome.validate_identity_subtitle" | transloco }}
       </div>
+
       <div>{{ "welcome.validate_identity_description" | transloco }}</div>
     </div>
 
-    <div class="mt-6 w-full">
+    <div class="mt-6 w-full" ngClass.lt-md="flex flex-col justify-end">
       <button
         (click)="skipBiometrics()"
         [style.border]="'1px solid' + project.branding.buttonColor"
@@ -201,15 +230,18 @@
   </div>
 
   <div
+    *ngIf="welcomeStyle === 2"
     class="mt-2"
     fxLayout="column"
     fxLayoutAlign="start center"
-    *ngIf="welcomeStyle === 2"
+    fxLayoutAlign.lt-md="start start"
+    ngClass.lt-md="flex-grow"
   >
     <mat-chip
       [style.backgroundColor]="project.branding.bgColor"
       *ngIf="appRegistration.email"
       class="verify__chip verify__chip--large verify__chip--no-border"
+      ngClass.lt-md="hidden"
     >
       <div fxLayout="row" fxLayoutAlign="center space-between">
         <mat-icon
@@ -219,14 +251,14 @@
           >email</mat-icon
         >
 
-        <span class="mr-2" [style.color]="project.branding.titleColor">{{
-          appRegistration.email
-        }}</span>
+        <span [style.color]="project.branding.titleColor" class="mr-2">
+          {{ appRegistration.email }}
+        </span>
       </div>
     </mat-chip>
 
     <h5
-      class="mt-6 text-3xl mt-6 text-center"
+      class="mt-6 text-3xl text-center"
       [style.color]="project.branding.titleColor"
     >
       {{ "welcome.title" | transloco : { projectName: project.name } }}
@@ -286,28 +318,33 @@
   </div>
 
   <div
-    class="mt-2"
+    *ngIf="welcomeStyle === 3"
     fxLayout="column"
     fxLayoutAlign="start center"
-    *ngIf="welcomeStyle === 3"
+    fxLayoutAlign.lt-md="center center"
+    ngClass.lt-md="flex-grow"
+    ngClass.gt-sm="mt-2"
   >
-    <div class="mt-4 text-center">
+    <div class="text-center w-full" ngClass.gt-sm="mt-4">
       <div class="font-bold text-xl">
         {{ "welcome.complete_title" | transloco }}
       </div>
+
       <div>{{ "welcome.complete_subtitle" | transloco }}</div>
     </div>
   </div>
 
   <div
-    class="mt-2"
+    *ngIf="welcomeStyle === 4"
     fxLayout="column"
     fxLayoutAlign="start center"
-    *ngIf="welcomeStyle === 4"
+    fxLayoutAlign.lt-md="center center"
+    ngClass.lt-md="flex-grow"
+    ngClass.gt-sm="mt-2"
   >
     <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
 
-    <div class="mt-4 text-center">
+    <div class="text-center" ngClass.gt-sm="mt-4">
       <div class="font-bold text-xl">{{ "welcome.enrolled_title" | transloco }}</div>
       <div>{{ "welcome.enrolled_subtitle" | transloco }}</div>
     </div>
@@ -318,24 +355,27 @@
   class="mt-2"
   fxLayout="column"
   fxLayoutAlign="start center"
+  ngClass.lt-md="flex-grow"
   [class.hidden]="!showQrCode"
 >
-  <div class="mt-4 text-center">
+  <div ngClass.gt-sm="text-center">
     <div class="font-bold text-xl">
       {{ "welcome.other_device_title" | transloco }}
     </div>
 
     <div>{{ "welcome.other_device_subtitle" | transloco }}</div>
 
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div class="w-full" fxLayout="column" fxLayoutAlign="center center">
       <canvas class="m-8" #qrCodeCanvas height="400" width="400"></canvas>
     </div>
+  </div>
 
+  <div class="flex-grow w-full" fxLayout.lt-md="column" fxLayoutAlign.lt-md="start end">
     <button
       (click)="showQrCode = false"
       [style.border]="'1px solid' + project.branding.buttonColor"
       [style.color]="project.branding.buttonColor"
-      class="fuse-mat-button-large w-full mt-6"
+      class="fuse-mat-button-large w-full"
       mat-flat-button
       type="button"
     >

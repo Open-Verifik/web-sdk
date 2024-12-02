@@ -151,13 +151,15 @@
         "country_code": "Kodigo ng bansa"
     },
     "liveness": {
-        "center_yor_face": "Igitna ang iyong mukha sa screen",
-        "center_your_face_subtitle": "Pakitiyak na nasa gitna ang iyong mukha",
-        "get_closer": "Lumapit",
-        "get_closer_subtitle": "Lumapit ng kaunti para sa mas mahusay na pagkilala ng mukha.",
-        "liveness_failed": "Nabigo ang pagtukoy ng buhay",
-        "liveness_error_message": "Nabigo ang pagsusuri ng buhay kasama ang sumusunod na error:<br><strong>{{error}}</strong><br>Nais mo bang subukan muli?",
-        "person_linked_to_another_email": "Ang iyong mga biometrics ay naka-link sa ibang email.",
+        "center_yor_face": "Ilagay ang mukha mo sa gitna ng screen",
+        "center_your_face_subtitle": "Pakisigurado na nasa gitna ang iyong mukha",
+        "get_closer": "Lumapit pa",
+        "get_closer_subtitle": "Pakilapit pa nang kaunti para sa mas mahusay na pagkilala ng mukha.",
+        "liveness_failed": "Nabigo ang liveness detection",
+        "liveness_error_message": "Ang liveness check ay nabigo dahil sa sumusunod na error:<br><strong>{{error}}</strong><br>Gusto mo bang subukan ulit?",
+        "person_linked_to_another_email": "Ang iyong biometrics ay konektado sa ibang email.",
+        "face_not_found_title": "Hindi Natagpuan ang Mukha",
+        "face_not_found_subtitle": "Hindi ma-detect ang iyong mukha.",
         "loading_stream": "Naglo-load ng Camera"
     },
     "results": {
@@ -344,6 +346,7 @@
         "copyright": "{{year}} Produkto ng MAT Enterprises | Sa paggamit ng Verifik sumasang-ayon ka sa aming ",
         "detected": "Matagumpay na natukoy ang dokumento!",
         "did_not_detect": "Hindi namin natukoy ang dokumento",
+        "document_rotate": "Pakisiguro na ang iyong device ay nasa landscape orientation",
         "document_instructions": "Ilagay ang ID sa isang patag, madilim na ibabaw para sa pinakamahusay na resulta.",
         "extracting_data": "Kumukuha ng datos",
         "face_instructions": "Tiyakin na nasa gitna ng screen ang iyong mukha, alisin ang iyong salamin, at tiyakin ang magandang ilaw",
@@ -367,43 +370,47 @@
             "compare": "Mababa ang iskor ng paghahambing ng iyong ID at mga biometrics"
         },
         "step_titles": {
+            "id": "ID",
             "id_scanning": "Pag-scan ng ID",
-            "upload": "Mag-upload",
+            "upload": "I-upload",
             "ocr_details": "Mga Detalye ng OCR",
-            "biometric_record": "Talaan ng Biometric",
+            "biometric_record": "Biometric Record",
+            "biometrics": "Biometrics",
             "results": "Mga Resulta"
         },
         "documents": {
             "scan_or_upload_title": "I-scan o i-upload ang dokumento",
-            "upload_document_title": "Mag-upload ng imahe ng dokumento",
+            "upload_document_title": "I-upload ang imahe ng dokumento",
             "document_review_title": "Suriin ang Iyong Dokumento",
             "upload": {
                 "steps": {
-                    "1": "Mag-upload ng file sa mga format na .jpeg, .png, o .jpg.",
+                    "1": "Mag-upload ng file sa format na .jpeg, .png, o .jpg.",
                     "2": "Kumpirmahin na matagumpay ang pag-upload.",
-                    "3": "Kumpirmahin na tumutugma ang resulta sa iyong datos."
+                    "3": "Kumpirmahin na ang resulta ay tumutugma sa iyong data."
                 },
                 "errors": {
-                    "file_too_big": "Ang file ay dapat hindi mas malaki sa 10MB",
-                    "face_not_found": "Dapat may mukha sa dokumento, at malinaw na nakikita."
+                    "file_too_big": "Ang file ay dapat hindi hihigit sa 10MB",
+                    "face_not_found": "Ang dokumento ay dapat magpakita ng iyong mukha at dapat malinaw na nakikita."
                 },
-                "again": "Mag-upload muli",
-                "frontside": "Harapang Bahagi",
+                "again": "I-upload muli",
+                "frontside": "Unahang Bahagi",
+                "front": "Harap",
                 "backside": "Likurang Bahagi",
-                "upload_frontside": "Mag-upload ng Harapang Bahagi",
-                "upload_backside": "Mag-upload ng Likurang Bahagi",
+                "back": "Likod",
+                "upload_frontside": "I-upload ang Unahang Bahagi",
+                "upload_backside": "I-upload ang Likurang Bahagi",
                 "passport": "Pasaporte",
-                "driver_license": "Lisensya sa Pagmamaneho",
+                "driver_license": "Lisensya ng Pagmamaneho",
                 "id": "ID",
                 "find_file": "Hanapin ang file sa iyong device",
-                "identification_document_tip": "Ang file ay dapat nasa isa sa mga sumusunod na format: .jpeg, .png, o .jpg",
-                "ocr_details_front_title": "Mga Detalye ng OCR mula sa Harapang Bahagi ng Dokumento",
-                "ocr_details_back_title": "Mga Detalye ng OCR mula sa Likurang Bahagi ng Dokumento",
+                "identification_document_tip": "Ang file ay dapat nasa alinman sa mga sumusunod na format: .jpeg, .png, o .jpg",
+                "ocr_details_front_title": "OCR Detalye mula sa Unahang Bahagi ng Dokumento",
+                "ocr_details_back_title": "OCR Detalye mula sa Likurang Bahagi ng Dokumento",
                 "document_template": "Template ng Dokumento",
-                "template_id": "ID ng Template",
-                "platform": "Platform",
-                "extracted_information": "Nakuha na Impormasyon",
-                "process_information": "Proseso ng Impormasyon"
+                "template_id": "Template ID",
+                "platform": "Platforma",
+                "extracted_information": "Na-extract na Impormasyon",
+                "process_information": "Impormasyon sa Proseso"
             },
             "scan_document_title": "I-scan ang dokumento",
             "scan": {

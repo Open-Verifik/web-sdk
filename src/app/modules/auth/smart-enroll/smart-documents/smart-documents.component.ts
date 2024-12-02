@@ -103,6 +103,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 	}
 
     private _createDocumentValidation(body: any) {
+		this._smartEnrollService.setSkippedDocument(false);
 		this._smartEnrollService.subtractAttempt('document');
 
         this._KYCService

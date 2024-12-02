@@ -52,7 +52,6 @@ export class SmartResultsComponent implements OnInit {
 	redirectUrl: string;
     documentSkipped: boolean = false;
 
-
 	constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -139,6 +138,8 @@ export class SmartResultsComponent implements OnInit {
 				continue;
 			}
 
+			if (!this.appRegistration.biometricValidation) continue;
+
 			this._setFace(identityImage);
 		}
 
@@ -155,8 +156,14 @@ export class SmartResultsComponent implements OnInit {
 
 		this.identityLoading = true;
 
-		if (this.appRegistration.face?._id) {
+		if (this.appRegistration.face?._id && this.appRegistration.biometricValidation) {
 			this._setFace(this.appRegistration.face);
+
+			return;
+		}
+
+		if (this.appRegistration.documentFace?._id && this.appRegistration.documentValidation) {
+			this._setFace(this.appRegistration.documentFace);
 
 			return;
 		}

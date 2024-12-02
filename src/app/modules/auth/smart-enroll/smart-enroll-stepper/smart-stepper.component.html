@@ -7,31 +7,31 @@
   <div class="mr-2">
     <p
       *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
-      [hidden]="currentStep !== 'document'"
+      [hidden]="currentStep !== 'document'" ngClass.lt-md="uppercase text-medium"
     >
       <span *ngIf="method === 'upload'">{{
         "smart_enroll.step_titles.upload" | transloco
       }}</span>
-      <span *ngIf="method === 'scan'">{{
-        "smart_enroll.step_titles.id_scanning" | transloco
-      }}</span>
+      <span *ngIf="method === 'scan'">
+        {{ "smart_enroll.step_titles.id" | transloco }}
+      </span>
     </p>
 
     <p
       *ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
-      [hidden]="currentStep !== 'document-review'"
+      [hidden]="currentStep !== 'document-review'" ngClass.lt-md="uppercase text-medium"
     >
       {{ "smart_enroll.step_titles.ocr_details" | transloco }}
     </p>
 
     <p
       *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
-      [hidden]="currentStep !== 'biometric'"
+      [hidden]="currentStep !== 'biometric'" ngClass.lt-md="uppercase text-medium"
     >
-      {{ "smart_enroll.step_titles.biometric_record" | transloco }}
+      {{ "smart_enroll.step_titles.biometrics" | transloco }}
     </p>
 
-    <p [hidden]="currentStep !== 'result'">
+    <p [hidden]="currentStep !== 'result'" ngClass.lt-md="uppercase text-medium">
       {{ "smart_enroll.step_titles.results" | transloco }}
     </p>
   </div>

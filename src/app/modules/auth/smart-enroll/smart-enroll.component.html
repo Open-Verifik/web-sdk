@@ -1,71 +1,75 @@
 <div
-  [style.backgroundColor]="project.branding.bgColor"
+  [ngStyle.gt-sm]="{ backgroundColor: project.branding.bgColor }"
   @fadeIn
   *ngIf="project"
-  class="app"
+  class="app min-h-screen"
   fxLayout="column"
   fxLayoutAlign="center center"
 >
-  <section
-    class="toolbar toolbar--top"
-    [style.borderBottom]="
-      project.branding.borderColor
-        ? '1px solid ' + project.branding.borderColor
-        : ''
-    "
-  >
-    <div class="toolbar__logo">
-      <img [src]="project.branding.logo" class="w-10" />
-    </div>
-  </section>
-
   <main
     #appContent
-    class="app__content"
-    fxLayout="row"
+    class="app__content min-h-screen"
+    fxLayout="column"
+    fxLayoutAlign="start center"
+    ngClass.lt-md="flex-col flex-grow"
   >
-      <smart-documents
-        @fadeIn
-        *ngIf="currentStep === 'document'"
-        class="app__page"
-      ></smart-documents>
+    <section
+      [style.borderBottom]="
+        project.branding.borderColor
+          ? '1px solid ' + project.branding.borderColor
+          : ''
+      "
+      class="toolbar toolbar--top"
+      ngClass.lt-md="hidden"
+    >
+      <div class="toolbar__logo">
+        <img [src]="project.branding.logo" class="w-10" />
+      </div>
+    </section>
 
-      <smart-documents-review
-        @fadeIn
-        *ngIf="currentStep === 'document-review'"
-        class="app__page"
-      ></smart-documents-review>
+    <smart-documents
+      @fadeIn
+      *ngIf="currentStep === 'document'"
+      class="app__page"
+    ></smart-documents>
 
-      <smart-biometrics
-        @fadeIn
-        *ngIf="currentStep === 'biometric'"
-        class="app__page"
-      ></smart-biometrics>
+    <smart-documents-review
+      @fadeIn
+      *ngIf="currentStep === 'document-review'"
+      class="app__page"
+    ></smart-documents-review>
 
-      <smart-results
-        @fadeIn
-        *ngIf="currentStep === 'result'"
-        class="app__page"
-      ></smart-results>
+    <smart-biometrics
+      @fadeIn
+      *ngIf="currentStep === 'biometric'"
+      class="app__page"
+    ></smart-biometrics>
+
+    <smart-results
+      @fadeIn
+      *ngIf="currentStep === 'result'"
+      class="app__page"
+    ></smart-results>
+
+    <section
+      [ngStyle.gt-sm]="{
+        borderTop: project.branding.borderColor
+          ? '1px solid ' + project.branding.borderColor
+          : ''
+      }"
+      fxLayout.gt-sm="row"
+      fxLayoutAlign.gt-sm="center"
+      ngClass.gt-sm="toolbar toolbar--bottom"
+      ngClass.lt-md="py-2 text-center z-20"
+    >
+      <div fxLayout="column" fxLayoutAlign="center">
+        <p ngClass.lt-md="font-small">
+          Verifik &#169; {{ "smart_enroll.copyright" | transloco : { year } }}
+          <a href="" target="_blank">{{
+            "smart_enroll.terms_and_cond" | transloco
+          }}</a>
+        </p>
+      </div>
+    </section>
   </main>
-
-  <section
-    class="toolbar toolbar--bottom"
-    [style.borderTop]="
-      project.branding.borderColor
-        ? '1px solid ' + project.branding.borderColor
-        : ''
-    "
-    fxLayout="row"
-    fxLayoutAlign="center"
-  >
-    <div fxLayout="column" fxLayoutAlign="center">
-      <p [ngClass.lt-md]="'font-small'">
-        Verifik &#169; {{ "smart_enroll.copyright" | transloco : { year } }}
-        <a href="" target="_blank">{{
-          "smart_enroll.terms_and_cond" | transloco
-        }}</a>
-      </p>
-    </div>
-  </section>
 </div>

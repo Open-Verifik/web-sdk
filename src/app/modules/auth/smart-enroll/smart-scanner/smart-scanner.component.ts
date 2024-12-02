@@ -21,6 +21,7 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { SmartEnrollService } from "../smart-enroll.service";
 import { Corrections, SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
+import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 const JSScanify = new jscanify();
 
@@ -38,6 +39,7 @@ const JSScanify = new jscanify();
 		MatIconModule,
 		MatProgressSpinnerModule,
 		SmartScannerCorrectionsComponent,
+		SmartStepperComponent,
 		TranslocoModule,
 	],
 })
@@ -45,13 +47,13 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	@ViewChild("canvasContainer") canvasContainer: ElementRef<HTMLDivElement>;
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 	
-	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
-	@ViewChild("maskCanvas", { static: false }) public maskCanvas: ElementRef<HTMLCanvasElement>;
-	@ViewChild("resultCanvas", { static: false }) public resultCanvas: ElementRef<HTMLCanvasElement>;
-	@ViewChild("toSendCanvas", { static: false }) public toSendCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("maskCanvas") public maskCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("resultCanvas") public resultCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("toSendCanvas") public toSendCanvas: ElementRef<HTMLCanvasElement>;
 
-	@ViewChild("videoCanvas", { static: false }) public videoCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("videoElement") videoElement: ElementRef<HTMLVideoElement>;
 
 	@Input("source") source: "document" | "face";
@@ -83,7 +85,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	faceIdCard: string;
 	faceIsValid: boolean;
 	hasCameraPermissions: boolean;
+	hideTip: boolean = false;
 	isHorizontal: boolean = true;
+	isLandscape: boolean = false;
 	loading: any;
 	loadingCamera: boolean;
 	loadingQRCode: boolean = true;
@@ -136,20 +140,23 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService
 	) {
+		this.isLandscape = window.matchMedia("(orientation: landscape)").matches;
+
 		this._resetVariables();
 
 		this._debouncedWindowResize = debounce(() => {
 			if (!this.videoElement) return;
 
 			this._stopRecord();
+			this._resetVariables();
 
 			setTimeout(() => this._startCamera());
 		}, 300);
-
-		this._renderer.listen("window", "resize", this._debouncedWindowResize);
 	}
 
 	ngOnInit(): void {
+		this._renderer.listen("window", "resize", this._debouncedWindowResize);
+
 		this.successfulUpload
 			.pipe(takeUntil(this.unsubscriber$))
 			.subscribe(() => {
@@ -221,10 +228,17 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 			if (!this._checkFaceTimeout) {
 				this._checkFaceTimeout = setTimeout(() => {
-					this.errorFace = {
-						title: this._translocoService.translate("id_scanning.face_not_found"),
-						subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
-					};
+					if (this.source === 'document') {
+						this.errorFace = {
+							title: this._translocoService.translate("id_scanning.face_not_found"),
+							subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
+						};
+					} else {
+						this.errorFace = {
+							title: this._translocoService.translate("liveness.face_not_found_title"),
+							subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
+						};
+					}
 				}, 3 * this.demoData.time);
 			}
 		} catch (e) {}
@@ -644,7 +658,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._scanner = JSScanify;
 
 		this.demoData = this._demoService.getDemoData();
+		this.isLandscape = this.source !== 'face' && window.matchMedia("(orientation: landscape)").matches;
 
+		this.hideTip = false;
 		this.base64Image = undefined;
 		this.hasCameraPermissions = false;
 		this.loading = false;
@@ -661,7 +677,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		const IDEAL_B = 1080;
 
 		const settings = (
-			this.demoData.isMobile ? {
+			!this.isLandscape && this.demoData.isMobile ? {
 				aspectRatio: { ideal: IDEAL_B / IDEAL_A },
 				frameRate: { min: 15, ideal: 30, max: 60 },
 				height: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
@@ -1028,12 +1044,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	canSkip(): boolean {
+        if (this.uploading) return false;
+
 		const canSkipBiometric = this.source === "face" && (this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation);
 		const canSkipDocument = this.source === "document" && (
 			this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation
 		);
 
-		return !this.uploading && (canSkipDocument || canSkipBiometric);
+		return canSkipDocument || canSkipBiometric;
+	}
+
+	closeTip() {
+		this.hideTip = true;
 	}
 
 	goPrevious(): void {

@@ -1,14 +1,17 @@
 <div
-  class="h-full px-8 py-4 w-full"
+  class="min-h-full w-full"
+  ngClass.gt-sm="px-4 py-4"
+  ngClass.lt-md="p-4"
   fxLayout="row"
   fxLayoutAlign="center center"
   fxLayout.lt-md="column"
 >
-  <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
+  <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0" ngClass.lt-md="hidden">
     <smart-stepper></smart-stepper>
   </div>
 
   <div
+    class="w-full min-h-full"
     fxFlex="50%"
     fxFlex.lt-lg="75%"
     fxFlex.lt-md="100%"

@@ -151,13 +151,15 @@
         "country_code": "국가 코드"
     },
     "liveness": {
-        "center_yor_face": "화면에 얼굴을 중앙에 위치시키세요",
-        "center_your_face_subtitle": "얼굴이 중앙에 위치하는지 확인하세요",
-        "get_closer": "더 가까이 다가가세요",
-        "get_closer_subtitle": "얼굴 인식을 위해 조금 더 가까이 와주세요.",
-        "liveness_failed": "생체 인식 실패",
-        "liveness_error_message": "다음 오류로 인해 생체 인식 검사가 실패했습니다:<br><strong>{{error}}</strong><br>다시 시도하시겠습니까?",
-        "person_linked_to_another_email": "당신의 생체 정보가 다른 이메일과 연결되어 있습니다.",
+        "center_yor_face": "얼굴을 화면 중앙에 맞추세요",
+        "center_your_face_subtitle": "얼굴이 중앙에 위치하도록 해주세요",
+        "get_closer": "더 가까이 오세요",
+        "get_closer_subtitle": "더 나은 얼굴 인식을 위해 조금 더 가까이 오세요.",
+        "liveness_failed": "라이브니스 감지 실패",
+        "liveness_error_message": "라이브니스 확인이 다음 오류로 실패했습니다:<br><strong>{{error}}</strong><br>다시 시도하시겠습니까?",
+        "person_linked_to_another_email": "귀하의 생체 정보가 다른 이메일과 연결되어 있습니다.",
+        "face_not_found_title": "얼굴을 찾을 수 없음",
+        "face_not_found_subtitle": "얼굴을 감지할 수 없습니다.",
         "loading_stream": "카메라 로딩 중"
     },
     "results": {
@@ -344,6 +346,7 @@
         "copyright": "{{year}} MAT 엔터프라이즈 제품 | Verifik 사용 시 우리의 ",
         "detected": "문서가 성공적으로 감지되었습니다!",
         "did_not_detect": "문서를 감지할 수 없었습니다",
+        "document_rotate": "장치가 가로 방향으로 설정되어 있는지 확인하세요",
         "document_instructions": "최상의 결과를 위해 문서를 평평하고 어두운 표면에 놓으세요",
         "extracting_data": "데이터 추출 중",
         "face_instructions": "얼굴이 화면 중앙에 오도록 하고, 안경을 벗고 조명을 잘 조정하세요",
@@ -367,43 +370,47 @@
             "compare": "신분증과 생체 정보의 비교 점수가 너무 낮습니다"
         },
         "step_titles": {
-            "id_scanning": "신분증 스캔",
+            "id": "ID",
+            "id_scanning": "ID 스캔",
             "upload": "업로드",
-            "ocr_details": "OCR 세부 정보",
-            "biometric_record": "생체 정보 기록",
+            "ocr_details": "OCR 세부정보",
+            "biometric_record": "생체 기록",
+            "biometrics": "생체 정보",
             "results": "결과"
         },
         "documents": {
-            "scan_or_upload_title": "문서 스캔 또는 업로드",
-            "upload_document_title": "문서 이미지 업로드",
-            "document_review_title": "문서 검토",
+            "scan_or_upload_title": "문서를 스캔하거나 업로드하세요",
+            "upload_document_title": "문서 이미지를 업로드하세요",
+            "document_review_title": "문서를 검토하세요",
             "upload": {
                 "steps": {
-                    "1": ".jpeg, .png, .jpg 형식의 파일을 업로드합니다",
-                    "2": "업로드가 성공적이었는지 확인합니다",
-                    "3": "결과가 데이터와 일치하는지 확인합니다"
+                    "1": ".jpeg, .png 또는 .jpg 형식의 파일을 업로드하세요.",
+                    "2": "업로드가 성공적으로 완료되었는지 확인하세요.",
+                    "3": "결과가 귀하의 데이터와 일치하는지 확인하세요."
                 },
                 "errors": {
-                    "file_too_big": "파일 크기는 10MB를 초과할 수 없습니다",
-                    "face_not_found": "문서에 얼굴이 포함되어 있고, 명확하게 보여야 합니다"
+                    "file_too_big": "파일 크기는 10MB를 초과할 수 없습니다.",
+                    "face_not_found": "문서에는 얼굴이 있어야 하며 명확히 보여야 합니다."
                 },
                 "again": "다시 업로드",
                 "frontside": "앞면",
+                "front": "앞면",
                 "backside": "뒷면",
+                "back": "뒷면",
                 "upload_frontside": "앞면 업로드",
                 "upload_backside": "뒷면 업로드",
                 "passport": "여권",
-                "driver_license": "운전 면허증",
-                "id": "신분증",
-                "find_file": "장치에서 파일 찾기",
-                "identification_document_tip": "파일은 .jpeg, .png, .jpg 형식이어야 합니다",
-                "ocr_details_front_title": "앞면 문서의 OCR 세부 정보",
-                "ocr_details_back_title": "뒷면 문서의 OCR 세부 정보",
+                "driver_license": "운전면허증",
+                "id": "ID",
+                "find_file": "기기에서 파일 찾기",
+                "identification_document_tip": "파일 형식은 .jpeg, .png 또는 .jpg 중 하나여야 합니다.",
+                "ocr_details_front_title": "앞면 문서의 OCR 세부정보",
+                "ocr_details_back_title": "뒷면 문서의 OCR 세부정보",
                 "document_template": "문서 템플릿",
                 "template_id": "템플릿 ID",
                 "platform": "플랫폼",
                 "extracted_information": "추출된 정보",
-                "process_information": "처리 정보"
+                "process_information": "프로세스 정보"
             },
             "scan_document_title": "문서 스캔",
             "scan": {

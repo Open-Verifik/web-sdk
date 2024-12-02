@@ -1,22 +1,24 @@
 <div
-  class="w-full px-4 py-4 m-auto"
+  class="w-full p-4"
   fxLayout="row"
   fxLayoutAlign="center center"
   fxLayout.lt-md="column"
+  fxLayoutAlign.lt-md="start center"
+  ngClass.gt-sm="m-auto"
+  ngClass.lt-md="flex-grow"
 >
-  <div fxFlex="25%" fxFlex.lt-md="0">
+  <div fxFlex="25%" fxFlex.lt-md="0" ngClass.lt-md="w-full">
     <smart-stepper></smart-stepper>
   </div>
 
   <div
-    class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
+    class="smart-documents__card smart-documents__card--large rounded-2xl bg-card w-full"
     fxLayout="column"
     fxLayoutAlign="center center"
-    [style.border]="
-      project.branding.borderColor
-        ? '1px solid ' + project.branding.borderColor
-        : ''
-    "
+    [ngStyle.gt-sm]="{ border: '1px solid ' + project.branding.borderColor }"
+    ngClass.gt-sm="p-6 m-4"
+    ngClass.lt-md="mt-6"
+    fxFlex.lt-md="100%"
   >
     <div
       class="results__avatar-container"
@@ -225,69 +227,71 @@
       </div>
     </div>
 
-    <button
-      (click)="tryAgain('document')"
-      [disabled]="enrollStore.document.remaining < 1"
-      [style.background]="
-        enrollStore.document.remaining > 0 ? project.branding.buttonColor : ''
-      "
-      [style.color]="
-        enrollStore.document.remaining > 0
-          ? project.branding.buttonTxtColor
-          : ''
-      "
-      class="fuse-mat-button-large w-full mt-16"
-      mat-flat-button
-      *ngIf="
-        errorResult && projectFlow.onboardingSettings.steps.document !== 'skip'
-      "
-    >
-      <span>{{ "id_scanning.retry_document" | transloco }}</span>
-    </button>
+    <div class="w-full" ngClass.lt-md="flex flex-grow flex-col justify-end mt-8" ngClass.gt-sm="mt-16">
+      <button
+        (click)="tryAgain('document')"
+        [disabled]="enrollStore.document.remaining < 1"
+        [style.background]="
+          enrollStore.document.remaining > 0 ? project.branding.buttonColor : ''
+        "
+        [style.color]="
+          enrollStore.document.remaining > 0
+            ? project.branding.buttonTxtColor
+            : ''
+        "
+        class="fuse-mat-button-large w-full"
+        mat-flat-button
+        *ngIf="
+          errorResult && projectFlow.onboardingSettings.steps.document !== 'skip'
+        "
+      >
+        <span>{{ "id_scanning.retry_document" | transloco }}</span>
+      </button>
 
-    <button
-      (click)="tryAgain('biometric')"
-      [disabled]="enrollStore.biometric.remaining < 1"
-      [style.background]="
-        enrollStore.biometric.remaining > 0 ? project.branding.buttonColor : ''
-      "
-      [style.color]="
-        enrollStore.biometric.remaining > 0
-          ? project.branding.buttonTxtColor
-          : ''
-      "
-      class="fuse-mat-button-large w-full mt-4"
-      mat-flat-button
-      *ngIf="
-        errorResult && projectFlow.onboardingSettings.steps.liveness !== 'skip'
-      "
-    >
-      <span>{{ "id_scanning.retry_biometric" | transloco }}</span>
-    </button>
+      <button
+        (click)="tryAgain('biometric')"
+        [disabled]="enrollStore.biometric.remaining < 1"
+        [style.background]="
+          enrollStore.biometric.remaining > 0 ? project.branding.buttonColor : ''
+        "
+        [style.color]="
+          enrollStore.biometric.remaining > 0
+            ? project.branding.buttonTxtColor
+            : ''
+        "
+        class="fuse-mat-button-large w-full mt-4"
+        mat-flat-button
+        *ngIf="
+          errorResult && projectFlow.onboardingSettings.steps.liveness !== 'skip'
+        "
+      >
+        <span>{{ "id_scanning.retry_biometric" | transloco }}</span>
+      </button>
 
-    <button
-      (click)="loginToPlatform()"
-      [disabled]="isLoginToPlatformDisabled()"
-      [style.background]="
-        isLoginToPlatformDisabled() ? '' : project.branding.buttonColor
-      "
-      [style.color]="
-        isLoginToPlatformDisabled() ? '' : project.branding.buttonTxtColor
-      "
-      class="fuse-mat-button-large w-full mt-16"
-      mat-flat-button
-      *ngIf="!errorResult"
-    >
-      <div fxLayout="row" fxLayoutAlign="center center">
-        <mat-progress-spinner
-          mode="indeterminate"
-          class="mr-4"
-          diameter="14"
-          *ngIf="fetchingToken"
-        ></mat-progress-spinner>
-        <span>{{ "smart_enroll.login_to_platform" | transloco }}</span>
-      </div>
-    </button>
+      <button
+        (click)="loginToPlatform()"
+        [disabled]="isLoginToPlatformDisabled()"
+        [style.background]="
+          isLoginToPlatformDisabled() ? '' : project.branding.buttonColor
+        "
+        [style.color]="
+          isLoginToPlatformDisabled() ? '' : project.branding.buttonTxtColor
+        "
+        class="fuse-mat-button-large w-full mt-4"
+        mat-flat-button
+        *ngIf="!errorResult"
+      >
+        <div fxLayout="row" fxLayoutAlign="center center">
+          <mat-progress-spinner
+            mode="indeterminate"
+            class="mr-4"
+            diameter="14"
+            *ngIf="fetchingToken"
+          ></mat-progress-spinner>
+          <span>{{ "smart_enroll.login_to_platform" | transloco }}</span>
+        </div>
+      </button>
+    </div>
   </div>
 
   <div fxFlex="25%" fxFlex.lt-lg="0"></div>

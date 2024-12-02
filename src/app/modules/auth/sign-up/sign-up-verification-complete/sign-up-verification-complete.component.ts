@@ -205,8 +205,6 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 	}
 
 	skipDocument(): void {
-		this._smartEnrollService.setSkippedDocument(true);
-
 		if (this.projectFlow.onboardingSettings.steps.liveness === "skip" || this._smartEnrollService.wasSkippedBiometric()) {
 			this.skipKYC();
 

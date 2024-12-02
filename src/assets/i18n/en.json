@@ -159,6 +159,8 @@
 		"liveness_failed": "Liveness detection failed",
 		"liveness_error_message": "The liveness check has failed with the following error:<br><strong>{{error}}</strong><br>Do you want to try again?",
 		"person_linked_to_another_email": "Your biometrics are linked to another email.",
+		"face_not_found_title": "Face not Found",
+		"face_not_found_subtitle": "Your face cannot be detected.",
 		"loading_stream": "Loading Camera"
 	},
 	"results": {
@@ -354,6 +356,7 @@
 		"detected": "Document successfully detected!",
 		"did_not_detect": "We could not detect the document",
 		"document_instructions": "Place ID onto a flat, dark surface to ensure best outcome.",
+		"document_rotate": "Please ensure your device is in landscape orientation",
 		"extracting_data": "Extracting data",
 		"face_instructions": "Make sure your face is in the center of the screen, remove your glasses, and ensure good lighting",
 		"face_was_not_registered": "Your face was not registered",
@@ -376,10 +379,12 @@
 			"compare": "A comparison of your ID and biometrics scored too low"
 		},
 		"step_titles": {
+			"id": "ID",
 			"id_scanning": "ID Scanning",
 			"upload": "Upload",
 			"ocr_details": "OCR Details",
 			"biometric_record": "Biometric Record",
+			"biometrics": "Biometrics",
 			"results": "Results"
 		},
 		"documents": {
@@ -398,7 +403,9 @@
 				},
 				"again": "Upload again",
 				"frontside": "Front Side",
+				"front": "Front",
 				"backside": "Back Side",
+				"back": "Back",
 				"upload_frontside": "Upload Front Side",
 				"upload_backside": "Upload Back Side",
 				"passport": "Passport",

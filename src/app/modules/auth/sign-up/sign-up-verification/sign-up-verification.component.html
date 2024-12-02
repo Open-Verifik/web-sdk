@@ -1,4 +1,7 @@
-<div *ngIf="project && appRegistration">
+<div
+  *ngIf="project && appRegistration"
+  ngClass.lt-md="flex flex-col flex-grow min-h-full"
+>
   <div *ngIf="currentValidation?.email">
     <h5 class="text-3xl mt-2" [style.color]="project.branding.titleColor">
       {{ "signup.verify_email_title" | transloco }}
@@ -12,7 +15,7 @@
       (click)="setUpdate()"
       [disabled]="loading"
       [style.backgroundColor]="project.branding.bgColor"
-      class="mt-6 verify__chip"
+      class="mt-6 verify__chip verify__chip--no-border"
     >
       <div fxLayout="row" fxLayoutAlign="center space-between">
         <mat-icon
@@ -49,7 +52,7 @@
       (click)="setUpdate()"
       [disabled]="loading"
       [style.backgroundColor]="project.branding.bgColor"
-      class="mt-6 verify__chip"
+      class="mt-6 verify__chip verify__chip--no-border"
     >
       <div fxLayout="row" fxLayoutAlign="center space-between">
         <mat-icon
@@ -90,6 +93,7 @@
     [formGroup]="otpForm"
     #otpNgForm="ngForm"
     *ngIf="!update && currentValidation"
+    ngClass.lt-md="flex flex-col flex-grow"
   >
     <mat-form-field
       class="w-full"
@@ -152,8 +156,9 @@
     </mat-form-field>
 
     <div
-      class="grid grid-cols-2 w-full"
       *ngIf="currentValidation?.phone && selectedPhoneGateway === 'both'"
+      class="grid grid-cols-2 w-full"
+      ngClass.lt-md="flex flex-col flex-grow justify-end"
     >
       <button
         (click)="sendPhoneOTP($event, 'sms')"
@@ -226,6 +231,7 @@
     [formGroup]="emailForm"
     #emailNgForm="ngForm"
     *ngIf="currentValidation?.email && update"
+    ngClass.lt-md="flex flex-col flex-grow"
   >
     <mat-form-field class="w-full">
       <mat-label [style.color]="project.branding.txtColor">
@@ -250,16 +256,18 @@
       </mat-error>
     </mat-form-field>
 
-    <button
-      (click)="updateEmail($event)"
-      [disabled]="!canUpdateEmailOrPhone()"
-      [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
-      [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
-      class="fuse-mat-button-large w-full mt-6"
-      mat-flat-button
-    >
-      <span> {{ "signup.change_your_phone_button" | transloco }} </span>
-    </button>
+    <div ngClass.lt-md="flex flex-col flex-grow justify-end">
+      <button
+        (click)="updateEmail($event)"
+        [disabled]="!canUpdateEmailOrPhone()"
+        [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
+        [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
+        class="fuse-mat-button-large w-full mt-6"
+        mat-flat-button
+      >
+        <span> {{ "signup.change_your_phone_button" | transloco }} </span>
+      </button>
+    </div>
   </form>
 
   <form
@@ -314,20 +322,22 @@
       </mat-error>
     </mat-form-field>
 
-    <button
-      (click)="updatePhone($event)"
-      [disabled]="!canUpdateEmailOrPhone()"
-      [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
-      [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
-      class="fuse-mat-button-large w-full mt-6"
-      mat-flat-button
-    >
-      <span> {{ "signup.change_your_phone_button" | transloco }} </span>
-    </button>
+    <div ngClass.lt-md="flex flex-col flex-grow justify-end">
+      <button
+        (click)="updatePhone($event)"
+        [disabled]="!canUpdateEmailOrPhone()"
+        [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
+        [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
+        class="fuse-mat-button-large w-full mt-6"
+        mat-flat-button
+      >
+        <span> {{ "signup.change_your_phone_button" | transloco }} </span>
+      </button>
+    </div>
   </form>
 
   <div class="signup__hint signup__hint--red mt-4" fxLayout="row" fxLayoutAlign="start start" *ngIf="showError">
-    <mat-icon class="mr-4" svgIcon="mat_solid:warning"></mat-icon>
+    <mat-icon class="mr-4" svgIcon="feather:alert-octagon"></mat-icon>
   
     <p>{{ 'errors.' + errorContent | transloco }}</p>
   </div>

@@ -1,67 +1,96 @@
 <div
-	[style.background]="project.branding.bgColor"
+	[ngStyle.gt-sm]="{ backgroundColor: project.branding.bgColor }"
+	[ngStyle.lt-md]="{ backgroundColor: '#ffffff' }"
 	@fadeIn
 	*ngIf="project && !showKYCApp"
 	class="w-full"
 	fxLayout="row"
+	fxLayoutAlign.lt-md="start start"
 	fxLayoutAlign="center center"
 >
-	<languages class="language-selector"></languages>
+	<languages class="language-selector" ngClass.lt-md="hidden"></languages>
 
-	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full my-8" *ngIf="showMainContainer()">
-		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content">
-			<div class="w-full sm:w-auto py-4 px-8" fxLayout="row" fxLayoutAlign="start center">
-				<div class="w-400 mx-auto sm:mx-0">
-					<div *ngIf="!verificationComplete">
-						<div fxLayout="row" fxLayoutAlign="space-between center" class="mt-2 mb-8 ml-2">
-							<img [src]="project.branding.logo" class="w-14" />
+	<div
+		*ngIf="showMainContainer()"
+		class="flex w-full"
+		fxLayout="row"
+		fxLayoutAlign="center end"
+		ngClass.gt-sm="my-8"
+	>
+		<div
+			class="flex overflow-hidden bg-card"
+			ngClass.gt-sm="sign-in-content rounded-2xl"
+		>
+			<div
+				class="w-full sm:w-auto"
+				fxLayout="row"
+				fxLayoutAlign="start center"
+				ngClass.gt-sm="py-4 px-8"
+				ngClass.lt-md="min-h-screen"
+			>
+				<div class="w-400 mx-auto sm:mx-0" ngClass.lt-md="flex flex-col p-4 min-h-screen">
+					<div *ngIf="!verificationComplete" ngClass.lt-md="flex flex-col flex-grow">
+						<div fxLayout="row" fxLayoutAlign="space-between center" class="w-full mt-2 mb-4 ml-2" ngClass.gt-sm="mb-8">
+							<img
+								[src]="project.branding.logo"
+								ngClass.gt-sm="w-14"
+								ngClass.lt-md="w-12"
+							/>
+
+							<languages class="language-selector relative" ngClass.gt-sm="hidden"></languages>
 						</div>
 
-						<div class="flex">
-							<small class="font-bold tracking-wider text-secondary">
-								{{ "signup.step" | transloco : { current: currentStepIndex + 1, total: steps.length } | uppercase }}
-							</small>
+						<div class="w-full" ngClass.lt-md="flex flex-col flex-grow">
+							<div class="flex" ngClass.lt-md="w-full">
+								<small class="font-bold tracking-wider text-secondary">
+									{{ "signup.step" | transloco : { current: currentStepIndex + 1, total: steps.length } | uppercase }}
+								</small>
 
-							<div class="signup__steps flex">
-								<div
-									class="signup__step"
-									*ngFor="let step of steps"
-									[ngClass]="{ 'signup__step--wide': step === currentStep }"
-									[style.backgroundColor]="step === currentStep ? project.branding.buttonColor : ''"
-								></div>
+								<div class="signup__steps flex">
+									<div
+										class="signup__step"
+										*ngFor="let step of steps"
+										[ngClass]="{ 'signup__step--wide': step === currentStep }"
+										[style.backgroundColor]="step === currentStep ? project.branding.buttonColor : ''"
+									></div>
+								</div>
 							</div>
+
+							<auth-sign-up-create-form
+								@fadeIn
+								[location]="location"
+								[project]="project"
+								[projectFlow]="projectFlow"
+								*ngIf="currentStep === 'create'"
+								ngClass.lt-md="flex flex-grow flex-col min-h-full"
+							></auth-sign-up-create-form>
+
+							<auth-sign-up-verification
+								@fadeIn
+								(changeStep)="onStepChange($event)"
+								[appRegistration]="appRegistration"
+								[project]="project"
+								[projectFlow]="projectFlow"
+								*ngIf="currentStep === 'verify_email' || currentStep === 'verify_phone'"
+								ngClass.lt-md="flex flex-grow flex-col min-h-full"
+							></auth-sign-up-verification>
 						</div>
 
-						<auth-sign-up-create-form
-							@fadeIn
-							[location]="location"
-							[project]="project"
-							[projectFlow]="projectFlow"
-							*ngIf="currentStep === 'create'"
-						></auth-sign-up-create-form>
-
-						<auth-sign-up-verification
-							@fadeIn
-							(changeStep)="onStepChange($event)"
-							[appRegistration]="appRegistration"
-							[project]="project"
-							[projectFlow]="projectFlow"
-							*ngIf="currentStep === 'verify_email' || currentStep === 'verify_phone'"
-						></auth-sign-up-verification>
-
-						<div class="mt-8" fxLayout="row" fxLayoutAlign="center center">
-							<div class="signup__steps flex">
-								<div
-									class="signup__step"
-									*ngFor="let step of steps"
-									[ngClass]="{ 'signup__step--wide': step === currentStep }"
-									[style.backgroundColor]="step === currentStep ? project.branding.buttonColor : ''"
-								></div>
+						<div class="w-full">
+							<div class="mt-8" fxLayout="row" fxLayoutAlign="center center" ngClass.lt-md="hidden">
+								<div class="signup__steps flex">
+									<div
+										class="signup__step"
+										*ngFor="let step of steps"
+										[ngClass]="{ 'signup__step--wide': step === currentStep }"
+										[style.backgroundColor]="step === currentStep ? project.branding.buttonColor : ''"
+									></div>
+								</div>
 							</div>
-						</div>
 
-						<div class="w-full text-center mt-8 text-secondary" fxLayout="row" fxLayoutAlign="center center">
-							{{ "powered_by_verifik" | transloco }}
+							<div class="w-full text-center mt-8 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+								{{ "powered_by_verifik" | transloco }}
+							</div>
 						</div>
 					</div>
 
@@ -71,6 +100,7 @@
 						[project]="project"
 						@fadeIn
 						*ngIf="verificationComplete"
+						ngClass.lt-md="flex flex-col flex-grow"
 					></auth-sign-up-verification-complete>
 				</div>
 			</div>
@@ -78,8 +108,15 @@
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showLocationError()">
-		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content sign-in-content--small">
-			<div class="w-full sm:w-auto p-10" fxLayout="column" fxLayoutAlign="start start">
+		<div
+			class="flex overflow-hidden bg-card"
+			ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small"
+		>
+			<div
+				class="w-full sm:w-auto p-6"
+				fxLayout="column"
+				ngClass.gt-sm="p-10"
+			>
 				<div fxLayout="row" fxLayoutAlign="space-between center" class="mt-4 ml-2">
 					<img [src]="project.branding.logo" class="w-14" />
 				</div>
@@ -115,8 +152,15 @@
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showCountryNotAllowed()">
-		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content sign-in-content--small">
-			<div class="w-full sm:w-auto p-10" fxLayout="column">
+		<div
+			class="flex overflow-hidden bg-card"
+			ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small"
+		>
+			<div
+				class="w-full sm:w-auto p-6"
+				fxLayout="column"
+				ngClass.gt-sm="p-10"
+			>
 				<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
 					<mat-icon
 						class="sign-in-content__icon"
@@ -151,8 +195,15 @@
 	</div>
 
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full" *ngIf="showNoProjectError()">
-		<div class="flex rounded-2xl bg-card overflow-hidden sign-in-content sign-in-content--small">
-			<div class="w-full sm:w-auto p-10" fxLayout="column">
+		<div
+			class="flex overflow-hidden bg-card"
+			ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small"
+		>
+			<div
+				class="w-full sm:w-auto p-6"
+				fxLayout="column"
+				ngClass.gt-sm="p-10"
+			>
 				<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
 					<mat-icon
 						class="sign-in-content__icon"

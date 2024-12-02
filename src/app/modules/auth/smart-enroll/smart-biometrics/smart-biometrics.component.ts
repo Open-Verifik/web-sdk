@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 
 import { fuseAnimations } from "@fuse/animations";
@@ -56,12 +56,14 @@ export class SmartBiometricsComponent implements OnDestroy {
 	}
 
 	private _createBiometricValidation(body: any) {
+		this._smartEnrollService.setSkippedBiometric(false);
 		this._smartEnrollService.subtractAttempt("biometric");
 
 		this._KYCService.createBiometricValidation(body).subscribe({
 			next: (response) => {
 				this.appRegistration.biometricValidation = response.data.biometricValidation as BiometricValidation;
 				this.appRegistration.person = response.data.person;
+				this.appRegistration.face = null;
 
 				this._smartEnrollService.setLivenessScore(response.data.biometricValidation.livenessScore);
 
