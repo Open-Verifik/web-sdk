@@ -57,7 +57,6 @@ export class SmartBiometricsComponent implements OnDestroy {
 
 	private _createBiometricValidation(body: any) {
 		this._smartEnrollService.setSkippedBiometric(false);
-		this._smartEnrollService.subtractAttempt("biometric");
 
 		this._KYCService.createBiometricValidation(body).subscribe({
 			next: (response) => {
@@ -95,6 +94,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 	}
 
 	private _handleError(error: any): void {
+		this._smartEnrollService.subtractAttempt("biometric");
 		this.errorContent = { message: error?.error?.message || "" };
 
 		const str = this.errorContent.message.split("@");

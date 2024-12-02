@@ -228,6 +228,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 			if (!this._checkFaceTimeout) {
 				this._checkFaceTimeout = setTimeout(() => {
+					this.faceIsValid = false;
+
 					if (this.source === 'document') {
 						this.errorFace = {
 							title: this._translocoService.translate("id_scanning.face_not_found"),
