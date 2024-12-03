@@ -151,14 +151,16 @@
 		"country_code": "国家代码"
 	},
 	"liveness": {
-		"center_yor_face": "将您的脸部置于屏幕中心",
-		"center_your_face_subtitle": "请确保您的脸部位于屏幕中心",
-		"get_closer": "靠近一些",
-		"get_closer_subtitle": "请靠近一些以便更好的面部识别。",
+		"center_yor_face": "将您的脸居中在屏幕上",
+		"center_your_face_subtitle": "请确保您的脸居中",
+		"get_closer": "靠近一点",
+		"get_closer_subtitle": "请稍微靠近一些以提高面部识别效果。",
 		"liveness_failed": "活体检测失败",
-		"liveness_error_message": "活体检测失败，错误如下：<br><strong>{{error}}</strong><br>您是否想再试一次？",
-		"person_linked_to_another_email": "您的生物特征已链接到另一个电子邮件。",
-		"loading_stream": "正在加载摄像头"
+		"liveness_error_message": "活体检测失败，错误如下：<br><strong>{{error}}</strong><br>您想再试一次吗？",
+		"person_linked_to_another_email": "您的生物识别数据已链接到另一个电子邮件。",
+		"face_not_found_title": "未检测到面部",
+		"face_not_found_subtitle": "无法检测到您的面部。",
+		"loading_stream": "加载摄像头"
 	},
 	"results": {
 		"selfie": "自拍",
@@ -200,6 +202,14 @@
 		"something_went_wrong": "出现错误，请重试",
 		"invalid_email": "无效的电子邮件",
 		"invalid_phone": "无效的电话",
+		"document": {
+			"document_not_supported": "此文档的验证不可用。",
+			"incomplete": "您尚未上传文档。",
+			"mandatory": "上传您的文档是完成注册流程的必需步骤。",
+			"names_do_not_match": "您的文档提交被拒绝。请验证文档的合法性，并确保姓名完全匹配。",
+			"requires_back": "您提交的文档需要正反两面。",
+			"validation_not_available": "此文档的验证不可用。"
+		},
 		"geolocation": {
 			"country_not_allowed_subtitle": "由于合规问题，我们无法处理来自此国家的请求。请联系支持以寻求帮助。",
 			"country_not_allowed": "需要位置验证",
@@ -344,6 +354,7 @@
 		"copyright": "{{year}} MAT企业产品 | 使用Verifik即表示您同意我们的",
 		"detected": "文件成功检测！",
 		"did_not_detect": "我们未能检测到文件",
+		"document_rotate": "请确保您的设备处于横向模式",
 		"document_instructions": "将身份证放在平坦的暗色表面上以确保最佳结果。",
 		"extracting_data": "提取数据",
 		"face_instructions": "确保您的脸部在屏幕中央，取下眼镜，并确保有良好的照明",
@@ -367,40 +378,44 @@
 			"compare": "您的身份证和生物特征的对比得分太低"
 		},
 		"step_titles": {
+			"id": "身份证",
 			"id_scanning": "身份证扫描",
 			"upload": "上传",
-			"ocr_details": "OCR详情",
+			"ocr_details": "OCR 详情",
 			"biometric_record": "生物特征记录",
+			"biometrics": "生物特征",
 			"results": "结果"
 		},
 		"documents": {
 			"scan_or_upload_title": "扫描或上传文件",
 			"upload_document_title": "上传文件图片",
-			"document_review_title": "审查您的文件",
+			"document_review_title": "审阅您的文件",
 			"upload": {
 				"steps": {
-					"1": "上传文件，格式为.jpeg、.png或.jpg。",
+					"1": "上传 .jpeg、.png 或 .jpg 格式的文件。",
 					"2": "确认上传成功。",
 					"3": "确认结果与您的数据匹配。"
 				},
 				"errors": {
-					"file_too_big": "文件大小不得超过10MB",
-					"face_not_found": "文件必须清晰可见您的面部。"
+					"file_too_big": "文件大小不得超过 10MB",
+					"face_not_found": "文件中必须包含您的面部，并清晰可见。"
 				},
-				"again": "再次上传",
+				"again": "重新上传",
 				"frontside": "正面",
+				"front": "正面",
 				"backside": "背面",
+				"back": "背面",
 				"upload_frontside": "上传正面",
 				"upload_backside": "上传背面",
 				"passport": "护照",
-				"driver_license": "驾驶执照",
+				"driver_license": "驾照",
 				"id": "身份证",
 				"find_file": "在您的设备上找到文件",
-				"identification_document_tip": "文件必须是以下格式之一：.jpeg、.png或.jpg",
-				"ocr_details_front_title": "正面文件的OCR详情",
-				"ocr_details_back_title": "背面文件的OCR详情",
+				"identification_document_tip": "文件格式必须是以下之一：.jpeg, .png, .jpg",
+				"ocr_details_front_title": "正面文件的 OCR 详情",
+				"ocr_details_back_title": "背面文件的 OCR 详情",
 				"document_template": "文件模板",
-				"template_id": "模板ID",
+				"template_id": "模板 ID",
 				"platform": "平台",
 				"extracted_information": "提取的信息",
 				"process_information": "处理信息"

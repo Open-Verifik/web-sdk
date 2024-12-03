@@ -153,11 +153,13 @@
 	"liveness": {
 		"center_yor_face": "Centralize seu rosto na tela",
 		"center_your_face_subtitle": "Por favor, certifique-se de que seu rosto está centralizado",
-		"get_closer": "Chegue mais perto",
+		"get_closer": "Aproxime-se",
 		"get_closer_subtitle": "Por favor, aproxime-se um pouco mais para melhor reconhecimento facial.",
 		"liveness_failed": "Falha na detecção de vivacidade",
-		"liveness_error_message": "A verificação de vivacidade falhou com o seguinte erro:<br><strong>{{error}}</strong><br>Deseja tentar novamente?",
-		"person_linked_to_another_email": "Seus dados biométricos estão vinculados a outro e-mail.",
+		"liveness_error_message": "A verificação de vivacidade falhou com o seguinte erro:<br><strong>{{error}}</strong><br>Você quer tentar novamente?",
+		"person_linked_to_another_email": "Suas biometrias estão vinculadas a outro e-mail.",
+		"face_not_found_title": "Rosto Não Encontrado",
+		"face_not_found_subtitle": "Seu rosto não pode ser detectado.",
 		"loading_stream": "Carregando Câmera"
 	},
 	"results": {
@@ -200,6 +202,14 @@
 		"something_went_wrong": "Algo deu errado, tente novamente",
 		"invalid_email": "E-mail inválido",
 		"invalid_phone": "Telefone inválido",
+		"document": {
+			"document_not_supported": "A validação deste documento não está disponível.",
+			"incomplete": "Você não carregou um documento.",
+			"mandatory": "O envio do seu documento é necessário para concluir o processo de integração.",
+			"names_do_not_match": "O envio do seu documento foi rejeitado. Verifique se o documento é legítimo e se o nome corresponde exatamente.",
+			"requires_back": "O documento que você enviou requer ambos os lados.",
+			"validation_not_available": "A validação deste documento não está disponível."
+		},
 		"geolocation": {
 			"country_not_allowed_subtitle": "Não podemos processar sua solicitação deste país devido à conformidade. Entre em contato com o suporte para obter assistência.",
 			"country_not_allowed": "Verificação de localização necessária",
@@ -344,6 +354,7 @@
 		"copyright": "{{year}} Produto da MAT Enterprises | Ao usar o Verifik, você concorda com nossos ",
 		"detected": "Documento detectado com sucesso!",
 		"did_not_detect": "Não conseguimos detectar o documento",
+		"document_rotate": "Certifique-se de que seu dispositivo está na orientação paisagem",
 		"document_instructions": "Coloque o ID em uma superfície plana e escura para garantir o melhor resultado.",
 		"extracting_data": "Extraindo dados",
 		"face_instructions": "Certifique-se de que seu rosto esteja no centro da tela, remova seus óculos e garanta uma boa iluminação",
@@ -367,43 +378,47 @@
 			"compare": "Uma comparação entre seu ID e biometria teve uma pontuação muito baixa"
 		},
 		"step_titles": {
-			"id_scanning": "Escaneamento de ID",
-			"upload": "Envio",
-			"ocr_details": "Detalhes OCR",
+			"id": "ID",
+			"id_scanning": "Digitalização de ID",
+			"upload": "Carregar",
+			"ocr_details": "Detalhes de OCR",
 			"biometric_record": "Registro Biométrico",
+			"biometrics": "Biometria",
 			"results": "Resultados"
 		},
 		"documents": {
-			"scan_or_upload_title": "Escaneie ou envie o documento",
-			"upload_document_title": "Enviar imagem do documento",
-			"document_review_title": "Revise seu documento",
+			"scan_or_upload_title": "Digitalize ou carregue o documento",
+			"upload_document_title": "Carregar imagem do documento",
+			"document_review_title": "Revisar Seu Documento",
 			"upload": {
 				"steps": {
-					"1": "Envie um arquivo nos formatos .jpeg, .png ou .jpg.",
-					"2": "Confirme que o envio foi bem-sucedido.",
+					"1": "Carregue um arquivo nos formatos .jpeg, .png ou .jpg.",
+					"2": "Confirme que o upload foi bem-sucedido.",
 					"3": "Confirme que o resultado corresponde aos seus dados."
 				},
 				"errors": {
-					"file_too_big": "O arquivo não deve exceder 10MB",
-					"face_not_found": "O documento deve conter seu rosto e estar claramente visível."
+					"file_too_big": "O arquivo não deve ser maior que 10MB",
+					"face_not_found": "O documento deve conter o seu rosto, e ele deve estar claramente visível."
 				},
-				"again": "Enviar novamente",
-				"frontside": "Lado frontal",
-				"backside": "Lado traseiro",
-				"upload_frontside": "Enviar Lado Frontal",
-				"upload_backside": "Enviar Lado Traseiro",
+				"again": "Carregar novamente",
+				"frontside": "Frente",
+				"front": "Frente",
+				"backside": "Verso",
+				"back": "Verso",
+				"upload_frontside": "Carregar Frente",
+				"upload_backside": "Carregar Verso",
 				"passport": "Passaporte",
 				"driver_license": "Carteira de Motorista",
 				"id": "ID",
-				"find_file": "Encontre o arquivo no seu dispositivo",
+				"find_file": "Encontrar arquivo no seu dispositivo",
 				"identification_document_tip": "O arquivo deve estar em um dos seguintes formatos: .jpeg, .png ou .jpg",
-				"ocr_details_front_title": "Detalhes OCR do Documento (Lado Frontal)",
-				"ocr_details_back_title": "Detalhes OCR do Documento (Lado Traseiro)",
+				"ocr_details_front_title": "Detalhes de OCR do Documento Frente",
+				"ocr_details_back_title": "Detalhes de OCR do Documento Verso",
 				"document_template": "Modelo de Documento",
 				"template_id": "ID do Modelo",
 				"platform": "Plataforma",
-				"extracted_information": "Informação extraída",
-				"process_information": "Informação do Processo"
+				"extracted_information": "Informações Extraídas",
+				"process_information": "Informações do Processo"
 			},
 			"scan_document_title": "Escanear documento",
 			"scan": {

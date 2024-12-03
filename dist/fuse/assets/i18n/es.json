@@ -154,10 +154,12 @@
 		"center_yor_face": "Centra tu rostro en la pantalla",
 		"center_your_face_subtitle": "Por favor, asegúrate de que tu rostro esté centrado",
 		"get_closer": "Acércate",
-		"get_closer_subtitle": "Por favor, acércate un poco para mejorar el reconocimiento facial.",
-		"liveness_failed": "Fallo en la detección de vida",
-		"liveness_error_message": "La verificación de vida ha fallado con el siguiente error:<br><strong>{{error}}</strong><br>¿Quieres intentarlo de nuevo?",
+		"get_closer_subtitle": "Por favor, acércate un poco más para un mejor reconocimiento facial.",
+		"liveness_failed": "Fallo en la detección de vivacidad",
+		"liveness_error_message": "La prueba de vivacidad falló con el siguiente error:<br><strong>{{error}}</strong><br>¿Quieres intentarlo de nuevo?",
 		"person_linked_to_another_email": "Tus datos biométricos están vinculados a otro correo electrónico.",
+		"face_not_found_title": "Rostro No Encontrado",
+		"face_not_found_subtitle": "No se puede detectar tu rostro.",
 		"loading_stream": "Cargando Cámara"
 	},
 	"results": {
@@ -200,6 +202,14 @@
 		"something_went_wrong": "Algo salió mal, por favor intenta de nuevo",
 		"invalid_email": "Correo electrónico no válido",
 		"invalid_phone": "Teléfono no válido",
+		"document": {
+			"document_not_supported": "La validación para este documento no está disponible.",
+			"incomplete": "No has subido un documento.",
+			"mandatory": "Subir tu documento es obligatorio para completar el proceso de incorporación.",
+			"names_do_not_match": "La presentación de tu documento fue rechazada. Por favor, verifica que tu documento sea legítimo y que el nombre coincida exactamente.",
+			"requires_back": "El documento que has enviado requiere ambos lados.",
+			"validation_not_available": "La validación para este documento no está disponible."
+		},
 		"geolocation": {
 			"country_not_allowed_subtitle": "No podemos procesar tu solicitud desde este país debido a cumplimiento normativo. Por favor, contacta con el soporte para recibir asistencia.",
 			"country_not_allowed": "Se requiere verificación de ubicación",
@@ -344,6 +354,7 @@
 		"copyright": "{{year}} Producto de MAT Enterprises | Al utilizar Verifik aceptas nuestro ",
 		"detected": "¡Documento detectado exitosamente!",
 		"did_not_detect": "No pudimos detectar el documento",
+		"document_rotate": "Por favor, asegúrate de que tu dispositivo esté en orientación horizontal",
 		"document_instructions": "Coloca la identificación en una superficie plana y oscura para asegurar el mejor resultado.",
 		"extracting_data": "Extrayendo datos",
 		"face_instructions": "Asegúrate de que tu rostro esté en el centro de la pantalla, quítate las gafas y asegúrate de tener buena iluminación",
@@ -367,43 +378,47 @@
 			"compare": "Una comparación entre tu documento e imagen biométrica tuvo una puntuación demasiado baja"
 		},
 		"step_titles": {
+			"id": "ID",
 			"id_scanning": "Escaneo de ID",
 			"upload": "Subir",
-			"ocr_details": "Detalles OCR",
-			"biometric_record": "Registro biométrico",
+			"ocr_details": "Detalles de OCR",
+			"biometric_record": "Registro Biométrico",
+			"biometrics": "Biometría",
 			"results": "Resultados"
 		},
 		"documents": {
-			"scan_or_upload_title": "Escanea o sube el documento",
-			"upload_document_title": "Sube la imagen del documento",
-			"document_review_title": "Revisa tu documento",
+			"scan_or_upload_title": "Escanea o sube un documento",
+			"upload_document_title": "Sube una imagen del documento",
+			"document_review_title": "Revisa Tu Documento",
 			"upload": {
 				"steps": {
-					"1": "Sube un archivo en formatos .jpeg, .png o .jpg.",
+					"1": "Sube un archivo en formato .jpeg, .png o .jpg.",
 					"2": "Confirma que la subida fue exitosa.",
 					"3": "Confirma que el resultado coincide con tus datos."
 				},
 				"errors": {
-					"file_too_big": "El archivo no debe superar los 10MB",
-					"face_not_found": "El documento debe tener tu rostro, y ser claramente visible."
+					"file_too_big": "El archivo no debe superar los 10 MB",
+					"face_not_found": "El documento debe contener tu rostro y ser claramente visible."
 				},
-				"again": "Subir nuevamente",
-				"frontside": "Cara frontal",
-				"backside": "Cara trasera",
-				"upload_frontside": "Sube la cara frontal",
-				"upload_backside": "Sube la cara trasera",
+				"again": "Subir de nuevo",
+				"frontside": "Lado Frontal",
+				"front": "Frontal",
+				"backside": "Lado Posterior",
+				"back": "Posterior",
+				"upload_frontside": "Subir Lado Frontal",
+				"upload_backside": "Subir Lado Posterior",
 				"passport": "Pasaporte",
-				"driver_license": "Licencia de conducir",
+				"driver_license": "Licencia de Conducir",
 				"id": "ID",
-				"find_file": "Encuentra el archivo en tu dispositivo",
+				"find_file": "Encontrar archivo en tu dispositivo",
 				"identification_document_tip": "El archivo debe estar en uno de los siguientes formatos: .jpeg, .png o .jpg",
-				"ocr_details_front_title": "Detalles OCR del documento (cara frontal)",
-				"ocr_details_back_title": "Detalles OCR del documento (cara trasera)",
-				"document_template": "Plantilla de documento",
-				"template_id": "ID de plantilla",
+				"ocr_details_front_title": "Detalles de OCR del Documento Frontal",
+				"ocr_details_back_title": "Detalles de OCR del Documento Posterior",
+				"document_template": "Plantilla del Documento",
+				"template_id": "ID de Plantilla",
 				"platform": "Plataforma",
-				"extracted_information": "Información extraída",
-				"process_information": "Información de proceso"
+				"extracted_information": "Información Extraída",
+				"process_information": "Información del Proceso"
 			},
 			"scan_document_title": "Escanear documento",
 			"scan": {
