@@ -704,7 +704,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		// can be 'user' || 'environment' https://w3c.github.io/mediacapture-main/#dom-videofacingmodeenum
 		if (facingMode) settings.facingMode = this.source === "face" ? "user" : "environment";
-		if (zoom) settings.zoom = { ideal: 100 };
+		if (zoom) settings.zoom = { ideal: 0 };
 
 		this.video = {};
 		this.videoOptions = {
