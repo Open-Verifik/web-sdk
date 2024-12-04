@@ -25,6 +25,14 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 
 const JSScanify = new jscanify();
 
+interface MediaTrackSupportedConstraintsExtended extends MediaTrackSupportedConstraints {
+	zoom?: boolean;	
+}
+
+interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
+	zoom?: ConstrainULong;	
+}
+
 @Component({
 	animations: fuseAnimations,
 	selector: "smart-scanner",
@@ -218,32 +226,32 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			if (detection.length) {
 				this.faceDetection = this._demoService.findBiggestFace(detection);
 
-				this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 				this.errorFace = null;
+				this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 
 				this._evaluateFace(this.faceDetection);
 
 				return detection;
-			}
-
-			if (!this._checkFaceTimeout) {
-				this._checkFaceTimeout = setTimeout(() => {
-					this.faceIsValid = false;
-
-					if (this.source === 'document') {
-						this.errorFace = {
-							title: this._translocoService.translate("id_scanning.face_not_found"),
-							subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
-						};
-					} else {
-						this.errorFace = {
-							title: this._translocoService.translate("liveness.face_not_found_title"),
-							subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
-						};
-					}
-				}, 3 * this.demoData.time);
+			} else if (!this._checkFaceTimeout) {
+				this._checkFaceTimeout = setTimeout(this._detectFaceError, 3 * this.demoData.time);
 			}
 		} catch (e) {}
+	}
+
+	private _detectFaceError(): void {
+		this.faceIsValid = false;
+
+		if (this.source === 'document') {
+			this.errorFace = {
+				title: this._translocoService.translate("id_scanning.face_not_found"),
+				subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
+			};
+		} else {
+			this.errorFace = {
+				title: this._translocoService.translate("liveness.face_not_found_title"),
+				subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
+			};
+		}
 	}
 
 	private _drawFaceMask(ctx: CanvasRenderingContext2D): void {
@@ -660,7 +668,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._scanner = JSScanify;
 
 		this.demoData = this._demoService.getDemoData();
-		this.isLandscape = this.source !== 'face' && window.matchMedia("(orientation: landscape)").matches;
+		this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
 
 		this.hideTip = false;
 		this.base64Image = undefined;
@@ -679,19 +687,24 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		const IDEAL_B = 1080;
 
 		const settings = (
-			!this.isLandscape && this.demoData.isMobile ? {
-				aspectRatio: { ideal: IDEAL_B / IDEAL_A },
-				frameRate: { min: 15, ideal: 30, max: 60 },
-				height: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
-				width: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
-			} :
-			{
+			this.isLandscape ? {
 				aspectRatio: { ideal: IDEAL_A / IDEAL_B },
 				frameRate: { min: 15, ideal: 30, max: 60 },
 				height: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
 				width: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
+			} : {
+				aspectRatio: { ideal: IDEAL_B / IDEAL_A },
+				frameRate: { min: 15, ideal: 30, max: 60 },
+				height: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
+				width: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
 			}
-		) as MediaTrackConstraintSet;
+		) as MediaTrackConstraintSetExtended;
+
+		const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
+
+		// can be 'user' || 'environment' https://w3c.github.io/mediacapture-main/#dom-videofacingmodeenum
+		if (facingMode) settings.facingMode = this.source === "face" ? "user" : "environment";
+		if (zoom) settings.zoom = { ideal: 100 };
 
 		this.video = {};
 		this.videoOptions = {
@@ -769,15 +782,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		if (this.stream) this._stopRecord();
 
 		this.loadingCamera = true;
-
-		const facingModeSupported = navigator.mediaDevices.getSupportedConstraints().facingMode;
-
-		if (facingModeSupported) {
-			// can be 'user' || 'environment' https://w3c.github.io/mediacapture-main/#dom-videofacingmodeenum
-			this.videoOptions.facingMode = this.source === "face" ? "user" : "environment";
-		} else if (this.videoOptions.prototype.hasOwnProperty("facingMode")) {
-			delete this.videoOptions.facingMode;
-		}
 
 		navigator.mediaDevices
 			.getUserMedia({
@@ -888,9 +892,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			HEIGHT_LOW: __rescaleCalc(150),
 		};
 		const DOCUMENT_V_RESOLUTION_LIMIT = {
-			WIDTH_HIGH: __rescaleCalc(500),
-			WIDTH_LOW: __rescaleCalc(350),
-			HEIGHT_HIGH: __rescaleCalc(280),
+			WIDTH_HIGH: __rescaleCalc(900),
+			WIDTH_LOW: __rescaleCalc(700),
+			HEIGHT_HIGH: __rescaleCalc(600),
 			HEIGHT_LOW: __rescaleCalc(200),
 		};
 		const DOCUMENT_FACE_V_RESOLUTION_LIMIT = {
@@ -925,16 +929,16 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			Y_LOW: __rescaleCalc(200),
 		};
 		const DOCUMENT_V_BOUNDS_LIMIT = {
-			X_HIGH: __rescaleCalc(610),
+			X_HIGH: __rescaleCalc(700),
 			X_LOW: __rescaleCalc(400),
-			Y_HIGH: __rescaleCalc(850),
+			Y_HIGH: __rescaleCalc(1000),
 			Y_LOW: __rescaleCalc(600),
 		};
 		const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
-			X_HIGH: __rescaleCalc(750),
+			X_HIGH: __rescaleCalc(800),
 			X_LOW: __rescaleCalc(75),
 			Y_HIGH: __rescaleCalc(1200),
-			Y_LOW: __rescaleCalc(750),
+			Y_LOW: __rescaleCalc(700),
 		};
 
 		if (this.source === 'face') {
@@ -1137,16 +1141,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.setPictureInCanvas(canvasResult, this._rectCredential, this.video);
 		this.setPictureInCanvas(canvasToSend, this.video);
 
-		this.base64Image = canvasToSend.toDataURL("image/jpeg");
-
-		const base64Image = this.base64Image.replace(/^data:.*;base64,/, "");
+		const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
+		const base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
 		const isFront = this.side === "front";
 
 		let faceToUpload: string;
 
 		if (isFront) {
 			const img = new Image();
-			img.src = this.base64Image;
+			img.src = rawBase64Image;
 
 			const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 			const faces = detections.map((face) => face.detection.box);
@@ -1156,10 +1159,17 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 				this.faceIdCard = this._demoService.cutFaceIdCard(img, face, this.faceCardCanvas.nativeElement);
 				faceToUpload = this.faceIdCard.replace(/^data:.*;base64,/, "");
+			} else {
+				this._detectFaceError();
+				this._stopRecord();
+				this._startCamera();
+
+				return;
 			}
 		}
 
 		this.uploading = true;
+		this.base64Image = rawBase64Image;
 
 		this.onImageScan.next({
 			base64Image,

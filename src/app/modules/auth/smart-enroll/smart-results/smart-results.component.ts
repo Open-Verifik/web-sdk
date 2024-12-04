@@ -96,6 +96,8 @@ export class SmartResultsComponent implements OnInit {
 			this.errorResult = true;
 			this.livenessFailed = true;
 		}
+
+		if (!this.errorResult) this.appRegistration.status = "COMPLETED";
 	}
 
 	private _endAndRedirect() {

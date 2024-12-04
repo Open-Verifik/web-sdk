@@ -26,12 +26,14 @@
     fxFlex.lt-md="100%"
     fxLayout="column"
     fxLayoutAlign="center center"
+    ngClass.lt-md="w-full"
   >
     <div
       class="smart-documents__card smart-documents__card--xlarge rounded-2xl bg-card mt-4 w-full"
       fxLayout="column"
       [ngStyle.gt-sm]="{ border: '1px solid ' + project.branding.borderColor }"
       ngClass.gt-sm="p-6 m-4"
+      ngClass.lt-md="w-full"
     >
       <mat-card-title
         class="w-full"

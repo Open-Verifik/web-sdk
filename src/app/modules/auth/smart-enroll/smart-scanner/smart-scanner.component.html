@@ -1,6 +1,6 @@
 <canvas #faceCardCanvas hidden></canvas>
 
-<div class="w-full h-full" fxLayout="column">
+<div class="w-full h-full" fxLayout="column" fxLayout.lt-md="center center">
   <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
     <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
       <div class="flex">
@@ -60,7 +60,9 @@
           <div
             class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
             [style.border]="
-              side === 'back' ? '2px solid ' + project.branding.buttonColor : '2px solid #ffffff'
+              side === 'back'
+                ? '2px solid ' + project.branding.buttonColor
+                : '2px solid #ffffff'
             "
             *ngIf="requiresBack && side === 'back'"
           >
@@ -115,11 +117,11 @@
   </div>
 
   <div
-    [style.border]="
-      project.branding.borderColor
+    [ngStyle.gt-sm]="{
+      border: project.branding.borderColor
         ? '1px solid ' + project.branding.borderColor
         : ''
-    "
+    }"
     @fadeIn
     *ngIf="!loadingCamera && !hasCameraPermissions"
     class="smart-documents__card rounded-2xl bg-card p-6 w-full mb-4"
@@ -247,11 +249,11 @@
     <canvas #toSendCanvas [class.hidden]="true"></canvas>
 
     <div
-		*ngIf="!loadingCamera && hasCameraPermissions"
-		class="w-full min-h-3/4"
-    	fxLayout="column"
-    	fxLayoutAlign="center center"
-	>
+      *ngIf="!loadingCamera && hasCameraPermissions"
+      class="w-full min-h-3/4"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+    >
       <div
         *ngIf="!failedToDetectDocument"
         fxLayout="column"
@@ -497,7 +499,7 @@
               </div>
             </div>
 
-            <div class="flex flex-col flex-grow justify-end items-center">
+            <div class="flex flex-col flex-grow justify-end items-center z-20">
               <div
                 class="smart-scanner__buttons flex flex-row justify-center"
                 fxLayoutGap="12px"
@@ -570,11 +572,11 @@
                 fxLayout="row"
                 fxLayoutAlign="start center"
                 *ngIf="!hideTip && !base64Image && !uploading"
-                [style.border]="
-                  project.branding.borderColor
+                [ngStyle.gt-sm]="{
+                  border: project.branding.borderColor
                     ? '1px solid ' + project.branding.borderColor
                     : ''
-                "
+                }"
               >
                 <div class="w-full" fxLayout="column">
                   <div
@@ -598,7 +600,10 @@
                   </div>
 
                   <div fxLayout="row" fxLayoutAlign="start center">
-                    <mat-icon class="mr-3" svgIcon="feather:alert-octagon"></mat-icon>
+                    <mat-icon
+                      class="mr-3"
+                      svgIcon="feather:alert-octagon"
+                    ></mat-icon>
                     <p>
                       <span *ngIf="source === 'face'">{{
                         "smart_enroll.face_instructions" | transloco
@@ -623,11 +628,11 @@
           fxLayout="column"
           fxLayoutAlign="center center"
           [class.hidden]="!base64Image || uploading"
-          [style.border]="
-            project.branding.borderColor
+          [ngStyle.gt-sm]="{
+            border: project.branding.borderColor
               ? '1px solid ' + project.branding.borderColor
               : ''
-          "
+          }"
         >
           <div fxLayout="column" fxLayoutAlign="center center">
             <h4 class="results__title mt-2 font-medium text-2xl">
