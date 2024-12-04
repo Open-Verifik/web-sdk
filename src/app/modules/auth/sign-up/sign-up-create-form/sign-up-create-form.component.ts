@@ -86,7 +86,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		private _demoService: DemoService,
 		private _formBuilder: UntypedFormBuilder,
 		private _passwordlessService: PasswordlessService,
-		private _router: Router,
+		private _router: Router
 	) {
 		this.countries = this._countries.countryCodes;
 		this.fields = {};
@@ -248,12 +248,10 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 		// Create the form
 		this.signUpForm = this._formBuilder.group(this.fields);
-		this.signUpForm.valueChanges
-			.pipe(takeUntil(this.unsubscriber$))
-			.subscribe(() => {
-				this.showError = false;
-				this.alert = null;
-			});
+		this.signUpForm.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
+			this.showError = false;
+			this.alert = null;
+		});
 	}
 
 	isFormDisabled(): boolean {
@@ -297,6 +295,12 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		this.alert = null;
 
 		localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
+
+		Object.keys(this.signUpForm.value).forEach((key) => {
+			if (this.signUpForm.value !== typeof "string") return;
+
+			this.signUpForm.value[key] = this.signUpForm.value[key].trim();
+		});
 
 		this._passwordlessService
 			.createAppRegistration({
