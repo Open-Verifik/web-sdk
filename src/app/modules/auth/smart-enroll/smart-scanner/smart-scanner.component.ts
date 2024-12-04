@@ -80,7 +80,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _rectCredential: any;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = false;
+	DEBUG_MODE: boolean = true;
 
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
