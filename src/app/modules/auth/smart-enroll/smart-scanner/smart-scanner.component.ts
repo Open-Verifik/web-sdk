@@ -706,6 +706,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		if (facingMode) settings.facingMode = this.source === "face" ? "user" : "environment";
 		if (zoom) settings.zoom = { ideal: 0 };
 
+		console.log("🚀 ~ SmartScannerComponent ~ _resetVariables ~ settings:", settings);
+
 		this.video = {};
 		this.videoOptions = {
 			...this.videoOptions,
@@ -795,6 +797,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 				const videoTrack = this.stream.getVideoTracks()[0];
 				const settings = videoTrack.getSettings();
+				console.log("🚀 ~ SmartScannerComponent ~ .then ~ settings:", settings)
 
 				const { width, height } = settings;
 
