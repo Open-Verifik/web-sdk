@@ -30,10 +30,12 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended, SmartEnrollService } from "../smart-enroll.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { fuseAnimations } from "@fuse/animations";
 
 const JSScanify = new jscanify();
 
 @Component({
+	animations: fuseAnimations,
 	selector: "smart-scanner-ios",
 	templateUrl: "./smart-scanner-ios.component.html",
 	styleUrls: ["./smart-scanner.component.scss"],
@@ -129,6 +131,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this._resetVariables();
 
 		this._debouncedWindowResize = debounce(() => {
+			this._stopRecording();
 			this._startRecording();
 		}, 300);
 
@@ -190,6 +193,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				this.corrections.documentResolution = resolution;
 				this.documentDetection = detection;
 				this.documentIsValid = isValid;
+				console.log("🚀 ~ SmartScannerIosComponent ~ _detectDocument ~ this.documentIsValid:", this.documentIsValid)
 			}
 
 			img.delete();
@@ -216,34 +220,40 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 					const { isValid } = this._smartEnrollService.evaluateFaceDetection(this.BOUNDS, faceDetection, this.source);
 
 					this.faceIsValid = isValid;
+					console.log("🚀 ~ SmartScannerIosComponent ~ _detectFace ~ this.faceIsValid:", this.faceIsValid)
 				} else {
 					this._isFaceCentered(this.lastFace.landmarks.getNose()[3]);
 					this._isFaceClose(this.lastFace.landmarks);
 
 					!this.errorFace ? ++this.face.successPosition : (this.face.successPosition = 0);
 
-					if (!this.errorFace && this.face.successPosition > 2) {
+					if (!this.errorFace && this.face.successPosition > 3) {
 						this.faceIsValid = true;
 						this.face.successPosition = 0;
+						console.log("🚀 ~ SmartScannerIosComponent ~ _detectFace ~ this.faceIsValid:", this.faceIsValid)
 					}
 				}
 			}
 
 			this._changeDetectorRef.markForCheck();
 		} catch (e) {
-			this.faceIsValid = false;
+			this._faceNotFoundError();
+		}
+	}
 
-			if (this.source === 'document') {
-				this.errorFace = {
-					title: this._translocoService.translate("id_scanning.face_not_found"),
-					subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
-				};
-			} else {
-				this.errorFace = {
-					title: this._translocoService.translate("liveness.face_not_found_title"),
-					subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
-				};
-			}
+	private _faceNotFoundError(): void {
+		this.faceIsValid = false;
+
+		if (this.source === 'document') {
+			this.errorFace = {
+				title: this._translocoService.translate("id_scanning.face_not_found"),
+				subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
+			};
+		} else {
+			this.errorFace = {
+				title: this._translocoService.translate("liveness.face_not_found_title"),
+				subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
+			};
 		}
 	}
 
@@ -838,11 +848,39 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _setResultDimensions(key: string, height: number, width: number) {
 		const { center, radius } = (this.face[key] = this._getCenterAndRadius(height, width));
 
-		this.camera.dimensions[key].height = height;
-		this.camera.dimensions[key].offsetY = 0;
+		if (this.source === 'document') {
+			if (this.isLandscape) {
+				this.camera.dimensions[key].height = height * 0.8;
+				this.camera.dimensions[key].offsetY = height * 0.1;
 
-		this.camera.dimensions[key].width = Math.min(2.8 * radius.x, width);
-		this.camera.dimensions[key].offsetX = center.x - this.camera.dimensions[key].width / 2;
+				this.camera.dimensions[key].width = width * 0.75;
+				this.camera.dimensions[key].offsetX = width * 0.125;
+			} else {
+				this.camera.dimensions[key].height = height * 0.4;
+				this.camera.dimensions[key].offsetY = height * 0.3;
+
+				this.camera.dimensions[key].width = width;
+				this.camera.dimensions[key].offsetX = 0;
+			}
+		}
+
+		if (this.source === 'face') {
+			if (this.isLandscape) {
+				this.camera.dimensions[key].height = height;
+				this.camera.dimensions[key].offsetY = 0;
+		
+				this.camera.dimensions[key].width = Math.min(2.8 * radius.x, width);
+				this.camera.dimensions[key].offsetX = center.x - this.camera.dimensions[key].width / 2;
+			} else {
+				this.camera.dimensions[key].height = height * 0.6;
+				this.camera.dimensions[key].offsetY = height * 0.18;
+		
+				this.camera.dimensions[key].width = Math.min(2 * radius.x, width);
+				this.camera.dimensions[key].offsetX = center.x - this.camera.dimensions[key].width / 2;
+			}
+		}
+
+		console.log("🚀 ~ SmartScannerIosComponent ~ _setResultDimensions ~ this.camera.dimensions:", this.camera.dimensions)
 	}
 
 	private _setVideoDimensions(videoNgx: any) {
@@ -872,19 +910,17 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		if (!videoNgx) return;
 
-        this._setVideoDimensions(videoNgx);
-        this._drawMask();
-
-		clearInterval(this._detectionInterval);
-		this._detectionInterval = null;
-
 		this._setVideoDimensions(videoNgx);
-		this._drawMask();
 		this._loading({ isLoading: false, start: true });
 
-		this._detectionInterval = setInterval(() => {
-			this.takePicture.next();
-		}, 300);
+		if (!this._detectionInterval) {
+			this._detectionInterval = setInterval(() => {
+				this.takePicture.next();
+			}, 300);
+		}
+
+        this._setVideoDimensions(videoNgx);
+        this._drawMask();
 	}
 
 	private _startDefaultValues() {
@@ -895,25 +931,35 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
     private _startRecording(): void {
-		clearInterval(this._ngxVideoInterval);
-		this._ngxVideoInterval = null;
-
         this._setMaxVideoDimensions();
 
-        this._ngxVideoInterval = setInterval(() => {
-            this._setVideoNgxCameraData();
-        }, 1000);
+		if (!this._ngxVideoInterval) {
+			this._ngxVideoInterval = setInterval(() => {
+				this._setVideoNgxCameraData();
+			}, 1000);
+		}
     }
 
-	private async _takePicture(img: HTMLImageElement) {
+	private _stopRecording(): void {
+		this.faceIsValid = false;
+		this.documentIsValid = false;
+
+		clearInterval(this._ngxVideoInterval);
+		clearInterval(this._detectionInterval);
+
+		this._ngxVideoInterval = null;
+		this._detectionInterval = null;
+	}
+
+	private _takePicture(img: HTMLImageElement) {
 		const canvasResult = this.maskCanvas.nativeElement;
 		const canvasToSend = this.toSendCanvas.nativeElement;
 
         this._setImageOnCanvas(canvasResult, img, this.camera.dimensions.real, this.camera.dimensions.result);
 		this._setImageOnCanvas(canvasToSend, img, this.camera.dimensions.real, this.camera.dimensions.real);
 
-		const base64Image = canvasResult.toDataURL("image/jpeg");
-		let faceToUpload: string = canvasToSend.toDataURL("image/jpeg");
+		let faceToUpload: string;
+		const base64Image = canvasToSend.toDataURL("image/jpeg");
 
 		const isFront = this.side === "front";
 
@@ -921,12 +967,35 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			const img = new Image();
 			img.src = base64Image;
 
-			const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
-			const face = this._demoService.findBiggestFace(detections);
+			const promise = faceapi
+				.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
+				.withFaceLandmarks();
 
-			if (face) {
-				faceToUpload = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
-			}
+			promise.then((detections) => {
+				const face = this._demoService.findBiggestFace(detections);
+
+				if (face) {
+					faceToUpload = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
+
+					this.toSave = {
+						base64Image,
+						face: faceToUpload,
+						force: !isFront || !!this.appRegistration.documentValidation,
+						front: isFront,
+						inputMethod: 'CAMERA',
+						source: this.source,
+					};
+			
+					this._stopRecording();
+				} else throw Error('face_not_found');
+
+				return detections;
+			}).catch((error) => {
+				console.error(error);
+				this._faceNotFoundError();
+			});
+
+			return;
 		}
 
 		this.toSave = {
@@ -937,6 +1006,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			inputMethod: 'CAMERA',
 			source: this.source,
 		};
+
+		this._stopRecording();
 	}
 
 	public get takePicture$(): Observable<void> {
@@ -970,6 +1041,10 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		return canSkipDocument || canSkipBiometric;
 	}
 
+	captureManually(): void {
+		this.takePicture.next();
+	}
+
 	closeTip() {
 		this.hideTip = true;
 	}
@@ -1001,6 +1076,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		if (this.requiresBack && this.side !== "back") {
 			this.side = "back";
+			this.response.base64Image = '';
+			this._startRecording();
 
 			return;
 		} else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
@@ -1016,6 +1093,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		if (this.source === "document") {
 			if (this.requiresBack && this.side !== "front") {
 				this.side = "front";
+				this.response.base64Image = '';
+				this._startRecording();
 			
 				return;
 			}
@@ -1030,7 +1109,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	processImage(webcamImage: WebcamImage): void {
-		if (!this._detectionInterval || this.response.base64Image) return;
+		if (this.response.base64Image) return;
 
 		const img = new Image();
 		img.src = webcamImage.imageAsDataUrl;
@@ -1053,19 +1132,17 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 					await this._detectFace(img);
 				}
 
+				this._drawMask();
+
 				const documentFrontIsValid = this.source === 'document' && this.side === 'front' && this.faceIsValid && this.documentIsValid;
 				const documentBackIsValid = this.source === 'document' && this.side !== 'front' && this.documentIsValid;
 				const livenessIsValid = this.source === 'face' && this.faceIsValid;
 
-				setTimeout(() => {
-					if (documentFrontIsValid || documentBackIsValid || livenessIsValid) {
-						this._drawMask();
+				if (documentFrontIsValid || documentBackIsValid || livenessIsValid) {
+					this.errorContent = null;
 
-						this.errorContent = null;
-
-						this._takePicture(img);
-					}
-				});
+					this._takePicture(img);
+				}
 
 				this._changeDetectorRef.markForCheck();
 			} catch (error) {
@@ -1086,14 +1163,19 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 	retake(): void {
 		this.toSave = null;
+		this._startRecording();
 	}
 
 	upload(): void {
+		let face = (this.source === 'face' ? this.toSave.base64Image : this.toSave.face).replace(/^data:.*;base64,/, "");
+		let base64Image = this.toSave.base64Image.replace(/^data:.*;base64,/, "");
+
 		this.onImageScan.next({
 			...this.toSave,
-			base64Image: this.toSave.base64Image?.replace(/^data:.*;base64,/, ""),
-			face: this.toSave.face?.replace(/^data:.*;base64,/, ""),
+			base64Image,
+			face,
 		});
+
 		this.uploading = true;
 	}
 }

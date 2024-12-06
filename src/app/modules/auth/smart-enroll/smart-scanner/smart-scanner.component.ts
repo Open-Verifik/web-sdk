@@ -93,8 +93,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	faceIsValid: boolean;
 	hasCameraPermissions: boolean;
 	hideTip: boolean = false;
-	isHorizontal: boolean = true;
-	isLandscape: boolean = false;
+	isLandscape: boolean = true;
 	loading: any;
 	loadingCamera: boolean;
 	loadingQRCode: boolean = true;
@@ -275,8 +274,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _drawFaceMask(ctx: CanvasRenderingContext2D): void {
-		let DRAWING_X = this.isHorizontal ? 1920 : 1080;
-		let DRAWING_Y = this.isHorizontal ? 1080 : 1920;
+		let DRAWING_X = this.isLandscape ? 1920 : 1080;
+		let DRAWING_Y = this.isLandscape ? 1080 : 1920;
 
 		// Rectangle
 		ctx.fillStyle = "rgba(255,255,255,0.7)";
@@ -294,7 +293,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		ctx.scale(scaleX, scaleY);
 
 		// Light Mask
-		if (this.isHorizontal) {
+		if (this.isLandscape) {
 			ctx.moveTo(959.988, 102);
 			ctx.bezierCurveTo(1153.06, 102, 1311.98, 234.628, 1319.68, 419.92);
 			ctx.lineTo(1319.7, 419.92);
@@ -329,7 +328,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		ctx.scale(scaleX, scaleY);
 		ctx.beginPath();
 
-		if (this.isHorizontal) {
+		if (this.isLandscape) {
 			ctx.moveTo(959.988, 130.183);
 			ctx.bezierCurveTo(776.49, 130.183, 629.316, 258.603, 629.316, 434);
 			ctx.bezierCurveTo(629.316, 524.146, 653.593, 654.46, 708.01, 761.748);
@@ -383,8 +382,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _drawIdMask(ctx: CanvasRenderingContext2D): void {
-		let DRAWING_X = this.isHorizontal ? 1920 : 1080;
-		let DRAWING_Y = this.isHorizontal ? 1080 : 1920;
+		let DRAWING_X = this.isLandscape ? 1920 : 1080;
+		let DRAWING_Y = this.isLandscape ? 1080 : 1920;
 
 		ctx.fillStyle = "rgba(255,255,255,0.7)";
 		ctx.beginPath();
@@ -401,7 +400,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		ctx.scale(scaleX, scaleY);
 
 		// Light Mask
-		if (this.isHorizontal) {
+		if (this.isLandscape) {
 			ctx.moveTo(259, 894);
 			ctx.bezierCurveTo(259, 916.091, 276.909, 934, 299, 934);
 			ctx.lineTo(1621, 934);
@@ -433,7 +432,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		ctx.scale(scaleX, scaleY);
 		ctx.beginPath();
 
-		if (this.isHorizontal) {
+		if (this.isLandscape) {
 			ctx.moveTo(291.859, 189.778);
 			ctx.lineTo(291.859, 890.222);
 			ctx.bezierCurveTo(291.859, 896.267, 296.763, 901.167, 302.812, 901.167);
@@ -578,7 +577,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
 		// can be 'user' || 'environment' https://w3c.github.io/mediacapture-main/#dom-videofacingmodeenum
-		if (facingMode) settings.facingMode = this.source === "face" ? "user" : "environment";
+		if (facingMode) settings.facingMode = this.source === "face" || !this.demoData.isMobile ? "user" : "environment";
 		if (zoom) settings.zoom = { ideal: 0 };
 
 		console.log("🚀 ~ SmartScannerComponent ~ _resetVariables ~ settings:", settings);
@@ -633,7 +632,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _setDimensions(height: number, width: number, data: any) {
-		if (this.isHorizontal) {
+		if (this.isLandscape) {
 			data.y = Math.floor(height * 0.1);
 			data.rectHeight = Math.floor(height * 0.8);
 			data.rectWidth = Math.floor(this.aspectRatio * data.rectHeight);
@@ -679,7 +678,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this.video.height = height;
 				this.video.width = width;
 
-				this.isHorizontal = this.video.height < this.video.width;
+				this.isLandscape = this.video.height < this.video.width;
 
 				this._setBounds();
 
@@ -820,7 +819,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		};
 
 		if (this.source === 'face') {
-			this.BOUNDS.face = this.isHorizontal
+			this.BOUNDS.face = this.isLandscape
 				? {
 						angle: { ...FACE_H_ANGLE_LIMIT },
 						bounds: { ...FACE_H_BOUNDS_LIMIT },
@@ -832,7 +831,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 						res: { ...FACE_V_RESOLUTION_LIMIT },
 				};
 		} else {
-			this.BOUNDS.face = this.isHorizontal
+			this.BOUNDS.face = this.isLandscape
 				? {
 						bounds: { ...DOCUMENT_FACE_H_BOUNDS_LIMIT },
 						res: { ...DOCUMENT_FACE_H_RESOLUTION_LIMIT },
@@ -842,7 +841,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 						res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
 				}
 			
-			this.BOUNDS.document = this.isHorizontal
+			this.BOUNDS.document = this.isLandscape
 				? {
 						angle: { ...DOCUMENT_H_ANGLE_LIMIT },
 						bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
@@ -863,7 +862,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._setCanvasDimensions();
 		this._paintMaskCanvas();
 
-		if (this.videoOptions.facingMode === "user" || this.isHorizontal) {
+		if (this.source === 'face' || !this.demoData.isMobile || this.videoOptions.facingMode === 'user') {
 			video.style.transform = "scaleX(-1)";
 		}
 
@@ -1022,9 +1021,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		let faceToUpload: string;
 
-		if (isFront) {
+		if (isFront && this.source === 'document') {
 			const img = new Image();
-			img.src = rawBase64Image;
+			img.src = base64Image;
 
 			const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 			const face = this._demoService.findBiggestFace(detections);

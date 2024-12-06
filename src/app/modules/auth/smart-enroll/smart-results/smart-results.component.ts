@@ -158,18 +158,6 @@ export class SmartResultsComponent implements OnInit {
 
 		this.identityLoading = true;
 
-		if (this.appRegistration.face?._id && this.appRegistration.biometricValidation) {
-			this._setFace(this.appRegistration.face);
-
-			return;
-		}
-
-		if (this.appRegistration.documentFace?._id && this.appRegistration.documentValidation) {
-			this._setFace(this.appRegistration.documentFace);
-
-			return;
-		}
-
 		this._KYCService.getIdentityImages({}).subscribe({
 			next: (response) => {
 				this._extractFaces(response.data);

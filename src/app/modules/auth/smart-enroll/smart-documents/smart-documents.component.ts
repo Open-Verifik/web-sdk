@@ -1,4 +1,4 @@
-import { catchError, forkJoin, map, Observable, of, Subject, Subscription } from "rxjs";
+import { catchError, forkJoin, map, of, Subject, Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
@@ -240,7 +240,6 @@ export class SmartDocumentsComponent implements OnDestroy {
 				},
 				error: (error) => this._handleError(error),
 				complete: () => {
-					console.log('complete');
 					this.successfulUploadSubject.next();
 
 					if (this.appRegistration.biometricValidation) return;

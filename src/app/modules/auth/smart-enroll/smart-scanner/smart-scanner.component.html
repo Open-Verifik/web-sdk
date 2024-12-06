@@ -30,7 +30,7 @@
         >
           <div
             class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
-            ngIf="side === 'front'"
+            *ngIf="side === 'front'"
             [style.border]="
               side === 'front'
                 ? '2px solid ' + project.branding.buttonColor
@@ -270,7 +270,6 @@
           fxLayoutAlign="center center"
         >
           <video
-            [hidden]="source === 'document'"
             [style.height.px]="HEIGHT"
             [style.width.px]="WIDTH"
             #videoElement
