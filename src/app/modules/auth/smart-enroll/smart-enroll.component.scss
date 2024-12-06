@@ -194,6 +194,10 @@ smart-scanner-corrections {
 		inset: auto;
 		margin: 0 auto;
 
+		&--ios {
+			overflow: hidden;
+		}
+
 		@media screen and (max-width: 959px) {
 			background: rgba(255, 255, 255, 0);
 			background: radial-gradient(circle, rgba(255, 255, 255, 0) 55%, rgb(255, 255, 255) 80%);

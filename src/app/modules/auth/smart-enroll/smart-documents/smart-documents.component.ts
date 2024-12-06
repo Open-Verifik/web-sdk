@@ -1,4 +1,4 @@
-import { catchError, forkJoin, map, of, Subject, Subscription } from "rxjs";
+import { catchError, forkJoin, map, Observable, of, Subject, Subscription } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
@@ -19,6 +19,8 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { environment } from "environments/environment";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
+import { SmartScannerIosComponent } from "../smart-scanner/smart-scanner-ios.component";
+import { DemoService } from "app/modules/demo/demo.service";
 
 type CombinedValidationResponse = {
 	criminalValidation: CriminalValidationResponse;
@@ -58,6 +60,7 @@ type NameValidationResponse = {
 		SmartUploadComponent,
 		SmartStepperComponent,
 		SmartScannerComponent,
+		SmartScannerIosComponent,
 		SmartErrorDisplayComponent,
 		TranslocoModule,
         MatCardModule,
@@ -70,6 +73,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 	private smartEnrollSettingsSubscription = new Subscription();
 	
 	appRegistration: AppRegistration;
+	demoData: any;
 	errorContent: { message: string };
 	errorResult: boolean;
 	faceIdCard: string;
@@ -79,6 +83,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 	successfulUploadSubject: Subject<void> = new Subject<void>();
 
     constructor(
+		private _demoService: DemoService,
 		private _smartEnrollService: SmartEnrollService,
 		private _KYCService: KYCService,
 	) {
@@ -91,6 +96,8 @@ export class SmartDocumentsComponent implements OnDestroy {
         this.selectedMethod = settings.documentMethod;
 		this.errorResult = this._smartEnrollService.store.document.remaining === 0;
 		this.errorContent = { message: '' };
+
+		this.demoData = this._demoService.getDemoData();
 
 		this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
 			next: (enrollSettings) => this.onDocumentMethodChange(enrollSettings.documentMethod)
@@ -233,6 +240,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 				},
 				error: (error) => this._handleError(error),
 				complete: () => {
+					console.log('complete');
 					this.successfulUploadSubject.next();
 
 					if (this.appRegistration.biometricValidation) return;

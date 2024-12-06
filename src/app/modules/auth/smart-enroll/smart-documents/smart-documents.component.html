@@ -232,12 +232,20 @@
       fxLayoutAlign="center center"
     >
       <smart-scanner
-        class="w-full min-h-full"
         (onImageScan)="onImageScan($event)"
-        [class.hidden]="errorResult"
         [successfulUpload]="successfulUploadSubject.asObservable()"
+        *ngIf="!errorResult && demoData.OS !== 'IOS'"
+        class="w-full min-h-full"
         source="document"
       ></smart-scanner>
+
+      <smart-scanner-ios
+        (onImageScan)="onImageScan($event)"
+        [successfulUpload]="successfulUploadSubject.asObservable()"
+        *ngIf="!errorResult && demoData.OS === 'IOS'"
+        class="w-full min-h-full"
+        source="document"
+      ></smart-scanner-ios>
     </div>
 
     <div

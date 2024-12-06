@@ -1,18 +1,7 @@
 import { CommonModule, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-
-export type CorrectionsBounds = { x: string; y: string; };
-export type CorrectionsHeightWidth = { height: string; width: string; };
-export type CorrectionsAngle = { pitch: string; roll: string; yaw: string };
-
-export type Corrections = {
-    angle?: CorrectionsAngle,
-    bounds?: CorrectionsBounds,
-    document?: CorrectionsBounds,
-    documentResolution?: CorrectionsHeightWidth,
-    resolution?: CorrectionsHeightWidth,
-};
+import { CorrectionsAngle, CorrectionsBounds, CorrectionsHeightWidth } from '../../smart-enroll.service';
 
 @Component({
     selector: 'smart-scanner-corrections',
@@ -31,6 +20,6 @@ export class SmartScannerCorrectionsComponent {
     @Input('resolution') resolution: CorrectionsHeightWidth;
 
     @Input('height') height: number;
-    @Input('isHorizontal') isHorizontal: boolean;
+    @Input('isLandscape') isLandscape: boolean;
     @Input('width') width: number;
 }

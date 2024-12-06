@@ -806,7 +806,7 @@ export type ImageScan = {
 	face?: string,
 	force?: boolean,
 	front?: boolean;
-	rawImage: string,
+	rawImage?: string,
 	inputMethod: 'CAMERA' | 'FILE_UPLOAD';
 	source?: 'document' | 'face',
 };

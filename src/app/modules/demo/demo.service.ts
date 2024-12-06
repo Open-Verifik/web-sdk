@@ -565,7 +565,6 @@ export class DemoService {
 
 	getBiggestFace(faces: faceapi.Box[]) {
 		let maxArea = 0;
-
 		let biggestFace: faceapi.Box;
 
 		for (const face of faces) {
@@ -573,7 +572,6 @@ export class DemoService {
 
 			if (tempArea > maxArea) {
 				biggestFace = face;
-
 				maxArea = tempArea;
 			}
 		}

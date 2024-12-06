@@ -17,6 +17,7 @@ import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component"
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
+import { SmartScannerIosComponent } from "../smart-scanner/smart-scanner-ios.component";
 
 @Component({
 	selector: "smart-biometrics",
@@ -24,7 +25,15 @@ import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-d
 	styleUrls: ["../smart-enroll.component.scss"],
 	animations: fuseAnimations,
 	standalone: true,
-	imports: [CommonModule, FlexLayoutModule, SmartScannerComponent, SmartStepperComponent, SmartErrorDisplayComponent, TranslocoModule],
+	imports: [
+		CommonModule,
+		FlexLayoutModule,
+		SmartScannerComponent,
+		SmartScannerIosComponent,
+		SmartStepperComponent,
+		SmartErrorDisplayComponent,
+		TranslocoModule,
+	],
 })
 export class SmartBiometricsComponent implements OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;

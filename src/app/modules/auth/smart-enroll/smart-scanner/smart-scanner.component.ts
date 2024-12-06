@@ -19,8 +19,8 @@ import { fuseAnimations } from "@fuse/animations";
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DemoService } from "app/modules/demo/demo.service";
-import { SmartEnrollService } from "../smart-enroll.service";
-import { Corrections, SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
+import { Corrections, SmartEnrollService } from "../smart-enroll.service";
+import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 const JSScanify = new jscanify();
@@ -75,8 +75,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _checkFaceTimeout: any;
 	private _debouncedTakePicture: DebouncedFunc<() => void>;
 	private _debouncedWindowResize: DebouncedFunc<() => void>;
-	private _detectDocumentInterval: ReturnType<typeof setInterval>;
-	private _detectFaceInterval: ReturnType<typeof setInterval>;
+	private _detectionInterval: ReturnType<typeof setInterval>;
 	private _rectCredential: any;
 	private _scanner: jscanify;
 
@@ -206,7 +205,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 				if (maxContour) {
 					const contours = this._scanner.getCornerPoints(maxContour);
-					this._evaluateDocumentContours(contours);
+
+					const {
+						bounds,
+						detection,
+						isValid,
+						resolution,
+					}= this._smartEnrollService.evaluateDocumentContours(this.BOUNDS, contours);
+
+					this.corrections.document = bounds;
+					this.corrections.documentResolution = resolution;
+					this.documentDetection = detection;
+					this.documentIsValid = isValid;
 				}
 
 				img.delete();
@@ -229,11 +239,21 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 				this.errorFace = null;
 				this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 
-				this._evaluateFace(this.faceDetection);
+				const {
+					angle,
+					bounds,
+					isValid,
+					resolution,
+				}= this._smartEnrollService.evaluateFaceDetection(this.BOUNDS, this.faceDetection, this.source);
+
+				this.corrections.angle = angle;
+				this.corrections.bounds = bounds;
+				this.corrections.resolution = resolution;
+				this.faceIsValid = isValid;
 
 				return detection;
 			} else if (!this._checkFaceTimeout) {
-				this._checkFaceTimeout = setTimeout(this._detectFaceError, 3 * this.demoData.time);
+				this._checkFaceTimeout = setTimeout(() => this._detectFaceError(), 3 * this.demoData.time);
 			}
 		} catch (e) {}
 	}
@@ -480,151 +500,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		this._setDimensions(this.video.height, this.video.width, this._rectCredential);
 		this._setDimensions(this.video.height, this.video.width, this.video);
-	}
-
-	private _evaluateDocumentContours(contours: Contour): void {
-		const BOUNDS = this.BOUNDS.document;
-
-		const shapeWidth = Math.floor(contours.bottomRightCorner.x - contours.bottomLeftCorner.x);
-		const shapeHeight = Math.floor(contours.bottomLeftCorner.y - contours.topLeftCorner.y);
-
-		const correctResolution =
-			shapeHeight > BOUNDS.res.HEIGHT_LOW &&
-			shapeHeight < BOUNDS.res.HEIGHT_HIGH &&
-			shapeWidth > BOUNDS.res.WIDTH_LOW &&
-			shapeWidth < BOUNDS.res.WIDTH_HIGH;
-
-		const centerPoint = {
-			x: Math.floor((contours.bottomRightCorner.x + contours.bottomLeftCorner.x + contours.topLeftCorner.x + contours.topRightCorner.x) / 4),
-			y: Math.floor((contours.bottomRightCorner.y + contours.bottomLeftCorner.y + contours.topLeftCorner.y + contours.topRightCorner.y) / 4),
-		};
-
-		const fallsInBounds =
-			centerPoint.x > BOUNDS.bounds.X_LOW &&
-			centerPoint.x < BOUNDS.bounds.X_HIGH &&
-			centerPoint.y > BOUNDS.bounds.Y_LOW &&
-			centerPoint.y < BOUNDS.bounds.Y_HIGH;
-
-		this.documentDetection = {
-			...centerPoint,
-			height: shapeHeight,
-			width: shapeWidth,
-			contours,
-		};
-
-		this.documentIsValid = correctResolution && fallsInBounds;
-
-		this.corrections.document = {
-			x: !fallsInBounds && centerPoint.x > BOUNDS.bounds.X_HIGH ? "left" : !fallsInBounds && centerPoint.x < BOUNDS.bounds.X_LOW ? "right" : "",
-			y: !fallsInBounds && centerPoint.y > BOUNDS.bounds.Y_HIGH ? "up" : !fallsInBounds && centerPoint.y < BOUNDS.bounds.Y_LOW ? "down" : "",
-		};
-
-		this.corrections.documentResolution = {
-			height:
-				!correctResolution && shapeHeight > BOUNDS.res.HEIGHT_HIGH
-					? "back"
-					: !correctResolution && shapeHeight < BOUNDS.res.HEIGHT_LOW
-					? "forward"
-					: "",
-			width:
-				!correctResolution && shapeWidth > BOUNDS.res.WIDTH_HIGH
-					? "back"
-					: !correctResolution && shapeWidth < BOUNDS.res.WIDTH_LOW
-					? "forward"
-					: "",
-		};
-	}
-
-	private _evaluateFace(
-		face: faceapi.WithFaceLandmarks<
-			{
-				detection: faceapi.FaceDetection;
-			},
-			faceapi.FaceLandmarks68
-		>
-	): void {
-		const BOUNDS = this.BOUNDS.face;
-
-		let correctAngle: boolean = true;
-
-		const correctResolution =
-			face.alignedRect.box.height > BOUNDS.res.HEIGHT_LOW &&
-			face.alignedRect.box.height < BOUNDS.res.HEIGHT_HIGH &&
-			face.alignedRect.box.width > BOUNDS.res.WIDTH_LOW &&
-			face.alignedRect.box.width < BOUNDS.res.WIDTH_HIGH;
-
-		const fallsInBounds =
-			face.alignedRect.box.x > BOUNDS.bounds.X_LOW &&
-			face.alignedRect.box.x < BOUNDS.bounds.X_HIGH &&
-			face.alignedRect.box.y > BOUNDS.bounds.Y_LOW &&
-			face.alignedRect.box.y < BOUNDS.bounds.Y_HIGH;
-
-		if (this.source === "face") {
-			correctAngle =
-				face.angle.pitch > BOUNDS.angle.PITCH_LOW &&
-				face.angle.pitch < BOUNDS.angle.PITCH_HIGH &&
-				face.angle.roll > BOUNDS.angle.ROLL_LOW &&
-				face.angle.roll < BOUNDS.angle.ROLL_HIGH &&
-				face.angle.yaw > BOUNDS.angle.YAW_LOW &&
-				face.angle.yaw < BOUNDS.angle.YAW_HIGH;
-		}
-
-		this.faceIsValid = correctResolution && fallsInBounds && correctAngle;
-
-		this.corrections.resolution = {
-			width:
-				!correctResolution && face.alignedRect.box.width > BOUNDS.res.WIDTH_HIGH
-					? "back"
-					: !correctResolution && face.alignedRect.box.width < BOUNDS.res.WIDTH_LOW
-					? "forward"
-					: "",
-			height:
-				!correctResolution && face.alignedRect.box.height > BOUNDS.res.HEIGHT_HIGH
-					? "back"
-					: !correctResolution && face.alignedRect.box.height < BOUNDS.res.HEIGHT_LOW
-					? "forward"
-					: "",
-		};
-
-		this.corrections.bounds = {
-			x:
-				!fallsInBounds && face.alignedRect.box.x > BOUNDS.bounds.X_HIGH
-					? "right"
-					: !fallsInBounds && face.alignedRect.box.x < BOUNDS.bounds.X_LOW
-					? "left"
-					: "",
-			y:
-				!fallsInBounds && face.alignedRect.box.y > BOUNDS.bounds.Y_HIGH
-					? "up"
-					: !fallsInBounds && face.alignedRect.box.y < BOUNDS.bounds.Y_LOW
-					? "down"
-					: "",
-		};
-
-		if (this.source === "face") {
-			this.corrections.angle = {
-				pitch:
-					!correctAngle && face.angle.pitch > BOUNDS.angle.PITCH_HIGH
-						? "down"
-						: !correctAngle && face.angle.pitch < BOUNDS.angle.PITCH_LOW
-						? "up"
-						: "",
-				roll:
-					!correctAngle && face.angle.roll > BOUNDS.angle.ROLL_HIGH
-						? "left"
-						: !correctAngle && face.angle.roll < BOUNDS.angle.ROLL_LOW
-						? "right"
-						: "",
-				yaw:
-					!correctAngle && face.angle.yaw > BOUNDS.angle.YAW_HIGH
-						? "left"
-						: !correctAngle && face.angle.yaw < BOUNDS.angle.YAW_LOW
-						? "right"
-						: "",
-			};
-		} else {
-			this.corrections.angle = { pitch: "", roll: "", yaw: "" };
-		}
 	}
 
 	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
@@ -992,23 +867,23 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			video.style.transform = "scaleX(-1)";
 		}
 
-		if (this.source === "document") {
-			const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
+		this._detectionInterval = setInterval(() => {
+			if (this.source === "document") {
+				const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
+	
+				this._detectDocument(video, videoCanvas, videoCanvasCtx);
+			}
 
-			this._detectDocumentInterval = setInterval(() => this._detectDocument(video, videoCanvas, videoCanvasCtx), 50);
-		}
-
-		if (this.side === "front" || this.source === "face") {
-			this._detectFaceInterval = setInterval(() => this._detectFace(video), this.demoData.time);
-		}
+			if (this.side === "front" || this.source === "face") {
+				this._detectFace(video);
+			}
+		}, 100);
 	};
 
 	private _stopRecord(): void {
-		clearInterval(this._detectDocumentInterval);
-		clearInterval(this._detectFaceInterval);
+		clearInterval(this._detectionInterval);
 
-		this._detectDocumentInterval = null;
-		this._detectFaceInterval = null;
+		this._detectionInterval = null;
 
 		if (!this.stream) return;
 
@@ -1132,11 +1007,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	async takePicture() {
-		clearInterval(this._detectFaceInterval);
-		clearInterval(this._detectDocumentInterval);
-
-		this._detectFaceInterval = null;
-		this._detectDocumentInterval = null;
+		clearInterval(this._detectionInterval);
+		this._detectionInterval = null;
 
 		const canvasToSend = this.toSendCanvas.nativeElement;
 		const canvasResult = this.resultCanvas.nativeElement;
@@ -1155,12 +1027,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			img.src = rawBase64Image;
 
 			const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
-			const faces = detections.map((face) => face.detection.box);
+			const face = this._demoService.findBiggestFace(detections);
 
-			if (faces.length) {
-				const face = this._demoService.getBiggestFace(faces);
-
-				this.faceIdCard = this._demoService.cutFaceIdCard(img, face, this.faceCardCanvas.nativeElement);
+			if (face) {
+				this.faceIdCard = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
 				faceToUpload = this.faceIdCard.replace(/^data:.*;base64,/, "");
 			} else {
 				this._detectFaceError();

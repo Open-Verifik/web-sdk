@@ -1,6 +1,86 @@
-import { Injectable } from "@angular/core";
+import * as faceapi from "@vladmandic/face-api";
 import { Observable, Subject } from "rxjs";
+import { Contour } from "libs/jscanify";
+
+import { Injectable } from "@angular/core";
+
 import { AppRegistration, ProjectFlow } from "../project";
+
+export interface MediaTrackSupportedConstraintsExtended extends MediaTrackSupportedConstraints {
+	zoom?: boolean;	
+}
+
+export interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
+	zoom?: ConstrainULong;	
+}
+
+export interface IOSCameraData {
+	hasPermissions: boolean;
+	isLoading: boolean;
+	isLowQuality?: boolean;
+	configuration: MediaTrackConstraintSetExtended;
+	dimensions: {
+		real?: {
+			height: number;
+			width: number;
+			offsetX: number;
+			offsetY: number;
+		};
+		result?: {
+			height: number;
+			width: number;
+			offsetX: number;
+			offsetY: number;
+		};
+		video: {
+			max: {
+				height: number;
+				width: number;
+			};
+			height?: number;
+			width?: number;
+		};
+	};
+}
+
+export interface BoundsDetection {
+	face: any,
+	document: any
+};
+
+export interface CorrectionsBounds { x: string; y: string; };
+export interface CorrectionsHeightWidth { height: string; width: string; };
+export interface CorrectionsAngle { pitch: string; roll: string; yaw: string };
+
+export interface Corrections {
+    angle?: CorrectionsAngle,
+    bounds?: CorrectionsBounds,
+    document?: CorrectionsBounds,
+    documentResolution?: CorrectionsHeightWidth,
+    resolution?: CorrectionsHeightWidth,
+};
+
+export interface DocumentAnalysis {
+	bounds: CorrectionsBounds,
+	detection: DocumentDetection,
+	isValid: boolean;
+	resolution: CorrectionsHeightWidth,
+};
+
+export interface FaceAnalysis {
+	angle: CorrectionsAngle,
+	bounds: CorrectionsBounds,
+	isValid: boolean;
+	resolution: CorrectionsHeightWidth,
+};
+
+export interface DocumentDetection {
+	x: number;
+	y: number;
+	height: number;
+	width: number;
+	contours?: Contour;
+};
 
 export interface EnrollSettings {
 	currentStep: EnrollStep;
@@ -78,6 +158,164 @@ export class SmartEnrollService {
 
 	get enrollSettings(): EnrollSettings {
 		return { ...this._enrollSettings };
+	}
+
+	evaluateDocumentContours(boundsParameters: BoundsDetection, contours: Contour): DocumentAnalysis {
+		const BOUNDS = boundsParameters.document;
+
+		const shapeWidth = Math.floor(contours.bottomRightCorner.x - contours.bottomLeftCorner.x);
+		const shapeHeight = Math.floor(contours.bottomLeftCorner.y - contours.topLeftCorner.y);
+
+		const correctResolution =
+			shapeHeight > BOUNDS.res.HEIGHT_LOW &&
+			shapeHeight < BOUNDS.res.HEIGHT_HIGH &&
+			shapeWidth > BOUNDS.res.WIDTH_LOW &&
+			shapeWidth < BOUNDS.res.WIDTH_HIGH;
+
+		const centerPoint = {
+			x: Math.floor((contours.bottomRightCorner.x + contours.bottomLeftCorner.x + contours.topLeftCorner.x + contours.topRightCorner.x) / 4),
+			y: Math.floor((contours.bottomRightCorner.y + contours.bottomLeftCorner.y + contours.topLeftCorner.y + contours.topRightCorner.y) / 4),
+		};
+
+		const fallsInBounds =
+			centerPoint.x > BOUNDS.bounds.X_LOW &&
+			centerPoint.x < BOUNDS.bounds.X_HIGH &&
+			centerPoint.y > BOUNDS.bounds.Y_LOW &&
+			centerPoint.y < BOUNDS.bounds.Y_HIGH;
+
+		const detection = {
+			...centerPoint,
+			height: shapeHeight,
+			width: shapeWidth,
+			contours,
+		};
+
+		const isValid = correctResolution && fallsInBounds;
+
+		const bounds: CorrectionsBounds = {
+			x: !fallsInBounds && centerPoint.x > BOUNDS.bounds.X_HIGH ? "left" : !fallsInBounds && centerPoint.x < BOUNDS.bounds.X_LOW ? "right" : "",
+			y: !fallsInBounds && centerPoint.y > BOUNDS.bounds.Y_HIGH ? "up" : !fallsInBounds && centerPoint.y < BOUNDS.bounds.Y_LOW ? "down" : "",
+		}
+
+		const resolution: CorrectionsHeightWidth = {
+			height:
+				!correctResolution && shapeHeight > BOUNDS.res.HEIGHT_HIGH
+					? "back"
+					: !correctResolution && shapeHeight < BOUNDS.res.HEIGHT_LOW
+					? "forward"
+					: "",
+			width:
+				!correctResolution && shapeWidth > BOUNDS.res.WIDTH_HIGH
+					? "back"
+					: !correctResolution && shapeWidth < BOUNDS.res.WIDTH_LOW
+					? "forward"
+					: "",
+		}
+
+		return {
+			bounds,
+			detection,
+			isValid,
+			resolution,
+		};
+	}
+
+	evaluateFaceDetection(
+		boundsParameters: BoundsDetection,
+		face: faceapi.WithFaceLandmarks <{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>,
+		source: "face" | "document"
+	): FaceAnalysis {
+		const BOUNDS = boundsParameters.face;
+
+		let correctAngle: boolean = true;
+
+		const correctResolution =
+			face.alignedRect.box.height > BOUNDS.res.HEIGHT_LOW &&
+			face.alignedRect.box.height < BOUNDS.res.HEIGHT_HIGH &&
+			face.alignedRect.box.width > BOUNDS.res.WIDTH_LOW &&
+			face.alignedRect.box.width < BOUNDS.res.WIDTH_HIGH;
+
+		const fallsInBounds =
+			face.alignedRect.box.x > BOUNDS.bounds.X_LOW &&
+			face.alignedRect.box.x < BOUNDS.bounds.X_HIGH &&
+			face.alignedRect.box.y > BOUNDS.bounds.Y_LOW &&
+			face.alignedRect.box.y < BOUNDS.bounds.Y_HIGH;
+
+		if (source === "face") {
+			correctAngle =
+				face.angle.pitch > BOUNDS.angle.PITCH_LOW &&
+				face.angle.pitch < BOUNDS.angle.PITCH_HIGH &&
+				face.angle.roll > BOUNDS.angle.ROLL_LOW &&
+				face.angle.roll < BOUNDS.angle.ROLL_HIGH &&
+				face.angle.yaw > BOUNDS.angle.YAW_LOW &&
+				face.angle.yaw < BOUNDS.angle.YAW_HIGH;
+		}
+
+		const isValid = correctResolution && fallsInBounds && correctAngle;
+
+		const resolution = {
+			width:
+				!correctResolution && face.alignedRect.box.width > BOUNDS.res.WIDTH_HIGH
+					? "back"
+					: !correctResolution && face.alignedRect.box.width < BOUNDS.res.WIDTH_LOW
+					? "forward"
+					: "",
+			height:
+				!correctResolution && face.alignedRect.box.height > BOUNDS.res.HEIGHT_HIGH
+					? "back"
+					: !correctResolution && face.alignedRect.box.height < BOUNDS.res.HEIGHT_LOW
+					? "forward"
+					: "",
+		};
+
+		const bounds = {
+			x:
+				!fallsInBounds && face.alignedRect.box.x > BOUNDS.bounds.X_HIGH
+					? "right"
+					: !fallsInBounds && face.alignedRect.box.x < BOUNDS.bounds.X_LOW
+					? "left"
+					: "",
+			y:
+				!fallsInBounds && face.alignedRect.box.y > BOUNDS.bounds.Y_HIGH
+					? "up"
+					: !fallsInBounds && face.alignedRect.box.y < BOUNDS.bounds.Y_LOW
+					? "down"
+					: "",
+		};
+
+		let angle: CorrectionsAngle;
+
+		if (source === "face") {
+			angle = {
+				pitch:
+					!correctAngle && face.angle.pitch > BOUNDS.angle.PITCH_HIGH
+						? "down"
+						: !correctAngle && face.angle.pitch < BOUNDS.angle.PITCH_LOW
+						? "up"
+						: "",
+				roll:
+					!correctAngle && face.angle.roll > BOUNDS.angle.ROLL_HIGH
+						? "left"
+						: !correctAngle && face.angle.roll < BOUNDS.angle.ROLL_LOW
+						? "right"
+						: "",
+				yaw:
+					!correctAngle && face.angle.yaw > BOUNDS.angle.YAW_HIGH
+						? "left"
+						: !correctAngle && face.angle.yaw < BOUNDS.angle.YAW_LOW
+						? "right"
+						: "",
+			};
+		} else {
+			angle = { pitch: "", roll: "", yaw: "" };
+		}
+
+		return {
+			angle,
+			bounds,
+			isValid,
+			resolution,
+		};
 	}
 
 	goToNextStep() {

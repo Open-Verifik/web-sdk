@@ -1,5 +1,5 @@
 <!-- Horizontal -->
-<div *ngIf="isHorizontal">
+<div *ngIf="isLandscape">
     <mat-icon
         [style.height.px]="height"
         [style.width.px]="width"
@@ -86,7 +86,7 @@
 </div>
 
 <!-- Vertical -->
-<div *ngIf="!isHorizontal" class="absolute top-0 left-0 right-0 bottom-0 m-auto">
+<div *ngIf="!isLandscape" class="absolute top-0 left-0 right-0 bottom-0 m-auto">
     <mat-icon
         [style.height.px]="height"
         [style.width.px]="width"
