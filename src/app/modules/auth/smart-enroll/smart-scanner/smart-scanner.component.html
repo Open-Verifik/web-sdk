@@ -269,161 +269,139 @@
           fxLayout="column"
           fxLayoutAlign="center center"
         >
-          <video
-            [style.height.px]="HEIGHT"
-            [style.width.px]="WIDTH"
-            #videoElement
-            autoplay
-            class="smart-scanner__absolute-scanner rounded-3xl"
-            muted
-          ></video>
+          <ng-container *ngIf="!toSave && !base64Image">
+            <video
+              [style.height.px]="HEIGHT"
+              [style.width.px]="WIDTH"
+              #videoElement
+              autoplay
+              class="smart-scanner__absolute-scanner rounded-3xl"
+              muted
+            ></video>
 
-          <canvas
-            [height]="video.height"
-            [width]="video.width"
-            #videoCanvas
-            hidden
-          ></canvas>
+            <canvas
+              [height]="video.height"
+              [width]="video.width"
+              #videoCanvas
+              hidden
+            ></canvas>
 
-          <canvas
-            [height]="video.height"
-            [style.height.px]="HEIGHT"
-            [style.width.px]="WIDTH"
-            [width]="video.width"
-            #maskCanvas
-            class="smart-scanner__absolute-scanner rounded-3xl"
-          ></canvas>
+            <canvas
+              [height]="video.height"
+              [style.height.px]="HEIGHT"
+              [style.width.px]="WIDTH"
+              [width]="video.width"
+              #maskCanvas
+              class="smart-scanner__absolute-scanner rounded-3xl"
+            ></canvas>
 
-          <smart-scanner-corrections
-            [angle]="corrections.angle"
-            [bounds]="corrections.bounds"
-            [height]="HEIGHT"
-            [isLandscape]="isLandscape"
-            [resolution]="corrections.resolution"
-            [style.height.px]="HEIGHT"
-            [style.width.px]="WIDTH"
-            [width]="WIDTH"
-            *ngIf="source === 'face'"
-            class="smart-scanner__absolute-scanner rounded-3xl"
-          ></smart-scanner-corrections>
+            <smart-scanner-corrections
+              [angle]="corrections.angle"
+              [bounds]="corrections.bounds"
+              [height]="HEIGHT"
+              [isLandscape]="isLandscape"
+              [resolution]="corrections.resolution"
+              [style.height.px]="HEIGHT"
+              [style.width.px]="WIDTH"
+              [width]="WIDTH"
+              *ngIf="source === 'face'"
+              class="smart-scanner__absolute-scanner rounded-3xl"
+            ></smart-scanner-corrections>
 
-          <div
-            [style.height.px]="HEIGHT"
-            [style.width.px]="WIDTH"
-            *ngIf="uploading"
-            class="smart-scanner__loader-overlay rounded-3xl"
-            fxLayout="row"
-            fxLayoutAlign="center center"
-          >
             <div
+              *ngIf="errorFace && errorFace.title && !loadingResults"
               fxLayout="column"
               fxLayoutAlign="center center"
-              *ngIf="uploading"
+              class="text-center m-6 mt-2 rounded-2xl absolute top-1/2 left-0 right-0"
             >
-              <mat-progress-spinner
-                diameter="36"
-                mode="indeterminate"
-              ></mat-progress-spinner>
+              <div
+                [style.color]="project ? project.branding.titleColor : null"
+                class="text-3xl font-bold"
+              >
+                {{ errorFace.title }}
+              </div>
 
-              <p class="mt-4">
-                {{ "smart_enroll.extracting_data" | transloco }}...
-              </p>
+              <div
+                [style.color]="project ? project.branding.txtColor : null"
+                class="text-gray-600"
+              >
+                {{ errorFace.subtitle }}
+              </div>
             </div>
-          </div>
 
-          <div
-            *ngIf="errorFace && errorFace.title && !loadingResults"
-            fxLayout="column"
-            fxLayoutAlign="center center"
-            class="text-center m-6 mt-2 rounded-2xl absolute top-1/2 left-0 right-0"
-          >
-            <div
-              [style.color]="project ? project.branding.titleColor : null"
-              class="text-3xl font-bold"
+            <code
+              class="absolute top-0 right-0 bottom-0 z-index-2 text-right z-20"
+              *ngIf="DEBUG_MODE"
             >
-              {{ errorFace.title }}
-            </div>
+              <div>
+                face:
+                <br />
+                x: {{ faceDetection?.alignedRect?.box?.x }}
+                <br />
+                y: {{ faceDetection?.alignedRect?.box?.y }}
+                <br />
+                width: {{ faceDetection?.alignedRect?.box?.width }}
+                <br />
+                height: {{ faceDetection?.alignedRect?.box?.height }}
+                <br />
+                pitch: {{ faceDetection?.angle?.pitch }}
+                <br />
+                yaw: {{ faceDetection?.angle?.yaw }}
+                <br />
+                roll: {{ faceDetection?.angle?.roll }}
+                <br />
+                <br />
+                <br />
+                face corrections:
+                <br />
+                x: {{ corrections?.bounds?.x }}
+                <br />
+                y: {{ corrections?.bounds?.y }}
+                <br />
+                width: {{ corrections?.resolution?.width }}
+                <br />
+                height: {{ corrections?.resolution?.height }}
+                <br />
+                pitch: {{ corrections?.angle?.pitch }}
+                <br />
+                yaw: {{ corrections?.angle?.yaw }}
+                <br />
+                roll: {{ corrections?.angle?.roll }}
+                <br />
+                <br />
+                <br />
+              </div>
 
-            <div
-              [style.color]="project ? project.branding.txtColor : null"
-              class="text-gray-600"
-            >
-              {{ errorFace.subtitle }}
-            </div>
-          </div>
-
-          <code
-            class="absolute top-0 right-0 bottom-0 z-index-2 text-right z-20"
-            *ngIf="DEBUG_MODE"
-          >
-            <div>
-              face:
-              <br />
-              x: {{ faceDetection?.alignedRect?.box?.x }}
-              <br />
-              y: {{ faceDetection?.alignedRect?.box?.y }}
-              <br />
-              width: {{ faceDetection?.alignedRect?.box?.width }}
-              <br />
-              height: {{ faceDetection?.alignedRect?.box?.height }}
-              <br />
-              pitch: {{ faceDetection?.angle?.pitch }}
-              <br />
-              yaw: {{ faceDetection?.angle?.yaw }}
-              <br />
-              roll: {{ faceDetection?.angle?.roll }}
-              <br />
-              <br />
-              <br />
-              face corrections:
-              <br />
-              x: {{ corrections?.bounds?.x }}
-              <br />
-              y: {{ corrections?.bounds?.y }}
-              <br />
-              width: {{ corrections?.resolution?.width }}
-              <br />
-              height: {{ corrections?.resolution?.height }}
-              <br />
-              pitch: {{ corrections?.angle?.pitch }}
-              <br />
-              yaw: {{ corrections?.angle?.yaw }}
-              <br />
-              roll: {{ corrections?.angle?.roll }}
-              <br />
-              <br />
-              <br />
-            </div>
-
-            <div *ngIf="source === 'document'">
-              document:
-              <br />
-              x: {{ documentDetection?.x }}
-              <br />
-              y: {{ documentDetection?.y }}
-              <br />
-              width: {{ documentDetection?.width }}
-              <br />
-              height: {{ documentDetection?.height }}
-              <br />
-              <br />
-              <br />
-              document corrections:
-              <br />
-              document x: {{ corrections.document.x }}
-              <br />
-              document y: {{ corrections.document.y }}
-              <br />
-              documentResolution height:
-              {{ corrections.documentResolution.height }}
-              <br />
-              documentResolution width:
-              {{ corrections.documentResolution.width }}
-              <br />
-              <br />
-              <br />
-            </div>
-          </code>
+              <div *ngIf="source === 'document'">
+                document:
+                <br />
+                x: {{ documentDetection?.x }}
+                <br />
+                y: {{ documentDetection?.y }}
+                <br />
+                width: {{ documentDetection?.width }}
+                <br />
+                height: {{ documentDetection?.height }}
+                <br />
+                <br />
+                <br />
+                document corrections:
+                <br />
+                document x: {{ corrections.document.x }}
+                <br />
+                document y: {{ corrections.document.y }}
+                <br />
+                documentResolution height:
+                {{ corrections.documentResolution.height }}
+                <br />
+                documentResolution width:
+                {{ corrections.documentResolution.width }}
+                <br />
+                <br />
+                <br />
+              </div>
+            </code>
+          </ng-container>
 
           <div class="flex flex-col flex-grow justify-start">
             <div
@@ -494,11 +472,71 @@
               </div>
             </div>
 
-            <div class="flex flex-col flex-grow justify-end items-center z-20">
+            <div
+              *ngIf="uploading"
+              class="smart-scanner__loader-overlay z-20 inset-0"
+              fxLayout="row"
+              fxLayoutAlign="center center"
+            >
+              <div
+                fxLayout="column"
+                fxLayoutAlign="center center"
+              >
+                <mat-progress-spinner
+                  diameter="36"
+                  mode="indeterminate"
+                ></mat-progress-spinner>
+
+                <p class="mt-4">
+                  {{ "smart_enroll.extracting_data" | transloco }}...
+                </p>
+              </div>
+            </div>
+
+            <div class="h-full w-full mt-6" *ngIf="toSave" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="12px">
+              <div class="w-full flex-grow" [fxLayout]="isLandscape ? 'row': 'column'" fxLayoutAlign="center center" fxLayoutGap="12px">
+                <img
+                  [src]="toSave.base64Image"
+                  class="rounded-3xl overflow-hidden max-h-100 max-w-100 object-contain"
+                />
+    
+                <img
+                  [src]="toSave.face"
+                  *ngIf="source === 'document' && side === 'front'"
+                  class="rounded-3xl overflow-hidden max-h-50 max-w-50 object-contain"
+                />
+              </div>
+    
+              <div class="mt-8" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="12px">
+                <button
+                  (click)="retake()"
+                  [disabled]="uploading"
+                  [style.border]="uploading ? '' : '1px solid' + project.branding.buttonColor"
+                  [style.color]="uploading ? '' : project.branding.buttonColor"
+                  class="fuse-mat-button"
+                  mat-flat-button
+                  >{{ "id_scanning.retry" | transloco }}</button
+                >
+    
+                <button
+                  (click)="upload()"
+                  [disabled]="uploading"
+                  [style.color]="uploading ? '' : project.branding.buttonTxtColor"
+                  [style.background]="uploading ? '' : project.branding.buttonColor"
+                  class="fuse-mat-button"
+                  mat-flat-button
+                  >{{ "upload" | transloco }}</button
+                >
+              </div>
+            </div>
+
+            <div
+              class="flex flex-col flex-grow justify-end items-center z-20"
+              [class.hidden]="toSave || base64Image"
+            >
               <div
                 class="smart-scanner__buttons flex flex-row justify-center"
                 fxLayoutGap="12px"
-                [class.hidden]="base64Image"
               >
                 <button
                   (click)="goPrevious()"

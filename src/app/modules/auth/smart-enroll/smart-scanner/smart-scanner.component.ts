@@ -107,6 +107,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	unsupported: boolean = false;
 	uploading: boolean = false;
 	video: any;
+	toSave: ImageScan = null;
 
 	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
 	HEIGHT: number;
@@ -167,7 +168,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.unsubscriber$))
 			.subscribe(() => {
 				this.uploading = false;
+				this.base64Image = this.toSave.base64Image;
 				this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+				this.toSave = null;
 			});
 
 		this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
@@ -525,8 +528,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		if (this._debouncedTakePicture) return;
 
-		let debounceWait = 1000;
-		if (this.source === "document") debounceWait = 1500;
+		let debounceWait = 500;
+		if (this.source === "document") debounceWait = 800;
 
 		this._debouncedTakePicture = debounce(() => this.takePicture(), debounceWait);
 		this._debouncedTakePicture();
@@ -632,16 +635,32 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _setDimensions(height: number, width: number, data: any) {
-		if (this.isLandscape) {
-			data.y = Math.floor(height * 0.1);
-			data.rectHeight = Math.floor(height * 0.8);
-			data.rectWidth = Math.floor(this.aspectRatio * data.rectHeight);
-			data.x = Math.floor((width - data.rectWidth) / 2);
-		} else {
-			data.x = Math.floor(width * 0.1);
-			data.rectWidth = Math.floor(width * 0.8);
-			data.rectHeight = Math.floor(this.aspectRatio * data.rectWidth);
-			data.y = Math.floor((height - data.rectHeight) / 2);
+		if (this.source === 'document') {
+			if (this.isLandscape) {
+				data.rectHeight = Math.floor(height * 0.8);
+				data.y = Math.floor(height * 0.1);
+				data.rectWidth = Math.floor(width * 0.75);
+				data.x = Math.floor(width * 0.125);
+			} else {
+				data.rectHeight = Math.floor(height * 0.4);
+				data.y = Math.floor(height * 0.3);
+				data.rectWidth = width;
+				data.x = 0;
+			}
+		}
+
+		if (this.source === 'face') {
+			if (this.isLandscape) {
+				data.rectHeight = Math.floor(height * 0.8);
+				data.y = Math.floor(height * 0.1);
+				data.rectWidth = Math.floor(width * 0.4);
+				data.x = Math.floor(width * 0.3);
+			} else {
+				data.rectHeight = height * 0.5;
+				data.y = height * 0.2;
+				data.rectWidth = Math.floor(width * 0.75);
+				data.x = Math.floor(width * 0.125);
+			}
 		}
 	}
 
@@ -862,7 +881,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._setCanvasDimensions();
 		this._paintMaskCanvas();
 
-		if (this.source === 'face' || !this.demoData.isMobile || this.videoOptions.facingMode === 'user') {
+		if (this.demoData.isMobile || (this.videoOptions.facingMode === 'user' && this.source !== 'document')) {
 			video.style.transform = "scaleX(-1)";
 		}
 
@@ -1016,21 +1035,21 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.setPictureInCanvas(canvasToSend, this.video);
 
 		const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
-		const base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
+		const base64Image = rawBase64Image;
 		const isFront = this.side === "front";
 
 		let faceToUpload: string;
 
 		if (isFront && this.source === 'document') {
 			const img = new Image();
-			img.src = base64Image;
+			img.src = rawBase64Image;
 
 			const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 			const face = this._demoService.findBiggestFace(detections);
 
 			if (face) {
 				this.faceIdCard = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
-				faceToUpload = this.faceIdCard.replace(/^data:.*;base64,/, "");
+				faceToUpload = this.faceIdCard;
 			} else {
 				this._detectFaceError();
 				this._stopRecord();
@@ -1040,10 +1059,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		this.uploading = true;
-		this.base64Image = rawBase64Image;
-
-		this.onImageScan.next({
+		this.toSave = {
 			base64Image,
 			face: faceToUpload,
 			force: !isFront || !!this.appRegistration.documentValidation,
@@ -1051,8 +1067,29 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			inputMethod: 'CAMERA',
 			rawImage: this.base64Image,
 			source: this.source,
-		});
+		};
 
 		this._stopRecord();
+	}
+
+	retake(): void {
+		this.documentIsValid = false;
+		this.faceIsValid = false;
+		this.toSave = null;
+		this._stopRecord();
+		this._startCamera();
+	}
+
+	upload(): void {
+		let face = (this.source === 'face' ? this.toSave.base64Image : this.toSave.face).replace(/^data:.*;base64,/, "");
+		let base64Image = this.toSave.base64Image.replace(/^data:.*;base64,/, "");
+
+		this.onImageScan.next({
+			...this.toSave,
+			base64Image,
+			face,
+		});
+
+		this.uploading = true;
 	}
 }

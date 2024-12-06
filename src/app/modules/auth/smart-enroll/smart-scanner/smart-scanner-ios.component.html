@@ -465,16 +465,14 @@
         <div class="h-full w-full mt-6" *ngIf="toSave" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="12px">
           <div class="w-full flex-grow" [fxLayout]="isLandscape ? 'row': 'column'" fxLayoutAlign="center center" fxLayoutGap="12px">
             <img
-              [style.maxHeight.px]="camera.dimensions.result.height / 2"
               [src]="toSave.base64Image"
-              [style.maxWidth.px]="camera.dimensions.result.width / 2"
-              class="rounded-3xl overflow-hidden max-h-3/4"
+              class="rounded-3xl overflow-hidden max-h-3/4 object-contain"
             />
 
             <img
               [src]="toSave.face"
               *ngIf="source === 'document' && side === 'front'"
-              class="rounded-3xl overflow-hidden max-h-40 max-w-40"
+              class="rounded-3xl overflow-hidden max-h-40 max-w-40 object-contain"
             />
           </div>
 
@@ -644,39 +642,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<div
-  *ngIf="showError && project"
-  fxLayout="column"
-  fxLayoutAlign="center center"
-  class="flex w-full"
->
-  <div
-    class="rounded-2xl end-card w-1/2 shadow overflow-hidden bg-card error-dialog p-8 mt-11"
-    fxLayout="column"
-    fxLayoutAlign="center center"
-  >
-    <img src="https://cdn.verifik.co/access/warning.svg" class="w-50" alt="" />
-
-    <h1 class="text-center">
-      {{ "errors." + errorContent.message | transloco }}
-    </h1>
-
-    <!-- retry -->
-    <div
-      *ngIf="errorContent.message === 'Liveness_score_not_acceptable'"
-      fxLayout="column"
-      fxLayoutAlign="center center"
-      class="w-full"
-    >
-      <button mat-stroked-button class="w-11/12 mt-4" (click)="retry()">
-        <span [style.color]="project.branding.txtColor">
-          {{ "id_scanning.retry" | transloco }}
-        </span>
-      </button>
     </div>
   </div>
 </div>

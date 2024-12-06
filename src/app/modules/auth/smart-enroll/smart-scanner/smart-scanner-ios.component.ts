@@ -879,8 +879,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				this.camera.dimensions[key].offsetX = center.x - this.camera.dimensions[key].width / 2;
 			}
 		}
-
-		console.log("🚀 ~ SmartScannerIosComponent ~ _setResultDimensions ~ this.camera.dimensions:", this.camera.dimensions)
 	}
 
 	private _setVideoDimensions(videoNgx: any) {
