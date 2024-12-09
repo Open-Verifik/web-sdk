@@ -1,15 +1,18 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended } from '../../smart-enroll.service';
+import { NgIf } from '@angular/common';
 
 export type Resolution = { height: number, width: number, aspectRatio?: number };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [
+    NgIf,
+  ],
   selector: 'smart-camera-resolution-detection',
   standalone: true,
   styleUrls: [],
-  template: '<video #video autoplay muted playsinline style="opacity: 0;"></video>',
+  template: '<video #video *ngIf="startStream"></video>',
 })
 export class SmartCameraResolutionDetectionComponent implements OnInit {
 	@ViewChild("video", { static: true }) video: ElementRef<HTMLVideoElement>;
@@ -51,6 +54,8 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   private WIDE_NOT_SUPPORTED: boolean = false;
   private NARROW_NOT_SUPPORTED: boolean = false;
   private SQUARE_NOT_SUPPORTED: boolean = false;
+
+  startStream: boolean = false;
 
   constructor(private _renderer: Renderer2) {}
 
@@ -133,7 +138,12 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   }
 
   private async _findBestResolution(key: string, resolution: Resolution): Promise<boolean> {
+    const video: HTMLVideoElement = this.video.nativeElement;
 		const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
+
+    video.setAttribute('autoplay', 'true');
+    video.setAttribute('muted', 'true');
+    video.setAttribute('playsinline', 'true');
 
     const mediaOptions = { audio: false, video: {} as MediaTrackConstraintSetExtended };
 
@@ -162,15 +172,18 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
         const onload = () => this._onVideoLoaded(stream, resolve);
 
         setTimeout(()=> {
-          const video: HTMLVideoElement = this.video.nativeElement;
-
           video.srcObject = stream.clone();
+
+          this.startStream = true;
+
 					video.removeEventListener("loadedmetadata", onload, true);
 					video.addEventListener("loadedmetadata", onload, true);
         });
       }) as Promise<boolean>;
 
       const result = await promise;
+
+      this.startStream = false;
 
       return result;
     } catch (error) {
