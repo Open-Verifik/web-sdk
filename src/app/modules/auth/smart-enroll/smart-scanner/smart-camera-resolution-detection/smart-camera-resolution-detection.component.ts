@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, Renderer2 } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended } from '../../smart-enroll.service';
 
 export type Resolution = { height: number, width: number, aspectRatio?: number };
@@ -9,9 +9,11 @@ export type Resolution = { height: number, width: number, aspectRatio?: number }
   selector: 'smart-camera-resolution-detection',
   standalone: true,
   styleUrls: [],
-  template: '',
+  template: '<video #video hidden autoplay muted></video>',
 })
 export class SmartCameraResolutionDetectionComponent implements OnInit {
+	@ViewChild("video", { static: true }) video: ElementRef<HTMLVideoElement>;
+
   @Output('detected') detected: EventEmitter<Resolution> = new EventEmitter<Resolution>;
   @Output('failedToDetect') failedToDetect: EventEmitter<void> = new EventEmitter<void>;
 
@@ -154,9 +156,19 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     try {
       const stream = await navigator.mediaDevices.getUserMedia(mediaOptions);
 
-      if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+      const promise = new Promise((resolve, reject) => {
+        setTimeout(()=> {
+          const video: HTMLVideoElement = this.video.nativeElement;
 
-      return true;
+          video.srcObject = stream;
+    
+          if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+
+          resolve(true);
+        });
+      }) as Promise<boolean>;
+
+      return await promise;
     } catch (error) {
       console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
       if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
