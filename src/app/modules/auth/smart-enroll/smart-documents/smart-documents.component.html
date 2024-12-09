@@ -245,7 +245,17 @@
         class="w-full min-h-full"
         source="document"
       ></smart-scanner-ios>
+    </div>
 
+    <div
+      *ngIf="errorResult"
+      @fadeIn
+      class="w-full min-h-full"
+      fxFlex.lt-lg="90%"
+      fxFlex.lt-md="100%"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+    >
       <smart-error-display
         (onClearError)="retry()"
         [errorContent]="errorContent"

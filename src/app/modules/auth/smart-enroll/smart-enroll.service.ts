@@ -18,7 +18,6 @@ export interface IOSCameraData {
 	hasPermissions: boolean;
 	isLoading: boolean;
 	isLowQuality?: boolean;
-	configuration: MediaTrackConstraintSetExtended;
 	dimensions: {
 		real?: {
 			height: number;

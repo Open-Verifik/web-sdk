@@ -1,6 +1,5 @@
 import * as faceapi from "@vladmandic/face-api";
 import jscanify, { Contour } from "libs/jscanify";
-import { debounce, DebouncedFunc } from "lodash";
 import { WebcamImage, WebcamInitError, WebcamModule } from "ngx-webcam";
 import { Observable, Subject, takeUntil } from "rxjs";
 
@@ -13,7 +12,7 @@ import {
 } from "app/modules/demo/models/sdk.models";
 
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -31,6 +30,7 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended, SmartEnrollService } from "../smart-enroll.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { fuseAnimations } from "@fuse/animations";
+import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
 
 const JSScanify = new jscanify();
 
@@ -48,6 +48,7 @@ const JSScanify = new jscanify();
 		MatProgressBarModule,
 		MatProgressSpinnerModule,
 		SmartStepperComponent,
+		SmartCameraResolutionDetectionComponent,
 		TranslocoModule,
 		WebcamModule,
 	],
@@ -66,8 +67,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 	private unsubscriber$: Subject<void> = new Subject<void>();
 	private takePicture: Subject<void> = new Subject<void>();
-	private _debouncedTakePicture: DebouncedFunc<() => void>;
-	private _debouncedWindowResize: DebouncedFunc<() => void>;
 	private _detectionInterval: ReturnType<typeof setInterval>;
 	private _ngxVideoInterval: ReturnType<typeof setInterval>;
 	private _scanner: jscanify;
@@ -97,6 +96,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	side: "back" | "front" = "front";
 	toSave: ImageScan = null;
 	uploading: boolean = false;
+	killCamera: boolean = false;
+	videoOptions: MediaTrackConstraintSetExtended;
 
 	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
     HEIGHT: number;
@@ -123,19 +124,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		private _demoService: DemoService,
 		private _dom: ElementRef,
 		private _KYCService: KYCService,
-		private _renderer: Renderer2,
 		private _smartEnrollService: SmartEnrollService,
 		private _splashScreenService: FuseSplashScreenService,
 		private _translocoService: TranslocoService,
 	) {
 		this._resetVariables();
-
-		this._debouncedWindowResize = debounce(() => {
-			this._stopRecording();
-			this._startRecording();
-		}, 300);
-
-		this._renderer.listen("window", "resize", this._debouncedWindowResize);
 	}
 
 	ngOnInit(): void {
@@ -167,9 +160,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this._detectionInterval = null;
 		this._ngxVideoInterval = null;
 
-		this._debouncedTakePicture?.cancel();
-		this._debouncedWindowResize?.cancel();
-
 		this.unsubscriber$.next();
 		this.unsubscriber$.complete();
 	}
@@ -193,7 +183,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				this.corrections.documentResolution = resolution;
 				this.documentDetection = detection;
 				this.documentIsValid = isValid;
-				console.log("🚀 ~ SmartScannerIosComponent ~ _detectDocument ~ this.documentIsValid:", this.documentIsValid)
 			}
 
 			img.delete();
@@ -220,7 +209,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 					const { isValid } = this._smartEnrollService.evaluateFaceDetection(this.BOUNDS, faceDetection, this.source);
 
 					this.faceIsValid = isValid;
-					console.log("🚀 ~ SmartScannerIosComponent ~ _detectFace ~ this.faceIsValid:", this.faceIsValid)
 				} else {
 					this._isFaceCentered(this.lastFace.landmarks.getNose()[3]);
 					this._isFaceClose(this.lastFace.landmarks);
@@ -230,7 +218,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 					if (!this.errorFace && this.face.successPosition > 3) {
 						this.faceIsValid = true;
 						this.face.successPosition = 0;
-						console.log("🚀 ~ SmartScannerIosComponent ~ _detectFace ~ this.faceIsValid:", this.faceIsValid)
 					}
 				}
 			}
@@ -597,6 +584,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this.demoData = this._demoService.getDemoData();
 		this.errorContent = { message: "" };
 		this.showError = false;
+		this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
 
 		this._startDefaultValues();
 		this._changeDetectorRef.markForCheck();
@@ -755,30 +743,25 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _setVideoOptionConfigs(): void {
 		this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
 
-		const IDEAL_A = 1920;
-		const IDEAL_B = 1080;
-
 		const settings = (
-			this.isLandscape ? {
-				aspectRatio: { ideal: IDEAL_A / IDEAL_B },
-				frameRate: { min: 15, ideal: 30, max: 60 },
-				height: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
-				width: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
-			} : {
-				aspectRatio: { ideal: IDEAL_B / IDEAL_A },
-				frameRate: { min: 15, ideal: 30, max: 60 },
-				height: { min: 854, ideal: IDEAL_A, max: IDEAL_A },
-				width: { min: 480, ideal: IDEAL_B, max: IDEAL_B },
+			{
+				...this.videoOptions,
+				frameRate: { min: 15, ideal: 30, max: 30 },
 			}
 		) as MediaTrackConstraintSetExtended;
 
 		const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
 		// can be 'user' || 'environment' https://w3c.github.io/mediacapture-main/#dom-videofacingmodeenum
-		if (facingMode) settings.facingMode = this.source === "face" ? "user" : "environment";
+		if (facingMode) {
+			if (this.source === 'document') settings.facingMode = "environment";
+			if (this.source === 'face') settings.facingMode = "user";
+		}
+
 		if (zoom) settings.zoom = { ideal: 0 };
 
-		this.camera.configuration = settings;
+		this.videoOptions = settings;
+		console.log("🚀 ~ SmartScannerIosComponent ~ _setVideoOptionConfigs ~ this.videoOptions:", this.videoOptions)
 	}
 
 	private _setDefaultCamera = () => {
@@ -786,7 +769,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			hasPermissions: false,
 			isLoading: false,
 			isLowQuality: false,
-			configuration: {},
 			dimensions: {
 				video: {
 					max: {
@@ -882,7 +864,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	private _setVideoDimensions(videoNgx: any) {
-        this.isLandscape = videoNgx.clientHeight < videoNgx.clientWidth;
+        this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
 
 		this.camera.dimensions.video.height = videoNgx.clientHeight;
 		this.camera.dimensions.video.width = videoNgx.clientWidth;
@@ -909,6 +891,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		if (!videoNgx) return;
 
 		this._setVideoDimensions(videoNgx);
+        this._drawMask();
 		this._loading({ isLoading: false, start: true });
 
 		if (!this._detectionInterval) {
@@ -916,9 +899,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				this.takePicture.next();
 			}, 300);
 		}
-
-        this._setVideoDimensions(videoNgx);
-        this._drawMask();
 	}
 
 	private _startDefaultValues() {
@@ -934,7 +914,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		if (!this._ngxVideoInterval) {
 			this._ngxVideoInterval = setInterval(() => {
 				this._setVideoNgxCameraData();
-			}, 1000);
+			}, 100);
 		}
     }
 
@@ -973,6 +953,10 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				const face = this._demoService.findBiggestFace(detections);
 
 				if (face) {
+					this.errorContent = null;
+					this.errorFace = null;
+					this.showError = false;
+
 					faceToUpload = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
 
 					this.toSave = {
@@ -1040,7 +1024,21 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	captureManually(): void {
-		this.takePicture.next();
+		const ngxVideo = this._dom.nativeElement.querySelector('video');
+		const canvas = document.createElement('canvas') as HTMLCanvasElement;
+
+		canvas.height = ngxVideo.clientHeight;
+		canvas.width = ngxVideo.clientWidth;
+
+		const ctx = canvas.getContext("2d");
+
+		ctx.drawImage(ngxVideo, 0, 0, canvas.width, canvas.height);
+
+		const img = new Image();
+
+		img.src = canvas.toDataURL('image/jpeg');
+
+		this._takePicture(img);
 	}
 
 	closeTip() {
@@ -1106,6 +1104,19 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	handleResolutionDetection(resolution: Resolution) {
+		console.log("🚀 ~ SmartScannerIosComponent ~ handleResolutionDetection ~ resolution:", resolution)
+		this.videoOptions.aspectRatio = { exact: resolution.aspectRatio };
+		this.videoOptions.height = { exact: resolution.height };
+		this.videoOptions.width = { exact: resolution.width };
+
+		this.restartCamera();
+	}
+
+	handleResolutionDetectionFail() {
+		this.showError = true;
+	}
+
 	processImage(webcamImage: WebcamImage): void {
 		if (this.response.base64Image) return;
 
@@ -1159,6 +1170,20 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         }
 	}
 
+	restartCamera(): void {
+		this._stopRecording();
+		this._setVideoOptionConfigs();
+
+		this.showError = false;
+		this.errorContent = null;
+		this.killCamera = true;
+
+		setTimeout(() => {
+			this.killCamera = false;
+			this._startRecording();
+		}, 300);
+	}
+
 	retake(): void {
 		this.toSave = null;
 		this._startRecording();
@@ -1174,6 +1199,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			face,
 		});
 
+		this.response.base64Image = this.source === 'face' ? face : base64Image;
 		this.uploading = true;
 	}
 }

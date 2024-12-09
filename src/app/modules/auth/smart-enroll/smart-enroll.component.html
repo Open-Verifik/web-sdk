@@ -13,20 +13,6 @@
     fxLayoutAlign="start center"
     ngClass.lt-md="flex-col flex-grow"
   >
-    <section
-      [style.borderBottom]="
-        project.branding.borderColor
-          ? '1px solid ' + project.branding.borderColor
-          : ''
-      "
-      class="toolbar toolbar--top"
-      ngClass.lt-md="hidden"
-    >
-      <div class="toolbar__logo">
-        <img [src]="project.branding.logo" class="w-10" />
-      </div>
-    </section>
-
     <smart-documents
       @fadeIn
       *ngIf="currentStep === 'document'"
@@ -50,26 +36,5 @@
       *ngIf="currentStep === 'result'"
       class="app__page"
     ></smart-results>
-
-    <section
-      [ngStyle.gt-sm]="{
-        borderTop: project.branding.borderColor
-          ? '1px solid ' + project.branding.borderColor
-          : ''
-      }"
-      fxLayout.gt-sm="row"
-      fxLayoutAlign.gt-sm="center"
-      ngClass.gt-sm="toolbar toolbar--bottom"
-      ngClass.lt-md="py-2 text-center z-20"
-    >
-      <div fxLayout="column" fxLayoutAlign="center">
-        <p ngClass.lt-md="font-small">
-          Verifik &#169; {{ "smart_enroll.copyright" | transloco : { year } }}
-          <a href="" target="_blank">{{
-            "smart_enroll.terms_and_cond" | transloco
-          }}</a>
-        </p>
-      </div>
-    </section>
   </main>
 </div>

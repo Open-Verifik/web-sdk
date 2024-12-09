@@ -132,7 +132,8 @@
 		"remaining_attempts": "Remaining attempts",
 		"retry": "Try again",
 		"retry_document": "Retry Document",
-		"retry_biometric": "Retry Biometric Record"
+		"retry_biometric": "Retry Biometric Record",
+		"review_doc": "Is the text, photo, and all relative data clear, glare-free and not blurry? If you are happy with the result, upload the document for processing."
 	},
 	"user_location": {
 		"town": "Town",
@@ -161,6 +162,7 @@
 		"person_linked_to_another_email": "Your biometrics are linked to another email.",
 		"face_not_found_title": "Face not Found",
 		"face_not_found_subtitle": "Your face cannot be detected.",
+		"review_liveness": "Is the image free of blurring and center frame? If you are happy with the result, upload the image for processing.",
 		"loading_stream": "Loading Camera"
 	},
 	"results": {
@@ -356,13 +358,14 @@
 		"detected": "Document successfully detected!",
 		"did_not_detect": "We could not detect the document",
 		"document_instructions": "Place ID onto a flat, dark surface to ensure best outcome.",
-		"document_rotate": "Please ensure your device is in landscape orientation",
+		"document_rotate": "You may have better success in landscape orientation",
 		"extracting_data": "Extracting data",
 		"face_instructions": "Make sure your face is in the center of the screen, remove your glasses, and ensure good lighting",
 		"face_was_not_registered": "Your face was not registered",
 		"face_was_registered": "Your face was registered correctly",
 		"id_was_not_registered": "Your ID was not registered",
 		"id_was_registered": "Your ID was registered correctly",
+		"image_captured": "Image Captured!",
 		"liveness_score": "{{percentile}}% liveness score",
 		"login_to_platform": "Login to the platform",
 		"minimum_comparison": "The minimum comparison score is {{min}}%",

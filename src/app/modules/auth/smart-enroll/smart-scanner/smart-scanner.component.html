@@ -492,21 +492,47 @@
                 </p>
               </div>
             </div>
-
+            
             <div class="h-full w-full mt-6" *ngIf="toSave" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="12px">
-              <div class="w-full flex-grow" [fxLayout]="isLandscape ? 'row': 'column'" fxLayoutAlign="center center" fxLayoutGap="12px">
-                <img
-                  [src]="toSave.base64Image"
-                  class="rounded-3xl overflow-hidden max-h-100 max-w-100 object-contain"
-                />
-    
+              <h4 class="font-medium text-xl" [style.color]="project.branding.titleColor">{{ "smart_enroll.image_captured" | transloco }}</h4>
+
+              <div class="w-full mt-4" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="12px">
                 <img
                   [src]="toSave.face"
                   *ngIf="source === 'document' && side === 'front'"
-                  class="rounded-3xl overflow-hidden max-h-50 max-w-50 object-contain"
+                  class="overflow-hidden max-h-40 max-w-40 object-contain"
+                />
+
+                <img
+                  [src]="toSave.base64Image"
+                  class="overflow-hidden max-h-120 max-w-120 object-contain"
                 />
               </div>
-    
+
+              <div
+                [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
+                class="smart-documents__card smart-documents__card--large smart-scanner__tip rounded-2xl bg-card z-20"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                ngClass.gt-sm="m-4"
+                ngClass.lt-md="mt-2"
+              >
+                <div
+                  fxLayout="row"
+                  fxLayoutAlign="start center"
+                >
+                  <mat-icon
+                    class="mr-3"
+                    svgIcon="fa_solid:eye"
+                  ></mat-icon>
+
+                  <p>
+                    <ng-container *ngIf="source === 'document'">{{ 'id_scanning.review_doc' | transloco }}</ng-container>
+                    <ng-container *ngIf="source === 'face'">{{ 'liveness.review_liveness' | transloco }}</ng-container>
+                  </p>
+                </div>
+              </div>
+
               <div class="mt-8" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="12px">
                 <button
                   (click)="retake()"
@@ -517,7 +543,7 @@
                   mat-flat-button
                   >{{ "id_scanning.retry" | transloco }}</button
                 >
-    
+
                 <button
                   (click)="upload()"
                   [disabled]="uploading"
@@ -616,7 +642,7 @@
                     fxLayout="row"
                     fxLayoutAlign="start center"
                     class="mb-4"
-                    *ngIf="source === 'document' && !isLandscape"
+                    *ngIf="source === 'document' && !isLandscape && demoData.isMobile"
                   >
                     <mat-icon
                       class="mr-3"

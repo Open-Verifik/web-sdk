@@ -2,6 +2,12 @@
 <canvas #resultCanvas hidden></canvas>
 <canvas #toSendCanvas hidden></canvas>
 
+<smart-camera-resolution-detection
+  (detected)="handleResolutionDetection($event)"
+  (failedToDetect)="handleResolutionDetectionFail()"
+  [facingMode]="videoOptions.facingMode"
+></smart-camera-resolution-detection>
+
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
   <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
     <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
@@ -139,12 +145,21 @@
       </p>
 
       <button
+        (click)="restartCamera()"
+        [style.backgroundColor]="project.branding.buttonColor"
+        [style.color]="project.branding.buttonTxtColor"
+        class="fuse-mat-button-large w-full mt-6"
+        mat-flat-button
+      >
+        <mat-icon matLeadingIcon>smartphone</mat-icon>
+        <span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
+      </button>
+
+      <button
         (click)="loadQRCode()"
         [disabled]="revealQRCode"
-        [style.backgroundColor]="
-          !revealQRCode ? project.branding.buttonColor : ''
-        "
-        [style.color]="!revealQRCode ? project.branding.buttonTxtColor : ''"
+        [style.border]="!revealQRCode ? '1px solid ' + project.branding.buttonColor : ''"
+        [style.color]="!revealQRCode ? project.branding.buttonColor : ''"
         class="fuse-mat-button-large w-full mt-6"
         mat-flat-button
       >
@@ -227,26 +242,19 @@
     >
       <ng-container *ngIf="!toSave && !response?.base64Image">
         <webcam
+          *ngIf="!killCamera"
           (imageCapture)="processImage($event)"
           (initError)="cameraError($event)"
           [allowCameraSwitch]="false"
           [captureImageData]="true"
           [height]="camera.dimensions.video.max.height"
           [imageQuality]="1"
-          [mirrorImage]="this.source === 'face' || !demoData.isMobile || camera.configuration.facingMode === 'user' ? 'always' : 'never'"
+          [mirrorImage]="this.source === 'face' || !demoData.isMobile === 'user' ? 'always' : 'never'"
+          [style.height.px]="camera.dimensions.video.height"
+          [style.width.px]="camera.dimensions.video.width"
           [trigger]="takePicture$"
-          [videoOptions]="camera.configuration"
+          [videoOptions]="videoOptions"
           [width]="camera.dimensions.video.max.width"
-          [style.width.px]="
-            response.base64Image
-              ? camera.dimensions.result.width
-              : camera.dimensions.video.width
-          "
-          [style.height.px]="
-            response.base64Image
-              ? camera.dimensions.result.height
-              : camera.dimensions.video.height
-          "
           class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios rounded-3xl"
         ></webcam>
 
@@ -440,11 +448,11 @@
         </div>
       </div>
 
-      <div class="flex flex-col flex-grow justify-start h-full w-full" *ngIf="!response?.base64Image">
+      <div class="flex flex-col flex-grow justify-center items-center h-full w-full" *ngIf="!response?.base64Image">
         <div
           fxLayout="column"
           fxLayoutAlign="start center"
-          class="text-center w-full z-20 flex flex-grow"
+          class="text-center w-full z-20 flex mt-4 flex-grow"
         >
           <div
             [style.color]="project ? project.branding.titleColor : null"
@@ -463,17 +471,43 @@
         </div>
 
         <div class="h-full w-full mt-6" *ngIf="toSave" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="12px">
-          <div class="w-full flex-grow" [fxLayout]="isLandscape ? 'row': 'column'" fxLayoutAlign="center center" fxLayoutGap="12px">
-            <img
-              [src]="toSave.base64Image"
-              class="rounded-3xl overflow-hidden max-h-3/4 object-contain"
-            />
+          <h4 class="font-medium text-xl" [style.color]="project.branding.titleColor">{{ "smart_enroll.image_captured" | transloco }}</h4>
 
+          <div class="w-full flex-grow mt-4" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="12px">
             <img
               [src]="toSave.face"
               *ngIf="source === 'document' && side === 'front'"
               class="rounded-3xl overflow-hidden max-h-40 max-w-40 object-contain"
             />
+
+            <img
+              [src]="toSave.base64Image"
+              class="rounded-3xl overflow-hidden max-h-100 max-w-100 object-contain"
+            />
+          </div>
+
+          <div
+            [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
+            class="smart-documents__card smart-documents__card--large smart-scanner__tip rounded-2xl bg-card z-20"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            ngClass.gt-sm="m-4"
+            ngClass.lt-md="mt-2"
+          >
+            <div
+              fxLayout="row"
+              fxLayoutAlign="start center"
+            >
+              <mat-icon
+                class="mr-3"
+                svgIcon="fa_solid:eye"
+              ></mat-icon>
+
+              <p>
+                <ng-container *ngIf="source === 'document'">{{ 'id_scanning.review_doc' | transloco }}</ng-container>
+                <ng-container *ngIf="source === 'face'">{{ 'liveness.review_liveness' | transloco }}</ng-container>
+              </p>
+            </div>
           </div>
 
           <div class="mt-8" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="12px">
@@ -578,7 +612,7 @@
               fxLayout="row"
               fxLayoutAlign="start center"
               class="mb-4"
-              *ngIf="source === 'document' && !isLandscape"
+              *ngIf="source === 'document' && !isLandscape && demoData.isMobile"
             >
               <mat-icon
                 class="mr-3"

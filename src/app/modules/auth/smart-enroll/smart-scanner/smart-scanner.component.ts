@@ -79,7 +79,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _rectCredential: any;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = true;
+	DEBUG_MODE: boolean = false;
 
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
@@ -583,8 +583,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		if (facingMode) settings.facingMode = this.source === "face" || !this.demoData.isMobile ? "user" : "environment";
 		if (zoom) settings.zoom = { ideal: 0 };
 
-		console.log("🚀 ~ SmartScannerComponent ~ _resetVariables ~ settings:", settings);
-
 		this.video = {};
 		this.videoOptions = {
 			...this.videoOptions,
@@ -651,15 +649,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		if (this.source === 'face') {
 			if (this.isLandscape) {
-				data.rectHeight = Math.floor(height * 0.8);
-				data.y = Math.floor(height * 0.1);
+				data.rectHeight = height;
+				data.y = 0;
 				data.rectWidth = Math.floor(width * 0.4);
 				data.x = Math.floor(width * 0.3);
 			} else {
-				data.rectHeight = height * 0.5;
-				data.y = height * 0.2;
-				data.rectWidth = Math.floor(width * 0.75);
-				data.x = Math.floor(width * 0.125);
+				data.rectHeight = Math.floor(height * 0.8);
+				data.y = Math.floor(height * 0.1);
+				data.rectWidth = width;
+				data.x = 0;
 			}
 		}
 	}
@@ -690,7 +688,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 				const videoTrack = this.stream.getVideoTracks()[0];
 				const settings = videoTrack.getSettings();
-				console.log("🚀 ~ SmartScannerComponent ~ .then ~ settings:", settings)
 
 				const { width, height } = settings;
 
@@ -1090,6 +1087,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			face,
 		});
 
+		this.base64Image = this.source === 'face' ? face : base64Image;
 		this.uploading = true;
 	}
 }
