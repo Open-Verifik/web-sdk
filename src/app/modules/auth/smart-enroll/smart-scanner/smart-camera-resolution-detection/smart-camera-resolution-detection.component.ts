@@ -9,7 +9,7 @@ export type Resolution = { height: number, width: number, aspectRatio?: number }
   selector: 'smart-camera-resolution-detection',
   standalone: true,
   styleUrls: [],
-  template: '<video #video hidden autoplay muted playsinline></video>',
+  template: '<video #video autoplay muted playsinline style="opacity: 0;"></video>',
 })
 export class SmartCameraResolutionDetectionComponent implements OnInit {
 	@ViewChild("video", { static: true }) video: ElementRef<HTMLVideoElement>;
@@ -159,25 +159,29 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
       stream.getVideoTracks()[0];
 
       const promise = new Promise((resolve, reject) => {
+        const onload = () => this._onVideoLoaded(stream, resolve);
+
         setTimeout(()=> {
           const video: HTMLVideoElement = this.video.nativeElement;
 
-          video.srcObject = stream;
-
-          resolve(true);
-        }, 100);
+          video.srcObject = stream.clone();
+					video.removeEventListener("loadedmetadata", onload, true);
+					video.addEventListener("loadedmetadata", onload, true);
+        });
       }) as Promise<boolean>;
 
       const result = await promise;
 
-      if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-
       return result;
     } catch (error) {
-      console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
       if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
 
       return false;
     }
+  }
+
+  private _onVideoLoaded(stream: MediaStream, resolve: (value: boolean | PromiseLike<boolean>) => void) {
+    if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+    resolve(!!stream);
   }
 }
