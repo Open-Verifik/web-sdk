@@ -148,8 +148,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.unsubscriber$))
             .subscribe(async (isLoaded) => {
                 this.camera.isLoading = !isLoaded;
-
-                if (isLoaded) this._startRecording();
             });
 	}
 
