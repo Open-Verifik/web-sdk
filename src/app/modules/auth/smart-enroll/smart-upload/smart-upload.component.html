@@ -141,7 +141,7 @@
 		<div class="smart-documents__heading text-center w-full" fxLayout="column" fxLayoutAlign="center center" fxFlexOrder.lt-md="1">
 			<div class="w-full mt-8 smart-documents__id-types" fxLayout="row" fxLayoutAlign="space-between">
 				<div
-					[style.color]="project.branding.txtColor"
+					[style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
 					*ngIf="projectFlow.onboardingSettings.document.usePassport"
 					fxFlex
 					fxLayout="row"
@@ -149,7 +149,7 @@
 					ngClass.lt-md="text-sm"
 				>
 					<mat-icon
-						[style.color]="project.branding.txtColor"
+						[style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
 						ngClass.gt-sm="mr-4"
 						ngClass.lt-md="mr-2"
 						svgIcon="fa_solid:passport"
@@ -161,7 +161,7 @@
 				</div>
 
 				<div
-					[style.color]="project.branding.txtColor"
+					[style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
 					*ngIf="projectFlow.onboardingSettings.document.useLicense"
 					fxFlex
 					fxLayout="row"
@@ -169,7 +169,7 @@
 					ngClass.lt-md="text-sm"
 				>
 					<mat-icon
-						[style.color]="project.branding.txtColor"
+						[style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
 						ngClass.gt-sm="mr-4"
 						ngClass.lt-md="mr-2"
 						svgIcon="fa_regular:id-card"
@@ -181,7 +181,7 @@
 				</div>
 
 				<div
-					[style.color]="project.branding.txtColor"
+					[style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
 					*ngIf="projectFlow.onboardingSettings.document.useGovernmentID"
 					fxFlex
 					fxLayout="row"
@@ -189,7 +189,7 @@
 					ngClass.lt-md="text-sm"
 				>
 					<mat-icon
-						[style.color]="project.branding.txtColor"
+						[style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
 						ngClass.gt-sm="mr-4"
 						ngClass.lt-md="mr-2"
 						svgIcon="fa_regular:address-card"

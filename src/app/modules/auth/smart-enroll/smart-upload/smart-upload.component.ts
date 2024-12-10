@@ -63,7 +63,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     errorResult: boolean;
     faceIdCard: string;
     file: File;
-    fileProgress: number;
+    fileProgress: number = 0;
     isExtracting: boolean = false;
     project: Project;
     projectFlow: ProjectFlow;
@@ -240,6 +240,30 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this.file = null;
         this.fileProgress = 0;
         this.isExtracting = false;
+    }
+
+    showPassportColor(): boolean {
+        return !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === 'front') || (
+                (this.fileProgress === 100 || this.side === 'back') &&
+                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === 'passport'
+            );
+    }
+
+    showLicenseColor(): boolean {
+        return !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === 'front') || (
+                (this.fileProgress === 100 || this.side === 'back') &&
+                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === 'driverlicense'
+            );
+    }
+
+    showGovernmentIDColor(): boolean {
+        return !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === 'front') || (
+                (this.fileProgress === 100 || this.side === 'back') &&
+                ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase())
+            );
     }
 
     skipStep(): void {

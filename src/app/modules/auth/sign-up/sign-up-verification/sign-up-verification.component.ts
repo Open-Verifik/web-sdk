@@ -255,7 +255,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		this.update = false;
 		this.sendingOTP = true;
 
-		this._KYCService.sendEmailValidation(this.appRegistration.email).subscribe({
+		this._KYCService.sendAppRegistationEmailValidation(this.appRegistration.email).subscribe({
 			next: (response) => {
 				this.currentValidation = response.data;
 
@@ -330,7 +330,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
 		this.sendingOTP = true;
 
-		this._KYCService.sendPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone, this.selectedPhoneGateway).subscribe({
+		this._KYCService.sendAppRegistrationPhoneValidation(this.appRegistration.countryCode, this.appRegistration.phone, this.selectedPhoneGateway).subscribe({
 			next: (response) => {
 				this.currentValidation = response.data;
 

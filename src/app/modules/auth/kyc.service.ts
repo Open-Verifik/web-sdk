@@ -157,9 +157,37 @@ export class KYCService {
 			.pipe(tap((response: any) => {}));
 	}
 
+	sendAppRegistationEmailValidation(email: string): Observable<any> {
+		return this._httpWrapper
+			.sendRequest("post", `${this.baseUrl}/v2/email-validations/app-registration`, {
+				email,
+				project: this.currentProject._id,
+				projectFlow: this.currentProjectFlow._id,
+				type: "onboarding",
+				validationMethod: "verificationCode",
+				language: this._translocoService.getActiveLang(),
+			})
+			.pipe(tap((response: any) => {}));
+	}
+
 	sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
 		return this._httpWrapper
 			.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
+				countryCode,
+				phone,
+				project: this.currentProject._id,
+				projectFlow: this.currentProjectFlow._id,
+				type: "onboarding",
+				validationMethod: "verificationCode",
+				language: this._translocoService.getActiveLang(),
+				phoneGateway: phoneGateway || "sms",
+			})
+			.pipe(tap((response: any) => {}));
+	}
+
+	sendAppRegistrationPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
+		return this._httpWrapper
+			.sendRequest("post", `${this.baseUrl}/v2/phone-validations/app-registration`, {
 				countryCode,
 				phone,
 				project: this.currentProject._id,

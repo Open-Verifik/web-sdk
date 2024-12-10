@@ -78,8 +78,8 @@ export class SmartResultsComponent implements OnInit {
 		const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
 		const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
 
-		this.comparisonScore = (compareScore || 0) * 100;
-		this.livenessScore = (livenessScore || 0) * 100;
+		this.comparisonScore = Math.floor((compareScore || 0) * 100);
+		this.livenessScore = Math.floor((livenessScore || 0) * 100);
 
 		this.comparisonFailed = false;
 		this.errorResult = false;

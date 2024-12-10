@@ -878,8 +878,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._setCanvasDimensions();
 		this._paintMaskCanvas();
 
-		if (this.demoData.isMobile || (this.videoOptions.facingMode === 'user' && this.source !== 'document')) {
+		if (this.source === 'face') {
 			video.style.transform = "scaleX(-1)";
+		} else {
+			video.style.transform = "";
 		}
 
 		this._detectionInterval = setInterval(() => {
@@ -1010,6 +1012,24 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			dimensions.rectHeight
 		);
 	}
+
+    showPassportColor(): boolean {
+        return !this.appRegistration.documentValidation ||
+			this.side === 'front' ||
+			this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === 'passport';
+    }
+
+    showLicenseColor(): boolean {
+        return !this.appRegistration.documentValidation ||
+			this.side === 'front' ||
+			this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === 'driverlicense';
+    }
+
+    showGovernmentIDColor(): boolean {
+        return !this.appRegistration.documentValidation ||
+			this.side === 'front' ||
+			["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase());
+    }
 
 	skipStep(): void {
         if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {

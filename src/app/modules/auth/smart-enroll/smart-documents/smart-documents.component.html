@@ -22,17 +22,11 @@
       fxLayout="column"
       fxLayoutAlign="start center"
       fxLayoutAlign.lt-md="start start"
-      ngClass.lt-md="w-full text-left"
+      ngClass.lt-md="w-full"
     >
-      <img
-        [src]="project.branding.logo"
-        ngClass.gt-sm="hidden"
-        class="w-12"
-      />
-
       <h5
-        class="text-3xl font-medium mt-2"
-        ngClass.lt-md="text-2xl text-left"
+        class="w-full text-3xl font-medium mt-2 text-center"
+        ngClass.lt-md="text-2xl"
         [style.color]="project.branding.titleColor"
       >
         {{ "smart_enroll.documents.scan_or_upload_title" | transloco }}
