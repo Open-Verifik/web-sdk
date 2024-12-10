@@ -30,6 +30,7 @@ smart-scanner-corrections {
 		width: 100%;
 		display: flex;
 		flex-grow: 1;
+		height: 100vh;
 	}
 }
 
@@ -180,7 +181,7 @@ smart-scanner-corrections {
 	&__tip {
 		padding: 24px;
 
-		@media screen and (max-height: 450px),
+		@media screen and (max-height: 600px),
 			screen and (max-width: 959px) {
 			padding: 8px 12px;
 			font-size: 12px;
@@ -207,8 +208,7 @@ smart-scanner-corrections {
 		inset: auto;
 		margin: 0 auto;
 		width: 100%;
-		z-index: 2;
-		background-color: rgba(255, 2555, 255, 0.9);
+		background-color: rgba(255, 2555, 255, 0.7);
 	}
 }
 

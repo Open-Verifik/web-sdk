@@ -764,6 +764,7 @@ export interface DocumentValidation {
 	backUrl?: string;
 	createdAt: string;
 	deleted: boolean;
+	documentCategory: "ID" | "Passport" | "IDv2" | "ForeignerID" | "DriverLicense" | "Unknown";
 	documentNumber: string;
 	documentType: string;
 	firstNameMatchPercentage?: number;
