@@ -169,19 +169,25 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
       stream.getVideoTracks()[0];
 
       const promise = new Promise((resolve, reject) => {
-        const onload = () => this._onVideoLoaded(stream, resolve);
+        try {
+          const onload = () => this._onVideoLoaded(stream, resolve);
 
-        setTimeout(()=> {
-          video.srcObject = stream.clone();
-
-          this.startStream = true;
-
-					video.removeEventListener("loadedmetadata", onload, true);
-					video.addEventListener("loadedmetadata", onload, true);
-        });
+          setTimeout(()=> {
+            video.srcObject = stream.clone();
+  
+            this.startStream = true;
+  
+            video.removeEventListener("loadedmetadata", onload, true);
+            video.addEventListener("loadedmetadata", onload, true);
+          });
+        } catch (e) {
+          reject(e);
+        }
       }) as Promise<boolean>;
 
       const result = await promise;
+
+      promise.catch(console.error);
 
       this.startStream = false;
 
@@ -194,7 +200,12 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   }
 
   private _onVideoLoaded(stream: MediaStream, resolve: (value: boolean | PromiseLike<boolean>) => void) {
-    if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+    if (stream) {
+      stream.getTracks().forEach((track: MediaStreamTrack) => {
+        track.stop();
+        stream.removeTrack(track);
+      });
+    }
     resolve(!!stream);
   }
 }
