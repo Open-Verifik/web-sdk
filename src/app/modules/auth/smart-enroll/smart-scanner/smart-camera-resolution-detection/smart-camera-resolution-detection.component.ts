@@ -1,18 +1,14 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended } from '../../smart-enroll.service';
-import { NgIf } from '@angular/common';
 
 export type Resolution = { height: number, width: number, aspectRatio?: number };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    NgIf,
-  ],
   selector: 'smart-camera-resolution-detection',
   standalone: true,
   styleUrls: [],
-  template: '<video #video *ngIf="startStream"></video>',
+  template: '<video #video style="z-index: -99999; opacity: 0; position: absolute; display: block"></video>',
 })
 export class SmartCameraResolutionDetectionComponent implements OnInit {
 	@ViewChild("video", { static: true }) video: ElementRef<HTMLVideoElement>;
@@ -54,8 +50,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   private WIDE_NOT_SUPPORTED: boolean = false;
   private NARROW_NOT_SUPPORTED: boolean = false;
   private SQUARE_NOT_SUPPORTED: boolean = false;
-
-  startStream: boolean = false;
 
   constructor(private _renderer: Renderer2) {}
 
@@ -164,35 +158,33 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(mediaOptions);
-
-      stream.getVideoTracks()[0];
-
       const promise = new Promise((resolve, reject) => {
-        try {
-          const onload = () => this._onVideoLoaded(stream, resolve);
+        const streamPromise = navigator.mediaDevices.getUserMedia(mediaOptions);
 
-          setTimeout(()=> {
-            video.srcObject = stream.clone();
+        streamPromise.then((stream) => {
+          stream.getVideoTracks()[0];
+            try {
+              const onload = () => this._onVideoLoaded(stream, resolve);
   
-            this.startStream = true;
-  
-            video.removeEventListener("loadedmetadata", onload, true);
-            video.addEventListener("loadedmetadata", onload, true);
-          });
-        } catch (e) {
-          reject(e);
-        }
+              setTimeout(()=> {
+                video.srcObject = stream.clone();
+      
+                video.removeEventListener("loadedmetadata", onload, true);
+                video.addEventListener("loadedmetadata", onload, true);
+              });
+            } catch (e) {
+              reject(e);
+            }
+        }).catch(reject)
       }) as Promise<boolean>;
 
       const result = await promise;
 
-      promise.catch(console.error);
-
-      this.startStream = false;
+      promise.catch((error) => {throw error});
 
       return result;
     } catch (error) {
+      console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
       if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
 
       return false;
@@ -206,6 +198,7 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
         stream.removeTrack(track);
       });
     }
+
     resolve(!!stream);
   }
 }
