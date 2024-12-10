@@ -184,7 +184,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
 
       return result;
     } catch (error) {
-      console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
       if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
 
       return false;

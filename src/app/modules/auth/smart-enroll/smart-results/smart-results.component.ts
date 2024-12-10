@@ -1,5 +1,7 @@
+import QRCode from "qrcode";
+
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -34,10 +36,13 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 	],
 })
 export class SmartResultsComponent implements OnInit {
+	@ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+
 	appRegistration: AppRegistration;
 	biometricSkipped: boolean = false;
 	comparisonFailed: boolean;
 	comparisonScore: number;
+	documentSkipped: boolean = false;
 	enrollSettings: EnrollSettings;
 	enrollStore: EnrollStore;
 	errorContent: { message: string };
@@ -45,12 +50,13 @@ export class SmartResultsComponent implements OnInit {
 	face: Face;
 	fetchingToken: boolean;
 	identityLoading: boolean = false;
+	loadingQRCode: boolean = false;
 	livenessFailed: boolean;
 	livenessScore: number;
 	project: Project;
 	projectFlow: ProjectFlow;
 	redirectUrl: string;
-    documentSkipped: boolean = false;
+	revealQRCode: boolean = false;
 
 	constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
 		this.appRegistration = this._KYCService.appRegistration;
@@ -148,6 +154,14 @@ export class SmartResultsComponent implements OnInit {
 		if (!this.face) this._setFace(fallbackFace);
 	}
 
+	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+		try {
+			await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
+
+			this.loadingQRCode = false;
+		} catch (e) {}
+	}
+
 	private _requestIdentityImages(): void {
 		if (this.documentSkipped && this.biometricSkipped) {
 			this.identityLoading = false;
@@ -189,6 +203,13 @@ export class SmartResultsComponent implements OnInit {
 
 	isLoginToPlatformDisabled() {
 		return this.fetchingToken || this.appRegistration.status === "FAILED" || this.comparisonFailed || this.livenessFailed;
+	}
+
+	loadQRCode(): void {
+		this.revealQRCode = true;
+
+		const qrCanvas = this.qrCodeCanvas.nativeElement;
+		this._generateQRCode(qrCanvas, window.location.href);
 	}
 
 	loginToPlatform(): void {

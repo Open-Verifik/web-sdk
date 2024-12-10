@@ -107,7 +107,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	unsupported: boolean = false;
 	uploading: boolean = false;
 	video: any;
-	toSave: ImageScan = null;
 
 	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
 	HEIGHT: number;
@@ -168,9 +167,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.unsubscriber$))
 			.subscribe(() => {
 				this.uploading = false;
-				this.base64Image = this.toSave.base64Image;
 				this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-				this.toSave = null;
 			});
 
 		this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
@@ -1052,9 +1049,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.setPictureInCanvas(canvasToSend, this.video);
 
 		const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
-		const base64Image = rawBase64Image;
 		const isFront = this.side === "front";
 
+		let base64Image = rawBase64Image;
+		let face: string;
 		let faceToUpload: string;
 
 		if (isFront && this.source === 'document') {
@@ -1076,38 +1074,26 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		this.toSave = {
+		if (this.source === 'face') {
+			face = rawBase64Image.replace(/^data:.*;base64,/, "");
+		} else {
+			base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
+			face = faceToUpload?.replace(/^data:.*;base64,/, "");
+		}
+
+		this.onImageScan.next({
 			base64Image,
-			face: faceToUpload,
+			face,
 			force: !isFront || !!this.appRegistration.documentValidation,
 			front: isFront,
 			inputMethod: 'CAMERA',
-			rawImage: this.base64Image,
+			rawImage: rawBase64Image,
 			source: this.source,
-		};
-
-		this._stopRecord();
-	}
-
-	retake(): void {
-		this.documentIsValid = false;
-		this.faceIsValid = false;
-		this.toSave = null;
-		this._stopRecord();
-		this._startCamera();
-	}
-
-	upload(): void {
-		let face = (this.source === 'face' ? this.toSave.base64Image : this.toSave.face).replace(/^data:.*;base64,/, "");
-		let base64Image = this.toSave.base64Image.replace(/^data:.*;base64,/, "");
-
-		this.onImageScan.next({
-			...this.toSave,
-			base64Image,
-			face,
 		});
 
-		this.base64Image = this.source === 'face' ? face : base64Image;
+		this.base64Image = rawBase64Image;
 		this.uploading = true;
+
+		this._stopRecord();
 	}
 }

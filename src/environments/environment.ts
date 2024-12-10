@@ -4,7 +4,7 @@ export const environment = {
 	// baseUrl: "https://demo-sandbox.verifik.co/",
 	// apiUrl: "https://demo-sandbox.verifik.co",
 	// apiUrl: "https://api.verifik.co",
-	apiUrl: "https://verifik.app",
+	apiUrl: "http://localhost:3001",
 	appUrl: "https://verifik.app",
 	kycUrl: "https://sandbox.verifik.co",
 	verifikProject: "6266193db77ccc8111730c90",

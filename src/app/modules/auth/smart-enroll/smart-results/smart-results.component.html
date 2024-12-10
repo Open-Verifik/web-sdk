@@ -268,6 +268,56 @@
         <span>{{ "id_scanning.retry_biometric" | transloco }}</span>
       </button>
 
+      <div
+        class="mt-8 w-full"
+        fxLayout="column"
+        fxLayoutAlign="start center"
+        *ngIf="errorResult"
+      >
+        <hr class="w-full" />
+
+        <button
+          (click)="loadQRCode()"
+          [disabled]="revealQRCode"
+          [style.backgroundColor]="
+            !revealQRCode ? project.branding.buttonColor : ''
+          "
+          [style.color]="!revealQRCode ? project.branding.buttonTxtColor : ''"
+          class="fuse-mat-button-large w-full mt-6"
+          mat-flat-button
+        >
+          <mat-icon matLeadingIcon>smartphone</mat-icon>
+          <span>{{ "welcome.continue_on_another" | transloco }}</span>
+        </button>
+  
+        <div
+          fxLayout="column"
+          fxLayoutAlign="start center"
+          [class.hidden]="!revealQRCode"
+        >
+          <div
+            fxLayout="row"
+            fxLayoutAlign="center center"
+            style="height: 400px; width: 100%"
+          >
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="32"
+              *ngIf="loadingQRCode"
+            ></mat-progress-spinner>
+  
+            <canvas
+              [class.hidden]="loadingQRCode"
+              @fadeIn
+              #qrCodeCanvas
+              class="m-8"
+              height="400"
+              width="400"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
       <button
         (click)="loginToPlatform()"
         [disabled]="isLoginToPlatformDisabled()"

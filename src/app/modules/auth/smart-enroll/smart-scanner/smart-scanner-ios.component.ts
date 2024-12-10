@@ -94,7 +94,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	response: ResponseData;
 	showError: Boolean;
 	side: "back" | "front" = "front";
-	toSave: ImageScan = null;
 	uploading: boolean = false;
 	killCamera: boolean = false;
 	videoOptions: MediaTrackConstraintSetExtended;
@@ -139,9 +138,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.unsubscriber$))
 			.subscribe(() => {
 				this.uploading = false;
-				this.response.base64Image = this.toSave.base64Image;
 				this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-				this.toSave = null;
 			});
 
 		this._demoService.faceapi$
@@ -934,37 +931,47 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         this._setImageOnCanvas(canvasResult, img, this.camera.dimensions.real, this.camera.dimensions.result);
 		this._setImageOnCanvas(canvasToSend, img, this.camera.dimensions.real, this.camera.dimensions.real);
 
+		const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
+
+		let base64Image : string;
+		let face: string;
 		let faceToUpload: string;
-		const base64Image = canvasToSend.toDataURL("image/jpeg");
 
 		const isFront = this.side === "front";
 
 		if (isFront && this.source === 'document') {
 			const img = new Image();
-			img.src = base64Image;
+			img.src = rawBase64Image;
 
 			const promise = faceapi
 				.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
 				.withFaceLandmarks();
 
 			promise.then((detections) => {
-				const face = this._demoService.findBiggestFace(detections);
+				const detection = this._demoService.findBiggestFace(detections);
 
-				if (face) {
+				if (detection) {
 					this.errorContent = null;
 					this.errorFace = null;
 					this.showError = false;
 
-					faceToUpload = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
+					faceToUpload = this._demoService.cutFaceIdCard(img, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
 
-					this.toSave = {
+					base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
+					face = faceToUpload?.replace(/^data:.*;base64,/, "");
+
+					this.onImageScan.next({
 						base64Image,
-						face: faceToUpload,
+						face,
 						force: !isFront || !!this.appRegistration.documentValidation,
 						front: isFront,
 						inputMethod: 'CAMERA',
+						rawImage: rawBase64Image,
 						source: this.source,
-					};
+					});
+			
+					this.response.base64Image = base64Image;
+					this.uploading = true;
 			
 					this._stopRecording();
 				} else throw Error('face_not_found');
@@ -978,14 +985,24 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		this.toSave = {
+		if (this.source === 'face') {
+			face = rawBase64Image.replace(/^data:.*;base64,/, "");
+		} else {
+			base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
+		}
+
+		this.onImageScan.next({
 			base64Image,
-			face: faceToUpload,
+			face,
 			force: !isFront || !!this.appRegistration.documentValidation,
 			front: isFront,
 			inputMethod: 'CAMERA',
+			rawImage: rawBase64Image,
 			source: this.source,
-		};
+		});
+
+		this.response.base64Image = this.source === 'face' ? face : base64Image;
+		this.uploading = true;
 
 		this._stopRecording();
 	}
@@ -1103,7 +1120,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	handleResolutionDetection(resolution: Resolution) {
-		console.log("🚀 ~ SmartScannerIosComponent ~ handleResolutionDetection ~ resolution:", resolution)
 		this.videoOptions.aspectRatio = { exact: resolution.aspectRatio };
 		this.videoOptions.height = { exact: resolution.height };
 		this.videoOptions.width = { exact: resolution.width };
@@ -1180,24 +1196,5 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			this.killCamera = false;
 			this._startRecording();
 		}, 300);
-	}
-
-	retake(): void {
-		this.toSave = null;
-		this._startRecording();
-	}
-
-	upload(): void {
-		let face = (this.source === 'face' ? this.toSave.base64Image : this.toSave.face).replace(/^data:.*;base64,/, "");
-		let base64Image = this.toSave.base64Image.replace(/^data:.*;base64,/, "");
-
-		this.onImageScan.next({
-			...this.toSave,
-			base64Image,
-			face,
-		});
-
-		this.response.base64Image = this.source === 'face' ? face : base64Image;
-		this.uploading = true;
 	}
 }

@@ -112,18 +112,21 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             this.fileProgress += 10;
             this.base64Image = event.target.result;
 
-            const image = this.base64Image.replace(/^data:image\/.*;base64,/, "");
+            const base64Image = this.base64Image.replace(/^data:image\/.*;base64,/, "");
+
+            let face: string;
 
             if (this.side === 'front') {
                 await this._setFaceToCanvas(img);
+                face = this.faceIdCard.replace(/^data:image\/.*;base64,/, "");
             }
 
             const isFront = this.side === 'front';
             this.isExtracting = true;
 
             this.onImageUpload.next({
-                base64Image: image,
-                face: this.faceIdCard,
+                base64Image,
+                face,
                 force: !isFront || !!this.appRegistration.documentValidation,
                 front: isFront,
                 inputMethod: 'FILE_UPLOAD',
