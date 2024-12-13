@@ -76,7 +76,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _ngxVideoInterval: ReturnType<typeof setInterval>;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = true;
+	DEBUG_MODE: boolean = !environment.production && false;
 
 	appRegistration: any;
 	aspectRatio = 0.75;
