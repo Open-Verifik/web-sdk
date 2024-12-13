@@ -9,7 +9,7 @@
 		[ngClass]="{ 'whole-card-without-image': !project.branding.rightImage }"
 	>
 		<div
-			class="w-full sm:w-auto left-card"
+			class="w-full sm:w-auto left-card min-w-120 min-h-140"
 			[ngClass]="{ 'left-card-without-image': !project.branding.rightImage || project.branding.rightImage.length < 10 }"
 			fxLayout="row"
 			fxLayoutAlign="center center"
@@ -171,9 +171,9 @@
 					</div>
 
 					<div class="flex flex-col flex-auto w-full items-center sm:justify-center">
-						<h3 *ngIf="typeLogin === 'phone' && activeSendOtp" [style.color]="project.branding.txtColor">
+						<!-- <h3 *ngIf="typeLogin === 'phone' && activeSendOtp" [style.color]="project.branding.txtColor">
 							{{ "login.send_otp_phone_options_label" | transloco }}
-						</h3>
+						</h3> -->
 
 						<div class="grid grid-cols-2 w-full" *ngIf="typeLogin === 'phone'">
 							<button
