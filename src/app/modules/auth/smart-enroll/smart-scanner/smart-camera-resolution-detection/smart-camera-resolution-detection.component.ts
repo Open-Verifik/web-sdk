@@ -1,149 +1,164 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, Renderer2 } from '@angular/core';
 import { MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended } from '../../smart-enroll.service';
+import { WebcamInitError } from 'ngx-webcam';
+import { Subject, takeUntil } from 'rxjs';
 
-export type Resolution = { height: number, width: number, aspectRatio?: number };
+export type Resolution = { height: number, width: number, aspectRatio?: number, deviceId?: string };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'smart-camera-resolution-detection',
   standalone: true,
   styleUrls: [],
-  template: '<video #video style="z-index: -99999; opacity: 0; position: absolute; display: block"></video>',
+  template: '',
 })
 export class SmartCameraResolutionDetectionComponent implements OnInit {
-	@ViewChild("video", { static: true }) video: ElementRef<HTMLVideoElement>;
-
   @Output('detected') detected: EventEmitter<Resolution> = new EventEmitter<Resolution>;
-  @Output('failedToDetect') failedToDetect: EventEmitter<void> = new EventEmitter<void>;
+  @Output('failedToDetect') failedToDetect: EventEmitter<WebcamInitError> = new EventEmitter<WebcamInitError>;
 
   @Input('facingMode') facingMode: 'user' | 'environment';
 
-  private WIDE: Array<Resolution> = [
-    { height: 2160, width: 3840 },
-    { height: 1440, width: 2560 },
-    { height: 1080, width: 1920 },
-    { height: 720, width: 1280 },
-    { height: 360, width: 640 },
-  ];
-
-  private NARROW: Array<Resolution> = [
-    { height: 1536, width: 2048 },
-    { height: 1200, width: 1600 },
-    { height: 768, width: 1024 },
-    { height: 600, width: 800 },
-    { height: 480, width: 640 },
-  ];
-  
-  private SQUARE: Array<Resolution> = [
-    { height: 2160, width: 2160 },
-    { height: 1080, width: 1080 },
-    { height: 720, width: 720 },
-    { height: 480, width: 480 },
-    { height: 360, width: 360 },
-  ];
+  private WIDE: Array<Resolution>;
+  private NARROW: Array<Resolution>;
+  private SQUARE: Array<Resolution>;
 
   private MAX_HEIGHT: number;
   private MAX_WIDTH: number;
   private IS_LANDSCAPE: boolean = false;
-  private START_INDEX: number = -1;
+  private KEYS = ['WIDE', 'NARROW', 'SQUARE'];
 
-  private WIDE_NOT_SUPPORTED: boolean = false;
-  private NARROW_NOT_SUPPORTED: boolean = false;
-  private SQUARE_NOT_SUPPORTED: boolean = false;
+  private cameraCycle$: Subject<any> = new Subject<any>();
+  private unsubscriber$: Subject<void> = new Subject<void>();
 
-  constructor(private _renderer: Renderer2) {}
+  deviceId: string;
+  stream: MediaStream;
+
+  constructor(
+    private _renderer: Renderer2,
+  ) {
+    this.cameraCycle$
+      .pipe(takeUntil(this.unsubscriber$))
+      .subscribe({
+        next: (data) => {
+          if (data.resolution) {
+            if (this.stream) {
+              this.stream.getTracks().forEach((track) => track.stop());
+              this.stream = null;
+            }
+
+            console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ data.resolution:", data.resolution)
+
+            this.detected.next(data.resolution);
+          } else {
+            this._cycleResolutions(data.resolutionIndex, data.index);
+          }
+        },
+        error: (_error) => {
+          this.failedToDetect.next(<WebcamInitError>{
+            mediaStreamError: new DOMException('Cannot read UserMedia from MediaDevices.', 'NotAllowedError'),
+            message: 'Cannot read UserMedia from MediaDevices.',
+          });
+        },
+      });
+  }
+
+  private get maxResolutionIndexLength(): number {
+    return Math.max(Object.keys(this.WIDE).length, Object.keys(this.NARROW).length, Object.keys(this.SQUARE).length);
+  }
 
   ngOnInit(): void {
-		this._renderer.listen("window", "resize", () => this._init());
+    this._renderer.listen("window", "resize", () => this._init());
+
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const videoDevices = devices.filter(device => device.kind == 'videoinput');
+
+      videoDevices.forEach((device: any) => {
+        console.log(device.getCapabilities());
+      });
+    });
 
     this._init();
   }
 
-  private _init() {
-    this.MAX_HEIGHT = window.innerHeight;
-    this.MAX_WIDTH = window.innerWidth;
-
-    this.IS_LANDSCAPE = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
-
-    this.NARROW_NOT_SUPPORTED = false;
-    this.SQUARE_NOT_SUPPORTED = false;
-    this.WIDE_NOT_SUPPORTED = false;
-
-    this.START_INDEX = this._findIndex();
-
-    if (this.START_INDEX === -1) return;
-
-    this._cycleResolutions().catch(console.error);
+  ngOnDestroy(): void {
+    this.unsubscriber$.next();
+    this.unsubscriber$.complete();
   }
 
-  private _findIndex(): number {
-    for (let index = 0; index < this.WIDE.length; index++) {
-      const maxWide = this.WIDE[index];
-      const maxNarrow = this.NARROW[index];
-      const maxSquare = this.SQUARE[index];
+  private _attachMaxWindowResolutionForAspectRatio() {
+    const windowMax = {height: this.MAX_HEIGHT, width: this.MAX_WIDTH};
 
-      if (maxWide.width <= this.MAX_WIDTH || maxNarrow.width <= this.MAX_WIDTH || maxSquare.width <= this.MAX_WIDTH) {
-        return index;
-      };
-    }
+    const wide = this._calculateMaxDimensions({height: 9, width: 16}, windowMax)
+    const narrow = this._calculateMaxDimensions({height: 3, width: 4}, windowMax);
+    const square = this._calculateMaxDimensions({height: 1, width: 1}, windowMax);
 
-    return -1;
+    this._spliceDimension('WIDE', wide);
+    this._spliceDimension('NARROW', narrow);
+    this._spliceDimension('SQUARE', square);
   }
 
-  private async _cycleResolutions(): Promise<void> {
-    const keys = ['WIDE', 'NARROW', 'SQUARE'];
+	private _calculateMaxDimensions(
+		container: {height: number, width: number},
+		containerToFit: {height: number, width: number}
+	) {
+		const scaleFactorWidth = containerToFit.width / container.width;
+		const scaleFactorHeight = containerToFit.height / container.height;
+	
+		const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
+	
+		const scaledWidth = Math.floor(container.width * scaleFactor);
+		const scaledHeight = Math.floor(container.height * scaleFactor);
+	
+		return { width: scaledWidth, height: scaledHeight };
+	}
 
+  private async _cycleResolutions(resolutionIndex: number, index: number): Promise<void> {
     let keyPassed: string;
     let resolutionPassed: Resolution;
 
-    for (let resIndex = this.START_INDEX; resIndex < this.WIDE.length; resIndex++) {
-      for (let index = 0; index < 3; index++) {
-        const key = keys[index];
+    const key = this.KEYS[index];
+    const resolution = this[key][resolutionIndex];
 
-        if (this[`${key}_NOT_SUPPORTED`]) continue;
+    if (!resolution || resolution.height > this.MAX_HEIGHT || resolution.width > this.MAX_WIDTH) {
+      this._next(resolutionIndex, index);
+      return;
+    }
 
-        const resolution = this[key][resIndex];
-
-        const result = await this._findBestResolution(key, resolution);
-
-        if (!result) continue;
-
-        keyPassed = key;
-        resolutionPassed = this.IS_LANDSCAPE ? {
-          ...resolution,
-          aspectRatio: resolution.width / resolution.height,
-        } : {
-          aspectRatio: resolution.height / resolution.width,
-          height: resolution.width,
-          width: resolution.height,
-        };
-
-        break;
+    this._findBestResolution(key, resolution).then(result => {
+      if (!result) {
+        this._next(resolutionIndex, index);
+        return;
       }
 
-      if (keyPassed) break;
-    }
-
-    if (keyPassed) {
-      this.detected.next(resolutionPassed);
-    } else {
-      this.failedToDetect.next();
-    }
+      keyPassed = key;
+      resolutionPassed = this.IS_LANDSCAPE ? {
+        ...resolution,
+        aspectRatio: resolution.width / resolution.height,
+      } : {
+        aspectRatio: resolution.height / resolution.width,
+        height: resolution.width,
+        width: resolution.height,
+        deviceId: this.deviceId,
+      };
+  
+      if (keyPassed) {
+        this.cameraCycle$.next({resolution: resolutionPassed});
+      } else {
+        this._next(resolutionIndex, index);
+      }
+    }).catch(() => {
+      this._next(resolutionIndex, index);
+    });
   }
 
   private async _findBestResolution(key: string, resolution: Resolution): Promise<boolean> {
-    const video: HTMLVideoElement = this.video.nativeElement;
-		const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
-
-    video.setAttribute('autoplay', 'true');
-    video.setAttribute('muted', 'true');
-    video.setAttribute('playsinline', 'true');
+    const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
     const mediaOptions = { audio: false, video: {} as MediaTrackConstraintSetExtended };
 
-		if (facingMode) {
-			mediaOptions.video.facingMode = this.facingMode || 'environment';
-		}
+    if (facingMode) {
+      mediaOptions.video.facingMode = this.facingMode || 'environment';
+    }
 
     if (zoom) {
       mediaOptions.video.zoom = { ideal: 0 };
@@ -158,46 +173,85 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     }
 
     try {
-      const promise = new Promise((resolve, reject) => {
-        const streamPromise = navigator.mediaDevices.getUserMedia(mediaOptions);
+      if (this.stream) {
+        const videoTrack = this.stream.getVideoTracks()[0];
+        this.stream.getVideoTracks().forEach(track => console.log(track.getCapabilities()))
 
-        streamPromise.then((stream) => {
-          stream.getVideoTracks()[0];
-            try {
-              const onload = () => this._onVideoLoaded(stream, resolve);
-  
-              setTimeout(()=> {
-                video.srcObject = stream.clone();
-      
-                video.removeEventListener("loadedmetadata", onload, true);
-                video.addEventListener("loadedmetadata", onload, true);
-              });
-            } catch (e) {
-              reject(e);
-            }
-        }).catch(reject)
-      }) as Promise<boolean>;
+        await videoTrack.applyConstraints(mediaOptions.video);
 
-      const result = await promise;
+        return true;
+      } else {
+        this.stream = await navigator.mediaDevices.getUserMedia(mediaOptions);
+        this.stream.clone().getVideoTracks().forEach(track => console.log(track.getCapabilities()));
 
-      promise.catch((error) => {throw error});
+        const videoTrack = this.stream.getVideoTracks()[0];
 
-      return result;
+        this.deviceId = videoTrack.getCapabilities().deviceId;
+
+        return true;
+      }
     } catch (error) {
+      console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
       if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
 
       return false;
     }
   }
 
-  private _onVideoLoaded(stream: MediaStream, resolve: (value: boolean | PromiseLike<boolean>) => void) {
-    if (stream) {
-      stream.getTracks().forEach((track: MediaStreamTrack) => {
-        track.stop();
-        stream.removeTrack(track);
-      });
+  private _init() {
+    this.MAX_HEIGHT = window.innerHeight;
+    this.MAX_WIDTH = window.innerWidth;
+
+    this.WIDE = [
+      { height: 1440, width: 2560 },
+      { height: 1080, width: 1920 },
+      { height: 720, width: 1280 },
+      { height: 360, width: 640 },
+    ];
+
+    this.SQUARE = [
+      { height: 2160, width: 2160 },
+      { height: 1080, width: 1080 },
+      { height: 720, width: 720 },
+      { height: 480, width: 480 },
+    ];
+
+    this.NARROW = [
+      { height: 1536, width: 2048 },
+      { height: 1200, width: 1600 },
+      { height: 768, width: 1024 },
+      { height: 600, width: 800 },
+    ];
+
+    this.IS_LANDSCAPE = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
+    this.deviceId = null;
+
+    this._attachMaxWindowResolutionForAspectRatio();
+    this._cycleResolutions(0, 0);
+  }
+
+  private _next(resolutionIndex: number, index: number): void {
+    if (index >= this.KEYS.length - 1 && resolutionIndex >= this.maxResolutionIndexLength - 1) {
+      this.cameraCycle$.error(new DOMException('NoSuitableResolutions', 'NotFoundError'));
+      return;
     }
 
-    resolve(!!stream);
+    this.cameraCycle$.next({
+      resolutionIndex: index < this.KEYS.length - 1 ? resolutionIndex : ++resolutionIndex,
+      index: index < this.KEYS.length - 1 ? ++index : 0,
+    });
+  }
+
+  private _spliceDimension(key: string, newDimension: {height: number, width: number}): void {
+    for (let index = 0; index < this[key].length; index++) {
+      const element = this[key][index];
+
+      if (element.height > newDimension.height) continue;
+
+      this[key].splice(index, 0, element);
+      return;
+    }
+
+    this[key].push(newDimension);
   }
 }

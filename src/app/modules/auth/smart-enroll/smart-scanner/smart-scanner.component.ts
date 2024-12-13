@@ -1,6 +1,6 @@
-import QRCode from "qrcode";
 import * as faceapi from "@vladmandic/face-api";
 import jscanify, { Contour } from "libs/jscanify";
+import QRCode from "qrcode";
 
 import { debounce, DebouncedFunc } from "lodash";
 import { Observable, Subject, takeUntil } from "rxjs";
@@ -10,18 +10,19 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { MatIconModule } from "@angular/material/icon";
 
 import { fuseAnimations } from "@fuse/animations";
 
-import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
+import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
+import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { Corrections, SmartEnrollService } from "../smart-enroll.service";
 import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { environment } from "environments/environment";
 
 const JSScanify = new jscanify();
 
@@ -79,7 +80,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _rectCredential: any;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = false;
+	DEBUG_MODE: boolean = !environment.production && true;
 
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
@@ -274,213 +275,135 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _drawFaceMask(ctx: CanvasRenderingContext2D): void {
-		let DRAWING_X = this.isLandscape ? 1920 : 1080;
-		let DRAWING_Y = this.isLandscape ? 1080 : 1920;
+		const height = this.HEIGHT;
+		const width = this.WIDTH;
 
-		// Rectangle
-		ctx.fillStyle = "rgba(255,255,255,0.7)";
+        const originalDrawingSize = this.isLandscape ? 180 : 140;
+        const scale = Math.min(width / originalDrawingSize, height / originalDrawingSize);
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        const centerAdjustment = -(originalDrawingSize / 2);
+
 		ctx.beginPath();
-		ctx.moveTo(this.WIDTH, 0);
-		ctx.lineTo(0, 0);
-		ctx.lineTo(0, this.HEIGHT);
-		ctx.lineTo(this.WIDTH, this.HEIGHT);
-		ctx.lineTo(this.WIDTH, 0);
+		ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+		ctx.fillRect(0, 0, width, height);
 		ctx.closePath();
 
-		const scaleX = Math.min(this.WIDTH, DRAWING_X) / Math.max(this.WIDTH, DRAWING_X);
-		const scaleY = Math.min(this.HEIGHT, DRAWING_Y) / Math.max(this.HEIGHT, DRAWING_Y);
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.scale(scale, scale);
+        ctx.translate(centerAdjustment, centerAdjustment);
 
-		ctx.scale(scaleX, scaleY);
+        ctx.beginPath();
+        ctx.globalCompositeOperation = 'destination-atop';
 
-		// Light Mask
-		if (this.isLandscape) {
-			ctx.moveTo(959.988, 102);
-			ctx.bezierCurveTo(1153.06, 102, 1311.98, 234.628, 1319.68, 419.92);
-			ctx.lineTo(1319.7, 419.92);
-			ctx.lineTo(1320, 419.92);
-			ctx.lineTo(1320, 434.023);
-			ctx.bezierCurveTo(1320, 527.891, 1294.94, 662.504, 1238.35, 774.132);
-			ctx.bezierCurveTo(1181.94, 885.431, 1091.75, 978, 960.011, 978);
-			ctx.bezierCurveTo(828.274, 978, 738.105, 885.431, 681.672, 774.132);
-			ctx.bezierCurveTo(625.056, 662.525, 600, 527.891, 600, 434.023);
-			ctx.bezierCurveTo(600, 241.393, 766.917, 102, 959.988, 102);
-		} else {
-			ctx.moveTo(539.985, 361);
-			ctx.bezierCurveTo(794.195, 361, 1003.44, 535.718, 1013.58, 779.813);
-			ctx.lineTo(1013.61, 779.813);
-			ctx.lineTo(1014, 779.813);
-			ctx.lineTo(1014, 798.391);
-			ctx.bezierCurveTo(1014, 922.049, 981.01, 1099.38, 906.494, 1246.43);
-			ctx.bezierCurveTo(832.222, 1393.05, 713.468, 1515, 540.015, 1515);
-			ctx.bezierCurveTo(366.561, 1515, 247.838, 1393.05, 173.534, 1246.43);
-			ctx.bezierCurveTo(98.9901, 1099.41, 66, 922.049, 66, 798.391);
-			ctx.bezierCurveTo(66, 544.63, 285.774, 361, 539.985, 361);
-		}
+        const adjustX = this.isLandscape ? 0 : 19.5;
+        const adjustY = this.isLandscape ? 15 : 40;
 
-		ctx.closePath();
-		ctx.fill("evenodd");
-		ctx.stroke();
-		ctx.restore();
+        // Arc
+        ctx.arc(
+            90 - adjustX, // Arc center x
+            90 - adjustY, // Arc center y
+            60, // Radius
+            Math.PI * 0.9, // Start angle
+            Math.PI * 0.1 // End angle
+        );
 
-		// Outline
-		ctx.fillStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
+        // First bezier curve
+        ctx.bezierCurveTo(
+            150 - adjustX, // Start x
+            100 - adjustY, // Start y
+            130 - adjustX, // Bezier x
+            180 - adjustY, // Bezier y
+            90 - adjustX, // End x
+            180 - adjustY // End y
+        );
 
-		ctx.scale(scaleX, scaleY);
-		ctx.beginPath();
+        // Second bezier curve
+        ctx.bezierCurveTo(
+            90 - adjustX, // Start x
+            180 - adjustY, // Start y
+            50 - adjustX, // Bezier x
+            180 - adjustY, // Bezier y
+            32 - adjustX, // End x
+            105 - adjustY // End y
+        );
 
-		if (this.isLandscape) {
-			ctx.moveTo(959.988, 130.183);
-			ctx.bezierCurveTo(776.49, 130.183, 629.316, 258.603, 629.316, 434);
-			ctx.bezierCurveTo(629.316, 524.146, 653.593, 654.46, 708.01, 761.748);
-			ctx.bezierCurveTo(762.588, 869.412, 845.085, 949.772, 960.011, 949.772);
-			ctx.bezierCurveTo(1074.94, 949.772, 1157.43, 869.412, 1212.01, 761.771);
-			ctx.bezierCurveTo(1265.77, 655.76, 1290.11, 527.318, 1290.68, 437.328);
-			ctx.lineTo(1290.68, 434);
-			ctx.bezierCurveTo(1290.68, 258.58, 1143.51, 130.183, 960.011, 130.183);
-			ctx.lineTo(959.988, 130.183);
-			ctx.closePath();
+        ctx.clip();
+        ctx.stroke();
+        ctx.closePath();
 
-			ctx.moveTo(1319.68, 419.92);
-			ctx.bezierCurveTo(1311.98, 234.628, 1153.06, 102, 959.988, 102);
-			ctx.bezierCurveTo(766.917, 102, 600, 241.393, 600, 434.023);
-			ctx.bezierCurveTo(600, 527.892, 625.056, 662.525, 681.672, 774.132);
-			ctx.bezierCurveTo(738.105, 885.431, 828.274, 978, 960.011, 978);
-			ctx.bezierCurveTo(1091.75, 978, 1181.94, 885.431, 1238.35, 774.132);
-			ctx.bezierCurveTo(1294.94, 662.504, 1320, 527.892, 1320, 434.023);
-			ctx.lineTo(1320, 419.92);
-			ctx.lineTo(1319.7, 419.92);
-			ctx.lineTo(1319.68, 419.92);
-		} else {
-			ctx.moveTo(539.985, 398.126);
-			ctx.bezierCurveTo(298.378, 398.126, 104.599, 567.301, 104.599, 798.361);
-			ctx.bezierCurveTo(104.599, 917.114, 136.564, 1088.78, 208.213, 1230.12);
-			ctx.bezierCurveTo(280.074, 1371.95, 388.695, 1477.81, 540.015, 1477.81);
-			ctx.bezierCurveTo(691.334, 1477.81, 799.954, 1371.95, 871.815, 1230.15);
-			ctx.bezierCurveTo(942.591, 1090.5, 974.645, 921.294, 975.401, 802.745);
-			ctx.lineTo(975.401, 798.361);
-			ctx.bezierCurveTo(975.401, 567.271, 781.62, 398.126, 540.015, 398.126);
-			ctx.lineTo(539.985, 398.126);
-			ctx.closePath();
+        ctx.beginPath();
+        ctx.lineWidth = 6;
+        ctx.globalCompositeOperation = 'source-over';
 
-			ctx.moveTo(1013.58, 779.813);
-			ctx.bezierCurveTo(1003.44, 535.718, 794.195, 361, 539.985, 361);
-			ctx.bezierCurveTo(285.774, 361, 66, 544.63, 66, 798.391);
-			ctx.bezierCurveTo(66, 922.049, 98.9901, 1099.41, 173.535, 1246.43);
-			ctx.bezierCurveTo(247.838, 1393.05, 366.561, 1515, 540.015, 1515);
-			ctx.bezierCurveTo(713.468, 1515, 832.222, 1393.05, 906.494, 1246.43);
-			ctx.bezierCurveTo(981.01, 1099.38, 1014, 922.049, 1014, 798.391);
-			ctx.lineTo(1014, 779.813);
-			ctx.lineTo(1013.61, 779.813);
-			ctx.lineTo(1013.58, 779.813);
-		}
+        // Arc
+        ctx.arc(
+            90 - adjustX, // Arc center x
+            90 - adjustY, // Arc center y
+            60, // Radius
+            Math.PI * 0.9, // Start angle
+            Math.PI * 0.1 // End angle
+        );
 
-		ctx.closePath();
-		ctx.fill("evenodd");
-		ctx.stroke();
-		ctx.restore();
-		ctx.save();
+        // First bezier curve
+        ctx.bezierCurveTo(
+            150 - adjustX, // Start x
+            100 - adjustY, // Start y
+            130 - adjustX, // Bezier x
+            180 - adjustY, // Bezier y
+            90 - adjustX, // End x
+            180 - adjustY // End y
+        );
+
+        // Second bezier curve
+        ctx.bezierCurveTo(
+            90 - adjustX, // Start x
+            180 - adjustY, // Start y
+            50 - adjustX, // Bezier x
+            180 - adjustY, // Bezier y
+            32 - adjustX, // End x
+            105 - adjustY // End y
+        );
+
+        ctx.clip();
+		ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
+        ctx.stroke();
+        ctx.closePath();
 	}
 
 	private _drawIdMask(ctx: CanvasRenderingContext2D): void {
-		let DRAWING_X = this.isLandscape ? 1920 : 1080;
-		let DRAWING_Y = this.isLandscape ? 1080 : 1920;
+		const height = this.HEIGHT;
+		const width = this.WIDTH;
 
-		ctx.fillStyle = "rgba(255,255,255,0.7)";
 		ctx.beginPath();
-		ctx.moveTo(this.WIDTH, 0);
-		ctx.lineTo(0, 0);
-		ctx.lineTo(0, this.HEIGHT);
-		ctx.lineTo(this.WIDTH, this.HEIGHT);
-		ctx.lineTo(this.WIDTH, 0);
+		ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+		ctx.fillRect(0, 0, width, height);
 		ctx.closePath();
 
-		const scaleX = Math.min(this.WIDTH, DRAWING_X) / Math.max(this.WIDTH, DRAWING_X);
-		const scaleY = Math.min(this.HEIGHT, DRAWING_Y) / Math.max(this.HEIGHT, DRAWING_Y);
+		const rectDimensions = this._calculateMaxDimensions({width: 16, height: 9}, {width, height})
 
-		ctx.scale(scaleX, scaleY);
+		rectDimensions.height = Math.floor(rectDimensions.height * (this.isLandscape ? 0.6 : 0.8));
+		rectDimensions.width = Math.floor(rectDimensions.width * (this.isLandscape ? 0.6 : 0.8));
 
-		// Light Mask
-		if (this.isLandscape) {
-			ctx.moveTo(259, 894);
-			ctx.bezierCurveTo(259, 916.091, 276.909, 934, 299, 934);
-			ctx.lineTo(1621, 934);
-			ctx.bezierCurveTo(1643.09, 934, 1661, 916.091, 1661, 894);
-			ctx.lineTo(1661, 186);
-			ctx.bezierCurveTo(1661, 163.909, 1643.09, 146, 1621, 146);
-			ctx.lineTo(299, 146);
-			ctx.bezierCurveTo(276.909, 146, 259, 163.909, 259, 186);
-			ctx.lineTo(259, 894);
-		} else {
-			ctx.moveTo(68, 1186);
-			ctx.bezierCurveTo(68, 1208.09, 85.9086, 1226, 108, 1226);
-			ctx.lineTo(972, 1226);
-			ctx.bezierCurveTo(994.091, 1226, 1012, 1208.09, 1012, 1186);
-			ctx.lineTo(1012, 734);
-			ctx.bezierCurveTo(1012, 711.909, 994.091, 694, 972, 694);
-			ctx.lineTo(108, 694);
-			ctx.bezierCurveTo(85.9086, 694, 68, 711.909, 68, 734);
-			ctx.lineTo(68, 1186);
-		}
+		const center = {
+			x: (width / 2) - (rectDimensions.width / 2),
+			y: (height / 2) - (rectDimensions.height / 2),
+		};
 
-		ctx.closePath();
-		ctx.fill("evenodd");
-		ctx.stroke();
-		ctx.restore();
-
-		ctx.fillStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
-
-		ctx.scale(scaleX, scaleY);
 		ctx.beginPath();
-
-		if (this.isLandscape) {
-			ctx.moveTo(291.859, 189.778);
-			ctx.lineTo(291.859, 890.222);
-			ctx.bezierCurveTo(291.859, 896.267, 296.763, 901.167, 302.812, 901.167);
-			ctx.lineTo(1617.19, 901.167);
-			ctx.bezierCurveTo(1623.24, 901.167, 1628.14, 896.267, 1628.14, 890.222);
-			ctx.lineTo(1628.14, 189.778);
-			ctx.bezierCurveTo(1628.14, 183.733, 1623.24, 178.833, 1617.19, 178.833);
-			ctx.lineTo(302.812, 178.833);
-			ctx.bezierCurveTo(296.763, 178.833, 291.859, 183.733, 291.859, 189.778);
-			ctx.closePath();
-
-			ctx.moveTo(259, 890.222);
-			ctx.bezierCurveTo(259, 914.4, 278.616, 934, 302.812, 934);
-			ctx.lineTo(1617.19, 934);
-			ctx.bezierCurveTo(1641.38, 934, 1661, 914.4, 1661, 890.222);
-			ctx.lineTo(1661, 189.778);
-			ctx.bezierCurveTo(1661, 165.6, 1641.38, 146, 1617.19, 146);
-			ctx.lineTo(302.812, 146);
-			ctx.bezierCurveTo(278.615, 146, 259, 165.6, 259, 189.778);
-			ctx.lineTo(259, 890.222);
-		} else {
-			ctx.moveTo(90.125, 723.556);
-			ctx.lineTo(90.125, 1196.44);
-			ctx.bezierCurveTo(90.125, 1200.53, 93.4269, 1203.83, 97.5, 1203.83);
-			ctx.lineTo(982.5, 1203.83);
-			ctx.bezierCurveTo(986.573, 1203.83, 989.875, 1200.53, 989.875, 1196.44);
-			ctx.lineTo(989.875, 723.556);
-			ctx.bezierCurveTo(989.875, 719.475, 986.573, 716.167, 982.5, 716.167);
-			ctx.lineTo(97.5, 716.167);
-			ctx.bezierCurveTo(93.4269, 716.167, 90.125, 719.475, 90.125, 723.556);
-			ctx.closePath();
-
-			ctx.moveTo(68, 1196.44);
-			ctx.bezierCurveTo(68, 1212.77, 81.2076, 1226, 97.5, 1226);
-			ctx.lineTo(982.5, 1226);
-			ctx.bezierCurveTo(998.792, 1226, 1012, 1212.77, 1012, 1196.44);
-			ctx.lineTo(1012, 723.556);
-			ctx.bezierCurveTo(1012, 707.233, 998.792, 694, 982.5, 694);
-			ctx.lineTo(97.5, 694);
-			ctx.bezierCurveTo(81.2076, 694, 68, 707.233, 68, 723.556);
-			ctx.lineTo(68, 1196.44);
-		}
-
-		ctx.closePath();
-		ctx.fill("evenodd");
+		ctx.clearRect(center.x, center.y, rectDimensions.width, rectDimensions.height);
 		ctx.stroke();
-		ctx.restore();
-		ctx.restore();
+		ctx.closePath();
+
+		ctx.beginPath();
+		ctx.roundRect(center.x, center.y, rectDimensions.width, rectDimensions.height, 8);
+		ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
+		ctx.lineWidth = Math.max(Math.floor(Math.max(width, height) / 100), 4);
+		ctx.stroke();
+		ctx.closePath();
 	}
 
 	private _drawMask(ctx: CanvasRenderingContext2D): void {
@@ -588,16 +511,16 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	private _calculateMaxDimensions(
-		boxA: {height: number, width: number},
-		boxB: {height: number, width: number}
+		container: {height: number, width: number},
+		containerToFit: {height: number, width: number}
 	) {
-		const scaleFactorWidth = boxB.width / boxA.width;
-		const scaleFactorHeight = boxB.height / boxA.height;
+		const scaleFactorWidth = containerToFit.width / container.width;
+		const scaleFactorHeight = containerToFit.height / container.height;
 	
 		const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
 	
-		const scaledWidth = Math.floor(boxA.width * scaleFactor);
-		const scaledHeight = Math.floor(boxA.height * scaleFactor);
+		const scaledWidth = Math.floor(container.width * scaleFactor);
+		const scaledHeight = Math.floor(container.height * scaleFactor);
 	
 		return { width: scaledWidth, height: scaledHeight };
 	}

@@ -46,6 +46,7 @@
 		"qrcode": "^1.5.4",
 		"rxjs": "7.8.1",
 		"tslib": "2.5.2",
+		"webrtc-adapter": "^9.0.1",
 		"zone.js": "0.13.0"
 	},
 	"devDependencies": {

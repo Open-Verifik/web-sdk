@@ -2,12 +2,6 @@
 <canvas #resultCanvas hidden></canvas>
 <canvas #toSendCanvas hidden></canvas>
 
-<smart-camera-resolution-detection
-  (detected)="handleResolutionDetection($event)"
-  (failedToDetect)="handleResolutionDetectionFail()"
-  [facingMode]="videoOptions.facingMode"
-></smart-camera-resolution-detection>
-
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
   <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
     <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
@@ -95,6 +89,31 @@
       <div class="flex">
         <smart-stepper></smart-stepper>
       </div>
+    </div>
+  </div>
+
+  <div
+    ngClass.lt-md="w-full h-full z-10"
+    fxLayout="column"
+    fxLayoutAlign="start center"
+    fxLayout.lt-md="center center"
+    *ngIf="camera.isLoading"
+  >
+    <div
+      ngClass.lt-md="w-full h-full"
+      fxLayout="column"
+      fxLayoutAlign="start center"
+      fxLayoutAlign.lt-md="center center"
+    >
+      <mat-progress-spinner
+        mode="indeterminate"
+        strokeWidth="4"
+        diameter="36"
+      ></mat-progress-spinner>
+  
+      <h4 class="font-medium mt-6 text-xl">
+        {{ "smart_enroll.preparing_camera" | transloco }}
+      </h4>
     </div>
   </div>
 
@@ -236,11 +255,11 @@
     fxLayoutAlign="center center"
   >
     <div
-      class="smart-scanner__container h-full"
+      class="smart-scanner__container smart-scanner__container--initial h-full"
       fxLayout="column"
       fxLayoutAlign="center center"
     >
-      <ng-container *ngIf="!toSave && !response?.base64Image">
+      <ng-container *ngIf="!response.base64Image || camera.isLoading">
         <webcam
           *ngIf="!killCamera"
           (imageCapture)="processImage($event)"
@@ -250,102 +269,104 @@
           [height]="camera.dimensions.video.max.height"
           [imageQuality]="1"
           [mirrorImage]="this.source === 'face' || !demoData.isMobile === 'user' ? 'always' : 'never'"
-          [style.height.px]="camera.dimensions.video.height"
-          [style.width.px]="camera.dimensions.video.width"
+          [style.maxHeight.px]="camera.dimensions?.video?.height || camera.dimensions?.video?.max?.height"
           [trigger]="takePicture$"
           [videoOptions]="videoOptions"
           [width]="camera.dimensions.video.max.width"
-          class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios rounded-3xl"
+          class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
         ></webcam>
 
         <canvas
           #maskCanvas
-          class="smart-scanner__absolute-scanner rounded-3xl"
-          [style.width.px]="
-            response.base64Image
-              ? camera.dimensions.result.width
-              : camera.dimensions.video.width
-          "
-          [style.height.px]="
-            response.base64Image
-              ? camera.dimensions.result.height
-              : camera.dimensions.video.height
-          "
+          class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
         ></canvas>
 
-        <code
-          class="absolute top-0 right-0 bottom-0 z-index-2 text-right z-20"
-          *ngIf="DEBUG_MODE"
-        >
-          <div>
-            face:
-            <br />
-            x: {{ faceDetection?.alignedRect?.box?.x }}
-            <br />
-            y: {{ faceDetection?.alignedRect?.box?.y }}
-            <br />
-            width: {{ faceDetection?.alignedRect?.box?.width }}
-            <br />
-            height: {{ faceDetection?.alignedRect?.box?.height }}
-            <br />
-            pitch: {{ faceDetection?.angle?.pitch }}
-            <br />
-            yaw: {{ faceDetection?.angle?.yaw }}
-            <br />
-            roll: {{ faceDetection?.angle?.roll }}
-            <br />
-            <br />
-            <br />
-            face corrections:
-            <br />
-            x: {{ corrections?.bounds?.x }}
-            <br />
-            y: {{ corrections?.bounds?.y }}
-            <br />
-            width: {{ corrections?.resolution?.width }}
-            <br />
-            height: {{ corrections?.resolution?.height }}
-            <br />
-            pitch: {{ corrections?.angle?.pitch }}
-            <br />
-            yaw: {{ corrections?.angle?.yaw }}
-            <br />
-            roll: {{ corrections?.angle?.roll }}
-            <br />
-            <br />
-            <br />
-          </div>
-
-          <div *ngIf="source === 'document'">
-            document:
-            <br />
-            x: {{ documentDetection?.x }}
-            <br />
-            y: {{ documentDetection?.y }}
-            <br />
-            width: {{ documentDetection?.width }}
-            <br />
-            height: {{ documentDetection?.height }}
-            <br />
-            <br />
-            <br />
-            document corrections:
-            <br />
-            document x: {{ corrections.document.x }}
-            <br />
-            document y: {{ corrections.document.y }}
-            <br />
-            documentResolution height:
-            {{ corrections.documentResolution.height }}
-            <br />
-            documentResolution width:
-            {{ corrections.documentResolution.width }}
-            <br />
-            <br />
-            <br />
-          </div>
-        </code>
+        <smart-scanner-corrections
+          [angle]="corrections.angle"
+          [bounds]="corrections.bounds"
+          [height]="camera.dimensions?.video?.height"
+          [isLandscape]="isLandscape"
+          [resolution]="corrections.resolution"
+          [style.height.px]="camera.dimensions?.video?.height"
+          [style.width.px]="camera.dimensions?.video?.width"
+          [width]="camera.dimensions?.video?.width"
+          *ngIf="source === 'face'"
+          class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
+        ></smart-scanner-corrections>
       </ng-container>
+
+      <code
+        class="absolute top-0 right-0 bottom-0 z-index-2 text-right"
+        *ngIf="DEBUG_MODE"
+      >
+        <div>
+          face:
+          <br />
+          x: {{ lastFace?.alignedRect?.box?.x }}
+          <br />
+          y: {{ lastFace?.alignedRect?.box?.y }}
+          <br />
+          width: {{ lastFace?.alignedRect?.box?.width }}
+          <br />
+          height: {{ lastFace?.alignedRect?.box?.height }}
+          <br />
+          pitch: {{ lastFace?.angle?.pitch }}
+          <br />
+          yaw: {{ lastFace?.angle?.yaw }}
+          <br />
+          roll: {{ lastFace?.angle?.roll }}
+          <br />
+          <br />
+          <br />
+          face corrections:
+          <br />
+          x: {{ corrections?.bounds?.x }}
+          <br />
+          y: {{ corrections?.bounds?.y }}
+          <br />
+          width: {{ corrections?.resolution?.width }}
+          <br />
+          height: {{ corrections?.resolution?.height }}
+          <br />
+          pitch: {{ corrections?.angle?.pitch }}
+          <br />
+          yaw: {{ corrections?.angle?.yaw }}
+          <br />
+          roll: {{ corrections?.angle?.roll }}
+          <br />
+          <br />
+          <br />
+        </div>
+
+        <div *ngIf="source === 'document'">
+          document:
+          <br />
+          x: {{ documentDetection?.x }}
+          <br />
+          y: {{ documentDetection?.y }}
+          <br />
+          width: {{ documentDetection?.width }}
+          <br />
+          height: {{ documentDetection?.height }}
+          <br />
+          <br />
+          <br />
+          document corrections:
+          <br />
+          document x: {{ corrections.document.x }}
+          <br />
+          document y: {{ corrections.document.y }}
+          <br />
+          documentResolution height:
+          {{ corrections.documentResolution.height }}
+          <br />
+          documentResolution width:
+          {{ corrections.documentResolution.width }}
+          <br />
+          <br />
+          <br />
+        </div>
+      </code>
 
       <div class="flex flex-col flex-grow justify-start h-full" ngClass.lt-md="hidden">
         <div
@@ -679,3 +700,10 @@
     </div>
   </div>
 </div>
+
+<smart-camera-resolution-detection
+  (detected)="handleResolutionDetection($event)"
+  (failedToDetect)="cameraError($event)"
+  [facingMode]="videoOptions.facingMode"
+  *ngIf="videoOptions.facingMode"
+></smart-camera-resolution-detection>

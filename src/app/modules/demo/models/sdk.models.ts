@@ -43,7 +43,7 @@ export interface FaceData {
 	lastFace?: any;
 	minPixels: number;
 	minHeight: number;
-	successPosition:number,
+	successPosition?:number,
 	threshold: number;
 	real?: OvalData;
 	video?: OvalData;
