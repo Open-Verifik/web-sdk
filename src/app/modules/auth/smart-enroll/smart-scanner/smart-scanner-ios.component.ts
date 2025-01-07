@@ -1,8 +1,8 @@
-import * as faceapi from "@vladmandic/face-api";
-import jscanify, { Contour } from "libs/jscanify";
-import { WebcamImage, WebcamModule } from "ngx-webcam";
 import QRCode from "qrcode";
 import { Observable, Subject, takeUntil } from "rxjs";
+
+import * as faceapi from "@vladmandic/face-api";
+import jscanify, { Contour } from "libs/jscanify";
 
 import {
 	ErrorFace,
@@ -31,7 +31,6 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, SmartEnrollService } from "../smart-enroll.service";
 import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
-import { debounce, DebouncedFunc } from "lodash";
 import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 
 const JSScanify = new jscanify();
@@ -53,27 +52,25 @@ const JSScanify = new jscanify();
 		SmartScannerCorrectionsComponent,
 		SmartCameraResolutionDetectionComponent,
 		TranslocoModule,
-		WebcamModule,
 	],
 })
 export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
-	@ViewChild("resultCanvas", { static: true }) public resultCanvas: ElementRef;
-	@ViewChild("toSendCanvas", { static: true }) public toSendCanvas: ElementRef;
+	@ViewChild("resultCanvas", { static: true }) public resultCanvas: ElementRef<HTMLCanvasElement>;
 
+	@ViewChild("videoElement") public videoElement: ElementRef<HTMLVideoElement>;
+	@ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("maskCanvas") public maskCanvas: ElementRef;
 
 	@Input("source") source: "document" | "face";
-	@Input() successfulUpload: Observable<void>;
+	@Input() successfulUpload: Observable<void>;s
 
 	@Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
 	private unsubscriber$: Subject<void> = new Subject<void>();
 	private takePicture: Subject<void> = new Subject<void>();
-	private _debouncedTakePicture: DebouncedFunc<(img: HTMLImageElement) => void>;
 	private _detectionInterval: ReturnType<typeof setInterval>;
-	private _ngxVideoInterval: ReturnType<typeof setInterval>;
 	private _scanner: jscanify;
 
 	DEBUG_MODE: boolean = !environment.production && false;
@@ -90,7 +87,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	hideTip: boolean = false;
 	idCard: IdCard;
 	isLandscape: boolean = false;
-	killCamera: boolean = false;
 	lastFace: any;
 	loadingQRCode: boolean = false;
 	marginX: string;
@@ -102,6 +98,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	revealQRCode: boolean = false;
 	showError: Boolean;
 	side: "back" | "front" = "front";
+	stream: MediaStream;
 	successPosition: number = 0;
 	uploading: boolean = false;
 	videoOptions: any;
@@ -127,19 +124,17 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	constructor(
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _demoService: DemoService,
-		private _dom: ElementRef,
 		private _KYCService: KYCService,
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService,
 	) {
-		this._debouncedTakePicture = debounce((img: HTMLImageElement) => this._takePicture(img), 200);
 		this._resetVariables();
 	}
 
 	ngOnInit(): void {
 		this.camera.hasPermissions = true;
+		this._loading({ isLoading: true, start: true });
 		this._setVideoOptionConfigs();
-		this._loading({ start: true });
 
 		this.successfulUpload
 			.pipe(takeUntil(this.unsubscriber$))
@@ -156,7 +151,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this._debouncedTakePicture?.cancel();
 		this._stopRecording();
 
 		this.unsubscriber$.next();
@@ -178,9 +172,30 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		return { width: scaledWidth, height: scaledHeight };
 	}
 
-	private _detectDocument(image: HTMLImageElement) {
+	private _cropImage = (resultCanvas: HTMLCanvasElement, inputImg: HTMLImageElement, resizeDim: any) => {
+		resultCanvas.width = resizeDim.width;
+		resultCanvas.height = resizeDim.height;
+
+		const ctx = resultCanvas.getContext("2d");
+
+		ctx.drawImage(
+			inputImg,
+			resizeDim.offsetX,
+			resizeDim.offsetY,
+			resizeDim.width,
+			resizeDim.height,
+			0,
+			0,
+			resizeDim.width,
+			resizeDim.height,
+		);
+
+		ctx.save();
+	};
+
+	private _detectDocument(videoCanvas: HTMLCanvasElement) {
 		try {
-			const img = cv.imread(image);
+			const img = cv.imread(videoCanvas);
 			const maxContour = this._scanner.findPaperContour(img);
 
 			if (maxContour) {
@@ -212,10 +227,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			else {
 				const faceDetection = this._demoService.findBiggestFace(detections);
 
-				this.camera.dimensions.real = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
-				this._setResultDimensions("real", image.height, image.width);
-
-				this.face.real = this._getCenterAndRadius(image.height, image.width);
+				this.face.real = this._getCenterAndRadius(this.camera.dimensions.viewport.height, this.camera.dimensions.viewport.width);
 				this.lastFace = faceDetection;
 	
 				const { angle, bounds, resolution, isValid } = this._smartEnrollService.evaluateFaceDetection(this.BOUNDS, faceDetection, this.source);
@@ -227,18 +239,16 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				this.faceIsValid = isValid;
 				this.errorFace = isValid ? null : this.errorFace;
 			}
-
-			this._changeDetectorRef.markForCheck();
 		} catch (e) {
 			this._faceNotFoundError();
 		}
 	}
 
 	private _drawFaceMask(ctx: CanvasRenderingContext2D): void {
-		const height = this.camera.dimensions.video.height;
-		const width = this.camera.dimensions.video.width;
+		const height = this.camera.dimensions.viewport.height;
+		const width = this.camera.dimensions.viewport.width;
 
-        const originalDrawingSize = this.isLandscape ? 180 : 130;
+        const originalDrawingSize = this.isLandscape ? 180 : 150;
         const scale = Math.min(width / originalDrawingSize, height / originalDrawingSize);
 
         const centerX = width / 2;
@@ -259,8 +269,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         ctx.beginPath();
         ctx.globalCompositeOperation = 'destination-atop';
 
-        const adjustX = this.isLandscape ? 0 : 25;
-        const adjustY = this.isLandscape ? 15 : 30;
+        const adjustX = this.isLandscape ? 0 : 15;
+        const adjustY = this.isLandscape ? 15 : 40;
 
         // Arc
         ctx.arc(
@@ -335,8 +345,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	private _drawIdMask(ctx: CanvasRenderingContext2D): void {
-		const height = this.camera.dimensions.video.height;
-		const width = this.camera.dimensions.video.width;
+		const height = this.camera.dimensions.viewport.height;
+		const width = this.camera.dimensions.viewport.width;
 
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
@@ -368,11 +378,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		if (!maskResultCanvas) return;
 
-		const videoDim = this.camera.dimensions.video;
+		const viewportDimensions = this.camera.dimensions.viewport;
 		const ctx: CanvasRenderingContext2D = maskResultCanvas.getContext("2d", { willReadFrequently: true });
 
-        maskResultCanvas.height = videoDim.height;
-		maskResultCanvas.width = videoDim.width;
+        maskResultCanvas.height = viewportDimensions.height;
+		maskResultCanvas.width = viewportDimensions.width;
 
 		if (this.source === "face") {
 			this._drawFaceMask(ctx);
@@ -429,8 +439,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _getDetectionRectangleDimensions(videoWidth: number, videoHeight: number) {
 		const rectDimensions = this._calculateMaxDimensions({width: 16, height: 9}, {width: videoWidth, height: videoHeight});
 
-		rectDimensions.height = Math.floor(rectDimensions.height * 0.6);
-		rectDimensions.width = Math.floor(rectDimensions.width * 0.6);
+		rectDimensions.height = Math.floor(rectDimensions.height * (this.isLandscape ? 0.6 : 0.85));
+		rectDimensions.width = Math.floor(rectDimensions.width * (this.isLandscape ? 0.6 : 0.85));
 
 		return rectDimensions;
 	}
@@ -462,12 +472,129 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		if (key) this[key].isLoading = isLoading;
 	}
 
+	private _onIntervalDetect = (videoCanvas: HTMLCanvasElement) => {
+		const base64Image = videoCanvas.toDataURL('image/jpeg');
+		const img = new Image();
+
+		img.src = base64Image;
+		img.onload = () => {
+			if (this.source === 'document') {
+				this._detectDocument(videoCanvas);
+			}
+	
+			if (this.side === 'front' || this.source === 'face') {
+				this._detectFace(img);
+			}
+	
+			const documentFrontIsValid = this.source === 'document' && this.side === 'front' && this.faceIsValid && this.documentIsValid;
+			const documentBackIsValid = this.source === 'document' && this.side !== 'front' && this.documentIsValid;
+			const livenessIsValid = this.source === 'face' && this.faceIsValid;
+	
+			this._drawMask();
+			this.successPosition = (documentFrontIsValid || documentBackIsValid || livenessIsValid) ? ++this.successPosition : 0;
+	
+			if (this.successPosition > 1) {
+				this.successPosition = 0;
+				this.errorContent = null;
+
+				this._changeDetectorRef.markForCheck();
+
+				this._takePicture(img, base64Image);
+			} else {
+				this._changeDetectorRef.markForCheck();
+			}
+		}
+	}
+
+	private _onLoadedMetadata = () => {
+		const videoElement: HTMLVideoElement = this.videoElement.nativeElement;
+		const videoCanvas: HTMLCanvasElement = this.videoCanvas.nativeElement;
+
+		const ctx = videoCanvas.getContext('2d', { willReadFrequently: true });
+
+		this._onVideoLoaded(videoElement, videoCanvas);
+
+		let detectionFrameDelay = 0;
+
+		this._detectionInterval = setInterval(() => {
+			++detectionFrameDelay;
+
+			ctx.drawImage(videoElement, 0, 0, this.camera.dimensions.real.width, this.camera.dimensions.real.height);
+			ctx.save();
+
+			if (detectionFrameDelay < 10) return;
+
+			detectionFrameDelay = 0;
+
+			this._onIntervalDetect(videoCanvas);
+		}, Math.floor(1000 / 30));
+	}
+
+	private _onVideoLoaded(videoElement: HTMLVideoElement, videoCanvas: HTMLCanvasElement) {
+		const maskCanvas = this.maskCanvas.nativeElement;
+
+		const { videoHeight, videoWidth } = videoElement;
+
+		const maxWidth = Math.min(window.innerWidth, videoWidth);
+		const maxHeight = Math.min(window.innerHeight, videoHeight);
+
+		videoCanvas.height = videoHeight;
+		videoCanvas.width = videoWidth;
+		maskCanvas.height = videoHeight;
+		maskCanvas.width = videoWidth;
+
+		const videoStreamDimensions = { height: videoHeight, width: videoWidth };
+		const maxViewportDimesions = { height: maxHeight, width: maxWidth };
+
+		const { height: viewportHeight, width: viewportWidth } = this._calculateMaxDimensions(videoStreamDimensions, maxViewportDimesions);
+		const { height: videoPixelDepthHeight, width: videoPixelDepthWidth } = this._calculateMaxDimensions(maxViewportDimesions, videoStreamDimensions);
+
+		// user viewport dimensions
+		this.camera.dimensions.viewport.height = viewportHeight;
+		this.camera.dimensions.viewport.width = viewportWidth;
+
+		// video stream dimensions
+		this.camera.dimensions.real = {
+			height: videoHeight,
+			width: videoWidth,
+			offsetX: 0,
+			offsetY: 0,
+		};
+
+		// visible video pixel dimensions
+		this.camera.dimensions.visible = {
+			height: videoPixelDepthHeight,
+			width: videoPixelDepthWidth,
+			offsetX: Math.floor((videoWidth - videoPixelDepthWidth) / 2),
+			offsetY: Math.floor((videoHeight - videoPixelDepthHeight) / 2),
+		};
+
+		if (this.source === 'face') {
+			videoCanvas.style.transform = "scaleX(-1)";
+		} else {
+			videoCanvas.style.transform = "";
+		}
+
+		videoElement.play();
+
+		this._setBounds();
+		this._drawMask();
+
+		// cropped dimensions
+		this.camera.dimensions.result = {
+			height: this.BOUNDS[this.source].res.HEIGHT_HIGH,
+			width: this.BOUNDS[this.source].res.WIDTH_HIGH,
+			offsetX: Math.floor(this.BOUNDS[this.source].bounds.X_LOW * 0.8),
+			offsetY: Math.floor(this.BOUNDS[this.source].bounds.Y_LOW * 0.8),
+		};
+
+		this._loading({ isLoading: false, start: true });
+	}
+
 	private _resetVariables() {
 		clearInterval(this._detectionInterval);
-		clearInterval(this._ngxVideoInterval);
 
 		this._detectionInterval = null;
-		this._ngxVideoInterval = null;
 
 		this._initAppRegistrationData();
 		this._scanner = JSScanify;
@@ -483,72 +610,74 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	private _setBounds() {
-		const height = this.camera.dimensions.video.height;
-		const width = this.camera.dimensions.video.width;
+		const { height, width } = this.camera.dimensions.real;
+		const { height: visibleHeight, width: visibleWidth } = this.camera.dimensions.visible;
 
 		const center = {
-			x: width / 2,
-			y: height / 2,
+			x: visibleWidth / 2,
+			y: visibleHeight / 2,
 		};
+
+		let document = {};
+		let face = {};
 
 		if (this.source === 'document') {
 			const rectDimensions = this._getDetectionRectangleDimensions(width, height);
+			const visibleRectDimensions = this._getDetectionRectangleDimensions(visibleWidth, visibleHeight);
 
 			const angle = {
 				PITCH_HIGH: 15,
 				PITCH_LOW: -15,
 				ROLL_HIGH: 15,
 				ROLL_LOW: -15,
-			}
+			};
+
+			// Use the visible rectangle for coordinates - this will consider bitdepth of the image
+			const rectangleHalfWidth = visibleRectDimensions.width / 2;
+			const rectangleHalfHeight = visibleRectDimensions.height / 2;
+
+			const topLeft = {
+				x: center.x - rectangleHalfWidth,
+				y: center.y - rectangleHalfHeight,
+			};
+
+			const bottomRight = {
+				x: center.x + rectangleHalfWidth,
+				y: center.y + rectangleHalfHeight,
+			};
 
 			const bounds = {
-				X_HIGH: Math.floor(center.x * 1.2),
-				X_LOW: Math.floor(center.x * 0.5),
-				Y_HIGH: Math.floor(center.y * 1.2),
-				Y_LOW: Math.floor(center.y * 0.5),
+				X_HIGH: Math.floor(bottomRight.x * 0.9),
+				X_LOW: Math.floor(topLeft.x * 1.1),
+				Y_HIGH: Math.floor(bottomRight.y * 0.9),
+				Y_LOW: Math.floor(topLeft.y * 1.1),
 			};
 
-			const landscapeFaceResolution = {
+			// use the full video size for height/width
+			const faceResolution = {
 				HEIGHT_HIGH: Math.floor(rectDimensions.height * 0.7),
-				HEIGHT_LOW: Math.floor(rectDimensions.height * 0.1),
-				WIDTH_HIGH: Math.floor(rectDimensions.width * 0.6),
-				WIDTH_LOW: Math.floor(rectDimensions.width * 0.1),
-			};
-	
-			const landscapeDocumentResolution = {
-				HEIGHT_HIGH: Math.floor(rectDimensions.height * 1.1),
-				HEIGHT_LOW: Math.floor(rectDimensions.height * 0.5),
-				WIDTH_HIGH: Math.floor(rectDimensions.width * 1.1),
-				WIDTH_LOW: Math.floor(rectDimensions.width * 0.5),
-			};
-	
-			const portraitResolution = {
-				HEIGHT_HIGH: Math.floor(rectDimensions.height * 1.1),
-				HEIGHT_LOW: Math.floor(rectDimensions.height * 0.5),
-				WIDTH_HIGH: Math.floor(rectDimensions.width * 1.1),
-				WIDTH_LOW: Math.floor(rectDimensions.width * 0.5),
+				HEIGHT_LOW: Math.floor(rectDimensions.height * (this.isLandscape ? 0.1 : 0.1)),
+				WIDTH_HIGH: Math.floor(rectDimensions.width * 0.7),
+				WIDTH_LOW: Math.floor(rectDimensions.width * (this.isLandscape ? 0.1 : 0.1)),
 			};
 
-			this.BOUNDS.face = this.isLandscape
-				? {
-					bounds: { ...bounds },
-					res: { ...landscapeFaceResolution },
-				}
-				: {
-					bounds: { ...bounds },
-					res: { ...portraitResolution },
-				};
+			const documentResolution = {
+				HEIGHT_HIGH: Math.floor(this.isLandscape ? rectDimensions.height : rectDimensions.height * 1.2),
+				HEIGHT_LOW: Math.floor(rectDimensions.height * 0.4),
+				WIDTH_HIGH: Math.floor(rectDimensions.width),
+				WIDTH_LOW: Math.floor(rectDimensions.width * 0.4),
+			};
 
-			this.BOUNDS.document = this.isLandscape
-				? {
-					angle: { ...angle },
-					bounds: { ...bounds },
-					res: { ...landscapeDocumentResolution },
-				} : {
-					angle: { ...angle },
-					bounds: { ...bounds },
-					res: { ...portraitResolution },
-				};
+			face = {
+				bounds: { ...bounds },
+				res: { ...faceResolution },
+			};
+
+			document = {
+				angle: { ...angle },
+				bounds: { ...bounds },
+				res: { ...documentResolution },
+			};
 		} else {
 			const angle = {
 				PITCH_HIGH: 15,
@@ -560,38 +689,30 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			};
 
 			const bounds = {
-				X_HIGH: Math.floor(center.x * (this.isLandscape ? 0.7 : 0.3)),
-				X_LOW: Math.floor(center.x * (this.isLandscape ? 0.4 : -0.3)),
-				Y_HIGH: Math.floor(center.y * (this.isLandscape ? 0.7 : 0.5)),
-				Y_LOW: Math.floor(center.y * (this.isLandscape ? 0.4 : 0.3)),
+				X_HIGH: Math.floor(center.x * (this.isLandscape ? 0.7 : 0.8)),
+				X_LOW: Math.floor(center.x * (this.isLandscape ? 0.5 : 0.4)),
+				Y_HIGH: Math.floor(center.y * (this.isLandscape ? 0.8 : 0.7)),
+				Y_LOW: Math.floor(center.y * (this.isLandscape ? 0.1 : 0.5)),
 			};
 
-			const landscapeResolution = {
-				HEIGHT_HIGH: Math.max(Math.floor(height * 0.9), 240),
-				HEIGHT_LOW: Math.max(Math.floor(height * 0.45), 240),
-				WIDTH_HIGH: Math.max(Math.floor(width * 0.6), 240),
-				WIDTH_LOW: Math.max(Math.floor(width * 0.25), 240),
+			face = {
+				angle: { ...angle },
+				bounds: { ...bounds },
+				res: this.isLandscape ? {
+					HEIGHT_HIGH: Math.max(Math.floor(height), 240),
+					HEIGHT_LOW: Math.max(Math.floor(height * 0.45), 240),
+					WIDTH_HIGH: Math.max(Math.floor(width * 0.6), 240),
+					WIDTH_LOW: Math.max(Math.floor(width * 0.25), 240),
+				} : {
+					HEIGHT_HIGH: Math.max(Math.floor(height * 0.7), 240),
+					HEIGHT_LOW: Math.max(Math.floor(height * 0.35), 240),
+					WIDTH_HIGH: Math.max(Math.floor(width * 0.8), 240),
+					WIDTH_LOW: Math.max(Math.floor(width * 0.45), 240),
+				},
 			};
-	
-			const portraitResolution = {
-				HEIGHT_HIGH: Math.max(Math.floor(height * 0.7), 240),
-				HEIGHT_LOW: Math.max(Math.floor(height * 0.35), 240),
-				WIDTH_HIGH: Math.max(Math.floor(width * 0.9), 240),
-				WIDTH_LOW: Math.max(Math.floor(width * 0.45), 240),
-			};
-
-			this.BOUNDS.face = this.isLandscape
-				? {
-					angle: { ...angle },
-					bounds: { ...bounds },
-					res: { ...landscapeResolution },
-				}
-				: {
-					angle: { ...angle },
-					bounds: { ...bounds },
-					res: { ...portraitResolution },
-				};
 		}
+
+		this.BOUNDS = { document, face };
 	}
 
 	private _setDefaultFace = () => {
@@ -615,9 +736,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			}
 		) as MediaTrackConstraintSetExtended;
 
-		if (this.source) {
-			settings.facingMode = this.source === 'document' ? "environment" : "user";
-		}
+		if (!settings.facingMode) settings.facingMode = this.source === 'face' ? 'user' : 'environment';
 
 		this.videoOptions = settings;
 	}
@@ -628,11 +747,27 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			isLoading: false,
 			isLowQuality: false,
 			dimensions: {
+				real: {
+					height: 0,
+					width: 0,
+					offsetX: 0,
+					offsetY: 0,
+				},
+				result: {
+					height: 0,
+					width: 0,
+					offsetX: 0,
+					offsetY: 0,
+				},
 				video: {
 					max: {
 						height: window.innerHeight,
 						width: window.innerWidth,
 					},
+				},
+				viewport: {
+					height: 0,
+					width: 0,
 				},
 			},
 		};
@@ -646,28 +781,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			isFailed: false,
 			base64Image: undefined,
 		};
-	};
-
-	private _setImageOnCanvas = (canvas: HTMLCanvasElement, inputImg: HTMLImageElement, originalDim: any, resizeDim: any) => {
-		canvas.width = resizeDim.width;
-		canvas.height = resizeDim.height;
-		canvas.style.marginLeft = `${resizeDim.offsetX || 0}px`;
-		canvas.style.marginTop = `${resizeDim.offsetY || 0}px`;
-
-		const ctx = canvas.getContext("2d", { willReadFrequently: true });
-		ctx.clearRect(0, 0, originalDim.width, originalDim.height);
-
-		ctx.drawImage(
-			inputImg,
-			originalDim.offsetX,
-			originalDim.offsetY,
-			originalDim.width,
-			originalDim.height,
-			0,
-			0,
-			resizeDim.width,
-			resizeDim.height
-		);
 	};
 
 	private _setMaxVideoDimensions(): void {
@@ -686,73 +799,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		};
 	}
 
-	private _setResultDimensions(key: string, height: number, width: number) {
-		const { center, radius } = (this.face[key] = this._getCenterAndRadius(height, width));
-
-		if (this.source === 'document') {
-			if (this.isLandscape) {
-				this.camera.dimensions[key].height = height * 0.8;
-				this.camera.dimensions[key].offsetY = height * 0.1;
-
-				this.camera.dimensions[key].width = width * 0.75;
-				this.camera.dimensions[key].offsetX = width * 0.125;
-			} else {
-				this.camera.dimensions[key].height = height * 0.4;
-				this.camera.dimensions[key].offsetY = height * 0.3;
-
-				this.camera.dimensions[key].width = width;
-				this.camera.dimensions[key].offsetX = 0;
-			}
-		}
-
-		if (this.source === 'face') {
-			if (this.isLandscape) {
-				this.camera.dimensions[key].height = height;
-				this.camera.dimensions[key].offsetY = 0;
-		
-				this.camera.dimensions[key].width = Math.min(2.8 * radius.x, width);
-				this.camera.dimensions[key].offsetX = center.x - this.camera.dimensions[key].width / 2;
-			} else {
-				this.camera.dimensions[key].height = height * 0.9;
-				this.camera.dimensions[key].offsetY = height * 0.1;
-
-				this.camera.dimensions[key].width = Math.min(2 * radius.x, width);
-				this.camera.dimensions[key].offsetX = Math.min(center.x - this.camera.dimensions[key].width / 2, 0);
-			}
-		}
-	}
-
-	private _setVideoDimensions(videoNgx: any) {
-        this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
-
-		this.camera.dimensions.video.height = videoNgx.clientHeight;
-		this.camera.dimensions.video.width = videoNgx.clientWidth;
-
-		this.camera.dimensions.result = { height: 0, width: 0, offsetX: 0, offsetY: 0 };
-		this._setResultDimensions("result", videoNgx.clientHeight, videoNgx.clientWidth);
-
-		this.face.video = this._getCenterAndRadius(videoNgx.clientHeight, videoNgx.clientWidth);
-
-		this._setBounds();
-	}
-
-	private _setVideoNgxCameraData = () => {
-		const videoNgx = this._dom.nativeElement.querySelector("video");
-
-		if (!videoNgx) return;
-
-		this._setVideoDimensions(videoNgx);
-		this._loading({ isLoading: false, start: true });
-
-		setTimeout(() => this._drawMask());
-
-		if (this._detectionInterval) return;
-
-		this._detectionInterval = setInterval(() => {
-			this.takePicture.next();
-		}, 300);
-	}
-
 	private _startDefaultValues() {
 		this._setDefaultResponse();
 		this._setDefaultCamera();
@@ -763,11 +809,24 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     private _startRecording(): void {
         this._setMaxVideoDimensions();
 
-		if (this._ngxVideoInterval) return;
+		navigator.mediaDevices
+			.getUserMedia({
+				audio: false,
+				video: this.videoOptions,
+			})
+			.then((stream) => {
+				this.stream = stream;
 
-		this._ngxVideoInterval = setInterval(() => {
-			this._setVideoNgxCameraData();
-		}, 100);
+				setTimeout(() => {
+					const videoElement: HTMLVideoElement = this.videoElement.nativeElement;
+
+					videoElement.srcObject = stream;
+
+					videoElement.removeEventListener("loadedmetadata", this._onLoadedMetadata, true);
+					videoElement.addEventListener("loadedmetadata", this._onLoadedMetadata, true);
+				});
+			})
+			.catch();
     }
 
 	private _stopRecording(): void {
@@ -775,93 +834,94 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this.documentIsValid = false;
 
 		clearInterval(this._detectionInterval);
-		clearInterval(this._ngxVideoInterval);
 
 		this._detectionInterval = null;
-		this._ngxVideoInterval = null;
+
+		if (!this.stream) return;
+
+		this.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+		this.stream = null;
 	}
 
-	private _takePicture(img: HTMLImageElement) {
+	private _takePicture(img: HTMLImageElement, rawBase64Image: string) {
 		const canvasResult = this.resultCanvas.nativeElement;
-		const canvasToSend = this.toSendCanvas.nativeElement;
 
-        this._setImageOnCanvas(canvasResult, img, this.camera.dimensions.real, this.camera.dimensions.result);
-		this._setImageOnCanvas(canvasToSend, img, this.camera.dimensions.real, this.camera.dimensions.real);
+        this._cropImage(canvasResult, img, this.camera.dimensions.result);
 
-		const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
-
-		let base64Image : string;
 		let face: string;
 		let faceToUpload: string;
+		let base64Image = canvasResult.toDataURL('image/jpeg');
 
-		const isFront = this.side === "front";
+		const croppedImage = new Image();
+		croppedImage.src = base64Image;
 
-		if (isFront && this.source === 'document') {
-			const img = new Image();
-			img.src = rawBase64Image;
+		croppedImage.onload = () => {
+			const isFront = this.side === "front";
+	
+			if (isFront && this.source === 'document') {
+				const promise = faceapi
+					.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
+					.withFaceLandmarks();
+	
+				promise.then((detections) => {
+					const detection = this._demoService.findBiggestFace(detections);
+	
+					if (detection) {
+						this.errorContent = null;
+						this.errorFace = null;
+						this.showError = false;
+	
+						faceToUpload = this._demoService.cutFaceIdCard(img, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
+	
+						base64Image = base64Image.replace(/^data:.*;base64,/, "");
+						face = faceToUpload?.replace(/^data:.*;base64,/, "");
+	
+						this.onImageScan.next({
+							base64Image,
+							face,
+							force: !isFront || !!this.appRegistration.documentValidation,
+							front: isFront,
+							inputMethod: 'CAMERA',
+							rawImage: rawBase64Image,
+							source: this.source,
+						});
+				
+						this.response.base64Image = base64Image;
+						this.uploading = true;
+				
+						this._stopRecording();
+					} else throw Error('face_not_found');
+	
+					return detections;
+				}).catch((error) => {
+					console.error(error);
+					this._faceNotFoundError();
+				});
+	
+				return;
+			}
 
-			const promise = faceapi
-				.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
-				.withFaceLandmarks();
+			if (this.source === 'face') {
+				face = base64Image.replace(/^data:.*;base64,/, "");
+			} else {
+				base64Image = base64Image.replace(/^data:.*;base64,/, "");
+			}
 
-			promise.then((detections) => {
-				const detection = this._demoService.findBiggestFace(detections);
-
-				if (detection) {
-					this.errorContent = null;
-					this.errorFace = null;
-					this.showError = false;
-
-					faceToUpload = this._demoService.cutFaceIdCard(img, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
-
-					base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
-					face = faceToUpload?.replace(/^data:.*;base64,/, "");
-
-					this.onImageScan.next({
-						base64Image,
-						face,
-						force: !isFront || !!this.appRegistration.documentValidation,
-						front: isFront,
-						inputMethod: 'CAMERA',
-						rawImage: rawBase64Image,
-						source: this.source,
-					});
-			
-					this.response.base64Image = base64Image;
-					this.uploading = true;
-			
-					this._stopRecording();
-				} else throw Error('face_not_found');
-
-				return detections;
-			}).catch((error) => {
-				console.error(error);
-				this._faceNotFoundError();
+			this.onImageScan.next({
+				base64Image,
+				face,
+				force: !isFront || !!this.appRegistration.documentValidation,
+				front: isFront,
+				inputMethod: 'CAMERA',
+				rawImage: rawBase64Image,
+				source: this.source,
 			});
+	
+			this.response.base64Image = this.source === 'face' ? face : base64Image;
+			this.uploading = true;
 
-			return;
+			this._stopRecording();
 		}
-
-		if (this.source === 'face') {
-			face = rawBase64Image.replace(/^data:.*;base64,/, "");
-		} else {
-			base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
-		}
-		
-		this.onImageScan.next({
-			base64Image,
-			face,
-			force: !isFront || !!this.appRegistration.documentValidation,
-			front: isFront,
-			inputMethod: 'CAMERA',
-			rawImage: rawBase64Image,
-			source: this.source,
-		});
-
-		this.response.base64Image = this.source === 'face' ? face : base64Image;
-		this.uploading = true;
-
-		this._stopRecording();
 	}
 
 	public get takePicture$(): Observable<void> {
@@ -895,21 +955,15 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	captureManually(): void {
-		const ngxVideo = this._dom.nativeElement.querySelector('video');
-		const canvas = document.createElement('canvas') as HTMLCanvasElement;
-
-		canvas.height = ngxVideo.clientHeight;
-		canvas.width = ngxVideo.clientWidth;
-
-		const ctx = canvas.getContext("2d");
-
-		ctx.drawImage(ngxVideo, 0, 0, canvas.width, canvas.height);
-
+		const videoCanvas: HTMLCanvasElement = this.videoCanvas.nativeElement;
 		const img = new Image();
 
-		img.src = canvas.toDataURL('image/jpeg');
+		const base64Image = videoCanvas.toDataURL('image/jpeg');
 
-		this._takePicture(img);
+		img.src = base64Image;
+		img.onload = () => {
+			this._takePicture(img, base64Image);
+		}
 	}
 
 	closeTip() {
@@ -984,40 +1038,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this.restartCamera();
 	}
 
-	processImage(webcamImage: WebcamImage): void {
-		if (this.response.base64Image) return;
-
-		const img = new Image();
-		img.src = webcamImage.imageAsDataUrl;
-
-		img.onload = async () => {
-			try {
-				const findFace = (this.source === 'document' && this.side === 'front') || this.source === 'face';
-				const findDocument = this.source === 'document';
-
-				if (findFace) await this._detectFace(img);
-				if (findDocument) this._detectDocument(img);
-
-				const documentFrontIsValid = this.source === 'document' && this.side === 'front' && this.faceIsValid && this.documentIsValid;
-				const documentBackIsValid = this.source === 'document' && this.side !== 'front' && this.documentIsValid;
-				const livenessIsValid = this.source === 'face' && this.faceIsValid;
-
-				this.successPosition = (documentFrontIsValid || documentBackIsValid || livenessIsValid) ? ++this.successPosition : 0;
-
-				if (this.successPosition > 3) {
-					this.successPosition = 0;
-					this.errorContent = null;
-
-					this._takePicture(img);
-				}
-
-				this._changeDetectorRef.markForCheck();
-			} catch (error) {
-				console.error(error.message);
-			}
-		};
-	}
-
 	skipStep(): void {
         if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {
 			this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
@@ -1031,9 +1051,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	restartCamera(): void {
 		this._stopRecording();
 		this._setVideoOptionConfigs();
-		this._loading({isLoading: false, start: true });
-
-		this.killCamera = true;
+		this._loading({ isLoading: true, start: true });
 
 		this.showError = false;
 		this.errorContent = null;
@@ -1041,7 +1059,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this.successPosition = 0;
 
 		setTimeout(() => {
-			this.killCamera = false;
 			this._startRecording();
 		}, 300);
 	}

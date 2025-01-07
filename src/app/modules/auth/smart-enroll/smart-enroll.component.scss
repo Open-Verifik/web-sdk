@@ -201,7 +201,6 @@ smart-scanner-corrections {
 			overflow: hidden;
 
 			@media screen and (max-height: 600px) {
-				inset: initial;
 				top: 0;
 			}
 		}
@@ -313,7 +312,7 @@ smart-scanner-corrections {
 		position: relative;
 		width: 176px;
 		background-position: center;
-		background-size: 176px;
+		background-size: cover;
 		background-repeat: no-repeat;
 
 		> mat-icon {

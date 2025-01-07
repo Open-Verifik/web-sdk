@@ -122,7 +122,7 @@ export class SmartDocumentsComponent implements OnDestroy {
 					if (body.backImage) {
 						this.successfulUploadSubject.next();
 						this._syncAppRegistration('document', "ONGOING");
-			
+
 						return;
 					};
 

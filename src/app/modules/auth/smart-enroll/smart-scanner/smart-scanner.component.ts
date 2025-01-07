@@ -80,7 +80,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private _rectCredential: any;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = !environment.production && true;
+	DEBUG_MODE: boolean = !environment.production && false;
 
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
@@ -622,6 +622,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 					const video: HTMLVideoElement = this.videoElement.nativeElement;
 
 					video.srcObject = stream;
+
 					video.removeEventListener("loadedmetadata", this._onVideoLoaded, true);
 					video.addEventListener("loadedmetadata", this._onVideoLoaded, true);
 				});

@@ -33,9 +33,9 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   deviceId: string;
   stream: MediaStream;
 
-  constructor(
-    private _renderer: Renderer2,
-  ) {
+  constructor(private _renderer: Renderer2) {
+    this._renderer.listen("window", "resize", () => this._init());
+
     this.cameraCycle$
       .pipe(takeUntil(this.unsubscriber$))
       .subscribe({
@@ -45,8 +45,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
               this.stream.getTracks().forEach((track) => track.stop());
               this.stream = null;
             }
-
-            console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ data.resolution:", data.resolution)
 
             this.detected.next(data.resolution);
           } else {
@@ -67,16 +65,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._renderer.listen("window", "resize", () => this._init());
-
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      const videoDevices = devices.filter(device => device.kind == 'videoinput');
-
-      videoDevices.forEach((device: any) => {
-        console.log(device.getCapabilities());
-      });
-    });
-
     this._init();
   }
 
@@ -119,7 +107,7 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     const key = this.KEYS[index];
     const resolution = this[key][resolutionIndex];
 
-    if (!resolution || resolution.height > this.MAX_HEIGHT || resolution.width > this.MAX_WIDTH) {
+    if (!resolution) {
       this._next(resolutionIndex, index);
       return;
     }
@@ -175,14 +163,12 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     try {
       if (this.stream) {
         const videoTrack = this.stream.getVideoTracks()[0];
-        this.stream.getVideoTracks().forEach(track => console.log(track.getCapabilities()))
 
         await videoTrack.applyConstraints(mediaOptions.video);
 
         return true;
       } else {
         this.stream = await navigator.mediaDevices.getUserMedia(mediaOptions);
-        this.stream.clone().getVideoTracks().forEach(track => console.log(track.getCapabilities()));
 
         const videoTrack = this.stream.getVideoTracks()[0];
 
@@ -191,9 +177,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
         return true;
       }
     } catch (error) {
-      console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
-      if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
-
       return false;
     }
   }

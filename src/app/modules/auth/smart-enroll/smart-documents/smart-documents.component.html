@@ -5,7 +5,7 @@
   fxLayout="row"
   fxLayoutAlign.gt-sm="center center"
   fxLayout.lt-md="column"
-  fxLayout="start center"
+  fxLayout.lt-md="start center"
   ngClass.gt-sm="px-4 py-4 mx-auto"
   ngClass.lt-md="p-4"
   [ngClass]="{ 'h-full': selectedMethod === 'scan' }"
@@ -25,7 +25,8 @@
       ngClass.lt-md="w-full"
     >
       <h5
-        class="w-full text-3xl font-medium mt-2 text-center"
+        class="w-full text-3xl font-medium text-center"
+        ngClass.gt-sm="mt-2"
         ngClass.lt-md="text-2xl"
         [style.color]="project.branding.titleColor"
       >
@@ -34,6 +35,7 @@
     </div>
 
     <div
+      ngClass.lt-md="mb-6"
       ngClass.gt-sm="mt-6"
       fxLayout="row"
       fxLayoutAlign="center"
@@ -210,7 +212,8 @@
           (onImageUpload)="onImageScan($event)"
           [class.hidden]="errorResult"
           [successfulUpload]="successfulUploadSubject.asObservable()"
-          ngClass.lt-md="flex flex-grow"
+          class="w-full min-h-full"
+          ngClass.lt-md="w-full flex flex-grow"
           source="document"
         ></smart-upload>
     </div>
