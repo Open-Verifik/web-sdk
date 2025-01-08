@@ -72,7 +72,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _detectionInterval: ReturnType<typeof setInterval>;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = !environment.production && true;
+	DEBUG_MODE: boolean = !environment.production && false;
 	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
 
 	appRegistration: any;
@@ -724,8 +724,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				PITCH_LOW: -15,
 				ROLL_HIGH: 15,
 				ROLL_LOW: -15,
-				YAW_HIGH: 20,
-				YAW_LOW: -20,
+				YAW_HIGH: 30,
+				YAW_LOW: -30,
 			};
 
 			const bounds = {
@@ -895,7 +895,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		const croppedImage = new Image();
 		croppedImage.src = base64Image;
-		console.log(`file: smart-scanner-ios.component.ts:900 ~ SmartScannerIosComponent ~ _takePicture ~ base64Image:`, base64Image)
 
 		croppedImage.onload = () => {
 			const isFront = this.side === "front";
