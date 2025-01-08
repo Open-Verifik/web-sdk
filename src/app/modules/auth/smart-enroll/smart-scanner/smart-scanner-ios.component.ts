@@ -64,16 +64,16 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     @ViewChild("maskCanvas") public maskCanvas: ElementRef;
 
 	@Input("source") source: "document" | "face";
-	@Input() successfulUpload: Observable<void>;s
+	@Input() successfulUpload: Observable<void>;
 
 	@Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
 	private unsubscriber$: Subject<void> = new Subject<void>();
-	private takePicture: Subject<void> = new Subject<void>();
 	private _detectionInterval: ReturnType<typeof setInterval>;
 	private _scanner: jscanify;
 
-	DEBUG_MODE: boolean = !environment.production && false;
+	DEBUG_MODE: boolean = !environment.production && true;
+	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
 
 	appRegistration: any;
 	aspectRatio = 0.75;
@@ -102,8 +102,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	successPosition: number = 0;
 	uploading: boolean = false;
 	videoOptions: any;
-
-	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
 
 	corrections: Corrections = {
 		angle: { pitch: "", roll: "", yaw: "" },
@@ -158,11 +156,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	private _calculateMaxDimensions(
-		container: {height: number, width: number},
-		containerToFit: {height: number, width: number}
+		container: { height: number, width: number },
+		innerContainerToResize: { height: number, width: number }
 	) {
-		const scaleFactorWidth = containerToFit.width / container.width;
-		const scaleFactorHeight = containerToFit.height / container.height;
+		const scaleFactorWidth = innerContainerToResize.width / container.width;
+		const scaleFactorHeight = innerContainerToResize.height / container.height;
 	
 		const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
 	
@@ -244,9 +242,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	private _drawFaceMask(ctx: CanvasRenderingContext2D): void {
-		const height = this.camera.dimensions.viewport.height;
-		const width = this.camera.dimensions.viewport.width;
+	private _drawFaceMask(ctx: CanvasRenderingContext2D, viewportDimensions: {height: number, width: number}): void {
+		const { height, width } = viewportDimensions;
 
         const originalDrawingSize = this.isLandscape ? 180 : 150;
         const scale = Math.min(width / originalDrawingSize, height / originalDrawingSize);
@@ -344,29 +341,28 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         ctx.closePath();
 	}
 
-	private _drawIdMask(ctx: CanvasRenderingContext2D): void {
-		const height = this.camera.dimensions.viewport.height;
-		const width = this.camera.dimensions.viewport.width;
+	private _drawIdMask(ctx: CanvasRenderingContext2D, viewportDimensions: { height: number, width: number }): void {
+		const { height, width } = viewportDimensions;
 
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
 		ctx.fillRect(0, 0, width, height);
 		ctx.closePath();
 
-		const rectDimensions = this._getDetectionRectangleDimensions(width, height);
+		const hitboxDimensions = this._getDetectionRectangleDimensions(width, height);
 
 		const center = {
-			x: (width / 2) - (rectDimensions.width / 2),
-			y: (height / 2) - (rectDimensions.height / 2),
+			x: (width / 2) - (hitboxDimensions.width / 2),
+			y: (height / 2) - (hitboxDimensions.height / 2),
 		};
 
 		ctx.beginPath();
-		ctx.clearRect(center.x, center.y, rectDimensions.width, rectDimensions.height);
+		ctx.clearRect(center.x, center.y, hitboxDimensions.width, hitboxDimensions.height);
 		ctx.stroke();
 		ctx.closePath();
 
 		ctx.beginPath();
-		ctx.roundRect(center.x, center.y, rectDimensions.width, rectDimensions.height, 8);
+		ctx.roundRect(center.x, center.y, hitboxDimensions.width, hitboxDimensions.height, 8);
 		ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
 		ctx.lineWidth = Math.max(Math.floor(Math.max(width, height) / 100), 4);
 		ctx.stroke();
@@ -378,16 +374,16 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		if (!maskResultCanvas) return;
 
-		const viewportDimensions = this.camera.dimensions.viewport;
+		const viewportDimensions = { height: window.innerHeight, width: window.innerWidth };
 		const ctx: CanvasRenderingContext2D = maskResultCanvas.getContext("2d", { willReadFrequently: true });
 
         maskResultCanvas.height = viewportDimensions.height;
 		maskResultCanvas.width = viewportDimensions.width;
 
 		if (this.source === "face") {
-			this._drawFaceMask(ctx);
+			this._drawFaceMask(ctx, viewportDimensions);
 		} else {
-			this._drawIdMask(ctx);
+			this._drawIdMask(ctx, viewportDimensions);
 		}
 	}
 
@@ -405,6 +401,44 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
 			};
 		}
+	}
+	
+	private _fitBoxCover(
+		container: {height: number, width: number},
+		containerToFit: {height: number, width: number}
+	) {
+		const { width: width1, height: height1 } = container;
+		const { width: width2, height: height2 } = containerToFit;
+
+		const scale = {
+			x: width2 / width1,
+			y: height2 / height1,
+		};
+
+		const inverseScale = {
+			x: width1 / width2,
+			y: height1 / height2,
+		}
+
+		const scaleFactor = Math.max(scale.x, scale.y);
+	
+		const newWidth = width1 * scaleFactor;
+		const newHeight = height1 * scaleFactor;
+
+		const offsetX = (width2 - newWidth) / 2;
+		const offsetY = (height2 - newHeight) / 2;
+
+		const prescaleOffsetX = inverseScale.x * offsetX;
+		const prescaleOffsetY = inverseScale.y * offsetY;
+
+		return {
+			offsetX,
+			offsetY,
+			prescaleOffsetX,
+			prescaleOffsetY,
+			height: newHeight,
+			width: newWidth,
+		};
 	}
 
 	private _getCenterAndRadius = (height: number, width: number) => {
@@ -436,11 +470,14 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		return data;
 	};
 
-	private _getDetectionRectangleDimensions(videoWidth: number, videoHeight: number) {
-		const rectDimensions = this._calculateMaxDimensions({width: 16, height: 9}, {width: videoWidth, height: videoHeight});
+	private _getDetectionRectangleDimensions(intialWidth: number, intialHeight: number) {
+		const container = { width: 16, height: 9 };
+		const innerContainerToResize = { width: intialWidth, height: intialHeight };
 
-		rectDimensions.height = Math.floor(rectDimensions.height * (this.isLandscape ? 0.6 : 0.85));
-		rectDimensions.width = Math.floor(rectDimensions.width * (this.isLandscape ? 0.6 : 0.85));
+		const rectDimensions = this._calculateMaxDimensions(container, innerContainerToResize);
+
+		rectDimensions.height = Math.floor(rectDimensions.height * (this.isLandscape ? 0.5 : 0.9));
+		rectDimensions.width = Math.floor(rectDimensions.width * (this.isLandscape ? 0.5 : 0.9));
 
 		return rectDimensions;
 	}
@@ -522,7 +559,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			ctx.drawImage(videoElement, 0, 0, this.camera.dimensions.real.width, this.camera.dimensions.real.height);
 			ctx.save();
 
-			if (detectionFrameDelay < 10) return;
+			if (detectionFrameDelay < 20) return;
 
 			detectionFrameDelay = 0;
 
@@ -535,23 +572,29 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		const { videoHeight, videoWidth } = videoElement;
 
-		const maxWidth = Math.min(window.innerWidth, videoWidth);
-		const maxHeight = Math.min(window.innerHeight, videoHeight);
+		const videoStreamDimensions = { height: videoHeight, width: videoWidth };
+		const maxViewportDimesions = { height: Math.min(window.innerHeight, videoHeight), width: Math.min(window.innerWidth, videoWidth) };
+
+		const coverViewport = this._fitBoxCover(videoStreamDimensions, maxViewportDimesions);
 
 		videoCanvas.height = videoHeight;
 		videoCanvas.width = videoWidth;
 		maskCanvas.height = videoHeight;
 		maskCanvas.width = videoWidth;
 
-		const videoStreamDimensions = { height: videoHeight, width: videoWidth };
-		const maxViewportDimesions = { height: maxHeight, width: maxWidth };
+		videoCanvas.style.height = `${coverViewport.height}px`;
+		videoCanvas.style.width = `${coverViewport.width}px`;
 
-		const { height: viewportHeight, width: viewportWidth } = this._calculateMaxDimensions(videoStreamDimensions, maxViewportDimesions);
-		const { height: videoPixelDepthHeight, width: videoPixelDepthWidth } = this._calculateMaxDimensions(maxViewportDimesions, videoStreamDimensions);
+		maskCanvas.style.height = `${maxViewportDimesions.height}px`;
+		maskCanvas.style.width = `${maxViewportDimesions.width}px`;
 
 		// user viewport dimensions
-		this.camera.dimensions.viewport.height = viewportHeight;
-		this.camera.dimensions.viewport.width = viewportWidth;
+		this.camera.dimensions.viewport.height = maxViewportDimesions.height;
+		this.camera.dimensions.viewport.width = maxViewportDimesions.width;
+
+		// scaled video dimensions
+		this.camera.dimensions.video.height = coverViewport.height;
+		this.camera.dimensions.video.width = coverViewport.width;
 
 		// video stream dimensions
 		this.camera.dimensions.real = {
@@ -563,16 +606,16 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		// visible video pixel dimensions
 		this.camera.dimensions.visible = {
-			height: videoPixelDepthHeight,
-			width: videoPixelDepthWidth,
-			offsetX: Math.floor((videoWidth - videoPixelDepthWidth) / 2),
-			offsetY: Math.floor((videoHeight - videoPixelDepthHeight) / 2),
+			width: videoWidth - coverViewport.prescaleOffsetX,
+			height: videoHeight - coverViewport.prescaleOffsetY,
+			offsetX: coverViewport.prescaleOffsetX ? coverViewport.prescaleOffsetX * -1 : 0,
+			offsetY: coverViewport.prescaleOffsetY ? coverViewport.prescaleOffsetY * -1 : 0,
 		};
 
 		if (this.source === 'face') {
-			videoCanvas.style.transform = "scaleX(-1)";
+			videoCanvas.style.transform = `translate(${coverViewport.offsetX}px, ${coverViewport.offsetY * 2}px) scaleX(-1)`;
 		} else {
-			videoCanvas.style.transform = "";
+			videoCanvas.style.transform = `translate(${coverViewport.offsetX}px, ${coverViewport.offsetY * 2}px)`;
 		}
 
 		videoElement.play();
@@ -584,8 +627,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this.camera.dimensions.result = {
 			height: this.BOUNDS[this.source].res.HEIGHT_HIGH,
 			width: this.BOUNDS[this.source].res.WIDTH_HIGH,
-			offsetX: Math.floor(this.BOUNDS[this.source].bounds.X_LOW * 0.8),
-			offsetY: Math.floor(this.BOUNDS[this.source].bounds.Y_LOW * 0.8),
+			offsetX: Math.floor((this.BOUNDS[this.source].bounds.X_LOW * 0.8)),
+			offsetY: Math.floor((this.BOUNDS[this.source].bounds.Y_LOW * 0.8)),
 		};
 
 		this._loading({ isLoading: false, start: true });
@@ -610,20 +653,18 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
 	private _setBounds() {
-		const { height, width } = this.camera.dimensions.real;
-		const { height: visibleHeight, width: visibleWidth } = this.camera.dimensions.visible;
+		const { height, width } = this.camera.dimensions.visible;
 
 		const center = {
-			x: visibleWidth / 2,
-			y: visibleHeight / 2,
+			x: (width / 2),
+			y: (height / 2),
 		};
 
 		let document = {};
 		let face = {};
 
 		if (this.source === 'document') {
-			const rectDimensions = this._getDetectionRectangleDimensions(width, height);
-			const visibleRectDimensions = this._getDetectionRectangleDimensions(visibleWidth, visibleHeight);
+			const hitboxDimensions = this._getDetectionRectangleDimensions(width, height);
 
 			const angle = {
 				PITCH_HIGH: 15,
@@ -632,9 +673,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				ROLL_LOW: -15,
 			};
 
-			// Use the visible rectangle for coordinates - this will consider bitdepth of the image
-			const rectangleHalfWidth = visibleRectDimensions.width / 2;
-			const rectangleHalfHeight = visibleRectDimensions.height / 2;
+			const rectangleHalfWidth = hitboxDimensions.width / 2;
+			const rectangleHalfHeight = hitboxDimensions.height / 2;
 
 			const topLeft = {
 				x: center.x - rectangleHalfWidth,
@@ -655,17 +695,17 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 			// use the full video size for height/width
 			const faceResolution = {
-				HEIGHT_HIGH: Math.floor(rectDimensions.height * 0.7),
-				HEIGHT_LOW: Math.floor(rectDimensions.height * (this.isLandscape ? 0.1 : 0.1)),
-				WIDTH_HIGH: Math.floor(rectDimensions.width * 0.7),
-				WIDTH_LOW: Math.floor(rectDimensions.width * (this.isLandscape ? 0.1 : 0.1)),
+				HEIGHT_HIGH: Math.floor(hitboxDimensions.height * 0.7),
+				HEIGHT_LOW: Math.floor(hitboxDimensions.height * 0.1),
+				WIDTH_HIGH: Math.floor(hitboxDimensions.width * 0.7),
+				WIDTH_LOW: Math.floor(hitboxDimensions.width * 0.1),
 			};
 
 			const documentResolution = {
-				HEIGHT_HIGH: Math.floor(this.isLandscape ? rectDimensions.height : rectDimensions.height * 1.2),
-				HEIGHT_LOW: Math.floor(rectDimensions.height * 0.4),
-				WIDTH_HIGH: Math.floor(rectDimensions.width),
-				WIDTH_LOW: Math.floor(rectDimensions.width * 0.4),
+				HEIGHT_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.height : hitboxDimensions.height * 1.2),
+				HEIGHT_LOW: Math.floor(hitboxDimensions.height * 0.2),
+				WIDTH_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.width * 1.2 : hitboxDimensions.width),
+				WIDTH_LOW: Math.floor(hitboxDimensions.width * 0.2),
 			};
 
 			face = {
@@ -689,17 +729,17 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			};
 
 			const bounds = {
-				X_HIGH: Math.floor(center.x * (this.isLandscape ? 0.7 : 0.8)),
-				X_LOW: Math.floor(center.x * (this.isLandscape ? 0.5 : 0.4)),
-				Y_HIGH: Math.floor(center.y * (this.isLandscape ? 0.8 : 0.7)),
-				Y_LOW: Math.floor(center.y * (this.isLandscape ? 0.1 : 0.5)),
+				X_HIGH: Math.floor(center.x * 0.4),
+				X_LOW: Math.floor(center.x * 0.1),
+				Y_HIGH: Math.floor(center.y * 0.8),
+				Y_LOW: Math.floor(center.y * 0.5),
 			};
 
 			face = {
 				angle: { ...angle },
 				bounds: { ...bounds },
 				res: this.isLandscape ? {
-					HEIGHT_HIGH: Math.max(Math.floor(height), 240),
+					HEIGHT_HIGH: Math.max(Math.floor(height * 0.9), 240),
 					HEIGHT_LOW: Math.max(Math.floor(height * 0.45), 240),
 					WIDTH_HIGH: Math.max(Math.floor(width * 0.6), 240),
 					WIDTH_LOW: Math.max(Math.floor(width * 0.25), 240),
@@ -729,14 +769,13 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		const settings = (
 			{
 				...this.videoOptions,
+				facingMode: this.source === 'face' ? 'user' : 'environment',
 				focusMode: "continuous",
 				frameRate: { ideal: 60 },
 				noiseSuppression: true,
 				zoom: { ideal: 0 },
 			}
 		) as MediaTrackConstraintSetExtended;
-
-		if (!settings.facingMode) settings.facingMode = this.source === 'face' ? 'user' : 'environment';
 
 		this.videoOptions = settings;
 	}
@@ -807,6 +846,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 
     private _startRecording(): void {
+		if (this.uploading) return;
+
         this._setMaxVideoDimensions();
 
 		navigator.mediaDevices
@@ -854,6 +895,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		const croppedImage = new Image();
 		croppedImage.src = base64Image;
+		console.log(`file: smart-scanner-ios.component.ts:900 ~ SmartScannerIosComponent ~ _takePicture ~ base64Image:`, base64Image)
 
 		croppedImage.onload = () => {
 			const isFront = this.side === "front";
@@ -922,10 +964,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 			this._stopRecording();
 		}
-	}
-
-	public get takePicture$(): Observable<void> {
-		return this.takePicture.asObservable();
 	}
 
 	cameraError(): void {
@@ -1049,6 +1087,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	}
 	
 	restartCamera(): void {
+		if (this.uploading) return;
+
 		this._stopRecording();
 		this._setVideoOptionConfigs();
 		this._loading({ isLoading: true, start: true });

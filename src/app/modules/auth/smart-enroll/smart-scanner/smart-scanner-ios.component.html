@@ -7,6 +7,7 @@
   (detected)="handleResolutionDetection($event)"
   (failedToDetect)="cameraError()"
   [facingMode]="videoOptions.facingMode"
+  [forceVertical]="!isLandscape"
 ></smart-camera-resolution-detection>
 
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
@@ -268,15 +269,11 @@
     >
       <ng-container [class.hidden]="response.base64Image || camera.isLoading">
         <canvas
-          [style.height.px]="camera.dimensions?.viewport?.height"
-          [style.width.px]="camera.dimensions?.viewport?.width"
           #videoCanvas
           class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
         ></canvas>
 
         <canvas
-          [style.height.px]="camera.dimensions?.viewport?.height"
-          [style.width.px]="camera.dimensions?.viewport?.width"
           #maskCanvas
           class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
         ></canvas>
@@ -287,8 +284,8 @@
           [height]="camera.dimensions?.viewport?.height"
           [isLandscape]="isLandscape"
           [resolution]="corrections.resolution"
-          [style.height.px]="camera.dimensions?.viewport?.height"
-          [style.width.px]="camera.dimensions?.viewport?.width"
+          [style.height.px]="camera.dimensions.viewport.height"
+          [style.width.px]="camera.dimensions.viewport.width"
           [width]="camera.dimensions?.viewport?.width"
           *ngIf="source === 'face'"
           class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
