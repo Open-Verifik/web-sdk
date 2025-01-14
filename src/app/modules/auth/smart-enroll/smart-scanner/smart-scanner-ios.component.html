@@ -1,6 +1,14 @@
 <canvas #faceCardCanvas hidden></canvas>
 <canvas #resultCanvas hidden></canvas>
-<canvas #toSendCanvas hidden></canvas>
+
+<video #videoElement autoplay playsinline muted style="position: fixed; top: 0; left: 0; pointer-events: none; user-select: none; opacity: 0;"></video>
+
+<smart-camera-resolution-detection
+  (detected)="handleResolutionDetection($event)"
+  (failedToDetect)="cameraError()"
+  [facingMode]="videoOptions.facingMode"
+  [forceVertical]="!isLandscape"
+></smart-camera-resolution-detection>
 
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
   <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
@@ -249,7 +257,7 @@
   </div>
 
   <div
-    *ngIf="!camera.isLoading && camera.hasPermissions && !camera.isLowQuality"
+    [class.hidden]="camera.isLoading || !camera.hasPermissions || camera.isLowQuality"
     class="w-full flex-grow"
     fxLayout="column"
     fxLayoutAlign="center center"
@@ -259,22 +267,11 @@
       fxLayout="column"
       fxLayoutAlign="center center"
     >
-      <ng-container *ngIf="!response.base64Image || camera.isLoading">
-        <webcam
-          *ngIf="!killCamera"
-          (imageCapture)="processImage($event)"
-          (initError)="cameraError($event)"
-          [allowCameraSwitch]="false"
-          [captureImageData]="true"
-          [height]="camera.dimensions.video.max.height"
-          [imageQuality]="1"
-          [mirrorImage]="this.source === 'face' || !demoData.isMobile === 'user' ? 'always' : 'never'"
-          [style.maxHeight.px]="camera.dimensions?.video?.height || camera.dimensions?.video?.max?.height"
-          [trigger]="takePicture$"
-          [videoOptions]="videoOptions"
-          [width]="camera.dimensions.video.max.width"
+      <ng-container [class.hidden]="response.base64Image || camera.isLoading">
+        <canvas
+          #videoCanvas
           class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
-        ></webcam>
+        ></canvas>
 
         <canvas
           #maskCanvas
@@ -284,12 +281,12 @@
         <smart-scanner-corrections
           [angle]="corrections.angle"
           [bounds]="corrections.bounds"
-          [height]="camera.dimensions?.video?.height"
+          [height]="camera.dimensions?.viewport?.height"
           [isLandscape]="isLandscape"
           [resolution]="corrections.resolution"
-          [style.height.px]="camera.dimensions?.video?.height"
-          [style.width.px]="camera.dimensions?.video?.width"
-          [width]="camera.dimensions?.video?.width"
+          [style.height.px]="camera.dimensions.viewport.height"
+          [style.width.px]="camera.dimensions.viewport.width"
+          [width]="camera.dimensions?.viewport?.width"
           *ngIf="source === 'face'"
           class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
         ></smart-scanner-corrections>
@@ -600,7 +597,7 @@
 
           <button
             (click)="captureManually()"
-            [disabled]="(side === 'front' && errorFace) || uploading"
+            [disabled]="(side === 'front' && errorFace) || uploading || camera?.isLoading"
             [style.background]="
               (side === 'front' && errorFace) || uploading
                 ? ''
@@ -674,7 +671,7 @@
             ? '1px solid ' + project.branding.borderColor
             : ''
         }"
-        class="smart-documents__card w-full rounded-2xl bg-card p-6 mt-12"
+        class="smart-documents__card w-full rounded-2xl bg-card p-6 mt-12 z-30"
         fxLayout="column"
         fxLayoutAlign="center center"
         ngClass.gt-sm="m-4"
@@ -700,10 +697,3 @@
     </div>
   </div>
 </div>
-
-<smart-camera-resolution-detection
-  (detected)="handleResolutionDetection($event)"
-  (failedToDetect)="cameraError($event)"
-  [facingMode]="videoOptions.facingMode"
-  *ngIf="videoOptions.facingMode"
-></smart-camera-resolution-detection>

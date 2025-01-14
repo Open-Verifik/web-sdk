@@ -17,6 +17,7 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   @Output('failedToDetect') failedToDetect: EventEmitter<WebcamInitError> = new EventEmitter<WebcamInitError>;
 
   @Input('facingMode') facingMode: 'user' | 'environment';
+  @Input('forceVertical') forceVertical: boolean;
 
   private WIDE: Array<Resolution>;
   private NARROW: Array<Resolution>;
@@ -33,9 +34,9 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   deviceId: string;
   stream: MediaStream;
 
-  constructor(
-    private _renderer: Renderer2,
-  ) {
+  constructor(private _renderer: Renderer2) {
+    this._renderer.listen("window", "resize", () => this._init());
+
     this.cameraCycle$
       .pipe(takeUntil(this.unsubscriber$))
       .subscribe({
@@ -45,8 +46,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
               this.stream.getTracks().forEach((track) => track.stop());
               this.stream = null;
             }
-
-            console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ data.resolution:", data.resolution)
 
             this.detected.next(data.resolution);
           } else {
@@ -67,16 +66,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._renderer.listen("window", "resize", () => this._init());
-
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      const videoDevices = devices.filter(device => device.kind == 'videoinput');
-
-      videoDevices.forEach((device: any) => {
-        console.log(device.getCapabilities());
-      });
-    });
-
     this._init();
   }
 
@@ -119,7 +108,7 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     const key = this.KEYS[index];
     const resolution = this[key][resolutionIndex];
 
-    if (!resolution || resolution.height > this.MAX_HEIGHT || resolution.width > this.MAX_WIDTH) {
+    if (!resolution) {
       this._next(resolutionIndex, index);
       return;
     }
@@ -175,14 +164,12 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     try {
       if (this.stream) {
         const videoTrack = this.stream.getVideoTracks()[0];
-        this.stream.getVideoTracks().forEach(track => console.log(track.getCapabilities()))
 
         await videoTrack.applyConstraints(mediaOptions.video);
 
         return true;
       } else {
         this.stream = await navigator.mediaDevices.getUserMedia(mediaOptions);
-        this.stream.clone().getVideoTracks().forEach(track => console.log(track.getCapabilities()));
 
         const videoTrack = this.stream.getVideoTracks()[0];
 
@@ -191,9 +178,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
         return true;
       }
     } catch (error) {
-      console.log("🚀 ~ SmartCameraResolutionDetectionComponent ~ _findBestResolution ~ error:", error)
-      if (!(error instanceof OverconstrainedError)) this[`${key}_NOT_SUPPORTED`] = true;
-
       return false;
     }
   }
@@ -202,25 +186,41 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
     this.MAX_HEIGHT = window.innerHeight;
     this.MAX_WIDTH = window.innerWidth;
 
-    this.WIDE = [
-      { height: 1440, width: 2560 },
-      { height: 1080, width: 1920 },
-      { height: 720, width: 1280 },
-      { height: 360, width: 640 },
-    ];
+    if (this.forceVertical) {
+      this.WIDE = [
+        { height: 2560, width: 1440 },
+        { height: 1920, width: 1080 },
+        { height: 1280, width: 720 },
+        { height: 640, width: 360 },
+      ];
+  
+      this.NARROW = [
+        { height: 2048, width: 1536 },
+        { height: 1600, width: 1200 },
+        { height: 1024, width: 768 },
+        { height: 800, width: 600 },
+      ];
+    } else {
+      this.WIDE = [
+        { height: 1440, width: 2560 },
+        { height: 1080, width: 1920 },
+        { height: 720, width: 1280 },
+        { height: 360, width: 640 },
+      ];
+  
+      this.NARROW = [
+        { height: 1536, width: 2048 },
+        { height: 1200, width: 1600 },
+        { height: 768, width: 1024 },
+        { height: 600, width: 800 },
+      ];
+    }
 
     this.SQUARE = [
       { height: 2160, width: 2160 },
       { height: 1080, width: 1080 },
       { height: 720, width: 720 },
       { height: 480, width: 480 },
-    ];
-
-    this.NARROW = [
-      { height: 1536, width: 2048 },
-      { height: 1200, width: 1600 },
-      { height: 768, width: 1024 },
-      { height: 600, width: 800 },
     ];
 
     this.IS_LANDSCAPE = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;

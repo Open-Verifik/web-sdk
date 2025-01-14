@@ -19,7 +19,17 @@ export interface IOSCameraData {
 	isLoading: boolean;
 	isLowQuality?: boolean;
 	dimensions: {
+		viewport?: {
+			height: number;
+			width: number;
+		};
 		real?: {
+			height: number;
+			width: number;
+			offsetX: number;
+			offsetY: number;
+		};
+		visible?: {
 			height: number;
 			width: number;
 			offsetX: number;

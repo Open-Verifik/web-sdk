@@ -32,7 +32,7 @@
     ngClass.lt-md="w-full"
   >
     <div
-      class="smart-documents__card smart-documents__card--xlarge rounded-2xl bg-card mt-4 w-full"
+      class="smart-documents__card smart-documents__card--xlarge rounded-2xl bg-card w-full"
       fxLayout="column"
       [ngStyle.gt-sm]="{ border: '1px solid ' + project.branding.borderColor }"
       ngClass.gt-sm="p-6 m-4"
@@ -46,6 +46,7 @@
         <h5
           class="text-3xl font-medium"
           ngClass.gt-sm="mt-2"
+          ngClass.lt-md="text-2xl"
           [style.color]="project.branding.titleColor"
         >
           {{ "smart_enroll.documents.document_review_title" | transloco }}
