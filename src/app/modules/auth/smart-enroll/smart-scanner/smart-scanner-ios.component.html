@@ -12,8 +12,8 @@
 
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
   <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
-    <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
-      <div class="flex">
+    <div class="w-full grid grid-cols-7">
+      <div class="col-span-2">
         <button
           (click)="goPrevious()"
           [disabled]="!canGoPrevious()"
@@ -27,7 +27,7 @@
       </div>
 
       <div
-        class="smart-scanner__title flex flex-grow"
+        class="smart-scanner__title col-span-3"
       >
         <div
           class="w-full"
@@ -94,8 +94,80 @@
         </div>
       </div>
 
-      <div class="flex">
+      <div class="col-span-2 flex items-center justify-end">
         <smart-stepper></smart-stepper>
+      </div>
+    </div>
+
+    <div
+      class="smart-documents__id-types welcome__step-row rounded-3xl w-full grid gap-2"
+      *ngIf="source === 'document'"
+      [ngClass]="{
+        'grid-cols-1 h-full py-8': isLandscape,
+        'grid-cols-7 mt-2 py-2': !isLandscape
+      }"
+    >
+      <div
+        [style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
+        [ngClass]="{
+          'col-span-1 justify-start': isLandscape,
+          'col-span-2 justify-center': !isLandscape
+        }"
+        *ngIf="projectFlow.onboardingSettings.document.usePassport"
+        class="flex flex-row items-center"
+      >
+        <mat-icon
+          [style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
+          ngClass.gt-sm="mr-4"
+          ngClass.lt-md="mr-2"
+          svgIcon="fa_solid:passport"
+        ></mat-icon>
+
+        <p class="font-medium" ngClass.lt-md="text-sm">
+          {{ "smart_enroll.documents.upload.passport" | transloco }}
+        </p>
+      </div>
+
+      <div
+        [style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
+        [ngClass]="{
+          'col-span-1 justify-start': isLandscape,
+          'col-span-3 justify-center': !isLandscape
+        }"
+        *ngIf="projectFlow.onboardingSettings.document.useLicense"
+        class="flex flex-row items-center"
+      >
+        <mat-icon
+          [style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
+          ngClass.gt-sm="mr-4"
+          ngClass.lt-md="mr-2"
+          svgIcon="fa_regular:id-card"
+        ></mat-icon>
+
+        <p class="font-medium" ngClass.lt-md="text-sm">
+          {{ "smart_enroll.documents.upload.driver_license" | transloco }}
+        </p>
+      </div>
+
+      <div
+        [style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
+        [ngClass]="{
+          'col-span-1 justify-start': isLandscape,
+          'col-span-2 justify-center': !isLandscape
+        }"
+        *ngIf="projectFlow.onboardingSettings.document.useGovernmentID"
+        class="flex flex-row items-center"
+      >
+        <mat-icon
+          [style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
+          ngClass.gt-sm="mr-4"
+          ngClass.lt-md="mr-2"
+          svgIcon="fa_regular:address-card"
+        ></mat-icon>
+
+        <p class="font-medium" ngClass.lt-md="text-sm">
+          {{ "smart_enroll.documents.upload.id" | transloco }}
+        </p>
       </div>
     </div>
   </div>
@@ -283,6 +355,7 @@
           [bounds]="corrections.bounds"
           [height]="camera.dimensions?.viewport?.height"
           [isLandscape]="isLandscape"
+          [ngClass]="errorFace ? 'hidden' : ''"
           [resolution]="corrections.resolution"
           [style.height.px]="camera.dimensions.viewport.height"
           [style.width.px]="camera.dimensions.viewport.width"
@@ -435,25 +508,16 @@
       </div>
 
       <div
-        [style.width.px]="
-          response.base64Image
-            ? camera.dimensions.result.width
-            : camera.dimensions.video.width
-        "
-        [style.height.px]="
-          response.base64Image
-            ? camera.dimensions.result.height
-            : camera.dimensions.video.height
-        "
+        [style.height.px]="camera.dimensions.viewport.height"
+        [style.width.px]="camera.dimensions.viewport.width"
         *ngIf="uploading"
-        class="smart-scanner__loader-overlay z-20"
+        class="smart-scanner__loader-overlay smart-scanner__loader-overlay--ios z-20"
         fxLayout="row"
         fxLayoutAlign="center center"
       >
         <div
           fxLayout="column"
           fxLayoutAlign="center center"
-          *ngIf="uploading"
         >
           <mat-progress-spinner
             diameter="36"
@@ -671,22 +735,25 @@
             ? '1px solid ' + project.branding.borderColor
             : ''
         }"
-        class="smart-documents__card w-full rounded-2xl bg-card p-6 mt-12 z-30"
+        class="smart-documents__card w-full rounded-2xl bg-card p-6 z-30"
         fxLayout="column"
         fxLayoutAlign="center center"
-        ngClass.gt-sm="m-4"
       >
         <div fxLayout="column" fxLayoutAlign="center center">
           <h4 class="results__title mt-2 font-medium text-2xl text-center">
             <span>{{ "smart_enroll.detected" | transloco }}</span>
           </h4>
 
+          <p class="text-center" *ngIf="side === 'front' && requiresBack">
+            {{ "smart_enroll.requires_back" | transloco }}
+          </p>
+
           <div fxLayout="row" fxLayoutAlign="center">
             <button
               (click)="goNext()"
               [style.background]="project.branding.buttonColor"
               [style.color]="project.branding.buttonTxtColor"
-              class="fuse-mat-button mt-16"
+              class="fuse-mat-button mt-8"
               mat-flat-button
             >
               <span>{{ "next" | transloco }}</span>

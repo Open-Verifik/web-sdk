@@ -1,14 +1,21 @@
 smart-scanner-corrections {
-	div {
+	.smart-scanner__icon {
 		position: absolute;
 		inset: 0;
 		margin: 0 auto;
 	}
+}
 
-	mat-icon {
-		position: absolute;
-		inset: 0;
-		margin: 0 auto;
+.corrections-text {
+	background-color: rgba(255, 255, 255, 0.5);
+	z-index: 20;
+
+	&--portrait {
+		top: 56px;
+	}
+
+	&:empty {
+		opacity: 0;
 	}
 }
 
@@ -219,6 +226,12 @@ smart-scanner-corrections {
 		margin: 0 auto;
 		width: 100%;
 		background-color: rgba(255, 2555, 255, 0.7);
+
+		&--ios {
+			inset: initial;
+			top: 0;
+			overflow: hidden;
+		}
 	}
 }
 
@@ -328,7 +341,8 @@ smart-scanner-corrections {
 
 	&__title {
 		padding: 8px 12px;
-		height: 37px;
+		min-height: 37px;
+		line-height: 1.25;
 	}
 
 	&__score {

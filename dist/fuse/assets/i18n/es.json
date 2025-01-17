@@ -184,6 +184,8 @@
 		"invalid_format_error": "Formato inválido para el campo"
 	},
 	"errors": {
+		"project_attention_title": "Este proyecto requiere atención",
+		"project_attention_description": "Si eres un administrador, inicia sesión en tu cuenta para abordar el problema.",
 		"phone_is_registered_already": "El teléfono ya está registrado",
 		"email_is_registered_already": "El correo electrónico ya está registrado",
 		"Lead_exceeded_its_limit": "Se ha alcanzado el límite de intentos de demostración",
@@ -369,6 +371,7 @@
 		"negative_outcome": "Resultado negativo",
 		"preparing_camera": "Preparando la cámara...",
 		"remaining_attempts": "Intentos restantes: {{attempts}}",
+		"requires_back": "Este documento requiere un escaneo del reverso. Continúa escaneando el lado contrario de este documento.",
 		"successful_outcome": "Resultado exitoso",
 		"terms_and_cond": "términos y condiciones",
 		"failed": {
@@ -458,5 +461,42 @@
 		"credits_subtitle": "Obtén $10 en créditos con datos biométricos",
 		"credits_description": "Registra tus datos y mejora la seguridad de tu cuenta para disfrutar de acceso rápido y seguro.",
 		"perform_biometry": "Realizar biometría ahora"
+	},
+	"corrections": {
+		"keys": {
+			"placement": "Colocación",
+			"angle": "Ángulo",
+			"distance": "Distancia"
+		},
+		"bounds": {
+			"x": {
+				"left": "Mueve la cara hacia la izquierda",
+				"right": "Mueve la cara hacia la derecha"
+			},
+			"y": {
+				"up": "Mueve la cara hacia arriba",
+				"down": "Mueve la cara hacia abajo"
+			}
+		},
+		"angle": {
+			"pitch": {
+				"up": "Inclina la cabeza hacia arriba",
+				"down": "Inclina la cabeza hacia abajo"
+			},
+			"roll": {
+				"left": "Inclina la cabeza hacia la izquierda",
+				"right": "Inclina la cabeza hacia la derecha"
+			},
+			"yaw": {
+				"left": "Gira ligeramente el rostro hacia la izquierda",
+				"right": "Gira ligeramente el rostro hacia la derecha"
+			}
+		},
+		"resolution": {
+			"move": {
+				"forward": "Acércate a la cámara",
+				"back": "Aléjate de la cámara"
+			}
+		}
 	}
 }

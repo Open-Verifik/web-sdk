@@ -1,173 +1,245 @@
 <!-- Horizontal -->
-<div *ngIf="isLandscape">
+<div
+    class="absolute right-5 text-right p-4 corrections-text rounded-xl"
+    [ngClass]="{
+        'corrections-text--portrait': !isLandscape,
+        'bottom-5 -translate-y-full': isLandscape,
+    }"
+>
+    <ng-template #instructions let-data>
+        <div class="grid grid-cols-3 min-h-7" ngClass.gt-sm="max-w-80">
+            <div class="col-span-1 text-left" *ngIf="data.key === 'bounds'">{{ 'corrections.keys.placement' | transloco }}</div>
+            <div class="col-span-1 text-left" *ngIf="data.key === 'angle'">{{ 'corrections.keys.angle' | transloco }}</div>
+            <div class="col-span-1 text-left" *ngIf="data.key === 'resolution'">{{ 'corrections.keys.distance' | transloco }}</div>
+
+            <div class="col-span-2 flex flex-row gap-4 min-w-40 text-right">
+                <ng-container *ngIf="data.key !== 'resolution'">
+                    <div class="w-full flex flex-col items-end pr-2">
+                        <ng-container *ngFor="let item of data.item | keyvalue">
+                            <div
+                                *ngIf="item.value"
+                            >{{ getTranslationKey(data.key, item.key, item.value) | transloco }}</div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="data.key === 'resolution'">
+                    <div class="w-full flex flex-row justify-end pr-2">
+                        <div
+                            *ngIf="data.item.height === 'back' || data.item.width === 'back'"
+                        >{{ getTranslationKey(data.key, 'move', 'back') | transloco }}</div>
+
+                        <div
+                            *ngIf="data.item.height === 'forward' || data.item.width === 'forward'"
+                        >{{ getTranslationKey(data.key, 'move', 'forward') | transloco }}</div>
+                    </div>
+                </ng-container>
+
+                <div class="min-w-40 text-right" *ngIf="!hasCorrections(data.item)">
+                    <mat-icon class="text-green-500" svgIcon="feather:check"></mat-icon>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-container *ngTemplateOutlet="instructions; context: { $implicit: { key: 'bounds', item: bounds } }"></ng-container>
+    <ng-container *ngTemplateOutlet="instructions; context: { $implicit: { key: 'angle', item: angle } }"></ng-container>
+    <ng-container *ngTemplateOutlet="instructions; context: { $implicit: { key: 'resolution', item: resolution } }"></ng-container>
+</div>
+
+<div *ngIf="isLandscape" class="absolute inset-0 mx-auto">
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:move-left"
         *ngIf="bounds.x === 'left'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:move-left"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:move-right"
         *ngIf="bounds.x === 'right'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:move-right"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:move-up"
         *ngIf="bounds.y === 'up'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:move-up"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:move-down"
         *ngIf="bounds.y === 'down'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:move-down"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:pitch-up"
         *ngIf="angle.pitch === 'up'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:pitch-up"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:pitch-down"
         *ngIf="angle.pitch === 'down'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:pitch-down"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:tilt-left"
         *ngIf="angle.roll === 'left'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:tilt-left"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:tilt-right"
         *ngIf="angle.roll === 'right'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:tilt-right"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:rotate-left"
         *ngIf="angle.yaw === 'left'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:rotate-left"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_h:rotate-right"
         *ngIf="angle.yaw === 'right'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_h:rotate-right"
     ></mat-icon>
 
     <mat-icon
+        *ngIf="resolution.height === 'forward' || resolution.width === 'forward'"
         [style.height.px]="height"
         [style.width.px]="width"
+        class="smart-scanner__icon"
         svgIcon="face_corrections_h:move-forward"
-        *ngIf="resolution.height === 'forward'"
     ></mat-icon>
 
     <mat-icon
+        *ngIf="resolution.height === 'back' || resolution.height === 'back'"
         [style.height.px]="height"
         [style.width.px]="width"
+        class="smart-scanner__icon"
         svgIcon="face_corrections_h:move-back"
-        *ngIf="resolution.height === 'back'"
     ></mat-icon>
 </div>
 
 <!-- Vertical -->
-<div *ngIf="!isLandscape" class="absolute top-0 left-0 right-0 bottom-0 m-auto">
+<div *ngIf="!isLandscape" class="absolute inset-0 mx-auto">
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:move-left"
         *ngIf="bounds.x === 'left'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:move-left"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:move-right"
         *ngIf="bounds.x === 'right'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:move-right"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:move-up"
         *ngIf="bounds.y === 'up'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:move-up"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:move-down"
         *ngIf="bounds.y === 'down'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:move-down"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:pitch-up"
         *ngIf="angle.pitch === 'up'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:pitch-up"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:pitch-down"
         *ngIf="angle.pitch === 'down'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:pitch-down"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:tilt-left"
         *ngIf="angle.roll === 'left'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:tilt-left"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:tilt-right"
         *ngIf="angle.roll === 'right'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:tilt-right"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:rotate-left"
         *ngIf="angle.yaw === 'left'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:rotate-left"
     ></mat-icon>
 
     <mat-icon
-        [style.height.px]="height"
-        [style.width.px]="width"
-        svgIcon="face_corrections_v:rotate-right"
         *ngIf="angle.yaw === 'right'"
+        [style.height.px]="height"
+        [style.width.px]="width"
+        class="smart-scanner__icon"
+        svgIcon="face_corrections_v:rotate-right"
     ></mat-icon>
 
     <mat-icon
+        *ngIf="resolution.height === 'forward' || resolution.width === 'forward'"
         [style.height.px]="height"
         [style.width.px]="width"
+        class="smart-scanner__icon"
         svgIcon="face_corrections_v:move-forward"
-        *ngIf="resolution.height === 'forward'"
     ></mat-icon>
 
     <mat-icon
+        *ngIf="resolution.height === 'back' || resolution.height === 'back'"
         [style.height.px]="height"
         [style.width.px]="width"
+        class="smart-scanner__icon"
         svgIcon="face_corrections_v:move-back"
-        *ngIf="resolution.height === 'back'"
     ></mat-icon>
 </div>

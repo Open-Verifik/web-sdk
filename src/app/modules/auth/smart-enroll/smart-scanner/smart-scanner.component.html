@@ -699,6 +699,10 @@
                 <span>{{ "smart_enroll.detected" | transloco }}</span>
               </h4>
 
+              <p class="text-center" *ngIf="side === 'front' && requiresBack">
+                {{ "smart_enroll.requires_back" | transloco }}
+              </p>
+
               <div fxLayout="row" fxLayoutAlign="center">
                 <button
                   (click)="goNext()"

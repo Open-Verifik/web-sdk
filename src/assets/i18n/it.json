@@ -184,6 +184,8 @@
         "invalid_format_error": "Formato non valido per il campo"
     },
     "errors": {
+        "project_attention_title": "Questo progetto richiede attenzione",
+        "project_attention_description": "Se sei un amministratore, accedi al tuo account per risolvere il problema.",
         "phone_is_registered_already": "Il telefono è già registrato",
         "email_is_registered_already": "L'email è già registrata",
         "Lead_exceeded_its_limit": "Hai raggiunto il limite di tentativi della demo",
@@ -369,6 +371,7 @@
         "negative_outcome": "Esito negativo",
         "preparing_camera": "Preparazione della telecamera...",
         "remaining_attempts": "Tentativi rimanenti: {{attempts}}",
+        "requires_back": "Questo documento richiede una scansione del retro. Continua a scansionare il lato opposto di questo documento.",
         "successful_outcome": "Esito positivo",
         "terms_and_cond": "termini e condizioni",
         "failed": {
@@ -458,5 +461,42 @@
         "credits_subtitle": "Ottieni 10$ di crediti con i dati biometrici",
         "credits_description": "Registra i tuoi dati e migliora la sicurezza del tuo account per godere di un accesso veloce e sicuro.",
         "perform_biometry": "Esegui ora la biometria"
+    },
+    "corrections": {
+        "keys": {
+            "placement": "Posizionamento",
+            "angle": "Angolo",
+            "distance": "Distanza"
+        },
+        "bounds": {
+            "x": {
+                "left": "Sposta il viso a sinistra",
+                "right": "Sposta il viso a destra"
+            },
+            "y": {
+                "up": "Sposta il viso verso l'alto",
+                "down": "Sposta il viso verso il basso"
+            }
+        },
+        "angle": {
+            "pitch": {
+                "up": "Inclina la testa verso l'alto",
+                "down": "Inclina la testa verso il basso"
+            },
+            "roll": {
+                "left": "Inclina la testa a sinistra",
+                "right": "Inclina la testa a destra"
+            },
+            "yaw": {
+                "left": "Gira leggermente il viso a sinistra",
+                "right": "Gira leggermente il viso a destra"
+            }
+        },
+        "resolution": {
+            "move": {
+                "forward": "Avvicinati alla fotocamera",
+                "back": "Allontanati dalla fotocamera"
+            }
+        }
     }
 }

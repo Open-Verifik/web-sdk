@@ -184,6 +184,8 @@
         "invalid_format_error": "Hindi wasto ang format ng patlang"
     },
     "errors": {
+        "project_attention_title": "Kailangan ng pansin ng proyektong ito",
+        "project_attention_description": "Kung ikaw ay isang admin, mangyaring mag-login sa iyong account upang matugunan ang isyu.",
         "phone_is_registered_already": "Nakarehistro na ang telepono",
         "email_is_registered_already": "Nakarehistro na ang email",
         "Lead_exceeded_its_limit": "Naabot na ng mga pagtatangka sa demo ang limit nito",
@@ -369,6 +371,7 @@
         "negative_outcome": "Negatibong Resulta",
         "preparing_camera": "Pinaghahandaan ang camera...",
         "remaining_attempts": "Natitirang mga Pagtatangka: {{attempts}}",
+        "requires_back": "Kinakailangan ng dokumentong ito ang pag-scan ng likod na bahagi. Magpatuloy sa pag-scan ng likurang bahagi ng dokumentong ito.",
         "successful_outcome": "Matagumpay na Resulta",
         "terms_and_cond": "mga tuntunin at kondisyon",
         "failed": {
@@ -458,5 +461,42 @@
         "credits_subtitle": "Kumuha ng $10 Credits gamit ang Biometric Data",
         "credits_description": "Magrehistro ng iyong datos at pagbutihin ang seguridad ng iyong account upang tamasahin ang mabilis at secure na access.",
         "perform_biometry": "Isagawa ang Biometry ngayon"
+    },
+    "corrections": {
+        "keys": {
+            "placement": "Paglalagay",
+            "angle": "Anggulo",
+            "distance": "Distansya"
+        },
+        "bounds": {
+            "x": {
+                "left": "Igalaw ang mukha pakaliwa",
+                "right": "Igalaw ang mukha pakanan"
+            },
+            "y": {
+                "up": "Igalaw ang mukha pataas",
+                "down": "Igalaw ang mukha pababa"
+            }
+        },
+        "angle": {
+            "pitch": {
+                "up": "Iangat ang ulo pataas",
+                "down": "Iyuko ang ulo pababa"
+            },
+            "roll": {
+                "left": "Ikiling ang ulo pakaliwa",
+                "right": "Ikiling ang ulo pakanan"
+            },
+            "yaw": {
+                "left": "Bahagyang ipihit ang mukha pakaliwa",
+                "right": "Bahagyang ipihit ang mukha pakanan"
+            }
+        },
+        "resolution": {
+            "move": {
+                "forward": "Lumapit sa kamera",
+                "back": "Lumayo sa kamera"
+            }
+        }
     }
 }

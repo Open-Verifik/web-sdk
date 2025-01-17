@@ -85,6 +85,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
 	base64Image: any;
+	calculating: boolean = false;
 	cameraConstraintsInvalid: boolean = false;
 	demoData: any;
 	documentContours: string;
@@ -805,18 +806,44 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			video.style.transform = "";
 		}
 
-		this._detectionInterval = setInterval(() => {
-			if (this.source === "document") {
-				const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
-	
-				this._detectDocument(video, videoCanvas, videoCanvasCtx);
-			}
+		// Delay detection calculations by a number of frames for performance.
+		const detectionDelay = this.demoData === 'ANDROID' || this.source === 'face' ? 20 : 15;
 
-			if (this.side === "front" || this.source === "face") {
-				this._detectFace(video);
-			}
-		}, 100);
+		let frameCount = 0;
+
+		this._detectionInterval = setInterval(() => {
+			++frameCount;
+
+			if (frameCount < detectionDelay) return;
+
+			this._onIntervalDetect(video, videoCanvas)
+				.catch((error) => {
+					console.log(`file: smart-scanner.component.ts:821 ~ SmartScannerComponent ~ this._detectionInterval=setInterval ~ error:`, error)
+				})
+				.finally(() => {
+					this.calculating = false;
+
+					frameCount = 0;
+				});
+		}, Math.floor(1000 / 30));
 	};
+
+	private _onIntervalDetect = async (video: HTMLVideoElement, videoCanvas: HTMLCanvasElement): Promise<void> => {
+		if (this.calculating) return Promise.resolve();
+
+		// To limit processing multiple calculations at once (for devices that run a little slower)
+		this.calculating = true;
+
+		if (this.source === "document") {
+			const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
+
+			this._detectDocument(video, videoCanvas, videoCanvasCtx);
+		}
+
+		if (this.side === "front" || this.source === "face") {
+			await this._detectFace(video);
+		}
+	}
 
 	private _stopRecord(): void {
 		clearInterval(this._detectionInterval);

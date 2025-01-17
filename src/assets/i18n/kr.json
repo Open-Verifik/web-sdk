@@ -184,6 +184,8 @@
         "invalid_format_error": "필드의 형식이 잘못되었습니다"
     },
     "errors": {
+        "project_attention_title": "이 프로젝트는 주의가 필요합니다",
+        "project_attention_description": "관리자라면 계정에 로그인하여 문제를 해결하세요.",
         "phone_is_registered_already": "전화번호가 이미 등록되어 있습니다",
         "email_is_registered_already": "이메일이 이미 등록되어 있습니다",
         "Lead_exceeded_its_limit": "데모 시도가 한도에 도달했습니다",
@@ -369,6 +371,7 @@
         "negative_outcome": "부정적인 결과",
         "preparing_camera": "카메라 준비 중...",
         "remaining_attempts": "남은 시도 횟수: {{attempts}}",
+        "requires_back": "이 문서는 뒷면 스캔이 필요합니다. 이 문서의 뒷면을 계속 스캔하세요.",
         "successful_outcome": "성공적인 결과",
         "terms_and_cond": "약관",
         "failed": {
@@ -458,5 +461,42 @@
         "credits_subtitle": "생체 정보로 $10 크레딧 받기",
         "credits_description": "데이터를 등록하고 계정의 보안을 강화하여 빠르고 안전한 접근을 즐기세요",
         "perform_biometry": "지금 생체 인증 수행"
+    },
+    "corrections": {
+        "keys": {
+            "placement": "배치",
+            "angle": "각도",
+            "distance": "거리"
+        },
+        "bounds": {
+            "x": {
+                "left": "얼굴을 왼쪽으로 이동하세요",
+                "right": "얼굴을 오른쪽으로 이동하세요"
+            },
+            "y": {
+                "up": "얼굴을 위로 이동하세요",
+                "down": "얼굴을 아래로 이동하세요"
+            }
+        },
+        "angle": {
+            "pitch": {
+                "up": "머리를 위로 기울이세요",
+                "down": "머리를 아래로 기울이세요"
+            },
+            "roll": {
+                "left": "머리를 왼쪽으로 기울이세요",
+                "right": "머리를 오른쪽으로 기울이세요"
+            },
+            "yaw": {
+                "left": "얼굴을 약간 왼쪽으로 돌리세요",
+                "right": "얼굴을 약간 오른쪽으로 돌리세요"
+            }
+        },
+        "resolution": {
+            "move": {
+                "forward": "카메라에 가까이 이동하세요",
+                "back": "카메라에서 멀리 이동하세요"
+            }
+        }
     }
 }

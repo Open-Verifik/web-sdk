@@ -6,7 +6,7 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, V
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
@@ -44,6 +44,7 @@ import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-
 		MatButtonModule,
 		MatIconModule,
 		NgIf,
+		RouterModule,
 		SmartEnrollComponent,
 		TranslocoModule,
 	],
@@ -51,6 +52,7 @@ import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-
 export class AuthSignUpComponent implements OnInit, OnDestroy {
 	private unsubscriber$: Subject<void> = new Subject<void>();
 
+	appUrl: string = environment.appUrl;
 	appRegistration: AppRegistration;
 	currentStep: string = "create";
 	currentStepIndex: number = 0;
@@ -66,6 +68,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	showKYCApp: boolean = false;
 	steps: Array<string> = ["create"];
 	token: string;
+	showUpgradeRequired: boolean = false;
 	verificationComplete: boolean = false;
 
 	flagCodes = {
@@ -230,12 +233,14 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this.project = new ProjectModel({ ...v.data, type: "onboarding" });
 				this.projectFlow = this.project.currentProjectFlow;
 
-				this._setSteps();
+				if (!v.planCode) {
+					this.showUpgradeRequired = true;
+				} else {
+					this._setSteps();
+				}
 			},
 			error: (e) => {
-				if (e.error.code === "InternalServer") {
-					alert("something went wrong, try  again");
-				}
+				window.location.href = '/sign-up';
 
 				this._splashScreenService.hide();
 			},
@@ -306,7 +311,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		localStorage.setItem("accessToken", token);
 	}
 
-	countryNotAllowedAccept(): void {
+	countryNotAllowedAccept(): void {``
 		const redirectUrl = this.projectFlow.redirectUrl;
 
 		if (redirectUrl) {
@@ -341,6 +346,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 	showMainContainer(): boolean {
 		return Boolean(
+			!this.showUpgradeRequired &&
 			!this.locationError &&
 				this.projectFlow?._id &&
 				this.project?._id &&

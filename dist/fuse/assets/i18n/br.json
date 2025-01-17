@@ -184,6 +184,8 @@
 		"invalid_format_error": "Formato inválido para o campo"
 	},
 	"errors": {
+		"project_attention_title": "Este projeto requer atenção",
+		"project_attention_description": "Se você é um administrador, faça login em sua conta para resolver o problema.",
 		"phone_is_registered_already": "Telefone já registrado",
 		"email_is_registered_already": "E-mail já registrado",
 		"Lead_exceeded_its_limit": "As tentativas de demonstração atingiram o limite",
@@ -369,6 +371,7 @@
 		"negative_outcome": "Resultado negativo",
 		"preparing_camera": "Preparando a câmera...",
 		"remaining_attempts": "Tentativas restantes: {{attempts}}",
+		"requires_back": "Este documento requer uma digitalização do verso. Continue para escanear o lado inverso deste documento.",
 		"successful_outcome": "Resultado bem-sucedido",
 		"terms_and_cond": "termos e condições",
 		"failed": {
@@ -458,5 +461,42 @@
 		"credits_subtitle": "Obtenha $10 em Créditos com Dados Biométricos",
 		"credits_description": "Registre seus dados e melhore a segurança de sua conta para desfrutar de acesso rápido e seguro.",
 		"perform_biometry": "Realizar Biometria agora"
+	},
+	"corrections": {
+		"keys": {
+			"placement": "Posicionamento",
+			"angle": "Ângulo",
+			"distance": "Distância"
+		},
+		"bounds": {
+			"x": {
+				"left": "Mova o rosto para a esquerda",
+				"right": "Mova o rosto para a direita"
+			},
+			"y": {
+				"up": "Mova o rosto para cima",
+				"down": "Mova o rosto para baixo"
+			}
+		},
+		"angle": {
+			"pitch": {
+				"up": "Incline a cabeça para cima",
+				"down": "Incline a cabeça para baixo"
+			},
+			"roll": {
+				"left": "Incline a cabeça para a esquerda",
+				"right": "Incline a cabeça para a direita"
+			},
+			"yaw": {
+				"left": "Vire o rosto um pouco para a esquerda",
+				"right": "Vire o rosto um pouco para a direita"
+			}
+		},
+		"resolution": {
+			"move": {
+				"forward": "Aproxime-se da câmera",
+				"back": "Afaste-se da câmera"
+			}
+		}
 	}
 }

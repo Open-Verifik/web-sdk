@@ -5,6 +5,7 @@ import { Contour } from "libs/jscanify";
 import { Injectable } from "@angular/core";
 
 import { AppRegistration, ProjectFlow } from "../project";
+import { TranslocoService } from "@ngneat/transloco";
 
 export interface MediaTrackSupportedConstraintsExtended extends MediaTrackSupportedConstraints {
 	zoom?: boolean;	
@@ -129,7 +130,7 @@ export class SmartEnrollService {
 	store: EnrollStore;
 	skipChanged$: Observable<void>;
 
-	constructor() {
+	constructor(private translocoService: TranslocoService) {
 		this._enrollSettings = {
 			currentStep: "",
 			documentMethod: localStorage.getItem("documentMethod") as EnrollDocumentMethod,
@@ -167,6 +168,16 @@ export class SmartEnrollService {
 
 	get enrollSettings(): EnrollSettings {
 		return { ...this._enrollSettings };
+	}
+
+	errorTranslation(message: string = 'errors.something_went_wrong'): string {
+		if (message === 'errors.something_went_wrong') return this.translocoService.translate(message);
+
+		const translation = this.translocoService.translate(message);
+
+		if (translation === message) return this.translocoService.translate('errors.something_went_wrong');
+
+		return translation;
 	}
 
 	evaluateDocumentContours(boundsParameters: BoundsDetection, contours: Contour): DocumentAnalysis {

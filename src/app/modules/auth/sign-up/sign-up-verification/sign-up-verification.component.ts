@@ -37,6 +37,7 @@ import { CountriesService } from "app/modules/demo/countries.service";
 import { KYCService } from "../../kyc.service";
 
 import { AppRegistration, Project, ProjectFlow } from "../../project";
+import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 
 @Component({
 	animations: fuseAnimations,
@@ -83,7 +84,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	emailForm: UntypedFormGroup;
 	emailGateway: string;
 	endstep: boolean;
-	errorContent: string;
+	errorContent: string = '';
 	isVerifikProject: Boolean;
 	loading: Boolean;
 	location: any;
@@ -93,19 +94,20 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 	remainingTime: string;
 	selectedPhoneGateway: string;
 	sendingOTP: Boolean = false;
+	showError: boolean = false;
 	showSkipDoingKYC: boolean;
 	step: string;
 	syncResponse: any;
 	token: string;
 	update: boolean;
-	showError: boolean = false;
 
 	constructor(
 		private _activatedRoute: ActivatedRoute,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _countries: CountriesService,
 		private _formBuilder: UntypedFormBuilder,
-		private _KYCService: KYCService
+		private _KYCService: KYCService,
+		private _smartEnrollService: SmartEnrollService,
 	) {
 		this.countries = this._countries.countryCodes;
 	}
@@ -162,7 +164,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				this.otpNgForm.resetForm();
 
 				this.showError = true;
-				this.errorContent = exception?.error?.message;
+				this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 
 				this.loading = false;
 				this.sendingOTP = false;
@@ -264,7 +266,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			},
 			error: (exception) => {
 				this.showError = true;
-				this.errorContent = exception?.error?.message;
+				this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 
 				this.loading = false;
 				this.sendingOTP = false;
@@ -341,7 +343,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 			},
 			error: (exception) => {
 				this.showError = true;
-				this.errorContent = exception?.error?.message;
+				this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 
 				this.loading = false;
 				this.sendingOTP = false;
@@ -464,6 +466,10 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 		input.value = input.value.replace(/[^0-9]/g, "");
 	}
 
+	preventInputFocus(event: InputEvent): void {
+		event.stopPropagation();
+	}
+
 	removeSpacesFromEmail() {
 		const emailFormControl = this.emailForm?.get("email");
 
@@ -528,7 +534,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				},
 				error: (exception) => {
 					this.showError = true;
-					this.errorContent = exception?.error?.message;
+					this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 
 					this.emailForm?.enable();
 				},
@@ -562,7 +568,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				},
 				error: (exception) => {
 					this.showError = true;
-					this.errorContent = exception?.error?.message;
+					this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 
 					this.phoneForm?.enable();
 				},

@@ -187,6 +187,8 @@
 		"invalid_format_error": "Invalid format for the field"
 	},
 	"errors": {
+		"project_attention_title": "This project requires attention",
+		"project_attention_description": "If you are an admin, please login into your account to address the issue.",
 		"phone_is_registered_already": "Phone is already registered",
 		"email_is_registered_already": "Email is already registered",
 		"Lead_exceeded_its_limit": "Demo attempts has reached it's limit",
@@ -373,6 +375,7 @@
 		"negative_outcome": "Negative Outcome",
 		"preparing_camera": "Preparing the camera...",
 		"remaining_attempts": "Remaining Attempts: {{attempts}}",
+		"requires_back": "This document requires a scan of the back side. Continue to scan the reverse side of this document.",
 		"successful_outcome": "Successful Outcome",
 		"terms_and_cond": "terms and conditions",
 		"failed": {
@@ -462,5 +465,42 @@
 		"credits_subtitle": "Get $10 Credits with Biometric Data",
 		"credits_description": "Register your data and improve the security of your account to enjoy fast and secure access.",
 		"perform_biometry": "Perform Biometry now"
+	},
+	"corrections": {
+		"keys": {
+			"placement": "Placement",
+			"angle": "Angle",
+			"distance": "Distance"
+		},
+		"bounds": {
+			"x": {
+				"left": "Move face left",
+				"right": "Move face right"
+			},
+			"y": {
+				"up": "Move face up",
+				"down": "Move face down"
+			}
+		},
+		"angle": {
+			"pitch": {
+				"up": "Angle head up",
+				"down": "Angle head down"
+			},
+			"roll": {
+				"left": "Tip head left",
+				"right": "Tip head right"
+			},
+			"yaw": {
+				"left": "Turn face slightly left",
+				"right": "Turn face slightly right"
+			}
+		},
+		"resolution": {
+			"move": {
+				"forward": "Move closer to the camera",
+				"back": "Move away from the camera"
+			}
+		}
 	}
 }

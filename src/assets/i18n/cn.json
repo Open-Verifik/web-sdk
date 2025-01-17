@@ -184,6 +184,8 @@
 		"invalid_format_error": "字段格式无效"
 	},
 	"errors": {
+		"project_attention_title": "此项目需要注意",
+		"project_attention_description": "如果您是管理员，请登录您的帐户以解决问题。",
 		"phone_is_registered_already": "电话已注册",
 		"email_is_registered_already": "电子邮件已注册",
 		"Lead_exceeded_its_limit": "演示尝试已达上限",
@@ -369,6 +371,7 @@
 		"negative_outcome": "负面结果",
 		"preparing_camera": "正在准备摄像头...",
 		"remaining_attempts": "剩余尝试次数：{{attempts}}",
+		"requires_back": "此文件需要扫描背面。请继续扫描此文件的反面。",
 		"successful_outcome": "成功结果",
 		"terms_and_cond": "条款和条件",
 		"failed": {
@@ -458,5 +461,42 @@
 		"credits_subtitle": "通过生物数据获取10美元积分",
 		"credits_description": "注册您的数据并提高账户的安全性，以享受快速和安全的访问。",
 		"perform_biometry": "现在执行生物测量"
+	},
+	"corrections": {
+		"keys": {
+			"placement": "放置",
+			"angle": "角度",
+			"distance": "距离"
+		},
+		"bounds": {
+			"x": {
+				"left": "向左移动脸部",
+				"right": "向右移动脸部"
+			},
+			"y": {
+				"up": "向上移动脸部",
+				"down": "向下移动脸部"
+			}
+		},
+		"angle": {
+			"pitch": {
+				"up": "将头部向上倾斜",
+				"down": "将头部向下倾斜"
+			},
+			"roll": {
+				"left": "将头部向左倾斜",
+				"right": "将头部向右倾斜"
+			},
+			"yaw": {
+				"left": "将脸稍微向左转",
+				"right": "将脸稍微向右转"
+			}
+		},
+		"resolution": {
+			"move": {
+				"forward": "靠近摄像头",
+				"back": "远离摄像头"
+			}
+		}
 	}
 }

@@ -291,9 +291,12 @@
       />
 
       <mat-select
-        *ngIf="countries"
+        (click)="preventInputFocus($event)"
+        [disableOptionCentering]="true"
         [formControl]="phoneForm.get('countryCode')"
+        *ngIf="countries"
         matPrefix
+        panelClass="mat-country-code-select"
       >
         <mat-select-trigger>
           <span class="flex items-center">
@@ -339,6 +342,6 @@
   <div class="signup__hint signup__hint--red mt-4" fxLayout="row" fxLayoutAlign="start start" *ngIf="showError">
     <mat-icon class="mr-4" svgIcon="feather:alert-octagon"></mat-icon>
   
-    <p>{{ 'errors.' + errorContent | transloco }}</p>
+    <p>{{ errorContent }}</p>
   </div>
 </div>

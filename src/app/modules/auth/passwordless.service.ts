@@ -18,6 +18,7 @@ export class PasswordlessService {
 		return this._httpWrapper
 			.sendRequest("get", `${this.baseUrl}/v2/projects/kyc`, {
 				id: projectId,
+				type,
 			})
 			.pipe(
 				tap((response) => {

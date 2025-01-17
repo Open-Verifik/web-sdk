@@ -2,7 +2,7 @@ import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -25,6 +25,7 @@ import { environment } from "environments/environment";
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { PasswordlessService } from "../../passwordless.service";
+import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 
 declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 
@@ -86,7 +87,8 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		private _demoService: DemoService,
 		private _formBuilder: UntypedFormBuilder,
 		private _passwordlessService: PasswordlessService,
-		private _router: Router
+		private _router: Router,
+		private _smartEnrollService: SmartEnrollService,
 	) {
 		this.countries = this._countries.countryCodes;
 		this.fields = {};
@@ -258,6 +260,10 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 		return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
 	}
 
+	preventInputFocus(event: InputEvent): void {
+		event.stopPropagation();
+	}
+
 	removeSpacesFromEmail() {
 		const emailFormControl = this.signUpForm?.get("email");
 
@@ -325,8 +331,8 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 							type: "error",
 							message:
 								exception.error?.message === "phone, email, projectFlow must be unique"
-									? "errors.phone_or_email_is_not_unique"
-									: `errors.${exception.error?.message}`,
+									? this._smartEnrollService.errorTranslation("errors.phone_or_email_is_not_unique")
+									: this._smartEnrollService.errorTranslation(`errors.${exception.error?.message}`),
 						};
 					});
 				},

@@ -184,6 +184,8 @@
         "invalid_format_error": "Format invalide pour le champ"
     },
     "errors": {
+        "project_attention_title": "Ce projet nécessite une attention",
+        "project_attention_description": "Si vous êtes administrateur, connectez-vous à votre compte pour résoudre le problème.",
         "phone_is_registered_already": "Le téléphone est déjà enregistré",
         "email_is_registered_already": "L'e-mail est déjà enregistré",
         "Lead_exceeded_its_limit": "Les tentatives de démo ont atteint leur limite",
@@ -369,6 +371,7 @@
         "negative_outcome": "Résultat négatif",
         "preparing_camera": "Préparation de la caméra...",
         "remaining_attempts": "Tentatives restantes : {{attempts}}",
+        "requires_back": "Ce document nécessite une numérisation du verso. Continuez à numériser le côté inverse de ce document.",
         "successful_outcome": "Résultat positif",
         "terms_and_cond": "conditions générales",
         "failed": {
@@ -458,5 +461,42 @@
         "credits_subtitle": "Obtenez 10 $ de crédits avec les données biométriques",
         "credits_description": "Enregistrez vos données et améliorez la sécurité de votre compte pour profiter d'un accès rapide et sécurisé.",
         "perform_biometry": "Effectuez la biométrie maintenant"
+    },
+    "corrections": {
+        "keys": {
+        	"placement": "Placement",
+            "angle": "Angle",
+            "distance": "Distance"
+        },
+        "bounds": {
+            "x": {
+                "left": "Déplacez le visage vers la gauche",
+                "right": "Déplacez le visage vers la droite"
+            },
+            "y": {
+                "up": "Déplacez le visage vers le haut",
+                "down": "Déplacez le visage vers le bas"
+            }
+        },
+        "angle": {
+            "pitch": {
+                "up": "Inclinez la tête vers le haut",
+                "down": "Inclinez la tête vers le bas"
+            },
+            "roll": {
+                "left": "Inclinez la tête vers la gauche",
+                "right": "Inclinez la tête vers la droite"
+            },
+            "yaw": {
+                "left": "Tournez légèrement le visage vers la gauche",
+                "right": "Tournez légèrement le visage vers la droite"
+            }
+        },
+        "resolution": {
+            "move": {
+                "forward": "Approchez-vous de la caméra",
+                "back": "Reculez de la caméra"
+            }
+        }
     }
 }
