@@ -167,9 +167,9 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		return { width: scaledWidth, height: scaledHeight };
 	}
 
-	private _cropImage = (resultCanvas: HTMLCanvasElement, inputImg: HTMLImageElement, originalDimensions: any, resizeDimensions: any) => {
-		resultCanvas.width = originalDimensions.width;
-		resultCanvas.height = originalDimensions.height;
+	private _cropImage = (resultCanvas: HTMLCanvasElement, inputImg: HTMLImageElement, resizeDimensions: any) => {
+		resultCanvas.width = resizeDimensions.width;
+		resultCanvas.height = resizeDimensions.height;
 
 		const ctx = resultCanvas.getContext("2d");
 
@@ -177,8 +177,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			inputImg,
 			resizeDimensions.offsetX,
 			resizeDimensions.offsetY,
-			originalDimensions.width,
-			originalDimensions.height,
+			resizeDimensions.width,
+			resizeDimensions.height,
 			0,
 			0,
 			resizeDimensions.width,
@@ -896,13 +896,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _takePicture(img: HTMLImageElement, rawBase64Image: string) {
 		const canvasResult = this.resultCanvas.nativeElement;
 
-        this._cropImage(canvasResult, img, this.camera.dimensions.real, this.camera.dimensions.result);
+        this._cropImage(canvasResult, img, this.camera.dimensions.result);
 
 		let face: string;
 		let faceToUpload: string;
 		let base64Image = canvasResult.toDataURL('image/jpeg');
-
-		console.log(`file: smart-scanner-ios.component.ts:948 ~ SmartScannerIosComponent ~ _takePicture ~ base64Image:`, base64Image)
 
 		const isFront = this.side === "front";
 
