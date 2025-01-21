@@ -663,12 +663,12 @@
             (click)="captureManually()"
             [disabled]="(side === 'front' && errorFace) || uploading || camera?.isLoading"
             [style.background]="
-              (side === 'front' && errorFace) || uploading
+              (side === 'front' && errorFace) || uploading || camera?.isLoading
                 ? ''
                 : project.branding.buttonColor
             "
             [style.color]="
-              (side === 'front' && errorFace) || uploading
+              (side === 'front' && errorFace) || uploading || camera?.isLoading
                 ? ''
                 : project.branding.buttonTxtColor
             "

@@ -12,6 +12,7 @@ let _this = null;
 @Injectable({
 	providedIn: "root",
 })
+
 export class DemoService {
 	private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
 	private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
@@ -125,14 +126,31 @@ export class DemoService {
 	}
 
 	async loadModels(): Promise<void> {
-		// const startTime = performance.now();
 		const promises = [];
+
 		promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
 		promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
+		promises.push(this.loadOpenCV());
+
 		await Promise.allSettled(promises);
 
 		this._faceapi.next(true);
-		return;
+	}
+	
+	async loadOpenCV() {
+		const openCVLoaded = new Promise((resolve, reject) => {
+			const s = document.createElement('script');
+
+			s.src = "https://docs.opencv.org/4.7.0/opencv.js";
+			s.onload = resolve;
+			s.onerror = reject;
+
+			document.head.appendChild(s);
+		});
+
+		await openCVLoaded.then(() => {
+			console.log('openCVLoaded')
+		});
 	}
 
 	getNavigation(): any {

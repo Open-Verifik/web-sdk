@@ -538,6 +538,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		const ctx = videoCanvas.getContext('2d', { willReadFrequently: true });
 
 		this._onVideoLoaded(videoElement, videoCanvas);
+		this._loading({ isLoading: false, start: true });
 
 		// Delay detection calculations by a number of frames for performance.
 		const detectionDelay = 30;
@@ -619,8 +620,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 		this._setBounds();
 		this._drawMask();
-
-		this._loading({ isLoading: false, start: true });
 	}
 
 	private _resetVariables() {
@@ -1005,6 +1004,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		const base64Image = videoCanvas.toDataURL('image/jpeg');
 
 		let img = new Image();
+
 		img.src = base64Image;
 		img.title = 'manualCapture';
 
@@ -1099,8 +1099,9 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		if (this.uploading) return;
 
 		this._stopRecording();
-		this._setVideoOptionConfigs();
+
 		this._loading({ isLoading: true, start: true });
+		this._setVideoOptionConfigs();
 
 		this.showError = false;
 		this.errorContent = null;

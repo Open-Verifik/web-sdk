@@ -20,6 +20,7 @@ import { KYCService } from "../../kyc.service";
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { EnrollStep, SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 import { Subject, takeUntil } from "rxjs";
+import { DemoService } from "app/modules/demo/demo.service";
 
 @Component({
 	selector: "auth-sign-up-verification-complete",
@@ -56,15 +57,18 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 	project: Project;
 	projectFlow: ProjectFlow;
 	showQrCode: boolean = false;
+	device: any;
 	welcomeStyle: number = 0;
 
 	constructor(
+		private _demoService: DemoService,
 		private _activatedRoute: ActivatedRoute,
 		private _formBuilder: UntypedFormBuilder,
 		private _KYCService: KYCService,
 		private _smartEnrollService: SmartEnrollService,
 	) {
 		this.appRegistration = this._KYCService.appRegistration;
+		this.device = this._demoService.detectOS();
 		this.project = this._KYCService.currentProject;
 		this.projectFlow = this._KYCService.currentProjectFlow;
 
@@ -76,6 +80,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 	}
 
 	ngOnInit(): void {
+		this.device = this._demoService.detectOS();
+
 		const canvas = this.qrCodeCanvas.nativeElement;
 
 		this._initForm();

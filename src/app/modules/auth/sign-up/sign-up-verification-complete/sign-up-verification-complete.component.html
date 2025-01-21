@@ -134,6 +134,7 @@
 
         <button
           (click)="showQrCode = true"
+          *ngIf="device === 'ANDROID' || device === 'IOS'"
           class="fuse-mat-button-large w-full mt-2"
           mat-flat-button
           type="button"
