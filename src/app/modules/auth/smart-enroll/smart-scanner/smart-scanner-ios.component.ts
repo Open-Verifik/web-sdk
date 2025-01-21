@@ -167,22 +167,22 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		return { width: scaledWidth, height: scaledHeight };
 	}
 
-	private _cropImage = (resultCanvas: HTMLCanvasElement, inputImg: HTMLImageElement, resizeDim: any) => {
-		resultCanvas.width = resizeDim.width;
-		resultCanvas.height = resizeDim.height;
+	private _cropImage = (resultCanvas: HTMLCanvasElement, inputImg: HTMLImageElement, originalDimensions: any, resizeDimensions: any) => {
+		resultCanvas.width = originalDimensions.width;
+		resultCanvas.height = originalDimensions.height;
 
 		const ctx = resultCanvas.getContext("2d");
 
 		ctx.drawImage(
 			inputImg,
-			resizeDim.offsetX,
-			resizeDim.offsetY,
-			resizeDim.width,
-			resizeDim.height,
+			resizeDimensions.offsetX,
+			resizeDimensions.offsetY,
+			originalDimensions.width,
+			originalDimensions.height,
 			0,
 			0,
-			resizeDim.width,
-			resizeDim.height,
+			resizeDimensions.width,
+			resizeDimensions.height,
 		);
 
 		ctx.save();
@@ -896,7 +896,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 	private _takePicture(img: HTMLImageElement, rawBase64Image: string) {
 		const canvasResult = this.resultCanvas.nativeElement;
 
-        this._cropImage(canvasResult, img, this.camera.dimensions.result);
+        this._cropImage(canvasResult, img, this.camera.dimensions.real, this.camera.dimensions.result);
 
 		let face: string;
 		let faceToUpload: string;
