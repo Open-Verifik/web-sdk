@@ -138,7 +138,7 @@ export class DemoService {
 	}
 	
 	async loadOpenCV() {
-		const openCVLoaded = new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			const s = document.createElement('script');
 
 			s.src = "https://docs.opencv.org/4.7.0/opencv.js";
@@ -146,10 +146,6 @@ export class DemoService {
 			s.onerror = reject;
 
 			document.head.appendChild(s);
-		});
-
-		await openCVLoaded.then(() => {
-			console.log('openCVLoaded')
 		});
 	}
 

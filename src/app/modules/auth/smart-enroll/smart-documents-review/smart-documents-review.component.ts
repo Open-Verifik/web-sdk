@@ -35,6 +35,25 @@ export class SmartDocumentsReviewComponent {
 	project: Project;
 	projectFlow: ProjectFlow;
 	showErrors: boolean = false;
+	ocrKeys: Array<string> = [];
+
+	ORDER_OCR_BY: { [key: string]: number } = {
+		'fullName': 90,
+		'name1': 31,
+		'name2': 30,
+		'name3': 29,
+		'firstName': 27,
+		'firstNameMRZ': 26,
+		'middleName': 25,
+		'lastName': 24,
+		'firstLastNameMRZ': 22,
+		'secondLastName': 23,
+		'documentNumber': 17,
+		'documentType': 16,
+		'address': 15,
+		'age': 13,
+		'dateOfBirth': 12,
+	};
 
     constructor(
 		private translocoService: TranslocoService,
@@ -51,12 +70,12 @@ export class SmartDocumentsReviewComponent {
 			return;
 		}
 
-		this._cleanOCR(this.appRegistration.documentValidation?.OCRExtraction);
+		this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
 		this._setErrors();
 	}
 
     private _cleanOCR(OCRExtraction: any) {
-        if (!OCRExtraction) return;
+        if (!OCRExtraction) return {};
 
         Object.keys(OCRExtraction).forEach((key) => {
             const translationKey = `extracted_information.${key}`;
@@ -65,6 +84,8 @@ export class SmartDocumentsReviewComponent {
                 delete OCRExtraction[key];
             }
         });
+
+		this.ocrKeys = Object.keys(OCRExtraction).sort((a, b) => {return (this.ORDER_OCR_BY[b] || 1) - (this.ORDER_OCR_BY[a] || 1)});
     }
 
 	private _setErrors() {

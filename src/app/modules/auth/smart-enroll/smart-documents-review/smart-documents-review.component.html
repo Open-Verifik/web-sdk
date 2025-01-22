@@ -101,30 +101,29 @@
             </div>
           </div>
 
-          <div class="w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
-            <h4 class="font-medium text-xl">
-              {{
-                "smart_enroll.documents.upload.extracted_information"
-                  | transloco
-              }}
-            </h4>
+          <ng-container *ngIf="appRegistration?.documentValidation?.OCRExtraction">
+            <div class="w-full" fxLayout="column" fxFlex="calc(50% - 24px)">
+              <h4 class="font-medium text-xl">
+                {{
+                  "smart_enroll.documents.upload.extracted_information"
+                    | transloco
+                }}
+              </h4>
 
-            <div
-              class="ocr__line ocr__line--border"
-              fxLayout="row"
-              fxLayoutAlign="space-between center"
-              *ngFor="
-                let item of appRegistration?.documentValidation?.OCRExtraction
-                  | keyvalue
-              "
-            >
-              <p class="ocr__label mr-2">
-                {{ "extracted_information." + item.key | transloco }}
-              </p>
+              <div
+                class="ocr__line ocr__line--border"
+                fxLayout="row"
+                fxLayoutAlign="space-between center"
+                *ngFor="let key of ocrKeys"
+              >
+                <p class="ocr__label mr-2">
+                  {{ "extracted_information." + key | transloco }}
+                </p>
 
-              <p class="ocr__value text-right">{{ item.value }}</p>
+                <p class="ocr__value text-right">{{ appRegistration.documentValidation.OCRExtraction[key] }}</p>
+              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
       </mat-card-content>
 
