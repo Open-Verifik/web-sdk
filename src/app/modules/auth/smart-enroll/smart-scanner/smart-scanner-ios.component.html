@@ -6,6 +6,7 @@
 <smart-camera-resolution-detection
   (detected)="handleResolutionDetection($event)"
   (failedToDetect)="cameraError()"
+  [source]="source"
   [forceVertical]="demoData.OS === 'IOS' && !isLandscape"
 ></smart-camera-resolution-detection>
 

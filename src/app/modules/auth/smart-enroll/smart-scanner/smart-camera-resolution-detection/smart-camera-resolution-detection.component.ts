@@ -16,7 +16,7 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   @Output('detected') detected: EventEmitter<Resolution> = new EventEmitter<Resolution>;
   @Output('failedToDetect') failedToDetect: EventEmitter<WebcamInitError> = new EventEmitter<WebcamInitError>;
 
-  @Input('facingMode') facingMode: 'user' | 'environment';
+  @Input('source') source: 'face' | 'document';
   @Input('forceVertical') forceVertical: boolean;
 
   private WIDE: Array<Resolution>;
@@ -141,9 +141,13 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   }
 
   private async _findBestResolution(key: string, resolution: Resolution): Promise<boolean> {
-    const { zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
+    const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
     const mediaOptions = { audio: false, video: {} as MediaTrackConstraintSetExtended };
+
+    if (facingMode) {
+      mediaOptions.video.facingMode = this.source === 'face' ? 'user' : 'environment';
+    }
 
     if (zoom) {
       mediaOptions.video.zoom = { ideal: 0 };
