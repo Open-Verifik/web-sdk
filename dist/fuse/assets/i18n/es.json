@@ -356,7 +356,6 @@
 		"copyright": "{{year}} Producto de MAT Enterprises | Al utilizar Verifik aceptas nuestro ",
 		"detected": "¡Documento detectado exitosamente!",
 		"did_not_detect": "No pudimos detectar el documento",
-		"document_rotate": "Por favor, asegúrate de que tu dispositivo esté en orientación horizontal",
 		"document_instructions": "Coloca la identificación en una superficie plana y oscura para asegurar el mejor resultado.",
 		"extracting_data": "Extrayendo datos",
 		"face_instructions": "Asegúrate de que tu rostro esté en el centro de la pantalla, quítate las gafas y asegúrate de tener buena iluminación",
@@ -428,10 +427,10 @@
 				"scan_front": "Escanea la cara frontal del documento",
 				"scan_back": "Escanea la cara trasera del documento",
 				"steps": {
-					"1": "Coloca el documento sobre una superficie plana y bien iluminada.",
-					"2": "Gira tu dispositivo para que la cámara esté en posición horizontal.",
-					"3": "Coloca el documento frente a la cámara.",
-					"4": "Confirma que el resultado coincide con tus datos."
+					"1": "Coloca el documento sobre un fondo plano y oscuro, y asegúrate de tener buena iluminación.",
+					"2": "Asegúrate de que tu dispositivo esté en posición vertical.",
+					"3": "Sujeta el documento firmemente dentro del marco rectangular.",
+					"4": "Confirma que el resultado coincida con tus datos."
 				}
 			}
 		}

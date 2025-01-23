@@ -356,7 +356,6 @@
         "copyright": "{{year}} Prodotto di MAT Enterprises | Utilizzando Verifik accetti il nostro ",
         "detected": "Documento rilevato con successo!",
         "did_not_detect": "Non siamo riusciti a rilevare il documento",
-        "document_rotate": "Assicurati che il tuo dispositivo sia in orientamento orizzontale",
         "document_instructions": "Posiziona l'ID su una superficie piatta e scura per garantire il miglior risultato.",
         "extracting_data": "Estrazione dati",
         "face_instructions": "Assicurati che il tuo volto sia al centro dello schermo, togli gli occhiali e assicurati di avere una buona illuminazione",

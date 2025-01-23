@@ -221,7 +221,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 			if (!detections.length) throw Error('no_face');
 			else {
 				const faceDetection = this._demoService.findBiggestFace(detections);
-				console.log(`file: smart-scanner-ios.component.ts:225 ~ SmartScannerIosComponent ~ _detectFace ~ faceDetection:`, faceDetection)
 	
 				const { angle, bounds, resolution, isValid } = this._smartEnrollService.evaluateFaceDetection(this.BOUNDS, faceDetection, this.source);
 

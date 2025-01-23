@@ -141,13 +141,9 @@ export class SmartCameraResolutionDetectionComponent implements OnInit {
   }
 
   private async _findBestResolution(key: string, resolution: Resolution): Promise<boolean> {
-    const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
+    const { zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
     const mediaOptions = { audio: false, video: {} as MediaTrackConstraintSetExtended };
-
-    if (facingMode) {
-      mediaOptions.video.facingMode = this.facingMode || 'environment';
-    }
 
     if (zoom) {
       mediaOptions.video.zoom = { ideal: 0 };

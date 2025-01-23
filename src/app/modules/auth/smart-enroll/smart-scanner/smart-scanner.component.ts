@@ -500,8 +500,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
-		// can be 'user' || 'environment' https://w3c.github.io/mediacapture-main/#dom-videofacingmodeenum
-		if (facingMode) settings.facingMode = this.source === "face" || !this.demoData.isMobile ? "user" : "environment";
+		if (facingMode) settings.facingMode = this.source === "face" ? "user" : "environment";
 		if (zoom) settings.zoom = { ideal: 0 };
 
 		this.video = {};

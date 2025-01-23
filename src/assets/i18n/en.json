@@ -360,7 +360,6 @@
 		"detected": "Document successfully detected!",
 		"did_not_detect": "We could not detect the document",
 		"document_instructions": "Place ID onto a flat, dark surface to ensure best outcome.",
-		"document_rotate": "You may have better success in landscape orientation",
 		"extracting_data": "Extracting data",
 		"face_instructions": "Make sure your face is in the center of the screen, remove your glasses, and ensure good lighting",
 		"face_was_not_registered": "Your face was not registered",
@@ -432,9 +431,9 @@
 				"scan_front": "Scan Document Front Side",
 				"scan_back": "Scan Document Back Side",
 				"steps": {
-					"1": "Place the document on a flat, well-lit surface.",
-					"2": "Rotate your device so the camera is horizontal.",
-					"3": "Place the document in front of your camera.",
+					"1": "Place the document on a flat, dark background, and ensure good lighting.",
+					"2": "Ensure your device is held vertical.",
+					"3": "Hold the document steadily within the rectangle frame.",
 					"4": "Confirm that the result matches your data."
 				}
 			}

@@ -356,7 +356,6 @@
         "copyright": "{{year}} Produkto ng MAT Enterprises | Sa paggamit ng Verifik sumasang-ayon ka sa aming ",
         "detected": "Matagumpay na natukoy ang dokumento!",
         "did_not_detect": "Hindi namin natukoy ang dokumento",
-        "document_rotate": "Pakisiguro na ang iyong device ay nasa landscape orientation",
         "document_instructions": "Ilagay ang ID sa isang patag, madilim na ibabaw para sa pinakamahusay na resulta.",
         "extracting_data": "Kumukuha ng datos",
         "face_instructions": "Tiyakin na nasa gitna ng screen ang iyong mukha, alisin ang iyong salamin, at tiyakin ang magandang ilaw",
@@ -428,10 +427,10 @@
                 "scan_front": "I-scan ang Harapang Bahagi ng Dokumento",
                 "scan_back": "I-scan ang Likurang Bahagi ng Dokumento",
                 "steps": {
-                    "1": "Ilagay ang dokumento sa isang patag, maliwanag na ibabaw.",
-                    "2": "I-rotate ang iyong device para ang camera ay pahalang.",
-                    "3": "Ilagay ang dokumento sa harap ng iyong camera.",
-                    "4": "Kumpirmahin na tumutugma ang resulta sa iyong datos."
+                    "1": "Ilagay ang dokumento sa patag, madilim na background at tiyakin ang maayos na ilaw.",
+                    "2": "Siguraduhing nakatayo nang patayo ang iyong device.",
+                    "3": "Hawakan ang dokumento nang matatag sa loob ng parihabang frame.",
+                    "4": "Tiyakin na ang resulta ay tugma sa iyong data."
                 }
             }
         }

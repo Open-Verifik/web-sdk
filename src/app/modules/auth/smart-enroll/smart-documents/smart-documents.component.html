@@ -151,18 +151,18 @@
                 <p>{{ "smart_enroll.documents.scan.steps.1" | transloco }}</p>
               </div>
 
-              <div class="flex welcome__step-row">
+              <div class="flex welcome__step-row" *ngIf="demoData.OS === 'IOS' || demoData.OS === 'ANDROID'">
                 <p class="welcome__step">2</p>
                 <p>{{ "smart_enroll.documents.scan.steps.2" | transloco }}</p>
               </div>
 
               <div class="flex welcome__step-row">
-                <p class="welcome__step">3</p>
+                <p class="welcome__step">{{ demoData.OS === 'IOS' || demoData.OS === 'ANDROID' ? 3 : 2 }}</p>
                 <p>{{ "smart_enroll.documents.scan.steps.3" | transloco }}</p>
               </div>
 
               <div class="flex welcome__step-row">
-                <p class="welcome__step">4</p>
+                <p class="welcome__step">{{ demoData.OS === 'IOS' || demoData.OS === 'ANDROID' ? 4 : 3 }}</p>
                 <p>{{ "smart_enroll.documents.scan.steps.4" | transloco }}</p>
               </div>
             </div>

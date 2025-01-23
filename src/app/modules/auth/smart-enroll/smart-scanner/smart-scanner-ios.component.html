@@ -6,8 +6,7 @@
 <smart-camera-resolution-detection
   (detected)="handleResolutionDetection($event)"
   (failedToDetect)="cameraError()"
-  [facingMode]="videoOptions.facingMode"
-  [forceVertical]="!isLandscape"
+  [forceVertical]="demoData.OS === 'IOS' && !isLandscape"
 ></smart-camera-resolution-detection>
 
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
@@ -690,22 +689,6 @@
           ngClass.lt-md="mt-2"
         >
           <div class="w-full" fxLayout="column">
-            <div
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              class="mb-4"
-              *ngIf="source === 'document' && !isLandscape && demoData.isMobile"
-            >
-              <mat-icon
-                class="mr-3"
-                svgIcon="mat_solid:screen_rotation"
-              ></mat-icon>
-
-              <p>
-                {{ "smart_enroll.document_rotate" | transloco }}
-              </p>
-            </div>
-
             <div fxLayout="row" fxLayoutAlign="start center">
               <mat-icon
                 class="mr-3"
