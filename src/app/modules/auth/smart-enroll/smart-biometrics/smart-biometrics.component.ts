@@ -102,9 +102,14 @@ export class SmartBiometricsComponent implements OnDestroy {
 		});
 	}
 
-	private _handleError(error: any): void {
+	private _handleError(exception: any): void {
+		if (exception?.error?.code === 'PaymentRequired') {
+			this._smartEnrollService.insufficientCreditsTrigger();
+			return;
+		}
+
 		this._smartEnrollService.subtractAttempt("biometric");
-		this.errorContent = { message: error?.error?.message || "" };
+		this.errorContent = { message: exception?.error?.message || "" };
 
 		const str = this.errorContent.message.split("@");
 

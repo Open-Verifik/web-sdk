@@ -265,6 +265,11 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				this._startCountdown();
 			},
 			error: (exception) => {
+				if (exception?.error?.code === 'PaymentRequired') {
+					this._smartEnrollService.insufficientCreditsTrigger();
+					return;
+				}
+
 				this.showError = true;
 				this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 
@@ -342,6 +347,11 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 				this.otpForm?.enable();
 			},
 			error: (exception) => {
+				if (exception?.error?.code === 'PaymentRequired') {
+					this._smartEnrollService.insufficientCreditsTrigger();
+					return;
+				}
+
 				this.showError = true;
 				this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
 

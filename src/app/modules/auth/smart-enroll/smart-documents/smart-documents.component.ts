@@ -29,21 +29,24 @@ type CombinedValidationResponse = {
 }
 
 type CompareFaceVerificationResponse = {
-	status: 'fulfilled' | 'rejected' | 'NA';
-	reason: any;
 	data: FaceVerification;
+	error: any;
+	reason: any;
+	status: 'fulfilled' | 'rejected' | 'NA';
 }
 
 type CriminalValidationResponse = {
-	status: 'fulfilled' | 'rejected' | 'NA';
-	reason: any;
 	data: CriminalValidation;
+	error: any;
+	reason: any;
+	status: 'fulfilled' | 'rejected' | 'NA';
 }
 
 type NameValidationResponse = {
-	status: 'fulfilled' | 'rejected' | 'NA';
-	reason: any;
 	data: DocumentValidation;
+	error: any;
+	reason: any;
+	status: 'fulfilled' | 'rejected' | 'NA';
 }
 
 @Component({
@@ -132,11 +135,16 @@ export class SmartDocumentsComponent implements OnDestroy {
             });
     }
 
-	private _handleError(error: any): void {
+	private _handleError(exception: any): void {
+		if (exception?.error?.code === 'PaymentRequired') {
+			this._smartEnrollService.insufficientCreditsTrigger();
+			return;
+		}
+
 		this._smartEnrollService.subtractAttempt('document');
 
 		this.errorResult = true;
-		this.errorContent = { message: error?.error?.message || '' };
+		this.errorContent = { message: exception?.error?.message || '' };
 
 		const split = this.errorContent.message.split("@");
 		this.errorContent.message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(split[0]) ? split[0] : 'failed_to_read';
@@ -213,6 +221,11 @@ export class SmartDocumentsComponent implements OnDestroy {
 			.subscribe({
 				next: (results: CombinedValidationResponse) => {
 					if (results.criminalValidation?.status === 'rejected') {
+						if (results.criminalValidation?.error?.code === 'PaymentRequired') {
+							this._smartEnrollService.insufficientCreditsTrigger();
+							return;
+						}
+
 						console.error("criminalValidation rejected:", { criminalValidation: results.criminalValidation?.data });
 					}
 
@@ -229,12 +242,22 @@ export class SmartDocumentsComponent implements OnDestroy {
 						this.appRegistration.documentValidation.firstNameMatchPercentage = results.nameValidation.data.firstNameMatchPercentage;
 						this.appRegistration.documentValidation.lastNameMatchPercentage = results.nameValidation.data.lastNameMatchPercentage;
 					} else if (results.nameValidation?.status === 'rejected') {
+						if (results.nameValidation?.error?.code === 'PaymentRequired') {
+							this._smartEnrollService.insufficientCreditsTrigger();
+							return;
+						}
+
 						console.error("nameValidation rejected:", { nameValidation: results.nameValidation?.reason });
 					}
 
 					if (results.compareValidation?.status === 'fulfilled') {
 						this.appRegistration.compareFaceVerification = results.compareValidation.data;
 					} else if (results.compareValidation?.status === 'rejected') {
+						if (results.compareValidation?.error?.code === 'PaymentRequired') {
+							this._smartEnrollService.insufficientCreditsTrigger();
+							return;
+						}
+
 						console.error("compareValidation rejected:", { compareValidation: results.compareValidation?.reason });
 					}
 				},

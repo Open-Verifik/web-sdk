@@ -123,6 +123,7 @@ export type EnrollDocumentMethod = "" | "scan" | "upload";
 export class SmartEnrollService {
 	private _enrollSettings: EnrollSettings;
 	private _enrollSettings$: Subject<EnrollSettings> = new Subject<EnrollSettings>();
+	private _insufficientCredits$: Subject<void> = new Subject<void>();
 	private _skipChanged$: Subject<void> = new Subject<void>();
 
 	availableSteps: EnrollStep[];
@@ -168,6 +169,10 @@ export class SmartEnrollService {
 
 	get enrollSettings(): EnrollSettings {
 		return { ...this._enrollSettings };
+	}
+
+	get insufficientCredits$(): Observable<void> {
+		return this._insufficientCredits$.asObservable();
 	}
 
 	errorTranslation(message: string = 'errors.something_went_wrong'): string {
@@ -352,6 +357,10 @@ export class SmartEnrollService {
 		this.setCurrentStep(previousStep);
 
 		if (currentStepIndex - 1 === -1) this.setDocumentMethod("");
+	}
+
+	insufficientCreditsTrigger(): void {
+		this._insufficientCredits$.next();
 	}
 
 	isDocumentValidAndComplete(projectFlow: ProjectFlow, appRegistration: AppRegistration): boolean {

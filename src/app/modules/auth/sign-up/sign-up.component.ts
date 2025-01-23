@@ -119,6 +119,15 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this._splashScreenService.show();
 
+		this._smartEnrollService.insufficientCredits$
+			.pipe(takeUntil(this.unsubscriber$))
+			.subscribe({
+				next: () => {
+					this.showKYCApp = false;
+					this.showUpgradeRequired = true;
+				},
+			});
+
 		combineLatest([this._activatedRoute.params, this._activatedRoute.queryParams])
 			.pipe(takeUntil(this.unsubscriber$))
 			.pipe(map(results => ({id: results[0].id, token: results[1].token})))
