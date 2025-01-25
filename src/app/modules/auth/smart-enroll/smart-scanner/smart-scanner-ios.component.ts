@@ -944,12 +944,16 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
         const settings = {
             ...this.videoOptions,
-            facingMode: this.source === 'face' ? 'user' : 'environment',
+            facingMode: {
+                exact: this.source === 'face' ? 'user' : 'environment',
+            },
             focusMode: 'continuous',
             frameRate: { ideal: 60 },
             noiseSuppression: true,
             zoom: { ideal: 0 },
         } as MediaTrackConstraintSetExtended;
+
+        console.log({ settings, source: this.source });
 
         this.videoOptions = settings;
     }
