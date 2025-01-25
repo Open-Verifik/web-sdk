@@ -100,7 +100,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     private _debouncedWindowResize: DebouncedFunc<() => void>;
     private _detectionInterval: ReturnType<typeof setInterval>;
     private _rectCredential: any;
-    // private _scanner: jscanify;
 
     DEBUG_MODE: boolean = !environment.production && false;
 
@@ -173,6 +172,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.isLandscape = window.matchMedia(
             '(orientation: landscape)'
         ).matches;
+
+        console.log({ source: this.source });
 
         this._resetVariables();
 
