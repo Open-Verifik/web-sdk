@@ -3,705 +3,838 @@
 <canvas #toSendCanvas hidden></canvas>
 
 <div
-  *ngIf="uploading"
-  class="smart-scanner__loader-overlay z-30 inset-0"
-  fxLayout="row"
-  fxLayoutAlign="center center"
->
-  <div
-    fxLayout="column"
+    *ngIf="uploading"
+    class="smart-scanner__loader-overlay z-30 inset-0"
+    fxLayout="row"
     fxLayoutAlign="center center"
-  >
-    <mat-progress-spinner
-      diameter="36"
-      mode="indeterminate"
-    ></mat-progress-spinner>
+>
+    <div fxLayout="column" fxLayoutAlign="center center">
+        <mat-progress-spinner
+            diameter="36"
+            mode="indeterminate"
+        ></mat-progress-spinner>
 
-    <p class="mt-4">
-      {{ "smart_enroll.extracting_data" | transloco }}...
-    </p>
-  </div>
+        <p class="mt-4">{{ 'smart_enroll.extracting_data' | transloco }}...</p>
+    </div>
 </div>
 
 <div
-  ngClass.lt-md="w-full h-full z-10"
-  fxLayout="column"
-  fxLayoutAlign="start center"
-  fxLayout.lt-md="center center"
-  *ngIf="loadingCamera"
->
-  <div
-    ngClass.lt-md="w-full h-full"
+    ngClass.lt-md="w-full h-full z-10"
     fxLayout="column"
     fxLayoutAlign="start center"
-    fxLayoutAlign.lt-md="center center"
-  >
-    <mat-progress-spinner
-      mode="indeterminate"
-      strokeWidth="4"
-      diameter="36"
-    ></mat-progress-spinner>
-
-    <h4 class="font-medium mt-6 text-xl">
-      {{ "smart_enroll.preparing_camera" | transloco }}
-    </h4>
-  </div>
-</div>
-
-<div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center" fxLayoutAlign.gt-sm="center center">
-  <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
-    <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
-      <div class="flex">
-        <button
-          (click)="goPrevious()"
-          [disabled]="!canGoPrevious()"
-          class="mr-4"
-          style.backgroundColor="rgba(0,0,0,0)"
-          mat-flat-button
-        >
-          <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
-          <span class="ml-2">{{ "cancel" | transloco }}</span>
-        </button>
-      </div>
-
-      <div
-        class="smart-scanner__title flex flex-grow"
-        [class.hidden]="isLandscape"
-      >
-        <div
-          class="w-full"
-          fxLayout="row"
-          fxLayoutAlign="center space-between"
-          *ngIf="source === 'document'"
-        >
-          <div
-            class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
-            *ngIf="side === 'front'"
-            [style.border]="
-              side === 'front'
-                ? '1px solid ' + project.branding.buttonColor
-                : '1px solid #ffffff'
-            "
-          >
-            <p
-              class="welcome__step"
-              [style.backgroundColor]="
-                side === 'front' ? project.branding.bgColor : ''
-              "
-              [style.color]="
-                side === 'front' ? project.branding.buttonColor : ''
-              "
-            >
-              <span class="font-medium" *ngIf="side === 'front'">1</span>
-              <mat-icon
-                svgIcon="feather:check"
-                *ngIf="side === 'back'"
-                [style.color]="project.branding.buttonColor"
-              ></mat-icon>
-            </p>
-
-            <p class="mt-0.5">
-              {{ "smart_enroll.documents.upload.front" | transloco }}
-            </p>
-          </div>
-
-          <div
-            class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
-            [style.border]="
-              side === 'back'
-                ? '1px solid ' + project.branding.buttonColor
-                : '1px solid #ffffff'
-            "
-            *ngIf="requiresBack && side === 'back'"
-          >
-            <p
-              class="welcome__step"
-              [style.backgroundColor]="
-                side === 'back' ? project.branding.bgColor : ''
-              "
-              [style.color]="
-                side === 'back' ? project.branding.buttonColor : ''
-              "
-            >
-              <span class="font-medium">2</span>
-            </p>
-
-            <p class="mt-0.5">
-              {{ "smart_enroll.documents.upload.back" | transloco }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex">
-        <smart-stepper></smart-stepper>
-      </div>
-    </div>
-  </div>
-
-  <div
-    [ngStyle.gt-sm]="{
-      border: project.branding.borderColor
-        ? '1px solid ' + project.branding.borderColor
-        : ''
-    }"
-    @fadeIn
-    *ngIf="!loadingCamera && !hasCameraPermissions"
-    class="smart-documents__card rounded-2xl bg-card p-6 w-full mb-4"
-    fxLayout="column"
-  >
-    <mat-card-title class="text-center mt-2">
-      <mat-icon
-        class="welcome__icon welcome__icon--medium"
-        [style.color]="project.branding.buttonColor"
-        svgIcon="heroicons_solid:video-camera-slash"
-      ></mat-icon>
-    </mat-card-title>
-
-    <mat-card-title
-      class="text-center text-3xl mt-4"
-      [style.color]="project.branding.titleColor"
-    >
-      <span *ngIf="!cameraConstraintsInvalid">{{
-        "smart_enroll.camera_disabled_title" | transloco
-      }}</span>
-      <span *ngIf="cameraConstraintsInvalid">{{
-        "smart_enroll.camera_constraints" | transloco
-      }}</span>
-    </mat-card-title>
-
-    <mat-card-content
-      class="mt-8"
-      fxLayout="column"
-      fxLayoutAlign="start center"
-      @fadeIn
-    >
-      <p class="text-center">
-        <span *ngIf="!cameraConstraintsInvalid">{{
-          "smart_enroll.camera_disabled_description" | transloco
-        }}</span>
-        <span *ngIf="cameraConstraintsInvalid">{{
-          "smart_enroll.camera_constraints_description" | transloco
-        }}</span>
-      </p>
-
-      <button
-        (click)="loadQRCode()"
-        [disabled]="revealQRCode"
-        [style.backgroundColor]="
-          !revealQRCode ? project.branding.buttonColor : ''
-        "
-        [style.color]="!revealQRCode ? project.branding.buttonTxtColor : ''"
-        class="fuse-mat-button-large w-full mt-6"
-        mat-flat-button
-      >
-        <mat-icon matLeadingIcon>smartphone</mat-icon>
-        <span>{{ "welcome.continue_on_another" | transloco }}</span>
-      </button>
-
-      <div
+    fxLayout.lt-md="center center"
+    *ngIf="loadingCamera"
+>
+    <div
+        ngClass.lt-md="w-full h-full"
         fxLayout="column"
         fxLayoutAlign="start center"
-        [class.hidden]="!revealQRCode"
-      >
-        <div
-          fxLayout="row"
-          fxLayoutAlign="center center"
-          style="height: 400px; width: 100%"
-        >
-          <mat-progress-spinner
-            mode="indeterminate"
-            diameter="32"
-            *ngIf="loadingQRCode"
-          ></mat-progress-spinner>
-
-          <canvas
-            [class.hidden]="loadingQRCode"
-            @fadeIn
-            #qrCodeCanvas
-            class="m-8"
-            height="400"
-            width="400"
-          ></canvas>
-        </div>
-      </div>
-
-      <hr class="w-full" />
-    </mat-card-content>
-
-    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between">
-      <button
-        (click)="exitApplication()"
-        [style.border]="'1px solid ' + project.branding.buttonColor"
-        [style.color]="project.branding.buttonColor"
-        class="fuse-mat-button-large"
-        mat-flat-button
-      >
-        <span>{{ "log_out" | transloco }}</span>
-      </button>
-
-      <button
-        (click)="goNext()"
-        [disabled]="!canSkip()"
-        [style.color]="!canSkip() ? '' : project.branding.buttonColor"
-        [style.border]="
-          !canSkip() ? '' : '1px solid' + project.branding.buttonColor
-        "
-        class="fuse-mat-button-large"
-        *ngIf="
-          (source === 'document' &&
-            projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
-          (source === 'face' &&
-            projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
-        "
-        mat-flat-button
-      >
-        {{ "skip" | transloco }}
-      </button>
-    </mat-card-actions>
-  </div>
-
-  <div
-    *ngIf="hasCameraPermissions && !loadingCamera"
-    #canvasContainer
-    class="items-center w-full absolute inset-0"
-    fxLayout="column"
-    fxLayoutAlign="center center"
-  >
-    <div
-      *ngIf="!loadingCamera && hasCameraPermissions"
-      class="w-full min-h-screen"
-      fxLayout="column"
-      fxLayoutAlign="center center"
+        fxLayoutAlign.lt-md="center center"
     >
-      <div
-        *ngIf="!failedToDetectDocument"
-        class="w-full min-h-full overflow-auto"
-      >
-        <div
-          [class.hidden]="base64Image && !uploading"
-          class="smart-scanner__container min-h-full"
-          fxLayout="column"
-          fxLayoutAlign="center center"
-        >
-          <ng-container *ngIf="!base64Image">
-            <video
-              [style.height.px]="HEIGHT"
-              [style.width.px]="WIDTH"
-              #videoElement
-              autoplay
-              class="smart-scanner__absolute-scanner rounded-3xl"
-              muted
-            ></video>
+        <mat-progress-spinner
+            mode="indeterminate"
+            strokeWidth="4"
+            diameter="36"
+        ></mat-progress-spinner>
 
-            <canvas
-              [height]="video.height"
-              [width]="video.width"
-              #videoCanvas
-              hidden
-            ></canvas>
+        <h4 class="font-medium mt-6 text-xl">
+            {{ 'smart_enroll.preparing_camera' | transloco }}
+        </h4>
+    </div>
+</div>
 
-            <canvas
-              [height]="video.height"
-              [style.height.px]="HEIGHT"
-              [style.width.px]="WIDTH"
-              [width]="video.width"
-              #maskCanvas
-              class="smart-scanner__absolute-scanner rounded-3xl"
-            ></canvas>
-
-            <smart-scanner-corrections
-              [angle]="corrections.angle"
-              [bounds]="corrections.bounds"
-              [height]="HEIGHT"
-              [isLandscape]="isLandscape"
-              [resolution]="corrections.resolution"
-              [style.height.px]="HEIGHT"
-              [style.width.px]="WIDTH"
-              [width]="WIDTH"
-              *ngIf="source === 'face'"
-              class="smart-scanner__absolute-scanner rounded-3xl"
-            ></smart-scanner-corrections>
-
-            <div
-              *ngIf="errorFace && errorFace.title && !loadingResults"
-              fxLayout="column"
-              fxLayoutAlign="center center"
-              class="text-center m-6 mt-2 rounded-2xl absolute top-1/2 left-0 right-0"
-            >
-              <div
-                [style.color]="project ? project.branding.titleColor : null"
-                class="text-3xl font-bold"
-              >
-                {{ errorFace.title }}
-              </div>
-
-              <div
-                [style.color]="project ? project.branding.txtColor : null"
-                class="text-gray-600"
-              >
-                {{ errorFace.subtitle }}
-              </div>
-            </div>
-
-            <code
-              class="absolute top-0 right-0 bottom-0 z-index-2 text-right z-20"
-              *ngIf="DEBUG_MODE"
-            >
-              <div>
-                face:
-                <br />
-                x: {{ faceDetection?.alignedRect?.box?.x }}
-                <br />
-                y: {{ faceDetection?.alignedRect?.box?.y }}
-                <br />
-                width: {{ faceDetection?.alignedRect?.box?.width }}
-                <br />
-                height: {{ faceDetection?.alignedRect?.box?.height }}
-                <br />
-                pitch: {{ faceDetection?.angle?.pitch }}
-                <br />
-                yaw: {{ faceDetection?.angle?.yaw }}
-                <br />
-                roll: {{ faceDetection?.angle?.roll }}
-                <br />
-                <br />
-                <br />
-                face corrections:
-                <br />
-                x: {{ corrections?.bounds?.x }}
-                <br />
-                y: {{ corrections?.bounds?.y }}
-                <br />
-                width: {{ corrections?.resolution?.width }}
-                <br />
-                height: {{ corrections?.resolution?.height }}
-                <br />
-                pitch: {{ corrections?.angle?.pitch }}
-                <br />
-                yaw: {{ corrections?.angle?.yaw }}
-                <br />
-                roll: {{ corrections?.angle?.roll }}
-                <br />
-                <br />
-                <br />
-              </div>
-
-              <div *ngIf="source === 'document'">
-                document:
-                <br />
-                x: {{ documentDetection?.x }}
-                <br />
-                y: {{ documentDetection?.y }}
-                <br />
-                width: {{ documentDetection?.width }}
-                <br />
-                height: {{ documentDetection?.height }}
-                <br />
-                <br />
-                <br />
-                document corrections:
-                <br />
-                document x: {{ corrections.document.x }}
-                <br />
-                document y: {{ corrections.document.y }}
-                <br />
-                documentResolution height:
-                {{ corrections.documentResolution.height }}
-                <br />
-                documentResolution width:
-                {{ corrections.documentResolution.width }}
-                <br />
-                <br />
-                <br />
-              </div>
-            </code>
-          </ng-container>
-
-          <div class="flex flex-col flex-grow justify-start min-w-120">
-            <div class="smart-scanner__title mt-2 flex flex-col" ngClass.lt-md="hidden">
-              <div
-                class="w-full z-30"
-                fxLayout="row"
-                fxLayoutAlign="center space-between"
-                *ngIf="source === 'document'"
-              >
-                <div
-                  class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
-                  [style.border]="
-                    side === 'front'
-                      ? '1px solid ' + project.branding.buttonColor
-                      : '1px solid #ffffff'
-                  "
+<div
+    class="w-full h-full"
+    fxLayout="column"
+    fxLayoutAlign.lt-md="start center"
+    fxLayoutAlign.gt-sm="center center"
+>
+    <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
+        <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
+            <div class="flex">
+                <button
+                    (click)="goPrevious()"
+                    [disabled]="!canGoPrevious()"
+                    class="mr-4"
+                    style.backgroundColor="rgba(0,0,0,0)"
+                    mat-flat-button
                 >
-                  <p
-                    class="welcome__step"
-                    [style.backgroundColor]="
-                      side === 'front' ? project.branding.bgColor : ''
-                    "
-                    [style.color]="
-                      side === 'front' ? project.branding.buttonColor : ''
-                    "
-                  >
-                    <span class="font-medium" *ngIf="side === 'front'">1</span>
-                    <mat-icon
-                      svgIcon="feather:check"
-                      *ngIf="side === 'back'"
-                      [style.color]="project.branding.buttonColor"
-                    ></mat-icon>
-                  </p>
-
-                  <p class="mt-0.5">
-                    {{ "smart_enroll.documents.upload.frontside" | transloco }}
-                  </p>
-                </div>
-
-                <div
-                  class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
-                  [style.border]="
-                    side === 'back'
-                      ? '1px solid ' + project.branding.buttonColor
-                      : '1px solid #ffffff'
-                  "
-                  *ngIf="requiresBack"
-                >
-                  <p
-                    class="welcome__step"
-                    [style.backgroundColor]="
-                      side === 'back' ? project.branding.bgColor : ''
-                    "
-                    [style.color]="
-                      side === 'back' ? project.branding.buttonColor : ''
-                    "
-                  >
-                    <span class="font-medium">2</span>
-                  </p>
-
-                  <p class="mt-0.5">
-                    {{ "smart_enroll.documents.upload.backside" | transloco }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="smart-documents__id-types welcome__step-row py-2 px-3 rounded-3xl w-full mt-2"
-                fxLayout="row"
-                fxLayoutAlign="space-between"
-                *ngIf="source === 'document'"
-                [ngStyle.gt-sm]="{
-                  border: project.branding.buttonColor
-                    ? '1px solid ' + project.branding.buttonColor
-                    : ''
-                }"
-                ngClass.lt-md="mt-20"
-                ngClass.gt-sm="bg-card"
-              >
-                <div
-                  [style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
-                  *ngIf="projectFlow.onboardingSettings.document.usePassport"
-                  fxFlex
-                  fxLayout="row"
-                  fxLayoutAlign="center center"
-                  ngClass.lt-md="text-sm"
-                >
-                  <mat-icon
-                    [style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
-                    ngClass.gt-sm="mr-4"
-                    ngClass.lt-md="mr-2"
-                    svgIcon="fa_solid:passport"
-                  ></mat-icon>
-        
-                  <p class="font-medium">
-                    {{ "smart_enroll.documents.upload.passport" | transloco }}
-                  </p>
-                </div>
-        
-                <div
-                  [style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
-                  *ngIf="projectFlow.onboardingSettings.document.useLicense"
-                  fxFlex
-                  fxLayout="row"
-                  fxLayoutAlign="center center"
-                  ngClass.lt-md="text-sm"
-                >
-                  <mat-icon
-                    [style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
-                    ngClass.gt-sm="mr-4"
-                    ngClass.lt-md="mr-2"
-                    svgIcon="fa_regular:id-card"
-                  ></mat-icon>
-        
-                  <p class="font-medium">
-                    {{ "smart_enroll.documents.upload.driver_license" | transloco }}
-                  </p>
-                </div>
-        
-                <div
-                  [style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
-                  *ngIf="projectFlow.onboardingSettings.document.useGovernmentID"
-                  fxFlex
-                  fxLayout="row"
-                  fxLayoutAlign="center center"
-                  ngClass.lt-md="text-sm"
-                >
-                  <mat-icon
-                    [style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
-                    ngClass.gt-sm="mr-4"
-                    ngClass.lt-md="mr-2"
-                    svgIcon="fa_regular:address-card"
-                  ></mat-icon>
-        
-                  <p class="font-medium">
-                    {{ "smart_enroll.documents.upload.id" | transloco }}
-                  </p>
-                </div>
-              </div>
+                    <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
+                    <span class="ml-2">{{ 'cancel' | transloco }}</span>
+                </button>
             </div>
 
             <div
-              class="flex flex-col flex-grow justify-end items-center z-20"
-              [class.hidden]="base64Image"
+                class="smart-scanner__title flex flex-grow"
+                [class.hidden]="isLandscape"
             >
-              <div
-                class="smart-scanner__buttons flex flex-row mb-4 justify-center"
-                fxLayoutGap="12px"
-              >
-                <button
-                  (click)="goPrevious()"
-                  [disabled]="!canGoPrevious()"
-                  [style.color]="
-                    !canGoPrevious() ? '' : project.branding.buttonColor
-                  "
-                  [style.border]="
-                    !canGoPrevious()
-                      ? ''
-                      : '1px solid' + project.branding.buttonColor
-                  "
-                  class="fuse-mat-button"
-                  mat-flat-button
-                  ngClass.lt-md="hidden"
+                <div
+                    class="w-full"
+                    fxLayout="row"
+                    fxLayoutAlign="center space-between"
+                    *ngIf="source === 'document'"
                 >
-                  {{ "go_back" | transloco }}
-                </button>
+                    <div
+                        class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
+                        *ngIf="side === 'front'"
+                        [style.border]="
+                            side === 'front'
+                                ? '1px solid ' + project.branding.buttonColor
+                                : '1px solid #ffffff'
+                        "
+                    >
+                        <p
+                            class="welcome__step"
+                            [style.backgroundColor]="
+                                side === 'front' ? project.branding.bgColor : ''
+                            "
+                            [style.color]="
+                                side === 'front'
+                                    ? project.branding.buttonColor
+                                    : ''
+                            "
+                        >
+                            <span class="font-medium" *ngIf="side === 'front'"
+                                >1</span
+                            >
+                            <mat-icon
+                                svgIcon="feather:check"
+                                *ngIf="side === 'back'"
+                                [style.color]="project.branding.buttonColor"
+                            ></mat-icon>
+                        </p>
 
-                <button
-                  (click)="goNext()"
-                  [disabled]="!canSkip()"
-                  [style.color]="!canSkip() ? '' : project.branding.buttonColor"
-                  [style.border]="
-                    !canSkip() ? '' : '1px solid' + project.branding.buttonColor
-                  "
-                  *ngIf="
-                    (source === 'document' &&
-                      projectFlow.onboardingSettings.steps.document !==
-                        'mandatory') ||
-                    (source === 'face' &&
-                      projectFlow.onboardingSettings.steps.liveness !==
-                        'mandatory')
-                  "
-                  class="fuse-mat-button"
-                  mat-flat-button
-                >
-                  {{ "skip" | transloco }}
-                </button>
+                        <p class="mt-0.5">
+                            {{
+                                'smart_enroll.documents.upload.front'
+                                    | transloco
+                            }}
+                        </p>
+                    </div>
 
-                <button
-                  (click)="takePicture()"
-                  [disabled]="(side === 'front' && errorFace) || uploading"
-                  [style.background]="
-                    (side === 'front' && errorFace) || uploading
-                      ? ''
-                      : project.branding.buttonColor
-                  "
-                  [style.color]="
-                    (side === 'front' && errorFace) || uploading
-                      ? ''
-                      : project.branding.buttonTxtColor
-                  "
-                  *ngIf="source === 'document'"
-                  class="fuse-mat-button"
-                  mat-flat-button
-                >
-                  {{ "id_scanning.manual_capture_button" | transloco }}
-                </button>
-              </div>
+                    <div
+                        class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
+                        [style.border]="
+                            side === 'back'
+                                ? '1px solid ' + project.branding.buttonColor
+                                : '1px solid #ffffff'
+                        "
+                        *ngIf="requiresBack && side === 'back'"
+                    >
+                        <p
+                            class="welcome__step"
+                            [style.backgroundColor]="
+                                side === 'back' ? project.branding.bgColor : ''
+                            "
+                            [style.color]="
+                                side === 'back'
+                                    ? project.branding.buttonColor
+                                    : ''
+                            "
+                        >
+                            <span class="font-medium">2</span>
+                        </p>
 
-              <div
-                class="smart-documents__card smart-documents__card--large rounded-2xl smart-scanner__tip bg-card mb-4"
-                fxLayout="row"
-                fxLayoutAlign="start center"
-                *ngIf="!hideTip && !base64Image && !uploading"
-                [ngStyle.gt-sm]="{
-                  border: project.branding.borderColor
-                    ? '1px solid ' + project.branding.borderColor
-                    : ''
-                }"
-              >
-                <div class="w-full" fxLayout="column">
-                  <div fxLayout="row" fxLayoutAlign="start center">
-                    <mat-icon
-                      class="mr-3"
-                      svgIcon="feather:alert-octagon"
-                    ></mat-icon>
-                    <p>
-                      <span *ngIf="source === 'face'">{{
-                        "smart_enroll.face_instructions" | transloco
-                      }}</span>
-                      <span *ngIf="source === 'document'">{{
-                        "smart_enroll.document_instructions" | transloco
-                      }}</span>
-                    </p>
-                  </div>
+                        <p class="mt-0.5">
+                            {{
+                                'smart_enroll.documents.upload.back' | transloco
+                            }}
+                        </p>
+                    </div>
                 </div>
-
-                <button mat-icon-button (click)="closeTip()">
-                  <mat-icon svgIcon="mat_solid:close"></mat-icon>
-                </button>
-              </div>
             </div>
-          </div>
+
+            <div class="flex">
+                <smart-stepper></smart-stepper>
+            </div>
         </div>
+    </div>
 
-        <div
-          [class.hidden]="!base64Image || uploading"
-          class="smart-scanner__container min-h-full"
-          fxLayout="column"
-          fxLayoutAlign="center center"
-        >
-          <div
-            class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
-            fxLayout="column"
-            fxLayoutAlign="center center"
-            [ngStyle.gt-sm]="{
-              border: project.branding.borderColor
+    <div
+        [ngStyle.gt-sm]="{
+            border: project.branding.borderColor
                 ? '1px solid ' + project.branding.borderColor
                 : ''
-            }"
-          >
-            <div fxLayout="column" fxLayoutAlign="center center">
-              <h4 class="results__title mt-2 font-medium text-2xl">
-                <span>{{ "smart_enroll.detected" | transloco }}</span>
-              </h4>
+        }"
+        @fadeIn
+        *ngIf="!loadingCamera && !hasCameraPermissions"
+        class="smart-documents__card rounded-2xl bg-card p-6 w-full mb-4"
+        fxLayout="column"
+    >
+        <mat-card-title class="text-center mt-2">
+            <mat-icon
+                class="welcome__icon welcome__icon--medium"
+                [style.color]="project.branding.buttonColor"
+                svgIcon="heroicons_solid:video-camera-slash"
+            ></mat-icon>
+        </mat-card-title>
 
-              <p class="text-center" *ngIf="side === 'front' && requiresBack">
-                {{ "smart_enroll.requires_back" | transloco }}
-              </p>
+        <mat-card-title
+            class="text-center text-3xl mt-4"
+            [style.color]="project.branding.titleColor"
+        >
+            <span *ngIf="!cameraConstraintsInvalid">{{
+                'smart_enroll.camera_disabled_title' | transloco
+            }}</span>
+            <span *ngIf="cameraConstraintsInvalid">{{
+                'smart_enroll.camera_constraints' | transloco
+            }}</span>
+        </mat-card-title>
 
-              <div fxLayout="row" fxLayoutAlign="center">
-                <button
-                  (click)="goNext()"
-                  [style.background]="project.branding.buttonColor"
-                  [style.color]="project.branding.buttonTxtColor"
-                  class="fuse-mat-button mt-8"
-                  mat-flat-button
+        <mat-card-content
+            class="mt-8"
+            fxLayout="column"
+            fxLayoutAlign="start center"
+            @fadeIn
+        >
+            <p class="text-center">
+                <span *ngIf="!cameraConstraintsInvalid">{{
+                    'smart_enroll.camera_disabled_description' | transloco
+                }}</span>
+                <span *ngIf="cameraConstraintsInvalid">{{
+                    'smart_enroll.camera_constraints_description' | transloco
+                }}</span>
+            </p>
+
+            <button
+                (click)="loadQRCode()"
+                [disabled]="revealQRCode"
+                [style.backgroundColor]="
+                    !revealQRCode ? project.branding.buttonColor : ''
+                "
+                [style.color]="
+                    !revealQRCode ? project.branding.buttonTxtColor : ''
+                "
+                class="fuse-mat-button-large w-full mt-6"
+                mat-flat-button
+            >
+                <mat-icon matLeadingIcon>smartphone</mat-icon>
+                <span>{{ 'welcome.continue_on_another' | transloco }}</span>
+            </button>
+
+            <div
+                fxLayout="column"
+                fxLayoutAlign="start center"
+                [class.hidden]="!revealQRCode"
+            >
+                <div
+                    fxLayout="row"
+                    fxLayoutAlign="center center"
+                    style="height: 400px; width: 100%"
                 >
-                  <span>{{ "next" | transloco }}</span>
-                </button>
-              </div>
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="32"
+                        *ngIf="loadingQRCode"
+                    ></mat-progress-spinner>
+
+                    <canvas
+                        [class.hidden]="loadingQRCode"
+                        @fadeIn
+                        #qrCodeCanvas
+                        class="m-8"
+                        height="400"
+                        width="400"
+                    ></canvas>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
+
+            <hr class="w-full" />
+        </mat-card-content>
+
+        <mat-card-actions fxLayout="row" fxLayoutAlign="space-between">
+            <button
+                (click)="exitApplication()"
+                [style.border]="'1px solid ' + project.branding.buttonColor"
+                [style.color]="project.branding.buttonColor"
+                class="fuse-mat-button-large"
+                mat-flat-button
+            >
+                <span>{{ 'log_out' | transloco }}</span>
+            </button>
+
+            <button
+                (click)="goNext()"
+                [disabled]="!canSkip()"
+                [style.color]="!canSkip() ? '' : project.branding.buttonColor"
+                [style.border]="
+                    !canSkip() ? '' : '1px solid' + project.branding.buttonColor
+                "
+                class="fuse-mat-button-large"
+                *ngIf="
+                    (source === 'document' &&
+                        projectFlow.onboardingSettings.steps.document !==
+                            'mandatory') ||
+                    (source === 'face' &&
+                        projectFlow.onboardingSettings.steps.liveness !==
+                            'mandatory')
+                "
+                mat-flat-button
+            >
+                {{ 'skip' | transloco }}
+            </button>
+        </mat-card-actions>
     </div>
-  </div>
+
+    <div
+        *ngIf="hasCameraPermissions && !loadingCamera"
+        #canvasContainer
+        class="items-center w-full absolute inset-0"
+        fxLayout="column"
+        fxLayoutAlign="center center"
+    >
+        <div
+            *ngIf="!loadingCamera && hasCameraPermissions"
+            class="w-full min-h-screen"
+            fxLayout="column"
+            fxLayoutAlign="center center"
+        >
+            <div
+                *ngIf="!failedToDetectDocument"
+                class="w-full min-h-full overflow-auto"
+            >
+                <div
+                    [class.hidden]="base64Image && !uploading"
+                    class="smart-scanner__container min-h-full"
+                    fxLayout="column"
+                    fxLayoutAlign="center center"
+                >
+                    <ng-container *ngIf="!base64Image">
+                        <video
+                            [style.height.px]="HEIGHT"
+                            [style.width.px]="WIDTH"
+                            #videoElement
+                            autoplay
+                            class="smart-scanner__absolute-scanner rounded-3xl"
+                            muted
+                        ></video>
+
+                        <canvas
+                            [height]="video.height"
+                            [width]="video.width"
+                            #videoCanvas
+                            hidden
+                        ></canvas>
+
+                        <canvas
+                            [height]="video.height"
+                            [style.height.px]="HEIGHT"
+                            [style.width.px]="WIDTH"
+                            [width]="video.width"
+                            #maskCanvas
+                            class="smart-scanner__absolute-scanner rounded-3xl"
+                        ></canvas>
+
+                        <smart-scanner-corrections
+                            [angle]="corrections.angle"
+                            [bounds]="corrections.bounds"
+                            [height]="HEIGHT"
+                            [isLandscape]="isLandscape"
+                            [resolution]="corrections.resolution"
+                            [style.height.px]="HEIGHT"
+                            [style.width.px]="WIDTH"
+                            [width]="WIDTH"
+                            *ngIf="source === 'face'"
+                            class="smart-scanner__absolute-scanner rounded-3xl"
+                        ></smart-scanner-corrections>
+
+                        <div
+                            *ngIf="
+                                errorFace && errorFace.title && !loadingResults
+                            "
+                            fxLayout="column"
+                            fxLayoutAlign="center center"
+                            class="text-center m-6 mt-2 rounded-2xl absolute top-1/2 left-0 right-0"
+                        >
+                            <div
+                                [style.color]="
+                                    project ? project.branding.titleColor : null
+                                "
+                                class="text-3xl font-bold"
+                            >
+                                {{ errorFace.title }}
+                            </div>
+
+                            <div
+                                [style.color]="
+                                    project ? project.branding.txtColor : null
+                                "
+                                class="text-gray-600"
+                            >
+                                {{ errorFace.subtitle }}
+                            </div>
+                        </div>
+
+                        <code
+                            class="absolute top-0 right-0 bottom-0 z-index-2 text-right z-20"
+                            *ngIf="DEBUG_MODE"
+                        >
+                            <div>
+                                face:
+                                <br />
+                                x: {{ faceDetection?.alignedRect?.box?.x }}
+                                <br />
+                                y: {{ faceDetection?.alignedRect?.box?.y }}
+                                <br />
+                                width:
+                                {{ faceDetection?.alignedRect?.box?.width }}
+                                <br />
+                                height:
+                                {{ faceDetection?.alignedRect?.box?.height }}
+                                <br />
+                                pitch: {{ faceDetection?.angle?.pitch }}
+                                <br />
+                                yaw: {{ faceDetection?.angle?.yaw }}
+                                <br />
+                                roll: {{ faceDetection?.angle?.roll }}
+                                <br />
+                                <br />
+                                <br />
+                                face corrections:
+                                <br />
+                                x: {{ corrections?.bounds?.x }}
+                                <br />
+                                y: {{ corrections?.bounds?.y }}
+                                <br />
+                                width: {{ corrections?.resolution?.width }}
+                                <br />
+                                height: {{ corrections?.resolution?.height }}
+                                <br />
+                                pitch: {{ corrections?.angle?.pitch }}
+                                <br />
+                                yaw: {{ corrections?.angle?.yaw }}
+                                <br />
+                                roll: {{ corrections?.angle?.roll }}
+                                <br />
+                                <br />
+                                <br />
+                            </div>
+
+                            <div *ngIf="source === 'document'">
+                                document:
+                                <br />
+                                x: {{ documentDetection?.x }}
+                                <br />
+                                y: {{ documentDetection?.y }}
+                                <br />
+                                width: {{ documentDetection?.width }}
+                                <br />
+                                height: {{ documentDetection?.height }}
+                                <br />
+                                <br />
+                                <br />
+                                document corrections:
+                                <br />
+                                document x: {{ corrections.document.x }}
+                                <br />
+                                document y: {{ corrections.document.y }}
+                                <br />
+                                documentResolution height:
+                                {{ corrections.documentResolution.height }}
+                                <br />
+                                documentResolution width:
+                                {{ corrections.documentResolution.width }}
+                                <br />
+                                <br />
+                                <br />
+                            </div>
+                        </code>
+                    </ng-container>
+
+                    <div
+                        class="flex flex-col flex-grow justify-start min-w-120"
+                    >
+                        <div
+                            class="smart-scanner__title mt-2 flex flex-col"
+                            ngClass.lt-md="hidden"
+                        >
+                            <div
+                                class="w-full z-30"
+                                fxLayout="row"
+                                fxLayoutAlign="center space-between"
+                                *ngIf="source === 'document'"
+                            >
+                                <div
+                                    class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
+                                    [style.border]="
+                                        side === 'front'
+                                            ? '1px solid ' +
+                                              project.branding.buttonColor
+                                            : '1px solid #ffffff'
+                                    "
+                                >
+                                    <p
+                                        class="welcome__step"
+                                        [style.backgroundColor]="
+                                            side === 'front'
+                                                ? project.branding.bgColor
+                                                : ''
+                                        "
+                                        [style.color]="
+                                            side === 'front'
+                                                ? project.branding.buttonColor
+                                                : ''
+                                        "
+                                    >
+                                        <span
+                                            class="font-medium"
+                                            *ngIf="side === 'front'"
+                                            >1</span
+                                        >
+                                        <mat-icon
+                                            svgIcon="feather:check"
+                                            *ngIf="side === 'back'"
+                                            [style.color]="
+                                                project.branding.buttonColor
+                                            "
+                                        ></mat-icon>
+                                    </p>
+
+                                    <p class="mt-0.5">
+                                        {{
+                                            'smart_enroll.documents.upload.frontside'
+                                                | transloco
+                                        }}
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
+                                    [style.border]="
+                                        side === 'back'
+                                            ? '1px solid ' +
+                                              project.branding.buttonColor
+                                            : '1px solid #ffffff'
+                                    "
+                                    *ngIf="requiresBack"
+                                >
+                                    <p
+                                        class="welcome__step"
+                                        [style.backgroundColor]="
+                                            side === 'back'
+                                                ? project.branding.bgColor
+                                                : ''
+                                        "
+                                        [style.color]="
+                                            side === 'back'
+                                                ? project.branding.buttonColor
+                                                : ''
+                                        "
+                                    >
+                                        <span class="font-medium">2</span>
+                                    </p>
+
+                                    <p class="mt-0.5">
+                                        {{
+                                            'smart_enroll.documents.upload.backside'
+                                                | transloco
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                class="smart-documents__id-types welcome__step-row py-2 px-3 rounded-3xl w-full mt-2"
+                                fxLayout="row"
+                                fxLayoutAlign="space-between"
+                                *ngIf="source === 'document'"
+                                [ngStyle.gt-sm]="{
+                                    border: project.branding.buttonColor
+                                        ? '1px solid ' +
+                                          project.branding.buttonColor
+                                        : ''
+                                }"
+                                ngClass.lt-md="mt-20"
+                                ngClass.gt-sm="bg-card"
+                            >
+                                <div
+                                    [style.color]="
+                                        showPassportColor()
+                                            ? project.branding.txtColor
+                                            : '#a7a7a7'
+                                    "
+                                    *ngIf="
+                                        projectFlow.onboardingSettings.document
+                                            .usePassport
+                                    "
+                                    fxFlex
+                                    fxLayout="row"
+                                    fxLayoutAlign="center center"
+                                    ngClass.lt-md="text-sm"
+                                >
+                                    <mat-icon
+                                        [style.color]="
+                                            showPassportColor()
+                                                ? project.branding.txtColor
+                                                : '#a7a7a7'
+                                        "
+                                        ngClass.gt-sm="mr-4"
+                                        ngClass.lt-md="mr-2"
+                                        svgIcon="fa_solid:passport"
+                                    ></mat-icon>
+
+                                    <p class="font-medium">
+                                        {{
+                                            'smart_enroll.documents.upload.passport'
+                                                | transloco
+                                        }}
+                                    </p>
+                                </div>
+
+                                <div
+                                    [style.color]="
+                                        showLicenseColor()
+                                            ? project.branding.txtColor
+                                            : '#a7a7a7'
+                                    "
+                                    *ngIf="
+                                        projectFlow.onboardingSettings.document
+                                            .useLicense
+                                    "
+                                    fxFlex
+                                    fxLayout="row"
+                                    fxLayoutAlign="center center"
+                                    ngClass.lt-md="text-sm"
+                                >
+                                    <mat-icon
+                                        [style.color]="
+                                            showLicenseColor()
+                                                ? project.branding.txtColor
+                                                : '#a7a7a7'
+                                        "
+                                        ngClass.gt-sm="mr-4"
+                                        ngClass.lt-md="mr-2"
+                                        svgIcon="fa_regular:id-card"
+                                    ></mat-icon>
+
+                                    <p class="font-medium">
+                                        {{
+                                            'smart_enroll.documents.upload.driver_license'
+                                                | transloco
+                                        }}
+                                    </p>
+                                </div>
+
+                                <div
+                                    [style.color]="
+                                        showGovernmentIDColor()
+                                            ? project.branding.txtColor
+                                            : '#a7a7a7'
+                                    "
+                                    *ngIf="
+                                        projectFlow.onboardingSettings.document
+                                            .useGovernmentID
+                                    "
+                                    fxFlex
+                                    fxLayout="row"
+                                    fxLayoutAlign="center center"
+                                    ngClass.lt-md="text-sm"
+                                >
+                                    <mat-icon
+                                        [style.color]="
+                                            showGovernmentIDColor()
+                                                ? project.branding.txtColor
+                                                : '#a7a7a7'
+                                        "
+                                        ngClass.gt-sm="mr-4"
+                                        ngClass.lt-md="mr-2"
+                                        svgIcon="fa_regular:address-card"
+                                    ></mat-icon>
+
+                                    <p class="font-medium">
+                                        {{
+                                            'smart_enroll.documents.upload.id'
+                                                | transloco
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex flex-col flex-grow justify-end items-center z-20"
+                            [class.hidden]="base64Image"
+                        >
+                            <div
+                                class="smart-scanner__buttons flex flex-row mb-4 justify-center"
+                                fxLayoutGap="12px"
+                            >
+                                <button
+                                    (click)="goPrevious()"
+                                    [disabled]="!canGoPrevious()"
+                                    [style.color]="
+                                        !canGoPrevious()
+                                            ? ''
+                                            : project.branding.buttonColor
+                                    "
+                                    [style.border]="
+                                        !canGoPrevious()
+                                            ? ''
+                                            : '1px solid' +
+                                              project.branding.buttonColor
+                                    "
+                                    class="fuse-mat-button"
+                                    mat-flat-button
+                                    ngClass.lt-md="hidden"
+                                >
+                                    {{ 'go_back' | transloco }}
+                                </button>
+
+                                <button
+                                    (click)="goNext()"
+                                    [disabled]="!canSkip()"
+                                    [style.color]="
+                                        !canSkip()
+                                            ? ''
+                                            : project.branding.buttonColor
+                                    "
+                                    [style.border]="
+                                        !canSkip()
+                                            ? ''
+                                            : '1px solid' +
+                                              project.branding.buttonColor
+                                    "
+                                    *ngIf="
+                                        (source === 'document' &&
+                                            projectFlow.onboardingSettings.steps
+                                                .document !== 'mandatory') ||
+                                        (source === 'face' &&
+                                            projectFlow.onboardingSettings.steps
+                                                .liveness !== 'mandatory')
+                                    "
+                                    class="fuse-mat-button"
+                                    mat-flat-button
+                                >
+                                    {{ 'skip' | transloco }}
+                                </button>
+
+                                <button
+                                    (click)="takePicture()"
+                                    [disabled]="
+                                        (side === 'front' && errorFace) ||
+                                        uploading
+                                    "
+                                    [style.background]="
+                                        (side === 'front' && errorFace) ||
+                                        uploading
+                                            ? ''
+                                            : project.branding.buttonColor
+                                    "
+                                    [style.color]="
+                                        (side === 'front' && errorFace) ||
+                                        uploading
+                                            ? ''
+                                            : project.branding.buttonTxtColor
+                                    "
+                                    *ngIf="source === 'document'"
+                                    class="fuse-mat-button"
+                                    mat-flat-button
+                                >
+                                    {{
+                                        'id_scanning.manual_capture_button'
+                                            | transloco
+                                    }}
+                                </button>
+                            </div>
+
+                            <div
+                                class="smart-documents__card smart-documents__card--large rounded-2xl smart-scanner__tip bg-card mb-4"
+                                fxLayout="row"
+                                fxLayoutAlign="start center"
+                                *ngIf="!hideTip && !base64Image && !uploading"
+                                [ngStyle.gt-sm]="{
+                                    border: project.branding.borderColor
+                                        ? '1px solid ' +
+                                          project.branding.borderColor
+                                        : ''
+                                }"
+                            >
+                                <div class="w-full" fxLayout="column">
+                                    <div
+                                        fxLayout="row"
+                                        fxLayoutAlign="start center"
+                                    >
+                                        <mat-icon
+                                            class="mr-3"
+                                            svgIcon="feather:alert-octagon"
+                                        ></mat-icon>
+                                        <p>
+                                            <span *ngIf="source === 'face'">{{
+                                                'smart_enroll.face_instructions'
+                                                    | transloco
+                                            }}</span>
+                                            <span
+                                                *ngIf="source === 'document'"
+                                                >{{
+                                                    'smart_enroll.document_instructions'
+                                                        | transloco
+                                                }}</span
+                                            >
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button mat-icon-button (click)="closeTip()">
+                                    <mat-icon
+                                        svgIcon="mat_solid:close"
+                                    ></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    [class.hidden]="!base64Image || uploading"
+                    class="smart-scanner__container min-h-full"
+                    fxLayout="column"
+                    fxLayoutAlign="center center"
+                >
+                    <div
+                        class="smart-documents__card w-full rounded-2xl bg-card m-4 p-6 mt-12"
+                        fxLayout="column"
+                        fxLayoutAlign="center center"
+                        [ngStyle.gt-sm]="{
+                            border: project.branding.borderColor
+                                ? '1px solid ' + project.branding.borderColor
+                                : ''
+                        }"
+                    >
+                        <div fxLayout="column" fxLayoutAlign="center center">
+                            <h4
+                                class="results__title mt-2 font-medium text-2xl"
+                            >
+                                <span>{{
+                                    'smart_enroll.detected' | transloco
+                                }}</span>
+                            </h4>
+
+                            <p
+                                class="text-center"
+                                *ngIf="side === 'front' && requiresBack"
+                            >
+                                {{ 'smart_enroll.requires_back' | transloco }}
+                            </p>
+
+                            <div fxLayout="row" fxLayoutAlign="center">
+                                <button
+                                    (click)="goNext()"
+                                    [style.background]="
+                                        project.branding.buttonColor
+                                    "
+                                    [style.color]="
+                                        project.branding.buttonTxtColor
+                                    "
+                                    class="fuse-mat-button mt-8"
+                                    mat-flat-button
+                                >
+                                    <span>{{ 'next' | transloco }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
