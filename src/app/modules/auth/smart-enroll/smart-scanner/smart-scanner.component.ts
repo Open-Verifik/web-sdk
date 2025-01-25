@@ -1,5 +1,6 @@
 import * as faceapi from "@vladmandic/face-api";
-import jscanify, { Contour } from "libs/jscanify";
+// import jscanify, { Contour } from "libs/jscanify";
+import { Contour } from "libs/jscanify";
 import QRCode from "qrcode";
 
 import { debounce, DebouncedFunc } from "lodash";
@@ -24,14 +25,14 @@ import { Corrections, SmartEnrollService } from "../smart-enroll.service";
 import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 import { environment } from "environments/environment";
 
-const JSScanify = new jscanify();
+// const JSScanify = new jscanify();
 
 interface MediaTrackSupportedConstraintsExtended extends MediaTrackSupportedConstraints {
-	zoom?: boolean;	
+	zoom?: boolean;
 }
 
 interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
-	zoom?: ConstrainULong;	
+	zoom?: ConstrainULong;
 }
 
 @Component({
@@ -55,7 +56,7 @@ interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
 export class SmartScannerComponent implements OnInit, OnDestroy {
 	@ViewChild("canvasContainer") canvasContainer: ElementRef<HTMLDivElement>;
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
-	
+
 	@ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
 	@ViewChild("maskCanvas") public maskCanvas: ElementRef<HTMLCanvasElement>;
@@ -70,15 +71,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	@Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
 	@Input() successfulUpload: Observable<void>;
-	
+
 	private unsubscriber$: Subject<void> = new Subject<void>();
-	
+
 	private _checkFaceTimeout: any;
 	private _debouncedTakePicture: DebouncedFunc<() => void>;
 	private _debouncedWindowResize: DebouncedFunc<() => void>;
 	private _detectionInterval: ReturnType<typeof setInterval>;
 	private _rectCredential: any;
-	private _scanner: jscanify;
+	// private _scanner: jscanify;
 
 	DEBUG_MODE: boolean = !environment.production && false;
 
@@ -189,41 +190,41 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._stopRecord();
 	}
 
-	private _detectDocument(video: HTMLVideoElement, videoCanvas: HTMLCanvasElement, videoCanvasCtx: CanvasRenderingContext2D) {
-		this._startAutoCapture();
-		this._paintMaskCanvas();
+	// private _detectDocument(video: HTMLVideoElement, videoCanvas: HTMLCanvasElement, videoCanvasCtx: CanvasRenderingContext2D) {
+	// 	this._startAutoCapture();
+	// 	this._paintMaskCanvas();
 
-		try {
-			const vRatio = (videoCanvas.height / video.videoHeight) * video.videoWidth;
-			videoCanvasCtx.drawImage(video, 0, 0, vRatio, videoCanvas.height);
+	// 	try {
+	// 		const vRatio = (videoCanvas.height / video.videoHeight) * video.videoWidth;
+	// 		videoCanvasCtx.drawImage(video, 0, 0, vRatio, videoCanvas.height);
 
-			try {
-				const img = cv.imread(videoCanvas);
+	// 		try {
+	// 			const img = cv.imread(videoCanvas);
 
-				cv.imshow(videoCanvas, img);
+	// 			cv.imshow(videoCanvas, img);
 
-				const maxContour = this._scanner.findPaperContour(img);
+	// 			const maxContour = this._scanner.findPaperContour(img);
 
-				if (maxContour) {
-					const contours = this._scanner.getCornerPoints(maxContour);
+	// 			if (maxContour) {
+	// 				const contours = this._scanner.getCornerPoints(maxContour);
 
-					const {
-						bounds,
-						detection,
-						isValid,
-						resolution,
-					}= this._smartEnrollService.evaluateDocumentContours(this.BOUNDS, contours);
+	// 				const {
+	// 					bounds,
+	// 					detection,
+	// 					isValid,
+	// 					resolution,
+	// 				}= this._smartEnrollService.evaluateDocumentContours(this.BOUNDS, contours);
 
-					this.corrections.document = bounds;
-					this.corrections.documentResolution = resolution;
-					this.documentDetection = detection;
-					this.documentIsValid = isValid;
-				}
+	// 				this.corrections.document = bounds;
+	// 				this.corrections.documentResolution = resolution;
+	// 				this.documentDetection = detection;
+	// 				this.documentIsValid = isValid;
+	// 			}
 
-				img.delete();
-			} catch (er) {}
-		} catch (e) {}
-	}
+	// 			img.delete();
+	// 		} catch (er) {}
+	// 	} catch (e) {}
+	// }
 
 	async _detectFace(image: faceapi.TNetInput) {
 		if (this.source === 'face') {
@@ -463,7 +464,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
 
 		this._rectCredential = {};
-		this._scanner = JSScanify;
+		// this._scanner = JSScanify;
 
 		this.demoData = this._demoService.getDemoData();
 		this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
@@ -668,18 +669,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			YAW_HIGH: 20,
 			YAW_LOW: -20,
 		};
-		const DOCUMENT_H_ANGLE_LIMIT = {
-			PITCH_HIGH: 15,
-			PITCH_LOW: -15,
-			ROLL_HIGH: 15,
-			ROLL_LOW: -15,
-		};
-		const DOCUMENT_V_ANGLE_LIMIT = {
-			PITCH_HIGH: 15,
-			PITCH_LOW: -15,
-			ROLL_HIGH: 15,
-			ROLL_LOW: -15,
-		};
 
 		const FACE_H_RESOLUTION_LIMIT = {
 			WIDTH_HIGH: __rescaleCalc(750),
@@ -693,23 +682,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			HEIGHT_HIGH: __rescaleCalc(1000),
 			HEIGHT_LOW: __rescaleCalc(850),
 		};
-		const DOCUMENT_H_RESOLUTION_LIMIT = {
-			WIDTH_HIGH: __rescaleCalc(1500),
-			WIDTH_LOW: __rescaleCalc(1000),
-			HEIGHT_HIGH: __rescaleCalc(825),
-			HEIGHT_LOW: __rescaleCalc(600),
-		};
 		const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
 			WIDTH_HIGH: __rescaleCalc(500),
 			WIDTH_LOW: __rescaleCalc(150),
 			HEIGHT_HIGH: __rescaleCalc(500),
 			HEIGHT_LOW: __rescaleCalc(150),
-		};
-		const DOCUMENT_V_RESOLUTION_LIMIT = {
-			WIDTH_HIGH: __rescaleCalc(900),
-			WIDTH_LOW: __rescaleCalc(700),
-			HEIGHT_HIGH: __rescaleCalc(600),
-			HEIGHT_LOW: __rescaleCalc(200),
 		};
 		const DOCUMENT_FACE_V_RESOLUTION_LIMIT = {
 			WIDTH_HIGH: __rescaleCalc(350),
@@ -730,23 +707,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			Y_HIGH: __rescaleCalc(620),
 			Y_LOW: __rescaleCalc(430),
 		};
-		const DOCUMENT_H_BOUNDS_LIMIT = {
-			X_HIGH: __rescaleCalc(1200),
-			X_LOW: __rescaleCalc(450),
-			Y_HIGH: __rescaleCalc(700),
-			Y_LOW: __rescaleCalc(400),
-		};
 		const DOCUMENT_FACE_H_BOUNDS_LIMIT = {
 			X_HIGH: __rescaleCalc(1500),
 			X_LOW: __rescaleCalc(200),
 			Y_HIGH: __rescaleCalc(600),
 			Y_LOW: __rescaleCalc(200),
-		};
-		const DOCUMENT_V_BOUNDS_LIMIT = {
-			X_HIGH: __rescaleCalc(700),
-			X_LOW: __rescaleCalc(400),
-			Y_HIGH: __rescaleCalc(1000),
-			Y_LOW: __rescaleCalc(600),
 		};
 		const DOCUMENT_FACE_V_BOUNDS_LIMIT = {
 			X_HIGH: __rescaleCalc(800),
@@ -754,6 +719,43 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			Y_HIGH: __rescaleCalc(1200),
 			Y_LOW: __rescaleCalc(700),
 		};
+
+		// const DOCUMENT_H_ANGLE_LIMIT = {
+		// 	PITCH_HIGH: 15,
+		// 	PITCH_LOW: -15,
+		// 	ROLL_HIGH: 15,
+		// 	ROLL_LOW: -15,
+		// };
+		// const DOCUMENT_V_ANGLE_LIMIT = {
+		// 	PITCH_HIGH: 15,
+		// 	PITCH_LOW: -15,
+		// 	ROLL_HIGH: 15,
+		// 	ROLL_LOW: -15,
+		// };
+		// const DOCUMENT_H_RESOLUTION_LIMIT = {
+		// 	WIDTH_HIGH: __rescaleCalc(1500),
+		// 	WIDTH_LOW: __rescaleCalc(1000),
+		// 	HEIGHT_HIGH: __rescaleCalc(825),
+		// 	HEIGHT_LOW: __rescaleCalc(600),
+		// };
+		// const DOCUMENT_V_RESOLUTION_LIMIT = {
+		// 	WIDTH_HIGH: __rescaleCalc(900),
+		// 	WIDTH_LOW: __rescaleCalc(700),
+		// 	HEIGHT_HIGH: __rescaleCalc(600),
+		// 	HEIGHT_LOW: __rescaleCalc(200),
+		// };
+		// const DOCUMENT_H_BOUNDS_LIMIT = {
+		// 	X_HIGH: __rescaleCalc(1200),
+		// 	X_LOW: __rescaleCalc(450),
+		// 	Y_HIGH: __rescaleCalc(700),
+		// 	Y_LOW: __rescaleCalc(400),
+		// };
+		// const DOCUMENT_V_BOUNDS_LIMIT = {
+		// 	X_HIGH: __rescaleCalc(700),
+		// 	X_LOW: __rescaleCalc(400),
+		// 	Y_HIGH: __rescaleCalc(1000),
+		// 	Y_LOW: __rescaleCalc(600),
+		// };
 
 		if (this.source === 'face') {
 			this.BOUNDS.face = this.isLandscape
@@ -778,17 +780,17 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 						res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
 				}
 			
-			this.BOUNDS.document = this.isLandscape
-				? {
-						angle: { ...DOCUMENT_H_ANGLE_LIMIT },
-						bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
-						res: { ...DOCUMENT_H_RESOLUTION_LIMIT },
-				}
-				: {
-						angle: { ...DOCUMENT_V_ANGLE_LIMIT },
-						bounds: { ...DOCUMENT_V_BOUNDS_LIMIT },
-						res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
-				}
+			// this.BOUNDS.document = this.isLandscape
+			// 	? {
+			// 			angle: { ...DOCUMENT_H_ANGLE_LIMIT },
+			// 			bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
+			// 			res: { ...DOCUMENT_H_RESOLUTION_LIMIT },
+			// 	}
+			// 	: {
+			// 			angle: { ...DOCUMENT_V_ANGLE_LIMIT },
+			// 			bounds: { ...DOCUMENT_V_BOUNDS_LIMIT },
+			// 			res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
+			// 	}
 		}
 	}
 
@@ -833,11 +835,14 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		// To limit processing multiple calculations at once (for devices that run a little slower)
 		this.calculating = true;
 
-		if (this.source === "document") {
-			const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
+		
+		// Removing document scanner for the time being - Causes stutter/lag for mobile devices
+		// if (this.source === "document") {
+		// 	const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
 
-			this._detectDocument(video, videoCanvas, videoCanvasCtx);
-		}
+		// 	this._detectDocument(video, videoCanvas, videoCanvasCtx);
+		// }
+		this.documentIsValid = true;
 
 		if (this.side === "front" || this.source === "face") {
 			await this._detectFace(video);

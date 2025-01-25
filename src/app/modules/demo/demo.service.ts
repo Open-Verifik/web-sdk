@@ -130,24 +130,25 @@ export class DemoService {
 
 		promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
 		promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
-		promises.push(this.loadOpenCV());
+		// promises.push(this.loadOpenCV());
 
 		await Promise.allSettled(promises);
 
 		this._faceapi.next(true);
 	}
 	
-	async loadOpenCV() {
-		return new Promise((resolve, reject) => {
-			const s = document.createElement('script');
+	// Removing document scanner for the time being - Causes stutter/lag for mobile devices
+	// async loadOpenCV() {
+	// 	return new Promise((resolve, reject) => {
+	// 		const s = document.createElement('script');
 
-			s.src = "https://docs.opencv.org/4.7.0/opencv.js";
-			s.onload = resolve;
-			s.onerror = reject;
+	// 		s.src = "https://docs.opencv.org/4.7.0/opencv.js";
+	// 		s.onload = resolve;
+	// 		s.onerror = reject;
 
-			document.head.appendChild(s);
-		});
-	}
+	// 		document.head.appendChild(s);
+	// 	});
+	// }
 
 	getNavigation(): any {
 		return this.navigation;
@@ -559,7 +560,9 @@ export class DemoService {
 
 	findBiggestFace(detections: faceapi.WithFaceLandmarks<{
 		detection: faceapi.FaceDetection;
-	}, faceapi.FaceLandmarks68>[]) {
+	}, faceapi.FaceLandmarks68>[]): faceapi.WithFaceLandmarks<{
+		detection: faceapi.FaceDetection;
+	}, faceapi.FaceLandmarks68> {
 		let maxArea = 0;
 		let biggestFace: faceapi.WithFaceLandmarks<{
 			detection: faceapi.FaceDetection;

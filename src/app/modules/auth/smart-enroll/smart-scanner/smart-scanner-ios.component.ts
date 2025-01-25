@@ -2,7 +2,9 @@ import QRCode from "qrcode";
 import { Observable, Subject, takeUntil } from "rxjs";
 
 import * as faceapi from "@vladmandic/face-api";
-import jscanify, { Contour } from "libs/jscanify";
+
+// import jscanify from "libs/jscanify";
+import { Contour } from "libs/jscanify";
 
 import {
 	ErrorFace,
@@ -31,7 +33,7 @@ import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, SmartEnrol
 import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
 import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 
-const JSScanify = new jscanify();
+// const JSScanify = new jscanify();
 
 @Component({
 	animations: fuseAnimations,
@@ -68,7 +70,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
 	private unsubscriber$: Subject<void> = new Subject<void>();
 	private _detectionInterval: ReturnType<typeof setInterval>;
-	private _scanner: jscanify;
+	// private _scanner: jscanify;
 
 	DEBUG_MODE: boolean = !environment.production && false;
 	BOUNDS: { face: any, document: any } = { face: {}, document: {} };
@@ -188,31 +190,31 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		ctx.save();
 	};
 
-	private _detectDocument(videoCanvas: HTMLCanvasElement) {
-		try {
-			const img = cv.imread(videoCanvas);
-			const maxContour = this._scanner.findPaperContour(img);
+	// private _detectDocument(videoCanvas: HTMLCanvasElement) {
+	// 	try {
+	// 		const img = cv.imread(videoCanvas);
+	// 		const maxContour = this._scanner.findPaperContour(img);
 
-			if (maxContour) {
-				const contours = this._scanner.getCornerPoints(maxContour);
+	// 		if (maxContour) {
+	// 			const contours = this._scanner.getCornerPoints(maxContour);
 
-				const {
-					bounds,
-					detection,
-					isValid,
-					resolution,
-				} = this._smartEnrollService.evaluateDocumentContours(this.BOUNDS, contours);
+	// 			const {
+	// 				bounds,
+	// 				detection,
+	// 				isValid,
+	// 				resolution,
+	// 			} = this._smartEnrollService.evaluateDocumentContours(this.BOUNDS, contours);
 
-				this.corrections.document = bounds;
-				this.corrections.documentResolution = resolution;
+	// 			this.corrections.document = bounds;
+	// 			this.corrections.documentResolution = resolution;
 
-				this.documentDetection = detection;
-				this.documentIsValid = isValid;
-			}
+	// 			this.documentDetection = detection;
+	// 			this.documentIsValid = isValid;
+	// 		}
 
-			img.delete();
-		} catch (e) {}
-	}
+	// 		img.delete();
+	// 	} catch (e) {}
+	// }
 
 	private async _detectFace(image: HTMLImageElement) {
 		try {
@@ -490,9 +492,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				let faceDetectPromise: Promise<void>;
 
 				try {
-					if (this.source === 'document') {
-						this._detectDocument(videoCanvas);
-					}
+					// Removing document scanner for the time being - Causes stutter/lag for mobile devices
+					// if (this.source === 'document') {
+					// 	this._detectDocument(videoCanvas);
+					// }
+					this.documentIsValid = true;
 			
 					if (this.side === 'front' || this.source === 'face') {
 						faceDetectPromise = this._detectFace(img);
@@ -513,8 +517,10 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 							this.errorContent = null;
 			
 							this._changeDetectorRef.markForCheck();
-			
-							this._takePicture(img, base64Image);
+
+							if (this.source === 'face') {
+								this._takePicture(img, base64Image);
+							}
 						} else {
 							this._changeDetectorRef.markForCheck();
 						}
@@ -627,7 +633,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 		this._detectionInterval = null;
 
 		this._initAppRegistrationData();
-		this._scanner = JSScanify;
+		// this._scanner = JSScanify;
 		this.successPosition = 0;
 
 		this.demoData = this._demoService.getDemoData();
@@ -700,11 +706,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 				res: { ...faceResolution },
 			};
 
-			document = {
-				angle: { ...angle },
-				bounds: { ...bounds },
-				res: { ...documentResolution },
-			};
+			// document = {
+			// 	angle: { ...angle },
+			// 	bounds: { ...bounds },
+			// 	res: { ...documentResolution },
+			// };
 
 			this.BOUNDS = { document, face };
 
