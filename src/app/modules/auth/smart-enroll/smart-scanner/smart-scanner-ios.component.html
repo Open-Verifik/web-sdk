@@ -20,10 +20,9 @@
     (detected)="handleResolutionDetection($event)"
     (failedToDetect)="cameraError()"
     [source]="source"
-    [forceVertical]="demoData.OS === 'IOS'"
->
-    <!-- && !isLandscape -->
-</smart-camera-resolution-detection>
+    [forceVertical]="!isLandscape"
+></smart-camera-resolution-detection>
+<!-- demoData.OS === 'IOS' && -->
 
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
     <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
