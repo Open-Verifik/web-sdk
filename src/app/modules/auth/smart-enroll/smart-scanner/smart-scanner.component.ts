@@ -86,7 +86,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     @ViewChild('videoCanvas') public videoCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild('videoElement') videoElement: ElementRef<HTMLVideoElement>;
 
-    @Input('source') source: 'document' | 'face';
+    @Input() source;
 
     @Output('onImageScan') onImageScan: EventEmitter<ImageScan> =
         new EventEmitter<ImageScan>();
