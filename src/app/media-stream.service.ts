@@ -11,14 +11,11 @@ export class MediaStreamService {
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
             for (const device of devices) {
-                if (
-                    device.kind === 'videoinput' ||
-                    device.kind === 'audioinput'
-                ) {
+                if (device.kind === 'videoinput') {
                     try {
                         const stream =
                             await navigator.mediaDevices.getUserMedia({
-                                audio: device.kind === 'audioinput',
+                                audio: false,
                                 video: device.kind === 'videoinput',
                             });
                         stream.getTracks().forEach((track) => {

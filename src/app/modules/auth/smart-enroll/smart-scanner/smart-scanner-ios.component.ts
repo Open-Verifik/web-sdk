@@ -1068,8 +1068,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
         this._detectionInterval = null;
 
-        console.log({ stream: this.stream });
-
         if (!this.stream) return;
 
         this.stream
@@ -1335,19 +1333,22 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     restartCamera(): void {
         if (this.uploading) return;
 
-        this._stopRecording();
+        this._mediaStreamService
+            .stopAllStreams()
+            .then(() => {
+                this._stopRecording();
 
-        this._loading({ isLoading: true, start: true });
-        this._setVideoOptionConfigs();
+                this._loading({ isLoading: true, start: true });
+                this._setVideoOptionConfigs();
 
-        this.showError = false;
-        this.errorContent = null;
-        this.response.base64Image = undefined;
-        this.successPosition = 0;
-
-        setTimeout(() => {
-            this._startRecording();
-        }, 300);
+                this.showError = false;
+                this.errorContent = null;
+                this.response.base64Image = undefined;
+                this.successPosition = 0;
+            })
+            .finally(() => {
+                this._startRecording();
+            });
     }
 
     showPassportColor(): boolean {
