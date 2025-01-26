@@ -104,8 +104,6 @@ export class SmartCameraResolutionDetectionComponent
         if (this.stream) {
             this.stream.getTracks().forEach((track) => track.stop());
             this.stream = null;
-
-            console.log({ stream: this.stream, streamClosed: true });
         }
     }
 

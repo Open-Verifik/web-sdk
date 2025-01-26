@@ -1064,11 +1064,16 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
         this._detectionInterval = null;
 
+        console.log({ stream: this.stream });
+
         if (!this.stream) return;
 
         this.stream
             .getTracks()
             .forEach((track: MediaStreamTrack) => track.stop());
+
+        console.log({ killedStream: this.stream });
+
         this.stream = null;
     }
 
