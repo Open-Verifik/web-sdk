@@ -18,6 +18,7 @@ import {
     Renderer2,
     ViewChild,
 } from '@angular/core';
+
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -39,8 +40,6 @@ import { SmartStepperComponent } from '../smart-enroll-stepper/smart-stepper.com
 import { Corrections, SmartEnrollService } from '../smart-enroll.service';
 import { SmartScannerCorrectionsComponent } from './smart-scanner-corrections/smart-scanner-corrections.component';
 import { environment } from 'environments/environment';
-
-// const JSScanify = new jscanify();
 
 interface MediaTrackSupportedConstraintsExtended
     extends MediaTrackSupportedConstraints {
@@ -70,6 +69,9 @@ interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
     ],
 })
 export class SmartScannerComponent implements OnInit, OnDestroy {
+    @Input() source;
+    @Input() successfulUpload: Observable<void>;
+
     @ViewChild('canvasContainer') canvasContainer: ElementRef<HTMLDivElement>;
     @ViewChild('faceCardCanvas', { static: true })
     faceCardCanvas: ElementRef<HTMLCanvasElement>;
@@ -86,12 +88,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     @ViewChild('videoCanvas') public videoCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild('videoElement') videoElement: ElementRef<HTMLVideoElement>;
 
-    @Input() source;
-
     @Output('onImageScan') onImageScan: EventEmitter<ImageScan> =
         new EventEmitter<ImageScan>();
-
-    @Input() successfulUpload: Observable<void>;
 
     private unsubscriber$: Subject<void> = new Subject<void>();
 
@@ -172,8 +170,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.isLandscape = window.matchMedia(
             '(orientation: landscape)'
         ).matches;
-
-        console.log({ source: this.source });
 
         this._resetVariables();
 

@@ -27,7 +27,7 @@
             [successfulUpload]="successfulUploadSubject.asObservable()"
             *ngIf="!errorResult && demoData.OS !== 'IOS'"
             class="w-full h-full"
-            [source]="'face'"
+            source="face"
         ></smart-scanner>
 
         <smart-scanner-ios

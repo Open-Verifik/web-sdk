@@ -70,6 +70,8 @@ export class SmartBiometricsComponent implements OnDestroy {
         this.errorContent = { message: '' };
 
         this.demoData = this._demoService.getDemoData();
+
+        console.log({ demoData: this.demoData });
     }
 
     ngOnDestroy() {
