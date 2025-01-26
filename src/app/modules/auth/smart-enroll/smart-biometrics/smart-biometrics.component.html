@@ -25,7 +25,11 @@
         <smart-scanner
             (onImageScan)="onImageScan($event)"
             [successfulUpload]="successfulUploadSubject.asObservable()"
-            *ngIf="!errorResult && demoData.OS !== 'IOS'"
+            *ngIf="
+                !errorResult &&
+                demoData.OS !== 'IOS' &&
+                demoData.OS !== 'ANDROID'
+            "
             class="w-full h-full"
             source="face"
         ></smart-scanner>
@@ -33,7 +37,10 @@
         <smart-scanner-ios
             (onImageScan)="onImageScan($event)"
             [successfulUpload]="successfulUploadSubject.asObservable()"
-            *ngIf="!errorResult && demoData.OS === 'IOS'"
+            *ngIf="
+                !errorResult &&
+                (demoData.OS === 'IOS' || demoData.OS === 'ANDROID')
+            "
             class="w-full min-h-full"
             source="face"
         ></smart-scanner-ios>
