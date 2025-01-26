@@ -101,7 +101,7 @@ export class SmartCameraResolutionDetectionComponent
         this.unsubscriber$.complete();
 
         //stop all streams
-        this._mediaStreamService.stopAllStreams();
+        this._mediaStreamService.stopStream(this.stream);
     }
 
     private _attachMaxWindowResolutionForAspectRatio() {
