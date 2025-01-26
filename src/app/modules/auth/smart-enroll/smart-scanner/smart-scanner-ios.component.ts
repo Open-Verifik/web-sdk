@@ -50,6 +50,7 @@ import {
     SmartCameraResolutionDetectionComponent,
 } from './smart-camera-resolution-detection/smart-camera-resolution-detection.component';
 import { SmartScannerCorrectionsComponent } from './smart-scanner-corrections/smart-scanner-corrections.component';
+import { MediaStreamService } from 'app/media-stream.service';
 
 // const JSScanify = new jscanify();
 
@@ -146,12 +147,15 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         private _demoService: DemoService,
         private _KYCService: KYCService,
         private _smartEnrollService: SmartEnrollService,
-        private _translocoService: TranslocoService
+        private _translocoService: TranslocoService,
+        private _mediaStreamService: MediaStreamService
     ) {
         this._resetVariables();
+        // call the stopAllStreams from mediaStream
     }
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<any> {
+        await this._mediaStreamService.stopAllStreams();
         this.camera.hasPermissions = true;
         this._loading({ isLoading: true, start: true });
         this._setVideoOptionConfigs();
@@ -1071,8 +1075,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         this.stream
             .getTracks()
             .forEach((track: MediaStreamTrack) => track.stop());
-
-        console.log({ killedStream: this.stream });
 
         this.stream = null;
     }
