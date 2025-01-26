@@ -1039,6 +1039,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             .then((stream) => {
                 this.stream = stream;
 
+                this._mediaStreamService.addStream(stream);
+
                 setTimeout(() => {
                     const videoElement: HTMLVideoElement =
                         this.videoElement.nativeElement;
@@ -1068,13 +1070,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
         this._detectionInterval = null;
 
-        if (!this.stream) return;
-
-        this.stream
-            .getTracks()
-            .forEach((track: MediaStreamTrack) => track.stop());
-
-        this.stream = null;
+        this._mediaStreamService.stopAllStreams();
     }
 
     private _takePicture(img: HTMLImageElement, rawBase64Image: string) {
@@ -1333,22 +1329,17 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     restartCamera(): void {
         if (this.uploading) return;
 
-        this._mediaStreamService
-            .stopAllStreams()
-            .then(() => {
-                this._stopRecording();
+        this._stopRecording();
 
-                this._loading({ isLoading: true, start: true });
-                this._setVideoOptionConfigs();
+        this._loading({ isLoading: true, start: true });
+        this._setVideoOptionConfigs();
 
-                this.showError = false;
-                this.errorContent = null;
-                this.response.base64Image = undefined;
-                this.successPosition = 0;
-            })
-            .finally(() => {
-                this._startRecording();
-            });
+        this.showError = false;
+        this.errorContent = null;
+        this.response.base64Image = undefined;
+        this.successPosition = 0;
+
+        this._startRecording();
     }
 
     showPassportColor(): boolean {

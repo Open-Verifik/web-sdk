@@ -14,6 +14,7 @@ import {
 } from '../../smart-enroll.service';
 import { WebcamInitError } from 'ngx-webcam';
 import { Subject, takeUntil } from 'rxjs';
+import { MediaStreamService } from 'app/media-stream.service';
 
 export type Resolution = {
     height: number;
@@ -55,18 +56,16 @@ export class SmartCameraResolutionDetectionComponent
     deviceId: string;
     stream: MediaStream;
 
-    constructor(private _renderer: Renderer2) {
+    constructor(
+        private _renderer: Renderer2,
+        private _mediaStreamService: MediaStreamService
+    ) {
         this._renderer.listen('window', 'resize', () => this._init());
 
         this.cameraCycle$.pipe(takeUntil(this.unsubscriber$)).subscribe({
             next: (data) => {
                 if (data.resolution) {
-                    if (this.stream) {
-                        this.stream
-                            .getTracks()
-                            .forEach((track) => track.stop());
-                        this.stream = null;
-                    }
+                    this._mediaStreamService.stopAllStreams();
 
                     this.detected.next(data.resolution);
                 } else {
@@ -101,10 +100,8 @@ export class SmartCameraResolutionDetectionComponent
         this.unsubscriber$.next();
         this.unsubscriber$.complete();
 
-        if (this.stream) {
-            this.stream.getTracks().forEach((track) => track.stop());
-            this.stream = null;
-        }
+        //stop all streams
+        this._mediaStreamService.stopAllStreams();
     }
 
     private _attachMaxWindowResolutionForAspectRatio() {
@@ -226,9 +223,13 @@ export class SmartCameraResolutionDetectionComponent
 
                 return true;
             } else {
-                this.stream = await navigator.mediaDevices.getUserMedia(
+                this.stream = await this._mediaStreamService.startStream(
                     mediaOptions
                 );
+
+                // //  await navigator.mediaDevices.getUserMedia(
+                //     mediaOptions
+                // );
 
                 const videoTrack = this.stream.getVideoTracks()[0];
 
