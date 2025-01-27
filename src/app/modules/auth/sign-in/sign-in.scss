@@ -1,425 +1,425 @@
 auth-sign-up {
-	position: relative;
+    position: relative;
 }
 
 .main-logo {
-	position: absolute;
-	top: 10px;
-	left: 20px;
-	z-index: 0;
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    z-index: 0;
 }
 
 .w-400 {
-	width: 400px !important;
+    width: 400px !important;
 }
 
 bg-white {
-	background-color: white;
+    background-color: white;
 }
 
 .sign-in-content {
-	margin: 16px 0;
-	border: 1px solid #c4c6d0;
-	z-index: 2 !important;
+    margin: 16px 0;
+    border: 1px solid #c4c6d0;
+    z-index: 2 !important;
 
-	&--small {
-		max-width: 432px;
-	}
+    &--small {
+        max-width: 432px;
+    }
 
-	&__icon {
-		height: 80px !important;
-		width: 80px !important;
-	}
+    &__icon {
+        height: 80px !important;
+        width: 80px !important;
+    }
 }
 
 .credits-h2 {
-	font-size: 24px;
-	text-align: center;
+    font-size: 24px;
+    text-align: center;
 }
 
 .credits-h3 {
-	font-size: 16px;
-	text-align: center;
-	font-weight: 600;
-	color: grey;
+    font-size: 16px;
+    text-align: center;
+    font-weight: 600;
+    color: grey;
 }
 
 .biometrics-button {
-	background-color: #82269e;
-	color: white !important;
-	width: 80% !important;
+    background-color: #82269e;
+    color: white !important;
+    width: 80% !important;
 }
 
 mat-form-field {
-	padding-right: 4px !important;
+    padding-right: 4px !important;
 }
 
 .mat-mdc-tab-label-container {
-	margin: 0 !important;
+    margin: 0 !important;
 }
 
 mat-tab-body {
-	.mat-mdc-tab-body-content {
-		padding-left: 0 !important;
-		padding-right: 0 !important;
-		padding-top: 8px !important;
-		padding-bottom: 5px !important;
-	}
+    .mat-mdc-tab-body-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 8px !important;
+        padding-bottom: 5px !important;
+    }
 }
 
 .w-120px {
-	width: 60% !important;
+    width: 60% !important;
 }
 
 .main-div {
-	padding: 2rem;
+    padding: 2rem;
 }
 
 .half-width-image {
-	width: 50vw; /* vw stands for viewport width */
-	object-fit: fill;
-	height: 100%;
+    width: 50vw; /* vw stands for viewport width */
+    object-fit: fill;
+    height: 100%;
 }
 
 .full-size-image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .left-card-inner-div {
-	max-width: 20rem;
+    max-width: 20rem;
 }
 
 .biometric-instructions {
-	min-width: 400px;
+    min-width: 400px;
 }
 
 .welcome {
-	&__step {
-		background-color: #e4e9f1;
-		border-radius: 12px;
-		height: 24px;
-		margin-right: 12px;
-		min-height: 24px;
-		min-width: 24px;
-		padding: 2px;
-		text-align: center;
-		width: 24px;
+    &__step {
+        background-color: #e4e9f1;
+        border-radius: 12px;
+        height: 24px;
+        margin-right: 12px;
+        min-height: 24px;
+        min-width: 24px;
+        padding: 2px;
+        text-align: center;
+        width: 24px;
 
-		mat-icon {
-			transform: scale(0.8);
-			margin-left: -2px;
-			margin-top: -1px;
-		}
+        mat-icon {
+            transform: scale(0.8);
+            margin-left: -2px;
+            margin-top: -1px;
+        }
 
-		&--large {
-			border-radius: 18px;
-			font-size: 14px;
-			height: 36px;
-			min-height: 36px;
-			min-width: 36px;
-			padding: 4px;
-			width: 36px;
+        &--large {
+            border-radius: 18px;
+            font-size: 14px;
+            height: 36px;
+            min-height: 36px;
+            min-width: 36px;
+            padding: 4px;
+            width: 36px;
 
-			mat-icon {
-				transform: scale(0.8);
-				margin-left: 0;
-				margin-top: 0;
-			}
-		}
-	}
+            mat-icon {
+                transform: scale(0.8);
+                margin-left: 0;
+                margin-top: 0;
+            }
+        }
+    }
 
-	&__image {
-		width: 162px;
-	}
+    &__image {
+        width: 162px;
+    }
 
-	&__step-column {
-		margin-top: 24px;
-	}
+    &__step-column {
+        margin-top: 24px;
+    }
 
-	&__step-row {
-		padding: 12px 0;
+    &__step-row {
+        padding: 12px 0;
 
-		&--active {
-			font-weight: 600;
-		}
+        &--active {
+            font-weight: 600;
+        }
 
-		&--condensed {
-			padding: 8px 0;
-		}
+        &--condensed {
+            padding: 8px 0;
+        }
 
-		&--forward {
-			z-index: 9999;
-		}
-	}
+        &--forward {
+            z-index: 9999;
+        }
+    }
 
-	&__step-number {
-		display: block;
+    &__step-number {
+        display: block;
 
-		&--large {
-			height: 24px;
-			min-height: 24px;
-			min-width: 24px;
-			padding: 2px;
-			width: 24px;
-		}
-	}
+        &--large {
+            height: 24px;
+            min-height: 24px;
+            min-width: 24px;
+            padding: 2px;
+            width: 24px;
+        }
+    }
 
-	&__step-text {
-		padding: 2px;
-		background-color: #e4e9f1;
-		border-radius: 12px;
+    &__step-text {
+        padding: 2px;
+        background-color: #e4e9f1;
+        border-radius: 12px;
 
-		&--large {
-			padding: 8px 12px;
-			font-size: 14px;
-			height: 36px;
-			border-radius: 18px;
-			min-width: 180px;
-		}
-	}
+        &--large {
+            padding: 8px 12px;
+            font-size: 14px;
+            height: 36px;
+            border-radius: 18px;
+            min-width: 180px;
+        }
+    }
 
-	&__icon {
-		&--medium {
-			font-size: 64px;
+    &__icon {
+        &--medium {
+            font-size: 64px;
 
-			&.mat-icon {
-				height: 64px;
-				width: 64px;
-			}
-		}
+            &.mat-icon {
+                height: 64px;
+                width: 64px;
+            }
+        }
 
-		&--large {
-			font-size: 128px;
+        &--large {
+            font-size: 128px;
 
-			&.mat-icon {
-				height: 128px;
-				width: 128px;
-			}
-		}
+            &.mat-icon {
+                height: 128px;
+                width: 128px;
+            }
+        }
 
-		&--rounded {
-			font-size: 96px;
+        &--rounded {
+            font-size: 96px;
 
-			&.mat-icon {
-				border-radius: 64px;
-				height: 128px;
-				width: 128px;
-			}
-		}
-	}
+            &.mat-icon {
+                border-radius: 64px;
+                height: 128px;
+                width: 128px;
+            }
+        }
+    }
 }
 
 .verify {
-	&__chip {
-		height: 40px !important;
-		border-radius: 20px !important;
+    &__chip {
+        height: 40px !important;
+        border-radius: 20px !important;
 
-		.mdc-evolution-chip__action {
-			padding-left: 4px;
-			padding-right: 4px;
+        .mdc-evolution-chip__action {
+            padding-left: 4px;
+            padding-right: 4px;
 
-			&:before {
-				border-radius: 20px !important;
-			}
-		}
+            &:before {
+                border-radius: 20px !important;
+            }
+        }
 
-		&--large {
-			height: 48px !important;
-			border-radius: 24px !important;
+        &--large {
+            height: 48px !important;
+            border-radius: 24px !important;
 
-			.mdc-evolution-chip__action {
-				&:before {
-					border-radius: 24px !important;
-				}
-			}
-		}
+            .mdc-evolution-chip__action {
+                &:before {
+                    border-radius: 24px !important;
+                }
+            }
+        }
 
-		&--no-border {
-			.mdc-evolution-chip__action {
-				&:before {
-					border: none !important;
-				}
-			}
-		}
-	}
+        &--no-border {
+            .mdc-evolution-chip__action {
+                &:before {
+                    border: none !important;
+                }
+            }
+        }
+    }
 
-	&__icon {
-		font-size: small;
+    &__icon {
+        font-size: small;
 
-		&--color-white {
-			color: #ffffff;
-			border-radius: 24px;
-		}
-	}
+        &--color-white {
+            color: #ffffff;
+            border-radius: 24px;
+        }
+    }
 }
 
 /* For mobile devices (up to 599px) */
 @media (max-width: 599px) {
-	.biometric-instructions {
-		min-width: 300px !important;
-	}
+    .biometric-instructions {
+        min-width: 300px !important;
+    }
 
-	.main-div {
-		padding: 4px;
-	}
+    .main-div {
+        padding: 4px;
+    }
 
-	.whole-card {
-		width: 90%;
-	}
+    .whole-card {
+        width: 90%;
+    }
 
-	.left-card {
-		width: 100% !important;
+    .left-card {
+        width: 100% !important;
 
-		.left-card-inner-div {
-			width: 90% !important;
-			max-width: 90% !important;
-			padding-left: 8px;
-			padding-right: 8px;
-			padding-top: 12px;
-			padding-bottom: 12px;
-		}
-	}
+        .left-card-inner-div {
+            width: 90% !important;
+            max-width: 90% !important;
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+    }
 }
 
 /* For small tablets (600px to 767px) */
 @media (min-width: 600px) and (max-width: 767px) {
-	.whole-card {
-		width: 70%;
-	}
+    .whole-card {
+        width: 70%;
+    }
 
-	.left-card {
-		width: 100% !important;
+    .left-card {
+        width: 100% !important;
 
-		.left-card-inner-div {
-			width: 90% !important;
-			max-width: 90% !important;
-			padding: 24px;
-		}
-	}
+        .left-card-inner-div {
+            width: 90% !important;
+            max-width: 90% !important;
+            padding: 24px;
+        }
+    }
 }
 
 /* For (700 to 959px) */
 @media (min-width: 768px) and (max-width: 959px) {
-	.whole-card {
-		width: 60%;
-	}
+    .whole-card {
+        width: 60%;
+    }
 
-	.left-card {
-		width: 100% !important;
+    .left-card {
+        width: 100% !important;
 
-		.left-card-inner-div {
-			width: 90% !important;
-			max-width: 90% !important;
-			padding: 24px;
-		}
-	}
+        .left-card-inner-div {
+            width: 90% !important;
+            max-width: 90% !important;
+            padding: 24px;
+        }
+    }
 }
 
 /* For tablets (768px to 1023px) */
 @media (min-width: 960px) and (max-width: 1023px) {
-	.whole-card-without-image {
-		width: 55%;
-	}
+    .whole-card-without-image {
+        width: 55%;
+    }
 
-	.left-card {
-		width: 50% !important;
+    .left-card {
+        width: 50% !important;
 
-		.left-card-inner-div {
-			width: 99% !important;
-			max-width: 99% !important;
-			padding: 20px;
-		}
-	}
+        .left-card-inner-div {
+            width: 99% !important;
+            max-width: 99% !important;
+            padding: 20px;
+        }
+    }
 
-	.left-card-without-image {
-		width: 100% !important;
-	}
+    .left-card-without-image {
+        width: 100% !important;
+    }
 }
 
 /* For small laptops (1024px to 1279px) */
 @media (min-width: 1024px) and (max-width: 1249px) {
-	.whole-card {
-		width: 98%;
-		max-height: 93vh !important;
-	}
+    .whole-card {
+        width: 98%;
+        max-height: 93vh !important;
+    }
 
-	.whole-card-without-image {
-		width: 47% !important;
-	}
+    .whole-card-without-image {
+        width: 47% !important;
+    }
 
-	.left-card {
-		width: 47% !important;
+    .left-card {
+        width: 47% !important;
 
-		.left-card-inner-div {
-			padding-top: 16px;
-			width: 90% !important;
-			max-width: 90% !important;
-		}
-	}
+        .left-card-inner-div {
+            padding-top: 16px;
+            width: 90% !important;
+            max-width: 90% !important;
+        }
+    }
 
-	.left-card-without-image {
-		width: 100% !important;
-	}
+    .left-card-without-image {
+        width: 100% !important;
+    }
 }
 
 /* For small laptops (1024px to 1279px) */
 @media (min-width: 1250px) and (max-width: 1499px) {
-	.whole-card {
-		width: 85%;
-		max-height: 93vh !important;
-	}
+    .whole-card {
+        width: 85%;
+        max-height: 93vh !important;
+    }
 
-	.whole-card-without-image {
-		width: 42% !important;
-	}
+    .whole-card-without-image {
+        width: 42% !important;
+    }
 
-	.left-card {
-		width: 42% !important;
+    .left-card {
+        width: 42% !important;
 
-		.left-card-inner-div {
-			width: 100% !important;
-			max-width: 100% !important;
-			padding: 24px;
-		}
-	}
+        .left-card-inner-div {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 24px;
+        }
+    }
 
-	.left-card-without-image {
-		width: 100% !important;
-	}
+    .left-card-without-image {
+        width: 100% !important;
+    }
 }
 
 /* For desktops (1280px and above) */
 @media (min-width: 1500px) {
-	.main-div {
-		padding: 1rem !important;
-	}
+    .main-div {
+        padding: 1rem !important;
+    }
 
-	.whole-card {
-		width: 75%;
-		height: 800px;
-		max-height: 94.5vh !important;
-	}
+    .whole-card {
+        width: 75%;
+        height: 800px;
+        max-height: 94.5vh !important;
+    }
 
-	.whole-card-without-image {
-		width: 33% !important;
-	}
+    .whole-card-without-image {
+        width: 33% !important;
+    }
 
-	.left-card {
-		width: 40% !important;
+    .left-card {
+        width: 40% !important;
 
-		.left-card-inner-div {
-			width: 100% !important;
-			max-width: 100% !important;
-			padding-top: 20px;
-			padding-left: 20px;
-			padding-bottom: 10px;
-			padding-right: 20px;
-		}
-	}
+        .left-card-inner-div {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-bottom: 10px;
+            padding-right: 20px;
+        }
+    }
 
-	.left-card-without-image {
-		width: 100% !important;
-	}
+    .left-card-without-image {
+        width: 100% !important;
+    }
 }

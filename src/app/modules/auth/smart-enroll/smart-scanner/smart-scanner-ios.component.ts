@@ -800,10 +800,9 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             facingMode: {
                 exact: this.source === "face" ? "user" : "environment",
             },
-            focusMode: "continuous",
+            focusMode: { exact: "continuous" },
             frameRate: { ideal: 60 },
             noiseSuppression: true,
-            zoom: { ideal: 0 },
         } as MediaTrackConstraintSetExtended;
 
         this.videoOptions = settings;
