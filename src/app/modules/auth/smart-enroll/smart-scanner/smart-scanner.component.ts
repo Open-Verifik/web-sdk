@@ -1,48 +1,32 @@
-import * as faceapi from '@vladmandic/face-api';
+import * as faceapi from "@vladmandic/face-api";
 // import jscanify, { Contour } from "libs/jscanify";
-import { Contour } from 'libs/jscanify';
-import QRCode from 'qrcode';
+import { Contour } from "libs/jscanify";
+import QRCode from "qrcode";
 
-import { debounce, DebouncedFunc } from 'lodash';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { debounce, DebouncedFunc } from "lodash";
+import { Observable, Subject, takeUntil } from "rxjs";
 
-import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
+import { CommonModule } from "@angular/common";
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
-import { fuseAnimations } from '@fuse/animations';
+import { fuseAnimations } from "@fuse/animations";
 
-import { KYCService } from 'app/modules/auth/kyc.service';
-import {
-    AppRegistration,
-    ImageScan,
-    Project,
-    ProjectFlow,
-} from 'app/modules/auth/project';
-import { DemoService } from 'app/modules/demo/demo.service';
-import { SmartStepperComponent } from '../smart-enroll-stepper/smart-stepper.component';
-import { Corrections, SmartEnrollService } from '../smart-enroll.service';
-import { SmartScannerCorrectionsComponent } from './smart-scanner-corrections/smart-scanner-corrections.component';
-import { environment } from 'environments/environment';
+import { KYCService } from "app/modules/auth/kyc.service";
+import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
+import { DemoService } from "app/modules/demo/demo.service";
+import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { Corrections, SmartEnrollService } from "../smart-enroll.service";
+import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
+import { environment } from "environments/environment";
 
-interface MediaTrackSupportedConstraintsExtended
-    extends MediaTrackSupportedConstraints {
+interface MediaTrackSupportedConstraintsExtended extends MediaTrackSupportedConstraints {
     zoom?: boolean;
 }
 
@@ -52,10 +36,10 @@ interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
 
 @Component({
     animations: fuseAnimations,
-    selector: 'smart-scanner',
+    selector: "smart-scanner",
     standalone: true,
-    styleUrls: ['./smart-scanner.component.scss'],
-    templateUrl: './smart-scanner.component.html',
+    styleUrls: ["./smart-scanner.component.scss"],
+    templateUrl: "./smart-scanner.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
@@ -72,24 +56,23 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     @Input() source;
     @Input() successfulUpload: Observable<void>;
 
-    @ViewChild('canvasContainer') canvasContainer: ElementRef<HTMLDivElement>;
-    @ViewChild('faceCardCanvas', { static: true })
+    @ViewChild("canvasContainer") canvasContainer: ElementRef<HTMLDivElement>;
+    @ViewChild("faceCardCanvas", { static: true })
     faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
-    @ViewChild('qrCodeCanvas')
+    @ViewChild("qrCodeCanvas")
     public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
-    @ViewChild('maskCanvas') public maskCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild('resultCanvas')
+    @ViewChild("maskCanvas") public maskCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("resultCanvas")
     public resultCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild('toSendCanvas')
+    @ViewChild("toSendCanvas")
     public toSendCanvas: ElementRef<HTMLCanvasElement>;
 
-    @ViewChild('videoCanvas') public videoCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild('videoElement') videoElement: ElementRef<HTMLVideoElement>;
+    @ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("videoElement") videoElement: ElementRef<HTMLVideoElement>;
 
-    @Output('onImageScan') onImageScan: EventEmitter<ImageScan> =
-        new EventEmitter<ImageScan>();
+    @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
     private unsubscriber$: Subject<void> = new Subject<void>();
 
@@ -122,7 +105,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     projectFlow: ProjectFlow;
     requiresBack: boolean = false;
     revealQRCode: boolean = false;
-    side: 'back' | 'front' = 'front';
+    side: "back" | "front" = "front";
     stream: MediaStream;
     test: string;
     unsupported: boolean = false;
@@ -138,11 +121,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     };
 
     corrections: Corrections = {
-        angle: { pitch: '', roll: '', yaw: '' },
-        bounds: { x: '', y: '' },
-        document: { x: '', y: '' },
-        documentResolution: { height: '', width: '' },
-        resolution: { height: '', width: '' },
+        angle: { pitch: "", roll: "", yaw: "" },
+        bounds: { x: "", y: "" },
+        document: { x: "", y: "" },
+        documentResolution: { height: "", width: "" },
+        resolution: { height: "", width: "" },
     };
 
     documentDetection: {
@@ -167,9 +150,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         private _smartEnrollService: SmartEnrollService,
         private _translocoService: TranslocoService
     ) {
-        this.isLandscape = window.matchMedia(
-            '(orientation: landscape)'
-        ).matches;
+        this.isLandscape = window.matchMedia("(orientation: landscape)").matches;
 
         this._resetVariables();
 
@@ -184,24 +165,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this._renderer.listen('window', 'resize', this._debouncedWindowResize);
+        this._renderer.listen("window", "resize", this._debouncedWindowResize);
 
-        this.successfulUpload
-            .pipe(takeUntil(this.unsubscriber$))
-            .subscribe(() => {
-                this.uploading = false;
-                this.requiresBack =
-                    this.appRegistration.documentValidation?.requiresBackSide ||
-                    !!this.appRegistration.documentValidation?.backUrl;
-            });
+        this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
+            this.uploading = false;
+            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+        });
 
-        this._demoService.faceapi$
-            .pipe(takeUntil(this.unsubscriber$))
-            .subscribe((isLoaded) => {
-                if (!isLoaded || this.stream) return;
+        this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
+            if (!isLoaded || this.stream) return;
 
-                setTimeout(() => this._startCamera());
-            });
+            setTimeout(() => this._startCamera());
+        });
     }
 
     ngOnDestroy(): void {
@@ -251,32 +226,25 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     // }
 
     async _detectFace(image: faceapi.TNetInput) {
-        if (this.source === 'face') {
+        if (this.source === "face") {
             this._startAutoCapture();
             this._paintMaskCanvas();
         }
 
         try {
-            const detection = await faceapi
-                .detectAllFaces(
-                    image,
-                    new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })
-                )
-                .withFaceLandmarks();
+            const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
             if (detection.length) {
-                this.faceDetection =
-                    this._demoService.findBiggestFace(detection);
+                this.faceDetection = this._demoService.findBiggestFace(detection);
 
                 this.errorFace = null;
                 this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 
-                const { angle, bounds, isValid, resolution } =
-                    this._smartEnrollService.evaluateFaceDetection(
-                        this.BOUNDS,
-                        this.faceDetection,
-                        this.source
-                    );
+                const { angle, bounds, isValid, resolution } = this._smartEnrollService.evaluateFaceDetection(
+                    this.BOUNDS,
+                    this.faceDetection,
+                    this.source
+                );
 
                 this.corrections.angle = angle;
                 this.corrections.bounds = bounds;
@@ -285,10 +253,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
                 return detection;
             } else if (!this._checkFaceTimeout) {
-                this._checkFaceTimeout = setTimeout(
-                    () => this._detectFaceError(),
-                    3 * this.demoData.time
-                );
+                this._checkFaceTimeout = setTimeout(() => this._detectFaceError(), 3 * this.demoData.time);
             }
         } catch (e) {}
     }
@@ -296,23 +261,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     private _detectFaceError(): void {
         this.faceIsValid = false;
 
-        if (this.source === 'document') {
+        if (this.source === "document") {
             this.errorFace = {
-                title: this._translocoService.translate(
-                    'id_scanning.face_not_found'
-                ),
-                subtitle: this._translocoService.translate(
-                    'id_scanning.face_not_found_details'
-                ),
+                title: this._translocoService.translate("id_scanning.face_not_found"),
+                subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
             };
         } else {
             this.errorFace = {
-                title: this._translocoService.translate(
-                    'liveness.face_not_found_title'
-                ),
-                subtitle: this._translocoService.translate(
-                    'liveness.face_not_found_subtitle'
-                ),
+                title: this._translocoService.translate("liveness.face_not_found_title"),
+                subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
             };
         }
     }
@@ -322,10 +279,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         const width = this.WIDTH;
 
         const originalDrawingSize = this.isLandscape ? 180 : 140;
-        const scale = Math.min(
-            width / originalDrawingSize,
-            height / originalDrawingSize
-        );
+        const scale = Math.min(width / originalDrawingSize, height / originalDrawingSize);
 
         const centerX = width / 2;
         const centerY = height / 2;
@@ -333,7 +287,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         const centerAdjustment = -(originalDrawingSize / 2);
 
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
         ctx.fillRect(0, 0, width, height);
         ctx.closePath();
 
@@ -343,7 +297,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         ctx.translate(centerAdjustment, centerAdjustment);
 
         ctx.beginPath();
-        ctx.globalCompositeOperation = 'destination-atop';
+        ctx.globalCompositeOperation = "destination-atop";
 
         const adjustX = this.isLandscape ? 0 : 19.5;
         const adjustY = this.isLandscape ? 15 : 40;
@@ -383,7 +337,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         ctx.beginPath();
         ctx.lineWidth = 6;
-        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = "source-over";
 
         // Arc
         ctx.arc(
@@ -415,7 +369,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         );
 
         ctx.clip();
-        ctx.strokeStyle = this._isCaptureValid() ? '#3bf65f' : '#FF5638';
+        ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
         ctx.stroke();
         ctx.closePath();
     }
@@ -425,21 +379,14 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         const width = this.WIDTH;
 
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
         ctx.fillRect(0, 0, width, height);
         ctx.closePath();
 
-        const rectDimensions = this._calculateMaxDimensions(
-            { width: 16, height: 9 },
-            { width, height }
-        );
+        const rectDimensions = this._calculateMaxDimensions({ width: 16, height: 9 }, { width, height });
 
-        rectDimensions.height = Math.floor(
-            rectDimensions.height * (this.isLandscape ? 0.6 : 0.8)
-        );
-        rectDimensions.width = Math.floor(
-            rectDimensions.width * (this.isLandscape ? 0.6 : 0.8)
-        );
+        rectDimensions.height = Math.floor(rectDimensions.height * (this.isLandscape ? 0.6 : 0.8));
+        rectDimensions.width = Math.floor(rectDimensions.width * (this.isLandscape ? 0.6 : 0.8));
 
         const center = {
             x: width / 2 - rectDimensions.width / 2,
@@ -447,64 +394,47 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         };
 
         ctx.beginPath();
-        ctx.clearRect(
-            center.x,
-            center.y,
-            rectDimensions.width,
-            rectDimensions.height
-        );
+        ctx.clearRect(center.x, center.y, rectDimensions.width, rectDimensions.height);
         ctx.stroke();
         ctx.closePath();
 
         ctx.beginPath();
-        ctx.roundRect(
-            center.x,
-            center.y,
-            rectDimensions.width,
-            rectDimensions.height,
-            8
-        );
-        ctx.strokeStyle = this._isCaptureValid() ? '#3bf65f' : '#FF5638';
+        ctx.roundRect(center.x, center.y, rectDimensions.width, rectDimensions.height, 8);
+        ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
         ctx.lineWidth = Math.max(Math.floor(Math.max(width, height) / 100), 4);
         ctx.stroke();
         ctx.closePath();
     }
 
     private _drawMask(ctx: CanvasRenderingContext2D): void {
-        ctx.strokeStyle = 'rgba(0,0,0,0)';
+        ctx.strokeStyle = "rgba(0,0,0,0)";
         ctx.miterLimit = 4;
-        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillStyle = "rgba(0,0,0,0)";
         ctx.scale(1, 1);
 
         ctx.save();
 
-        if (this.source === 'face') {
+        if (this.source === "face") {
             this._drawFaceMask(ctx);
         } else {
             this._drawIdMask(ctx);
         }
 
-        this._setDimensions(
-            this.video.height,
-            this.video.width,
-            this._rectCredential
-        );
+        this._setDimensions(this.video.height, this.video.width, this._rectCredential);
         this._setDimensions(this.video.height, this.video.width, this.video);
     }
 
     private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
         try {
-            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: 'L' });
+            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
 
             this.loadingQRCode = false;
         } catch (e) {}
     }
 
     private _isCaptureValid(): boolean {
-        return this.source === 'document'
-            ? this.documentIsValid &&
-                  ((this.side === 'front' && this.faceIsValid) ||
-                      this.side === 'back')
+        return this.source === "document"
+            ? this.documentIsValid && ((this.side === "front" && this.faceIsValid) || this.side === "back")
             : this.faceIsValid;
     }
 
@@ -519,12 +449,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         if (this._debouncedTakePicture) return;
 
         let debounceWait = 500;
-        if (this.source === 'document') debounceWait = 800;
+        if (this.source === "document") debounceWait = 800;
 
-        this._debouncedTakePicture = debounce(
-            () => this.takePicture(),
-            debounceWait
-        );
+        this._debouncedTakePicture = debounce(() => this.takePicture(), debounceWait);
         this._debouncedTakePicture();
     }
 
@@ -532,17 +459,13 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
-        this.requiresBack =
-            this.appRegistration.documentValidation?.requiresBackSide ||
-            !!this.appRegistration.documentValidation?.backUrl;
+        this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
 
         this._rectCredential = {};
         // this._scanner = JSScanify;
 
         this.demoData = this._demoService.getDemoData();
-        this.isLandscape =
-            window.matchMedia('(orientation: landscape)').matches ||
-            window.innerHeight < window.innerWidth;
+        this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
 
         this.hideTip = false;
         this.base64Image = undefined;
@@ -561,17 +484,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         const IDEAL_B = 1080;
 
         const settings: MediaTrackConstraintSetExtended = {
-            aspectRatio: this.isLandscape
-                ? IDEAL_A / IDEAL_B
-                : IDEAL_B / IDEAL_A,
+            aspectRatio: this.isLandscape ? IDEAL_A / IDEAL_B : IDEAL_B / IDEAL_A,
             frameRate: { min: 15, ideal: 30, max: 60 },
-            height: this.isLandscape
-                ? { min: 480, ideal: IDEAL_B, max: IDEAL_B }
-                : { min: 854, ideal: IDEAL_A, max: IDEAL_A },
-            width: this.isLandscape
-                ? { min: 854, ideal: IDEAL_A, max: IDEAL_A }
-                : { min: 480, ideal: IDEAL_B, max: IDEAL_B },
-            facingMode: this.source === 'face' ? 'user' : 'environment',
+            height: this.isLandscape ? { min: 480, ideal: IDEAL_B, max: IDEAL_B } : { min: 854, ideal: IDEAL_A, max: IDEAL_A },
+            width: this.isLandscape ? { min: 854, ideal: IDEAL_A, max: IDEAL_A } : { min: 480, ideal: IDEAL_B, max: IDEAL_B },
+            facingMode: this.source === "face" ? "user" : "environment",
         };
 
         settings.zoom = { ideal: 0 };
@@ -582,18 +499,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             ...this.videoOptions,
             ...settings,
         };
-
-        console.log({
-            settings,
-            videoOptions: this.videoOptions,
-            source: this.source,
-        });
     }
 
-    private _calculateMaxDimensions(
-        container: { height: number; width: number },
-        containerToFit: { height: number; width: number }
-    ) {
+    private _calculateMaxDimensions(container: { height: number; width: number }, containerToFit: { height: number; width: number }) {
         const scaleFactorWidth = containerToFit.width / container.width;
         const scaleFactorHeight = containerToFit.height / container.height;
 
@@ -616,10 +524,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             width: Math.min(containerWidth, this.video.width),
         };
 
-        const rescaledProportions = this._calculateMaxDimensions(
-            this.video,
-            containerToFit
-        );
+        const rescaledProportions = this._calculateMaxDimensions(this.video, containerToFit);
 
         this.HEIGHT = rescaledProportions.height;
         this.WIDTH = rescaledProportions.width;
@@ -631,12 +536,12 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         maskCanvas.height = this.HEIGHT;
         maskCanvas.width = this.WIDTH;
 
-        const canvasCtx = maskCanvas.getContext('2d');
+        const canvasCtx = maskCanvas.getContext("2d");
         this._drawMask(canvasCtx);
     }
 
     private _setDimensions(height: number, width: number, data: any) {
-        if (this.source === 'document') {
+        if (this.source === "document") {
             if (this.isLandscape) {
                 data.rectHeight = Math.floor(height * 0.8);
                 data.y = Math.floor(height * 0.1);
@@ -650,7 +555,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             }
         }
 
-        if (this.source === 'face') {
+        if (this.source === "face") {
             if (this.isLandscape) {
                 data.rectHeight = height;
                 data.y = 0;
@@ -667,7 +572,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
     private _startCamera() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.error('Browser does not support getUserMedia API.');
+            console.error("Browser does not support getUserMedia API.");
 
             this.hasCameraPermissions = false;
             this.loadingCamera = false;
@@ -702,21 +607,12 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                 this._setBounds();
 
                 setTimeout(() => {
-                    const video: HTMLVideoElement =
-                        this.videoElement.nativeElement;
+                    const video: HTMLVideoElement = this.videoElement.nativeElement;
 
                     video.srcObject = stream;
 
-                    video.removeEventListener(
-                        'loadedmetadata',
-                        this._onVideoLoaded,
-                        true
-                    );
-                    video.addEventListener(
-                        'loadedmetadata',
-                        this._onVideoLoaded,
-                        true
-                    );
+                    video.removeEventListener("loadedmetadata", this._onVideoLoaded, true);
+                    video.addEventListener("loadedmetadata", this._onVideoLoaded, true);
                 });
             })
             .catch((error) => {
@@ -725,7 +621,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                     this.loadingCamera = false;
                     this.hasCameraPermissions = false;
                 } else {
-                    console.error('Error accessing the camera:', error);
+                    console.error("Error accessing the camera:", error);
 
                     this.loadingCamera = false;
                     this.hasCameraPermissions = false;
@@ -848,7 +744,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         // 	Y_LOW: __rescaleCalc(600),
         // };
 
-        if (this.source === 'face') {
+        if (this.source === "face") {
             this.BOUNDS.face = this.isLandscape
                 ? {
                       angle: { ...FACE_H_ANGLE_LIMIT },
@@ -892,15 +788,14 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._setCanvasDimensions();
         this._paintMaskCanvas();
 
-        if (this.source === 'face') {
-            video.style.transform = 'scaleX(-1)';
+        if (this.source === "face") {
+            video.style.transform = "scaleX(-1)";
         } else {
-            video.style.transform = '';
+            video.style.transform = "";
         }
 
         // Delay detection calculations by a number of frames for performance.
-        const detectionDelay =
-            this.demoData === 'ANDROID' || this.source === 'face' ? 20 : 15;
+        const detectionDelay = this.demoData === "ANDROID" || this.source === "face" ? 20 : 15;
 
         let frameCount = 0;
 
@@ -911,7 +806,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
             this._onIntervalDetect(video, videoCanvas)
                 .catch((error) => {
-                    console.log(
+                    console.error(
                         `file: smart-scanner.component.ts:821 ~ SmartScannerComponent ~ this._detectionInterval=setInterval ~ error:`,
                         error
                     );
@@ -924,10 +819,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         }, Math.floor(1000 / 30));
     };
 
-    private _onIntervalDetect = async (
-        video: HTMLVideoElement,
-        videoCanvas: HTMLCanvasElement
-    ): Promise<void> => {
+    private _onIntervalDetect = async (video: HTMLVideoElement, videoCanvas: HTMLCanvasElement): Promise<void> => {
         if (this.calculating) return Promise.resolve();
 
         // To limit processing multiple calculations at once (for devices that run a little slower)
@@ -941,7 +833,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         // }
         this.documentIsValid = true;
 
-        if (this.side === 'front' || this.source === 'face') {
+        if (this.side === "front" || this.source === "face") {
             await this._detectFace(video);
         }
     };
@@ -953,9 +845,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         if (!this.stream) return;
 
-        this.stream
-            .getTracks()
-            .forEach((track: MediaStreamTrack) => track.stop());
+        this.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
         this.stream = null;
     }
 
@@ -964,25 +854,20 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
-        if (this.source === 'face') {
-            this._smartEnrollService.setSkippedBiometric(
-                !this.appRegistration.biometricValidation
-            );
+        if (this.source === "face") {
+            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
             this._smartEnrollService.goToNextStep(); // result
 
             return;
         }
 
-        if (this.requiresBack && this.side !== 'back') {
-            this.side = 'back';
+        if (this.requiresBack && this.side !== "back") {
+            this.side = "back";
             this._resetVariables();
             this._startCamera();
 
             return;
-        } else if (
-            this.appRegistration.documentValidation &&
-            !this._smartEnrollService.wasSkippedDocument()
-        ) {
+        } else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep(); // document-review
 
             return;
@@ -994,28 +879,21 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     canGoPrevious(): boolean {
         const canGoBackToDocument =
             !!this.appRegistration.documentValidation ||
-            this.projectFlow.onboardingSettings.steps.document !== 'skip' ||
+            this.projectFlow.onboardingSettings.steps.document !== "skip" ||
             !this._smartEnrollService.wasSkippedDocument();
 
-        return (
-            !this.uploading &&
-            (this.source === 'document' ||
-                (this.source === 'face' && canGoBackToDocument))
-        );
+        return !this.uploading && (this.source === "document" || (this.source === "face" && canGoBackToDocument));
     }
 
     canSkip(): boolean {
         if (this.uploading) return false;
 
         const canSkipBiometric =
-            this.source === 'face' &&
-            (this.projectFlow.onboardingSettings.steps.liveness !==
-                'mandatory' ||
-                !this.appRegistration.biometricValidation);
+            this.source === "face" &&
+            (this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation);
         const canSkipDocument =
-            this.source === 'document' &&
-            this.projectFlow.onboardingSettings.steps.document !==
-                'mandatory' &&
+            this.source === "document" &&
+            this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
             !this.appRegistration.documentValidation;
 
         return canSkipDocument || canSkipBiometric;
@@ -1026,21 +904,21 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     goPrevious(): void {
-        if (this.source === 'document') {
-            if (this.requiresBack && this.side !== 'front') {
-                this.side = 'front';
+        if (this.source === "document") {
+            if (this.requiresBack && this.side !== "front") {
+                this.side = "front";
                 this._resetVariables();
                 this._startCamera();
 
                 return;
             }
 
-            this._smartEnrollService.setDocumentMethod('');
-            this._smartEnrollService.skipToStep('document'); // document
+            this._smartEnrollService.setDocumentMethod("");
+            this._smartEnrollService.skipToStep("document"); // document
         } else if (this.appRegistration.documentValidation) {
             this._smartEnrollService.goToPreviousStep(); // document-review
         } else {
-            this._smartEnrollService.skipToStep('document'); // document
+            this._smartEnrollService.skipToStep("document"); // document
         }
     }
 
@@ -1051,12 +929,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._generateQRCode(qrCanvas, window.location.href);
     }
 
-    setPictureInCanvas(
-        canvas: HTMLCanvasElement,
-        dimensions: any,
-        dimensionsOriginals?: any
-    ) {
-        const context = canvas.getContext('2d', { willReadFrequently: true });
+    setPictureInCanvas(canvas: HTMLCanvasElement, dimensions: any, dimensionsOriginals?: any) {
+        const context = canvas.getContext("2d", { willReadFrequently: true });
 
         canvas.width = dimensions.rectWidth;
         canvas.height = dimensions.rectHeight;
@@ -1086,45 +960,34 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     showPassportColor(): boolean {
         return (
             !this.appRegistration.documentValidation ||
-            this.side === 'front' ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() ===
-                'passport'
+            this.side === "front" ||
+            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport"
         );
     }
 
     showLicenseColor(): boolean {
         return (
             !this.appRegistration.documentValidation ||
-            this.side === 'front' ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() ===
-                'driverlicense'
+            this.side === "front" ||
+            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
         );
     }
 
     showGovernmentIDColor(): boolean {
         return (
             !this.appRegistration.documentValidation ||
-            this.side === 'front' ||
-            ['id', 'idv2'].includes(
-                this.appRegistration.documentValidation?.documentCategory?.toLowerCase()
-            )
+            this.side === "front" ||
+            ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase())
         );
     }
 
     skipStep(): void {
-        if (
-            this.projectFlow.onboardingSettings.steps.liveness !== 'skip' &&
-            !this._smartEnrollService.wasSkippedBiometric()
-        ) {
-            this._smartEnrollService.setSkippedDocument(
-                !this.appRegistration.documentValidation
-            );
-            this._smartEnrollService.skipToStep('biometric');
+        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
+            this._smartEnrollService.skipToStep("biometric");
         } else {
-            this._smartEnrollService.setSkippedBiometric(
-                !this.appRegistration.biometricValidation
-            );
-            this._smartEnrollService.skipToStep('result');
+            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
+            this._smartEnrollService.skipToStep("result");
         }
     }
 
@@ -1138,31 +1001,22 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.setPictureInCanvas(canvasResult, this._rectCredential, this.video);
         this.setPictureInCanvas(canvasToSend, this.video);
 
-        const rawBase64Image = canvasToSend.toDataURL('image/jpeg');
-        const isFront = this.side === 'front';
+        const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
+        const isFront = this.side === "front";
 
         let base64Image = rawBase64Image;
         let face: string;
         let faceToUpload: string;
 
-        if (isFront && this.source === 'document') {
+        if (isFront && this.source === "document") {
             const img = new Image();
             img.src = rawBase64Image;
 
-            const detections = await faceapi
-                .detectAllFaces(
-                    img,
-                    new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })
-                )
-                .withFaceLandmarks();
+            const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
             const face = this._demoService.findBiggestFace(detections);
 
             if (face) {
-                this.faceIdCard = this._demoService.cutFaceIdCard(
-                    img,
-                    face.alignedRect.box,
-                    this.faceCardCanvas.nativeElement
-                );
+                this.faceIdCard = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
                 faceToUpload = this.faceIdCard;
             } else {
                 this._detectFaceError();
@@ -1173,11 +1027,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             }
         }
 
-        if (this.source === 'face') {
-            face = rawBase64Image.replace(/^data:.*;base64,/, '');
+        if (this.source === "face") {
+            face = rawBase64Image.replace(/^data:.*;base64,/, "");
         } else {
-            base64Image = rawBase64Image.replace(/^data:.*;base64,/, '');
-            face = faceToUpload?.replace(/^data:.*;base64,/, '');
+            base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
+            face = faceToUpload?.replace(/^data:.*;base64,/, "");
         }
 
         this.onImageScan.next({
@@ -1185,7 +1039,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             face,
             force: !isFront || !!this.appRegistration.documentValidation,
             front: isFront,
-            inputMethod: 'CAMERA',
+            inputMethod: "CAMERA",
             rawImage: rawBase64Image,
             source: this.source,
         });
