@@ -941,10 +941,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                         const detection = this._demoService.findBiggestFace(detections);
 
                         if (detection) {
-                            if (detection.detection.score < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
-                                throw new Error("face_not_found");
-                            }
-
                             this.errorContent = null;
                             this.errorFace = null;
                             this.showError = false;
