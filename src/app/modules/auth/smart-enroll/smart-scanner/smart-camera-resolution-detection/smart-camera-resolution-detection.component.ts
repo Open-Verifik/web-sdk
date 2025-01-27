@@ -1,20 +1,8 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    Renderer2,
-} from '@angular/core';
-import {
-    MediaTrackConstraintSetExtended,
-    MediaTrackSupportedConstraintsExtended,
-} from '../../smart-enroll.service';
-import { WebcamInitError } from 'ngx-webcam';
-import { Subject, takeUntil } from 'rxjs';
-import { MediaStreamService } from 'app/media-stream.service';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from "@angular/core";
+import { MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended } from "../../smart-enroll.service";
+import { WebcamInitError } from "ngx-webcam";
+import { Subject, takeUntil } from "rxjs";
+import { MediaStreamService } from "app/media-stream.service";
 
 export type Resolution = {
     height: number;
@@ -25,21 +13,17 @@ export type Resolution = {
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
-    selector: 'smart-camera-resolution-detection',
+    selector: "smart-camera-resolution-detection",
     standalone: true,
     styleUrls: [],
-    template: '',
+    template: "",
 })
-export class SmartCameraResolutionDetectionComponent
-    implements OnInit, OnDestroy
-{
-    @Output('detected') detected: EventEmitter<Resolution> =
-        new EventEmitter<Resolution>();
-    @Output('failedToDetect') failedToDetect: EventEmitter<WebcamInitError> =
-        new EventEmitter<WebcamInitError>();
+export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestroy {
+    @Output("detected") detected: EventEmitter<Resolution> = new EventEmitter<Resolution>();
+    @Output("failedToDetect") failedToDetect: EventEmitter<WebcamInitError> = new EventEmitter<WebcamInitError>();
 
-    @Input('source') source: 'face' | 'document';
-    @Input('forceVertical') forceVertical: boolean;
+    @Input("source") source: "face" | "document";
+    @Input("forceVertical") forceVertical: boolean;
 
     private WIDE: Array<Resolution>;
     private NARROW: Array<Resolution>;
@@ -48,7 +32,7 @@ export class SmartCameraResolutionDetectionComponent
     private MAX_HEIGHT: number;
     private MAX_WIDTH: number;
     private IS_LANDSCAPE: boolean = false;
-    private KEYS = ['WIDE', 'NARROW', 'SQUARE'];
+    private KEYS = ["WIDE", "NARROW", "SQUARE"];
 
     private cameraCycle$: Subject<any> = new Subject<any>();
     private unsubscriber$: Subject<void> = new Subject<void>();
@@ -56,11 +40,8 @@ export class SmartCameraResolutionDetectionComponent
     deviceId: string;
     stream: MediaStream;
 
-    constructor(
-        private _renderer: Renderer2,
-        private _mediaStreamService: MediaStreamService
-    ) {
-        this._renderer.listen('window', 'resize', () => this._init());
+    constructor(private _renderer: Renderer2, private _mediaStreamService: MediaStreamService) {
+        this._renderer.listen("window", "resize", () => this._init());
 
         this.cameraCycle$.pipe(takeUntil(this.unsubscriber$)).subscribe({
             next: (data) => {
@@ -74,22 +55,21 @@ export class SmartCameraResolutionDetectionComponent
             },
             error: (_error) => {
                 this.failedToDetect.next(<WebcamInitError>{
-                    mediaStreamError: new DOMException(
-                        'Cannot read UserMedia from MediaDevices.',
-                        'NotAllowedError'
-                    ),
-                    message: 'Cannot read UserMedia from MediaDevices.',
+                    mediaStreamError: new DOMException("Cannot read UserMedia from MediaDevices.", "NotAllowedError"),
+                    message: "Cannot read UserMedia from MediaDevices.",
                 });
             },
         });
+
+        // Check for Android device and adjust resolution
+        if (/Android/i.test(navigator.userAgent)) {
+            this.MAX_HEIGHT = window.screen.height;
+            this.MAX_WIDTH = window.screen.width;
+        }
     }
 
     private get maxResolutionIndexLength(): number {
-        return Math.max(
-            Object.keys(this.WIDE).length,
-            Object.keys(this.NARROW).length,
-            Object.keys(this.SQUARE).length
-        );
+        return Math.max(Object.keys(this.WIDE).length, Object.keys(this.NARROW).length, Object.keys(this.SQUARE).length);
     }
 
     ngOnInit(): void {
@@ -107,28 +87,16 @@ export class SmartCameraResolutionDetectionComponent
     private _attachMaxWindowResolutionForAspectRatio() {
         const windowMax = { height: this.MAX_HEIGHT, width: this.MAX_WIDTH };
 
-        const wide = this._calculateMaxDimensions(
-            { height: 9, width: 16 },
-            windowMax
-        );
-        const narrow = this._calculateMaxDimensions(
-            { height: 3, width: 4 },
-            windowMax
-        );
-        const square = this._calculateMaxDimensions(
-            { height: 1, width: 1 },
-            windowMax
-        );
+        const wide = this._calculateMaxDimensions({ height: 9, width: 16 }, windowMax);
+        const narrow = this._calculateMaxDimensions({ height: 3, width: 4 }, windowMax);
+        const square = this._calculateMaxDimensions({ height: 1, width: 1 }, windowMax);
 
-        this._spliceDimension('WIDE', wide);
-        this._spliceDimension('NARROW', narrow);
-        this._spliceDimension('SQUARE', square);
+        this._spliceDimension("WIDE", wide);
+        this._spliceDimension("NARROW", narrow);
+        this._spliceDimension("SQUARE", square);
     }
 
-    private _calculateMaxDimensions(
-        container: { height: number; width: number },
-        containerToFit: { height: number; width: number }
-    ) {
+    private _calculateMaxDimensions(container: { height: number; width: number }, containerToFit: { height: number; width: number }) {
         const scaleFactorWidth = containerToFit.width / container.width;
         const scaleFactorHeight = containerToFit.height / container.height;
 
@@ -140,10 +108,7 @@ export class SmartCameraResolutionDetectionComponent
         return { width: scaledWidth, height: scaledHeight };
     }
 
-    private async _cycleResolutions(
-        resolutionIndex: number,
-        index: number
-    ): Promise<void> {
+    private async _cycleResolutions(resolutionIndex: number, index: number): Promise<void> {
         let keyPassed: string;
         let resolutionPassed: Resolution;
 
@@ -186,12 +151,8 @@ export class SmartCameraResolutionDetectionComponent
             });
     }
 
-    private async _findBestResolution(
-        key: string,
-        resolution: Resolution
-    ): Promise<boolean> {
-        const { facingMode, zoom } =
-            navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
+    private async _findBestResolution(key: string, resolution: Resolution): Promise<boolean> {
+        const { facingMode, zoom } = navigator.mediaDevices.getSupportedConstraints() as MediaTrackSupportedConstraintsExtended;
 
         const mediaOptions = {
             audio: false,
@@ -199,8 +160,7 @@ export class SmartCameraResolutionDetectionComponent
         };
 
         if (facingMode) {
-            mediaOptions.video.facingMode =
-                this.source === 'face' ? 'user' : 'environment';
+            mediaOptions.video.facingMode = this.source === "face" ? "user" : "environment";
         }
 
         if (zoom) {
@@ -223,9 +183,7 @@ export class SmartCameraResolutionDetectionComponent
 
                 return true;
             } else {
-                this.stream = await this._mediaStreamService.startStream(
-                    mediaOptions
-                );
+                this.stream = await this._mediaStreamService.startStream(mediaOptions);
 
                 // //  await navigator.mediaDevices.getUserMedia(
                 //     mediaOptions
@@ -283,9 +241,7 @@ export class SmartCameraResolutionDetectionComponent
             { height: 480, width: 480 },
         ];
 
-        this.IS_LANDSCAPE =
-            window.matchMedia('(orientation: landscape)').matches ||
-            window.innerHeight < window.innerWidth;
+        this.IS_LANDSCAPE = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
         this.deviceId = null;
 
         this._attachMaxWindowResolutionForAspectRatio();
@@ -293,29 +249,18 @@ export class SmartCameraResolutionDetectionComponent
     }
 
     private _next(resolutionIndex: number, index: number): void {
-        if (
-            index >= this.KEYS.length - 1 &&
-            resolutionIndex >= this.maxResolutionIndexLength - 1
-        ) {
-            this.cameraCycle$.error(
-                new DOMException('NoSuitableResolutions', 'NotFoundError')
-            );
+        if (index >= this.KEYS.length - 1 && resolutionIndex >= this.maxResolutionIndexLength - 1) {
+            this.cameraCycle$.error(new DOMException("NoSuitableResolutions", "NotFoundError"));
             return;
         }
 
         this.cameraCycle$.next({
-            resolutionIndex:
-                index < this.KEYS.length - 1
-                    ? resolutionIndex
-                    : ++resolutionIndex,
+            resolutionIndex: index < this.KEYS.length - 1 ? resolutionIndex : ++resolutionIndex,
             index: index < this.KEYS.length - 1 ? ++index : 0,
         });
     }
 
-    private _spliceDimension(
-        key: string,
-        newDimension: { height: number; width: number }
-    ): void {
+    private _spliceDimension(key: string, newDimension: { height: number; width: number }): void {
         for (let index = 0; index < this[key].length; index++) {
             const element = this[key][index];
 
