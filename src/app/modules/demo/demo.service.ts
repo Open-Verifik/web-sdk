@@ -10,837 +10,851 @@ import { Lead, Session } from "./lead";
 let _this = null;
 
 @Injectable({
-	providedIn: "root",
+    providedIn: "root",
 })
-
 export class DemoService {
-	private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
-	private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
-
-	navigation: any;
-	demoData: any;
-	lead: any;
-	apiUrl: any;
-	session: any;
-	sampleLastNames: Array<any>;
-	sampleFirstNames: Array<any>;
-
-	constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
-		this.apiUrl = environment.apiUrl;
-
-		this.loadModels();
-
-		this.initNavigation();
-
-		this.initDemoData();
-
-		this.initSampleData();
-
-		_this = this;
-
-		breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
-			this.demoData.isMobile = result.matches;
-
-			this.demoData.time = result.matches ? 500 : 250;
-		});
-
-		this.demoData.OS = this.detectOS();
-	}
-
-	initSampleData(): void {
-		if (environment.production) return;
-
-		this.sampleLastNames = [
-			"Smith",
-			"Johnson",
-			"Williams",
-			"Jones",
-			"Brown",
-			"Davis",
-			"Miller",
-			"Wilson",
-			"Moore",
-			"Taylor",
-			"Reynolds",
-			"Specter",
-			"Litt",
-			"Ross",
-			"García",
-			"Fernández",
-			"González",
-			"Rodríguez",
-			"López",
-			"Martínez",
-			"Sánchez",
-			"Pérez",
-			"Martín",
-			"Gómez",
-		];
-
-		this.sampleFirstNames = [
-			"James",
-			"John",
-			"Robert",
-			"Michael",
-			"William",
-			"David",
-			"Richard",
-			"Joseph",
-			"Thomas",
-			"Charles",
-			"Mike",
-			"Harvey",
-			"José",
-			"Juan",
-			"Miguel",
-			"Luis",
-			"Antonio",
-			"Javier",
-			"Francisco",
-			"Carlos",
-			"Alejandro",
-			"Manuel",
-			"Rogelio",
-			"Alexander",
-		];
-	}
-
-	detectOS() {
-		const userAgent = window.navigator.userAgent.toLowerCase();
-
-		if (/android/.test(userAgent)) {
-			return "ANDROID";
-		} else if (/iphone|ipad|ipod/.test(userAgent)) {
-			return "IOS";
-		}
-
-		return "DESKTOP";
-	}
-
-	get faceapi$(): Observable<boolean> {
-		return this._faceapi.asObservable();
-	}
-
-	get geoLocation$(): Observable<any> {
-		return this._geoLocation.asObservable();
-	}
-
-	async loadModels(): Promise<void> {
-		const promises = [];
-
-		promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
-		promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
-		// promises.push(this.loadOpenCV());
-
-		await Promise.allSettled(promises);
-
-		this._faceapi.next(true);
-	}
-	
-	// Removing document scanner for the time being - Causes stutter/lag for mobile devices
-	// async loadOpenCV() {
-	// 	return new Promise((resolve, reject) => {
-	// 		const s = document.createElement('script');
-
-	// 		s.src = "https://docs.opencv.org/4.7.0/opencv.js";
-	// 		s.onload = resolve;
-	// 		s.onerror = reject;
-
-	// 		document.head.appendChild(s);
-	// 	});
-	// }
-
-	getNavigation(): any {
-		return this.navigation;
-	}
-
-	initNavigation(): void {
-		this.navigation = {
-			currentStep: 1,
-			lastStep: 5,
-		};
-	}
+    private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
+    private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
+
+    navigation: any;
+    demoData: any;
+    lead: any;
+    apiUrl: any;
+    session: any;
+    sampleLastNames: Array<any>;
+    sampleFirstNames: Array<any>;
+
+    constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
+        this.apiUrl = environment.apiUrl;
+
+        this.loadModels();
+
+        this.initNavigation();
+
+        this.initDemoData();
+
+        this.initSampleData();
+
+        _this = this;
+
+        breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
+            this.demoData.isMobile = result.matches;
+
+            this.demoData.time = result.matches ? 500 : 250;
+        });
+
+        this.demoData.OS = this.detectOS();
+    }
+
+    initSampleData(): void {
+        if (environment.production) return;
+
+        this.sampleLastNames = [
+            "Smith",
+            "Johnson",
+            "Williams",
+            "Jones",
+            "Brown",
+            "Davis",
+            "Miller",
+            "Wilson",
+            "Moore",
+            "Taylor",
+            "Reynolds",
+            "Specter",
+            "Litt",
+            "Ross",
+            "García",
+            "Fernández",
+            "González",
+            "Rodríguez",
+            "López",
+            "Martínez",
+            "Sánchez",
+            "Pérez",
+            "Martín",
+            "Gómez",
+        ];
+
+        this.sampleFirstNames = [
+            "James",
+            "John",
+            "Robert",
+            "Michael",
+            "William",
+            "David",
+            "Richard",
+            "Joseph",
+            "Thomas",
+            "Charles",
+            "Mike",
+            "Harvey",
+            "José",
+            "Juan",
+            "Miguel",
+            "Luis",
+            "Antonio",
+            "Javier",
+            "Francisco",
+            "Carlos",
+            "Alejandro",
+            "Manuel",
+            "Rogelio",
+            "Alexander",
+        ];
+    }
+
+    detectOS() {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+
+        if (/android/.test(userAgent)) {
+            return "ANDROID";
+        } else if (/iphone|ipad|ipod/.test(userAgent)) {
+            return "IOS";
+        }
+
+        return "DESKTOP";
+    }
+
+    get faceapi$(): Observable<boolean> {
+        return this._faceapi.asObservable();
+    }
+
+    get geoLocation$(): Observable<any> {
+        return this._geoLocation.asObservable();
+    }
+
+    async loadModels(): Promise<void> {
+        const promises = [];
+
+        promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
+        promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
+
+        promises.push(faceapi.nets.tinyFaceDetector.loadFromUri("assets/models"));
+        promises.push(faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models"));
+
+        // promises.push(this.loadOpenCV());
+
+        await Promise.allSettled(promises);
 
-	getDemoData(): any {
-		if (!this.demoData.proFields?.length && localStorage.getItem("proFields")) {
-			this.demoData.pro = new DocumentValidation(JSON.parse(localStorage.getItem("pro")));
+        this._faceapi.next(true);
+    }
 
-			this.demoData.proFields = this.demoData.pro.arrayFields;
-		}
+    // Removing document scanner for the time being - Causes stutter/lag for mobile devices
+    // async loadOpenCV() {
+    // 	return new Promise((resolve, reject) => {
+    // 		const s = document.createElement('script');
+
+    // 		s.src = "https://docs.opencv.org/4.7.0/opencv.js";
+    // 		s.onload = resolve;
+    // 		s.onerror = reject;
+
+    // 		document.head.appendChild(s);
+    // 	});
+    // }
 
-		if (!this.demoData.promptFields?.length && localStorage.getItem("promptFields")) {
-			this.demoData.prompt = new DocumentValidation(JSON.parse(localStorage.getItem("prompt")));
+    getNavigation(): any {
+        return this.navigation;
+    }
 
-			this.demoData.promptFields = this.demoData.prompt.arrayFields;
-		}
+    initNavigation(): void {
+        this.navigation = {
+            currentStep: 1,
+            lastStep: 5,
+        };
+    }
 
-		if (!this.demoData.studioFields?.length && localStorage.getItem("studioFields")) {
-			this.demoData.studio = new DocumentValidation(JSON.parse(localStorage.getItem("studio")));
+    getDemoData(): any {
+        if (!this.demoData.proFields?.length && localStorage.getItem("proFields")) {
+            this.demoData.pro = new DocumentValidation(JSON.parse(localStorage.getItem("pro")));
 
-			this.demoData.studioFields = this.demoData.studio.arrayFields;
-		}
+            this.demoData.proFields = this.demoData.pro.arrayFields;
+        }
 
-		if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
-			this.demoData.liveness = JSON.parse(localStorage.getItem("liveness"));
-		}
+        if (!this.demoData.promptFields?.length && localStorage.getItem("promptFields")) {
+            this.demoData.prompt = new DocumentValidation(JSON.parse(localStorage.getItem("prompt")));
 
-		if (!this.demoData.livenessResult.length && localStorage.getItem("livenessResult")) {
-			this.demoData.livenessResult = JSON.parse(localStorage.getItem("livenessResult"));
-		}
+            this.demoData.promptFields = this.demoData.prompt.arrayFields;
+        }
 
-		if (!this.demoData.comparison?._id && localStorage.getItem("comparison")) {
-			this.demoData.comparison = JSON.parse(localStorage.getItem("comparison"));
-		}
+        if (!this.demoData.studioFields?.length && localStorage.getItem("studioFields")) {
+            this.demoData.studio = new DocumentValidation(JSON.parse(localStorage.getItem("studio")));
 
-		if (!this.demoData.comparisonResult.length && localStorage.getItem("comparisonResult")) {
-			this.demoData.comparisonResult = JSON.parse(localStorage.getItem("comparisonResult"));
-		}
+            this.demoData.studioFields = this.demoData.studio.arrayFields;
+        }
 
-		return this.demoData;
-	}
+        if (!this.demoData.liveness?._id && localStorage.getItem("liveness")) {
+            this.demoData.liveness = JSON.parse(localStorage.getItem("liveness"));
+        }
 
-	initDemoData(): void {
-		this.demoData = {
-			loading: false,
-			liveness: {},
-			comparison: {},
-			livenessResult: [],
-			comparisonResult: [],
-			generalInformation: [],
-			location: [],
-			documentType: {},
-			documentTypeFields: [],
-			pro: {},
-			proFields: [],
-			studio: {},
-			studioFields: [],
-			prompt: {},
-			promptFields: [],
-			lat: null,
-			lng: null,
-		};
-	}
+        if (!this.demoData.livenessResult.length && localStorage.getItem("livenessResult")) {
+            this.demoData.livenessResult = JSON.parse(localStorage.getItem("livenessResult"));
+        }
 
-	setDemoDocument(response: any): void {
-		this.demoData.proFields = [];
+        if (!this.demoData.comparison?._id && localStorage.getItem("comparison")) {
+            this.demoData.comparison = JSON.parse(localStorage.getItem("comparison"));
+        }
 
-		this.demoData.promptFields = [];
+        if (!this.demoData.comparisonResult.length && localStorage.getItem("comparisonResult")) {
+            this.demoData.comparisonResult = JSON.parse(localStorage.getItem("comparisonResult"));
+        }
 
-		this.demoData.studioFields = [];
+        return this.demoData;
+    }
 
-		this.formatAndSaveOCRs(response.pro, "pro");
+    initDemoData(): void {
+        this.demoData = {
+            loading: false,
+            liveness: {},
+            comparison: {},
+            livenessResult: [],
+            comparisonResult: [],
+            generalInformation: [],
+            location: [],
+            documentType: {},
+            documentTypeFields: [],
+            pro: {},
+            proFields: [],
+            studio: {},
+            studioFields: [],
+            prompt: {},
+            promptFields: [],
+            lat: null,
+            lng: null,
+        };
+    }
 
-		this.formatAndSaveOCRs(response.studio, "studio");
+    setDemoDocument(response: any): void {
+        this.demoData.proFields = [];
 
-		this.formatAndSaveOCRs(response.prompt, "prompt");
+        this.demoData.promptFields = [];
 
-		if (this.demoData.studio) {
-			localStorage.setItem("documentId", this.demoData.studio._id);
-		} else if (this.demoData.prompt) {
-			localStorage.setItem("documentId", this.demoData.prompt._id);
-		} else if (this.demoData.pro) {
-			localStorage.setItem("documentId", this.demoData.pro._id);
-		}
-	}
+        this.demoData.studioFields = [];
 
-	formatAndSaveOCRs(document, type: string): void {
-		const typeFields = `${type}Fields`;
+        this.formatAndSaveOCRs(response.pro, "pro");
 
-		if (!document || !document.documentNumber) {
-			localStorage.removeItem(type);
+        this.formatAndSaveOCRs(response.studio, "studio");
 
-			localStorage.removeItem(typeFields);
+        this.formatAndSaveOCRs(response.prompt, "prompt");
 
-			return;
-		}
+        if (this.demoData.studio) {
+            localStorage.setItem("documentId", this.demoData.studio._id);
+        } else if (this.demoData.prompt) {
+            localStorage.setItem("documentId", this.demoData.prompt._id);
+        } else if (this.demoData.pro) {
+            localStorage.setItem("documentId", this.demoData.pro._id);
+        }
+    }
 
-		this.demoData[typeFields].push({ key: "documentType", value: document.documentType });
+    formatAndSaveOCRs(document, type: string): void {
+        const typeFields = `${type}Fields`;
 
-		this.demoData[typeFields].push({ key: "documentNumber", value: document.documentNumber });
+        if (!document || !document.documentNumber) {
+            localStorage.removeItem(type);
 
-		const _document = new DocumentValidation(document);
+            localStorage.removeItem(typeFields);
 
-		this.demoData[type] = _document;
+            return;
+        }
 
-		this.demoData[typeFields] = _document.arrayFields;
+        this.demoData[typeFields].push({ key: "documentType", value: document.documentType });
 
-		localStorage.setItem(type, JSON.stringify(document));
+        this.demoData[typeFields].push({ key: "documentNumber", value: document.documentNumber });
 
-		localStorage.setItem(typeFields, JSON.stringify(this.demoData[typeFields]));
-	}
+        const _document = new DocumentValidation(document);
 
-	setDemoLiveness(data: any): void {
-		this.demoData.liveness = data;
+        this.demoData[type] = _document;
 
-		this.demoData.liveness.result.liveness_score = parseInt(`${this.demoData.liveness.result.liveness_score * 100}`);
+        this.demoData[typeFields] = _document.arrayFields;
 
-		this.demoData.liveness.result.min_score = parseInt(`${this.demoData.liveness.result.min_score * 100}`);
+        localStorage.setItem(type, JSON.stringify(document));
 
-		this.demoData.livenessResult = [];
+        localStorage.setItem(typeFields, JSON.stringify(this.demoData[typeFields]));
+    }
 
-		for (const key in data.result) {
-			const value = data.result[key];
+    setDemoLiveness(data: any): void {
+        this.demoData.liveness = data;
 
-			this.demoData.livenessResult.push({ key, value });
-		}
+        this.demoData.liveness.result.liveness_score = parseInt(`${this.demoData.liveness.result.liveness_score * 100}`);
 
-		localStorage.setItem("livenessId", data._id);
+        this.demoData.liveness.result.min_score = parseInt(`${this.demoData.liveness.result.min_score * 100}`);
 
-		localStorage.setItem("liveness", JSON.stringify(data));
+        this.demoData.livenessResult = [];
 
-		localStorage.setItem("livenessResult", JSON.stringify(this.demoData.livenessResult));
-	}
+        for (const key in data.result) {
+            const value = data.result[key];
 
-	setDemoCompare(data: any): void {
-		this.demoData.comparison = data;
+            this.demoData.livenessResult.push({ key, value });
+        }
 
-		this.demoData.comparison.result.score = parseInt(`${this.demoData.comparison.result.score * 100}`);
+        localStorage.setItem("livenessId", data._id);
 
-		for (const key in data.result) {
-			const value = data.result[key];
+        localStorage.setItem("liveness", JSON.stringify(data));
 
-			this.demoData.comparisonResult.push({ key, value });
-		}
+        localStorage.setItem("livenessResult", JSON.stringify(this.demoData.livenessResult));
+    }
 
-		localStorage.setItem("comparisonId", data._id);
+    setDemoCompare(data: any): void {
+        this.demoData.comparison = data;
 
-		localStorage.setItem("comparison", JSON.stringify(data));
+        this.demoData.comparison.result.score = parseInt(`${this.demoData.comparison.result.score * 100}`);
 
-		localStorage.setItem("comparisonResult", JSON.stringify(this.demoData.comparisonResult));
-	}
+        for (const key in data.result) {
+            const value = data.result[key];
 
-	moveToStep(step: number): void {
-		if (step > this.navigation.lastStep) return;
+            this.demoData.comparisonResult.push({ key, value });
+        }
 
-		if (step <= 0) return;
+        localStorage.setItem("comparisonId", data._id);
 
-		this.navigation.currentStep = step;
+        localStorage.setItem("comparison", JSON.stringify(data));
 
-		localStorage.setItem("step", `${step}`);
-	}
+        localStorage.setItem("comparisonResult", JSON.stringify(this.demoData.comparisonResult));
+    }
 
-	restart(): void {
-		this.cleanVariables();
+    moveToStep(step: number): void {
+        if (step > this.navigation.lastStep) return;
 
-		this.navigation.currentStep = 1;
+        if (step <= 0) return;
 
-		localStorage.setItem("step", `${this.navigation.currentStep}`);
-	}
+        this.navigation.currentStep = step;
 
-	getDeviceDetails(): any {
-		if (this.demoData.generalInformation.length) return;
+        localStorage.setItem("step", `${step}`);
+    }
 
-		const details = {
-			// Navigator properties
-			userAgent: navigator.userAgent,
-			platform: navigator.platform,
-			appName: navigator.appName,
-			appVersion: navigator.appVersion,
-			language: navigator.language,
-			onLine: navigator.onLine,
-			cookiesEnabled: navigator.cookieEnabled,
-			doNotTrack: navigator.doNotTrack,
+    restart(): void {
+        this.cleanVariables();
 
-			// Screen properties
-			screenResolution: `${screen.width} x ${screen.height}`,
-			screenAvailableResolution: `${screen.availWidth} x ${screen.availHeight}`,
-			colorDepth: screen.colorDepth,
-			pixelDepth: screen.pixelDepth,
+        this.navigation.currentStep = 1;
 
-			// Window properties
-			innerWidth: window.innerWidth,
-			innerHeight: window.innerHeight,
-			outerWidth: window.outerWidth,
-			outerHeight: window.outerHeight,
+        localStorage.setItem("step", `${this.navigation.currentStep}`);
+    }
 
-			// Detect touch capabilities
-			touchSupported: "ontouchstart" in window,
+    getDeviceDetails(): any {
+        if (this.demoData.generalInformation.length) return;
 
-			// Detect geolocation capabilities
-			geolocationSupported: "geolocation" in navigator,
+        const details = {
+            // Navigator properties
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            appName: navigator.appName,
+            appVersion: navigator.appVersion,
+            language: navigator.language,
+            onLine: navigator.onLine,
+            cookiesEnabled: navigator.cookieEnabled,
+            doNotTrack: navigator.doNotTrack,
 
-			// Browser online/offline status
-			onlineStatus: navigator.onLine ? "Online" : "Offline",
-		};
+            // Screen properties
+            screenResolution: `${screen.width} x ${screen.height}`,
+            screenAvailableResolution: `${screen.availWidth} x ${screen.availHeight}`,
+            colorDepth: screen.colorDepth,
+            pixelDepth: screen.pixelDepth,
 
-		this.demoData.generalInformation.push(
-			{ key: "device", value: details.platform },
-			{ key: "language", value: details.language },
-			{ key: "userAgent", value: details.userAgent }
-		);
+            // Window properties
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight,
+            outerWidth: window.outerWidth,
+            outerHeight: window.outerHeight,
 
-		this.getLocation();
+            // Detect touch capabilities
+            touchSupported: "ontouchstart" in window,
 
-		return details;
-	}
+            // Detect geolocation capabilities
+            geolocationSupported: "geolocation" in navigator,
 
-	getLocation() {
-		localStorage.removeItem("locationError");
+            // Browser online/offline status
+            onlineStatus: navigator.onLine ? "Online" : "Offline",
+        };
 
-		const lat = localStorage.getItem("lat");
-		const lng = localStorage.getItem("lng");
+        this.demoData.generalInformation.push(
+            { key: "device", value: details.platform },
+            { key: "language", value: details.language },
+            { key: "userAgent", value: details.userAgent }
+        );
 
-		if (lat && lng) {
-			_this._geoLocation.next({
-				lat,
-				lng,
-			});
-		}
+        this.getLocation();
 
-		if (navigator.geolocation) {
-			navigator.geolocation.clearWatch(_this.geoLocationId);
+        return details;
+    }
 
-			_this.geoLocationId = null;
-			_this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
-		} else {
-			console.info("Geolocation is not supported by this browser.");
-		}
-	}
+    getLocation() {
+        localStorage.removeItem("locationError");
 
-	showPosition(position: GeolocationPosition) {
-		if (!_this._geoLocation || !position?.coords) return;
+        const lat = localStorage.getItem("lat");
+        const lng = localStorage.getItem("lng");
 
-		_this.demoData.lat = position?.coords.latitude;
-		_this.demoData.lng = position?.coords.longitude;
+        if (lat && lng) {
+            _this._geoLocation.next({
+                lat,
+                lng,
+            });
+        }
 
-		localStorage.setItem("lat", _this.demoData.lat);
-		localStorage.setItem("lng", _this.demoData.lng);
+        if (navigator.geolocation) {
+            navigator.geolocation.clearWatch(_this.geoLocationId);
 
-		_this._geoLocation.next({
-			lat: position?.coords.latitude,
-			lng: position?.coords.longitude,
-		});
-	}
+            _this.geoLocationId = null;
+            _this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
+        } else {
+            console.info("Geolocation is not supported by this browser.");
+        }
+    }
 
-	showError(error: GeolocationPositionError) {
-		let errorMessage = "";
+    showPosition(position: GeolocationPosition) {
+        if (!_this._geoLocation || !position?.coords) return;
 
-		switch (error.code) {
-			case error.PERMISSION_DENIED:
-				errorMessage = "geolocation.user_denied_request";
-				break;
-			case error.POSITION_UNAVAILABLE:
-				errorMessage = "geolocation.information_unavailable";
-				break;
-			case error.TIMEOUT:
-				errorMessage = "geolocation.request_timeout";
-				break;
-			default:
-				errorMessage = "geolocation.information_unavailable";
-				break;
-		}
+        _this.demoData.lat = position?.coords.latitude;
+        _this.demoData.lng = position?.coords.longitude;
 
-		localStorage.setItem("locationError", errorMessage);
+        localStorage.setItem("lat", _this.demoData.lat);
+        localStorage.setItem("lng", _this.demoData.lng);
 
-		_this._geoLocation.next({ errorMessage });
+        _this._geoLocation.next({
+            lat: position?.coords.latitude,
+            lng: position?.coords.longitude,
+        });
+    }
 
-		setTimeout(() => {
-			navigator.geolocation.clearWatch(_this.geoLocationId);
+    showError(error: GeolocationPositionError) {
+        let errorMessage = "";
 
-			_this.geoLocationId = null;
-			_this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
-		}, 2000);
-	}
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                errorMessage = "geolocation.user_denied_request";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                errorMessage = "geolocation.information_unavailable";
+                break;
+            case error.TIMEOUT:
+                errorMessage = "geolocation.request_timeout";
+                break;
+            default:
+                errorMessage = "geolocation.information_unavailable";
+                break;
+        }
 
-	async reverseGeocodeWithOSM(lat, lng) {
-		const endpoint = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+        localStorage.setItem("locationError", errorMessage);
 
-		try {
-			const response = await fetch(endpoint);
+        _this._geoLocation.next({ errorMessage });
 
-			const data = await response.json();
+        setTimeout(() => {
+            navigator.geolocation.clearWatch(_this.geoLocationId);
 
-			if (data && data.display_name) return data;
+            _this.geoLocationId = null;
+            _this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
+        }, 2000);
+    }
 
-			return null;
-		} catch (error) {
-			console.error("Error during reverse geocoding with OSM:", error);
-			return null;
-		}
-	}
+    async reverseGeocodeWithOSM(lat, lng) {
+        const endpoint = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
 
-	async getAddress(): Promise<any> {
-		const lat = this.demoData.lat || localStorage.getItem("lat");
+        try {
+            const response = await fetch(endpoint);
 
-		const lng = this.demoData.lng || localStorage.getItem("lng");
+            const data = await response.json();
 
-		if (!lat || !lng) return null;
+            if (data && data.display_name) return data;
 
-		if (this.demoData.location.length) return this.demoData.location;
+            return null;
+        } catch (error) {
+            console.error("Error during reverse geocoding with OSM:", error);
+            return null;
+        }
+    }
 
-		let _localLocation = localStorage.getItem("location");
+    async getAddress(): Promise<any> {
+        const lat = this.demoData.lat || localStorage.getItem("lat");
 
-		if (_localLocation) {
-			this.demoData.location = JSON.parse(_localLocation);
+        const lng = this.demoData.lng || localStorage.getItem("lng");
 
-			return;
-		}
+        if (!lat || !lng) return null;
 
-		const location = await this.reverseGeocodeWithOSM(lat, lng);
+        if (this.demoData.location.length) return this.demoData.location;
 
-		if (!location) return;
+        let _localLocation = localStorage.getItem("location");
 
-		for (const key in location.address) {
-			if (Object.prototype.hasOwnProperty.call(location.address, key)) {
-				const value = location.address[key];
+        if (_localLocation) {
+            this.demoData.location = JSON.parse(_localLocation);
 
-				this.demoData.location.push({ key, value });
-			}
-		}
+            return;
+        }
 
-		localStorage.setItem("location", JSON.stringify(this.demoData.location));
+        const location = await this.reverseGeocodeWithOSM(lat, lng);
 
-		return this.demoData.location;
-	}
+        if (!location) return;
 
-	async extractLocationFromLatLng(lat, lng): Promise<any> {
-		const appLocation = localStorage.getItem("appLocation");
+        for (const key in location.address) {
+            if (Object.prototype.hasOwnProperty.call(location.address, key)) {
+                const value = location.address[key];
 
-		if (appLocation) return JSON.parse(appLocation);
+                this.demoData.location.push({ key, value });
+            }
+        }
 
-		const location = await this.reverseGeocodeWithOSM(lat, lng);
+        localStorage.setItem("location", JSON.stringify(this.demoData.location));
 
-		if (!location) return;
+        return this.demoData.location;
+    }
 
-		const formattedLocation = {
-			lat,
-			lng,
-		};
+    async extractLocationFromLatLng(lat, lng): Promise<any> {
+        const appLocation = localStorage.getItem("appLocation");
 
-		for (const key in location.address) {
-			if (Object.prototype.hasOwnProperty.call(location.address, key)) {
-				const value = location.address[key];
+        if (appLocation) return JSON.parse(appLocation);
 
-				formattedLocation[key] = value;
-			}
-		}
+        const location = await this.reverseGeocodeWithOSM(lat, lng);
 
-		const deviceIdentifier = this.generateUniqueId();
+        if (!location) return;
 
-		formattedLocation["deviceIdentifier"] = deviceIdentifier.hash;
+        const formattedLocation = {
+            lat,
+            lng,
+        };
 
-		formattedLocation["userAgent"] = deviceIdentifier.userAgent;
+        for (const key in location.address) {
+            if (Object.prototype.hasOwnProperty.call(location.address, key)) {
+                const value = location.address[key];
 
-		localStorage.setItem("appLocation", JSON.stringify(formattedLocation));
+                formattedLocation[key] = value;
+            }
+        }
 
-		return formattedLocation;
-	}
+        const deviceIdentifier = this.generateUniqueId();
 
-	getLead(): Lead {
-		if (this.lead) return this.lead;
+        formattedLocation["deviceIdentifier"] = deviceIdentifier.hash;
 
-		const storageLead = localStorage.getItem("lead");
+        formattedLocation["userAgent"] = deviceIdentifier.userAgent;
 
-		if (!storageLead) return null;
+        localStorage.setItem("appLocation", JSON.stringify(formattedLocation));
 
-		this.lead = new Lead(JSON.parse(storageLead));
+        return formattedLocation;
+    }
 
-		return this.lead;
-	}
+    getLead(): Lead {
+        if (this.lead) return this.lead;
 
-	setLead(data): void {
-		localStorage.setItem("accessToken", data.token);
+        const storageLead = localStorage.getItem("lead");
 
-		this.lead = new Lead(data);
+        if (!storageLead) return null;
 
-		localStorage.setItem("lead", JSON.stringify(this.lead));
-	}
+        this.lead = new Lead(JSON.parse(storageLead));
 
-	getSession(): Session {
-		if (this.session) return this.session;
+        return this.lead;
+    }
 
-		const storedSession = localStorage.getItem("session");
+    setLead(data): void {
+        localStorage.setItem("accessToken", data.token);
 
-		if (!storedSession) return null;
+        this.lead = new Lead(data);
 
-		this.session = new Session(JSON.parse(storedSession));
+        localStorage.setItem("lead", JSON.stringify(this.lead));
+    }
 
-		return this.session;
-	}
+    getSession(): Session {
+        if (this.session) return this.session;
 
-	findBiggestFace(detections: faceapi.WithFaceLandmarks<{
-		detection: faceapi.FaceDetection;
-	}, faceapi.FaceLandmarks68>[]): faceapi.WithFaceLandmarks<{
-		detection: faceapi.FaceDetection;
-	}, faceapi.FaceLandmarks68> {
-		let maxArea = 0;
-		let biggestFace: faceapi.WithFaceLandmarks<{
-			detection: faceapi.FaceDetection;
-		}, faceapi.FaceLandmarks68>;
+        const storedSession = localStorage.getItem("session");
 
-		for (const face of detections) {
-			const tempArea = face.alignedRect.box.width * face.alignedRect.box.height;
+        if (!storedSession) return null;
 
-			if (tempArea > maxArea) {
-				biggestFace = face;
-				maxArea = tempArea;
-			}
-		}
+        this.session = new Session(JSON.parse(storedSession));
 
-		return biggestFace;
-	}
+        return this.session;
+    }
 
-	getBiggestFace(faces: faceapi.Box[]) {
-		let maxArea = 0;
-		let biggestFace: faceapi.Box;
+    findBiggestFace(
+        detections: faceapi.WithFaceLandmarks<
+            {
+                detection: faceapi.FaceDetection;
+            },
+            faceapi.FaceLandmarks68
+        >[]
+    ): faceapi.WithFaceLandmarks<
+        {
+            detection: faceapi.FaceDetection;
+        },
+        faceapi.FaceLandmarks68
+    > {
+        let maxArea = 0;
+        let biggestFace: faceapi.WithFaceLandmarks<
+            {
+                detection: faceapi.FaceDetection;
+            },
+            faceapi.FaceLandmarks68
+        >;
 
-		for (const face of faces) {
-			const tempArea = face.width * face.height;
+        for (const face of detections) {
+            const tempArea = face.alignedRect.box.width * face.alignedRect.box.height;
 
-			if (tempArea > maxArea) {
-				biggestFace = face;
-				maxArea = tempArea;
-			}
-		}
+            if (tempArea > maxArea) {
+                biggestFace = face;
+                maxArea = tempArea;
+            }
+        }
 
-		return biggestFace;
-	}
+        return biggestFace;
+    }
 
-	cutFaceIdCard(image: HTMLImageElement, face: faceapi.Box, cardIdCanvas: HTMLCanvasElement) {
-		const ctx: CanvasRenderingContext2D = cardIdCanvas.getContext("2d");
+    getBiggestFace(faces: faceapi.Box[]) {
+        let maxArea = 0;
+        let biggestFace: faceapi.Box;
 
-		let width = Math.ceil(face.width * 2);
-		let height = Math.ceil(face.height * 2);
-		let sx = Math.floor(face.x) - face.width / 2;
-		let sy = Math.floor(face.y) - face.height / 2;
+        for (const face of faces) {
+            const tempArea = face.width * face.height;
 
-		if (width > image.naturalWidth) {
-			width = image.naturalWidth;
-			height = image.naturalHeight;
-			sx = 0;
-			sy = 0;
-		}
+            if (tempArea > maxArea) {
+                biggestFace = face;
+                maxArea = tempArea;
+            }
+        }
 
-		cardIdCanvas.height = height;
-		cardIdCanvas.width = width;
+        return biggestFace;
+    }
 
-		ctx.drawImage(image, sx, sy, width, height, 0, 0, width, height);
+    cutFaceIdCard(image: HTMLImageElement, face: faceapi.Box, cardIdCanvas: HTMLCanvasElement) {
+        const ctx: CanvasRenderingContext2D = cardIdCanvas.getContext("2d");
 
-		return cardIdCanvas.toDataURL("image/jpeg");
-	}
+        let width = Math.ceil(face.width * 2);
+        let height = Math.ceil(face.height * 2);
+        let sx = Math.floor(face.x) - face.width / 2;
+        let sy = Math.floor(face.y) - face.height / 2;
 
-	setSession(data): void {
-		this.session = new Session(data);
+        if (width > image.naturalWidth) {
+            width = image.naturalWidth;
+            height = image.naturalHeight;
+            sx = 0;
+            sy = 0;
+        }
 
-		localStorage.setItem("session", JSON.stringify(this.session));
-	}
+        cardIdCanvas.height = height;
+        cardIdCanvas.width = width;
 
-	requestDocument(documentId: string): Observable<any> {
-		return this._httpWrapperService.sendRequest("get", `${this.apiUrl}/v2/document-validations/demo/${documentId}`);
-	}
+        ctx.drawImage(image, sx, sy, width, height, 0, 0, width, height);
 
-	// apis to verifik
-	sendDocument(data: any): Observable<any> {
-		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/ocr/scan-demo`, data);
-	}
+        return cardIdCanvas.toDataURL("image/jpeg");
+    }
 
-	sendSelfie(data: any): Observable<any> {
-		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/liveness/demo`, data);
-	}
+    setSession(data): void {
+        this.session = new Session(data);
 
-	detectFace(data: any): Observable<any> {
-		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/detect/demo`, data);
-	}
+        localStorage.setItem("session", JSON.stringify(this.session));
+    }
 
-	compareDocumentWithSelfie(data): Observable<any> {
-		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/compare/demo`, data);
-	}
+    requestDocument(documentId: string): Observable<any> {
+        return this._httpWrapperService.sendRequest("get", `${this.apiUrl}/v2/document-validations/demo/${documentId}`);
+    }
 
-	createLead(data): Observable<any> {
-		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/leads`, data);
-	}
+    // apis to verifik
+    sendDocument(data: any): Observable<any> {
+        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/ocr/scan-demo`, data);
+    }
 
-	createSession(data): Observable<any> {
-		return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/liveness-sessions`, {
-			...data,
-		});
-	}
+    sendSelfie(data: any): Observable<any> {
+        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/liveness/demo`, data);
+    }
 
-	cleanVariables(): void {
-		const keys = [
-			"documentId",
-			"pro",
-			"studio",
-			"prompt",
-			"proFields",
-			"studioFields",
-			"promptFields",
-			"extractedData",
-			"liveness",
-			"livenessId",
-			"livenessResult",
-			"comparison",
-			"comparisonResult",
-			"comparisonId",
-			// "session",
-			// "lead",
-			// "accessToken",
-			"idCard",
-			"idCardFaceImage",
-			"sessionToken",
-		];
+    detectFace(data: any): Observable<any> {
+        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/detect/demo`, data);
+    }
 
-		for (let index = 0; index < keys.length; index++) {
-			const key = keys[index];
-			localStorage.removeItem(key);
+    compareDocumentWithSelfie(data): Observable<any> {
+        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/compare/demo`, data);
+    }
 
-			if (!this.demoData[key]) {
-				continue;
-			}
+    createLead(data): Observable<any> {
+        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/leads`, data);
+    }
 
-			if (Array.isArray(this.demoData[key])) {
-				this.demoData[key] = [];
-			} else if (Object.keys(this.demoData[key])) {
-				this.demoData[key] = {};
-			} else {
-				this.demoData[key] = null;
-			}
-		}
-	}
+    createSession(data): Observable<any> {
+        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/liveness-sessions`, {
+            ...data,
+        });
+    }
 
-	generateUniqueId(): any {
-		const navigatorInfo = window.navigator;
+    cleanVariables(): void {
+        const keys = [
+            "documentId",
+            "pro",
+            "studio",
+            "prompt",
+            "proFields",
+            "studioFields",
+            "promptFields",
+            "extractedData",
+            "liveness",
+            "livenessId",
+            "livenessResult",
+            "comparison",
+            "comparisonResult",
+            "comparisonId",
+            // "session",
+            // "lead",
+            // "accessToken",
+            "idCard",
+            "idCardFaceImage",
+            "sessionToken",
+        ];
 
-		const screenInfo = window.screen;
+        for (let index = 0; index < keys.length; index++) {
+            const key = keys[index];
+            localStorage.removeItem(key);
 
-		const uniqueString = `${navigatorInfo.userAgent}-${navigatorInfo.language}-${navigatorInfo.platform}-${screenInfo.height}x${screenInfo.width}`;
+            if (!this.demoData[key]) {
+                continue;
+            }
 
-		return { hash: this.simpleHash(uniqueString), userAgent: navigatorInfo.userAgent, height: screenInfo.height, width: screenInfo.width };
-	}
+            if (Array.isArray(this.demoData[key])) {
+                this.demoData[key] = [];
+            } else if (Object.keys(this.demoData[key])) {
+                this.demoData[key] = {};
+            } else {
+                this.demoData[key] = null;
+            }
+        }
+    }
 
-	private simpleHash(input: string): string {
-		let hash = 0;
+    generateUniqueId(): any {
+        const navigatorInfo = window.navigator;
 
-		if (input.length === 0) {
-			return hash.toString();
-		}
+        const screenInfo = window.screen;
 
-		for (let i = 0; i < input.length; i++) {
-			const char = input.charCodeAt(i);
+        const uniqueString = `${navigatorInfo.userAgent}-${navigatorInfo.language}-${navigatorInfo.platform}-${screenInfo.height}x${screenInfo.width}`;
 
-			hash = (hash << 5) - hash + char;
+        return { hash: this.simpleHash(uniqueString), userAgent: navigatorInfo.userAgent, height: screenInfo.height, width: screenInfo.width };
+    }
 
-			hash = hash & hash; // Convert to 32bit integer
-		}
+    private simpleHash(input: string): string {
+        let hash = 0;
 
-		return hash.toString();
-	}
+        if (input.length === 0) {
+            return hash.toString();
+        }
 
-	detectEdges(faceImage) {
-		const ctx = faceImage.getContext("2d");
-		const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
-		const pixels = imgData.data;
-		const width = imgData.width;
-		const height = imgData.height;
+        for (let i = 0; i < input.length; i++) {
+            const char = input.charCodeAt(i);
 
-		const sobelData = [];
-		const kernelX = [
-			[-1, 0, 1],
-			[-2, 0, 2],
-			[-1, 0, 1],
-		];
-		const kernelY = [
-			[-1, -2, -1],
-			[0, 0, 0],
-			[1, 2, 1],
-		];
+            hash = (hash << 5) - hash + char;
 
-		for (let y = 1; y < height - 1; y++) {
-			for (let x = 1; x < width - 1; x++) {
-				let pixelX =
-					kernelX[0][0] * this.getPixel(pixels, x - 1, y - 1, width) +
-					kernelX[0][1] * this.getPixel(pixels, x, y - 1, width) +
-					kernelX[0][2] * this.getPixel(pixels, x + 1, y - 1, width) +
-					kernelX[1][0] * this.getPixel(pixels, x - 1, y, width) +
-					kernelX[1][2] * this.getPixel(pixels, x + 1, y, width) +
-					kernelX[2][0] * this.getPixel(pixels, x - 1, y + 1, width) +
-					kernelX[2][1] * this.getPixel(pixels, x, y + 1, width) +
-					kernelX[2][2] * this.getPixel(pixels, x + 1, y + 1, width);
+            hash = hash & hash; // Convert to 32bit integer
+        }
 
-				let pixelY =
-					kernelY[0][0] * this.getPixel(pixels, x - 1, y - 1, width) +
-					kernelY[0][1] * this.getPixel(pixels, x, y - 1, width) +
-					kernelY[0][2] * this.getPixel(pixels, x + 1, y - 1, width) +
-					kernelY[1][0] * this.getPixel(pixels, x - 1, y, width) +
-					kernelY[1][2] * this.getPixel(pixels, x + 1, y, width) +
-					kernelY[2][0] * this.getPixel(pixels, x - 1, y + 1, width) +
-					kernelY[2][1] * this.getPixel(pixels, x, y + 1, width) +
-					kernelY[2][2] * this.getPixel(pixels, x + 1, y + 1, width);
+        return hash.toString();
+    }
 
-				const magnitude = Math.sqrt(pixelX * pixelX + pixelY * pixelY) >>> 0;
+    detectEdges(faceImage) {
+        const ctx = faceImage.getContext("2d");
+        const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
+        const pixels = imgData.data;
+        const width = imgData.width;
+        const height = imgData.height;
 
-				sobelData.push(magnitude, magnitude, magnitude, 255);
-			}
-		}
+        const sobelData = [];
+        const kernelX = [
+            [-1, 0, 1],
+            [-2, 0, 2],
+            [-1, 0, 1],
+        ];
+        const kernelY = [
+            [-1, -2, -1],
+            [0, 0, 0],
+            [1, 2, 1],
+        ];
 
-		// Edge detection threshold
-		const threshold = 100;
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let pixelX =
+                    kernelX[0][0] * this.getPixel(pixels, x - 1, y - 1, width) +
+                    kernelX[0][1] * this.getPixel(pixels, x, y - 1, width) +
+                    kernelX[0][2] * this.getPixel(pixels, x + 1, y - 1, width) +
+                    kernelX[1][0] * this.getPixel(pixels, x - 1, y, width) +
+                    kernelX[1][2] * this.getPixel(pixels, x + 1, y, width) +
+                    kernelX[2][0] * this.getPixel(pixels, x - 1, y + 1, width) +
+                    kernelX[2][1] * this.getPixel(pixels, x, y + 1, width) +
+                    kernelX[2][2] * this.getPixel(pixels, x + 1, y + 1, width);
 
-		const edgesFound = sobelData.some((val, idx) => idx % 4 === 0 && val > threshold);
+                let pixelY =
+                    kernelY[0][0] * this.getPixel(pixels, x - 1, y - 1, width) +
+                    kernelY[0][1] * this.getPixel(pixels, x, y - 1, width) +
+                    kernelY[0][2] * this.getPixel(pixels, x + 1, y - 1, width) +
+                    kernelY[1][0] * this.getPixel(pixels, x - 1, y, width) +
+                    kernelY[1][2] * this.getPixel(pixels, x + 1, y, width) +
+                    kernelY[2][0] * this.getPixel(pixels, x - 1, y + 1, width) +
+                    kernelY[2][1] * this.getPixel(pixels, x, y + 1, width) +
+                    kernelY[2][2] * this.getPixel(pixels, x + 1, y + 1, width);
 
-		return edgesFound;
-	}
+                const magnitude = Math.sqrt(pixelX * pixelX + pixelY * pixelY) >>> 0;
 
-	getPixel(pixels, x, y, width) {
-		const i = (y * width + x) * 4;
-		const r = pixels[i];
-		const g = pixels[i + 1];
-		const b = pixels[i + 2];
-		return (r + g + b) / 3; // Convert to grayscale
-	}
+                sobelData.push(magnitude, magnitude, magnitude, 255);
+            }
+        }
 
-	analyzeBlurNoise(faceImage) {
-		const ctx = faceImage.getContext("2d");
-		const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
-		const pixels = imgData.data;
-		let sum = 0;
-		let sumSquare = 0;
+        // Edge detection threshold
+        const threshold = 100;
 
-		for (let i = 0; i < pixels.length; i += 4) {
-			const intensity = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-			sum += intensity;
-			sumSquare += intensity * intensity;
-		}
+        const edgesFound = sobelData.some((val, idx) => idx % 4 === 0 && val > threshold);
 
-		const mean = sum / (pixels.length / 4);
-		const variance = sumSquare / (pixels.length / 4) - mean * mean;
+        return edgesFound;
+    }
 
-		// Set thresholds based on empirical testing
-		return variance > 50 && mean > 20;
-	}
+    getPixel(pixels, x, y, width) {
+        const i = (y * width + x) * 4;
+        const r = pixels[i];
+        const g = pixels[i + 1];
+        const b = pixels[i + 2];
+        return (r + g + b) / 3; // Convert to grayscale
+    }
 
-	extractBackgroundImage(image, faceBox) {
-		// Extract a portion of the ID that doesn't include the face
-		const canvas = document.createElement("canvas");
-		const ctx = canvas.getContext("2d");
-		canvas.width = image.width;
-		canvas.height = image.height;
-		ctx.drawImage(image, 0, 0);
+    analyzeBlurNoise(faceImage) {
+        const ctx = faceImage.getContext("2d");
+        const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
+        const pixels = imgData.data;
+        let sum = 0;
+        let sumSquare = 0;
 
-		// Crop out the face area (this is a basic method, more sophisticated approaches can be used)
-		ctx.clearRect(faceBox.x, faceBox.y, faceBox.width, faceBox.height);
-		return canvas;
-	}
+        for (let i = 0; i < pixels.length; i += 4) {
+            const intensity = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+            sum += intensity;
+            sumSquare += intensity * intensity;
+        }
 
-	checkLightingConsistency(faceImage, idBackground) {
-		const ctxFace = faceImage.getContext("2d");
-		const ctxBackground = idBackground.getContext("2d");
+        const mean = sum / (pixels.length / 4);
+        const variance = sumSquare / (pixels.length / 4) - mean * mean;
 
-		const faceData = ctxFace.getImageData(0, 0, faceImage.width, faceImage.height).data;
-		const bgData = ctxBackground.getImageData(0, 0, idBackground.width, idBackground.height).data;
+        // Set thresholds based on empirical testing
+        return variance > 50 && mean > 20;
+    }
 
-		const faceAvgBrightness = this.calculateAverageBrightness(faceData);
-		const bgAvgBrightness = this.calculateAverageBrightness(bgData);
+    extractBackgroundImage(image, faceBox) {
+        // Extract a portion of the ID that doesn't include the face
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        ctx.drawImage(image, 0, 0);
 
-		return Math.abs(faceAvgBrightness - bgAvgBrightness) < 20; // Adjust threshold based on testing
-	}
+        // Crop out the face area (this is a basic method, more sophisticated approaches can be used)
+        ctx.clearRect(faceBox.x, faceBox.y, faceBox.width, faceBox.height);
+        return canvas;
+    }
 
-	calculateAverageBrightness(data) {
-		let sum = 0;
-		for (let i = 0; i < data.length; i += 4) {
-			const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-			sum += brightness;
-		}
-		return sum / (data.length / 4);
-	}
+    checkLightingConsistency(faceImage, idBackground) {
+        const ctxFace = faceImage.getContext("2d");
+        const ctxBackground = idBackground.getContext("2d");
+
+        const faceData = ctxFace.getImageData(0, 0, faceImage.width, faceImage.height).data;
+        const bgData = ctxBackground.getImageData(0, 0, idBackground.width, idBackground.height).data;
+
+        const faceAvgBrightness = this.calculateAverageBrightness(faceData);
+        const bgAvgBrightness = this.calculateAverageBrightness(bgData);
+
+        return Math.abs(faceAvgBrightness - bgAvgBrightness) < 20; // Adjust threshold based on testing
+    }
+
+    calculateAverageBrightness(data) {
+        let sum = 0;
+        for (let i = 0; i < data.length; i += 4) {
+            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            sum += brightness;
+        }
+        return sum / (data.length / 4);
+    }
 }

@@ -60,12 +60,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
                 });
             },
         });
-
-        // Check for Android device and adjust resolution
-        if (/Android/i.test(navigator.userAgent)) {
-            this.MAX_HEIGHT = window.screen.height;
-            this.MAX_WIDTH = window.screen.width;
-        }
     }
 
     private get maxResolutionIndexLength(): number {
@@ -185,10 +179,6 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
             } else {
                 this.stream = await this._mediaStreamService.startStream(mediaOptions);
 
-                // //  await navigator.mediaDevices.getUserMedia(
-                //     mediaOptions
-                // );
-
                 const videoTrack = this.stream.getVideoTracks()[0];
 
                 this.deviceId = videoTrack.getCapabilities().deviceId;
@@ -201,8 +191,14 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
     }
 
     private _init() {
-        this.MAX_HEIGHT = window.innerHeight;
-        this.MAX_WIDTH = window.innerWidth;
+        // Check for Android device and adjust resolution
+        if (/Android/i.test(navigator.userAgent)) {
+            this.MAX_HEIGHT = window.screen.height;
+            this.MAX_WIDTH = window.screen.width;
+        } else {
+            this.MAX_HEIGHT = window.innerHeight;
+            this.MAX_WIDTH = window.innerWidth;
+        }
 
         if (this.forceVertical) {
             this.WIDE = [

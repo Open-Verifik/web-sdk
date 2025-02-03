@@ -9,7 +9,6 @@
     [source]="source"
     [forceVertical]="!isLandscape"
 ></smart-camera-resolution-detection>
-<!-- demoData.OS === 'IOS' && -->
 
 <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
     <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
@@ -249,22 +248,7 @@
         <div class="smart-scanner__container smart-scanner__container--initial h-full" fxLayout="column" fxLayoutAlign="center center">
             <ng-container [class.hidden]="response.base64Image || camera.isLoading">
                 <canvas #videoCanvas class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"></canvas>
-
                 <canvas #maskCanvas class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"></canvas>
-
-                <smart-scanner-corrections
-                    [angle]="corrections.angle"
-                    [bounds]="corrections.bounds"
-                    [height]="camera.dimensions?.viewport?.height"
-                    [isLandscape]="isLandscape"
-                    [ngClass]="errorFace ? 'hidden' : ''"
-                    [resolution]="corrections.resolution"
-                    [style.height.px]="camera.dimensions.viewport.height"
-                    [style.width.px]="camera.dimensions.viewport.width"
-                    [width]="camera.dimensions?.viewport?.width"
-                    *ngIf="source === 'face'"
-                    class="smart-scanner__absolute-scanner smart-scanner__absolute-scanner--ios"
-                ></smart-scanner-corrections>
             </ng-container>
 
             <code class="absolute top-0 right-0 bottom-0 z-index-2 text-right" *ngIf="DEBUG_MODE">
@@ -302,35 +286,6 @@
                     yaw: {{ corrections?.angle?.yaw }}
                     <br />
                     roll: {{ corrections?.angle?.roll }}
-                    <br />
-                    <br />
-                    <br />
-                </div>
-
-                <div *ngIf="source === 'document'">
-                    document:
-                    <br />
-                    x: {{ documentDetection?.x }}
-                    <br />
-                    y: {{ documentDetection?.y }}
-                    <br />
-                    width: {{ documentDetection?.width }}
-                    <br />
-                    height: {{ documentDetection?.height }}
-                    <br />
-                    <br />
-                    <br />
-                    document corrections:
-                    <br />
-                    document x: {{ corrections.document.x }}
-                    <br />
-                    document y: {{ corrections.document.y }}
-                    <br />
-                    documentResolution height:
-                    {{ corrections.documentResolution.height }}
-                    <br />
-                    documentResolution width:
-                    {{ corrections.documentResolution.width }}
                     <br />
                     <br />
                     <br />

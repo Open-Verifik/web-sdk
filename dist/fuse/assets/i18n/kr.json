@@ -133,7 +133,7 @@
         "retry_document": "문서 다시 시도",
         "retry_biometric": "생체 인식 기록 다시 시도"
     },
-	"user_location": {
+    "user_location": {
         "town": "타운",
         "state_district": "주 구역",
         "amenity": "편의 시설",
@@ -247,7 +247,7 @@
         "projectFlow_not_found": "프로젝트를 찾을 수 없음",
         "otp_does_not_match": "OTP가 일치하지 않습니다"
     },
-	"add_biometrics": {
+    "add_biometrics": {
         "project_title": "Bienvenido a ",
         "verifik_title": "생체 인식으로 $10 크레딧 언락!",
         "title": "생체 인식으로 신원을 확인하세요",
@@ -346,7 +346,7 @@
         "resend_code_part_two": "재발송",
         "remaining_time": "인증 코드를 다시 보내는 시간: "
     },
-	"smart_enroll": {
+    "smart_enroll": {
         "biometric_register": "생체 정보 등록",
         "camera_constraints_description": "현재 사용하려는 카메라의 해상도가 낮아 현재 온보딩 단계를 진행할 수 없습니다. 다른 카메라를 사용하거나 다른 기기에서 온보딩을 계속 진행할 것을 권장합니다. 최소 허용 해상도는 854x480입니다.",
         "camera_constraints": "카메라가 권장 기준을 충족하지 않습니다",
@@ -373,6 +373,32 @@
         "requires_back": "이 문서는 뒷면 스캔이 필요합니다. 이 문서의 뒷면을 계속 스캔하세요.",
         "successful_outcome": "성공적인 결과",
         "terms_and_cond": "약관",
+        "liveness": {
+            "instructions": {
+                "before_continuing": "계속하기 전에:",
+                "look_down_and_left": "약간 아래쪽과 왼쪽을 보세요",
+                "look_down_and_right": "약간 아래쪽과 오른쪽을 보세요",
+                "look_down": "약간 아래를 보세요",
+                "look_left": "약간 왼쪽을 보세요",
+                "look_right": "약간 오른쪽을 보세요",
+                "look_straight": "카메라를 똑바로 보세요",
+                "look_up_and_right": "약간 위쪽과 오른쪽을 보세요",
+                "look_up": "약간 위를 보세요",
+                "low-score": "얼굴이 명확하게 보이지 않습니다",
+                "move-away": "카메라에서 멀어지세요",
+                "move-closer": "카메라에 가까이 오세요",
+                "no_face": "얼굴을 찾을 수 없습니다",
+                "not-in-frame": "얼굴이 중앙에 있지 않습니다",
+                "pitch-down": "약간 아래를 보세요",
+                "pitch-up": "약간 위를 보세요",
+                "step_1": "카메라를 직접 보세요",
+                "step_2": "미리보기가 녹색일 때 가만히 계세요",
+                "step_3": "두 번 더 반복하세요. 원 주위를 따라 지시를 따르세요.",
+                "still": "가만히 계세요...",
+                "yaw-left": "얼굴을 약간 왼쪽으로 돌리세요",
+                "yaw-right": "얼굴을 약간 오른쪽으로 돌리세요"
+            }
+        },
         "failed": {
             "document_registered_incorrectly": "신분증이 정확하게 등록되지 않았습니다",
             "liveness_registered_incorrectly": "얼굴이 정확하게 등록되지 않았습니다",
@@ -460,42 +486,5 @@
         "credits_subtitle": "생체 정보로 $10 크레딧 받기",
         "credits_description": "데이터를 등록하고 계정의 보안을 강화하여 빠르고 안전한 접근을 즐기세요",
         "perform_biometry": "지금 생체 인증 수행"
-    },
-    "corrections": {
-        "keys": {
-            "placement": "배치",
-            "angle": "각도",
-            "distance": "거리"
-        },
-        "bounds": {
-            "x": {
-                "left": "얼굴을 왼쪽으로 이동하세요",
-                "right": "얼굴을 오른쪽으로 이동하세요"
-            },
-            "y": {
-                "up": "얼굴을 위로 이동하세요",
-                "down": "얼굴을 아래로 이동하세요"
-            }
-        },
-        "angle": {
-            "pitch": {
-                "up": "머리를 위로 기울이세요",
-                "down": "머리를 아래로 기울이세요"
-            },
-            "roll": {
-                "left": "머리를 왼쪽으로 기울이세요",
-                "right": "머리를 오른쪽으로 기울이세요"
-            },
-            "yaw": {
-                "left": "얼굴을 약간 왼쪽으로 돌리세요",
-                "right": "얼굴을 약간 오른쪽으로 돌리세요"
-            }
-        },
-        "resolution": {
-            "move": {
-                "forward": "카메라에 가까이 이동하세요",
-                "back": "카메라에서 멀리 이동하세요"
-            }
-        }
     }
 }

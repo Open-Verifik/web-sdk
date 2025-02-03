@@ -27,7 +27,6 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, SmartEnrollService } from "../smart-enroll.service";
 import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
-import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 import { MediaStreamService } from "app/media-stream.service";
 
 // const JSScanify = new jscanify();
@@ -46,7 +45,6 @@ import { MediaStreamService } from "app/media-stream.service";
         MatProgressBarModule,
         MatProgressSpinnerModule,
         SmartStepperComponent,
-        SmartScannerCorrectionsComponent,
         SmartCameraResolutionDetectionComponent,
         TranslocoModule,
     ],
@@ -229,9 +227,11 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                     this.source
                 );
 
-                this.corrections.angle = angle;
-                this.corrections.bounds = bounds;
-                this.corrections.resolution = resolution;
+                if (this.DEBUG_MODE) {
+                    this.corrections.angle = angle;
+                    this.corrections.bounds = bounds;
+                    this.corrections.resolution = resolution;
+                }
 
                 this.faceIsValid = isValid;
                 this.errorFace = isValid ? null : this.errorFace;
@@ -674,12 +674,12 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         if (this.source === "document") {
             const hitboxDimensions = this._getDetectionRectangleDimensions(width, height);
 
-            const angle = {
-                PITCH_HIGH: 15,
-                PITCH_LOW: -15,
-                ROLL_HIGH: 15,
-                ROLL_LOW: -15,
-            };
+            // const angle = {
+            //     PITCH_HIGH: 15,
+            //     PITCH_LOW: -15,
+            //     ROLL_HIGH: 15,
+            //     ROLL_LOW: -15,
+            // };
 
             const rectangleHalfWidth = hitboxDimensions.width / 2;
             const rectangleHalfHeight = hitboxDimensions.height / 2;
@@ -940,35 +940,35 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                     .then((detections) => {
                         const detection = this._demoService.findBiggestFace(detections);
 
-                        if (detection) {
-                            this.errorContent = null;
-                            this.errorFace = null;
-                            this.showError = false;
+                        if (!detection) throw Error("face_not_found");
 
-                            faceToUpload = this._demoService.cutFaceIdCard(
-                                croppedImage,
-                                detection.alignedRect.box,
-                                this.faceCardCanvas.nativeElement
-                            );
+                        if (detection.detection.score < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
+                            throw Error("face_not_found");
+                        }
 
-                            base64Image = base64Image.replace(/^data:.*;base64,/, "");
-                            face = faceToUpload?.replace(/^data:.*;base64,/, "");
+                        this.errorContent = null;
+                        this.errorFace = null;
+                        this.showError = false;
 
-                            this.onImageScan.next({
-                                base64Image,
-                                face,
-                                force: !isFront || !!this.appRegistration.documentValidation,
-                                front: isFront,
-                                inputMethod: "CAMERA",
-                                rawImage: rawBase64Image,
-                                source: this.source,
-                            });
+                        faceToUpload = this._demoService.cutFaceIdCard(croppedImage, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
 
-                            this.response.base64Image = base64Image;
-                            this.uploading = true;
+                        base64Image = base64Image.replace(/^data:.*;base64,/, "");
+                        face = faceToUpload?.replace(/^data:.*;base64,/, "");
 
-                            this._stopRecording();
-                        } else throw Error("face_not_found");
+                        this.onImageScan.next({
+                            base64Image,
+                            face,
+                            force: !isFront || !!this.appRegistration.documentValidation,
+                            front: isFront,
+                            inputMethod: "CAMERA",
+                            rawImage: rawBase64Image,
+                            source: this.source,
+                        });
+
+                        this.response.base64Image = base64Image;
+                        this.uploading = true;
+
+                        this._stopRecording();
 
                         return detections;
                     })

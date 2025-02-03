@@ -1,51 +1,17 @@
-<div
-    class="min-h-full w-full"
-    ngClass.gt-sm="px-4 py-4"
-    ngClass.lt-md="p-4"
-    fxLayout="row"
-    fxLayoutAlign="center center"
-    fxLayout.lt-md="column"
->
-    <div
-        class="smart-stepper"
-        fxFlex="25%"
-        fxFlex.lt-md="0"
-        ngClass.lt-md="hidden"
-    >
+<div class="min-h-full w-full" ngClass.gt-sm="px-4 py-4" ngClass.lt-md="p-4" fxLayout="row" fxLayoutAlign="center center" fxLayout.lt-md="column">
+    <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0" ngClass.lt-md="hidden">
         <smart-stepper></smart-stepper>
     </div>
 
-    <div
-        class="w-full min-h-full"
-        fxFlex.lt-lg="90%"
-        fxFlex.lt-md="100%"
-        fxLayout="column"
-        fxLayoutAlign="center center"
-    >
-        <smart-scanner
-            (onImageScan)="onImageScan($event)"
-            [successfulUpload]="successfulUploadSubject.asObservable()"
-            *ngIf="
-                !errorResult &&
-                demoData.OS !== 'IOS' &&
-                demoData.OS !== 'ANDROID'
-            "
-            class="w-full h-full"
-            source="face"
-        ></smart-scanner>
+    <smart-liveness
+        (onImageScan)="onImageScan($event)"
+        [successfulUpload]="successfulUploadSubject.asObservable()"
+        [retry]="retrySubject.asObservable()"
+    ></smart-liveness>
 
-        <smart-scanner-ios
-            (onImageScan)="onImageScan($event)"
-            [successfulUpload]="successfulUploadSubject.asObservable()"
-            *ngIf="
-                !errorResult &&
-                (demoData.OS === 'IOS' || demoData.OS === 'ANDROID')
-            "
-            class="w-full min-h-full"
-            source="face"
-        ></smart-scanner-ios>
-
+    <div class="w-full min-h-full" fxFlex.lt-lg="90%" fxFlex.lt-md="100%" fxLayout="column" fxLayoutAlign="center center">
         <smart-error-display
+            class="z-50"
             (onClearError)="retry()"
             [errorContent]="errorContent"
             *ngIf="errorResult"

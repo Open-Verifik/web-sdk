@@ -373,13 +373,39 @@
         "requires_back": "Ce document nécessite une numérisation du verso. Continuez à numériser le côté inverse de ce document.",
         "successful_outcome": "Résultat positif",
         "terms_and_cond": "conditions générales",
+        "liveness": {
+            "instructions": {
+                "before_continuing": "Avant de continuer :",
+                "look_down_and_left": "Regardez légèrement en bas et à gauche",
+                "look_down_and_right": "Regardez légèrement en bas et à droite",
+                "look_down": "Regardez légèrement en bas",
+                "look_left": "Regardez légèrement à gauche",
+                "look_right": "Regardez légèrement à droite",
+                "look_straight": "Regardez droit vers la caméra",
+                "look_up_and_right": "Regardez légèrement en haut et à droite",
+                "look_up": "Regardez légèrement en haut",
+                "low-score": "Visage pas clairement visible",
+                "move-away": "Éloignez-vous de la caméra",
+                "move-closer": "Rapprochez-vous de la caméra",
+                "no_face": "Visage non trouvé",
+                "not-in-frame": "Visage non centré",
+                "pitch-down": "Regardez légèrement en bas",
+                "pitch-up": "Regardez légèrement en haut",
+                "step_1": "Regardez directement dans la caméra",
+                "step_2": "Restez immobile pendant que l'aperçu est vert",
+                "step_3": "Répétez deux fois de plus. Suivez l'indicateur autour du cercle.",
+                "still": "Restez immobile...",
+                "yaw-left": "Tournez légèrement le visage vers la gauche",
+                "yaw-right": "Tournez légèrement le visage vers la droite"
+            }
+        },
         "failed": {
             "document_registered_incorrectly": "Votre ID n'a pas été correctement enregistré",
             "liveness_registered_incorrectly": "Votre visage n'a pas été correctement enregistré",
             "liveness": "Votre image biométrique a obtenu un score trop bas.",
             "compare": "Une comparaison de votre ID et de vos biométries a obtenu un score trop bas"
         },
-       "step_titles": {
+        "step_titles": {
             "id": "ID",
             "id_scanning": "Numérisation d'ID",
             "upload": "Téléverser",
@@ -460,42 +486,5 @@
         "credits_subtitle": "Obtenez 10 $ de crédits avec les données biométriques",
         "credits_description": "Enregistrez vos données et améliorez la sécurité de votre compte pour profiter d'un accès rapide et sécurisé.",
         "perform_biometry": "Effectuez la biométrie maintenant"
-    },
-    "corrections": {
-        "keys": {
-        	"placement": "Placement",
-            "angle": "Angle",
-            "distance": "Distance"
-        },
-        "bounds": {
-            "x": {
-                "left": "Déplacez le visage vers la gauche",
-                "right": "Déplacez le visage vers la droite"
-            },
-            "y": {
-                "up": "Déplacez le visage vers le haut",
-                "down": "Déplacez le visage vers le bas"
-            }
-        },
-        "angle": {
-            "pitch": {
-                "up": "Inclinez la tête vers le haut",
-                "down": "Inclinez la tête vers le bas"
-            },
-            "roll": {
-                "left": "Inclinez la tête vers la gauche",
-                "right": "Inclinez la tête vers la droite"
-            },
-            "yaw": {
-                "left": "Tournez légèrement le visage vers la gauche",
-                "right": "Tournez légèrement le visage vers la droite"
-            }
-        },
-        "resolution": {
-            "move": {
-                "forward": "Approchez-vous de la caméra",
-                "back": "Reculez de la caméra"
-            }
-        }
     }
 }

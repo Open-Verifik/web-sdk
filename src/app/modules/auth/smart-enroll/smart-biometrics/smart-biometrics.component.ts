@@ -13,11 +13,9 @@ import { KYCService } from "../../kyc.service";
 import { EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { AppRegistration, BiometricValidation, ImageScan, Project, ProjectFlow } from "../../project";
 
-import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
-
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
-import { SmartScannerIosComponent } from "../smart-scanner/smart-scanner-ios.component";
+import { SmartLivenessComponent } from "../smart-liveness/smart-liveness.component";
 
 @Component({
     selector: "smart-biometrics",
@@ -25,32 +23,25 @@ import { SmartScannerIosComponent } from "../smart-scanner/smart-scanner-ios.com
     styleUrls: ["../smart-enroll.component.scss"],
     animations: fuseAnimations,
     standalone: true,
-    imports: [
-        CommonModule,
-        FlexLayoutModule,
-        SmartScannerComponent,
-        SmartScannerIosComponent,
-        SmartStepperComponent,
-        SmartErrorDisplayComponent,
-        TranslocoModule,
-    ],
+    imports: [CommonModule, FlexLayoutModule, SmartLivenessComponent, SmartStepperComponent, SmartErrorDisplayComponent, TranslocoModule],
 })
 export class SmartBiometricsComponent implements OnDestroy {
-    @ViewChild("faceCardCanvas", { static: true })
-    faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
     appRegistration: AppRegistration;
     demoData: any;
     enrollSettings: EnrollSettings;
+    errorContent: { message: string };
+    errorResult: boolean;
     faceIdCard: string;
     project: Project;
     projectFlow: ProjectFlow;
-    errorResult: boolean;
-    errorContent: { message: string };
     successfulUploadSubject: Subject<void> = new Subject<void>();
+    retrySubject: Subject<void> = new Subject<void>();
 
     constructor(private _demoService: DemoService, private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
         this.enrollSettings = this._smartEnrollService.enrollSettings;
+
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
@@ -63,6 +54,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.successfulUploadSubject.complete();
+        this.retrySubject.complete();
     }
 
     private _createBiometricValidation(body: any) {
@@ -126,12 +118,8 @@ export class SmartBiometricsComponent implements OnDestroy {
     }
 
     private _syncAppRegistration(step: string, status?: string, action?: string) {
-        let _response: any = null;
-
         this._KYCService.syncAppRegistration(step, status).subscribe({
-            next: (response) => {
-                _response = response.data;
-            },
+            next: () => {},
             error: () => {},
             complete: () => {},
         });
@@ -150,5 +138,7 @@ export class SmartBiometricsComponent implements OnDestroy {
     retry() {
         this.errorResult = false;
         this.errorContent = { message: "" };
+
+        this.retrySubject.next();
     }
 }

@@ -373,6 +373,32 @@
         "requires_back": "Questo documento richiede una scansione del retro. Continua a scansionare il lato opposto di questo documento.",
         "successful_outcome": "Esito positivo",
         "terms_and_cond": "termini e condizioni",
+        "liveness": {
+            "instructions": {
+                "before_continuing": "Prima di continuare:",
+                "look_down_and_left": "Guarda leggermente in basso a sinistra",
+                "look_down_and_right": "Guarda leggermente in basso a destra",
+                "look_down": "Guarda leggermente in basso",
+                "look_left": "Guarda leggermente a sinistra",
+                "look_right": "Guarda leggermente a destra",
+                "look_straight": "Guarda direttamente la fotocamera",
+                "look_up_and_right": "Guarda leggermente in alto a destra",
+                "look_up": "Guarda leggermente in alto",
+                "low-score": "Volto non chiaramente visibile",
+                "move-away": "Allontanati dalla fotocamera",
+                "move-closer": "Avvicinati alla fotocamera",
+                "no_face": "Volto non trovato",
+                "not-in-frame": "Volto non centrato",
+                "pitch-down": "Guarda leggermente in basso",
+                "pitch-up": "Guarda leggermente in alto",
+                "step_1": "Guarda direttamente nella fotocamera",
+                "step_2": "Rimani fermo mentre l'anteprima è verde",
+                "step_3": "Ripeti altre due volte. Segui l'indicatore intorno al cerchio.",
+                "still": "Rimani fermo...",
+                "yaw-left": "Gira leggermente il volto a sinistra",
+                "yaw-right": "Gira leggermente il volto a destra"
+            }
+        },
         "failed": {
             "document_registered_incorrectly": "Il tuo ID non è stato registrato correttamente",
             "liveness_registered_incorrectly": "Il tuo volto non è stato registrato correttamente",
@@ -460,42 +486,5 @@
         "credits_subtitle": "Ottieni 10$ di crediti con i dati biometrici",
         "credits_description": "Registra i tuoi dati e migliora la sicurezza del tuo account per godere di un accesso veloce e sicuro.",
         "perform_biometry": "Esegui ora la biometria"
-    },
-    "corrections": {
-        "keys": {
-            "placement": "Posizionamento",
-            "angle": "Angolo",
-            "distance": "Distanza"
-        },
-        "bounds": {
-            "x": {
-                "left": "Sposta il viso a sinistra",
-                "right": "Sposta il viso a destra"
-            },
-            "y": {
-                "up": "Sposta il viso verso l'alto",
-                "down": "Sposta il viso verso il basso"
-            }
-        },
-        "angle": {
-            "pitch": {
-                "up": "Inclina la testa verso l'alto",
-                "down": "Inclina la testa verso il basso"
-            },
-            "roll": {
-                "left": "Inclina la testa a sinistra",
-                "right": "Inclina la testa a destra"
-            },
-            "yaw": {
-                "left": "Gira leggermente il viso a sinistra",
-                "right": "Gira leggermente il viso a destra"
-            }
-        },
-        "resolution": {
-            "move": {
-                "forward": "Avvicinati alla fotocamera",
-                "back": "Allontanati dalla fotocamera"
-            }
-        }
     }
 }

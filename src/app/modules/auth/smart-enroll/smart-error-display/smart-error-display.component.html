@@ -1,58 +1,58 @@
 <div
-	[style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
-	class="smart-documents__card rounded-2xl w-full"
-	fxLayout="column"
-	fxLayoutAlign="center center"
-	ngClass.gt-sm="m-4 p-6 bg-card"
-	ngClass.lt-md="p-4"
+    [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
+    class="smart-documents__card rounded-2xl w-full bg-card"
+    fxLayout="column"
+    fxLayoutAlign="center center"
+    ngClass.gt-sm="m-4 p-6"
+    ngClass.lt-md="p-4"
 >
-	<div class="results__score mt-4" *ngIf="attemptsRemaining">
-		<p class="font-medium">
-			{{ "smart_enroll.remaining_attempts" | transloco : { attempts: attemptsRemaining } }}
-		</p>
-	</div>
+    <div class="results__score mt-4" *ngIf="attemptsRemaining">
+        <p class="font-medium">
+            {{ "smart_enroll.remaining_attempts" | transloco : { attempts: attemptsRemaining } }}
+        </p>
+    </div>
 
-	<h4 class="mt-2 font-medium text-2xl" [style.color]="project.branding.titleColor" *ngIf="!attemptsRemaining">
-		{{ "no_more_attempts_title" | transloco }}
-	</h4>
+    <h4 class="mt-2 font-medium text-2xl" [style.color]="project.branding.titleColor" *ngIf="!attemptsRemaining">
+        {{ "no_more_attempts_title" | transloco }}
+    </h4>
 
-	<p class="text-center mt-8" *ngIf="source === 'document' && errorContent.message">
-		{{ "id_scanning." + errorContent.message | transloco }}
-	</p>
+    <p class="text-center mt-8" *ngIf="source === 'document' && errorContent.message">
+        {{ "id_scanning." + errorContent.message | transloco }}
+    </p>
 
-	<p class="text-center mt-8" *ngIf="source === 'face' && errorContent.message">
-		{{ "liveness." + errorContent.message | transloco }}
-	</p>
+    <p class="text-center mt-8" *ngIf="source === 'face' && errorContent.message">
+        {{ "liveness." + errorContent.message | transloco }}
+    </p>
 
-	<p class="text-center mt-8" *ngIf="!attemptsRemaining">
-		{{
-			"no_more_attempts_description"
-				| transloco
-					: {
-							recordName: currentStep === "document" ? "document" : "biometric"
-					  }
-		}}
-	</p>
+    <p class="text-center mt-8" *ngIf="!attemptsRemaining">
+        {{
+            "no_more_attempts_description"
+                | transloco
+                    : {
+                          recordName: currentStep === "document" ? "document" : "biometric"
+                      }
+        }}
+    </p>
 
-	<button
-		(click)="tryAgain()"
-		[style.background]="project.branding.buttonColor"
-		[style.color]="project.branding.buttonTxtColor"
-		class="fuse-mat-button-large w-full mt-16"
-		*ngIf="attemptsRemaining"
-		mat-flat-button
-	>
-		<span>{{ "id_scanning.retry" | transloco }}</span>
-	</button>
+    <button
+        (click)="tryAgain()"
+        [style.background]="project.branding.buttonColor"
+        [style.color]="project.branding.buttonTxtColor"
+        class="fuse-mat-button-large w-full mt-16"
+        *ngIf="attemptsRemaining"
+        mat-flat-button
+    >
+        <span>{{ "id_scanning.retry" | transloco }}</span>
+    </button>
 
-	<button
-		(click)="exitApplication()"
-		[style.background]="project.branding.buttonColor"
-		[style.color]="project.branding.buttonTxtColor"
-		class="fuse-mat-button-large w-full mt-16"
-		*ngIf="!attemptsRemaining"
-		mat-flat-button
-	>
-		<span>{{ "log_out" | transloco }}</span>
-	</button>
+    <button
+        (click)="exitApplication()"
+        [style.background]="project.branding.buttonColor"
+        [style.color]="project.branding.buttonTxtColor"
+        class="fuse-mat-button-large w-full mt-16"
+        *ngIf="!attemptsRemaining"
+        mat-flat-button
+    >
+        <span>{{ "log_out" | transloco }}</span>
+    </button>
 </div>

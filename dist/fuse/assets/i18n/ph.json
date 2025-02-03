@@ -373,6 +373,32 @@
         "requires_back": "Kinakailangan ng dokumentong ito ang pag-scan ng likod na bahagi. Magpatuloy sa pag-scan ng likurang bahagi ng dokumentong ito.",
         "successful_outcome": "Matagumpay na Resulta",
         "terms_and_cond": "mga tuntunin at kondisyon",
+        "liveness": {
+            "instructions": {
+                "before_continuing": "Bago magpatuloy:",
+                "look_down_and_left": "Tumingin nang bahagya pababa at pakaliwa",
+                "look_down_and_right": "Tumingin nang bahagya pababa at pakanan",
+                "look_down": "Tumingin nang bahagya pababa",
+                "look_left": "Tumingin nang bahagya pakaliwa",
+                "look_right": "Tumingin nang bahagya pakanan",
+                "look_straight": "Tumingin nang diretso sa camera",
+                "look_up_and_right": "Tumingin nang bahagya pataas at pakanan",
+                "look_up": "Tumingin nang bahagya pataas",
+                "low-score": "Hindi malinaw na nakikita ang mukha",
+                "move-away": "Lumayo mula sa camera",
+                "move-closer": "Lumapit sa camera",
+                "no_face": "Hindi natagpuan ang mukha",
+                "not-in-frame": "Hindi nakasentro ang mukha",
+                "pitch-down": "Tumingin nang bahagya pababa",
+                "pitch-up": "Tumingin nang bahagya pataas",
+                "step_1": "Tumingin nang diretso sa camera",
+                "step_2": "Huminto habang berde ang preview",
+                "step_3": "Ulitin pa ng dalawang beses. Sundin ang tagapagpahiwatig sa paligid ng bilog.",
+                "still": "Huminto...",
+                "yaw-left": "Bahagyang iikot ang mukha pakaliwa",
+                "yaw-right": "Bahagyang iikot ang mukha pakanan"
+            }
+        },
         "failed": {
             "document_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong ID",
             "liveness_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong mukha",
@@ -460,42 +486,5 @@
         "credits_subtitle": "Kumuha ng $10 Credits gamit ang Biometric Data",
         "credits_description": "Magrehistro ng iyong datos at pagbutihin ang seguridad ng iyong account upang tamasahin ang mabilis at secure na access.",
         "perform_biometry": "Isagawa ang Biometry ngayon"
-    },
-    "corrections": {
-        "keys": {
-            "placement": "Paglalagay",
-            "angle": "Anggulo",
-            "distance": "Distansya"
-        },
-        "bounds": {
-            "x": {
-                "left": "Igalaw ang mukha pakaliwa",
-                "right": "Igalaw ang mukha pakanan"
-            },
-            "y": {
-                "up": "Igalaw ang mukha pataas",
-                "down": "Igalaw ang mukha pababa"
-            }
-        },
-        "angle": {
-            "pitch": {
-                "up": "Iangat ang ulo pataas",
-                "down": "Iyuko ang ulo pababa"
-            },
-            "roll": {
-                "left": "Ikiling ang ulo pakaliwa",
-                "right": "Ikiling ang ulo pakanan"
-            },
-            "yaw": {
-                "left": "Bahagyang ipihit ang mukha pakaliwa",
-                "right": "Bahagyang ipihit ang mukha pakanan"
-            }
-        },
-        "resolution": {
-            "move": {
-                "forward": "Lumapit sa kamera",
-                "back": "Lumayo sa kamera"
-            }
-        }
     }
 }

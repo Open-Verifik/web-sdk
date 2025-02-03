@@ -23,12 +23,7 @@ import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/au
 import { DemoService } from "app/modules/demo/demo.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { Corrections, SmartEnrollService } from "../smart-enroll.service";
-import { SmartScannerCorrectionsComponent } from "./smart-scanner-corrections/smart-scanner-corrections.component";
 import { environment } from "environments/environment";
-
-interface MediaTrackSupportedConstraintsExtended extends MediaTrackSupportedConstraints {
-    zoom?: boolean;
-}
 
 interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
     zoom?: ConstrainULong;
@@ -47,7 +42,6 @@ interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
         MatCheckboxModule,
         MatIconModule,
         MatProgressSpinnerModule,
-        SmartScannerCorrectionsComponent,
         SmartStepperComponent,
         TranslocoModule,
     ],
@@ -123,8 +117,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     corrections: Corrections = {
         angle: { pitch: "", roll: "", yaw: "" },
         bounds: { x: "", y: "" },
-        document: { x: "", y: "" },
-        documentResolution: { height: "", width: "" },
         resolution: { height: "", width: "" },
     };
 
@@ -189,47 +181,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._stopRecord();
     }
 
-    // private _detectDocument(video: HTMLVideoElement, videoCanvas: HTMLCanvasElement, videoCanvasCtx: CanvasRenderingContext2D) {
-    // 	this._startAutoCapture();
-    // 	this._paintMaskCanvas();
-
-    // 	try {
-    // 		const vRatio = (videoCanvas.height / video.videoHeight) * video.videoWidth;
-    // 		videoCanvasCtx.drawImage(video, 0, 0, vRatio, videoCanvas.height);
-
-    // 		try {
-    // 			const img = cv.imread(videoCanvas);
-
-    // 			cv.imshow(videoCanvas, img);
-
-    // 			const maxContour = this._scanner.findPaperContour(img);
-
-    // 			if (maxContour) {
-    // 				const contours = this._scanner.getCornerPoints(maxContour);
-
-    // 				const {
-    // 					bounds,
-    // 					detection,
-    // 					isValid,
-    // 					resolution,
-    // 				}= this._smartEnrollService.evaluateDocumentContours(this.BOUNDS, contours);
-
-    // 				this.corrections.document = bounds;
-    // 				this.corrections.documentResolution = resolution;
-    // 				this.documentDetection = detection;
-    // 				this.documentIsValid = isValid;
-    // 			}
-
-    // 			img.delete();
-    // 		} catch (er) {}
-    // 	} catch (e) {}
-    // }
-
     async _detectFace(image: faceapi.TNetInput) {
-        if (this.source === "face") {
-            this._startAutoCapture();
-            this._paintMaskCanvas();
-        }
+        this._startAutoCapture();
+        this._paintMaskCanvas();
 
         try {
             const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
@@ -249,6 +203,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                 this.corrections.angle = angle;
                 this.corrections.bounds = bounds;
                 this.corrections.resolution = resolution;
+
                 this.faceIsValid = isValid;
 
                 return detection;
@@ -822,15 +777,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     private _onIntervalDetect = async (video: HTMLVideoElement, videoCanvas: HTMLCanvasElement): Promise<void> => {
         if (this.calculating) return Promise.resolve();
 
-        // To limit processing multiple calculations at once (for devices that run a little slower)
         this.calculating = true;
-
-        // Removing document scanner for the time being - Causes stutter/lag for mobile devices
-        // if (this.source === "document") {
-        // 	const videoCanvasCtx = videoCanvas.getContext("2d", { willReadFrequently: true });
-
-        // 	this._detectDocument(video, videoCanvas, videoCanvasCtx);
-        // }
         this.documentIsValid = true;
 
         if (this.side === "front" || this.source === "face") {
@@ -1012,13 +959,21 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             const img = new Image();
             img.src = rawBase64Image;
 
-            const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
-            const face = this._demoService.findBiggestFace(detections);
+            try {
+                const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
-            if (face) {
+                const face = this._demoService.findBiggestFace(detections);
+
+                if (!face) throw Error("face_not_found");
+
+                if (face.detection.score < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
+                    throw Error("face_not_found");
+                }
+
                 this.faceIdCard = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
+
                 faceToUpload = this.faceIdCard;
-            } else {
+            } catch (error) {
                 this._detectFaceError();
                 this._stopRecord();
                 this._startCamera();

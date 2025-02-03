@@ -1,0 +1,188 @@
+:host {
+    position: fixed;
+    inset: 0;
+}
+
+.camera {
+    height: 36rem;
+    width: 36rem;
+
+    &__loader {
+        background-color: rgba(30, 41, 59, 0.5);
+
+        &--success {
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+    }
+
+    @media (max-width: 768px) {
+        height: 20rem;
+        width: 20rem;
+    }
+
+    @media (min-width: 768px) and (max-width: 959px) {
+        height: 28rem;
+        width: 28rem;
+    }
+}
+
+.indicator {
+    position: absolute;
+    $indicator-size--a: 7rem;
+    $indicator-size--b: 6rem;
+
+    @media (max-width: 768px) {
+        $indicator-size--a: 2rem;
+        $indicator-size--b: 1.5rem;
+    }
+
+    @media (min-width: 768px) and (max-width: 959px) {
+        $indicator-size--a: 3rem;
+        $indicator-size--b: 1.5rem;
+        height: 28rem;
+        width: 28rem;
+    }
+
+    &--a {
+        top: -($indicator-size--a);
+        left: -($indicator-size--a);
+        height: calc(100% + ($indicator-size--a * 2));
+        width: calc(100% + ($indicator-size--a * 2));
+    }
+
+    &--b {
+        top: -($indicator-size--b);
+        left: -($indicator-size--b);
+        height: calc(100% + ($indicator-size--b * 2));
+        width: calc(100% + ($indicator-size--b * 2));
+    }
+
+    &__pie {
+        border-radius: 50%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        transition: opacity 200ms ease-out;
+    }
+
+    &__cut {
+        bottom: 50%;
+        height: 50%;
+        left: 50%;
+        outline: none;
+        position: absolute;
+        transform-origin: bottom left;
+        transition: all 200ms ease-out;
+        width: 50%;
+    }
+
+    &__clip {
+        height: 91%;
+        border-radius: 9999px;
+        width: 91%;
+        transform: translate(5.5%, 5.5%);
+
+        @media (max-width: 768px) {
+            background-color: white !important;
+            height: 86%;
+            width: 86%;
+            transform: translate(8%, 8%);
+        }
+
+        @media (min-width: 768px) and (max-width: 959px) {
+            background-color: white !important;
+            height: 90%;
+            width: 90%;
+            transform: translate(5.7%, 5.7%);
+        }
+    }
+}
+
+@mixin generate-animation($name, $start, $end) {
+    opacity: 1;
+    animation: $name 2s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+
+    @keyframes #{$name} {
+        0% {
+            transform: #{$start};
+        }
+        100% {
+            transform: #{$end};
+        }
+    }
+}
+
+.instructions {
+    &__step-index {
+        font-size: 12px;
+        padding: 2px;
+        min-width: 26px;
+        min-height: 26px;
+        border-radius: 50%;
+        margin-right: 12px;
+        text-align: center;
+    }
+}
+
+.face {
+    opacity: 0;
+    transform-origin: center;
+
+    @media (max-width: 959px) {
+        height: 30%;
+        width: 30%;
+    }
+
+    @media (min-width: 768px) and (max-width: 959px) {
+        height: 60%;
+        width: 60%;
+    }
+
+    &--not-found,
+    &--low-score {
+        opacity: 1;
+        animation: not-found-anim 2s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+
+        @keyframes not-found-anim {
+            0% {
+                filter: blur(0);
+            }
+            100% {
+                filter: blur(3px);
+            }
+        }
+    }
+
+    &--move-closer {
+        @include generate-animation(move-closer-anim, scale(1), scale(1.3));
+    }
+    &--move-away {
+        @include generate-animation(move-away-anim, scale(1), scale(0.6));
+    }
+    &--not-in-frame {
+        @include generate-animation(not-in-frame-anim, translate(-100%), translate(-50%));
+    }
+    &--roll-right {
+        @include generate-animation(roll-right-anim, rotate(0), rotate(20deg));
+    }
+    &--roll-left {
+        @include generate-animation(roll-left-anim, rotate(0), rotate(-20deg));
+    }
+    &--pitch-up {
+        transform-style: preserve-3d;
+        @include generate-animation(pitch-up-anim, rotateX(0), rotateX(40deg));
+    }
+    &--pitch-down {
+        transform-style: preserve-3d;
+        @include generate-animation(pitch-down-anim, rotateX(0), rotateX(-40deg));
+    }
+    &--yaw-right {
+        transform-style: preserve-3d;
+        @include generate-animation(yaw-right-anim, rotateY(0), rotateY(40deg));
+    }
+    &--yaw-left {
+        transform-style: preserve-3d;
+        @include generate-animation(yaw-left-anim, rotateY(0), rotateY(-40deg));
+    }
+}
