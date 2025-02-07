@@ -215,7 +215,9 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
     private async _detectFace(image: HTMLImageElement) {
         try {
-            const detections = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+            let detections = await faceapi
+                .detectAllFaces(image, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
+                .withFaceLandmarks(true);
 
             if (!detections.length) throw Error("no_face");
             else {
@@ -516,6 +518,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                         const livenessIsValid = this.source === "face" && this.faceIsValid;
 
                         this._drawMask();
+
                         this.successPosition = documentFrontIsValid || documentBackIsValid || livenessIsValid ? ++this.successPosition : 0;
 
                         if (this.successPosition > 1) {
@@ -924,17 +927,13 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
         if (isFront && this.source === "document") {
             const croppedImage = new Image();
+
             croppedImage.src = base64Image;
 
             croppedImage.onload = () => {
                 const promise = faceapi
-                    .detectAllFaces(
-                        croppedImage,
-                        new faceapi.SsdMobilenetv1Options({
-                            minConfidence: 0.2,
-                        })
-                    )
-                    .withFaceLandmarks();
+                    .detectAllFaces(croppedImage, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
+                    .withFaceLandmarks(true);
 
                 promise
                     .then((detections) => {
@@ -942,7 +941,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
                         if (!detection) throw Error("face_not_found");
 
-                        if (detection.detection.score < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
+                        if (detection.detection.score < 0.2) {
                             throw Error("face_not_found");
                         }
 
@@ -1111,9 +1110,9 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
     handleResolutionDetection(resolution: Resolution) {
         this.videoOptions.aspectRatio = { exact: resolution.aspectRatio };
+        this.videoOptions.deviceId = { exact: resolution.deviceId };
         this.videoOptions.height = { exact: resolution.height };
         this.videoOptions.width = { exact: resolution.width };
-        this.videoOptions.deviceId = { exact: resolution.deviceId };
 
         this.restartCamera();
     }

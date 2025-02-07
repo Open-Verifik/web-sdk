@@ -172,7 +172,11 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this._setScreenStatus();
 
-        this._renderer.listen("window", "resize", () => this._restartCamera());
+        this._renderer.listen("window", "resize", () => {
+            if (this.uploading) return;
+
+            this._restartCamera();
+        });
     }
 
     ngOnInit(): void {
@@ -255,15 +259,17 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         const { width, height, offsetX, offsetY } = this.scaledViewport;
 
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = Math.max(Math.floor(width * 0.5), 240);
+        canvas.height = Math.max(Math.floor(height * 0.5), 240);
 
         let image = new Image();
+
         image.src = faceCapture.base64;
 
         return new Promise<string>((resolve) => {
             image.onload = () => {
-                ctx.drawImage(image, offsetX, offsetY, width, height, 0, 0, width, height);
+                ctx.drawImage(image, offsetX, offsetY, width, height, 0, 0, canvas.width, canvas.height);
+
                 resolve(canvas.toDataURL());
 
                 image.src = "";
@@ -390,7 +396,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                 roll: 10,
                 yaw: 30,
             },
-            instruction: this.translocoService.translate("smart_enroll.liveness.instructions.look_down"),
+            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down"),
             indicatorAdjust: 180,
         };
 
@@ -405,7 +411,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                 roll: 10,
                 yaw: -75,
             },
-            instruction: this.translocoService.translate("smart_enroll.liveness.instructions.look_down_and_left"),
+            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down_and_left"),
             indicatorAdjust: 225,
         };
 
@@ -420,7 +426,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                 roll: 10,
                 yaw: -100,
             },
-            instruction: this.translocoService.translate("smart_enroll.liveness.instructions.look_left"),
+            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_left"),
             indicatorAdjust: 270,
         };
 
@@ -435,7 +441,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                 roll: 10,
                 yaw: -75,
             },
-            instruction: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
+            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
             indicatorAdjust: 315,
         };
 
@@ -533,6 +539,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             ctx.save();
 
             if (frameCount < detectionDelay) return;
+
             frameCount = 0;
 
             this._onIntervalDetect();
@@ -728,6 +735,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
             this._captureAndCropImage().then((base64Image) => {
                 const croppedImage = base64Image.replace(/^data:.*;base64,/, "");
+
                 this.onImageScan.emit({
                     base64Image: croppedImage,
                     face: croppedImage,
@@ -745,7 +753,10 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     };
 
     handleResolutionDetection(resolution: Resolution) {
+        if (this.uploading) return;
+
         this.resolution = resolution;
+
         this._stopCamera();
 
         const { height: videoHeight, width: videoWidth } = resolution;

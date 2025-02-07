@@ -71,7 +71,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     private unsubscriber$: Subject<void> = new Subject<void>();
 
     private _checkFaceTimeout: any;
-    private _debouncedTakePicture: DebouncedFunc<() => void>;
     private _debouncedWindowResize: DebouncedFunc<() => void>;
     private _detectionInterval: ReturnType<typeof setInterval>;
     private _rectCredential: any;
@@ -172,7 +171,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this._debouncedTakePicture?.cancel();
         this._debouncedWindowResize?.cancel();
 
         this.unsubscriber$.next();
@@ -182,7 +180,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     async _detectFace(image: faceapi.TNetInput) {
-        this._startAutoCapture();
         this._paintMaskCanvas();
 
         try {
@@ -391,23 +388,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         return this.source === "document"
             ? this.documentIsValid && ((this.side === "front" && this.faceIsValid) || this.side === "back")
             : this.faceIsValid;
-    }
-
-    private _startAutoCapture(): void {
-        if (!this._isCaptureValid()) {
-            if (this._debouncedTakePicture) this._debouncedTakePicture.cancel();
-            this._debouncedTakePicture = null;
-
-            return;
-        }
-
-        if (this._debouncedTakePicture) return;
-
-        let debounceWait = 500;
-        if (this.source === "document") debounceWait = 800;
-
-        this._debouncedTakePicture = debounce(() => this.takePicture(), debounceWait);
-        this._debouncedTakePicture();
     }
 
     private _resetVariables() {
