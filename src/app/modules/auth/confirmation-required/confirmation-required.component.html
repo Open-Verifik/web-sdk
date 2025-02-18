@@ -1,407 +1,407 @@
 <div fxLayout="row" fxLayoutAlign="center center" class="w-full" [style.background]="project?.branding.bgColor">
-	<div
-		fxLayout="row"
-		fxLayoutAlign="center end"
-		class="flex w-full"
-		*ngIf="
-			!errorContent &&
-			appRegistration &&
-			project &&
-			otpForm &&
-			currentValidation &&
-			currentValidation._id &&
-			currentValidation.countryCode !== '-1'
-		"
-	>
-		<div fxLayout="row" fxLayoutAlign="start center">
-			<img [src]="project.branding.logo" class="main-logo w-14" />
-		</div>
+    <div
+        fxLayout="row"
+        fxLayoutAlign="center end"
+        class="flex w-full"
+        *ngIf="
+            !errorContent &&
+            appRegistration &&
+            project &&
+            otpForm &&
+            currentValidation &&
+            currentValidation._id &&
+            currentValidation.countryCode !== '-1'
+        "
+    >
+        <div fxLayout="row" fxLayoutAlign="start center">
+            <img [src]="project.branding.logo" class="main-logo w-14" />
+        </div>
 
-		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content">
-			<div class="w-full sm:w-auto py-8 px-4 sm:p-12" fxLayout="row" fxLayoutAlign="start center">
-				<div class="w-400 mx-auto sm:mx-0">
-					<!-- Title -->
-					<div
-						class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
-						*ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')"
-						[style.color]="project.branding.titleColor"
-					>
-						<span>
-							{{
-								"signup.verify_code_sent"
-									| transloco
-										: {
-												method: currentValidation.email ? "Verifik" : (phoneGateway | uppercase),
-												destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone
-										  }
-							}}
-						</span>
-					</div>
+        <div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content">
+            <div class="w-full sm:w-auto py-8 px-4 sm:p-12" fxLayout="row" fxLayoutAlign="start center">
+                <div class="w-400 mx-auto sm:mx-0">
+                    <!-- Title -->
+                    <div
+                        class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
+                        *ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')"
+                        [style.color]="project.branding.titleColor"
+                    >
+                        <span>
+                            {{
+                                "signup.verify_code_sent"
+                                    | transloco
+                                        : {
+                                              method: currentValidation.email ? "Verifik" : (phoneGateway | uppercase),
+                                              destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone
+                                          }
+                            }}
+                        </span>
+                    </div>
 
-					<!-- PICK GATEWAY -->
-					<div
-						class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
-						*ngIf="currentValidation.phone && phoneGateway === 'both'"
-						[style.color]="project.branding.titleColor"
-					>
-						{{ "confirmation.pick_phone_gateway_title" | transloco }}
-					</div>
-					<!-- end of PICK GATEWAY -->
+                    <!-- PICK GATEWAY -->
+                    <div
+                        class="mt-8 text-2xl font-extrabold tracking-tight leading-tight"
+                        *ngIf="currentValidation.phone && phoneGateway === 'both'"
+                        [style.color]="project.branding.titleColor"
+                    >
+                        {{ "confirmation.pick_phone_gateway_title" | transloco }}
+                    </div>
+                    <!-- end of PICK GATEWAY -->
 
-					<small
-						[style.color]="project.branding.txtColor"
-						class="cursor-pointer underline"
-						(click)="showUpdatePhoneCard()"
-						*ngIf="currentValidation.countryCode"
-					>
-						{{ "signup.change_your_phone_title" | transloco }}
-					</small>
+                    <small
+                        [style.color]="project.branding.txtColor"
+                        class="cursor-pointer underline"
+                        (click)="showUpdatePhoneCard()"
+                        *ngIf="currentValidation.countryCode"
+                    >
+                        {{ "signup.change_your_phone_title" | transloco }}
+                    </small>
 
-					<!-- no account -->
-					<div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
-						<div>{{ "login.no_account" | transloco }}</div>
-						<!--  -->
-						<a class="ml-1 text-primary-500 hover:underline cursor-pointer" [routerLink]="['/sign-up', project._id]">{{
-							"login.register_here_link" | transloco
-						}}</a>
-					</div>
+                    <!-- no account -->
+                    <div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
+                        <div>{{ "login.no_account" | transloco }}</div>
+                        <!--  -->
+                        <a class="ml-1 text-primary-500 hover:underline cursor-pointer" [routerLink]="['/sign-up', project._id]">{{
+                            "login.register_here_link" | transloco
+                        }}</a>
+                    </div>
 
-					<!-- Alert -->
-					<fuse-alert
-						class="mt-8 -mb-4"
-						*ngIf="showAlert"
-						[appearance]="'outline'"
-						[showIcon]="false"
-						[type]="alert.type"
-						[@shake]="alert.type === 'error'"
-					>
-						{{ alert.message | transloco }}
-					</fuse-alert>
+                    <!-- Alert -->
+                    <fuse-alert
+                        class="mt-8 -mb-4"
+                        *ngIf="showAlert"
+                        [appearance]="'outline'"
+                        [showIcon]="false"
+                        [type]="alert.type"
+                        [@shake]="alert.type === 'error'"
+                    >
+                        {{ alert.message | transloco }}
+                    </fuse-alert>
 
-					<!-- FORM HERE WHEN GATEWAY HAS BEEN SELECTED -->
-					<form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm">
-						<mat-form-field class="w-full" *ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')">
-							<mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
+                    <!-- FORM HERE WHEN GATEWAY HAS BEEN SELECTED -->
+                    <form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm">
+                        <mat-form-field class="w-full" *ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')">
+                            <mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
 
-							<input
-								id="otp"
-								matInput
-								type="password"
-								[formControlName]="'otp'"
-								#passwordField
-								(input)="onInput($event)"
-								(keyup)="checkSixDigits()"
-							/>
-							<button
-								mat-icon-button
-								type="button"
-								(click)="passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')"
-								matSuffix
-							>
-								<mat-icon class="icon-size-5" *ngIf="passwordField.type === 'password'" [svgIcon]="'heroicons_solid:eye'"></mat-icon>
-								<mat-icon
-									class="icon-size-5"
-									*ngIf="passwordField.type === 'text'"
-									[svgIcon]="'heroicons_solid:eye-slash'"
-								></mat-icon>
-							</button>
+                            <input
+                                id="otp"
+                                matInput
+                                type="password"
+                                [formControlName]="'otp'"
+                                #passwordField
+                                (input)="onInput($event)"
+                                (keyup)="checkSixDigits()"
+                            />
+                            <button
+                                mat-icon-button
+                                type="button"
+                                (click)="passwordField.type === 'password' ? (passwordField.type = 'text') : (passwordField.type = 'password')"
+                                matSuffix
+                            >
+                                <mat-icon class="icon-size-5" *ngIf="passwordField.type === 'password'" [svgIcon]="'heroicons_solid:eye'"></mat-icon>
+                                <mat-icon
+                                    class="icon-size-5"
+                                    *ngIf="passwordField.type === 'text'"
+                                    [svgIcon]="'heroicons_solid:eye-slash'"
+                                ></mat-icon>
+                            </button>
 
-							<mat-error *ngIf="otpForm.get('otp').hasError('required')" class="p-1">
-								{{ "login.required_otp" | transloco }}
-							</mat-error>
-						</mat-form-field>
-					</form>
+                            <mat-error *ngIf="otpForm.get('otp').hasError('required')" class="p-1">
+                                {{ "login.required_otp" | transloco }}
+                            </mat-error>
+                        </mat-form-field>
+                    </form>
 
-					<div class="grid grid-cols-2 w-full" *ngIf="!loading && currentValidation.phone && phoneGateway === 'both'">
-						<button
-							mat-stroked-button
-							class="w-11/12 mt-4"
-							color="primary"
-							(click)="sendPhoneOTP($event, 'sms')"
-							[class.col-span-2]="phoneGateway !== 'both'"
-							[disabled]="!canSendOTP()"
-							*ngIf="phoneGateway === 'sms' || phoneGateway === 'both'"
-							[style.color]="project.branding.buttonTxtColor"
-							[style.background]="project.branding.buttonColor"
-						>
-							<span> SMS </span>
-						</button>
+                    <div class="grid grid-cols-2 w-full" *ngIf="!loading && currentValidation.phone && phoneGateway === 'both'">
+                        <button
+                            mat-stroked-button
+                            class="w-11/12 mt-4"
+                            color="primary"
+                            (click)="sendPhoneOTP($event, 'sms')"
+                            [class.col-span-2]="phoneGateway !== 'both'"
+                            [disabled]="!canSendOTP()"
+                            *ngIf="phoneGateway === 'sms' || phoneGateway === 'both'"
+                            [style.color]="project.branding.buttonTxtColor"
+                            [style.background]="project.branding.buttonColor"
+                        >
+                            <span> SMS </span>
+                        </button>
 
-						<button
-							mat-stroked-button
-							class="mt-4"
-							color="primary"
-							(click)="sendPhoneOTP($event, 'whatsapp')"
-							[class.col-span-2]="phoneGateway !== 'both'"
-							[disabled]="!canSendOTP()"
-							*ngIf="phoneGateway === 'whatsapp' || phoneGateway === 'both'"
-							[style.color]="project.branding.buttonTxtColor"
-							[style.background]="project.branding.buttonColor"
-						>
-							<span> Whatsapp </span>
-						</button>
-					</div>
+                        <button
+                            mat-stroked-button
+                            class="mt-4"
+                            color="primary"
+                            (click)="sendPhoneOTP($event, 'whatsapp')"
+                            [class.col-span-2]="phoneGateway !== 'both'"
+                            [disabled]="!canSendOTP()"
+                            *ngIf="phoneGateway === 'whatsapp' || phoneGateway === 'both'"
+                            [style.color]="project.branding.buttonTxtColor"
+                            [style.background]="project.branding.buttonColor"
+                        >
+                            <span> Whatsapp </span>
+                        </button>
+                    </div>
 
-					<!-- Form footer -->
-					<div class="mt-2 text-md font-medium text-secondary" *ngIf="remainingTime">
-						<span *ngIf="remainingTime !== 'Expired'"> {{ "confirmation.remaining_time" | transloco }} {{ remainingTime }} </span>
-						<span *ngIf="remainingTime === 'Expired'">{{ "confirmation.resend_code_part_one" | transloco }}</span>
-						<a
-							*ngIf="remainingTime === 'Expired'"
-							class="ml-1 text-primary-500 hover:underline cursor-pointer"
-							(click)="_initValidations()"
-							>{{ "confirmation.resend_code_part_two" | transloco }}</a
-						>
-					</div>
-					<!-- END::: FORM HERE -->
+                    <!-- Form footer -->
+                    <div class="mt-2 text-md font-medium text-secondary" *ngIf="remainingTime">
+                        <span *ngIf="remainingTime !== 'Expired'"> {{ "confirmation.remaining_time" | transloco }} {{ remainingTime }} </span>
+                        <span *ngIf="remainingTime === 'Expired'">{{ "confirmation.resend_code_part_one" | transloco }}</span>
+                        <a
+                            *ngIf="remainingTime === 'Expired'"
+                            class="ml-1 text-primary-500 hover:underline cursor-pointer"
+                            (click)="_initValidations()"
+                            >{{ "confirmation.resend_code_part_two" | transloco }}</a
+                        >
+                    </div>
+                    <!-- END::: FORM HERE -->
 
-					<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
-						<small> {{ "powered_by_verifik" | transloco }} </small>
-						<languages [colorText]="project.branding.txtColor"></languages>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                    <div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
+                        <small> {{ "powered_by_verifik" | transloco }} </small>
+                        <languages [colorText]="project.branding.txtColor"></languages>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<div
-		class="flex items-center justify-center sm:w-auto p-16 rounded-2xl shadow bg-card"
-		*ngIf="syncResponse"
-		fxLayout="column"
-		fxLayoutAlign="start center"
-	>
-		<!-- for verifik project -->
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" *ngIf="isVerifikProject">
-			<!-- content -->
-			<div fxLayout="column" fxLayoutAlign="start center">
-				<img src="https://cdn.verifik.co/access/goldcoins3x.png" alt="" class="w-36" />
+    <div
+        class="flex items-center justify-center sm:w-auto p-16 rounded-2xl shadow bg-card"
+        *ngIf="syncResponse"
+        fxLayout="column"
+        fxLayoutAlign="start center"
+    >
+        <!-- for verifik project -->
+        <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" *ngIf="isVerifikProject">
+            <!-- content -->
+            <div fxLayout="column" fxLayoutAlign="start center">
+                <img src="https://cdn.verifik.co/access/goldcoins3x.png" alt="" class="w-36" />
 
-				<h2 class="pt-2 credits-h2">
-					{{ "add_biometrics.verifik_title" | transloco }}
-				</h2>
+                <h2 class="pt-2 credits-h2">
+                    {{ "add_biometrics.verifik_title" | transloco }}
+                </h2>
 
-				<h3 class="credits-h3">{{ "add_biometrics.verifik_content" | transloco }}</h3>
-			</div>
-			<!-- end of content -->
+                <h3 class="credits-h3">{{ "add_biometrics.verifik_content" | transloco }}</h3>
+            </div>
+            <!-- end of content -->
 
-			<!-- Title -->
+            <!-- Title -->
 
-			<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-				<button
-					mat-stroked-button
-					class="w-11/12 mt-4 biometrics-button"
-					(click)="startKYC()"
-					[style.color]="project.branding.buttonTxtColor"
-					[style.background]="project.branding.buttonColor"
-				>
-					<span>{{ "add_biometrics.verifik_button" | transloco }} </span>
-				</button>
+            <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+                <button
+                    mat-stroked-button
+                    class="w-11/12 mt-4 biometrics-button"
+                    (click)="startKYC()"
+                    [style.color]="project.branding.buttonTxtColor"
+                    [style.background]="project.branding.buttonColor"
+                >
+                    <span>{{ "add_biometrics.verifik_button" | transloco }} </span>
+                </button>
 
-				<button
-					mat-stroked-button
-					class="w-11/12 mt-4 biometrics-button"
-					color="primary"
-					(click)="continueWithoutKYC()"
-					*ngIf="showSkipDoingKYC"
-				>
-					<span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_dismiss" | transloco }} </span>
-				</button>
-			</div>
-		</div>
-		<!-- end of verifik project -->
+                <button
+                    mat-stroked-button
+                    class="w-11/12 mt-4 biometrics-button"
+                    color="primary"
+                    (click)="continueWithoutKYC()"
+                    *ngIf="showSkipDoingKYC"
+                >
+                    <span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_dismiss" | transloco }} </span>
+                </button>
+            </div>
+        </div>
+        <!-- end of verifik project -->
 
-		<!-- client project -->
-		<ng-container *ngIf="!endstep">
-			<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
-				<!-- content -->
-				<div fxLayout="column" fxLayoutAlign="start center">
-					<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
-						{{ "signup.kyc_start_popup.project_title" | transloco }} {{ project.name }}
-					</h1>
+        <!-- client project -->
+        <ng-container *ngIf="!endstep">
+            <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
+                <!-- content -->
+                <div fxLayout="column" fxLayoutAlign="start center">
+                    <h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
+                        {{ "signup.kyc_start_popup.project_title" | transloco }} {{ project.name }}
+                    </h1>
 
-					<img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
+                    <img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
 
-					<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
+                    <img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
 
-					<h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.txtColor">
-						{{ "signup.kyc_start_popup.title" | transloco }}
-					</h2>
+                    <h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.txtColor">
+                        {{ "signup.kyc_start_popup.title" | transloco }}
+                    </h2>
 
-					<h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content" | transloco }}</h3>
-				</div>
-				<!-- end of content -->
-				<!-- Title -->
+                    <h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content" | transloco }}</h3>
+                </div>
+                <!-- end of content -->
+                <!-- Title -->
 
-				<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-					<button
-						mat-stroked-button
-						class="w-11/12 mt-4 biometrics-button"
-						[style.color]="project.branding.buttonTxtColor"
-						[style.background]="project.branding.buttonColor"
-						(click)="startKYC()"
-					>
-						<span>{{ "add_biometrics.button" | transloco }} </span>
-					</button>
+                <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+                    <button
+                        mat-stroked-button
+                        class="w-11/12 mt-4 biometrics-button"
+                        [style.color]="project.branding.buttonTxtColor"
+                        [style.background]="project.branding.buttonColor"
+                        (click)="startKYC()"
+                    >
+                        <span>{{ "add_biometrics.button" | transloco }} </span>
+                    </button>
 
-					<button
-						mat-stroked-button
-						class="w-11/12 mt-4 biometrics-button"
-						color="primary"
-						(click)="continueWithoutKYC()"
-						*ngIf="showSkipDoingKYC"
-					>
-						<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
-					</button>
-				</div>
-			</div>
-		</ng-container>
-		<ng-container *ngIf="endstep">
-			<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
-				<!-- content -->
-				<div fxLayout="column" fxLayoutAlign="start center">
-					<h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
-						{{ "signup.end_step.title" | transloco }}
-					</h1>
+                    <button
+                        mat-stroked-button
+                        class="w-11/12 mt-4 biometrics-button"
+                        color="primary"
+                        (click)="continueWithoutKYC()"
+                        *ngIf="showSkipDoingKYC"
+                    >
+                        <span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
+                    </button>
+                </div>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="endstep">
+            <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0" fxLayout="column" fxLayoutAlign="start center" *ngIf="!isVerifikProject">
+                <!-- content -->
+                <div fxLayout="column" fxLayoutAlign="start center">
+                    <h1 class="mt-4 text-4xl font-extrabold tracking-tight leading-tight text-center" [style.color]="project.branding.titleColor">
+                        {{ "signup.end_step.title" | transloco }}
+                    </h1>
 
-					<img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
+                    <img src="https://cdn.verifik.co/access/divider.svg" alt="" class="w-full pb-8 pt-8" />
 
-					<img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
+                    <img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
 
-					<h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content_end" | transloco }}</h3>
-				</div>
-				<!-- end of content -->
-				<!-- Title -->
+                    <h3 class="credits-h3 text-center">{{ "signup.kyc_start_popup.content_end" | transloco }}</h3>
+                </div>
+                <!-- end of content -->
+                <!-- Title -->
 
-				<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
-					<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWithoutKYC()">
-						<span [style.color]="project.branding.txtColor"> {{ "signup.kyc_start_popup.end" | transloco }} </span>
-					</button>
-				</div>
-			</div>
-		</ng-container>
+                <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
+                    <button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWithoutKYC()">
+                        <span [style.color]="project.branding.txtColor"> {{ "signup.kyc_start_popup.end" | transloco }} </span>
+                    </button>
+                </div>
+            </div>
+        </ng-container>
 
-		<!-- END client project -->
-		<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
-			<small> {{ "powered_by_verifik" | transloco }} </small>
-			<languages [colorText]="project.branding.txtColor"></languages>
-		</div>
-	</div>
+        <!-- END client project -->
+        <div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
+            <small> {{ "powered_by_verifik" | transloco }} </small>
+            <languages [colorText]="project.branding.txtColor"></languages>
+        </div>
+    </div>
 
-	<!--  -->
-	<!--  -->
-	<!--  -->
-	<!-- COUNTRY CODE -1 -->
-	<!--  -->
-	<!--  -->
-	<!--  -->
-	<div
-		*ngIf="!errorContent && currentValidation && currentValidation.countryCode === '-1'"
-		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
-	>
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-			<!-- Title -->
-			<div class="text-4xl font-extrabold tracking-tight leading-tight">
-				{{ "signup.change_your_phone_title" | transloco }}
-			</div>
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>{{ "signup.change_your_phone_description" | transloco }}</div>
-			</div>
+    <!--  -->
+    <!--  -->
+    <!--  -->
+    <!-- COUNTRY CODE -1 -->
+    <!--  -->
+    <!--  -->
+    <!--  -->
+    <div
+        *ngIf="!errorContent && currentValidation && currentValidation.countryCode === '-1'"
+        class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+    >
+        <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+            <!-- Title -->
+            <div class="text-4xl font-extrabold tracking-tight leading-tight">
+                {{ "signup.change_your_phone_title" | transloco }}
+            </div>
+            <div class="flex items-baseline mt-0.5 font-medium">
+                <div>{{ "signup.change_your_phone_description" | transloco }}</div>
+            </div>
 
-			<form class="mt-8" [formGroup]="phoneForm" #phoneNgForm="ngForm">
-				<div fxLayout="row" fxLayoutAlign="start center">
-					<mat-form-field class="w-full mr-2">
-						<mat-label [style.color]="project.branding.txtColor"> {{ "login.country_code" | transloco }}</mat-label>
-						<mat-select *ngIf="countries" class="mr-1.5" [formControl]="phoneForm.get('countryCode')" matPrefix>
-							<mat-select-trigger>
-								<span class="flex items-center">
-									<span class="sm:mx-0.5 font-medium text-default">{{ phoneForm.get("countryCode").value }}</span>
-								</span>
-							</mat-select-trigger>
-							<ng-container *ngFor="let country of countries">
-								<mat-option [value]="country.code">
-									<span class="flex items-center">
-										<span class="ml-2">{{ country.name }}</span>
-										<span class="ml-2 font-medium">{{ country.code }}</span>
-									</span>
-								</mat-option>
-							</ng-container>
-						</mat-select>
-					</mat-form-field>
+            <form class="mt-8" [formGroup]="phoneForm" #phoneNgForm="ngForm">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                    <mat-form-field class="w-full mr-2">
+                        <mat-label [style.color]="project.branding.txtColor"> {{ "login.country_code" | transloco }}</mat-label>
+                        <mat-select *ngIf="countries" class="mr-1.5" [formControl]="phoneForm.get('countryCode')" matPrefix>
+                            <mat-select-trigger>
+                                <span class="flex items-center">
+                                    <span class="sm:mx-0.5 font-medium text-default">{{ phoneForm.get("countryCode").value }}</span>
+                                </span>
+                            </mat-select-trigger>
+                            <ng-container *ngFor="let country of countries">
+                                <mat-option [value]="country.code">
+                                    <span class="flex items-center">
+                                        <span class="ml-2">{{ country.name }}</span>
+                                        <span class="ml-2 font-medium">{{ country.code }}</span>
+                                    </span>
+                                </mat-option>
+                            </ng-container>
+                        </mat-select>
+                    </mat-form-field>
 
-					<mat-form-field class="w-full">
-						<mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
-						<input id="phone" matInput [formControlName]="'phone'" />
-						<mat-error *ngIf="phoneForm.get('phone').hasError('required')">
-							{{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
-						</mat-error>
-						<mat-error *ngIf="phoneForm.get('phone').hasError('phone')">
-							{{ "signup.please_enter_a_valid" | transloco }} {{ "login.phone" | transloco }}
-						</mat-error>
-					</mat-form-field>
-				</div>
-			</form>
+                    <mat-form-field class="w-full">
+                        <mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
+                        <input id="phone" matInput [formControlName]="'phone'" />
+                        <mat-error *ngIf="phoneForm.get('phone').hasError('required')">
+                            {{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
+                        </mat-error>
+                        <mat-error *ngIf="phoneForm.get('phone').hasError('phone')">
+                            {{ "signup.please_enter_a_valid" | transloco }} {{ "login.phone" | transloco }}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </form>
 
-			<button
-				mat-stroked-button
-				class="w-full mt-4"
-				color="primary"
-				(click)="updatePhone($event)"
-				[class.col-span-2]="phoneGateway === 'sms' || phoneGateway === 'whatsapp'"
-				[disabled]="!canUpdatePhone()"
-				[style.color]="project.branding.buttonTxtColor"
-				[style.background]="project.branding.buttonColor"
-				*ngIf="currentValidation.countryCode"
-			>
-				<span> {{ "signup.change_your_phone_button" | transloco }} </span>
-			</button>
-		</div>
-	</div>
-	<!-- END:: when the projectflow is not set properly, show the error here -->
+            <button
+                mat-stroked-button
+                class="w-full mt-4"
+                color="primary"
+                (click)="updatePhone($event)"
+                [class.col-span-2]="phoneGateway === 'sms' || phoneGateway === 'whatsapp'"
+                [disabled]="!canUpdatePhone()"
+                [style.color]="project.branding.buttonTxtColor"
+                [style.background]="project.branding.buttonColor"
+                *ngIf="currentValidation.countryCode"
+            >
+                <span> {{ "signup.change_your_phone_button" | transloco }} </span>
+            </button>
+        </div>
+    </div>
+    <!-- END:: when the projectflow is not set properly, show the error here -->
 
-	<!-- when the projectflow is not set properly, show the error here -->
-	<div
-		*ngIf="!errorContent && (!project || !projectFlow || !projectFlow._id || !project._id)"
-		class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
-	>
-		<div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-			<!-- Title -->
-			<div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
-				{{ "signup.project_flow_not_set" | transloco }}
-			</div>
-			<div class="flex items-baseline mt-0.5 font-medium">
-				<div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
-			</div>
-		</div>
-	</div>
-	<!-- END:: when the projectflow is not set properly, show the error here -->
+    <!-- when the projectflow is not set properly, show the error here -->
+    <div
+        *ngIf="!errorContent && (!project || !projectFlow || !projectFlow._id || !project._id)"
+        class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+    >
+        <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+            <!-- Title -->
+            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">
+                {{ "signup.project_flow_not_set" | transloco }}
+            </div>
+            <div class="flex items-baseline mt-0.5 font-medium">
+                <div>{{ "signup.project_flow_not_set_description" | transloco }}</div>
+            </div>
+        </div>
+    </div>
+    <!-- END:: when the projectflow is not set properly, show the error here -->
 
-	<div *ngIf="errorContent" class="flex mr-3 sm:w-auto p-16 rounded-2xl shadow bg-card" fxLayout="column" fxLayoutAlign="center center">
-		<div class="w-full text-center sm:w-80 mx-auto sm:mx-0">
-			<!-- Title -->
-			<div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
-				{{ "signup." + errorContent.message | transloco }}
-			</div>
-		</div>
+    <div *ngIf="errorContent" class="flex mr-3 sm:w-auto p-16 rounded-2xl shadow bg-card" fxLayout="column" fxLayoutAlign="center center">
+        <div class="w-full text-center sm:w-80 mx-auto sm:mx-0">
+            <!-- Title -->
+            <div class="mt-8 text-3xl font-extrabold tracking-tight leading-tight">
+                {{ "signup." + errorContent.message | transloco }}
+            </div>
+        </div>
 
-		<button
-			mat-stroked-button
-			class="w-full mt-4"
-			color="primary"
-			(click)="goBack()"
-			[style.color]="project.branding.buttonTxtColor"
-			[style.background]="project.branding.buttonColor"
-		>
-			<span> {{ "go_back" | transloco }} </span>
-		</button>
-	</div>
+        <button
+            mat-stroked-button
+            class="w-full mt-4"
+            color="primary"
+            (click)="goBack()"
+            [style.color]="project.branding.buttonTxtColor"
+            [style.background]="project.branding.buttonColor"
+        >
+            <span> {{ "go_back" | transloco }} </span>
+        </button>
+    </div>
 
-	<div
-		class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
-		fxLayout="row"
-		[style.background]="project.branding.rightBackgroundColor"
-		fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
-		*ngIf="project && project.branding.rightImage && appRegistration && otpForm && currentValidation && currentValidation._id"
-	>
-		<img [src]="project.branding.rightImage" alt="" class="hhalf-width-image" />
-	</div>
+    <div
+        class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
+        fxLayout="row"
+        [style.background]="project.branding.rightBackgroundColor"
+        fxLayoutAlign="{{ project.branding.rightImagePosition || 'end end' }}"
+        *ngIf="project && project.branding.rightImage && appRegistration && otpForm && currentValidation && currentValidation._id"
+    >
+        <img [src]="project.branding.rightImage" alt="" class="hhalf-width-image" />
+    </div>
 </div>

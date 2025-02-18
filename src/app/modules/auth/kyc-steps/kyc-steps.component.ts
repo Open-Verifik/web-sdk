@@ -26,149 +26,147 @@ import { KycDocumentLivenessReviewComponent } from "app/modules/kyc/kyc-document
 import { KycStepperComponent } from "app/modules/kyc/kyc-stepper/kyc-stepper.component";
 
 @Component({
-	selector: "auth-forgot-password",
-	templateUrl: "./kyc-steps.component.html",
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-		NgIf,
-		FuseAlertComponent,
-		FormsModule,
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatButtonModule,
-		MatProgressSpinnerModule,
-		RouterLink,
-		LanguagesComponent,
-		FlexLayoutModule,
-		DemoFooterComponent,
-		KycInstructionsComponent,
-		KycDocumentComponent,
-		KycDocumentReviewComponent,
-		KycLivenessComponent,
-		KycLivenessIosComponent,
-		KycDocumentLivenessReviewComponent,
-		KycEndComponent,
-		KycStepperComponent,
-	],
-	styleUrls: ["./kyc-steps.component.scss"],
+    selector: "auth-forgot-password",
+    templateUrl: "./kyc-steps.component.html",
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
+        NgIf,
+        FuseAlertComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        RouterLink,
+        LanguagesComponent,
+        FlexLayoutModule,
+        DemoFooterComponent,
+        KycInstructionsComponent,
+        KycDocumentComponent,
+        KycDocumentReviewComponent,
+        KycLivenessComponent,
+        KycLivenessIosComponent,
+        KycDocumentLivenessReviewComponent,
+        KycEndComponent,
+        KycStepperComponent,
+    ],
+    styleUrls: ["./kyc-steps.component.scss"],
 })
 export class KYCStepsComponent implements OnInit {
-	alert: { type: FuseAlertType; message: string } = {
-		type: "success",
-		message: "",
-	};
-	kycData: any;
-	showAlert: boolean = false;
-	appRegistration: any;
-	project: Project;
-	projectFlow: ProjectFlow;
-	errorContent: any;
-	requirementsLoaded: boolean;
-	navigation: any;
-	demoData: any;
+    alert: { type: FuseAlertType; message: string } = {
+        type: "success",
+        message: "",
+    };
+    kycData: any;
+    showAlert: boolean = false;
+    appRegistration: any;
+    project: Project;
+    projectFlow: ProjectFlow;
+    errorContent: any;
+    requirementsLoaded: boolean;
+    navigation: any;
+    demoData: any;
 
-	/**
-	 * Constructor
-	 */
-	constructor(
-		private _router: Router,
-		private _KYCService: KYCService,
-		private _splashScreenService: FuseSplashScreenService,
-		private activatedRoute: ActivatedRoute,
-		private _demoService: DemoService
-	) {
-		this._splashScreenService.show();
+    /**
+     * Constructor
+     */
+    constructor(
+        private _router: Router,
+        private _KYCService: KYCService,
+        private _splashScreenService: FuseSplashScreenService,
+        private activatedRoute: ActivatedRoute,
+        private _demoService: DemoService
+    ) {
+        this._splashScreenService.show();
 
-		this.demoData = this._demoService.getDemoData();
-	}
+        this.demoData = this._demoService.getDemoData();
+    }
 
-	// -----------------------------------------------------------------------------------------------------
-	// @ Lifecycle hooks
-	// -----------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
+    // @ Lifecycle hooks
+    // -----------------------------------------------------------------------------------------------------
 
-	/**
-	 * On init
-	 */
-	ngOnInit(): void {
-		this.activatedRoute.queryParams.subscribe(async (params) => {
-			const token = params["token"];
+    /**
+     * On init
+     */
+    ngOnInit(): void {
+        this.activatedRoute.queryParams.subscribe(async (params) => {
+            const token = params["token"];
 
-			if (!token) return;
+            if (!token) return;
 
-			localStorage.setItem("accessToken", token);
-			// Use the token as needed
+            localStorage.setItem("accessToken", token);
+            // Use the token as needed
 
-			console.log({ "got here...": true });
+            this._requestAppRegistration();
 
-			this._requestAppRegistration();
+            this._loadContent();
+        });
+    }
 
-			this._loadContent();
-		});
-	}
+    async _loadContent(): Promise<any> {
+        this._demoService.getDeviceDetails();
 
-	async _loadContent(): Promise<any> {
-		this._demoService.getDeviceDetails();
+        await this._demoService.getAddress();
+    }
 
-		await this._demoService.getAddress();
-	}
+    _requestAppRegistration(): void {
+        this._KYCService
+            .getAppRegistration({
+                populates: [
+                    "project",
+                    "projectFlow",
+                    "emailValidation",
+                    "phoneValidation",
+                    "biometricValidation",
+                    "person",
+                    "documentValidation",
+                    "compareFaceVerification",
+                    "face",
+                    "documentFace",
+                    "informationValidation",
+                ],
+            })
+            .subscribe({
+                next: (response) => {
+                    this.appRegistration = response.data;
+                    this.project = new ProjectModel(this.appRegistration.project);
 
-	_requestAppRegistration(): void {
-		this._KYCService
-			.getAppRegistration({
-				populates: [
-					"project",
-					"projectFlow",
-					"emailValidation",
-					"phoneValidation",
-					"biometricValidation",
-					"person",
-					"documentValidation",
-					"compareFaceVerification",
-					"face",
-					"documentFace",
-					"informationValidation",
-				],
-			})
-			.subscribe({
-				next: (response) => {
-					this.appRegistration = response.data;
-					this.project = new ProjectModel(this.appRegistration.project);
+                    this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
+                },
+                error: (exception) => {
+                    this.errorContent = exception.error;
 
-					this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
-				},
-				error: (exception) => {
-					this.errorContent = exception.error;
+                    this._splashScreenService.hide();
+                },
+                complete: () => {
+                    this._splashScreenService.hide();
 
-					this._splashScreenService.hide();
-				},
-				complete: () => {
-					this._splashScreenService.hide();
+                    if (
+                        (this.projectFlow.onboardingSettings.signUpForm.phone &&
+                            this.projectFlow.onboardingSettings.signUpForm.phoneGateway !== "none" &&
+                            !this.appRegistration.phoneValidation) ||
+                        (this.projectFlow.onboardingSettings.signUpForm.email &&
+                            this.projectFlow.onboardingSettings.signUpForm.emailGateway !== "none" &&
+                            !this.appRegistration.emailValidation)
+                    ) {
+                        const token = localStorage.getItem("accessToken");
+                        this._router.navigateByUrl(`/confirmation-required/${this.appRegistration._id}?token=${token}`);
+                    }
 
-					if (
-						(this.projectFlow.onboardingSettings.signUpForm.phone &&
-							this.projectFlow.onboardingSettings.signUpForm.phoneGateway !== "none" &&
-							!this.appRegistration.phoneValidation) ||
-						(this.projectFlow.onboardingSettings.signUpForm.email &&
-							this.projectFlow.onboardingSettings.signUpForm.emailGateway !== "none" &&
-							!this.appRegistration.emailValidation)
-					) {
-						const token = localStorage.getItem("accessToken");
-						this._router.navigateByUrl(`/confirmation-required/${this.appRegistration._id}?token=${token}`);
-					}
+                    this.navigation = this._KYCService.initNavigation();
 
-					this.navigation = this._KYCService.initNavigation();
+                    this.requirementsLoaded = true;
+                },
+            });
+    }
 
-					this.requirementsLoaded = true;
-				},
-			});
-	}
+    // -----------------------------------------------------------------------------------------------------
+    // @ Public methods
+    // -----------------------------------------------------------------------------------------------------
 
-	// -----------------------------------------------------------------------------------------------------
-	// @ Public methods
-	// -----------------------------------------------------------------------------------------------------
-
-	backToStepOne(): void {}
+    backToStepOne(): void {}
 }
