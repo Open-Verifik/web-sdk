@@ -28,342 +28,339 @@ import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-
 import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 
 @Component({
-	selector: "auth-sign-up",
-	templateUrl: "./sign-up.component.html",
-	styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-		AuthSignUpCreateFormComponent,
-		AuthSignUpVerificationCompleteComponent,
-		AuthSignUpVerificationComponent,
-		CommonModule,
-		FlexLayoutModule,
-		LanguagesComponent,
-		MatButtonModule,
-		MatIconModule,
-		NgIf,
-		RouterModule,
-		SmartEnrollComponent,
-		TranslocoModule,
-	],
+    selector: "auth-sign-up",
+    templateUrl: "./sign-up.component.html",
+    styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
+        AuthSignUpCreateFormComponent,
+        AuthSignUpVerificationCompleteComponent,
+        AuthSignUpVerificationComponent,
+        CommonModule,
+        FlexLayoutModule,
+        LanguagesComponent,
+        MatButtonModule,
+        MatIconModule,
+        NgIf,
+        RouterModule,
+        SmartEnrollComponent,
+        TranslocoModule,
+    ],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
-	private unsubscriber$: Subject<void> = new Subject<void>();
+    private unsubscriber$: Subject<void> = new Subject<void>();
 
-	appUrl: string = environment.appUrl;
-	appRegistration: AppRegistration;
-	currentStep: string = "create";
-	currentStepIndex: number = 0;
-	deviceDetails: any;
-	enrollStep: EnrollStep;
-	isVerifikProject: Boolean;
-	language: string;
-	location: any;
-	locationError: any;
-	project: Project;
-	projectFlow: ProjectFlow;
-	sendingOTP: Boolean;
-	showKYCApp: boolean = false;
-	steps: Array<string> = ["create"];
-	token: string;
-	showUpgradeRequired: boolean = false;
-	verificationComplete: boolean = false;
+    appUrl: string = environment.appUrl;
+    appRegistration: AppRegistration;
+    currentStep: string = "create";
+    currentStepIndex: number = 0;
+    deviceDetails: any;
+    enrollStep: EnrollStep;
+    isVerifikProject: Boolean;
+    language: string;
+    location: any;
+    locationError: any;
+    project: Project;
+    projectFlow: ProjectFlow;
+    sendingOTP: Boolean;
+    showKYCApp: boolean = false;
+    steps: Array<string> = ["create"];
+    token: string;
+    showUpgradeRequired: boolean = false;
+    verificationComplete: boolean = false;
 
-	flagCodes = {
-		en: "us",
-		es: "es",
-		br: "br",
-		fr: "fr",
-		it: "it",
-		ru: "ru",
-		kr: "kr",
-		in: "in",
-		cn: "cn",
-		ph: "ph",
-	};
+    flagCodes = {
+        en: "us",
+        es: "es",
+        br: "br",
+        fr: "fr",
+        it: "it",
+        ru: "ru",
+        kr: "kr",
+        in: "in",
+        cn: "cn",
+        ph: "ph",
+    };
 
-	/**
-	 * Constructor
-	 */
-	constructor(
-		private _activatedRoute: ActivatedRoute,
-		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService,
-		private _demoService: DemoService,
-		private _KYCService: KYCService,
-		private _passwordlessService: PasswordlessService,
-		private _router: Router,
-		private _smartEnrollService: SmartEnrollService,
-		private _splashScreenService: FuseSplashScreenService,
-		@Inject(PLATFORM_ID) private platformId: Object
-	) {
-		this._splashScreenService.show();
+    /**
+     * Constructor
+     */
+    constructor(
+        private _activatedRoute: ActivatedRoute,
+        private _changeDetectorRef: ChangeDetectorRef,
+        private _countries: CountriesService,
+        private _demoService: DemoService,
+        private _KYCService: KYCService,
+        private _passwordlessService: PasswordlessService,
+        private _router: Router,
+        private _smartEnrollService: SmartEnrollService,
+        private _splashScreenService: FuseSplashScreenService,
+        @Inject(PLATFORM_ID) private platformId: Object
+    ) {
+        this._splashScreenService.show();
 
-		this._setToken();
-		this._setLanguage();
+        this._setToken();
+        this._setLanguage();
 
-		this.deviceDetails = this._demoService.getDeviceDetails();
-		this.location = null;
-		this.locationError = null;
-		this.project = null;
-		this.projectFlow = null;
+        this.deviceDetails = this._demoService.getDeviceDetails();
+        this.location = null;
+        this.locationError = null;
+        this.project = null;
+        this.projectFlow = null;
 
-		this.sendingOTP = false;
-	}
+        this.sendingOTP = false;
+    }
 
-	/**
-	 * On init
-	 */
-	ngOnInit(): void {
-		this._splashScreenService.show();
+    /**
+     * On init
+     */
+    ngOnInit(): void {
+        this._splashScreenService.show();
 
-		this._smartEnrollService.insufficientCredits$
-			.pipe(takeUntil(this.unsubscriber$))
-			.subscribe({
-				next: () => {
-					this.showKYCApp = false;
-					this.showUpgradeRequired = true;
-				},
-			});
+        this._smartEnrollService.insufficientCredits$.pipe(takeUntil(this.unsubscriber$)).subscribe({
+            next: () => {
+                this.showKYCApp = false;
+                this.showUpgradeRequired = true;
+            },
+        });
 
-		combineLatest([this._activatedRoute.params, this._activatedRoute.queryParams])
-			.pipe(takeUntil(this.unsubscriber$))
-			.pipe(map(results => ({id: results[0].id, token: results[1].token})))
-			.subscribe(results => {
-				this._setToken(results?.token);
+        combineLatest([this._activatedRoute.params, this._activatedRoute.queryParams])
+            .pipe(takeUntil(this.unsubscriber$))
+            .pipe(map((results) => ({ id: results[0].id, token: results[1].token })))
+            .subscribe((results) => {
+                this._setToken(results?.token);
 
-				if (!results?.token) this._smartEnrollService.unsetLocalStorage();
+                if (!results?.token) this._smartEnrollService.unsetLocalStorage();
 
-				if (this.projectFlow) {
-					this._requestAppRegistration();
-				} else {
-					this.isVerifikProject = Boolean(results.id === environment.verifikProject || results.id === environment.sandboxProject);
-					this._requestProject(results.id);
-				}
-			});
+                if (this.projectFlow) {
+                    this._requestAppRegistration();
+                } else {
+                    this.isVerifikProject = Boolean(results.id === environment.verifikProject || results.id === environment.sandboxProject);
+                    this._requestProject(results.id);
+                }
+            });
 
-		this._demoService.geoLocation$
-			.pipe(takeUntil(this.unsubscriber$))
-			.subscribe({
-				next: async (response) => {
-					if (response.errorMessage) {
-						this.locationError = response;
-						this.showKYCApp = false;
+        this._demoService.geoLocation$.pipe(takeUntil(this.unsubscriber$)).subscribe({
+            next: async (response) => {
+                if (response.errorMessage) {
+                    this.locationError = response;
+                    this.showKYCApp = false;
 
-						return;
-					}
+                    return;
+                }
 
-					this.locationError = null;
+                this.locationError = null;
 
-					if (!response || this.location) return;
+                if (!response || this.location) return;
 
-					this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
-					this.location.os = this.deviceDetails?.platform;
-					this.location.type = "browser";
-					this.location.countryCode = this._countries.findCountryCode(this.location.country);
-				},
-				error(err) {
-					this.locationError = err;
-				},
-			});
-	}
+                this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+                this.location.os = this.deviceDetails?.platform;
+                this.location.type = "browser";
+                this.location.countryCode = this._countries.findCountryCode(this.location.country);
+            },
+            error(err) {
+                this.locationError = err;
+            },
+        });
+    }
 
-	ngOnDestroy(): void {
-		this.unsubscriber$.next();
-		this.unsubscriber$.complete();
-	}
+    ngOnDestroy(): void {
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
+    }
 
-	private _checkVerification(): void {
-		const emailStatus = this.appRegistration?.emailValidation?.status;
-		const phoneStatus = this.appRegistration?.phoneValidation?.status;
+    private _checkVerification(): void {
+        const emailStatus = this.appRegistration?.emailValidation?.status;
+        const phoneStatus = this.appRegistration?.phoneValidation?.status;
 
-		const {
-			onboardingSettings: {
-				signUpForm: { email, emailGateway, phone, phoneGateway },
-			},
-		} = this.projectFlow;
+        const {
+            onboardingSettings: {
+                signUpForm: { email, emailGateway, phone, phoneGateway },
+            },
+        } = this.projectFlow;
 
-		const emailVerificationEnabled = email && emailGateway !== "none";
-		const phoneVerificationEnabled = phone && phoneGateway !== "none";
+        const emailVerificationEnabled = email && emailGateway !== "none";
+        const phoneVerificationEnabled = phone && phoneGateway !== "none";
 
-		if (emailVerificationEnabled && emailStatus !== 'validated') {
-			this._setStep('verify_email');
-		} else if (phoneVerificationEnabled && phoneStatus !== 'validated') {
-			this._setStep('verify_phone');
-		} else {
-			this.verificationComplete = true;
-		}
-	}
+        if (emailVerificationEnabled && emailStatus !== "validated") {
+            this._setStep("verify_email");
+        } else if (phoneVerificationEnabled && phoneStatus !== "validated") {
+            this._setStep("verify_phone");
+        } else {
+            this.verificationComplete = true;
+        }
+    }
 
-	private _requestAppRegistration(): void {
-		if (!this.token) return this._smartEnrollService.unsetLocalStorage();
+    private _requestAppRegistration(): void {
+        if (!this.token) return this._smartEnrollService.unsetLocalStorage();
 
-		this._KYCService
-			.getAppRegistration({
-				populates: [
-					"biometricValidation",
-					"compareFaceVerification",
-					"documentFace",
-					"documentValidation",
-					"emailValidation",
-					"face",
-					"informationValidation",
-					"person",
-					"phoneValidation",
-					"project",
-					"projectFlow",
-				],
-			})
-			.subscribe({
-				next: (response) => {
-					this.appRegistration = response.data;
+        this._KYCService
+            .getAppRegistration({
+                populates: [
+                    "biometricValidation",
+                    "compareFaceVerification",
+                    "documentFace",
+                    "documentValidation",
+                    "emailValidation",
+                    "face",
+                    "informationValidation",
+                    "person",
+                    "phoneValidation",
+                    "project",
+                    "projectFlow",
+                ],
+            })
+            .subscribe({
+                next: (response) => {
+                    this.appRegistration = response.data;
 
-					this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod);
-					this._smartEnrollService.setLivenessScore(this.appRegistration?.biometricValidation?.livenessScore || 0);
-					this._smartEnrollService.setCompareScore(this.appRegistration?.compareFaceVerification?.result?.score || 0);
+                    this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod);
+                    this._smartEnrollService.setLivenessScore(this.appRegistration?.biometricValidation?.livenessScore || 0);
+                    this._smartEnrollService.setCompareScore(this.appRegistration?.compareFaceVerification?.result?.score || 0);
 
-					this._checkVerification();
-				},
-				error: () => {
-					this._router.navigate(["/sign-up", this.project._id], { replaceUrl: true });
-					this._splashScreenService.hide();
-				},
-				complete: () => {
-					this._splashScreenService.hide();
-				}
-			});
-	}
+                    this._checkVerification();
+                },
+                error: () => {
+                    this._router.navigate(["/sign-up", this.project._id], { replaceUrl: true });
+                    this._splashScreenService.hide();
+                },
+                complete: () => {
+                    this._splashScreenService.hide();
+                },
+            });
+    }
 
-	private _requestProject(projectId: string): void {
-		this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
-			next: (v) => {
-				this.project = new ProjectModel({ ...v.data, type: "onboarding" });
-				this.projectFlow = this.project.currentProjectFlow;
+    private _requestProject(projectId: string): void {
+        this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
+            next: (v) => {
+                this.project = new ProjectModel({ ...v.data, type: "onboarding" });
+                this.projectFlow = this.project.currentProjectFlow;
 
-				if (!v.planCode) {
-					this.showUpgradeRequired = true;
-				} else {
-					this._setSteps();
-				}
-			},
-			error: (e) => {
-				window.location.href = '/sign-up';
+                if (!v.planCode) {
+                    this.showUpgradeRequired = true;
+                } else {
+                    this._setSteps();
+                }
+            },
+            error: (e) => {
+                window.location.href = "/sign-up";
 
-				this._splashScreenService.hide();
-			},
-			complete: () => {
-				this._changeDetectorRef.markForCheck();
+                this._splashScreenService.hide();
+            },
+            complete: () => {
+                this._changeDetectorRef.markForCheck();
 
-				if (this.token) {
-					this._requestAppRegistration();
-				} else {
-					this._splashScreenService.hide();
-					this._setStep('create');
-				}
-			},
-		});
-	}
+                if (this.token) {
+                    this._requestAppRegistration();
+                } else {
+                    this._splashScreenService.hide();
+                    this._setStep("create");
+                }
+            },
+        });
+    }
 
-	private _setLanguage() {
-		if (!isPlatformBrowser(this.platformId)) {
-			this.language = "en";
-		}
+    private _setLanguage() {
+        if (!isPlatformBrowser(this.platformId)) {
+            this.language = "en";
+        }
 
-		// Get the browser's language setting
-		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
-		// Check if the browser's language is one of the specified options, otherwise default to 'en'
-		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+        // Get the browser's language setting
+        const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
+        // Check if the browser's language is one of the specified options, otherwise default to 'en'
+        this.language = this.flagCodes[browserLang] ? browserLang : "en";
 
-		localStorage.setItem("currentLanguage", this.language);
-	}
+        localStorage.setItem("currentLanguage", this.language);
+    }
 
-	private _setStep(step: string): void {
-		if (step === "complete") {
-			this.verificationComplete = true;
-			this.currentStep = "";
-			this.currentStepIndex = 0;
+    private _setStep(step: string): void {
+        if (step === "complete") {
+            this.verificationComplete = true;
+            this.currentStep = "";
+            this.currentStepIndex = 0;
 
-			return;
-		}
+            return;
+        }
 
-		this.currentStep = step;
+        this.currentStep = step;
 
-		const index = this.steps.indexOf(this.currentStep);
+        const index = this.steps.indexOf(this.currentStep);
 
-		if (index > -1) this.currentStepIndex = index;
-	}
+        if (index > -1) this.currentStepIndex = index;
+    }
 
-	private _setSteps(): void {
-		if (!this.projectFlow) return;
+    private _setSteps(): void {
+        if (!this.projectFlow) return;
 
-		this.steps = ["create"];
+        this.steps = ["create"];
 
-		const { email, emailGateway, phone, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
+        const { email, emailGateway, phone, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
 
-		if (email && emailGateway !== "none") this.steps.push("verify_email");
-		if (phone && phoneGateway !== "none") this.steps.push("verify_phone");
+        if (email && emailGateway !== "none") this.steps.push("verify_email");
+        if (phone && phoneGateway !== "none") this.steps.push("verify_phone");
 
-		this.currentStepIndex = this.steps.indexOf(this.currentStep);
-	}
+        this.currentStepIndex = this.steps.indexOf(this.currentStep);
+    }
 
-	private _setToken(token?: string): void {
-		if (!token) {
-			this.token = null;
-			localStorage.removeItem("accessToken");
+    private _setToken(token?: string): void {
+        if (!token) {
+            this.token = null;
+            localStorage.removeItem("accessToken");
 
-			return;
-		}
+            return;
+        }
 
-		this.token = token;
-		localStorage.setItem("accessToken", token);
-	}
+        this.token = token;
+        localStorage.setItem("accessToken", token);
+    }
 
-	countryNotAllowedAccept(): void {``
-		const redirectUrl = this.projectFlow.redirectUrl;
+    countryNotAllowedAccept(): void {
+        ``;
+        const redirectUrl = this.projectFlow.redirectUrl;
 
-		if (redirectUrl) {
-			window.location.href = redirectUrl;
-		} else {
-			window.history.back();
-		}
-	}
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        } else {
+            window.history.back();
+        }
+    }
 
-	enabledLocation(): void {
-		window.location.reload();
-	}
+    enabledLocation(): void {
+        window.location.reload();
+    }
 
-	onServiceChange(enrollStep: EnrollStep): void {
-		setTimeout(() => {
-			this.showKYCApp = true;
-			this._smartEnrollService.setCurrentStep(enrollStep);
-		});
-	}
+    onServiceChange(enrollStep: EnrollStep): void {
+        setTimeout(() => {
+            this.showKYCApp = true;
+            this._smartEnrollService.setCurrentStep(enrollStep);
+        });
+    }
 
-	onStepChange(step: string): void {
-		this._setStep(step);
-	}
+    onStepChange(step: string): void {
+        this._setStep(step);
+    }
 
-	showCountryNotAllowed(): boolean {
-		return Boolean(!this.locationError && !this.project?.allowedCountries.includes(this._countries.findCountry(this.location.country)));
-	}
+    showCountryNotAllowed(): boolean {
+        return false;
+    }
 
-	showLocationError(): boolean {
-		return Boolean(this.locationError && !this.showCountryNotAllowed());
-	}
+    showLocationError(): boolean {
+        return Boolean(this.locationError && !this.showCountryNotAllowed());
+    }
 
-	showMainContainer(): boolean {
-		return Boolean(
-			!this.showUpgradeRequired &&
-			!this.locationError &&
-				this.projectFlow?._id &&
-				this.project?._id &&
-				this.project?.allowedCountries.includes(this._countries.findCountry(this.location.country))
-		);
-	}
+    showMainContainer(): boolean {
+        return Boolean(
+            !this.showUpgradeRequired &&
+                !this.locationError &&
+                this.projectFlow?._id &&
+                this.project?._id &&
+                this.project?.allowedCountries.includes(this._countries.findCountry(this.location.country))
+        );
+    }
 
-	showNoProjectError(): boolean {
-		return Boolean(!this.projectFlow?._id || !this.project?._id || !this.projectFlow);
-	}
+    showNoProjectError(): boolean {
+        return Boolean(!this.projectFlow?._id || !this.project?._id || !this.projectFlow);
+    }
 }
