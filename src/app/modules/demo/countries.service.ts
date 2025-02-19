@@ -159,6 +159,66 @@ export class CountriesService {
             code: "+58",
             name: "Venezuela",
         },
+        {
+            code: "+86",
+            name: "China",
+        },
+        {
+            code: "+91",
+            name: "India",
+        },
+        {
+            code: "+81",
+            name: "Japan",
+        },
+        {
+            code: "+82",
+            name: "South Korea",
+        },
+        {
+            code: "+62",
+            name: "Indonesia",
+        },
+        {
+            code: "+60",
+            name: "Malaysia",
+        },
+        {
+            code: "+66",
+            name: "Thailand",
+        },
+        {
+            code: "+63",
+            name: "Philippines",
+        },
+        {
+            code: "+92",
+            name: "Pakistan",
+        },
+        {
+            code: "+65",
+            name: "Singapore",
+        },
+        {
+            code: "+971",
+            name: "United Arab Emirates",
+        },
+        {
+            code: "+90",
+            name: "Turkey",
+        },
+        {
+            code: "+880",
+            name: "Bangladesh",
+        },
+        {
+            code: "+94",
+            name: "Sri Lanka",
+        },
+        {
+            code: "+976",
+            name: "Mongolia",
+        },
     ];
 
     constructor() {}

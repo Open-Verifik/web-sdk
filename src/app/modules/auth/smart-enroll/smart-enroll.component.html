@@ -1,40 +1,18 @@
 <div
-  [ngStyle.gt-sm]="{ backgroundColor: project.branding.bgColor }"
-  @fadeIn
-  *ngIf="project"
-  class="app min-h-screen"
-  fxLayout="column"
-  fxLayoutAlign="center center"
->
-  <main
-    #appContent
-    class="app__content min-h-screen"
+    [ngStyle.gt-sm]="{ backgroundColor: project.branding.bgColor }"
+    @fadeIn
+    *ngIf="project"
+    class="app min-h-screen"
     fxLayout="column"
-    fxLayoutAlign="start center"
-    ngClass.lt-md="flex-grow"
-  >
-    <smart-documents
-      @fadeIn
-      *ngIf="currentStep === 'document'"
-      class="app__page"
-    ></smart-documents>
+    fxLayoutAlign="center center"
+>
+    <main #appContent class="app__content min-h-screen" fxLayout="column" fxLayoutAlign="start center" ngClass.lt-md="flex-grow">
+        <smart-documents @fadeIn *ngIf="currentStep === 'document'" class="app__page"></smart-documents>
 
-    <smart-documents-review
-      @fadeIn
-      *ngIf="currentStep === 'document-review'"
-      class="app__page"
-    ></smart-documents-review>
+        <smart-documents-review @fadeIn *ngIf="currentStep === 'document-review'" class="app__page"></smart-documents-review>
 
-    <smart-biometrics
-      @fadeIn
-      *ngIf="currentStep === 'biometric'"
-      class="app__page"
-    ></smart-biometrics>
+        <smart-biometrics @fadeIn *ngIf="currentStep === 'biometric'" class="app__page"></smart-biometrics>
 
-    <smart-results
-      @fadeIn
-      *ngIf="currentStep === 'result'"
-      class="app__page"
-    ></smart-results>
-  </main>
+        <smart-results @fadeIn *ngIf="currentStep === 'result'" class="app__page"></smart-results>
+    </main>
 </div>
