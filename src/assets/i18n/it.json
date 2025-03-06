@@ -393,6 +393,8 @@
                 "not-in-frame": "Viso non centrato",
                 "pitch-down": "Gira il viso leggermente verso il basso",
                 "pitch-up": "Gira il viso leggermente verso l'alto",
+                "roll-right": "Inclina leggermente la testa a destra",
+                "roll-left": "Inclina leggermente la testa a sinistra",
                 "step_1": "Guarda direttamente nella telecamera",
                 "step_2": "Rimani fermo mentre l'anteprima è verde",
                 "step_3": "Ripeti altre due volte. Segui l'indicatore con il viso intorno al cerchio.",

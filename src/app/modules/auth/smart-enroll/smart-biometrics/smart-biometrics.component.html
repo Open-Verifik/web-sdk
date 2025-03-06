@@ -1,5 +1,5 @@
 <div class="min-h-full w-full" ngClass.gt-sm="px-4 py-4" ngClass.lt-md="p-4" fxLayout="row" fxLayoutAlign="center center" fxLayout.lt-md="column">
-    <div class="smart-stepper" fxFlex="100%" ngClass.lt-md="hidden">
+    <div class="smart-stepper" fxFlex.gt-sm="25%" fxFlex.lt-md="0">
         <smart-stepper></smart-stepper>
     </div>
 
@@ -9,7 +9,15 @@
         [retry]="retrySubject.asObservable()"
     ></smart-liveness>
 
-    <smart-error-display class="z-50" (onClearError)="retry()" [errorContent]="errorContent" *ngIf="errorResult" source="face"></smart-error-display>
+    <div class="flex justify-center items-center" fxFlex.gt-sm="50%" fxFlex.lt-md="100%">
+        <smart-error-display
+            (onClearError)="retry()"
+            [errorContent]="errorContent"
+            *ngIf="errorResult"
+            class="flex relative z-50"
+            source="face"
+        ></smart-error-display>
+    </div>
 
-    <div fxFlex="10%" fxFlex.lt-lg="0"></div>
+    <div fxFlex.gt-sm="25%" fxFlex.lt-md="0">&nbsp;</div>
 </div>

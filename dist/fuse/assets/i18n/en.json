@@ -397,6 +397,8 @@
                 "not-in-frame": "Face not centered",
                 "pitch-down": "Turn face down slightly",
                 "pitch-up": "Turn face up slightly",
+                "roll-right": "Tip head to the right slightly",
+                "roll-left": "Tip head to the left slightly",
                 "step_1": "Look directly into the camera",
                 "step_2": "Hold still while preview is green",
                 "step_3": "Repeat two more times. Follow the indicator with your face around the circle.",

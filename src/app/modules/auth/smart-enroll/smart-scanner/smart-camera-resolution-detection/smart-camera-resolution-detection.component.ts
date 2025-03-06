@@ -3,10 +3,12 @@ import { MediaTrackConstraintSetExtended, MediaTrackSupportedConstraintsExtended
 import { WebcamInitError } from "ngx-webcam";
 import { Subject, takeUntil } from "rxjs";
 import { MediaStreamService } from "app/media-stream.service";
+import { DemoService } from "app/modules/demo/demo.service";
 
 export type Resolution = {
     aspectRatio?: number;
     deviceId?: string;
+    devices?: MediaDeviceInfo[];
     height: number;
     width: number;
 };
@@ -38,12 +40,13 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
     private unsubscriber$: Subject<void> = new Subject<void>();
 
     deviceId: string;
+    devices: MediaDeviceInfo[] = [];
     stream: MediaStream;
 
     /** On the last attempt, we try to get whatever camera settings we can - this should aid for instances where the camera doesn't fit usual aspect ratios */
     lastAttempt: boolean = false;
 
-    constructor(private _renderer: Renderer2, private _mediaStreamService: MediaStreamService) {
+    constructor(private _renderer: Renderer2, private _mediaStreamService: MediaStreamService, private _demoService: DemoService) {
         this._renderer.listen("window", "resize", () => this._init());
 
         this.cameraCycle$.pipe(takeUntil(this.unsubscriber$)).subscribe({
@@ -126,10 +129,12 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
                     ? ({
                           ...resolution,
                           aspectRatio: resolution.width / resolution.height,
+                          devices: this.devices,
                       } as Resolution)
                     : ({
                           aspectRatio: resolution.height / resolution.width,
                           deviceId: this.deviceId,
+                          devices: this.devices,
                           height: resolution.width,
                           width: resolution.height,
                       } as Resolution);
@@ -217,8 +222,12 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
     private _init() {
         this._mediaStreamService.stopAllStreams();
 
+        this.IS_LANDSCAPE = !this.forceVertical && (window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth);
+
+        const OS = this._demoService.detectOS();
+
         // Check for Android device and adjust resolution
-        if (/Android/i.test(navigator.userAgent)) {
+        if (OS === "ANDROID") {
             this.MAX_HEIGHT = window.screen.height;
             this.MAX_WIDTH = window.screen.width;
         } else {
@@ -263,9 +272,31 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
             { height: 480, width: 480 },
         ];
 
-        this.IS_LANDSCAPE = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
+        // Remove resolutions that are too high for mobile devices
+        if (OS !== "DESKTOP") {
+            this.WIDE.shift();
+            this.NARROW.shift();
+            this.SQUARE.shift();
+        }
 
         this.deviceId = null;
+
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            navigator.mediaDevices
+                .enumerateDevices()
+                .then((devices: MediaDeviceInfo[]) => {
+                    this.devices = devices.filter((device: MediaDeviceInfo) => device.kind === "videoinput");
+
+                    this._attachMaxWindowResolutionForAspectRatio();
+                    this._cycleResolutions(0, 0);
+                })
+                .catch(() => {
+                    this._attachMaxWindowResolutionForAspectRatio();
+                    this._cycleResolutions(0, 0);
+                });
+
+            return;
+        }
 
         this._attachMaxWindowResolutionForAspectRatio();
         this._cycleResolutions(0, 0);

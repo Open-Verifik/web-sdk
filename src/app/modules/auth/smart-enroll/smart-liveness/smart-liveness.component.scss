@@ -4,8 +4,8 @@
 }
 
 .camera {
-    height: 36rem;
-    width: 36rem;
+    height: 800px;
+    width: 800px;
 
     &__loader {
         background-color: rgba(30, 41, 59, 0.5);
@@ -15,46 +15,143 @@
         }
     }
 
-    @media (max-width: 768px) {
-        height: 20rem;
-        width: 20rem;
+    &__change-camera {
+        bottom: 10%;
+        height: 80px;
+        left: 50%;
+        min-height: 80px;
+        min-width: 80px;
+        position: absolute;
+        transform: translateX(-50%);
+        width: 80px;
+
+        svg {
+            transform: scale(1.8);
+        }
+    }
+
+    @media (max-width: 576px) {
+        height: 350px;
+        width: 350px;
+
+        &__change-camera {
+            height: 36px;
+            width: 36px;
+            min-height: 36px;
+            min-width: 36px;
+
+            svg {
+                transform: scale(0.8);
+            }
+        }
+    }
+
+    @media (min-width: 576px) and (max-width: 768px) {
+        height: 400px;
+        width: 400px;
+
+        &__change-camera {
+            height: 48px;
+            width: 48px;
+            min-height: 48px;
+            min-width: 48px;
+
+            svg {
+                transform: scale(1.2);
+            }
+        }
     }
 
     @media (min-width: 768px) and (max-width: 959px) {
-        height: 28rem;
-        width: 28rem;
+        height: 600px;
+        width: 600px;
+
+        &__change-camera {
+            height: 64px;
+            width: 64px;
+            min-height: 64px;
+            min-width: 64px;
+
+            svg {
+                transform: scale(1.5);
+            }
+        }
     }
 }
 
 .indicator {
+    $indicator-size: 48px;
+
     position: absolute;
-    $indicator-size--a: 7rem;
-    $indicator-size--b: 6rem;
-
-    @media (max-width: 768px) {
-        $indicator-size--a: 2rem;
-        $indicator-size--b: 1.5rem;
-    }
-
-    @media (min-width: 768px) and (max-width: 959px) {
-        $indicator-size--a: 3rem;
-        $indicator-size--b: 1.5rem;
-        height: 28rem;
-        width: 28rem;
-    }
 
     &--a {
-        top: -($indicator-size--a);
-        left: -($indicator-size--a);
-        height: calc(100% + ($indicator-size--a * 2));
-        width: calc(100% + ($indicator-size--a * 2));
+        top: -($indicator-size);
+        left: -($indicator-size);
+        height: calc(100% + (($indicator-size) * 2));
+        width: calc(100% + (($indicator-size) * 2));
     }
 
     &--b {
-        top: -($indicator-size--b);
-        left: -($indicator-size--b);
-        height: calc(100% + ($indicator-size--b * 2));
-        width: calc(100% + ($indicator-size--b * 2));
+        top: -($indicator-size);
+        left: -($indicator-size);
+        height: calc(100% + ($indicator-size * 2));
+        width: calc(100% + ($indicator-size * 2));
+        transform: scale3d(0.8, 0.8, 1);
+        transition: transform 0.5s ease-in-out;
+    }
+
+    @media (max-width: 576px) {
+        $indicator-size: 16px;
+
+        &--a {
+            top: -($indicator-size);
+            left: -($indicator-size);
+            height: calc(100% + (($indicator-size) * 2));
+            width: calc(100% + (($indicator-size) * 2));
+        }
+
+        &--b {
+            top: -($indicator-size);
+            left: -($indicator-size);
+            height: calc(100% + ($indicator-size * 2));
+            width: calc(100% + ($indicator-size * 2));
+        }
+    }
+
+    @media (min-width: 576px) and (max-width: 768px) {
+        $indicator-size: 24px;
+
+        &--a {
+            top: -($indicator-size);
+            left: -($indicator-size);
+            height: calc(100% + (($indicator-size) * 2));
+            width: calc(100% + (($indicator-size) * 2));
+        }
+
+        &--b {
+            top: -($indicator-size);
+            left: -($indicator-size);
+            height: calc(100% + ($indicator-size * 2));
+            width: calc(100% + ($indicator-size * 2));
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 959px) {
+        $indicator-size: 32px;
+
+        &--a {
+            top: -($indicator-size);
+            left: -($indicator-size);
+            height: calc(100% + (($indicator-size) * 2));
+            width: calc(100% + (($indicator-size) * 2));
+        }
+
+        &--b {
+            top: -($indicator-size);
+            left: -($indicator-size);
+            height: calc(100% + ($indicator-size * 2));
+            width: calc(100% + ($indicator-size * 2));
+        }
     }
 
     &__pie {
@@ -78,23 +175,13 @@
     }
 
     &__clip {
-        height: 91%;
-        border-radius: 9999px;
-        width: 91%;
-        transform: translate(5.5%, 5.5%);
+        height: 100%;
+        border-radius: 50%;
+        width: 100%;
+        transform: scale3d(0.5, 0.5, 1);
 
-        @media (max-width: 768px) {
+        @media (max-width: 959px) {
             background-color: white !important;
-            height: 86%;
-            width: 86%;
-            transform: translate(8%, 8%);
-        }
-
-        @media (min-width: 768px) and (max-width: 959px) {
-            background-color: white !important;
-            height: 90%;
-            width: 90%;
-            transform: translate(5.7%, 5.7%);
         }
     }
 }
@@ -155,34 +242,34 @@
     }
 
     &--move-closer {
-        @include generate-animation(move-closer-anim, scale(1), scale(1.3));
+        @include generate-animation(move-closer-anim, scale3d(1), scale3d(1.3, 1.3));
     }
     &--move-away {
-        @include generate-animation(move-away-anim, scale(1), scale(0.6));
+        @include generate-animation(move-away-anim, scale3d(1), scale3d(0.6, 0.6));
     }
     &--not-in-frame {
-        @include generate-animation(not-in-frame-anim, translate(-100%), translate(-50%));
+        @include generate-animation(not-in-frame-anim, translate3d(-50%, 0, 0), translate3d(0, 0, 0));
     }
     &--roll-right {
-        @include generate-animation(roll-right-anim, rotate(0), rotate(20deg));
+        @include generate-animation(roll-right-anim, rotate3d(0, 0, 0, 0deg), rotate3d(1, 1, 0, 20deg));
     }
     &--roll-left {
-        @include generate-animation(roll-left-anim, rotate(0), rotate(-20deg));
+        @include generate-animation(roll-left-anim, rotate(0, 0, 0, 0deg), rotate3d(1, 1, 0, -20deg));
     }
     &--pitch-up {
         transform-style: preserve-3d;
-        @include generate-animation(pitch-up-anim, rotateX(0), rotateX(40deg));
+        @include generate-animation(pitch-up-anim, rotate3d(0, 0, 0, 0deg), rotate3d(6, 0, 1, -40deg));
     }
     &--pitch-down {
         transform-style: preserve-3d;
-        @include generate-animation(pitch-down-anim, rotateX(0), rotateX(-40deg));
+        @include generate-animation(pitch-down-anim, rotate3d(0, 0, 0, 0deg), rotate3d(6, 0, 1, 40deg));
     }
     &--yaw-right {
         transform-style: preserve-3d;
-        @include generate-animation(yaw-right-anim, rotateY(0), rotateY(40deg));
+        @include generate-animation(yaw-right-anim, rotate3d(0, 0, 0, 0deg), rotate3d(0, 6, 1, -40deg));
     }
     &--yaw-left {
         transform-style: preserve-3d;
-        @include generate-animation(yaw-left-anim, rotateY(0), rotateY(-40deg));
+        @include generate-animation(yaw-left-anim, rotate3d(0, 0, 0, 0deg), rotate3d(0, 6, 1, 40deg));
     }
 }

@@ -79,6 +79,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     calculating: boolean = false;
     camera: IOSCameraData;
     demoData: any;
+    devices: MediaDeviceInfo[] = [];
     documentIsValid: boolean;
     errorContent: any;
     errorFace: ErrorFace | null;
@@ -126,7 +127,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         private _mediaStreamService: MediaStreamService
     ) {
         this._resetVariables();
-        // call the stopAllStreams from mediaStream
     }
 
     async ngOnInit(): Promise<any> {
@@ -405,6 +405,15 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                 subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
             };
         }
+    }
+
+    private _findNextCamera(): void {
+        if (!this.devices.length) return;
+
+        const currentDeviceIndex = this.devices.findIndex((device) => device.deviceId === this.videoOptions.deviceId);
+
+        this.videoOptions.deviceId =
+            currentDeviceIndex === -1 ? this.devices[0].deviceId : this.devices[(currentDeviceIndex + 1) % this.devices.length].deviceId;
     }
 
     private _fitBoxCover(container: { height: number; width: number }, containerToFit: { height: number; width: number }) {
@@ -698,22 +707,22 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             };
 
             const bounds = {
-                X_HIGH: Math.floor(bottomRight.x * 0.9),
-                X_LOW: Math.floor(topLeft.x * 1.1),
-                Y_HIGH: Math.floor(bottomRight.y * 0.9),
-                Y_LOW: Math.floor(topLeft.y * 1.1),
+                X_HIGH: Math.floor(bottomRight.x),
+                X_LOW: Math.floor(topLeft.x),
+                Y_HIGH: Math.floor(bottomRight.y),
+                Y_LOW: Math.floor(topLeft.y),
             };
 
             // use the full video size for height/width
             const faceResolution = {
-                HEIGHT_HIGH: Math.floor(hitboxDimensions.height * 0.7),
-                HEIGHT_LOW: Math.floor(hitboxDimensions.height * 0.1),
-                WIDTH_HIGH: Math.floor(hitboxDimensions.width * 0.7),
-                WIDTH_LOW: Math.floor(hitboxDimensions.width * 0.1),
+                HEIGHT_HIGH: Math.floor(hitboxDimensions.height * 0.9),
+                HEIGHT_LOW: Math.floor(hitboxDimensions.height * 0.05),
+                WIDTH_HIGH: Math.floor(hitboxDimensions.width * 0.9),
+                WIDTH_LOW: Math.floor(hitboxDimensions.width * 0.05),
             };
 
             const documentResolution = {
-                HEIGHT_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.height : hitboxDimensions.height * 1.4),
+                HEIGHT_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.height : hitboxDimensions.height * 1.2),
                 HEIGHT_LOW: Math.floor(hitboxDimensions.height * 0.2),
                 WIDTH_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.width * 1.2 : hitboxDimensions.width),
                 WIDTH_LOW: Math.floor(hitboxDimensions.width * 0.2),
@@ -736,8 +745,8 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             this.camera.dimensions.result = {
                 height: documentResolution.HEIGHT_HIGH,
                 width: documentResolution.WIDTH_HIGH,
-                offsetX: Math.floor(bounds.X_LOW * 0.8),
-                offsetY: Math.floor(bounds.Y_LOW * 0.8),
+                offsetX: Math.floor(bounds.X_LOW * 0.9),
+                offsetY: Math.floor(bounds.Y_LOW * 0.9),
             };
         } else {
             const angle = {
@@ -800,12 +809,10 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
 
         const settings = {
             ...this.videoOptions,
-            facingMode: {
-                exact: this.source === "face" ? "user" : "environment",
-            },
+            facingMode: { ideal: this.source === "face" ? "user" : "environment" },
             focusMode: "continuous",
-            frameRate: { ideal: 60 },
-            noiseSuppression: true,
+            frameRate: { ideal: 30 },
+            noiseSuppression: { ideal: true },
             zoom: { ideal: 0 },
         } as MediaTrackConstraintSetExtended;
 
@@ -879,6 +886,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     private _startRecording(): void {
         if (this.uploading) return;
 
+        this._mediaStreamService.stopAllStreams();
         this._setMaxVideoDimensions();
 
         navigator.mediaDevices
@@ -888,7 +896,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             })
             .then((stream) => {
                 this.stream = stream;
-
                 this._mediaStreamService.addStream(stream);
 
                 setTimeout(() => {
@@ -900,7 +907,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                     videoElement.addEventListener("loadedmetadata", this._onLoadedMetadata, true);
                 });
             })
-            .catch();
+            .catch(() => this.cameraError());
     }
 
     private _stopRecording(): void {
@@ -910,7 +917,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         clearInterval(this._detectionInterval);
 
         this._detectionInterval = null;
-
         this._mediaStreamService.stopAllStreams();
     }
 
@@ -940,10 +946,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
                         const detection = this._demoService.findBiggestFace(detections);
 
                         if (!detection) throw Error("face_not_found");
-
-                        if (detection.detection.score < 0.2) {
-                            throw Error("face_not_found");
-                        }
+                        if (detection.detection.score < 0.2) throw Error("face_not_found");
 
                         this.errorContent = null;
                         this.errorFace = null;
@@ -1023,6 +1026,7 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         const canSkipBiometric =
             this.source === "face" &&
             (this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation);
+
         const canSkipDocument =
             this.source === "document" &&
             this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
@@ -1060,6 +1064,19 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         const redirectUrl = Boolean(environment.verifikProject === this.project._id) ? `${environment.appUrl}/sign-in` : this.projectFlow.redirectUrl;
 
         window.location.href = `${redirectUrl}?type=login&token=${token}`;
+    }
+
+    cycleCamera(): void {
+        this._stopRecording();
+
+        this._findNextCamera();
+
+        this.videoOptions.aspectRatio = { ideal: 1.7777777778 };
+        this.videoOptions.height = { ideal: 1080 };
+        this.videoOptions.width = { ideal: 1080 };
+        this.videoOptions.zoom = { ideal: 0 };
+
+        this.restartCamera();
     }
 
     exitApplication(): void {
@@ -1109,10 +1126,18 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
     }
 
     handleResolutionDetection(resolution: Resolution) {
-        this.videoOptions.aspectRatio = { exact: resolution.aspectRatio };
-        this.videoOptions.deviceId = { exact: resolution.deviceId };
-        this.videoOptions.height = { exact: resolution.height };
-        this.videoOptions.width = { exact: resolution.width };
+        this.devices = resolution?.devices || [];
+
+        const { height: videoHeight, width: videoWidth } = resolution;
+
+        this.videoOptions = {
+            aspectRatio: { ideal: resolution.aspectRatio },
+            deviceId: resolution.deviceId,
+            facingMode: "user",
+            zoom: { ideal: 0 },
+            height: { ideal: videoHeight },
+            width: { ideal: videoWidth },
+        };
 
         this.restartCamera();
     }
@@ -1133,7 +1158,6 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
         this._stopRecording();
 
         this._loading({ isLoading: true, start: true });
-        this._setVideoOptionConfigs();
 
         this.showError = false;
         this.errorContent = null;

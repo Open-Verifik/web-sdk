@@ -2,6 +2,7 @@ import * as faceapi from "@vladmandic/face-api";
 
 import {
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     EventEmitter,
@@ -13,6 +14,7 @@ import {
     TemplateRef,
     ViewChild,
 } from "@angular/core";
+
 import { Observable, Subject, takeUntil } from "rxjs";
 import { DemoService } from "app/modules/demo/demo.service";
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "../../project";
@@ -20,6 +22,7 @@ import {
     Resolution,
     SmartCameraResolutionDetectionComponent,
 } from "../smart-scanner/smart-camera-resolution-detection/smart-camera-resolution-detection.component";
+
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { CommonModule } from "@angular/common";
@@ -39,6 +42,7 @@ type Angle = {
 };
 
 type AngleThreshold = {
+    mid?: Angle;
     min: Angle;
     max: Angle;
     indicatorAdjust: number;
@@ -137,14 +141,17 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     angleThresholds: Array<AngleThreshold> = [];
     appRegistration: AppRegistration;
     bounds: DetectionBounds = {};
+    boundsRelaxed: DetectionBounds = {};
     camera: CameraStatus = { loading: true, permissions: false, quality: false };
     currentLivenessIndex = 0;
     device: "IOS" | "ANDROID" | "DESKTOP";
+    devices: MediaDeviceInfo[] = [];
     face: FaceStatus = { error: false, success: false, successPosition: 0, message: "" };
     faceCaptures: Array<FaceCapture> = [];
     faceApiLoaded: boolean = false;
     instructionsClosed: boolean = false;
-    indicatorTransform: string = "rotate(-20deg) skewY(-50deg)";
+    indicatorTransform: string = "scale3d(0.8, 0.8, 1)";
+    indicatorCutTransform: string = "rotate(-20deg) skewY(-50deg)";
     project: Project;
     projectFlow: ProjectFlow;
     scaledVideo: VideoStatus = { height: 0, width: 0 };
@@ -155,16 +162,16 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     resolution: Resolution = { height: 0, width: 0 };
     video: VideoStatus = { height: 0, width: 0 };
     viewport: VideoStatus = { height: 0, width: 0 };
-
     videoOptions: any = {};
 
     constructor(
-        private _dialog: MatDialog,
+        private _changeDetectionRef: ChangeDetectorRef,
         private _demoService: DemoService,
+        private _dialog: MatDialog,
         private _kycService: KYCService,
-        private _smartEnrollService: SmartEnrollService,
         private _mediaStreamService: MediaStreamService,
         private _renderer: Renderer2,
+        private _smartEnrollService: SmartEnrollService,
         private translocoService: TranslocoService
     ) {
         this.device = this._demoService.detectOS();
@@ -198,8 +205,8 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             this._restartCamera();
         });
 
-        this._demoService.faceapi$.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
-            this.faceApiLoaded = true;
+        this._demoService.faceapi$.pipe(takeUntil(this._unsubscriber$)).subscribe((isLoaded) => {
+            this.faceApiLoaded = isLoaded;
         });
     }
 
@@ -208,6 +215,27 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this._unsubscriber$.next();
         this._unsubscriber$.complete();
+    }
+
+    private _calculateIndicatorScale(angleScore: number) {
+        const scale = 0.8 + (angleScore * 2) / 10;
+
+        this.indicatorTransform = `scale3d(${scale}, ${scale}, 1)`;
+    }
+
+    private _calculateThresholdScore(angle: Angle) {
+        const { min, mid, max } = this.angleThreshold;
+
+        const pitchDifference = Math.abs(mid.pitch - angle.pitch);
+        const pitchScore = 1 - pitchDifference / (max.pitch - min.pitch);
+
+        const rollDifference = Math.abs(mid.roll - angle.roll);
+        const rollScore = 1 - rollDifference / (max.roll - min.roll);
+
+        const yawDifference = Math.abs(mid.yaw - angle.yaw);
+        const yawScore = 1 - yawDifference / (max.yaw - min.yaw);
+
+        return (pitchScore + rollScore + yawScore) / 3;
     }
 
     private _calculateVideoCoverDimensions(video: VideoStatus, container: VideoStatus) {
@@ -245,13 +273,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         };
     }
 
-    private _checkQuality(videoHeight: number, videoWidth: number): boolean {
-        const minimumResolution = videoHeight >= 240 && videoWidth >= 240;
-        const minimumDepth = videoHeight * videoWidth >= this.MINIMUM_DEPTH;
-
-        return minimumResolution && minimumDepth;
-    }
-
     private _captureAndCropImage(): Promise<string> {
         const faceCapture = this.faceCaptures[0];
         const canvas = document.createElement("canvas");
@@ -279,6 +300,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         });
     }
 
+    private _checkQuality(videoHeight: number, videoWidth: number): boolean {
+        const minimumResolution = videoHeight >= 240 && videoWidth >= 240;
+        const minimumDepth = videoHeight * videoWidth >= this.MINIMUM_DEPTH;
+
+        return minimumResolution && minimumDepth;
+    }
+
     private async _findFace(canvas: HTMLCanvasElement): Promise<FaceDetectionWithLandmarks> {
         let detections: FaceDetectionWithLandmarks[];
 
@@ -302,39 +330,29 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         return this._demoService.findBiggestFace(detections);
     }
 
-    private _setAngleThresholds(): void {
-        // Always face center for the first threshold
-        this.angleThresholds = [
-            {
-                min: {
-                    pitch: -7,
-                    roll: -10,
-                    yaw: -30,
-                },
-                max: {
-                    pitch: 7,
-                    roll: 10,
-                    yaw: 30,
-                },
-                indicatorAdjust: 0,
-                instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
-            },
-        ];
+    private _findNextCamera(): void {
+        if (!this.devices.length) return;
 
-        this._generateRandomAngleThresholds();
+        const currentDeviceIndex = this.devices.findIndex((device) => device.deviceId === this.videoOptions.deviceId);
+
+        this.videoOptions.deviceId =
+            currentDeviceIndex === -1 ? this.devices[0].deviceId : this.devices[(currentDeviceIndex + 1) % this.devices.length].deviceId;
     }
 
     private _generateRandomAngleThresholds(): void {
+        const minRoll = -30;
+        const maxRoll = 30;
+
         const north = {
             min: {
                 pitch: 10,
-                roll: -10,
-                yaw: -30,
+                roll: minRoll,
+                yaw: -50,
             },
             max: {
-                pitch: 30,
-                roll: 10,
-                yaw: 30,
+                pitch: 70,
+                roll: maxRoll,
+                yaw: 50,
             },
             instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up"),
             indicatorAdjust: 1,
@@ -342,14 +360,14 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         const northEast = {
             min: {
-                pitch: 5,
-                roll: -10,
-                yaw: 75,
+                pitch: 0,
+                roll: minRoll,
+                yaw: 50,
             },
             max: {
-                pitch: 25,
-                roll: 10,
-                yaw: 150,
+                pitch: 60,
+                roll: maxRoll,
+                yaw: 200,
             },
             instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_right"),
             indicatorAdjust: 45,
@@ -357,14 +375,14 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         const east = {
             min: {
-                pitch: -20,
-                roll: -10,
+                pitch: -30,
+                roll: minRoll,
                 yaw: 100,
             },
             max: {
-                pitch: 20,
-                roll: 10,
-                yaw: 200,
+                pitch: 30,
+                roll: maxRoll,
+                yaw: 250,
             },
             instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_right"),
             indicatorAdjust: 90,
@@ -372,14 +390,14 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         const southEast = {
             min: {
-                pitch: -25,
-                roll: -10,
-                yaw: 75,
+                pitch: -60,
+                roll: minRoll,
+                yaw: 50,
             },
             max: {
                 pitch: 0,
-                roll: 10,
-                yaw: 150,
+                roll: maxRoll,
+                yaw: 200,
             },
             instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down_and_right"),
             indicatorAdjust: 135,
@@ -387,14 +405,14 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         const south = {
             min: {
-                pitch: -30,
-                roll: -10,
-                yaw: -30,
+                pitch: -70,
+                roll: minRoll,
+                yaw: -50,
             },
             max: {
-                pitch: 0,
-                roll: 10,
-                yaw: 30,
+                pitch: 10,
+                roll: maxRoll,
+                yaw: 50,
             },
             instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down"),
             indicatorAdjust: 180,
@@ -402,44 +420,44 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         const southWest = {
             min: {
-                pitch: -25,
-                roll: -10,
-                yaw: -150,
+                pitch: -60,
+                roll: minRoll,
+                yaw: -200,
             },
             max: {
                 pitch: 0,
-                roll: 10,
-                yaw: -75,
+                roll: maxRoll,
+                yaw: 50,
             },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down_and_left"),
+            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
             indicatorAdjust: 225,
         };
 
         const west = {
             min: {
-                pitch: -20,
-                roll: -10,
-                yaw: -200,
+                pitch: -30,
+                roll: minRoll,
+                yaw: -250,
             },
             max: {
-                pitch: 20,
-                roll: 10,
+                pitch: 30,
+                roll: maxRoll,
                 yaw: -100,
             },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_left"),
+            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
             indicatorAdjust: 270,
         };
 
         const northWest = {
             min: {
-                pitch: 5,
-                roll: -10,
-                yaw: -150,
+                pitch: 0,
+                roll: minRoll,
+                yaw: -200,
             },
             max: {
-                pitch: 25,
-                roll: 10,
-                yaw: -75,
+                pitch: 60,
+                roll: maxRoll,
+                yaw: 50,
             },
             instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
             indicatorAdjust: 315,
@@ -466,6 +484,12 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         }
 
         [...directionToSet].forEach((key: string) => {
+            directions[key].mid = {
+                pitch: (directions[key].min.pitch + directions[key].max.pitch) / 2,
+                roll: (directions[key].min.roll + directions[key].max.roll) / 2,
+                yaw: (directions[key].min.yaw + directions[key].max.yaw) / 2,
+            };
+
             this.angleThresholds.push(directions[key]);
         });
     }
@@ -521,7 +545,9 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this.camera.loading = false;
 
-        const detectionDelay = 25;
+        const detectionDelay = 20;
+        const detectionsPerSecond = Math.floor(1000 / 30);
+
         let frameCount = 0;
 
         this._detectionInterval = setInterval(() => {
@@ -543,32 +569,54 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             frameCount = 0;
 
             this._onIntervalDetect();
-        }, Math.floor(1000 / 30));
+        }, detectionsPerSecond);
     };
+
+    private _setAngleThresholds(): void {
+        // Always face center for the first threshold
+        this.angleThresholds = [
+            {
+                min: {
+                    pitch: -30,
+                    roll: -30,
+                    yaw: -30,
+                },
+                max: {
+                    pitch: 30,
+                    roll: 30,
+                    yaw: 30,
+                },
+                indicatorAdjust: 0,
+                instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
+            },
+        ];
+
+        this._generateRandomAngleThresholds();
+    }
 
     private _setDetectionBounds() {
         const { height: viewportHeight, width: viewportWidth, offsetX, offsetY } = this.scaledViewport;
 
-        const __minCalc = (offset: number, dimension: number) => {
-            return Math.floor(offset ? offset + offset * 0.12 : dimension * 0.1);
+        const __minCalc = (offset: number) => {
+            return Math.floor(offset);
         };
 
         const __maxCalc = (offset: number, dimension: number) => {
-            return Math.floor(offset ? dimension + offset * 0.88 : dimension * 0.9);
+            return Math.floor(dimension + offset);
         };
 
         this.bounds = {
             min: {
-                x: __minCalc(offsetX, viewportWidth),
-                y: __minCalc(offsetY, viewportHeight),
-                score: this.projectFlow.onboardingSettings.liveness.livenessMinScore,
-                resolution: Math.max(viewportHeight * viewportWidth * 0.1, this.MINIMUM_DEPTH),
+                x: __minCalc(offsetX),
+                y: __minCalc(offsetY),
+                score: this.projectFlow.onboardingSettings.liveness.livenessMinScore * 0.8,
+                resolution: Math.max(viewportHeight * viewportWidth * 0.05, this.MINIMUM_DEPTH),
             },
             max: {
                 x: __maxCalc(offsetX, viewportWidth),
                 y: __maxCalc(offsetY, viewportHeight),
                 score: 1,
-                resolution: Math.max(viewportHeight * viewportWidth * 0.8, this.MINIMUM_DEPTH),
+                resolution: Math.max(viewportHeight * viewportWidth * 0.9, this.MINIMUM_DEPTH),
             },
         };
     }
@@ -668,20 +716,28 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private _validateFace = ({ angle, detection }: FaceDetectionWithLandmarks) => {
-        if (this.bounds.min.score > detection.score) {
+        const bounds = this.bounds;
+
+        if (this.currentLivenessIndex) {
+            const angleScore = this._calculateThresholdScore(angle);
+
+            this._calculateIndicatorScale(angleScore);
+        }
+
+        if (bounds.min.score > detection.score) {
             this.face.error = true;
             this.face.message = "low-score";
-        } else if (this.bounds.min.resolution > detection.box.area) {
+        } else if (bounds.min.resolution > detection.box.area) {
             this.face.error = true;
             this.face.message = "move-closer";
-        } else if (this.bounds.max.resolution < detection.box.area) {
+        } else if (bounds.max.resolution < detection.box.area) {
             this.face.error = true;
             this.face.message = "move-away";
         } else if (
-            this.bounds.min.x > detection.box.left ||
-            this.bounds.min.y > detection.box.top ||
-            this.bounds.max.x < detection.box.right ||
-            this.bounds.max.y < detection.box.bottom
+            bounds.min.x > detection.box.left ||
+            bounds.min.y > detection.box.top ||
+            bounds.max.x < detection.box.right ||
+            bounds.max.y < detection.box.bottom
         ) {
             this.face.error = true;
             this.face.message = "not-in-frame";
@@ -726,9 +782,10 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         this.face.error = false;
         this.face.message = "";
 
+        this._changeDetectionRef.detectChanges();
+
         if (this.currentLivenessIndex === this.angleThresholds.length) {
             this.angleThreshold = { min: {}, max: {}, indicatorAdjust: 0 };
-
             this.uploading = true;
 
             this._stopCamera();
@@ -747,15 +804,30 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                 });
             });
         } else {
+            this.indicatorTransform = "scale(0.8)";
             this.angleThreshold = this.angleThresholds[this.currentLivenessIndex];
-            this.indicatorTransform = `rotate(${this.angleThreshold.indicatorAdjust - 20}deg) skewY(-50deg)`;
+            this.indicatorCutTransform = `rotate(${this.angleThreshold.indicatorAdjust - 20}deg) skewY(-50deg)`;
         }
     };
+
+    cycleCamera(): void {
+        this._stopCamera();
+
+        this._findNextCamera();
+
+        this.videoOptions.aspectRatio = { ideal: 1.7777777778 };
+        this.videoOptions.height = { ideal: 1080 };
+        this.videoOptions.width = { ideal: 1080 };
+        this.videoOptions.zoom = { ideal: 0 };
+
+        this._startCamera();
+    }
 
     handleResolutionDetection(resolution: Resolution) {
         if (this.uploading) return;
 
         this.resolution = resolution;
+        this.devices = resolution?.devices || [];
 
         this._stopCamera();
 
@@ -769,12 +841,14 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this.angleThreshold = this.angleThresholds[0];
 
-        // Video options for navigatorMediaDevices
-        this.videoOptions.aspectRatio = { exact: this.resolution.aspectRatio };
-        this.videoOptions.deviceId = { exact: this.resolution.deviceId };
-        this.videoOptions.facingMode = "user";
-        this.videoOptions.height = { exact: videoHeight };
-        this.videoOptions.width = { exact: videoWidth };
+        this.videoOptions = {
+            aspectRatio: { exact: this.resolution.aspectRatio },
+            deviceId: this.resolution.deviceId,
+            facingMode: "user",
+            zoom: { ideal: 0 },
+            height: { exact: videoHeight },
+            width: { exact: videoWidth },
+        };
 
         this._startCamera();
     }
