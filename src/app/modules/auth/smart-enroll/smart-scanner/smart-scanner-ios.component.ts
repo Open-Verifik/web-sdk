@@ -722,9 +722,9 @@ export class SmartScannerIosComponent implements OnInit, OnDestroy {
             };
 
             const documentResolution = {
-                HEIGHT_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.height : hitboxDimensions.height * 1.2),
+                HEIGHT_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.height : hitboxDimensions.height * 1.25),
                 HEIGHT_LOW: Math.floor(hitboxDimensions.height * 0.2),
-                WIDTH_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.width * 1.2 : hitboxDimensions.width),
+                WIDTH_HIGH: Math.floor(this.isLandscape ? hitboxDimensions.width * 1.25 : hitboxDimensions.width),
                 WIDTH_LOW: Math.floor(hitboxDimensions.width * 0.2),
             };
 
