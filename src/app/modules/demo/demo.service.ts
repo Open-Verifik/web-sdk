@@ -136,8 +136,32 @@ export class DemoService {
         // promises.push(this.loadOpenCV());
 
         await Promise.allSettled(promises);
+        await this._prepareFaceDetection();
 
         this._faceapi.next(true);
+    }
+
+    private async _prepareFaceDetection() {
+        const OS = this.detectOS();
+        const image = new Image();
+
+        image.src = "/assets/images/face.jpg";
+
+        const promise = new Promise((resolve, reject) => {
+            image.onload = function () {
+                let task: any;
+
+                if (OS === "DESKTOP") {
+                    task = faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }));
+                } else {
+                    task = faceapi.detectAllFaces(image, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }));
+                }
+
+                task.withFaceLandmarks(true).run().then(resolve).catch(reject);
+            };
+        });
+
+        await promise;
     }
 
     // Removing document scanner for the time being - Causes stutter/lag for mobile devices

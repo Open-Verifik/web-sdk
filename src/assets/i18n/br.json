@@ -393,6 +393,8 @@
                 "not-in-frame": "Rosto não centralizado",
                 "pitch-down": "Vire o rosto ligeiramente para baixo",
                 "pitch-up": "Vire o rosto ligeiramente para cima",
+                "roll-right": "Incline a cabeça ligeiramente para a direita",
+                "roll-left": "Incline a cabeça ligeiramente para a esquerda",
                 "step_1": "Olhe diretamente para a câmera",
                 "step_2": "Fique parado enquanto a pré-visualização estiver verde",
                 "step_3": "Repita mais duas vezes. Siga o indicador com o rosto ao redor do círculo.",

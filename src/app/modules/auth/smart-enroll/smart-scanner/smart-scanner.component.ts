@@ -22,7 +22,7 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
-import { Corrections, SmartEnrollService } from "../smart-enroll.service";
+import { Corrections, FaceDetectionWithLandmarks, SmartEnrollService } from "../smart-enroll.service";
 import { environment } from "environments/environment";
 
 interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
@@ -83,6 +83,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     calculating: boolean = false;
     cameraConstraintsInvalid: boolean = false;
     demoData: any;
+    device: "IOS" | "ANDROID" | "DESKTOP";
+    devices: MediaDeviceInfo[] = [];
     documentContours: string;
     documentIsValid: boolean;
     errorFace: any;
@@ -110,7 +112,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     WIDTH: number;
 
     videoOptions: any = {
-        frameRate: { ideal: 30, max: 30 },
+        aspectRatio: { ideal: 1.7777777778 },
+        frameRate: { ideal: 30 },
+        height: { ideal: 1080 },
+        width: { ideal: 1080 },
+        zoom: { ideal: 0 },
     };
 
     corrections: Corrections = {
@@ -141,6 +147,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         private _smartEnrollService: SmartEnrollService,
         private _translocoService: TranslocoService
     ) {
+        this.device = this._demoService.detectOS();
         this.isLandscape = window.matchMedia("(orientation: landscape)").matches;
 
         this._resetVariables();
@@ -183,10 +190,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._paintMaskCanvas();
 
         try {
-            const detection = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+            let detections: FaceDetectionWithLandmarks[];
 
-            if (detection.length) {
-                this.faceDetection = this._demoService.findBiggestFace(detection);
+            if (this.device === "DESKTOP") {
+                detections = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks(true);
+            } else {
+                detections = await faceapi
+                    .detectAllFaces(image, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
+                    .withFaceLandmarks(true);
+            }
+
+            if (detections.length) {
+                this.faceDetection = this._demoService.findBiggestFace(detections);
 
                 this.errorFace = null;
                 this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
@@ -202,8 +217,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                 this.corrections.resolution = resolution;
 
                 this.faceIsValid = isValid;
-
-                return detection;
             } else if (!this._checkFaceTimeout) {
                 this._checkFaceTimeout = setTimeout(() => this._detectFaceError(), 3 * this.demoData.time);
             }
@@ -321,7 +334,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         );
 
         ctx.clip();
-        ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
+        ctx.strokeStyle = this.side === "back" ? "#181818" : this._isCaptureValid() ? "#3bf65f" : "#FF5638";
         ctx.stroke();
         ctx.closePath();
     }
@@ -352,7 +365,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         ctx.beginPath();
         ctx.roundRect(center.x, center.y, rectDimensions.width, rectDimensions.height, 8);
-        ctx.strokeStyle = this._isCaptureValid() ? "#3bf65f" : "#FF5638";
+        ctx.strokeStyle = this.side === "back" ? "#181818" : this._isCaptureValid() ? "#3bf65f" : "#FF5638";
         ctx.lineWidth = Math.max(Math.floor(Math.max(width, height) / 100), 4);
         ctx.stroke();
         ctx.closePath();
@@ -420,10 +433,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         const settings: MediaTrackConstraintSetExtended = {
             aspectRatio: this.isLandscape ? IDEAL_A / IDEAL_B : IDEAL_B / IDEAL_A,
-            frameRate: { min: 15, ideal: 30, max: 60 },
+            facingMode: this.source === "face" ? "user" : "environment",
+            frameRate: { ideal: 30 },
             height: this.isLandscape ? { min: 480, ideal: IDEAL_B, max: IDEAL_B } : { min: 854, ideal: IDEAL_A, max: IDEAL_A },
             width: this.isLandscape ? { min: 854, ideal: IDEAL_A, max: IDEAL_A } : { min: 480, ideal: IDEAL_B, max: IDEAL_B },
-            facingMode: this.source === "face" ? "user" : "environment",
         };
 
         settings.zoom = { ideal: 0 };
@@ -448,6 +461,25 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         return { width: scaledWidth, height: scaledHeight };
     }
 
+    private _findNextCamera(): void {
+        if (!this.devices.length) return;
+
+        const currentDeviceIndex = this.devices.findIndex((device) => device.deviceId === this.videoOptions.deviceId);
+
+        this.videoOptions.deviceId =
+            currentDeviceIndex === -1 ? this.devices[0].deviceId : this.devices[(currentDeviceIndex + 1) % this.devices.length].deviceId;
+    }
+
+    private _paintMaskCanvas() {
+        const maskCanvas: HTMLCanvasElement = this.maskCanvas.nativeElement;
+
+        maskCanvas.height = this.HEIGHT;
+        maskCanvas.width = this.WIDTH;
+
+        const canvasCtx = maskCanvas.getContext("2d");
+        this._drawMask(canvasCtx);
+    }
+
     private _setCanvasDimensions = () => {
         const canvasContainer = this.canvasContainer.nativeElement;
 
@@ -464,16 +496,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.HEIGHT = rescaledProportions.height;
         this.WIDTH = rescaledProportions.width;
     };
-
-    private _paintMaskCanvas() {
-        const maskCanvas: HTMLCanvasElement = this.maskCanvas.nativeElement;
-
-        maskCanvas.height = this.HEIGHT;
-        maskCanvas.width = this.WIDTH;
-
-        const canvasCtx = maskCanvas.getContext("2d");
-        this._drawMask(canvasCtx);
-    }
 
     private _setDimensions(height: number, width: number, data: any) {
         if (this.source === "document") {
@@ -532,8 +554,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                 const videoTrack = this.stream.getVideoTracks()[0];
                 const settings = videoTrack.getSettings();
 
-                const { width, height } = settings;
+                const { width, height, deviceId } = settings;
 
+                this.videoOptions.deviceId = deviceId;
                 this.video.height = height;
                 this.video.width = width;
 
@@ -604,17 +627,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             HEIGHT_HIGH: __rescaleCalc(1000),
             HEIGHT_LOW: __rescaleCalc(850),
         };
+
         const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
             WIDTH_HIGH: __rescaleCalc(500),
-            WIDTH_LOW: __rescaleCalc(150),
+            WIDTH_LOW: 80,
             HEIGHT_HIGH: __rescaleCalc(500),
-            HEIGHT_LOW: __rescaleCalc(150),
+            HEIGHT_LOW: 80,
         };
         const DOCUMENT_FACE_V_RESOLUTION_LIMIT = {
-            WIDTH_HIGH: __rescaleCalc(350),
-            WIDTH_LOW: __rescaleCalc(100),
-            HEIGHT_HIGH: __rescaleCalc(325),
-            HEIGHT_LOW: __rescaleCalc(100),
+            WIDTH_HIGH: __rescaleCalc(500),
+            WIDTH_LOW: 80,
+            HEIGHT_HIGH: __rescaleCalc(500),
+            HEIGHT_LOW: 80,
         };
 
         const FACE_H_BOUNDS_LIMIT = {
@@ -718,7 +742,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
     private _onVideoLoaded = () => {
         const video: HTMLVideoElement = this.videoElement.nativeElement;
-        const videoCanvas: HTMLCanvasElement = this.videoCanvas.nativeElement;
 
         this._setCanvasDimensions();
         this._paintMaskCanvas();
@@ -739,7 +762,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
             if (frameCount < detectionDelay) return;
 
-            this._onIntervalDetect(video, videoCanvas)
+            this._onIntervalDetect(video)
                 .catch((error) => {
                     console.error(
                         `file: smart-scanner.component.ts:821 ~ SmartScannerComponent ~ this._detectionInterval=setInterval ~ error:`,
@@ -754,7 +777,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         }, Math.floor(1000 / 30));
     };
 
-    private _onIntervalDetect = async (video: HTMLVideoElement, videoCanvas: HTMLCanvasElement): Promise<void> => {
+    private _onIntervalDetect = async (video: HTMLVideoElement): Promise<void> => {
         if (this.calculating) return Promise.resolve();
 
         this.calculating = true;
@@ -918,8 +941,20 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         }
     }
 
+    cycleCamera(): void {
+        this._findNextCamera();
+
+        this.videoOptions.aspectRatio = { ideal: 1.7777777778 };
+        this.videoOptions.height = { ideal: 1080 };
+        this.videoOptions.width = { ideal: 1080 };
+        this.videoOptions.zoom = { ideal: 0 };
+
+        this._startCamera();
+    }
+
     async takePicture() {
         clearInterval(this._detectionInterval);
+
         this._detectionInterval = null;
 
         const canvasToSend = this.toSendCanvas.nativeElement;
@@ -940,7 +975,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             img.src = rawBase64Image;
 
             try {
-                const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+                let detections: FaceDetectionWithLandmarks[];
+
+                if (this.device === "DESKTOP") {
+                    detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks(true);
+                } else {
+                    detections = await faceapi
+                        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
+                        .withFaceLandmarks(true);
+                }
 
                 const face = this._demoService.findBiggestFace(detections);
 

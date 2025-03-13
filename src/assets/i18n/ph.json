@@ -393,6 +393,8 @@
                 "not-in-frame": "Hindi nakasentro ang mukha",
                 "pitch-down": "Iharap ang mukha bahagyang pababa",
                 "pitch-up": "Iharap ang mukha bahagyang pataas",
+                "roll-right": "Bahagyang iharap ang ulo pakanan",
+                "roll-left": "Bahagyang iharap ang ulo pakaliwa",
                 "step_1": "Tumingin diretso sa camera",
                 "step_2": "Huminto habang berde ang preview",
                 "step_3": "Ulitin ng dalawang beses pa. Sundin ang indicator gamit ang iyong mukha sa paligid ng bilog.",
