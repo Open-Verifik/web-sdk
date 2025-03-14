@@ -697,7 +697,6 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
                         const detection = this._demoService.findBiggestFace(detections);
 
                         if (!detection) throw Error("face_not_found");
-                        if (detection.detection.score < 0.2) throw Error("face_not_found");
 
                         this.errorContent = null;
                         this.errorFace = null;

@@ -696,10 +696,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
                 if (!face) throw Error("face_not_found");
 
-                if (face.detection.score < this.projectFlow.onboardingSettings.liveness.livenessMinScore) {
-                    throw Error("face_not_found");
-                }
-
                 this.faceIdCard = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
 
                 faceToUpload = this.faceIdCard;
