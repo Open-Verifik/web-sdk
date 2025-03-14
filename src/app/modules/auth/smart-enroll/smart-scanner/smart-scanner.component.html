@@ -31,7 +31,7 @@
             </div>
 
             <div class="smart-scanner__title flex flex-grow" [class.hidden]="isLandscape">
-                <div class="w-full" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
+                <div class="w-full" fxLayout="row" fxLayoutAlign="center space-between">
                     <div
                         class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
                         *ngIf="side === 'front'"
@@ -145,10 +145,7 @@
                 [style.color]="!canSkip() ? '' : project.branding.buttonColor"
                 [style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
                 class="fuse-mat-button-large"
-                *ngIf="
-                    (source === 'document' && side !== 'back' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
-                    (source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
-                "
+                *ngIf="side !== 'back' && projectFlow.onboardingSettings.steps.document !== 'mandatory'"
                 mat-flat-button
             >
                 {{ "skip" | transloco }}
@@ -221,12 +218,6 @@
                                 height:
                                 {{ faceDetection?.alignedRect?.box?.height }}
                                 <br />
-                                pitch: {{ faceDetection?.angle?.pitch }}
-                                <br />
-                                yaw: {{ faceDetection?.angle?.yaw }}
-                                <br />
-                                roll: {{ faceDetection?.angle?.roll }}
-                                <br />
                                 <br />
                                 <br />
                                 face corrections:
@@ -253,7 +244,7 @@
 
                     <div class="flex flex-col flex-grow justify-start min-w-120">
                         <div class="smart-scanner__title mt-2 flex flex-col" ngClass.lt-md="hidden">
-                            <div class="w-full z-30" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
+                            <div class="w-full z-30" fxLayout="row" fxLayoutAlign="center space-between">
                                 <div
                                     class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
                                     [style.border]="side === 'front' ? '1px solid ' + project.branding.buttonColor : '1px solid #ffffff'"
@@ -299,7 +290,6 @@
                                 class="smart-documents__id-types welcome__step-row py-2 px-3 rounded-3xl w-full mt-2"
                                 fxLayout="row"
                                 fxLayoutAlign="space-between"
-                                *ngIf="source === 'document'"
                                 [ngStyle.gt-sm]="{
                                     border: project.branding.buttonColor ? '1px solid ' + project.branding.buttonColor : ''
                                 }"
@@ -407,10 +397,7 @@
                                     [disabled]="!canSkip()"
                                     [style.color]="!canSkip() ? '' : project.branding.buttonColor"
                                     [style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
-                                    *ngIf="
-                                        (source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
-                                        (source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
-                                    "
+                                    *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
                                     class="fuse-mat-button"
                                     mat-flat-button
                                 >
@@ -422,7 +409,6 @@
                                     [disabled]="(side === 'front' && errorFace) || uploading"
                                     [style.background]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonColor"
                                     [style.color]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonTxtColor"
-                                    *ngIf="source === 'document'"
                                     class="fuse-mat-button"
                                     mat-flat-button
                                 >
@@ -443,10 +429,7 @@
                                     <div fxLayout="row" fxLayoutAlign="start center">
                                         <mat-icon class="mr-3" svgIcon="feather:alert-octagon"></mat-icon>
 
-                                        <p>
-                                            <span *ngIf="source === 'face'">{{ "smart_enroll.face_instructions" | transloco }}</span>
-                                            <span *ngIf="source === 'document'">{{ "smart_enroll.document_instructions" | transloco }}</span>
-                                        </p>
+                                        <p>{{ "smart_enroll.document_instructions" | transloco }}</p>
                                     </div>
                                 </div>
 

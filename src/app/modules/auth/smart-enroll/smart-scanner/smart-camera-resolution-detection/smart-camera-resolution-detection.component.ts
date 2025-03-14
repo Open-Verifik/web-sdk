@@ -158,13 +158,8 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
             video: {} as MediaTrackConstraintSetExtended,
         };
 
-        if (facingMode) {
-            mediaOptions.video.facingMode = this.source === "face" ? "user" : "environment";
-        }
-
-        if (zoom) {
-            mediaOptions.video.zoom = { ideal: 0 };
-        }
+        if (facingMode) mediaOptions.video.facingMode = this.source === "face" ? "user" : "environment";
+        if (zoom) mediaOptions.video.zoom = { ideal: 0 };
 
         if (this.lastAttempt) {
             if (this.IS_LANDSCAPE) {

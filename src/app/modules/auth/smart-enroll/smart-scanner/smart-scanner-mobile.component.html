@@ -21,7 +21,7 @@
             </div>
 
             <div class="smart-scanner__title col-span-3">
-                <div class="w-full" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
+                <div class="w-full" fxLayout="row" fxLayoutAlign="center space-between">
                     <div
                         class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
                         *ngIf="side === 'front'"
@@ -68,7 +68,6 @@
 
         <div
             class="smart-documents__id-types welcome__step-row rounded-3xl w-full grid gap-2"
-            *ngIf="source === 'document'"
             [ngClass]="{
                 'grid-cols-1 h-full py-8': isLandscape,
                 'grid-cols-7 mt-2 py-2': !isLandscape
@@ -228,10 +227,7 @@
                 [style.color]="!canSkip() ? '' : project.branding.buttonColor"
                 [style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
                 class="fuse-mat-button-large"
-                *ngIf="
-                    (source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
-                    (source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
-                "
+                *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
                 mat-flat-button
             >
                 {{ "skip" | transloco }}
@@ -263,12 +259,6 @@
                     <br />
                     height: {{ lastFace?.alignedRect?.box?.height }}
                     <br />
-                    pitch: {{ lastFace?.angle?.pitch }}
-                    <br />
-                    yaw: {{ lastFace?.angle?.yaw }}
-                    <br />
-                    roll: {{ lastFace?.angle?.roll }}
-                    <br />
                     <br />
                     <br />
                     face corrections:
@@ -294,7 +284,7 @@
 
             <div class="flex flex-col flex-grow justify-start h-full" ngClass.lt-md="hidden">
                 <div class="smart-scanner__title mt-4 flex flex-grow flex-col">
-                    <div class="w-full" fxLayout="row" fxLayoutAlign="center space-between" *ngIf="source === 'document'">
+                    <div class="w-full" fxLayout="row" fxLayoutAlign="center space-between">
                         <div
                             class="mx-2 flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl bg-card"
                             [style.border]="side === 'front' ? '2px solid ' + project.branding.buttonColor : '2px solid #ffffff'"
@@ -369,11 +359,7 @@
                     </h4>
 
                     <div class="w-full flex-grow mt-4" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="12px">
-                        <img
-                            [src]="toSave.face"
-                            *ngIf="source === 'document' && side === 'front'"
-                            class="rounded-3xl overflow-hidden max-h-40 max-w-40 object-contain"
-                        />
+                        <img [src]="toSave.face" *ngIf="side === 'front'" class="rounded-3xl overflow-hidden max-h-40 max-w-40 object-contain" />
 
                         <img [src]="toSave.base64Image" class="rounded-3xl overflow-hidden max-h-100 max-w-100 object-contain" />
                     </div>
@@ -389,10 +375,7 @@
                         <div fxLayout="row" fxLayoutAlign="start center">
                             <mat-icon class="mr-3" svgIcon="fa_solid:eye"></mat-icon>
 
-                            <p>
-                                <ng-container *ngIf="source === 'document'">{{ "id_scanning.review_doc" | transloco }}</ng-container>
-                                <ng-container *ngIf="source === 'face'">{{ "liveness.review_liveness" | transloco }}</ng-container>
-                            </p>
+                            <p>{{ "id_scanning.review_doc" | transloco }}</p>
                         </div>
                     </div>
 
@@ -456,10 +439,7 @@
                             [disabled]="!canSkip()"
                             [style.color]="!canSkip() ? '' : project.branding.buttonColor"
                             [style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
-                            *ngIf="
-                                (source === 'document' && projectFlow.onboardingSettings.steps.document !== 'mandatory') ||
-                                (source === 'face' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory')
-                            "
+                            *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
                             class="fuse-mat-button"
                             mat-flat-button
                         >
@@ -471,7 +451,6 @@
                             [disabled]="(side === 'front' && errorFace) || uploading || camera?.isLoading"
                             [style.background]="(side === 'front' && errorFace) || uploading || camera?.isLoading ? '' : project.branding.buttonColor"
                             [style.color]="(side === 'front' && errorFace) || uploading || camera?.isLoading ? '' : project.branding.buttonTxtColor"
-                            *ngIf="source === 'document'"
                             class="fuse-mat-button"
                             mat-flat-button
                         >
@@ -492,10 +471,7 @@
                     <div class="w-full" fxLayout="column">
                         <div fxLayout="row" fxLayoutAlign="start center">
                             <mat-icon class="mr-3" svgIcon="feather:alert-octagon"></mat-icon>
-                            <p>
-                                <span *ngIf="source === 'face'">{{ "smart_enroll.face_instructions" | transloco }}</span>
-                                <span *ngIf="source === 'document'">{{ "smart_enroll.document_instructions" | transloco }}</span>
-                            </p>
+                            <p>{{ "smart_enroll.document_instructions" | transloco }}</p>
                         </div>
                     </div>
 

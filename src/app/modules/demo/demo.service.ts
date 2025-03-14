@@ -16,23 +16,20 @@ export class DemoService {
     private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
     private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
 
-    navigation: any;
+    apiUrl: any;
     demoData: any;
     lead: any;
-    apiUrl: any;
-    session: any;
-    sampleLastNames: Array<any>;
+    navigation: any;
     sampleFirstNames: Array<any>;
+    sampleLastNames: Array<any>;
+    session: any;
 
     constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
         this.apiUrl = environment.apiUrl;
 
         this.loadModels();
-
         this.initNavigation();
-
         this.initDemoData();
-
         this.initSampleData();
 
         _this = this;
@@ -129,11 +126,8 @@ export class DemoService {
 
         promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
         promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
-
         promises.push(faceapi.nets.tinyFaceDetector.loadFromUri("assets/models"));
         promises.push(faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models"));
-
-        // promises.push(this.loadOpenCV());
 
         await Promise.allSettled(promises);
         await this._prepareFaceDetection();
@@ -142,20 +136,13 @@ export class DemoService {
     }
 
     private async _prepareFaceDetection() {
-        const OS = this.detectOS();
         const image = new Image();
 
         image.src = "/assets/images/face.jpg";
 
         const promise = new Promise((resolve, reject) => {
             image.onload = function () {
-                let task: any;
-
-                if (OS === "DESKTOP") {
-                    task = faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }));
-                } else {
-                    task = faceapi.detectAllFaces(image, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }));
-                }
+                const task = faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }));
 
                 task.withFaceLandmarks(true).run().then(resolve).catch(reject);
             };
@@ -163,19 +150,6 @@ export class DemoService {
 
         await promise;
     }
-
-    // Removing document scanner for the time being - Causes stutter/lag for mobile devices
-    // async loadOpenCV() {
-    // 	return new Promise((resolve, reject) => {
-    // 		const s = document.createElement('script');
-
-    // 		s.src = "https://docs.opencv.org/4.7.0/opencv.js";
-    // 		s.onload = resolve;
-    // 		s.onerror = reject;
-
-    // 		document.head.appendChild(s);
-    // 	});
-    // }
 
     getNavigation(): any {
         return this.navigation;
@@ -191,19 +165,16 @@ export class DemoService {
     getDemoData(): any {
         if (!this.demoData.proFields?.length && localStorage.getItem("proFields")) {
             this.demoData.pro = new DocumentValidation(JSON.parse(localStorage.getItem("pro")));
-
             this.demoData.proFields = this.demoData.pro.arrayFields;
         }
 
         if (!this.demoData.promptFields?.length && localStorage.getItem("promptFields")) {
             this.demoData.prompt = new DocumentValidation(JSON.parse(localStorage.getItem("prompt")));
-
             this.demoData.promptFields = this.demoData.prompt.arrayFields;
         }
 
         if (!this.demoData.studioFields?.length && localStorage.getItem("studioFields")) {
             this.demoData.studio = new DocumentValidation(JSON.parse(localStorage.getItem("studio")));
-
             this.demoData.studioFields = this.demoData.studio.arrayFields;
         }
 
@@ -250,15 +221,11 @@ export class DemoService {
 
     setDemoDocument(response: any): void {
         this.demoData.proFields = [];
-
         this.demoData.promptFields = [];
-
         this.demoData.studioFields = [];
 
         this.formatAndSaveOCRs(response.pro, "pro");
-
         this.formatAndSaveOCRs(response.studio, "studio");
-
         this.formatAndSaveOCRs(response.prompt, "prompt");
 
         if (this.demoData.studio) {
@@ -282,17 +249,14 @@ export class DemoService {
         }
 
         this.demoData[typeFields].push({ key: "documentType", value: document.documentType });
-
         this.demoData[typeFields].push({ key: "documentNumber", value: document.documentNumber });
 
         const _document = new DocumentValidation(document);
 
         this.demoData[type] = _document;
-
         this.demoData[typeFields] = _document.arrayFields;
 
         localStorage.setItem(type, JSON.stringify(document));
-
         localStorage.setItem(typeFields, JSON.stringify(this.demoData[typeFields]));
     }
 
@@ -300,7 +264,6 @@ export class DemoService {
         this.demoData.liveness = data;
 
         this.demoData.liveness.result.liveness_score = parseInt(`${this.demoData.liveness.result.liveness_score * 100}`);
-
         this.demoData.liveness.result.min_score = parseInt(`${this.demoData.liveness.result.min_score * 100}`);
 
         this.demoData.livenessResult = [];
@@ -312,9 +275,7 @@ export class DemoService {
         }
 
         localStorage.setItem("livenessId", data._id);
-
         localStorage.setItem("liveness", JSON.stringify(data));
-
         localStorage.setItem("livenessResult", JSON.stringify(this.demoData.livenessResult));
     }
 
@@ -330,9 +291,7 @@ export class DemoService {
         }
 
         localStorage.setItem("comparisonId", data._id);
-
         localStorage.setItem("comparison", JSON.stringify(data));
-
         localStorage.setItem("comparisonResult", JSON.stringify(this.demoData.comparisonResult));
     }
 
@@ -488,7 +447,6 @@ export class DemoService {
 
     async getAddress(): Promise<any> {
         const lat = this.demoData.lat || localStorage.getItem("lat");
-
         const lng = this.demoData.lng || localStorage.getItem("lng");
 
         if (!lat || !lng) return null;
@@ -545,7 +503,6 @@ export class DemoService {
         const deviceIdentifier = this.generateUniqueId();
 
         formattedLocation["deviceIdentifier"] = deviceIdentifier.hash;
-
         formattedLocation["userAgent"] = deviceIdentifier.userAgent;
 
         localStorage.setItem("appLocation", JSON.stringify(formattedLocation));
@@ -710,9 +667,6 @@ export class DemoService {
             "comparison",
             "comparisonResult",
             "comparisonId",
-            // "session",
-            // "lead",
-            // "accessToken",
             "idCard",
             "idCardFaceImage",
             "sessionToken",
@@ -738,9 +692,7 @@ export class DemoService {
 
     generateUniqueId(): any {
         const navigatorInfo = window.navigator;
-
         const screenInfo = window.screen;
-
         const uniqueString = `${navigatorInfo.userAgent}-${navigatorInfo.language}-${navigatorInfo.platform}-${screenInfo.height}x${screenInfo.width}`;
 
         return { hash: this.simpleHash(uniqueString), userAgent: navigatorInfo.userAgent, height: screenInfo.height, width: screenInfo.width };
@@ -824,6 +776,7 @@ export class DemoService {
         const r = pixels[i];
         const g = pixels[i + 1];
         const b = pixels[i + 2];
+
         return (r + g + b) / 3; // Convert to grayscale
     }
 
@@ -831,11 +784,13 @@ export class DemoService {
         const ctx = faceImage.getContext("2d");
         const imgData = ctx.getImageData(0, 0, faceImage.width, faceImage.height);
         const pixels = imgData.data;
+
         let sum = 0;
         let sumSquare = 0;
 
         for (let i = 0; i < pixels.length; i += 4) {
             const intensity = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+
             sum += intensity;
             sumSquare += intensity * intensity;
         }
@@ -851,12 +806,15 @@ export class DemoService {
         // Extract a portion of the ID that doesn't include the face
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
+
         canvas.width = image.width;
         canvas.height = image.height;
+
         ctx.drawImage(image, 0, 0);
 
         // Crop out the face area (this is a basic method, more sophisticated approaches can be used)
         ctx.clearRect(faceBox.x, faceBox.y, faceBox.width, faceBox.height);
+
         return canvas;
     }
 
@@ -875,10 +833,13 @@ export class DemoService {
 
     calculateAverageBrightness(data) {
         let sum = 0;
+
         for (let i = 0; i < data.length; i += 4) {
             const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+
             sum += brightness;
         }
+
         return sum / (data.length / 4);
     }
 }

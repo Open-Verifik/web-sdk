@@ -1,6 +1,4 @@
 import * as faceapi from "@vladmandic/face-api";
-// import jscanify, { Contour } from "libs/jscanify";
-import { Contour } from "libs/jscanify";
 import QRCode from "qrcode";
 
 import { debounce, DebouncedFunc } from "lodash";
@@ -125,14 +123,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         resolution: { height: "", width: "" },
     };
 
-    documentDetection: {
-        x: number;
-        y: number;
-        height: number;
-        width: number;
-        contours?: Contour;
-    };
-
     faceDetection: faceapi.WithFaceLandmarks<
         {
             detection: faceapi.FaceDetection;
@@ -190,15 +180,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._paintMaskCanvas();
 
         try {
-            let detections: FaceDetectionWithLandmarks[];
-
-            if (this.device === "DESKTOP") {
-                detections = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks(true);
-            } else {
-                detections = await faceapi
-                    .detectAllFaces(image, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
-                    .withFaceLandmarks(true);
-            }
+            const detections: FaceDetectionWithLandmarks[] = await faceapi
+                .detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
+                .withFaceLandmarks(true);
 
             if (detections.length) {
                 this.faceDetection = this._demoService.findBiggestFace(detections);
@@ -206,13 +190,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                 this.errorFace = null;
                 this._checkFaceTimeout = clearTimeout(this._checkFaceTimeout);
 
-                const { angle, bounds, isValid, resolution } = this._smartEnrollService.evaluateFaceDetection(
-                    this.BOUNDS,
-                    this.faceDetection,
-                    this.source
-                );
+                const { bounds, isValid, resolution } = this._smartEnrollService.evaluateFaceDetection(this.BOUNDS, this.faceDetection, this.source);
 
-                this.corrections.angle = angle;
                 this.corrections.bounds = bounds;
                 this.corrections.resolution = resolution;
 
@@ -226,117 +205,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     private _detectFaceError(): void {
         this.faceIsValid = false;
 
-        if (this.source === "document") {
-            this.errorFace = {
-                title: this._translocoService.translate("id_scanning.face_not_found"),
-                subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
-            };
-        } else {
-            this.errorFace = {
-                title: this._translocoService.translate("liveness.face_not_found_title"),
-                subtitle: this._translocoService.translate("liveness.face_not_found_subtitle"),
-            };
-        }
-    }
-
-    private _drawFaceMask(ctx: CanvasRenderingContext2D): void {
-        const height = this.HEIGHT;
-        const width = this.WIDTH;
-
-        const originalDrawingSize = this.isLandscape ? 180 : 140;
-        const scale = Math.min(width / originalDrawingSize, height / originalDrawingSize);
-
-        const centerX = width / 2;
-        const centerY = height / 2;
-
-        const centerAdjustment = -(originalDrawingSize / 2);
-
-        ctx.beginPath();
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.fillRect(0, 0, width, height);
-        ctx.closePath();
-
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.scale(scale, scale);
-        ctx.translate(centerAdjustment, centerAdjustment);
-
-        ctx.beginPath();
-        ctx.globalCompositeOperation = "destination-atop";
-
-        const adjustX = this.isLandscape ? 0 : 19.5;
-        const adjustY = this.isLandscape ? 15 : 40;
-
-        // Arc
-        ctx.arc(
-            90 - adjustX, // Arc center x
-            90 - adjustY, // Arc center y
-            60, // Radius
-            Math.PI * 0.9, // Start angle
-            Math.PI * 0.1 // End angle
-        );
-
-        // First bezier curve
-        ctx.bezierCurveTo(
-            150 - adjustX, // Start x
-            100 - adjustY, // Start y
-            130 - adjustX, // Bezier x
-            180 - adjustY, // Bezier y
-            90 - adjustX, // End x
-            180 - adjustY // End y
-        );
-
-        // Second bezier curve
-        ctx.bezierCurveTo(
-            90 - adjustX, // Start x
-            180 - adjustY, // Start y
-            50 - adjustX, // Bezier x
-            180 - adjustY, // Bezier y
-            32 - adjustX, // End x
-            105 - adjustY // End y
-        );
-
-        ctx.clip();
-        ctx.stroke();
-        ctx.closePath();
-
-        ctx.beginPath();
-        ctx.lineWidth = 6;
-        ctx.globalCompositeOperation = "source-over";
-
-        // Arc
-        ctx.arc(
-            90 - adjustX, // Arc center x
-            90 - adjustY, // Arc center y
-            60, // Radius
-            Math.PI * 0.9, // Start angle
-            Math.PI * 0.1 // End angle
-        );
-
-        // First bezier curve
-        ctx.bezierCurveTo(
-            150 - adjustX, // Start x
-            100 - adjustY, // Start y
-            130 - adjustX, // Bezier x
-            180 - adjustY, // Bezier y
-            90 - adjustX, // End x
-            180 - adjustY // End y
-        );
-
-        // Second bezier curve
-        ctx.bezierCurveTo(
-            90 - adjustX, // Start x
-            180 - adjustY, // Start y
-            50 - adjustX, // Bezier x
-            180 - adjustY, // Bezier y
-            32 - adjustX, // End x
-            105 - adjustY // End y
-        );
-
-        ctx.clip();
-        ctx.strokeStyle = this.side === "back" ? "#181818" : this._isCaptureValid() ? "#3bf65f" : "#FF5638";
-        ctx.stroke();
-        ctx.closePath();
+        this.errorFace = {
+            title: this._translocoService.translate("id_scanning.face_not_found"),
+            subtitle: this._translocoService.translate("id_scanning.face_not_found_details"),
+        };
     }
 
     private _drawIdMask(ctx: CanvasRenderingContext2D): void {
@@ -379,11 +251,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         ctx.save();
 
-        if (this.source === "face") {
-            this._drawFaceMask(ctx);
-        } else {
-            this._drawIdMask(ctx);
-        }
+        this._drawIdMask(ctx);
 
         this._setDimensions(this.video.height, this.video.width, this._rectCredential);
         this._setDimensions(this.video.height, this.video.width, this.video);
@@ -398,9 +266,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     private _isCaptureValid(): boolean {
-        return this.source === "document"
-            ? this.documentIsValid && ((this.side === "front" && this.faceIsValid) || this.side === "back")
-            : this.faceIsValid;
+        return this.documentIsValid && ((this.side === "front" && this.faceIsValid) || this.side === "back");
     }
 
     private _resetVariables() {
@@ -410,7 +276,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
 
         this._rectCredential = {};
-        // this._scanner = JSScanify;
 
         this.demoData = this._demoService.getDemoData();
         this.isLandscape = window.matchMedia("(orientation: landscape)").matches || window.innerHeight < window.innerWidth;
@@ -433,7 +298,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         const settings: MediaTrackConstraintSetExtended = {
             aspectRatio: this.isLandscape ? IDEAL_A / IDEAL_B : IDEAL_B / IDEAL_A,
-            facingMode: this.source === "face" ? "user" : "environment",
+            facingMode: "environment",
             frameRate: { ideal: 30 },
             height: this.isLandscape ? { min: 480, ideal: IDEAL_B, max: IDEAL_B } : { min: 854, ideal: IDEAL_A, max: IDEAL_A },
             width: this.isLandscape ? { min: 854, ideal: IDEAL_A, max: IDEAL_A } : { min: 480, ideal: IDEAL_B, max: IDEAL_B },
@@ -498,32 +363,16 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     };
 
     private _setDimensions(height: number, width: number, data: any) {
-        if (this.source === "document") {
-            if (this.isLandscape) {
-                data.rectHeight = Math.floor(height * 0.8);
-                data.y = Math.floor(height * 0.1);
-                data.rectWidth = Math.floor(width * 0.75);
-                data.x = Math.floor(width * 0.125);
-            } else {
-                data.rectHeight = Math.floor(height * 0.4);
-                data.y = Math.floor(height * 0.3);
-                data.rectWidth = width;
-                data.x = 0;
-            }
-        }
-
-        if (this.source === "face") {
-            if (this.isLandscape) {
-                data.rectHeight = height;
-                data.y = 0;
-                data.rectWidth = Math.floor(width * 0.4);
-                data.x = Math.floor(width * 0.3);
-            } else {
-                data.rectHeight = Math.floor(height * 0.8);
-                data.y = Math.floor(height * 0.1);
-                data.rectWidth = width;
-                data.x = 0;
-            }
+        if (this.isLandscape) {
+            data.rectHeight = Math.floor(height * 0.8);
+            data.y = Math.floor(height * 0.1);
+            data.rectWidth = Math.floor(width * 0.75);
+            data.x = Math.floor(width * 0.125);
+        } else {
+            data.rectHeight = Math.floor(height * 0.4);
+            data.y = Math.floor(height * 0.3);
+            data.rectWidth = width;
+            data.x = 0;
         }
     }
 
@@ -598,36 +447,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             return rescale === 1 ? val : Math.floor(val * rescale);
         };
 
-        const FACE_H_ANGLE_LIMIT = {
-            PITCH_HIGH: 15,
-            PITCH_LOW: -15,
-            ROLL_HIGH: 15,
-            ROLL_LOW: -15,
-            YAW_HIGH: 20,
-            YAW_LOW: -20,
-        };
-        const FACE_V_ANGLE_LIMIT = {
-            PITCH_HIGH: 15,
-            PITCH_LOW: -15,
-            ROLL_HIGH: 15,
-            ROLL_LOW: -15,
-            YAW_HIGH: 20,
-            YAW_LOW: -20,
-        };
-
-        const FACE_H_RESOLUTION_LIMIT = {
-            WIDTH_HIGH: __rescaleCalc(750),
-            WIDTH_LOW: __rescaleCalc(500),
-            HEIGHT_HIGH: __rescaleCalc(750),
-            HEIGHT_LOW: __rescaleCalc(500),
-        };
-        const FACE_V_RESOLUTION_LIMIT = {
-            WIDTH_HIGH: __rescaleCalc(950),
-            WIDTH_LOW: __rescaleCalc(800),
-            HEIGHT_HIGH: __rescaleCalc(1000),
-            HEIGHT_LOW: __rescaleCalc(850),
-        };
-
         const DOCUMENT_FACE_H_RESOLUTION_LIMIT = {
             WIDTH_HIGH: __rescaleCalc(500),
             WIDTH_LOW: 80,
@@ -641,18 +460,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             HEIGHT_LOW: 80,
         };
 
-        const FACE_H_BOUNDS_LIMIT = {
-            X_HIGH: __rescaleCalc(900),
-            X_LOW: __rescaleCalc(500),
-            Y_HIGH: __rescaleCalc(400),
-            Y_LOW: __rescaleCalc(225),
-        };
-        const FACE_V_BOUNDS_LIMIT = {
-            X_HIGH: __rescaleCalc(170),
-            X_LOW: 0,
-            Y_HIGH: __rescaleCalc(620),
-            Y_LOW: __rescaleCalc(430),
-        };
         const DOCUMENT_FACE_H_BOUNDS_LIMIT = {
             X_HIGH: __rescaleCalc(1500),
             X_LOW: __rescaleCalc(200),
@@ -666,78 +473,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             Y_LOW: __rescaleCalc(700),
         };
 
-        // const DOCUMENT_H_ANGLE_LIMIT = {
-        // 	PITCH_HIGH: 15,
-        // 	PITCH_LOW: -15,
-        // 	ROLL_HIGH: 15,
-        // 	ROLL_LOW: -15,
-        // };
-        // const DOCUMENT_V_ANGLE_LIMIT = {
-        // 	PITCH_HIGH: 15,
-        // 	PITCH_LOW: -15,
-        // 	ROLL_HIGH: 15,
-        // 	ROLL_LOW: -15,
-        // };
-        // const DOCUMENT_H_RESOLUTION_LIMIT = {
-        // 	WIDTH_HIGH: __rescaleCalc(1500),
-        // 	WIDTH_LOW: __rescaleCalc(1000),
-        // 	HEIGHT_HIGH: __rescaleCalc(825),
-        // 	HEIGHT_LOW: __rescaleCalc(600),
-        // };
-        // const DOCUMENT_V_RESOLUTION_LIMIT = {
-        // 	WIDTH_HIGH: __rescaleCalc(900),
-        // 	WIDTH_LOW: __rescaleCalc(700),
-        // 	HEIGHT_HIGH: __rescaleCalc(600),
-        // 	HEIGHT_LOW: __rescaleCalc(200),
-        // };
-        // const DOCUMENT_H_BOUNDS_LIMIT = {
-        // 	X_HIGH: __rescaleCalc(1200),
-        // 	X_LOW: __rescaleCalc(450),
-        // 	Y_HIGH: __rescaleCalc(700),
-        // 	Y_LOW: __rescaleCalc(400),
-        // };
-        // const DOCUMENT_V_BOUNDS_LIMIT = {
-        // 	X_HIGH: __rescaleCalc(700),
-        // 	X_LOW: __rescaleCalc(400),
-        // 	Y_HIGH: __rescaleCalc(1000),
-        // 	Y_LOW: __rescaleCalc(600),
-        // };
-
-        if (this.source === "face") {
-            this.BOUNDS.face = this.isLandscape
-                ? {
-                      angle: { ...FACE_H_ANGLE_LIMIT },
-                      bounds: { ...FACE_H_BOUNDS_LIMIT },
-                      res: { ...FACE_H_RESOLUTION_LIMIT },
-                  }
-                : {
-                      angle: { ...FACE_V_ANGLE_LIMIT },
-                      bounds: { ...FACE_V_BOUNDS_LIMIT },
-                      res: { ...FACE_V_RESOLUTION_LIMIT },
-                  };
-        } else {
-            this.BOUNDS.face = this.isLandscape
-                ? {
-                      bounds: { ...DOCUMENT_FACE_H_BOUNDS_LIMIT },
-                      res: { ...DOCUMENT_FACE_H_RESOLUTION_LIMIT },
-                  }
-                : {
-                      bounds: { ...DOCUMENT_FACE_V_BOUNDS_LIMIT },
-                      res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
-                  };
-
-            // this.BOUNDS.document = this.isLandscape
-            // 	? {
-            // 			angle: { ...DOCUMENT_H_ANGLE_LIMIT },
-            // 			bounds: { ...DOCUMENT_H_BOUNDS_LIMIT },
-            // 			res: { ...DOCUMENT_H_RESOLUTION_LIMIT },
-            // 	}
-            // 	: {
-            // 			angle: { ...DOCUMENT_V_ANGLE_LIMIT },
-            // 			bounds: { ...DOCUMENT_V_BOUNDS_LIMIT },
-            // 			res: { ...DOCUMENT_V_RESOLUTION_LIMIT },
-            // 	}
-        }
+        this.BOUNDS.face = this.isLandscape
+            ? {
+                  bounds: { ...DOCUMENT_FACE_H_BOUNDS_LIMIT },
+                  res: { ...DOCUMENT_FACE_H_RESOLUTION_LIMIT },
+              }
+            : {
+                  bounds: { ...DOCUMENT_FACE_V_BOUNDS_LIMIT },
+                  res: { ...DOCUMENT_FACE_V_RESOLUTION_LIMIT },
+              };
     }
 
     private _onVideoLoaded = () => {
@@ -746,14 +490,11 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._setCanvasDimensions();
         this._paintMaskCanvas();
 
-        if (this.source === "face") {
-            video.style.transform = "scaleX(-1)";
-        } else {
-            video.style.transform = "";
-        }
+        video.style.transform = "";
 
         // Delay detection calculations by a number of frames for performance.
-        const detectionDelay = this.demoData === "ANDROID" || this.source === "face" ? 20 : 15;
+        const detectionDelay = this.demoData === "ANDROID" ? 20 : 15;
+        const detectionsPerSecond = Math.floor(1000 / 30);
 
         let frameCount = 0;
 
@@ -774,7 +515,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
                     frameCount = 0;
                 });
-        }, Math.floor(1000 / 30));
+        }, detectionsPerSecond);
     };
 
     private _onIntervalDetect = async (video: HTMLVideoElement): Promise<void> => {
@@ -783,9 +524,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.calculating = true;
         this.documentIsValid = true;
 
-        if (this.side === "front" || this.source === "face") {
-            await this._detectFace(video);
-        }
+        if (this.side === "front") await this._detectFace(video);
     };
 
     private _stopRecord(): void {
@@ -804,13 +543,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
-        if (this.source === "face") {
-            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
-            this._smartEnrollService.goToNextStep(); // result
-
-            return;
-        }
-
         if (this.requiresBack && this.side !== "back") {
             this.side = "back";
             this._resetVariables();
@@ -827,26 +559,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     canGoPrevious(): boolean {
-        const canGoBackToDocument =
-            !!this.appRegistration.documentValidation ||
-            this.projectFlow.onboardingSettings.steps.document !== "skip" ||
-            !this._smartEnrollService.wasSkippedDocument();
-
-        return !this.uploading && (this.source === "document" || (this.source === "face" && canGoBackToDocument));
+        return !this.uploading;
     }
 
     canSkip(): boolean {
         if (this.uploading) return false;
 
-        const canSkipBiometric =
-            this.source === "face" &&
-            (this.projectFlow.onboardingSettings.steps.liveness !== "mandatory" || !this.appRegistration.biometricValidation);
-        const canSkipDocument =
-            this.source === "document" &&
-            this.projectFlow.onboardingSettings.steps.document !== "mandatory" &&
-            !this.appRegistration.documentValidation;
+        const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
 
-        return canSkipDocument || canSkipBiometric;
+        return canSkipDocument;
     }
 
     closeTip() {
@@ -854,28 +575,23 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     }
 
     goPrevious(): void {
-        if (this.source === "document") {
-            if (this.requiresBack && this.side !== "front") {
-                this.side = "front";
-                this._resetVariables();
-                this._startCamera();
+        if (this.requiresBack && this.side !== "front") {
+            this.side = "front";
+            this._resetVariables();
+            this._startCamera();
 
-                return;
-            }
-
-            this._smartEnrollService.setDocumentMethod("");
-            this._smartEnrollService.skipToStep("document"); // document
-        } else if (this.appRegistration.documentValidation) {
-            this._smartEnrollService.goToPreviousStep(); // document-review
-        } else {
-            this._smartEnrollService.skipToStep("document"); // document
+            return;
         }
+
+        this._smartEnrollService.setDocumentMethod("");
+        this._smartEnrollService.skipToStep("document"); // document
     }
 
     loadQRCode(): void {
         this.revealQRCode = true;
 
         const qrCanvas = this.qrCodeCanvas.nativeElement;
+
         this._generateQRCode(qrCanvas, window.location.href);
     }
 
@@ -970,20 +686,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         let face: string;
         let faceToUpload: string;
 
-        if (isFront && this.source === "document") {
+        if (isFront) {
             const img = new Image();
+
             img.src = rawBase64Image;
 
             try {
-                let detections: FaceDetectionWithLandmarks[];
-
-                if (this.device === "DESKTOP") {
-                    detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks(true);
-                } else {
-                    detections = await faceapi
-                        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
-                        .withFaceLandmarks(true);
-                }
+                const detections: FaceDetectionWithLandmarks[] = await faceapi
+                    .detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
+                    .withFaceLandmarks(true);
 
                 const face = this._demoService.findBiggestFace(detections);
 
@@ -1005,12 +716,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             }
         }
 
-        if (this.source === "face") {
-            face = rawBase64Image.replace(/^data:.*;base64,/, "");
-        } else {
-            base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
-            face = faceToUpload?.replace(/^data:.*;base64,/, "");
-        }
+        base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
+        face = faceToUpload?.replace(/^data:.*;base64,/, "");
 
         this.onImageScan.next({
             base64Image,
