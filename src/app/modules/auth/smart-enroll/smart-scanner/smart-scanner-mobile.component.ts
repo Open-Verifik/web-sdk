@@ -184,7 +184,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
     private async _detectFace(image: HTMLImageElement) {
         try {
-            const detections = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks(true);
+            const detections = await faceapi.detectAllFaces(image, this._demoService.faceApiEngine);
 
             if (!detections.length) throw Error("no_face");
             else {
@@ -690,9 +690,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
             croppedImage.src = base64Image;
 
             croppedImage.onload = () => {
-                const promise = faceapi
-                    .detectAllFaces(croppedImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
-                    .withFaceLandmarks(true);
+                const promise = faceapi.detectAllFaces(croppedImage, this._demoService.faceApiEngine).run();
 
                 promise
                     .then((detections) => {

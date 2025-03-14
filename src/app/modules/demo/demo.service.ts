@@ -15,6 +15,7 @@ let _this = null;
 export class DemoService {
     private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
     private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
+    private _faceApiEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
 
     apiUrl: any;
     demoData: any;
@@ -121,6 +122,14 @@ export class DemoService {
         return this._geoLocation.asObservable();
     }
 
+    set faceApiEngine(engine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options) {
+        this._faceApiEngine = engine;
+    }
+
+    get faceApiEngine(): faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options {
+        return this._faceApiEngine;
+    }
+
     async loadModels(): Promise<void> {
         const promises = [];
 
@@ -130,6 +139,13 @@ export class DemoService {
         promises.push(faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models"));
 
         await Promise.allSettled(promises);
+
+        if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+            this.faceApiEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+        } else {
+            this.faceApiEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+        }
+
         await this._prepareFaceDetection();
 
         this._faceapi.next(true);
@@ -141,10 +157,8 @@ export class DemoService {
         image.src = "/assets/images/face.jpg";
 
         const promise = new Promise((resolve, reject) => {
-            image.onload = function () {
-                const task = faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }));
-
-                task.withFaceLandmarks(true).run().then(resolve).catch(reject);
+            image.onload = () => {
+                faceapi.detectAllFaces(image, this.faceApiEngine).withFaceLandmarks(true).run().then(resolve).catch(reject);
             };
         });
 
@@ -542,29 +556,13 @@ export class DemoService {
         return this.session;
     }
 
-    findBiggestFace(
-        detections: faceapi.WithFaceLandmarks<
-            {
-                detection: faceapi.FaceDetection;
-            },
-            faceapi.FaceLandmarks68
-        >[]
-    ): faceapi.WithFaceLandmarks<
-        {
-            detection: faceapi.FaceDetection;
-        },
-        faceapi.FaceLandmarks68
-    > {
+    findBiggestFace(detections: any): any {
         let maxArea = 0;
-        let biggestFace: faceapi.WithFaceLandmarks<
-            {
-                detection: faceapi.FaceDetection;
-            },
-            faceapi.FaceLandmarks68
-        >;
+        let biggestFace: any;
 
         for (const face of detections) {
-            const tempArea = face.alignedRect.box.width * face.alignedRect.box.height;
+            const box = face?.alignedRect?.box || face.box;
+            const tempArea = box.width * box.height;
 
             if (tempArea > maxArea) {
                 biggestFace = face;

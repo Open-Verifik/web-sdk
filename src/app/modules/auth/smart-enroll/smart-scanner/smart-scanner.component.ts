@@ -180,9 +180,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._paintMaskCanvas();
 
         try {
-            const detections: FaceDetectionWithLandmarks[] = await faceapi
-                .detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
-                .withFaceLandmarks(true);
+            const detections = await faceapi.detectAllFaces(image, this._demoService.faceApiEngine);
 
             if (detections.length) {
                 this.faceDetection = this._demoService.findBiggestFace(detections);
@@ -692,9 +690,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             img.src = rawBase64Image;
 
             try {
-                const detections: FaceDetectionWithLandmarks[] = await faceapi
-                    .detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
-                    .withFaceLandmarks(true);
+                const detections = await faceapi.detectAllFaces(img, this._demoService.faceApiEngine);
 
                 const face = this._demoService.findBiggestFace(detections);
 

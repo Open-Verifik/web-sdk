@@ -308,9 +308,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private async _findFace(canvas: HTMLCanvasElement): Promise<FaceDetectionWithLandmarks> {
-        const detections: FaceDetectionWithLandmarks[] = await faceapi
-            .detectAllFaces(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
-            .withFaceLandmarks(true);
+        const detections = await faceapi.detectAllFaces(canvas, this._demoService.faceApiEngine).withFaceLandmarks(true);
 
         if (!detections.length) throw Error("no_face");
 
