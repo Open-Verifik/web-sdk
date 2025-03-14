@@ -180,7 +180,15 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._paintMaskCanvas();
 
         try {
-            const detections = await faceapi.detectAllFaces(image, this._demoService.faceApiEngine);
+            let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+
+            if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+                faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+            } else {
+                faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+            }
+
+            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true);
 
             if (detections.length) {
                 this.faceDetection = this._demoService.findBiggestFace(detections);
@@ -685,18 +693,26 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         let faceToUpload: string;
 
         if (isFront) {
-            const img = new Image();
+            const image = new Image();
 
-            img.src = rawBase64Image;
+            image.src = rawBase64Image;
 
             try {
-                const detections = await faceapi.detectAllFaces(img, this._demoService.faceApiEngine);
+                let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+
+                if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+                    faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+                } else {
+                    faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+                }
+
+                const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true);
 
                 const face = this._demoService.findBiggestFace(detections);
 
                 if (!face) throw Error("face_not_found");
 
-                this.faceIdCard = this._demoService.cutFaceIdCard(img, face.alignedRect.box, this.faceCardCanvas.nativeElement);
+                this.faceIdCard = this._demoService.cutFaceIdCard(image, face.alignedRect.box, this.faceCardCanvas.nativeElement);
 
                 faceToUpload = this.faceIdCard;
             } catch (error) {

@@ -184,7 +184,15 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
     private async _detectFace(image: HTMLImageElement) {
         try {
-            const detections = await faceapi.detectAllFaces(image, this._demoService.faceApiEngine);
+            let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+
+            if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+                faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+            } else {
+                faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+            }
+
+            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true);
 
             if (!detections.length) throw Error("no_face");
             else {
@@ -690,7 +698,15 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
             croppedImage.src = base64Image;
 
             croppedImage.onload = () => {
-                const promise = faceapi.detectAllFaces(croppedImage, this._demoService.faceApiEngine).run();
+                let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+
+                if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+                    faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+                } else {
+                    faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+                }
+
+                const promise = faceapi.detectAllFaces(croppedImage, faceEngine).withFaceLandmarks(true).run();
 
                 promise
                     .then((detections) => {

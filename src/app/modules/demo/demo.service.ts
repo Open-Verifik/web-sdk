@@ -15,7 +15,6 @@ let _this = null;
 export class DemoService {
     private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
     private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
-    private _faceApiEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
 
     apiUrl: any;
     demoData: any;
@@ -122,14 +121,6 @@ export class DemoService {
         return this._geoLocation.asObservable();
     }
 
-    set faceApiEngine(engine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options) {
-        this._faceApiEngine = engine;
-    }
-
-    get faceApiEngine(): faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options {
-        return this._faceApiEngine;
-    }
-
     async loadModels(): Promise<void> {
         const promises = [];
 
@@ -139,12 +130,6 @@ export class DemoService {
         promises.push(faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models"));
 
         await Promise.allSettled(promises);
-
-        if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
-            this.faceApiEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
-        } else {
-            this.faceApiEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
-        }
 
         await this._prepareFaceDetection();
 
@@ -158,7 +143,15 @@ export class DemoService {
 
         const promise = new Promise((resolve, reject) => {
             image.onload = () => {
-                faceapi.detectAllFaces(image, this.faceApiEngine).withFaceLandmarks(true).run().then(resolve).catch(reject);
+                let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+
+                if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+                    faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+                } else {
+                    faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+                }
+
+                faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true).run().then(resolve).catch(reject);
             };
         });
 
@@ -561,7 +554,7 @@ export class DemoService {
         let biggestFace: any;
 
         for (const face of detections) {
-            const box = face?.alignedRect?.box || face.box;
+            const box = face.alignedRect?.box || face.box;
             const tempArea = box.width * box.height;
 
             if (tempArea > maxArea) {

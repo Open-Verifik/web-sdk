@@ -308,7 +308,15 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private async _findFace(canvas: HTMLCanvasElement): Promise<FaceDetectionWithLandmarks> {
-        const detections = await faceapi.detectAllFaces(canvas, this._demoService.faceApiEngine).withFaceLandmarks(true);
+        let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+
+        if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
+            faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+        } else {
+            faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
+        }
+
+        const detections = await faceapi.detectAllFaces(canvas, faceEngine).withFaceLandmarks(true);
 
         if (!detections.length) throw Error("no_face");
 
