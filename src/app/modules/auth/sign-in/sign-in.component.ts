@@ -13,7 +13,7 @@ import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -27,611 +27,600 @@ import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.c
 import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
 
 @Component({
-	selector: "auth-sign-in",
-	templateUrl: "./sign-in.component.html",
-	styleUrls: ["./sign-in.scss"],
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-		FlexLayoutModule,
-		RouterLink,
-		FuseAlertComponent,
-		NgIf,
-		FormsModule,
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatButtonModule,
-		MatIconModule,
-		MatCheckboxModule,
-		MatSelectModule,
-		MatProgressSpinnerModule,
-		MatTabsModule,
-		TranslocoModule,
-		CommonModule,
-		LanguagesComponent,
-		BiometricsLoginComponent,
-		BiometricsLoginIosComponent,
-	],
+    selector: "auth-sign-in",
+    templateUrl: "./sign-in.component.html",
+    styleUrls: ["./sign-in.scss"],
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
+        FlexLayoutModule,
+        RouterLink,
+        FuseAlertComponent,
+        NgIf,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCheckboxModule,
+        MatSelectModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        TranslocoModule,
+        CommonModule,
+        LanguagesComponent,
+        BiometricsLoginComponent,
+        BiometricsLoginIosComponent,
+    ],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
-	alert: { type: FuseAlertType; message: string } = {
-		type: "success",
-		message: "",
-	};
-	demoData: any;
-	showAlert: boolean = false;
-	project: Project;
-	projectFlow: ProjectFlow;
-	kycProjectFlow: ProjectFlow;
-	signInForm: FormGroup;
-	countries: Array<any>;
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
-	emailSent: boolean;
-	smsSent: boolean;
-	emailValidation: any;
-	phoneValidation: any;
-	groupFields: any;
-	typeLogin: string;
-	activeSendOtp: boolean;
-	biometricsReady: boolean;
-	secondFactorData: any;
-	secondFactorForm: any;
-	showBiometrics: boolean;
-	deviceDetails: any;
-	sendingOTP: Boolean;
-	showFaceLivenessRecommendation: Boolean;
-	isVerifikProject: Boolean;
-	appLoginToken: string;
-	loading: Boolean;
-	language: string;
-	flagCodes = {
-		en: "us",
-		es: "es",
-		br: "br",
-		fr: "fr",
-		it: "it",
-		ru: "ru",
-		kr: "kr",
-		in: "in",
-		cn: "cn",
-		ph: "ph",
-	};
-	location: any;
-	selectedCountryCode: string;
-
-	/**
-	 * Constructor
-	 */
-	constructor(
-		private _activatedRoute: ActivatedRoute,
-		private _demoService: DemoService,
-		private _formBuilder: UntypedFormBuilder,
-		private _splashScreenService: FuseSplashScreenService,
-		private _passwordlessService: PasswordlessService,
-		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService,
-		@Inject(PLATFORM_ID) private platformId: Object
-	) {
-		this.setLanguage();
-
-		this.countries = this._countries.countryCodes;
-		this.emailValidation = null;
-		this.phoneValidation = null;
-		this.showBiometrics = false;
-
-		this._splashScreenService.show();
-
-		this.demoData = this._demoService.getDemoData();
-
-		this._demoService.cleanVariables();
-
-		localStorage.removeItem("accessToken");
-
-		this.deviceDetails = this._demoService.getDeviceDetails();
-
-		this.sendingOTP = false;
-
-		this.smsSent = false;
-
-		this.showFaceLivenessRecommendation = false;
-	}
-
-	setLanguage() {
-		if (!isPlatformBrowser(this.platformId)) {
-			this.language = "en";
-		}
-		// Get the browser's language setting
-		const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
-		// Check if the browser's language is one of the specified options, otherwise default to 'en'
-		this.language = this.flagCodes[browserLang] ? browserLang : "en";
-
-		localStorage.setItem("currentLanguage", this.language);
-	}
-
-	/**
-	 * On init
-	 */
-	ngOnInit(): void {
-		this._activatedRoute.params.subscribe((params) => {
-			this.requestProject(params.id);
-
-			this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
-		});
+    private unsubscriber$: Subject<void> = new Subject<void>();
+
+    alert: { type: FuseAlertType; message: string } = {
+        type: "success",
+        message: "",
+    };
+    demoData: any;
+    showAlert: boolean = false;
+    project: Project;
+    projectFlow: ProjectFlow;
+    kycProjectFlow: ProjectFlow;
+    signInForm: FormGroup;
+    countries: Array<any>;
+    emailSent: boolean;
+    smsSent: boolean;
+    emailValidation: any;
+    phoneValidation: any;
+    groupFields: any;
+    typeLogin: string;
+    activeSendOtp: boolean;
+    biometricsReady: boolean;
+    secondFactorData: any;
+    secondFactorForm: any;
+    showBiometrics: boolean;
+    deviceDetails: any;
+    sendingOTP: Boolean;
+    showFaceLivenessRecommendation: Boolean;
+    isVerifikProject: Boolean;
+    appLoginToken: string;
+    loading: Boolean;
+    language: string;
+    flagCodes = {
+        en: "us",
+        es: "es",
+        br: "br",
+        fr: "fr",
+        it: "it",
+        ru: "ru",
+        kr: "kr",
+        in: "in",
+        cn: "cn",
+        ph: "ph",
+    };
+    location: any;
+    selectedCountryCode: string;
+
+    /**
+     * Constructor
+     */
+    constructor(
+        private _activatedRoute: ActivatedRoute,
+        private _demoService: DemoService,
+        private _formBuilder: UntypedFormBuilder,
+        private _splashScreenService: FuseSplashScreenService,
+        private _passwordlessService: PasswordlessService,
+        private _changeDetectorRef: ChangeDetectorRef,
+        private _countries: CountriesService,
+        @Inject(PLATFORM_ID) private platformId: Object
+    ) {
+        this.setLanguage();
+
+        this.countries = this._countries.countryCodes;
+        this.emailValidation = null;
+        this.phoneValidation = null;
+        this.showBiometrics = false;
+
+        this._splashScreenService.show();
+
+        this.demoData = this._demoService.getDemoData();
+
+        this._demoService.cleanVariables();
+
+        localStorage.removeItem("accessToken");
+
+        this.deviceDetails = this._demoService.getDeviceDetails();
+
+        this.sendingOTP = false;
+        this.smsSent = false;
+        this.showFaceLivenessRecommendation = false;
+    }
+
+    /**
+     * On init
+     */
+    ngOnInit(): void {
+        this._activatedRoute.params.subscribe((params) => {
+            this.requestProject(params.id);
+
+            this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
+        });
+
+        this._demoService.geoLocation$.subscribe({
+            next: async (response) => {
+                if (!response) return;
+
+                this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+
+                this.location.countryCode = this._countries.findCountryCode(this.location.country);
+                this.location.os = this.deviceDetails?.platform;
+                this.location.type = "browser";
+
+                localStorage.setItem("loginLocation", JSON.stringify(this.location));
+            },
+            error: (exception) => {},
+            complete: () => {},
+        });
+    }
 
-		this._demoService.geoLocation$.subscribe({
-			next: async (response) => {
-				if (!response) return;
+    onCountryCodeChange(value: string) {
+        if (!value || !this.typeLogin) return;
 
-				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
+        this.phoneValidation = null;
+        this.smsSent = false;
 
-				this.location.countryCode = this._countries.findCountryCode(this.location.country);
+        this.stopTimer();
 
-				this.location.os = this.deviceDetails?.platform;
-				this.location.type = "browser";
+        this.sendingOTP = false;
+    }
 
-				localStorage.setItem("loginLocation", JSON.stringify(this.location));
-			},
-			error: (exception) => {},
-			complete: () => {},
-		});
-	}
+    ngOnDestroy(): void {
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
+    }
 
-	onCountryCodeChange(value: string) {
-		if (!value || !this.typeLogin) return;
+    setLanguage() {
+        if (!isPlatformBrowser(this.platformId)) this.language = "en";
 
-		this.phoneValidation = null;
+        // Get the browser's language setting
+        const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
+        // Check if the browser's language is one of the specified options, otherwise default to 'en'
+        this.language = this.flagCodes[browserLang] ? browserLang : "en";
 
-		this.smsSent = false;
+        localStorage.setItem("currentLanguage", this.language);
+    }
+
+    requestProject(projectId?: string): void {
+        if (!projectId) projectId = environment.verifikProject;
+
+        this._passwordlessService.requestProject(projectId, "login").subscribe({
+            next: (v) => {
+                this.project = new ProjectModel({ ...v.data, type: "login" });
+                this.projectFlow = this.project.currentProjectFlow;
 
-		this.stopTimer();
+                for (let index = 0; index < v.data.projectFlows.length; index++) {
+                    const projectFlow = v.data.projectFlows[index];
 
-		this.sendingOTP = false;
-	}
+                    if (projectFlow.type === "onboarding") this.kycProjectFlow = new ProjectFlowModel(projectFlow);
+                }
+            },
+            error: (e) => {
+                console.info({ errorHERE: e });
+                if (e.error.code === "InternalServer") {
+                    alert("something went wrong, try  again");
+                }
 
-	ngOnDestroy(): void {
-		this._unsubscribeAll.next(null);
-	}
+                this._splashScreenService.hide();
+            },
+            complete: () => {
+                if (!this.projectFlow) return;
 
-	requestProject(projectId?: string): void {
-		if (!projectId) projectId = environment.verifikProject;
+                this.initForm();
 
-		this._passwordlessService.requestProject(projectId, "login").subscribe({
-			next: (v) => {
-				this.project = new ProjectModel({ ...v.data, type: "login" });
+                this._changeDetectorRef.markForCheck();
 
-				this.projectFlow = this.project.currentProjectFlow;
+                this._splashScreenService.hide();
+            },
+        });
+    }
 
-				for (let index = 0; index < v.data.projectFlows.length; index++) {
-					const projectFlow = v.data.projectFlows[index];
+    initForm(): void {
+        this.typeLogin = this.projectFlow.loginSettings.email ? "email" : "phone";
 
-					if (projectFlow.type === "onboarding") this.kycProjectFlow = new ProjectFlowModel(projectFlow);
-				}
-			},
-			error: (e) => {
-				console.info({ errorHERE: e });
-				if (e.error.code === "InternalServer") {
-					alert("something went wrong, try  again");
-				}
+        this.buttonSendOtp();
 
-				this._splashScreenService.hide();
-			},
-			complete: () => {
-				if (!this.projectFlow) return;
+        this.setFieldRequiredInForm();
 
-				this.initForm();
+        this._init2FAForm();
 
-				this._changeDetectorRef.markForCheck();
+        this._activatedRoute.queryParams.subscribe((queryParams) => {
+            const type = queryParams.type;
 
-				this._splashScreenService.hide();
-			},
-		});
-	}
+            if (type === "liveness") {
+                this.showBiometricsLogin();
 
-	initForm(): void {
-		this.typeLogin = this.projectFlow.loginSettings.email ? "email" : "phone";
+                return;
+            }
 
-		this.buttonSendOtp();
+            const email = queryParams.email;
+            const emailOTP = queryParams.otp;
 
-		this.setFieldRequiredInForm();
+            if (!email || !emailOTP) return;
 
-		this._init2FAForm();
+            this._signInWithEmail({
+                email,
+                emailOTP,
+            });
+        });
+    }
 
-		this._activatedRoute.queryParams.subscribe((queryParams) => {
-			const type = queryParams.type;
+    _init2FAForm(): void {
+        this.secondFactorForm = this._formBuilder.group({
+            authenticatorOTP: ["", [Validators.required, Validators.minLength(6)]],
+        });
+    }
 
-			if (type === "liveness") {
-				this.showBiometricsLogin();
+    buttonSendOtp() {
+        this.activeSendOtp =
+            this.typeLogin === "email"
+                ? this.projectFlow.loginSettings.email && !this.emailSent
+                : this.projectFlow.loginSettings.phone && !this.smsSent;
+    }
 
-				return;
-			}
+    setFieldRequiredInForm() {
+        this.selectedCountryCode = localStorage.getItem("defaultCountryCode") || this.location?.countryCode || "+1";
 
-			const email = queryParams.email;
-			const emailOTP = queryParams.otp;
+        this.groupFields = {
+            email: [localStorage.getItem("defaultEmail") || ""],
+            emailOTP: [,],
+            countryCode: [this.selectedCountryCode],
+            phone: [localStorage.getItem("defaultPhone") || ""],
+            phoneOTP: [,],
+        };
 
-			if (!email || !emailOTP) return;
+        switch (this.typeLogin) {
+            case "email":
+                this.groupFields["email"][1] = [Validators.required, Validators.email, Validators.minLength(8), Validators.maxLength(60)];
+                this.groupFields["emailOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
+                break;
 
-			this._signInWithEmail({
-				email,
-				emailOTP,
-			});
-		});
-	}
+            case "phone":
+                this.groupFields["countryCode"][1] = [Validators.required];
+                this.groupFields["phone"][1] = [Validators.required];
+                this.groupFields["phoneOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
+                break;
+        }
 
-	_init2FAForm(): void {
-		this.secondFactorForm = this._formBuilder.group({
-			authenticatorOTP: ["", [Validators.required, Validators.minLength(6)]],
-		});
-	}
+        this.signInForm = this._formBuilder.group(this.groupFields);
+    }
 
-	buttonSendOtp() {
-		this.activeSendOtp =
-			this.typeLogin === "email"
-				? this.projectFlow.loginSettings.email && !this.emailSent
-				: this.projectFlow.loginSettings.phone && !this.smsSent;
-	}
+    selectLogin(event) {
+        this.groupFields = {};
 
-	setFieldRequiredInForm() {
-		this.selectedCountryCode = localStorage.getItem("defaultCountryCode") || this.location?.countryCode || "+1";
+        this.typeLogin = event.index ? "phone" : "email";
 
-		this.groupFields = {
-			email: [localStorage.getItem("defaultEmail") || ""],
-			emailOTP: [,],
-			countryCode: [this.selectedCountryCode],
-			phone: [localStorage.getItem("defaultPhone") || ""],
-			phoneOTP: [,],
-		};
+        this.setFieldRequiredInForm();
 
-		switch (this.typeLogin) {
-			case "email":
-				this.groupFields["email"][1] = [Validators.required, Validators.email, Validators.minLength(8), Validators.maxLength(60)];
-				this.groupFields["emailOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
-				break;
+        this.buttonSendOtp();
 
-			case "phone":
-				this.groupFields["countryCode"][1] = [Validators.required];
-				this.groupFields["phone"][1] = [Validators.required];
-				this.groupFields["phoneOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
-				break;
-		}
+        this._changeDetectorRef.markForCheck();
+    }
 
-		this.signInForm = this._formBuilder.group(this.groupFields);
-	}
+    canSendOTP(): Boolean {
+        return Boolean(!this.sendingOTP && this.activeSendOtp && this.signInForm.valid);
+    }
 
-	selectLogin(event) {
-		this.groupFields = {};
+    canUseBiometrics(): boolean {
+        const isFormValid =
+            this.typeLogin === "email"
+                ? Boolean(this.signInForm.value.email)
+                : Boolean(this.signInForm.value.countryCode && this.signInForm.value.phone);
 
-		this.typeLogin = event.index ? "phone" : "email";
+        return Boolean(isFormValid);
+    }
 
-		this.setFieldRequiredInForm();
+    isFormValid(): boolean {
+        const otpField = this.signInForm.value.phoneOTP || this.signInForm.value.emailOTP;
 
-		this.buttonSendOtp();
+        return Boolean(this.signInForm.valid && otpField && otpField.length === 6);
+    }
 
-		this._changeDetectorRef.markForCheck();
-	}
+    onInput(event: Event) {
+        const input = event.target as HTMLInputElement;
 
-	canSendOTP(): Boolean {
-		return Boolean(!this.sendingOTP && this.activeSendOtp && this.signInForm.valid);
-	}
+        input.value = input.value.replace(/[^0-9]/g, "");
+    }
 
-	canUseBiometrics(): boolean {
-		const isFormValid =
-			this.typeLogin === "email"
-				? Boolean(this.signInForm.value.email)
-				: Boolean(this.signInForm.value.countryCode && this.signInForm.value.phone);
+    checkSixDigits(field: string): void {
+        if (!this.signInForm.value[field] || (this.signInForm.value[field] && this.signInForm.value[field].length !== 6) || this.signInForm.invalid)
+            return;
 
-		return Boolean(isFormValid);
-	}
+        this.signIn();
+    }
 
-	isFormValid(): boolean {
-		const otpField = this.signInForm.value.phoneOTP || this.signInForm.value.emailOTP;
+    _signInWithEmail(dataForm): void {
+        this._passwordlessService
+            .confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm?.value?.authenticatorOTP, this.location)
+            .subscribe(
+                (response) => {
+                    if (response.data.message) {
+                        this.secondFactorData = response.data;
 
-		return Boolean(this.signInForm.valid && otpField && otpField.length === 6);
-	}
+                        this.secondFactorData.emailOTP = dataForm.emailOTP;
 
-	onInput(event: Event) {
-		const input = event.target as HTMLInputElement;
+                        return;
+                    }
 
-		input.value = input.value.replace(/[^0-9]/g, "");
-	}
+                    this.appLoginToken = response.data.token;
 
-	checkSixDigits(field: string): void {
-		if (!this.signInForm.value[field] || (this.signInForm.value[field] && this.signInForm.value[field].length !== 6) || this.signInForm.invalid)
-			return;
+                    localStorage.setItem("defaultEmail", dataForm.email);
 
-		this.signIn();
-	}
+                    if (response.data?.showFaceLivenessRecommendation) {
+                        this.showFaceLivenessRecommendation = true;
 
-	_signInWithEmail(dataForm): void {
-		this._passwordlessService
-			.confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm?.value?.authenticatorOTP, this.location)
-			.subscribe(
-				(response) => {
-					if (response.data.message) {
-						this.secondFactorData = response.data;
+                        return;
+                    }
 
-						this.secondFactorData.emailOTP = dataForm.emailOTP;
+                    this.loading = false;
 
-						return;
-					}
+                    return this.successLogin(response.data.token);
+                },
+                (err) => {
+                    console.error({
+                        err: err.error.message,
+                    });
 
-					this.appLoginToken = response.data.token;
+                    this.errorLogin(err.error.message);
 
-					localStorage.setItem("defaultEmail", dataForm.email);
+                    this.loading = false;
+                }
+            );
+    }
 
-					if (response.data?.showFaceLivenessRecommendation) {
-						this.showFaceLivenessRecommendation = true;
+    _signInWithPhone(dataForm): void {
+        this._passwordlessService
+            .confirmPhoneValidation(
+                dataForm.countryCode,
+                dataForm.phone,
+                dataForm.phoneOTP,
+                this.secondFactorForm.value.authenticatorOTP,
+                this.location
+            )
+            .subscribe(
+                (response) => {
+                    if (!response.data) return;
 
-						return;
-					}
+                    if (response.data.message) {
+                        this.secondFactorData = response.data;
 
-					this.loading = false;
+                        this.secondFactorData.phoneOTP = dataForm.phoneOTP;
 
-					return this.successLogin(response.data.token);
-				},
-				(err) => {
-					console.error({
-						err: err.error.message,
-					});
+                        return;
+                    }
 
-					this.errorLogin(err.error.message);
+                    this.appLoginToken = response.data.token;
 
-					this.loading = false;
-				}
-			);
-	}
+                    localStorage.setItem("defaultCountryCode", dataForm.countryCode);
 
-	_signInWithPhone(dataForm): void {
-		this._passwordlessService
-			.confirmPhoneValidation(
-				dataForm.countryCode,
-				dataForm.phone,
-				dataForm.phoneOTP,
-				this.secondFactorForm.value.authenticatorOTP,
-				this.location
-			)
-			.subscribe(
-				(response) => {
-					if (!response.data) return;
+                    localStorage.setItem("defaultPhone", dataForm.phone);
 
-					if (response.data.message) {
-						this.secondFactorData = response.data;
+                    if (response.data?.showFaceLivenessRecommendation) {
+                        this.showFaceLivenessRecommendation = true;
 
-						this.secondFactorData.phoneOTP = dataForm.phoneOTP;
+                        return;
+                    }
 
-						return;
-					}
+                    this.loading = false;
 
-					this.appLoginToken = response.data.token;
+                    return this.successLogin(this.appLoginToken);
+                },
+                (err) => {
+                    this.errorLogin(err.error.message);
 
-					localStorage.setItem("defaultCountryCode", dataForm.countryCode);
+                    this.loading = false;
+                }
+            );
+    }
 
-					localStorage.setItem("defaultPhone", dataForm.phone);
+    signIn(): void {
+        if (this.loading) return;
 
-					if (response.data?.showFaceLivenessRecommendation) {
-						this.showFaceLivenessRecommendation = true;
+        this.loading = true;
 
-						return;
-					}
+        const dataForm = this.signInForm.value;
 
-					this.loading = false;
+        switch (this.typeLogin) {
+            case "email":
+                this._signInWithEmail(dataForm);
 
-					return this.successLogin(this.appLoginToken);
-				},
-				(err) => {
-					this.errorLogin(err.error.message);
+                break;
+            case "phone":
+                this._signInWithPhone(dataForm);
 
-					this.loading = false;
-				}
-			);
-	}
+                break;
+        }
+    }
 
-	signIn(): void {
-		if (this.loading) return;
+    successLogin(token: any) {
+        let redirectUrl = this.projectFlow.redirectUrl;
 
-		this.loading = true;
+        if (environment.verifikProject === this.project._id) {
+            redirectUrl = `${environment.appUrl}/sign-in`;
+        } else if (environment.sandboxProject === this.project._id) {
+            redirectUrl = `${environment.sandboxUrl}/sign-in`;
+        }
 
-		const dataForm = this.signInForm.value;
+        window.location.href = `${redirectUrl}?type=login&token=${token}`;
+    }
 
-		switch (this.typeLogin) {
-			case "email":
-				this._signInWithEmail(dataForm);
+    errorLogin(error: string) {
+        this.alert = {
+            type: "error",
+            message: `login.${error}`,
+        };
 
-				break;
-			case "phone":
-				this._signInWithPhone(dataForm);
+        this.showAlert = true;
 
-				break;
-		}
-	}
+        this._changeDetectorRef.detectChanges();
 
-	successLogin(token: any) {
-		let redirectUrl = this.projectFlow.redirectUrl;
+        setTimeout(() => {
+            this.showAlert = false;
 
-		if (environment.verifikProject === this.project._id) {
-			redirectUrl = `${environment.appUrl}/sign-in`;
-		} else if (environment.sandboxProject === this.project._id) {
-			redirectUrl = `${environment.sandboxUrl}/sign-in`;
-		}
+            this._changeDetectorRef.detectChanges();
+        }, 10000);
+    }
 
-		window.location.href = `${redirectUrl}?type=login&token=${token}`;
-	}
+    sendOTP(event, gateway): void {
+        event.preventDefault();
 
-	errorLogin(error: string) {
-		this.alert = {
-			type: "error",
-			message: `login.${error}`,
-		};
+        this.sendingOTP = true;
 
-		this.showAlert = true;
+        switch (this.typeLogin) {
+            case "email":
+                this._passwordlessService.sendEmailValidation(this.signInForm.value.email, this.location).subscribe({
+                    next: (response) => {
+                        this.emailValidation = response.data;
 
-		this._changeDetectorRef.detectChanges();
+                        this.emailSent = true;
 
-		setTimeout(() => {
-			this.showAlert = false;
+                        this.startTimer(this.typeLogin);
 
-			this._changeDetectorRef.detectChanges();
-		}, 10000);
-	}
+                        this.sendingOTP = false;
+                    },
+                    error: (err) => {
+                        console.error({ err });
 
-	sendOTP(event, gateway): void {
-		event.preventDefault();
+                        this.errorLogin(err?.error?.message);
 
-		this.sendingOTP = true;
+                        this.sendingOTP = false;
+                    },
+                });
+                break;
 
-		switch (this.typeLogin) {
-			case "email":
-				this._passwordlessService.sendEmailValidation(this.signInForm.value.email, this.location).subscribe({
-					next: (response) => {
-						this.emailValidation = response.data;
+            case "phone":
+                this._passwordlessService
+                    .sendPhoneValidation(this.signInForm.value.countryCode, this.signInForm.value.phone, gateway, this.location)
+                    .subscribe(
+                        (response) => {
+                            this.phoneValidation = response.data;
 
-						this.emailSent = true;
+                            this.smsSent = true;
 
-						this.startTimer(this.typeLogin);
+                            this.startTimer(this.typeLogin);
 
-						this.sendingOTP = false;
-					},
-					error: (err) => {
-						console.error({ err });
+                            this.sendingOTP = false;
+                        },
+                        (err) => {
+                            this.errorLogin(err?.error?.message);
 
-						this.errorLogin(err?.error?.message);
+                            this.sendingOTP = false;
+                        }
+                    );
+                break;
+        }
+    }
 
-						this.sendingOTP = false;
-					},
-				});
-				break;
+    startTimer(field): number {
+        let interval;
+        let hideInterval;
 
-			case "phone":
-				this._passwordlessService
-					.sendPhoneValidation(this.signInForm.value.countryCode, this.signInForm.value.phone, gateway, this.location)
-					.subscribe(
-						(response) => {
-							this.phoneValidation = response.data;
+        const dateToCompare = moment(
+            this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
+        ).add(1, "minute");
 
-							this.smsSent = true;
+        const timeToHideButtons = moment(
+            this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
+        ).add(2, "minute");
 
-							this.startTimer(this.typeLogin);
+        switch (field) {
+            case "email":
+                if (!this.emailValidation) return 0;
 
-							this.sendingOTP = false;
-						},
-						(err) => {
-							this.errorLogin(err?.error?.message);
+                this.emailValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
+                this.emailValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
 
-							this.sendingOTP = false;
-						}
-					);
-				break;
-		}
-	}
+                hideInterval = setInterval(() => {
+                    if (this.emailValidation?.timeToHideInput > 0) {
+                        this.emailValidation.timeToHideInput--;
+                    } else {
+                        this.emailValidation = null;
+                    }
 
-	startTimer(field): number {
-		let interval;
-		let hideInterval;
+                    this._changeDetectorRef.detectChanges();
+                }, 1000);
 
-		const dateToCompare = moment(
-			this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
-		).add(1, "minute");
+                interval = setInterval(() => {
+                    if (this.emailValidation.diff > 0) {
+                        this.emailValidation.diff--;
+                    } else {
+                        clearInterval(interval);
 
-		const timeToHideButtons = moment(
-			this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
-		).add(2, "minute");
+                        this.emailSent = false;
+                    }
 
-		switch (field) {
-			case "email":
-				if (!this.emailValidation) {
-					return 0;
-				}
+                    this.buttonSendOtp();
 
-				this.emailValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
+                    this._changeDetectorRef.detectChanges();
+                }, 1000);
 
-				this.emailValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
+                break;
+            case "phone":
+                if (!this.phoneValidation) return 0;
 
-				hideInterval = setInterval(() => {
-					if (this.emailValidation?.timeToHideInput > 0) {
-						this.emailValidation.timeToHideInput--;
-					} else {
-						this.emailValidation = null;
-					}
+                this.phoneValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
+                this.phoneValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
 
-					this._changeDetectorRef.detectChanges();
-				}, 1000);
+                hideInterval = setInterval(() => {
+                    if (this.phoneValidation.timeToHideInput > 0) {
+                        this.phoneValidation.timeToHideInput--;
+                    } else {
+                        this.phoneValidation = null;
 
-				interval = setInterval(() => {
-					if (this.emailValidation.diff > 0) {
-						this.emailValidation.diff--;
-					} else {
-						clearInterval(interval);
+                        clearInterval(hideInterval);
+                    }
 
-						this.emailSent = false;
-					}
+                    this._changeDetectorRef.detectChanges();
+                }, 1000);
 
-					this.buttonSendOtp();
+                interval = setInterval(() => {
+                    if (this.phoneValidation?.diff > 0) {
+                        this.phoneValidation.diff--;
+                    } else {
+                        clearInterval(interval);
 
-					this._changeDetectorRef.detectChanges();
-				}, 1000);
+                        this.smsSent = false;
+                    }
 
-				break;
+                    this.buttonSendOtp();
 
-			case "phone":
-				if (!this.phoneValidation) {
-					return 0;
-				}
+                    this._changeDetectorRef.detectChanges();
+                }, 1000);
 
-				this.phoneValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
+                break;
+        }
+    }
 
-				this.phoneValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
+    stopTimer(): void {
+        if (this.emailValidation) this.emailValidation.diff = 0;
+        if (this.phoneValidation) this.phoneValidation.diff = 0;
+    }
 
-				hideInterval = setInterval(() => {
-					if (this.phoneValidation.timeToHideInput > 0) {
-						this.phoneValidation.timeToHideInput--;
-					} else {
-						this.phoneValidation = null;
+    showBiometricsLogin(): void {
+        if (this.appLoginToken) {
+            localStorage.setItem("accessToken", this.appLoginToken);
+        }
 
-						clearInterval(hideInterval);
-					}
+        this.showBiometrics = true;
+    }
 
-					this._changeDetectorRef.detectChanges();
-				}, 1000);
+    continueRedirection(): void {
+        this.sendingOTP = true;
 
-				interval = setInterval(() => {
-					if (this.phoneValidation?.diff > 0) {
-						this.phoneValidation.diff--;
-					} else {
-						clearInterval(interval);
+        this.successLogin(this.appLoginToken);
+    }
 
-						this.smsSent = false;
-					}
-
-					this.buttonSendOtp();
-
-					this._changeDetectorRef.detectChanges();
-				}, 1000);
-
-				break;
-		}
-	}
-
-	stopTimer(): void {
-		if (this.emailValidation) this.emailValidation.diff = 0;
-		if (this.phoneValidation) this.phoneValidation.diff = 0;
-	}
-
-	showBiometricsLogin(): void {
-		if (this.appLoginToken) {
-			localStorage.setItem("accessToken", this.appLoginToken);
-		}
-
-		this.showBiometrics = true;
-	}
-
-	continueRedirection(): void {
-		this.sendingOTP = true;
-
-		this.successLogin(this.appLoginToken);
-	}
-
-	createAccount(): void {
-		window.location.href = `${environment.kycUrl}/kyc/project/${this.project._id}`;
-	}
+    createAccount(): void {
+        window.location.href = `${environment.kycUrl}/kyc/project/${this.project._id}`;
+    }
 }

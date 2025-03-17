@@ -185,8 +185,8 @@
                                 [class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
                                 [disabled]="!canSendOTP()"
                                 *ngIf="projectFlow.loginSettings.phoneGateway === 'sms' || projectFlow.loginSettings.phoneGateway === 'both'"
-                                [style.color]="project.branding.buttonTxtColor"
-                                [style.background]="project.branding.buttonColor"
+                                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
+                                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
                             >
                                 <span *ngIf="activeSendOtp"> SMS </span>
 
@@ -201,8 +201,8 @@
                                 [class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
                                 [disabled]="!canSendOTP()"
                                 *ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
-                                [style.color]="project.branding.buttonTxtColor"
-                                [style.background]="project.branding.buttonColor"
+                                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
+                                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
                             >
                                 <span *ngIf="activeSendOtp"> Whatsapp </span>
 
@@ -216,8 +216,8 @@
                             (click)="sendOTP($event)"
                             [disabled]="!canSendOTP()"
                             *ngIf="typeLogin === 'email'"
-                            [style.background]="project.branding.buttonColor"
-                            [style.color]="project.branding.buttonTxtColor"
+                            [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
+                            [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
                         >
                             <span *ngIf="activeSendOtp"> {{ "login.send_email" | transloco }} </span>
 
