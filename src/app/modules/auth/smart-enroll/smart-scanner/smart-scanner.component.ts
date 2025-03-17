@@ -20,7 +20,7 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
-import { Corrections, FaceDetectionWithLandmarks, SmartEnrollService } from "../smart-enroll.service";
+import { Corrections, SmartEnrollService } from "../smart-enroll.service";
 import { environment } from "environments/environment";
 
 interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
@@ -56,8 +56,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
     @ViewChild("maskCanvas") public maskCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild("resultCanvas")
-    public resultCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("toSendCanvas")
     public toSendCanvas: ElementRef<HTMLCanvasElement>;
 
@@ -601,32 +599,13 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._generateQRCode(qrCanvas, window.location.href);
     }
 
-    setPictureInCanvas(canvas: HTMLCanvasElement, dimensions: any, dimensionsOriginals?: any) {
+    setPictureInCanvas(canvas: HTMLCanvasElement, dimensions: any) {
         const context = canvas.getContext("2d", { willReadFrequently: true });
 
         canvas.width = dimensions.rectWidth;
         canvas.height = dimensions.rectHeight;
 
-        if (!dimensionsOriginals) {
-            dimensionsOriginals = {
-                x: dimensions.x,
-                y: dimensions.y,
-                rectWidth: dimensions.rectWidth,
-                rectHeight: dimensions.rectHeight,
-            };
-        }
-
-        context.drawImage(
-            this.videoElement.nativeElement,
-            dimensionsOriginals.x,
-            dimensionsOriginals.y,
-            dimensionsOriginals.rectWidth,
-            dimensionsOriginals.rectHeight,
-            0,
-            0,
-            dimensions.rectWidth,
-            dimensions.rectHeight
-        );
+        context.drawImage(this.videoElement.nativeElement, 0, 0, dimensions.rectWidth, dimensions.rectHeight);
     }
 
     showPassportColor(): boolean {
@@ -680,9 +659,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._detectionInterval = null;
 
         const canvasToSend = this.toSendCanvas.nativeElement;
-        const canvasResult = this.resultCanvas.nativeElement;
 
-        this.setPictureInCanvas(canvasResult, this._rectCredential, this.video);
         this.setPictureInCanvas(canvasToSend, this.video);
 
         const rawBase64Image = canvasToSend.toDataURL("image/jpeg");
@@ -707,7 +684,6 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
                 }
 
                 const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true);
-
                 const face = this._demoService.findBiggestFace(detections);
 
                 if (!face) throw Error("face_not_found");

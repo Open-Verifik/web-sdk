@@ -49,8 +49,6 @@ import { MediaStreamService } from "app/media-stream.service";
 export class SmartScannerMobileComponent implements OnInit, OnDestroy {
     @ViewChild("faceCardCanvas", { static: true })
     faceCardCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild("resultCanvas", { static: true })
-    public resultCanvas: ElementRef<HTMLCanvasElement>;
 
     @ViewChild("videoElement")
     public videoElement: ElementRef<HTMLVideoElement>;
@@ -160,27 +158,6 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
         return { width: scaledWidth, height: scaledHeight };
     }
-
-    private _cropImage = (resultCanvas: HTMLCanvasElement, inputImg: HTMLImageElement, resizeDimensions: any) => {
-        resultCanvas.width = resizeDimensions.width;
-        resultCanvas.height = resizeDimensions.height;
-
-        const ctx = resultCanvas.getContext("2d");
-
-        ctx.drawImage(
-            inputImg,
-            resizeDimensions.offsetX,
-            resizeDimensions.offsetY,
-            resizeDimensions.width,
-            resizeDimensions.height,
-            0,
-            0,
-            resizeDimensions.width,
-            resizeDimensions.height
-        );
-
-        ctx.save();
-    };
 
     private async _detectFace(image: HTMLImageElement) {
         try {
@@ -681,23 +658,18 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
         this._mediaStreamService.stopAllStreams();
     }
 
-    private _takePicture(img: HTMLImageElement, rawBase64Image: string) {
-        const canvasResult = this.resultCanvas.nativeElement;
-
-        this._cropImage(canvasResult, img, this.camera.dimensions.result);
-
+    private _takePicture(rawBase64Image: string) {
         let face: string;
         let faceToUpload: string;
-        let base64Image = canvasResult.toDataURL("image/jpeg");
 
         const isFront = this.side === "front";
 
         if (isFront) {
-            const croppedImage = new Image();
+            const image = new Image();
 
-            croppedImage.src = base64Image;
+            image.src = rawBase64Image;
 
-            croppedImage.onload = () => {
+            image.onload = () => {
                 let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
 
                 if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
@@ -706,7 +678,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
                     faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
                 }
 
-                const promise = faceapi.detectAllFaces(croppedImage, faceEngine).withFaceLandmarks(true).run();
+                const promise = faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true).run();
 
                 promise
                     .then((detections) => {
@@ -718,9 +690,9 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
                         this.errorFace = null;
                         this.showError = false;
 
-                        faceToUpload = this._demoService.cutFaceIdCard(croppedImage, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
+                        faceToUpload = this._demoService.cutFaceIdCard(image, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
 
-                        base64Image = base64Image.replace(/^data:.*;base64,/, "");
+                        const base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
                         face = faceToUpload?.replace(/^data:.*;base64,/, "");
 
                         this.onImageScan.next({
@@ -751,7 +723,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
             return;
         }
 
-        base64Image = base64Image.replace(/^data:.*;base64,/, "");
+        const base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
 
         this.onImageScan.next({
             base64Image,
@@ -809,7 +781,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
         img.title = "manualCapture";
 
         img.onload = () => {
-            this._takePicture(img, base64Image);
+            this._takePicture(base64Image);
         };
     }
 
