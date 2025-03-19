@@ -116,12 +116,11 @@
         ngClass.lt-md="flex-grow"
         ngClass.gt-sm="mt-2"
     >
-        <div class="text-center w-full" ngClass.gt-sm="mt-4">
-            <div class="font-bold text-xl">
-                {{ "welcome.complete_title" | transloco }}
-            </div>
+        <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
 
-            <div>{{ "welcome.complete_subtitle" | transloco }}</div>
+        <div class="text-center" ngClass.gt-sm="mt-4">
+            <div class="font-bold text-xl">{{ "welcome.enrolled_title" | transloco }}</div>
+            <div>{{ "welcome.enrolled_subtitle" | transloco }}</div>
         </div>
     </div>
 
@@ -133,11 +132,12 @@
         ngClass.lt-md="flex-grow"
         ngClass.gt-sm="mt-2"
     >
-        <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+        <div class="text-center w-full" ngClass.gt-sm="mt-4">
+            <div class="font-bold text-xl">
+                {{ "welcome.complete_title" | transloco }}
+            </div>
 
-        <div class="text-center" ngClass.gt-sm="mt-4">
-            <div class="font-bold text-xl">{{ "welcome.enrolled_title" | transloco }}</div>
-            <div>{{ "welcome.enrolled_subtitle" | transloco }}</div>
+            <div>{{ "welcome.complete_subtitle" | transloco }}</div>
         </div>
     </div>
 </div>

@@ -12,15 +12,15 @@ import { TranslocoModule } from "@ngneat/transloco";
 
 import { AppRegistration, Project, ProjectFlow, DocumentValidation, ImageScan, CriminalValidation, FaceVerification } from "../../project";
 import { KYCService } from "../../kyc.service";
+import { DemoService } from "app/modules/demo/demo.service";
 import { EnrollDocumentMethod, SmartEnrollService } from "../smart-enroll.service";
+import { environment } from "environments/environment";
 
 import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
-import { environment } from "environments/environment";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
-import { DemoService } from "app/modules/demo/demo.service";
 
 type CombinedValidationResponse = {
     criminalValidation: CriminalValidationResponse;
@@ -119,7 +119,6 @@ export class SmartDocumentsComponent implements OnDestroy {
 
                 if (body.backImage) {
                     this.successfulUploadSubject.next();
-                    this._syncAppRegistration("document", "ONGOING");
 
                     return;
                 }
@@ -133,6 +132,7 @@ export class SmartDocumentsComponent implements OnDestroy {
     private _handleError(exception: any): void {
         if (exception?.error?.code === "PaymentRequired") {
             this._smartEnrollService.insufficientCreditsTrigger();
+
             return;
         }
 
@@ -142,16 +142,13 @@ export class SmartDocumentsComponent implements OnDestroy {
         this.errorContent = { message: exception?.error?.message || "" };
 
         const split = this.errorContent.message.split("@");
+
         this.errorContent.message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(split[0]) ? split[0] : "failed_to_read";
     }
 
     private _sendDocumentValidationAndNameValidation(): void {
         if (!this.appRegistration.documentValidation._id) {
             this.successfulUploadSubject.next();
-
-            if (this.appRegistration.biometricValidation) return;
-
-            this._syncAppRegistration("document", "ONGOING");
 
             return;
         }
@@ -253,6 +250,7 @@ export class SmartDocumentsComponent implements OnDestroy {
                 } else if (results.nameValidation?.status === "rejected") {
                     if (results.nameValidation?.error?.code === "PaymentRequired") {
                         this._smartEnrollService.insufficientCreditsTrigger();
+
                         return;
                     }
 
@@ -266,6 +264,7 @@ export class SmartDocumentsComponent implements OnDestroy {
                 } else if (results.compareValidation?.status === "rejected") {
                     if (results.compareValidation?.error?.code === "PaymentRequired") {
                         this._smartEnrollService.insufficientCreditsTrigger();
+
                         return;
                     }
 
@@ -277,34 +276,6 @@ export class SmartDocumentsComponent implements OnDestroy {
             error: (error) => this._handleError(error),
             complete: () => {
                 this.successfulUploadSubject.next();
-
-                if (this.appRegistration.biometricValidation) return;
-
-                this._syncAppRegistration("document", "ONGOING");
-            },
-        });
-    }
-
-    private _syncAppRegistration(step: string, status?: string, action?: string) {
-        let _response: any = null;
-
-        this._KYCService.syncAppRegistration(step, status).subscribe({
-            next: (response) => {
-                _response = response.data;
-            },
-            error: () => {},
-            complete: () => {
-                if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
-
-                let redirectUrl = this.projectFlow.redirectUrl;
-
-                if (environment.verifikProject === this.project._id) {
-                    redirectUrl = `${environment.appUrl}/sign-in`;
-                } else if (environment.sandboxProject === this.project._id) {
-                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                }
-
-                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
             },
         });
     }

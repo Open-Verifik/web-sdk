@@ -1,52 +1,33 @@
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
 
-import { CommonModule, NgIf } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    OnInit,
-    ViewChild,
-    ViewEncapsulation,
-} from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule, NgIf } from "@angular/common";
+import { Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
-import { fuseAnimations } from '@fuse/animations';
-import { TranslocoModule } from '@ngneat/transloco';
+import { fuseAnimations } from "@fuse/animations";
+import { TranslocoModule } from "@ngneat/transloco";
 
-import {
-    EnrollSettings,
-    EnrollStore,
-    SmartEnrollService,
-} from '../smart-enroll.service';
-import { KYCService } from '../../kyc.service';
-import { AppRegistration, Face, Project, ProjectFlow } from '../../project';
-import { environment } from 'environments/environment';
+import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll.service";
+import { KYCService } from "../../kyc.service";
+import { AppRegistration, Face, Project, ProjectFlow } from "../../project";
+import { environment } from "environments/environment";
 
-import { SmartStepperComponent } from '../smart-enroll-stepper/smart-stepper.component';
+import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
 @Component({
-    selector: 'smart-results',
-    templateUrl: './smart-results.component.html',
-    styleUrls: ['../smart-enroll.component.scss'],
+    selector: "smart-results",
+    templateUrl: "./smart-results.component.html",
+    styleUrls: ["../smart-enroll.component.scss"],
     encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
     standalone: true,
-    imports: [
-        CommonModule,
-        FlexLayoutModule,
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        NgIf,
-        SmartStepperComponent,
-        TranslocoModule,
-    ],
+    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, NgIf, SmartStepperComponent, TranslocoModule],
 })
 export class SmartResultsComponent implements OnInit {
-    @ViewChild('qrCodeCanvas')
+    @ViewChild("qrCodeCanvas")
     public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
     appRegistration: AppRegistration;
@@ -69,15 +50,13 @@ export class SmartResultsComponent implements OnInit {
     redirectUrl: string;
     revealQRCode: boolean = false;
 
-    constructor(
-        private _smartEnrollService: SmartEnrollService,
-        private _KYCService: KYCService
-    ) {
+    constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
         this.enrollStore = this._smartEnrollService.store;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
+
         this.errorResult = false;
     }
 
@@ -93,17 +72,10 @@ export class SmartResultsComponent implements OnInit {
     }
 
     private _checkScoreStatus() {
-        const compareFaceVerification =
-            this.appRegistration.compareFaceVerification;
+        const compareFaceVerification = this.appRegistration.compareFaceVerification;
 
-        const compareScore =
-            this.enrollStore.biometric.compareScore ||
-            compareFaceVerification?.result?.score ||
-            0;
-        const livenessScore =
-            this.enrollStore.biometric.livenessScore ||
-            this.appRegistration.biometricValidation?.livenessScore ||
-            0;
+        const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
+        const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
 
         this.comparisonScore = Math.floor((compareScore || 0) * 100);
         this.livenessScore = Math.floor((livenessScore || 0) * 100);
@@ -112,26 +84,19 @@ export class SmartResultsComponent implements OnInit {
         this.errorResult = false;
         this.livenessFailed = false;
 
-        if (
-            !this.documentSkipped &&
-            compareFaceVerification &&
-            compareScore < this.enrollStore.biometric.compareMinScore
-        ) {
-            this.appRegistration.status = 'FAILED';
+        if (!this.documentSkipped && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
+            this.appRegistration.status = "FAILED";
             this.errorResult = true;
             this.comparisonFailed = true;
         }
 
-        if (
-            !this.biometricSkipped &&
-            livenessScore < this.enrollStore.biometric.livenessMinScore
-        ) {
-            this.appRegistration.status = 'FAILED';
+        if (!this.biometricSkipped && livenessScore < this.enrollStore.biometric.livenessMinScore) {
+            this.appRegistration.status = "FAILED";
             this.errorResult = true;
             this.livenessFailed = true;
         }
 
-        if (!this.errorResult) this.appRegistration.status = 'COMPLETED';
+        if (!this.errorResult) this.appRegistration.status = "COMPLETED";
     }
 
     private _endAndRedirect() {
@@ -139,32 +104,30 @@ export class SmartResultsComponent implements OnInit {
 
         let _response = { token: null };
 
-        this._KYCService
-            .syncAppRegistration('end', this.appRegistration.status)
-            .subscribe({
-                next: (response) => {
-                    _response = response.data;
-                },
-                error: (exception) => {
-                    console.error({ exception });
-                    this.errorResult = true;
-                    this.fetchingToken = false;
-                },
-                complete: () => {
-                    let redirectUrl = this.projectFlow.redirectUrl;
+        this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
+            next: (response) => {
+                _response = response.data;
+            },
+            error: (exception) => {
+                console.error({ exception });
 
-                    if (environment.verifikProject === this.project._id) {
-                        redirectUrl = `${environment.appUrl}/sign-in`;
-                    } else if (
-                        environment.sandboxProject === this.project._id
-                    ) {
-                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                    }
+                this.errorResult = true;
+                this.fetchingToken = false;
+            },
+            complete: () => {
+                let redirectUrl = this.projectFlow.redirectUrl;
 
-                    window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-                    this.fetchingToken = false;
-                },
-            });
+                if (environment.verifikProject === this.project._id) {
+                    redirectUrl = `${environment.appUrl}/sign-in`;
+                } else if (environment.sandboxProject === this.project._id) {
+                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
+                }
+
+                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+
+                this.fetchingToken = false;
+            },
+        });
     }
 
     private _extractFaces(arrayOfImages: Face[]): void {
@@ -173,12 +136,11 @@ export class SmartResultsComponent implements OnInit {
         for (let index = 0; index < arrayOfImages.length; index++) {
             const identityImage = arrayOfImages[index];
 
-            if (identityImage.category !== 'face') {
+            if (identityImage.category !== "face") {
                 fallbackFace = identityImage;
+
                 continue;
             }
-
-            // if (!this.appRegistration.biometricValidation) continue;
 
             this._setFace(identityImage);
         }
@@ -188,7 +150,7 @@ export class SmartResultsComponent implements OnInit {
 
     private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
         try {
-            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: 'L' });
+            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
 
             this.loadingQRCode = false;
         } catch (e) {}
@@ -216,22 +178,41 @@ export class SmartResultsComponent implements OnInit {
     private _setFace(identityImage: Face) {
         this.face = identityImage;
 
-        if (!this.face.base64.includes('data:image')) {
-            this.face[
-                'base64'
-            ] = `data:image/jpeg;base64,${identityImage.base64}`;
+        if (!this.face.base64.includes("data:image")) {
+            this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
         }
 
-        const stringArr = this.face['base64'].split('data:image/jpeg;base64,');
+        const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
 
         if (stringArr.length === 3) {
-            this.face['base64'] = this.face['base64'].replace(
-                'data:image/jpeg;base64,',
-                ''
-            );
+            this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
         }
 
         this.identityLoading = false;
+    }
+
+    private _syncAppRegistration(step: string, status?: string, action?: string) {
+        let _response: any = null;
+
+        this._KYCService.syncAppRegistration(step, status).subscribe({
+            next: (response) => {
+                _response = response.data;
+            },
+            error: () => {},
+            complete: () => {
+                if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
+
+                let redirectUrl = this.projectFlow.redirectUrl;
+
+                if (environment.verifikProject === this.project._id) {
+                    redirectUrl = `${environment.appUrl}/sign-in`;
+                } else if (environment.sandboxProject === this.project._id) {
+                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
+                }
+
+                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+            },
+        });
     }
 
     exitApplication(): void {
@@ -239,18 +220,14 @@ export class SmartResultsComponent implements OnInit {
     }
 
     isLoginToPlatformDisabled() {
-        return (
-            this.fetchingToken ||
-            this.appRegistration.status === 'FAILED' ||
-            this.comparisonFailed ||
-            this.livenessFailed
-        );
+        return this.fetchingToken || this.appRegistration.status === "FAILED" || this.comparisonFailed || this.livenessFailed;
     }
 
     loadQRCode(): void {
         this.revealQRCode = true;
 
         const qrCanvas = this.qrCodeCanvas.nativeElement;
+
         this._generateQRCode(qrCanvas, window.location.href);
     }
 
@@ -260,8 +237,15 @@ export class SmartResultsComponent implements OnInit {
         this._endAndRedirect();
     }
 
-    tryAgain(step: 'document' | 'biometric'): void {
-        if (step === 'document') this._smartEnrollService.setDocumentMethod('');
+    tryAgain(step: "document" | "biometric"): void {
+        if (step === "document") {
+            this._syncAppRegistration("document", "ONGOING");
+            this._smartEnrollService.setDocumentMethod("");
+
+            return;
+        }
+
+        this._syncAppRegistration("liveness", "ONGOING");
         this._smartEnrollService.skipToStep(step);
     }
 }

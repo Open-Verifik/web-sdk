@@ -203,10 +203,16 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
                 !this.appRegistration.biometricValidation) ||
             this._smartEnrollService.wasSkippedDocument()
         ) {
+            this._syncAppRegistration("liveness", "ONGOING");
+
             enrollStep = "biometric";
         } else if (this.appRegistration.documentValidation) {
+            this._syncAppRegistration("document", "ONGOING");
+
             enrollStep = "document-review";
         } else if (!enrollStep) {
+            this._syncAppRegistration("document", "ONGOING");
+
             enrollStep = "document";
         }
 
@@ -214,8 +220,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
     }
 
     skipKYC(): void {
-        this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+        this.welcomeStyle = 2;
 
-        this.welcomeStyle = 4;
+        this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
     }
 }

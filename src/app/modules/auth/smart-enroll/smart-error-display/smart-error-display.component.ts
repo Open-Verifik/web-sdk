@@ -12,75 +12,75 @@ import { KYCService } from "../../kyc.service";
 import { MatButtonModule } from "@angular/material/button";
 
 @Component({
-	selector: "smart-error-display",
-	templateUrl: "./smart-error-display.component.html",
-	styleUrls: ["../smart-enroll.component.scss"],
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-        CommonModule,
-        FlexLayoutModule,
-        MatButtonModule,
-        TranslocoModule,
-	],
+    selector: "smart-error-display",
+    templateUrl: "./smart-error-display.component.html",
+    styleUrls: ["../smart-enroll.component.scss"],
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [CommonModule, FlexLayoutModule, MatButtonModule, TranslocoModule],
 })
 export class SmartErrorDisplayComponent implements OnDestroy {
-    @Input('errorContent') errorContent: { message?: string, title?: string };
-    @Input('source') source: 'face' | 'document';
+    @Input("errorContent") errorContent: { message?: string; title?: string };
+    @Input("source") source: "face" | "document";
 
-    @Output('onClearError') onClearError: EventEmitter<void> = new EventEmitter();
+    @Output("onClearError") onClearError: EventEmitter<void> = new EventEmitter();
 
-	private smartEnrollSettings$ = new Subscription();
+    private smartEnrollSettings$ = new Subscription();
 
-	appRegistration: AppRegistration;
+    appRegistration: AppRegistration;
     attemptsRemaining: number;
-	currentStep: EnrollStep;
-	enrollSettings: EnrollSettings;
-	project: Project;
-	projectFlow: ProjectFlow;
+    currentStep: EnrollStep;
+    enrollSettings: EnrollSettings;
+    project: Project;
+    projectFlow: ProjectFlow;
 
-    constructor(
-        private _KYCService: KYCService,
-        private _smartEnrollService: SmartEnrollService,
-    ) {
-		this.appRegistration = this._KYCService.appRegistration;
-		this.enrollSettings = this._smartEnrollService.enrollSettings;
-		this.project = this._KYCService.currentProject;
-		this.projectFlow = this._KYCService.currentProjectFlow;
-        
+    constructor(private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
+        this.appRegistration = this._KYCService.appRegistration;
+        this.enrollSettings = this._smartEnrollService.enrollSettings;
+        this.project = this._KYCService.currentProject;
+        this.projectFlow = this._KYCService.currentProjectFlow;
+
         const settings = this._smartEnrollService.enrollSettings;
 
         this.currentStep = settings.currentStep;
 
-        if (this.currentStep === 'document') {
-            this.attemptsRemaining = this._smartEnrollService.store.document.remaining;
-        } else {
-            this.attemptsRemaining = this._smartEnrollService.store.biometric.remaining;
-        }
+        this.onSettingsChange(settings);
 
-		this.smartEnrollSettings$ = this._smartEnrollService.enrollSettings$.subscribe({
-			next: (enrollSettings) => this.onSettingsChange(enrollSettings)
-		});
+        this.smartEnrollSettings$ = this._smartEnrollService.enrollSettings$.subscribe({
+            next: (enrollSettings) => this.onSettingsChange(enrollSettings),
+        });
     }
 
-	ngOnDestroy() {
-		this.smartEnrollSettings$.unsubscribe();
-	}
+    ngOnDestroy() {
+        this.smartEnrollSettings$.unsubscribe();
+    }
 
-	exitApplication(): void {
-		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
-	}
+    private _syncAppRegistration(step: string, status?: string, action?: string) {
+        this._KYCService.syncAppRegistration(step, status).subscribe({
+            next: () => {},
+            error: () => {},
+            complete: () => {},
+        });
+    }
 
-	onSettingsChange(settings: EnrollSettings) {
-		this.currentStep = settings.currentStep;
+    exitApplication(): void {
+        window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+    }
 
-        if (this.currentStep === 'document') {
+    onSettingsChange(settings: EnrollSettings) {
+        this.currentStep = settings.currentStep;
+
+        if (this.currentStep === "document") {
             this.attemptsRemaining = this._smartEnrollService.store.document.remaining;
+
+            if (this.attemptsRemaining === 0) this._syncAppRegistration("document", "FAILED");
         } else {
             this.attemptsRemaining = this._smartEnrollService.store.biometric.remaining;
+
+            if (this.attemptsRemaining === 0) this._syncAppRegistration("liveness", "FAILED");
         }
-	}
+    }
 
     tryAgain(): void {
         this.onClearError.next();
