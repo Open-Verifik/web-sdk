@@ -473,7 +473,7 @@
         "enrolled_subtitle": "Ikaw ay ngayon ay nai-redirect na",
         "other_device_title": "Magpatuloy sa Ibang Device",
         "other_device_subtitle": "Upang magpatuloy sa ibang device, i-scan ang QR Code sa ibaba",
-        "description": "Upang matapos ang paggawa ng account para sa {{projectName}}, kailangan mong kumpletuhin ang mga hakbang sa beripikasyon ng biometric. Sundin ang mga tagubilin nang mabuti.",
+        "description": "Upang matapos ang paggawa ng account para sa {{projectName}}, kailangan mong kumpletuhin ang mga hakbang sa beripikasyon. Sundin nang maingat ang mga tagubilin.",
         "steps": {
             "1": "I-scan o I-upload ang iyong ID card",
             "2": "Beripikahin ang nakuha na impormasyon",

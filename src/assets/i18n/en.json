@@ -477,7 +477,7 @@
         "enrolled_subtitle": "You are now being redirected",
         "other_device_title": "Continue on Another Device",
         "other_device_subtitle": "To continue on another device, scan the QR Code below",
-        "description": "To finish creating an account for {{projectName}}, you will need to complete the biometric verification steps. Follow the instructions carefully.",
+        "description": "To finish creating an account for {{projectName}}, you will need to complete the verification steps. Follow the instructions carefully.",
         "steps": {
             "1": "Scan or Upload your ID card",
             "2": "Verify the extracted information",

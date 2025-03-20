@@ -473,7 +473,7 @@
         "enrolled_subtitle": "Agora você será redirecionado",
         "other_device_title": "Continue em Outro Dispositivo",
         "other_device_subtitle": "Para continuar em outro dispositivo, escaneie o código QR abaixo",
-        "description": "Para finalizar a criação de uma conta para {{projectName}}, você precisará completar as etapas de verificação biométrica. Siga as instruções com atenção.",
+        "description": "Para concluir a criação de uma conta para {{projectName}}, você precisará completar as etapas de verificação. Siga as instruções cuidadosamente.",
         "steps": {
             "1": "Escaneie ou envie seu cartão de identificação",
             "2": "Verifique as informações extraídas",

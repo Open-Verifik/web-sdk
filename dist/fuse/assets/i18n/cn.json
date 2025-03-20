@@ -473,7 +473,7 @@
         "enrolled_subtitle": "您正在被重定向",
         "other_device_title": "在另一设备上继续",
         "other_device_subtitle": "要在另一设备上继续，请扫描下面的二维码",
-        "description": "要完成为{{projectName}}创建账户，您需要完成生物识别验证步骤。请仔细遵循说明。",
+        "description": "要完成为{{projectName}}创建账户，您需要完成验证步骤。请仔细按照说明操作。",
         "steps": {
             "1": "扫描或上传您的身份证",
             "2": "验证提取的信息",

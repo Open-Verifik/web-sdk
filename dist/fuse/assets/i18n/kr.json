@@ -473,7 +473,7 @@
         "enrolled_subtitle": "이제 리디렉션됩니다",
         "other_device_title": "다른 장치에서 계속",
         "other_device_subtitle": "다른 장치에서 계속하려면 아래 QR 코드를 스캔하세요",
-        "description": "{{projectName}} 계정을 생성 완료하려면 생체 인증 검증 단계를 완료해야 합니다. 지시사항을 주의 깊게 따르세요",
+        "description": "{{projectName}} 계정을 생성하려면 검증 단계를 완료해야 합니다. 지침을 주의 깊게 따르세요.",
         "steps": {
             "1": "신분증을 스캔하거나 업로드하세요",
             "2": "추출된 정보를 검증하세요",

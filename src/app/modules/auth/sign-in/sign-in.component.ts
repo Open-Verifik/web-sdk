@@ -521,15 +521,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         }
     }
 
-    startTimer(field): number {
-        let interval;
-        let hideInterval;
+    startTimer(field: any): number {
+        let interval: ReturnType<typeof setInterval>;
 
         const dateToCompare = moment(
-            this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
-        ).add(1, "minute");
-
-        const timeToHideButtons = moment(
             this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
         ).add(2, "minute");
 
@@ -538,29 +533,18 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 if (!this.emailValidation) return 0;
 
                 this.emailValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
-                this.emailValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
-
-                hideInterval = setInterval(() => {
-                    if (this.emailValidation?.timeToHideInput > 0) {
-                        this.emailValidation.timeToHideInput--;
-                    } else {
-                        this.emailValidation = null;
-                    }
-
-                    this._changeDetectorRef.detectChanges();
-                }, 1000);
 
                 interval = setInterval(() => {
-                    if (this.emailValidation.diff > 0) {
+                    if (this.emailValidation?.diff > 0) {
                         this.emailValidation.diff--;
                     } else {
                         clearInterval(interval);
 
+                        this.emailValidation = null;
                         this.emailSent = false;
                     }
 
                     this.buttonSendOtp();
-
                     this._changeDetectorRef.detectChanges();
                 }, 1000);
 
@@ -569,19 +553,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 if (!this.phoneValidation) return 0;
 
                 this.phoneValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
-                this.phoneValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
-
-                hideInterval = setInterval(() => {
-                    if (this.phoneValidation.timeToHideInput > 0) {
-                        this.phoneValidation.timeToHideInput--;
-                    } else {
-                        this.phoneValidation = null;
-
-                        clearInterval(hideInterval);
-                    }
-
-                    this._changeDetectorRef.detectChanges();
-                }, 1000);
 
                 interval = setInterval(() => {
                     if (this.phoneValidation?.diff > 0) {
@@ -589,11 +560,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                     } else {
                         clearInterval(interval);
 
+                        this.phoneValidation = null;
                         this.smsSent = false;
                     }
 
                     this.buttonSendOtp();
-
                     this._changeDetectorRef.detectChanges();
                 }, 1000);
 

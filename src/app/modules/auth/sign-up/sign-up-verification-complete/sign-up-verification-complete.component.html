@@ -6,8 +6,8 @@
     <div *ngIf="welcomeStyle === 0" fxLayout="column" fxLayoutAlign="start center" ngClass.lt-md="flex-grow">
         <mat-chip
             [style.backgroundColor]="project.branding.bgColor"
-            class="verify__chip verify__chip--large verify__chip--no-border"
             *ngIf="appRegistration.email"
+            class="verify__chip verify__chip--large verify__chip--no-border"
             ngClass.lt-md="hidden"
         >
             <div fxLayout="row" fxLayoutAlign="center space-between">
@@ -15,7 +15,7 @@
                     >email</mat-icon
                 >
 
-                <span class="mr-2" [style.color]="project.branding.titleColor">
+                <span [style.color]="project.branding.titleColor" class="mr-2">
                     {{ appRegistration.email }}
                 </span>
             </div>
@@ -34,26 +34,23 @@
         <form [formGroup]="agreementForm" #agreementNgForm="ngForm" ngClass.lt-md="flex flex-col flex-grow justify-end">
             <div fxLayout="row" fxLayoutAlign="center">
                 <div class="welcome__step-column">
-                    <div class="flex welcome__step-row">
-                        <p class="welcome__step">1</p>
-                        <p>{{ "welcome.steps.1" | transloco }}</p>
-                    </div>
-
-                    <div class="flex welcome__step-row">
-                        <p class="welcome__step">2</p>
-                        <p>{{ "welcome.steps.2" | transloco }}</p>
-                    </div>
-
-                    <div class="flex welcome__step-row">
-                        <p class="welcome__step">3</p>
-                        <p>{{ "welcome.steps.3" | transloco }}</p>
-                    </div>
-
-                    <div class="flex welcome__step-row">
-                        <p class="welcome__step">4</p>
-                        <p>{{ "welcome.steps.4" | transloco }}</p>
+                    <div class="flex welcome__step-row" *ngFor="let step of stepInstructions; let i = index">
+                        <p class="welcome__step">{{ i + 1 }}</p>
+                        <p>{{ step }}</p>
                     </div>
                 </div>
+            </div>
+
+            <div class="mt-4 bg-slate-100 rounded-2xl p-4 text-center" *ngIf="isVerifikProject">
+                <div fxLayout="row" fxLayoutAlign="center center">
+                    <img class="welcome__image" src="assets/images/ui/coins.png" alt="coins" />
+                </div>
+
+                <div class="mt-6 font-bold text-xl">
+                    {{ "welcome.credits_subtitle" | transloco }}
+                </div>
+
+                <div>{{ "welcome.credits_description" | transloco }}</div>
             </div>
 
             <mat-checkbox class="mt-8" [formControlName]="'agreement'" [color]="'primary'">
@@ -66,16 +63,18 @@
                     class="hover:underline"
                     href="https://docs.verifik.co/docs/terms-conditions/4s01oqa1z6oof-privacy-policy"
                 >
-                    {{ "welcome.agreement_link" | transloco }}
+                    <strong>{{ "welcome.agreement_link" | transloco }}</strong>
                 </a>
             </mat-checkbox>
 
             <div class="mt-4" ngClass.lt-md="flex flex-col flex-grow justify-end">
                 <button
-                    (click)="skipDocument()"
+                    (click)="skipKYC()"
                     [style.border]="'1px solid' + project.branding.buttonColor"
                     [style.color]="project.branding.buttonColor"
-                    *ngIf="projectFlow.onboardingSettings.steps.document === 'optional'"
+                    *ngIf="
+                        projectFlow.onboardingSettings.steps.document !== 'mandatory' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory'
+                    "
                     class="fuse-mat-button-large w-full mt-6"
                     mat-flat-button
                     type="button"
@@ -84,7 +83,7 @@
                 </button>
 
                 <button
-                    (click)="goToKYCApp('document')"
+                    (click)="gotToKYCApp('')"
                     [style.background]="agreementForm.invalid ? '' : project.branding.buttonColor"
                     [style.color]="agreementForm.invalid ? '' : project.branding.buttonTxtColor"
                     [disabled]="agreementForm.invalid"
@@ -97,7 +96,7 @@
 
                 <button
                     (click)="showQrCode = true"
-                    *ngIf="device !== 'ANDROID' && device !== 'IOS'"
+                    *ngIf="device === 'DESKTOP'"
                     class="fuse-mat-button-large w-full mt-2"
                     mat-flat-button
                     type="button"
@@ -109,141 +108,8 @@
         </form>
     </div>
 
-    <div *ngIf="welcomeStyle === 1" fxLayout="column" fxLayoutAlign="start center" fxLayoutAlign.lt-md="start start" ngClass.lt-md="flex-grow">
-        <mat-chip
-            [style.backgroundColor]="project.branding.bgColor"
-            *ngIf="appRegistration.email"
-            class="verify__chip verify__chip--large verify__chip--no-border"
-            ngClass.lt-md="hidden"
-        >
-            <div fxLayout="row" fxLayoutAlign="center space-between">
-                <mat-icon class="mr-2 verify__icon verify__icon--color-white" [style.backgroundColor]="project.branding.titleColor" matLeadingIcon
-                    >email</mat-icon
-                >
-
-                <span [style.color]="project.branding.titleColor" class="mr-2">
-                    {{ appRegistration.email }}
-                </span>
-            </div>
-        </mat-chip>
-
-        <h5 class="mt-6 text-3xl text-center" [style.color]="project.branding.titleColor">
-            {{ "welcome.title" | transloco : { projectName: project.name } }}
-        </h5>
-
-        <div class="mt-4 text-center" ngClass.lt-md="w-full flex flex-col flex-grow items-center justify-center">
-            <mat-icon class="welcome__icon welcome__icon--large" [style.color]="project.branding.buttonColor">photo_camera_front</mat-icon>
-
-            <div class="font-bold text-xl" ngClass.lt-md="w-72">
-                {{ "welcome.validate_identity_subtitle" | transloco }}
-            </div>
-
-            <div>{{ "welcome.validate_identity_description" | transloco }}</div>
-        </div>
-
-        <div class="mt-6 w-full" ngClass.lt-md="flex flex-col justify-end">
-            <button
-                (click)="skipBiometrics()"
-                [style.border]="'1px solid' + project.branding.buttonColor"
-                [style.color]="project.branding.buttonColor"
-                *ngIf="projectFlow.onboardingSettings.steps.liveness === 'optional'"
-                class="fuse-mat-button-large w-full mt-6"
-                mat-flat-button
-                type="button"
-            >
-                {{ "welcome.skip" | transloco }}
-            </button>
-
-            <button
-                (click)="goToKYCApp('biometric')"
-                [style.background]="project.branding.buttonColor"
-                [style.color]="project.branding.buttonTxtColor"
-                class="fuse-mat-button-large w-full mt-2"
-                mat-flat-button
-                type="button"
-            >
-                {{ "continue" | transloco }}
-            </button>
-
-            <button (click)="showQrCode = true" class="fuse-mat-button-large w-full mt-2" mat-flat-button type="button">
-                <mat-icon matLeadingIcon>smartphone</mat-icon>
-                <span>{{ "welcome.continue_on_another" | transloco }}</span>
-            </button>
-        </div>
-    </div>
-
     <div
-        *ngIf="welcomeStyle === 2"
-        class="mt-2"
-        fxLayout="column"
-        fxLayoutAlign="start center"
-        fxLayoutAlign.lt-md="start start"
-        ngClass.lt-md="flex-grow"
-    >
-        <mat-chip
-            [style.backgroundColor]="project.branding.bgColor"
-            *ngIf="appRegistration.email"
-            class="verify__chip verify__chip--large verify__chip--no-border"
-            ngClass.lt-md="hidden"
-        >
-            <div fxLayout="row" fxLayoutAlign="center space-between">
-                <mat-icon class="mr-2 verify__icon verify__icon--color-white" [style.backgroundColor]="project.branding.titleColor" matLeadingIcon
-                    >email</mat-icon
-                >
-
-                <span [style.color]="project.branding.titleColor" class="mr-2">
-                    {{ appRegistration.email }}
-                </span>
-            </div>
-        </mat-chip>
-
-        <h5 class="mt-6 text-3xl text-center" [style.color]="project.branding.titleColor">
-            {{ "welcome.title" | transloco : { projectName: project.name } }}
-        </h5>
-
-        <div class="mt-4 text-center">
-            <div fxLayout="row" fxLayoutAlign="center center">
-                <img class="welcome__image" src="assets/images/ui/coins.png" alt="coins" />
-            </div>
-            <div class="mt-6 font-bold text-xl">
-                {{ "welcome.credits_subtitle" | transloco }}
-            </div>
-            <div>{{ "welcome.credits_description" | transloco }}</div>
-        </div>
-
-        <div class="mt-6 w-full">
-            <button
-                (click)="skipKYC()"
-                [style.border]="'1px solid' + project.branding.buttonColor"
-                [style.color]="project.branding.buttonColor"
-                class="fuse-mat-button-large w-full mt-6"
-                *ngIf="projectFlow.onboardingSettings.steps.document === 'optional' && projectFlow.onboardingSettings.steps.liveness === 'optional'"
-                mat-flat-button
-                type="button"
-            >
-                {{ "welcome.skip" | transloco }}
-            </button>
-
-            <button
-                (click)="goToKYCApp('biometric')"
-                [style.background]="project.branding.buttonColor"
-                [style.color]="project.branding.buttonTxtColor"
-                class="fuse-mat-button-large w-full mt-2"
-                mat-flat-button
-                type="button"
-            >
-                {{ "welcome.perform_biometry" | transloco }}
-            </button>
-
-            <button (click)="showQrCode = true" class="fuse-mat-button-large w-full mt-2" mat-flat-button type="button">
-                <mat-icon matLeadingIcon>smartphone</mat-icon>
-                <span>{{ "welcome.continue_on_another" | transloco }}</span>
-            </button>
-        </div>
-    </div>
-
-    <div
-        *ngIf="welcomeStyle === 3"
+        *ngIf="welcomeStyle === 1"
         fxLayout="column"
         fxLayoutAlign="start center"
         fxLayoutAlign.lt-md="center center"
@@ -260,7 +126,7 @@
     </div>
 
     <div
-        *ngIf="welcomeStyle === 4"
+        *ngIf="welcomeStyle === 2"
         fxLayout="column"
         fxLayoutAlign="start center"
         fxLayoutAlign.lt-md="center center"
