@@ -217,7 +217,7 @@
                 [style.border]="'1px solid' + project.branding.buttonColor"
                 [style.color]="project.branding.buttonColor"
                 class="fuse-mat-button-large w-full mt-6"
-                *ngIf="projectFlow.onboardingSettings.steps.document === 'optional' && projectFlow.onboardingSettings.steps.liveness === 'optional'"
+                *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory' || projectFlow.onboardingSettings.steps.liveness !== 'mandatory'"
                 mat-flat-button
                 type="button"
             >

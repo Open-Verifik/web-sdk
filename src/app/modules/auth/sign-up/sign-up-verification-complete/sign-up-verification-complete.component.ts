@@ -23,216 +23,207 @@ import { Subject, takeUntil } from "rxjs";
 import { DemoService } from "app/modules/demo/demo.service";
 
 @Component({
-	selector: "auth-sign-up-verification-complete",
-	templateUrl: "./sign-up-verification-complete.component.html",
-	styleUrls: ["../../sign-in/sign-in.scss"],
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-		CommonModule,
-		FlexLayoutModule,
-		FormsModule,
-		MatButtonModule,
-		MatCheckboxModule,
-		MatChipsModule,
-		MatIconModule,
-		MatProgressSpinnerModule,
-		NgIf,
-		ReactiveFormsModule,
-		TranslocoModule,
-	],
+    selector: "auth-sign-up-verification-complete",
+    templateUrl: "./sign-up-verification-complete.component.html",
+    styleUrls: ["../../sign-in/sign-in.scss"],
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        FormsModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatChipsModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        NgIf,
+        ReactiveFormsModule,
+        TranslocoModule,
+    ],
 })
 export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestroy {
-	@ViewChild("agreementNgForm") agreementNgForm: NgForm;
-	@ViewChild("qrCodeCanvas", { static: true }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("agreementNgForm") agreementNgForm: NgForm;
+    @ViewChild("qrCodeCanvas", { static: true }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
-	@Output("onServiceChange") onServiceChange: EventEmitter<EnrollStep> = new EventEmitter<EnrollStep>();
+    @Output("onServiceChange") onServiceChange: EventEmitter<EnrollStep> = new EventEmitter<EnrollStep>();
 
-	private unsubscriber$: Subject<void> = new Subject<void>();
+    private unsubscriber$: Subject<void> = new Subject<void>();
 
-	agreementForm: UntypedFormGroup;
-	appRegistration: AppRegistration;
-	isVerifikProject: boolean;
-	project: Project;
-	projectFlow: ProjectFlow;
-	showQrCode: boolean = false;
-	device: any;
-	welcomeStyle: number = 0;
+    agreementForm: UntypedFormGroup;
+    appRegistration: AppRegistration;
+    isVerifikProject: boolean;
+    project: Project;
+    projectFlow: ProjectFlow;
+    showQrCode: boolean = false;
+    device: any;
+    welcomeStyle: number = 0;
 
-	constructor(
-		private _demoService: DemoService,
-		private _activatedRoute: ActivatedRoute,
-		private _formBuilder: UntypedFormBuilder,
-		private _KYCService: KYCService,
-		private _smartEnrollService: SmartEnrollService,
-	) {
-		this.appRegistration = this._KYCService.appRegistration;
-		this.device = this._demoService.detectOS();
-		this.project = this._KYCService.currentProject;
-		this.projectFlow = this._KYCService.currentProjectFlow;
+    constructor(
+        private _demoService: DemoService,
+        private _activatedRoute: ActivatedRoute,
+        private _formBuilder: UntypedFormBuilder,
+        private _KYCService: KYCService,
+        private _smartEnrollService: SmartEnrollService
+    ) {
+        this.appRegistration = this._KYCService.appRegistration;
+        this.device = this._demoService.detectOS();
+        this.project = this._KYCService.currentProject;
+        this.projectFlow = this._KYCService.currentProjectFlow;
 
-		if (this.appRegistration.currentStep === "signUpForm") {
-			this._syncAppRegistration("instructions");
-		}
+        if (this.appRegistration.currentStep === "signUpForm") {
+            this._syncAppRegistration("instructions");
+        }
 
-		this._flowTop();
-	}
+        this._flowTop();
+    }
 
-	ngOnInit(): void {
-		this.device = this._demoService.detectOS();
+    ngOnInit(): void {
+        this.device = this._demoService.detectOS();
 
-		const canvas = this.qrCodeCanvas.nativeElement;
+        const canvas = this.qrCodeCanvas.nativeElement;
 
-		this._initForm();
-		this._generateQRCode(canvas, window.location.href);
+        this._initForm();
+        this._generateQRCode(canvas, window.location.href);
 
-		this._activatedRoute.params
-			.pipe(takeUntil(this.unsubscriber$))
-			.subscribe((params) => {
-				this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
-			});
+        this._activatedRoute.params.pipe(takeUntil(this.unsubscriber$)).subscribe((params) => {
+            this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
+        });
 
-		if (["signUpForm", "instructions"].includes(this.appRegistration.currentStep)) {
-			if (this._smartEnrollService.wasSkippedDocument() && this._smartEnrollService.wasSkippedBiometric()) {
-				this.goToKYCApp('result');
+        if (["signUpForm", "instructions"].includes(this.appRegistration.currentStep)) {
+            if (this._smartEnrollService.wasSkippedDocument() && this._smartEnrollService.wasSkippedBiometric()) {
+                this.goToKYCApp("result");
 
-				return;
-			} else if (this._smartEnrollService.wasSkippedDocument()) {
-				this.goToKYCApp('biometric');
+                return;
+            } else if (this._smartEnrollService.wasSkippedDocument()) {
+                this.goToKYCApp("biometric");
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		if (['document', 'liveness', 'end'].indexOf(this.appRegistration.currentStep) > -1) {
-			this.goToKYCApp('');
-		}
-	}
+        if (["document", "liveness", "end"].indexOf(this.appRegistration.currentStep) > -1) {
+            this.goToKYCApp("");
+        }
+    }
 
-	ngOnDestroy(): void {
-		this.unsubscriber$.next();
-		this.unsubscriber$.complete();
-	}
+    ngOnDestroy(): void {
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
+    }
 
-	private _flowTop() {
-		if (!this.projectFlow.onboardingSettings.steps) return;
+    private _flowTop() {
+        if (!this.projectFlow.onboardingSettings.steps) return;
 
-		if (this.appRegistration.status === "COMPLETED" || this.appRegistration.status === "COMPLETED_WITHOUT_KYC") {
-			this.welcomeStyle = 3;
-			return;
-		}
+        if (this.appRegistration.status === "COMPLETED" || this.appRegistration.status === "COMPLETED_WITHOUT_KYC") {
+            this.welcomeStyle = 3;
+            return;
+        }
 
-		const steps = this.projectFlow.onboardingSettings.steps;
+        const steps = this.projectFlow.onboardingSettings.steps;
 
-		if (steps.document === "skip" && steps.liveness === "skip") {
-			if (this.isVerifikProject) {
-				this.welcomeStyle = 2;
-			} else {
-				this.skipKYC();
-			}
-		} else if (steps.document === "skip") {
-			this.welcomeStyle = 1;
-		} else {
-			this.welcomeStyle = 0;
-		}
-	}
+        if (steps.document === "skip" && steps.liveness === "skip") {
+            if (this.isVerifikProject) {
+                this.welcomeStyle = 2;
+            } else {
+                this.skipKYC();
+            }
+        } else if (steps.document === "skip") {
+            this.welcomeStyle = 1;
+        } else {
+            this.welcomeStyle = 0;
+        }
+    }
 
-	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
-		try {
-			await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
-		} catch (err) {
-			console.error(err);
-		}
-	}
+    private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+        try {
+            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
-	private _initForm(): void {
-		this.agreementForm = this._formBuilder.group({ agreement: ["", Validators.requiredTrue] });
-	}
+    private _initForm(): void {
+        this.agreementForm = this._formBuilder.group({ agreement: ["", Validators.requiredTrue] });
+    }
 
-	private _syncAppRegistration(step: string, status?: string, action?: string) {
-		let _response: any = null;
+    private _syncAppRegistration(step: string, status?: string, action?: string) {
+        let _response: any = null;
 
-		this._KYCService.syncAppRegistration(step, status).subscribe({
-			next: (response) => {
-				_response = response.data;
-			},
-			error: () => {},
-			complete: () => {
-				if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
-					let redirectUrl = this.projectFlow.redirectUrl;
+        this._KYCService.syncAppRegistration(step, status).subscribe({
+            next: (response) => {
+                _response = response.data;
+            },
+            error: () => {},
+            complete: () => {
+                if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
+                    let redirectUrl = this.projectFlow.redirectUrl;
 
-					if (environment.verifikProject === this.project._id) {
-						redirectUrl = `${environment.appUrl}/sign-in`;
-					} else if (environment.sandboxProject === this.project._id) {
-						redirectUrl = `${environment.sandboxUrl}/sign-in`;
-					}
+                    if (environment.verifikProject === this.project._id) {
+                        redirectUrl = `${environment.appUrl}/sign-in`;
+                    } else if (environment.sandboxProject === this.project._id) {
+                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
+                    }
 
-					window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+                    window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
 
-					return;
-				}
+                    return;
+                }
 
-				this.appRegistration.currentStep = step;
-			},
-		});
-	}
+                this.appRegistration.currentStep = step;
+            },
+        });
+    }
 
-	goToKYCApp(enrollStep: EnrollStep): void {
-		if (
-			this.appRegistration.status === "COMPLETED" ||
-			this.appRegistration.status === "FAILED" ||
-			(
-				(
-					this._smartEnrollService.wasSkippedBiometric() ||
-					this.appRegistration.biometricValidation
-				) && (
-					this._smartEnrollService.wasSkippedDocument() ||
-					this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration)
-				)
-			)
-		) {
-			enrollStep = "result";
-		} else if (
-			(
-				this.appRegistration.documentValidation &&
-				this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration) &&
-				!this.appRegistration.biometricValidation
-			) || this._smartEnrollService.wasSkippedDocument()
-		) {
-			enrollStep = "biometric";
-		} else if (this.appRegistration.documentValidation) {
-			enrollStep = "document-review";
-		} else if (!enrollStep) {
-			enrollStep = 'document';
-		}
+    goToKYCApp(enrollStep: EnrollStep): void {
+        if (
+            this.appRegistration.status === "COMPLETED" ||
+            this.appRegistration.status === "FAILED" ||
+            ((this._smartEnrollService.wasSkippedBiometric() || this.appRegistration.biometricValidation) &&
+                (this._smartEnrollService.wasSkippedDocument() ||
+                    this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration)))
+        ) {
+            enrollStep = "result";
+        } else if (
+            (this.appRegistration.documentValidation &&
+                this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration) &&
+                !this.appRegistration.biometricValidation) ||
+            this._smartEnrollService.wasSkippedDocument()
+        ) {
+            enrollStep = "biometric";
+        } else if (this.appRegistration.documentValidation) {
+            enrollStep = "document-review";
+        } else if (!enrollStep) {
+            enrollStep = "document";
+        }
 
-		this.onServiceChange.next(enrollStep);
-	}
+        this.onServiceChange.next(enrollStep);
+    }
 
-	skipDocument(): void {
-		if (this.projectFlow.onboardingSettings.steps.liveness === "skip" || this._smartEnrollService.wasSkippedBiometric()) {
-			this.skipKYC();
+    skipDocument(): void {
+        if (this.projectFlow.onboardingSettings.steps.liveness === "skip" || this._smartEnrollService.wasSkippedBiometric()) {
+            this.skipKYC();
 
-			return;
-		}
+            return;
+        }
 
-		this.welcomeStyle = 1;
-	}
+        this.welcomeStyle = 1;
+    }
 
-	skipBiometrics(): void {
-		if (this.isVerifikProject) {
-			this.welcomeStyle = 2;
+    skipBiometrics(): void {
+        if (this.isVerifikProject) {
+            this.welcomeStyle = 2;
 
-			return;
-		}
+            return;
+        }
 
-		this.skipKYC();
-	}
+        this.skipKYC();
+    }
 
-	skipKYC(): void {
-		this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+    skipKYC(): void {
+        this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
 
-		this.welcomeStyle = 4;
-	}
+        this.welcomeStyle = 4;
+    }
 }
