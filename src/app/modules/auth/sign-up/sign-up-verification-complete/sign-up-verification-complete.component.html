@@ -1,9 +1,9 @@
 <div [class.hidden]="showQrCode" ngClass.lt-md="min-h-full flex flex-col flex-grow">
-    <div class="w-full mt-2 mb-4 ml-2" fxLayout="row" fxLayoutAlign="space-between center" ngClass.gt-sm="mb-8">
-        <img [src]="project.branding.logo" ngClass.gt-sm="hidden" ngClass.lt-md="w-12" />
-    </div>
-
     <div *ngIf="welcomeStyle === 0" fxLayout="column" fxLayoutAlign="start center" ngClass.lt-md="flex-grow">
+        <div class="w-full mt-2 mb-4 ml-2" fxLayout="row" fxLayoutAlign="start center">
+            <img [src]="project.branding.logo" class="w-12" />
+        </div>
+
         <mat-chip
             [style.backgroundColor]="project.branding.bgColor"
             *ngIf="appRegistration.email"

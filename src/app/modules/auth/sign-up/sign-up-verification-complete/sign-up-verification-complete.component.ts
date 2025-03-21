@@ -120,7 +120,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
         if (!this.projectFlow.onboardingSettings.steps) return;
 
         if (this.appRegistration.status === "COMPLETED" || this.appRegistration.status === "COMPLETED_WITHOUT_KYC") {
-            this.welcomeStyle = 1;
+            this.welcomeStyle = 2;
 
             return;
         }
@@ -220,7 +220,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
     }
 
     skipKYC(): void {
-        this.welcomeStyle = 2;
+        this.welcomeStyle = 1;
 
         this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
     }
