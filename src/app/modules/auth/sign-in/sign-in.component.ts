@@ -13,7 +13,7 @@ import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
-import { Subject, takeUntil } from "rxjs";
+import { Subject } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -177,6 +177,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.unsubscriber$.next();
+
         this.unsubscriber$.complete();
     }
 
