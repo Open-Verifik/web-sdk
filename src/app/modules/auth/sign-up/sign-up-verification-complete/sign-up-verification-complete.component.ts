@@ -13,7 +13,7 @@ import { ActivatedRoute } from "@angular/router";
 
 import { fuseAnimations } from "@fuse/animations";
 
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
 import { environment } from "environments/environment";
 import { KYCService } from "../../kyc.service";
@@ -51,30 +51,39 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 
     private unsubscriber$: Subject<void> = new Subject<void>();
 
+    stepInstructions: string[] = [];
     agreementForm: UntypedFormGroup;
     appRegistration: AppRegistration;
+    device: any;
     isVerifikProject: boolean;
     project: Project;
     projectFlow: ProjectFlow;
     showQrCode: boolean = false;
-    device: any;
     welcomeStyle: number = 0;
 
     constructor(
-        private _demoService: DemoService,
         private _activatedRoute: ActivatedRoute,
+        private _demoService: DemoService,
         private _formBuilder: UntypedFormBuilder,
         private _KYCService: KYCService,
-        private _smartEnrollService: SmartEnrollService
+        private _smartEnrollService: SmartEnrollService,
+        private _translocoService: TranslocoService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.device = this._demoService.detectOS();
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
 
+        this._setIsVerifikProject(this._activatedRoute.snapshot.params);
+        this._setStepInstructions();
+
         if (this.appRegistration.currentStep === "signUpForm") {
             this._syncAppRegistration("instructions");
         }
+
+        this._activatedRoute.params.pipe(takeUntil(this.unsubscriber$)).subscribe((params) => {
+            this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
+        });
 
         this._flowTop();
     }
@@ -86,10 +95,6 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 
         this._initForm();
         this._generateQRCode(canvas, window.location.href);
-
-        this._activatedRoute.params.pipe(takeUntil(this.unsubscriber$)).subscribe((params) => {
-            this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
-        });
 
         if (["signUpForm", "instructions"].includes(this.appRegistration.currentStep)) {
             if (this._smartEnrollService.wasSkippedDocument() && this._smartEnrollService.wasSkippedBiometric()) {
@@ -103,9 +108,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
             }
         }
 
-        if (["document", "liveness", "end"].indexOf(this.appRegistration.currentStep) > -1) {
-            this.goToKYCApp("");
-        }
+        if (["document", "liveness", "end"].indexOf(this.appRegistration.currentStep) > -1) this.goToKYCApp("");
     }
 
     ngOnDestroy(): void {
@@ -117,20 +120,15 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
         if (!this.projectFlow.onboardingSettings.steps) return;
 
         if (this.appRegistration.status === "COMPLETED" || this.appRegistration.status === "COMPLETED_WITHOUT_KYC") {
-            this.welcomeStyle = 3;
+            this.welcomeStyle = 2;
+
             return;
         }
 
         const steps = this.projectFlow.onboardingSettings.steps;
 
         if (steps.document === "skip" && steps.liveness === "skip") {
-            if (this.isVerifikProject) {
-                this.welcomeStyle = 2;
-            } else {
-                this.skipKYC();
-            }
-        } else if (steps.document === "skip") {
-            this.welcomeStyle = 1;
+            this.skipKYC();
         } else {
             this.welcomeStyle = 0;
         }
@@ -146,6 +144,20 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
 
     private _initForm(): void {
         this.agreementForm = this._formBuilder.group({ agreement: ["", Validators.requiredTrue] });
+    }
+
+    private _setIsVerifikProject(params: any) {
+        this.isVerifikProject = params.id === environment.verifikProject || params.id === environment.sandboxProject;
+    }
+
+    private _setStepInstructions() {
+        if (this.projectFlow.onboardingSettings.steps.document !== "skip") {
+            this.stepInstructions.push(this._translocoService.translate("welcome.steps.1"), this._translocoService.translate("welcome.steps.2"));
+        }
+
+        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip") {
+            this.stepInstructions.push(this._translocoService.translate("welcome.steps.3"), this._translocoService.translate("welcome.steps.4"));
+        }
     }
 
     private _syncAppRegistration(step: string, status?: string, action?: string) {
@@ -191,39 +203,25 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
                 !this.appRegistration.biometricValidation) ||
             this._smartEnrollService.wasSkippedDocument()
         ) {
+            this._syncAppRegistration("liveness", "ONGOING");
+
             enrollStep = "biometric";
         } else if (this.appRegistration.documentValidation) {
+            this._syncAppRegistration("document", "ONGOING");
+
             enrollStep = "document-review";
         } else if (!enrollStep) {
+            this._syncAppRegistration("document", "ONGOING");
+
             enrollStep = "document";
         }
 
         this.onServiceChange.next(enrollStep);
     }
 
-    skipDocument(): void {
-        if (this.projectFlow.onboardingSettings.steps.liveness === "skip" || this._smartEnrollService.wasSkippedBiometric()) {
-            this.skipKYC();
-
-            return;
-        }
-
-        this.welcomeStyle = 1;
-    }
-
-    skipBiometrics(): void {
-        if (this.isVerifikProject) {
-            this.welcomeStyle = 2;
-
-            return;
-        }
-
-        this.skipKYC();
-    }
-
     skipKYC(): void {
-        this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
+        this.welcomeStyle = 1;
 
-        this.welcomeStyle = 4;
+        this._syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC", "redirect");
     }
 }

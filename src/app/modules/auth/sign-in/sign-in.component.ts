@@ -56,6 +56,8 @@ import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-
     ],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
+    private unsubscriber$: Subject<void> = new Subject<void>();
+
     alert: { type: FuseAlertType; message: string } = {
         type: "success",
         message: "",
@@ -67,7 +69,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     kycProjectFlow: ProjectFlow;
     signInForm: FormGroup;
     countries: Array<any>;
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
     emailSent: boolean;
     smsSent: boolean;
     emailValidation: any;
@@ -132,22 +133,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this.deviceDetails = this._demoService.getDeviceDetails();
 
         this.sendingOTP = false;
-
         this.smsSent = false;
-
         this.showFaceLivenessRecommendation = false;
-    }
-
-    setLanguage() {
-        if (!isPlatformBrowser(this.platformId)) {
-            this.language = "en";
-        }
-        // Get the browser's language setting
-        const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
-        // Check if the browser's language is one of the specified options, otherwise default to 'en'
-        this.language = this.flagCodes[browserLang] ? browserLang : "en";
-
-        localStorage.setItem("currentLanguage", this.language);
     }
 
     /**
@@ -167,7 +154,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
                 this.location.countryCode = this._countries.findCountryCode(this.location.country);
-
                 this.location.os = this.deviceDetails?.platform;
                 this.location.type = "browser";
 
@@ -182,7 +168,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         if (!value || !this.typeLogin) return;
 
         this.phoneValidation = null;
-
         this.smsSent = false;
 
         this.stopTimer();
@@ -191,7 +176,20 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this._unsubscribeAll.next(null);
+        this.unsubscriber$.next();
+
+        this.unsubscriber$.complete();
+    }
+
+    setLanguage() {
+        if (!isPlatformBrowser(this.platformId)) this.language = "en";
+
+        // Get the browser's language setting
+        const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
+        // Check if the browser's language is one of the specified options, otherwise default to 'en'
+        this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+        localStorage.setItem("currentLanguage", this.language);
     }
 
     requestProject(projectId?: string): void {
@@ -200,7 +198,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this._passwordlessService.requestProject(projectId, "login").subscribe({
             next: (v) => {
                 this.project = new ProjectModel({ ...v.data, type: "login" });
-
                 this.projectFlow = this.project.currentProjectFlow;
 
                 for (let index = 0; index < v.data.projectFlows.length; index++) {
@@ -525,74 +522,38 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         }
     }
 
-    startTimer(field): number {
-        let interval;
-        let hideInterval;
+    startTimer(field: any): number {
+        let interval: ReturnType<typeof setInterval>;
 
         const dateToCompare = moment(
-            this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
-        ).add(1, "minute");
-
-        const timeToHideButtons = moment(
             this.emailValidation ? this.emailValidation.updatedAt : this.phoneValidation ? this.phoneValidation.updatedAt : new Date()
         ).add(2, "minute");
 
         switch (field) {
             case "email":
-                if (!this.emailValidation) {
-                    return 0;
-                }
+                if (!this.emailValidation) return 0;
 
                 this.emailValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
 
-                this.emailValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
-
-                hideInterval = setInterval(() => {
-                    if (this.emailValidation?.timeToHideInput > 0) {
-                        this.emailValidation.timeToHideInput--;
-                    } else {
-                        this.emailValidation = null;
-                    }
-
-                    this._changeDetectorRef.detectChanges();
-                }, 1000);
-
                 interval = setInterval(() => {
-                    if (this.emailValidation.diff > 0) {
+                    if (this.emailValidation?.diff > 0) {
                         this.emailValidation.diff--;
                     } else {
                         clearInterval(interval);
 
+                        this.emailValidation = null;
                         this.emailSent = false;
                     }
 
                     this.buttonSendOtp();
-
                     this._changeDetectorRef.detectChanges();
                 }, 1000);
 
                 break;
-
             case "phone":
-                if (!this.phoneValidation) {
-                    return 0;
-                }
+                if (!this.phoneValidation) return 0;
 
                 this.phoneValidation.diff = dateToCompare.diff(moment.utc(), "seconds");
-
-                this.phoneValidation.timeToHideInput = timeToHideButtons.diff(moment.utc(), "seconds");
-
-                hideInterval = setInterval(() => {
-                    if (this.phoneValidation.timeToHideInput > 0) {
-                        this.phoneValidation.timeToHideInput--;
-                    } else {
-                        this.phoneValidation = null;
-
-                        clearInterval(hideInterval);
-                    }
-
-                    this._changeDetectorRef.detectChanges();
-                }, 1000);
 
                 interval = setInterval(() => {
                     if (this.phoneValidation?.diff > 0) {
@@ -600,11 +561,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                     } else {
                         clearInterval(interval);
 
+                        this.phoneValidation = null;
                         this.smsSent = false;
                     }
 
                     this.buttonSendOtp();
-
                     this._changeDetectorRef.detectChanges();
                 }, 1000);
 

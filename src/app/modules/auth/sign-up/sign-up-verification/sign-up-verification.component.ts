@@ -81,6 +81,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     countries: Array<any>;
     currentValidation: any;
     deviceDetails: any;
+    emailOtp: string = "";
     emailForm: UntypedFormGroup;
     emailGateway: string;
     endstep: boolean;
@@ -110,11 +111,13 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         private _smartEnrollService: SmartEnrollService
     ) {
         this.countries = this._countries.countryCodes;
+        this.emailOtp = this._activatedRoute.snapshot.queryParams?.otp;
     }
 
     ngOnInit(): void {
         this._activatedRoute.queryParams.pipe(takeUntil(this.unsubscriber$)).subscribe((params) => {
             this.token = params?.token;
+            this.emailOtp = params?.otp || "";
         });
     }
 
@@ -249,6 +252,13 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
             email: this.appRegistration.email,
         };
 
+        if (this.emailOtp) {
+            this.checkSixDigits();
+            this.emailOtp = "";
+
+            return;
+        }
+
         this.update = false;
         this.sendingOTP = true;
 
@@ -267,11 +277,17 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
                 this.showError = true;
                 this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
-
                 this.loading = false;
                 this.sendingOTP = false;
 
                 this.otpForm?.enable();
+
+                setTimeout(() => {
+                    this.showError = false;
+                    this.errorContent = "";
+
+                    this._startCountdown();
+                }, 5000);
             },
             complete: () => {
                 this.loading = false;
@@ -285,7 +301,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     private _initForms(): void {
         try {
             const emailFields = { email: [this.appRegistration?.email || "", [Validators.email, Validators.required]] };
-            const otpFields = { otp: ["", [Validators.required]] };
+            const otpFields = { otp: [this.emailOtp, [Validators.required]] };
             const phoneFields = {};
 
             phoneFields["countryCode"] = [this.location?.countryCode || "+1", [Validators.required]];
@@ -303,7 +319,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
      * init phone validation
      */
     private _initPhoneValidation(phoneGateway?: string): boolean {
-        if (this.sendingOTP) return;
+        if (this.sendingOTP || this._validatingEmail) return;
 
         if (!this.projectFlow.onboardingSettings.signUpForm.phone || this.projectFlow.onboardingSettings.signUpForm.phoneGateway === "none") return;
 
@@ -353,6 +369,13 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
                     this.sendingOTP = false;
 
                     this.otpForm?.enable();
+
+                    setTimeout(() => {
+                        this.showError = false;
+                        this.errorContent = "";
+
+                        this._startCountdown();
+                    }, 5000);
                 },
                 complete: () => {
                     this.loading = false;
@@ -378,6 +401,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
         this._initEmailValidation();
         this._initPhoneValidation();
+
+        if (this._validatingEmail || this._validatingPhone) return;
 
         this._completeAppRegistration();
     }

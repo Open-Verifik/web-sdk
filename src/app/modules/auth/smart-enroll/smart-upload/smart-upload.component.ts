@@ -26,13 +26,13 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 const MAX_FILE_SIZE = 10485760;
 
 @Component({
-	selector: "smart-upload",
-	templateUrl: "./smart-upload.component.html",
-	styleUrls: ["../smart-enroll.component.scss"],
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
+    selector: "smart-upload",
+    templateUrl: "./smart-upload.component.html",
+    styleUrls: ["../smart-enroll.component.scss"],
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
         CommonModule,
         DragAndDropModule,
         FlexLayoutModule,
@@ -47,14 +47,14 @@ const MAX_FILE_SIZE = 10485760;
     ],
 })
 export class SmartUploadComponent implements OnInit, OnDestroy {
-	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("fileInput") fileInput: ElementRef<HTMLInputElement>;
 
-    @Output('onImageUpload') onImageUpload: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
+    @Output("onImageUpload") onImageUpload: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
-	@Input() successfulUpload: Observable<{ livenessScore?: number }>;
+    @Input() successfulUpload: Observable<{ livenessScore?: number }>;
 
-	private unsubscriber$: Subject<void> = new Subject<void>();
+    private unsubscriber$: Subject<void> = new Subject<void>();
 
     appRegistration: AppRegistration;
     base64Image: any;
@@ -68,13 +68,9 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     project: Project;
     projectFlow: ProjectFlow;
     requiresBack: boolean = false;
-    side: 'back' | 'front' = 'front';
+    side: "back" | "front" = "front";
 
-    constructor(
-        private _demoService: DemoService,
-        private _KYCService: KYCService,
-        private _smartEnrollService: SmartEnrollService,
-    ) {
+    constructor(private _demoService: DemoService, private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
         this.appRegistration = this._KYCService.appRegistration;
         this.demoData = this._demoService.getDemoData();
         this.project = this._KYCService.currentProject;
@@ -83,29 +79,27 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-		this.successfulUpload
-            .pipe(takeUntil(this.unsubscriber$))
-            .subscribe(() => {
-                this.fileProgress = 100;
-                this.errorResult = false;
-                this.errorContent = { message: '' };
-                this.isExtracting = false;
-                this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
-            });
+        this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
+            this.fileProgress = 100;
+            this.errorResult = false;
+            this.errorContent = { message: "" };
+            this.isExtracting = false;
+            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+        });
     }
 
-	ngOnDestroy(): void {
-		this.unsubscriber$.next();
-		this.unsubscriber$.complete();
-	}
+    ngOnDestroy(): void {
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
+    }
 
-	private async _detectFace(image: HTMLImageElement) {
+    private async _detectFace(image: HTMLImageElement) {
         const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
 
         if (!faces.length) return;
 
         return faces.map((face) => face.detection.box);
-	}
+    }
 
     private async _fileOnLoad(event: ProgressEvent<FileReader>, img: HTMLImageElement) {
         try {
@@ -116,12 +110,12 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
             let face: string;
 
-            if (this.side === 'front') {
+            if (this.side === "front") {
                 await this._setFaceToCanvas(img);
                 face = this.faceIdCard.replace(/^data:image\/.*;base64,/, "");
             }
 
-            const isFront = this.side === 'front';
+            const isFront = this.side === "front";
             this.isExtracting = true;
 
             this.onImageUpload.next({
@@ -129,12 +123,12 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
                 face,
                 force: !isFront || !!this.appRegistration.documentValidation,
                 front: isFront,
-                inputMethod: 'FILE_UPLOAD',
+                inputMethod: "FILE_UPLOAD",
                 rawImage: this.base64Image,
-                source: 'document',
+                source: "document",
             });
         } catch (error) {
-            const message = (new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/)).test(error?.message) ? error?.message : "failed_to_handle_file";
+            const message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(error?.message) ? error?.message : "failed_to_handle_file";
 
             this.errorResult = true;
             this.errorContent = { message };
@@ -157,73 +151,75 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             return;
         }
 
-		const fileReader = new FileReader();
+        const fileReader = new FileReader();
         this.fileProgress = 25;
 
-		fileReader.onload = (event: any) => {
-			const img = new Image();
-			img.src = event.target.result;
+        fileReader.onload = (event: any) => {
+            const img = new Image();
+            img.src = event.target.result;
 
-			img.onload = async () => await this._fileOnLoad(event, img);
-		};
+            img.onload = async () => await this._fileOnLoad(event, img);
+        };
 
-		fileReader.readAsDataURL(this.file);
+        fileReader.readAsDataURL(this.file);
     }
 
     private async _setFaceToCanvas(img: HTMLImageElement) {
         const faces = await this._detectFace(img);
 
-        if (!faces) throw Error('face_not_found');
+        if (!faces) throw Error("face_not_found");
 
         const documentFace = this._demoService.getBiggestFace(faces);
 
         this.faceIdCard = this._demoService.cutFaceIdCard(img, documentFace, this.faceCardCanvas.nativeElement);
     }
 
-	canSkipStep(): boolean {
+    canSkipStep(): boolean {
         if (this.isExtracting) return false;
 
-		const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
+        const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
 
         return canSkipDocument;
-	}
-  
+    }
+
     fileBrowseHandler(files: Array<File>) {
         this._prepareFilesList(files);
     }
 
     formatBytes(bytes: number, decimals = 2) {
-      if (bytes === 0) { return "0 Bytes" }
+        if (bytes === 0) {
+            return "0 Bytes";
+        }
 
-      const k = 1024;
-      const dm = decimals <= 0 ? 0 : decimals;
-      const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
+        const k = 1024;
+        const dm = decimals <= 0 ? 0 : decimals;
+        const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
     }
 
     goNext(): void {
-        if (this.requiresBack && this.side !== 'back') {
-            this.side = 'back';
+        if (this.requiresBack && this.side !== "back") {
+            this.side = "back";
             this.resetFileUpload();
 
-            return
+            return;
         } else if (this.appRegistration.documentValidation || !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep(); // document-review
 
-            return
+            return;
         }
 
         this.skipStep();
     }
 
     goPrevious(): void {
-        if (this.requiresBack && this.side !== 'front') {
-            this.side = 'front';
+        if (this.requiresBack && this.side !== "front") {
+            this.side = "front";
             this.resetFileUpload();
         } else {
-            this._smartEnrollService.setDocumentMethod('');
+            this._smartEnrollService.setDocumentMethod("");
             this._smartEnrollService.goToPreviousStep();
         }
     }
@@ -237,8 +233,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     resetFileUpload(): void {
-        this.base64Image = '';
-        this.errorContent = { message: '' };
+        this.base64Image = "";
+        this.errorContent = { message: "" };
         this.errorResult = false;
         this.file = null;
         this.fileProgress = 0;
@@ -246,36 +242,39 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     showPassportColor(): boolean {
-        return !this.appRegistration.documentValidation ||
-            (this.fileProgress < 100 && this.side === 'front') || (
-                (this.fileProgress === 100 || this.side === 'back') &&
-                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === 'passport'
-            );
+        return (
+            !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === "front") ||
+            ((this.fileProgress === 100 || this.side === "back") &&
+                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport")
+        );
     }
 
     showLicenseColor(): boolean {
-        return !this.appRegistration.documentValidation ||
-            (this.fileProgress < 100 && this.side === 'front') || (
-                (this.fileProgress === 100 || this.side === 'back') &&
-                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === 'driverlicense'
-            );
+        return (
+            !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === "front") ||
+            ((this.fileProgress === 100 || this.side === "back") &&
+                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "driverlicense")
+        );
     }
 
     showGovernmentIDColor(): boolean {
-        return !this.appRegistration.documentValidation ||
-            (this.fileProgress < 100 && this.side === 'front') || (
-                (this.fileProgress === 100 || this.side === 'back') &&
-                ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase())
-            );
+        return (
+            !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === "front") ||
+            ((this.fileProgress === 100 || this.side === "back") &&
+                ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase()))
+        );
     }
 
     skipStep(): void {
-        if (this.projectFlow.onboardingSettings.steps.liveness !== 'skip' && !this._smartEnrollService.wasSkippedBiometric()) {
+        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
             this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
-            this._smartEnrollService.skipToStep('biometric');
+            this._smartEnrollService.skipToStep("biometric");
         } else {
             this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
-            this._smartEnrollService.skipToStep('result');
+            this._smartEnrollService.skipToStep("result");
         }
     }
 }

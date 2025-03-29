@@ -74,11 +74,10 @@ export class SmartBiometricsComponent implements OnDestroy {
                             this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
 
                             this._smartEnrollService.setCompareScore(response.data.compareFaceVerification.result.score);
-
-                            this._syncAppRegistration("liveness", "ONGOING");
                         },
                         error: (error) => this._handleError(error),
                         complete: () => {
+                            this._syncAppRegistration("end", "ONGOING");
                             this.successfulUploadSubject.next();
                             this._smartEnrollService.goToNextStep();
                         },
@@ -87,7 +86,7 @@ export class SmartBiometricsComponent implements OnDestroy {
                     return;
                 }
 
-                this._syncAppRegistration("liveness", "ONGOING");
+                this._syncAppRegistration("end", "ONGOING");
                 this._smartEnrollService.goToNextStep();
                 this.successfulUploadSubject.next();
             },

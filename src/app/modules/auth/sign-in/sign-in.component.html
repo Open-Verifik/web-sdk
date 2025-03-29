@@ -83,7 +83,7 @@
                             </mat-error>
                         </mat-form-field>
 
-                        <mat-form-field class="w-full" *ngIf="emailValidation && emailValidation.timeToHideInput">
+                        <mat-form-field class="w-full" *ngIf="emailValidation && emailValidation.diff">
                             <mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
                             <input
                                 id="emailOTP"
@@ -145,7 +145,7 @@
                             </mat-form-field>
                         </div>
 
-                        <mat-form-field class="w-full" *ngIf="typeLogin === 'phone' && phoneValidation && phoneValidation.timeToHideInput">
+                        <mat-form-field class="w-full" *ngIf="typeLogin === 'phone' && phoneValidation && phoneValidation.diff">
                             <mat-label [style.color]="project.branding.txtColor"> {{ "login.phone_otp" | transloco }}</mat-label>
                             <input
                                 id="phoneOTP"
@@ -185,8 +185,8 @@
                                 [class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
                                 [disabled]="!canSendOTP()"
                                 *ngIf="projectFlow.loginSettings.phoneGateway === 'sms' || projectFlow.loginSettings.phoneGateway === 'both'"
-                                [style.color]="project.branding.buttonTxtColor"
-                                [style.background]="project.branding.buttonColor"
+                                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
+                                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
                             >
                                 <span *ngIf="activeSendOtp"> SMS </span>
 
@@ -201,8 +201,8 @@
                                 [class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
                                 [disabled]="!canSendOTP()"
                                 *ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
-                                [style.color]="project.branding.buttonTxtColor"
-                                [style.background]="project.branding.buttonColor"
+                                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
+                                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
                             >
                                 <span *ngIf="activeSendOtp"> Whatsapp </span>
 
@@ -216,8 +216,8 @@
                             (click)="sendOTP($event)"
                             [disabled]="!canSendOTP()"
                             *ngIf="typeLogin === 'email'"
-                            [style.background]="project.branding.buttonColor"
-                            [style.color]="project.branding.buttonTxtColor"
+                            [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
+                            [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
                         >
                             <span *ngIf="activeSendOtp"> {{ "login.send_email" | transloco }} </span>
 

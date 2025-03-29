@@ -3,76 +3,66 @@ import { Component } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatCardModule } from "@angular/material/card";
+
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+
+import { environment } from "environments/environment";
 
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { SmartEnrollService } from "../smart-enroll.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
-import { MatCardModule } from "@angular/material/card";
 
 @Component({
-	selector: "smart-documents-review",
-	templateUrl: "./smart-documents-review.component.html",
-	styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-		CommonModule,
-		FlexLayoutModule,
-		MatButtonModule,
-		MatIconModule,
-		NgIf,
-		SmartStepperComponent,
-        MatCardModule,
-		TranslocoModule,
-	],
+    selector: "smart-documents-review",
+    templateUrl: "./smart-documents-review.component.html",
+    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, NgIf, SmartStepperComponent, MatCardModule, TranslocoModule],
 })
 export class SmartDocumentsReviewComponent {
-	appRegistration: AppRegistration;
-	errors: any = {};
-	project: Project;
-	projectFlow: ProjectFlow;
-	showErrors: boolean = false;
-	ocrKeys: Array<string> = [];
+    appRegistration: AppRegistration;
+    errors: any = {};
+    project: Project;
+    projectFlow: ProjectFlow;
+    showErrors: boolean = false;
+    ocrKeys: Array<string> = [];
 
-	ORDER_OCR_BY: { [key: string]: number } = {
-		'fullName': 90,
-		'name1': 31,
-		'name2': 30,
-		'name3': 29,
-		'firstName': 27,
-		'firstNameMRZ': 26,
-		'middleName': 25,
-		'lastName': 24,
-		'firstLastNameMRZ': 22,
-		'secondLastName': 23,
-		'documentNumber': 17,
-		'documentType': 16,
-		'address': 15,
-		'age': 13,
-		'dateOfBirth': 12,
-	};
+    ORDER_OCR_BY: { [key: string]: number } = {
+        fullName: 90,
+        name1: 31,
+        name2: 30,
+        name3: 29,
+        firstName: 27,
+        firstNameMRZ: 26,
+        middleName: 25,
+        lastName: 24,
+        firstLastNameMRZ: 22,
+        secondLastName: 23,
+        documentNumber: 17,
+        documentType: 16,
+        address: 15,
+        age: 13,
+        dateOfBirth: 12,
+    };
 
-    constructor(
-		private translocoService: TranslocoService,
-		private _smartEnrollService: SmartEnrollService,
-		private _KYCService: KYCService,
-	) {
+    constructor(private translocoService: TranslocoService, private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
 
-		if (!this.appRegistration.documentValidation) {
-			this.onPreviousStep();
+        if (!this.appRegistration.documentValidation) {
+            this.onPreviousStep();
 
-			return;
-		}
+            return;
+        }
 
-		this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
-		this._setErrors();
-	}
+        this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
+        this._setErrors();
+    }
 
     private _cleanOCR(OCRExtraction: any) {
         if (!OCRExtraction) return {};
@@ -85,49 +75,77 @@ export class SmartDocumentsReviewComponent {
             }
         });
 
-		this.ocrKeys = Object.keys(OCRExtraction).sort((a, b) => {return (this.ORDER_OCR_BY[b] || 1) - (this.ORDER_OCR_BY[a] || 1)});
+        this.ocrKeys = Object.keys(OCRExtraction).sort((a, b) => {
+            return (this.ORDER_OCR_BY[b] || 1) - (this.ORDER_OCR_BY[a] || 1);
+        });
     }
 
-	private _setErrors() {
-		if (this.canContinue()) {
-			this.errors = {};
-			this.showErrors = false;
+    private _setErrors() {
+        if (this.canContinue()) {
+            this.errors = {};
+            this.showErrors = false;
 
-			return;
-		}
+            return;
+        }
 
-		const docValidation = this.appRegistration?.documentValidation;
+        const docValidation = this.appRegistration?.documentValidation;
 
-		if (!docValidation && this.projectFlow.onboardingSettings.steps.document === 'mandatory') {
-			this.errors.mandatory = true;
-			return;
-		}
+        if (!docValidation && this.projectFlow.onboardingSettings.steps.document === "mandatory") {
+            this.errors.mandatory = true;
+            return;
+        }
 
-		if (docValidation?.requiresBackSide && !docValidation?.backUrl) {
-			this.errors.requiresBack = true;
-		}
+        if (docValidation?.requiresBackSide && !docValidation?.backUrl) {
+            this.errors.requiresBack = true;
+        }
 
-		if (this.projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && !docValidation?.namesMatch) {
-			this.errors.namesDoNotMatch = true;
-		}
+        if (this.projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && !docValidation?.namesMatch) {
+            this.errors.namesDoNotMatch = true;
+        }
 
-		this.showErrors = Object.keys(this.errors).length > 0;
-	}
+        this.showErrors = Object.keys(this.errors).length > 0;
+    }
 
-	canContinue(): boolean {
-		return this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration);
-	}
+    private _syncAppRegistration(step: string, status?: string, action?: string) {
+        let _response: any = null;
 
-	onNextStep(): void {
-		this._smartEnrollService.goToNextStep();
-	}
+        this._KYCService.syncAppRegistration(step, status).subscribe({
+            next: (response) => {
+                _response = response.data;
+            },
+            error: () => {},
+            complete: () => {
+                if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
-	onTryAgain(): void {
-		this._smartEnrollService.goToPreviousStep();
-	}
+                let redirectUrl = this.projectFlow.redirectUrl;
 
-	onPreviousStep(): void {
-		this._smartEnrollService.setDocumentMethod('');
-		this._smartEnrollService.goToPreviousStep();
-	}
+                if (environment.verifikProject === this.project._id) {
+                    redirectUrl = `${environment.appUrl}/sign-in`;
+                } else if (environment.sandboxProject === this.project._id) {
+                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
+                }
+
+                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+            },
+        });
+    }
+
+    canContinue(): boolean {
+        return this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration);
+    }
+
+    onNextStep(): void {
+        this._syncAppRegistration("liveness", "ONGOING");
+        this._smartEnrollService.goToNextStep();
+    }
+
+    onTryAgain(): void {
+        this._syncAppRegistration("document", "ONGOING");
+        this._smartEnrollService.goToPreviousStep();
+    }
+
+    onPreviousStep(): void {
+        this._smartEnrollService.setDocumentMethod("");
+        this._smartEnrollService.goToPreviousStep();
+    }
 }

@@ -268,26 +268,21 @@ export class SmartEnrollService {
         };
     }
 
-    evaluateFaceDetection(
-        boundsParameters: BoundsDetection,
-        face: faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>,
-        source: "face" | "document"
-    ): FaceAnalysis {
+    evaluateFaceDetection(boundsParameters: BoundsDetection, face: any, source: "face" | "document"): FaceAnalysis {
         const BOUNDS = boundsParameters.face;
 
         let correctAngle: boolean = true;
 
+        const box = face?.alignedRect?.box || face.box;
+
         const correctResolution =
-            face.alignedRect.box.height > BOUNDS.res.HEIGHT_LOW &&
-            face.alignedRect.box.height < BOUNDS.res.HEIGHT_HIGH &&
-            face.alignedRect.box.width > BOUNDS.res.WIDTH_LOW &&
-            face.alignedRect.box.width < BOUNDS.res.WIDTH_HIGH;
+            box.height > BOUNDS.res.HEIGHT_LOW &&
+            box.height < BOUNDS.res.HEIGHT_HIGH &&
+            box.width > BOUNDS.res.WIDTH_LOW &&
+            box.width < BOUNDS.res.WIDTH_HIGH;
 
         const fallsInBounds =
-            face.alignedRect.box.x > BOUNDS.bounds.X_LOW &&
-            face.alignedRect.box.x < BOUNDS.bounds.X_HIGH &&
-            face.alignedRect.box.y > BOUNDS.bounds.Y_LOW &&
-            face.alignedRect.box.y < BOUNDS.bounds.Y_HIGH;
+            box.x > BOUNDS.bounds.X_LOW && box.x < BOUNDS.bounds.X_HIGH && box.y > BOUNDS.bounds.Y_LOW && box.y < BOUNDS.bounds.Y_HIGH;
 
         if (source === "face") {
             correctAngle =
@@ -303,32 +298,22 @@ export class SmartEnrollService {
 
         const resolution = {
             width:
-                !correctResolution && face.alignedRect.box.width > BOUNDS.res.WIDTH_HIGH
+                !correctResolution && box.width > BOUNDS.res.WIDTH_HIGH
                     ? "back"
-                    : !correctResolution && face.alignedRect.box.width < BOUNDS.res.WIDTH_LOW
+                    : !correctResolution && box.width < BOUNDS.res.WIDTH_LOW
                     ? "forward"
                     : "",
             height:
-                !correctResolution && face.alignedRect.box.height > BOUNDS.res.HEIGHT_HIGH
+                !correctResolution && box.height > BOUNDS.res.HEIGHT_HIGH
                     ? "back"
-                    : !correctResolution && face.alignedRect.box.height < BOUNDS.res.HEIGHT_LOW
+                    : !correctResolution && box.height < BOUNDS.res.HEIGHT_LOW
                     ? "forward"
                     : "",
         };
 
         const bounds = {
-            x:
-                !fallsInBounds && face.alignedRect.box.x > BOUNDS.bounds.X_HIGH
-                    ? "right"
-                    : !fallsInBounds && face.alignedRect.box.x < BOUNDS.bounds.X_LOW
-                    ? "left"
-                    : "",
-            y:
-                !fallsInBounds && face.alignedRect.box.y > BOUNDS.bounds.Y_HIGH
-                    ? "up"
-                    : !fallsInBounds && face.alignedRect.box.y < BOUNDS.bounds.Y_LOW
-                    ? "down"
-                    : "",
+            x: !fallsInBounds && box.x > BOUNDS.bounds.X_HIGH ? "right" : !fallsInBounds && box.x < BOUNDS.bounds.X_LOW ? "left" : "",
+            y: !fallsInBounds && box.y > BOUNDS.bounds.Y_HIGH ? "up" : !fallsInBounds && box.y < BOUNDS.bounds.Y_LOW ? "down" : "",
         };
 
         let angle: CorrectionsAngle;

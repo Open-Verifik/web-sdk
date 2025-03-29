@@ -10,13 +10,7 @@
     ngClass.lt-md="p-4"
     [ngClass]="{ 'h-full': selectedMethod === 'scan' }"
 >
-    <div
-        @fadeIn
-        class="w-full"
-        fxLayout="column"
-        fxLayoutAlign="start center"
-        *ngIf="project && !selectedMethod"
-    >
+    <div @fadeIn class="w-full" fxLayout="column" fxLayoutAlign="start center" *ngIf="project && !selectedMethod">
         <div
             class="smart-documents__heading text-center"
             fxLayout="column"
@@ -30,51 +24,27 @@
                 ngClass.lt-md="text-2xl"
                 [style.color]="project.branding.titleColor"
             >
-                {{ 'smart_enroll.documents.scan_or_upload_title' | transloco }}
+                {{ "smart_enroll.documents.scan_or_upload_title" | transloco }}
             </h5>
         </div>
 
-        <div
-            ngClass.lt-md="mb-6"
-            ngClass.gt-sm="mt-6"
-            fxLayout="row"
-            fxLayoutAlign="center"
-            fxLayout.lt-md="column"
-        >
+        <div ngClass.lt-md="mb-6" ngClass.gt-sm="mt-6" fxLayout="row" fxLayoutAlign="center" fxLayout.lt-md="column">
             <div
                 [ngStyle.lt-md]="{ backgroundColor: project.branding.bgColor }"
-                [style.border]="
-                    project.branding.borderColor
-                        ? '1px solid ' + project.branding.borderColor
-                        : ''
-                "
-                *ngIf="
-                    projectFlow.onboardingSettings.document
-                        .uploadDocumentAllowed
-                "
+                [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
+                *ngIf="projectFlow.onboardingSettings.document.uploadDocumentAllowed"
                 class="smart-documents__card rounded-2xl"
                 fxLayout="column"
                 ngClass.gt-sm="m-4 p-6 bg-card"
                 ngClass.lt-md="p-4 mt-6"
             >
                 <mat-card-header ngClass.gt-sm="mt-2">
-                    <h5
-                        class="text-xl text-center font-medium"
-                        [style.color]="project.branding.titleColor"
-                    >
-                        {{
-                            'smart_enroll.documents.upload_document_title'
-                                | transloco
-                        }}
+                    <h5 class="text-xl text-center font-medium" [style.color]="project.branding.titleColor">
+                        {{ "smart_enroll.documents.upload_document_title" | transloco }}
                     </h5>
                 </mat-card-header>
 
-                <mat-card-content
-                    class="mt-6"
-                    ngClass.lt-md="mt-4"
-                    fxLayout="column"
-                    fxLayoutAlign="start center"
-                >
+                <mat-card-content class="mt-6" ngClass.lt-md="mt-4" fxLayout="column" fxLayoutAlign="start center">
                     <mat-icon
                         class="welcome__icon welcome__icon--large welcome__icon--rounded"
                         [style.color]="project.branding.buttonColor"
@@ -87,30 +57,21 @@
                             <div class="flex welcome__step-row">
                                 <p class="welcome__step">1</p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.upload.steps.1'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.upload.steps.1" | transloco }}
                                 </p>
                             </div>
 
                             <div class="flex welcome__step-row">
                                 <p class="welcome__step">2</p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.upload.steps.2'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.upload.steps.2" | transloco }}
                                 </p>
                             </div>
 
                             <div class="flex welcome__step-row">
                                 <p class="welcome__step">3</p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.upload.steps.3'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.upload.steps.3" | transloco }}
                                 </p>
                             </div>
                         </div>
@@ -119,11 +80,7 @@
 
                 <div fxLayout="column" fxFlex="1 1 0 auto"></div>
 
-                <mat-card-actions
-                    class="mt-6"
-                    fxLayout="row"
-                    fxLayoutAlign="center end"
-                >
+                <mat-card-actions class="mt-6" fxLayout="row" fxLayoutAlign="center end">
                     <button
                         (click)="updateDocumentMethod('upload')"
                         [style.background]="project.branding.buttonColor"
@@ -131,44 +88,27 @@
                         class="fuse-mat-button-large"
                         mat-flat-button
                     >
-                        <span>{{ 'upload' | transloco }}</span>
+                        <span>{{ "upload" | transloco }}</span>
                     </button>
                 </mat-card-actions>
             </div>
 
             <div
                 [ngStyle.lt-md]="{ backgroundColor: project.branding.bgColor }"
-                [style.border]="
-                    project.branding.borderColor
-                        ? '1px solid ' + project.branding.borderColor
-                        : ''
-                "
-                *ngIf="
-                    projectFlow.onboardingSettings.document.scanDocumentAllowed
-                "
+                [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
+                *ngIf="projectFlow.onboardingSettings.document.scanDocumentAllowed"
                 class="smart-documents__card rounded-2xl"
                 fxLayout="column"
                 ngClass.gt-sm="m-4 p-6 bg-card"
                 ngClass.lt-md="p-4 mt-6"
             >
                 <mat-card-header ngClass.gt-sm="mt-2">
-                    <h5
-                        class="text-xl text-center font-medium"
-                        [style.color]="project.branding.titleColor"
-                    >
-                        {{
-                            'smart_enroll.documents.scan_document_title'
-                                | transloco
-                        }}
+                    <h5 class="text-xl text-center font-medium" [style.color]="project.branding.titleColor">
+                        {{ "smart_enroll.documents.scan_document_title" | transloco }}
                     </h5>
                 </mat-card-header>
 
-                <mat-card-content
-                    class="mt-6"
-                    ngClass.lt-md="mt-4"
-                    fxLayout="column"
-                    fxLayoutAlign="start center"
-                >
+                <mat-card-content class="mt-6" ngClass.lt-md="mt-4" fxLayout="column" fxLayoutAlign="start center">
                     <mat-icon
                         class="welcome__icon welcome__icon--large welcome__icon--rounded"
                         [style.color]="project.branding.buttonColor"
@@ -181,60 +121,32 @@
                             <div class="flex welcome__step-row">
                                 <p class="welcome__step">1</p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.scan.steps.1'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.scan.steps.1" | transloco }}
                                 </p>
                             </div>
 
-                            <div
-                                class="flex welcome__step-row"
-                                *ngIf="
-                                    demoData.OS === 'IOS' ||
-                                    demoData.OS === 'ANDROID'
-                                "
-                            >
+                            <div class="flex welcome__step-row" *ngIf="demoData.OS === 'IOS' || demoData.OS === 'ANDROID'">
                                 <p class="welcome__step">2</p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.scan.steps.2'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.scan.steps.2" | transloco }}
                                 </p>
                             </div>
 
                             <div class="flex welcome__step-row">
                                 <p class="welcome__step">
-                                    {{
-                                        demoData.OS === 'IOS' ||
-                                        demoData.OS === 'ANDROID'
-                                            ? 3
-                                            : 2
-                                    }}
+                                    {{ demoData.OS === "IOS" || demoData.OS === "ANDROID" ? 3 : 2 }}
                                 </p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.scan.steps.3'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.scan.steps.3" | transloco }}
                                 </p>
                             </div>
 
                             <div class="flex welcome__step-row">
                                 <p class="welcome__step">
-                                    {{
-                                        demoData.OS === 'IOS' ||
-                                        demoData.OS === 'ANDROID'
-                                            ? 4
-                                            : 3
-                                    }}
+                                    {{ demoData.OS === "IOS" || demoData.OS === "ANDROID" ? 4 : 3 }}
                                 </p>
                                 <p>
-                                    {{
-                                        'smart_enroll.documents.scan.steps.4'
-                                            | transloco
-                                    }}
+                                    {{ "smart_enroll.documents.scan.steps.4" | transloco }}
                                 </p>
                             </div>
                         </div>
@@ -243,11 +155,7 @@
 
                 <div fxLayout="column" fxFlex="1 1 0 auto"></div>
 
-                <mat-card-actions
-                    class="mt-6"
-                    fxLayout="row"
-                    fxLayoutAlign="center end"
-                >
+                <mat-card-actions class="mt-6" fxLayout="row" fxLayoutAlign="center end">
                     <button
                         (click)="updateDocumentMethod('scan')"
                         [style.background]="project.branding.buttonColor"
@@ -255,21 +163,14 @@
                         class="fuse-mat-button-large"
                         mat-flat-button
                     >
-                        <span>{{ 'scan' | transloco }}</span>
+                        <span>{{ "scan" | transloco }}</span>
                     </button>
                 </mat-card-actions>
             </div>
         </div>
     </div>
 
-    <div
-        @fadeIn
-        *ngIf="selectedMethod"
-        class="w-full min-h-full mx-auto"
-        fxLayout.lt-md="column"
-        fxLayout="row"
-        fxLayoutAlign="center center"
-    >
+    <div @fadeIn *ngIf="selectedMethod" class="w-full min-h-full mx-auto" fxLayout.lt-md="column" fxLayout="row" fxLayoutAlign="center center">
         <div class="smart-stepper" fxFlex="25%" fxFlex.lt-md="0">
             <smart-stepper ngClass.lt-md="hidden"></smart-stepper>
         </div>
@@ -306,25 +207,18 @@
             <smart-scanner
                 (onImageScan)="onImageScan($event)"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
-                *ngIf="
-                    !errorResult &&
-                    demoData.OS !== 'IOS' &&
-                    demoData.OS !== 'ANDROID'
-                "
+                *ngIf="!errorResult && demoData.OS === 'DESKTOP'"
                 class="w-full min-h-full"
                 source="document"
             ></smart-scanner>
 
-            <smart-scanner-ios
+            <smart-scanner-mobile
                 (onImageScan)="onImageScan($event)"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
-                *ngIf="
-                    !errorResult &&
-                    (demoData.OS === 'IOS' || demoData.OS === 'ANDROID')
-                "
+                *ngIf="!errorResult && demoData.OS !== 'DESKTOP'"
                 class="w-full min-h-full"
                 source="document"
-            ></smart-scanner-ios>
+            ></smart-scanner-mobile>
         </div>
 
         <div
@@ -336,12 +230,7 @@
             fxLayout="column"
             fxLayoutAlign="center center"
         >
-            <smart-error-display
-                (onClearError)="retry()"
-                [errorContent]="errorContent"
-                *ngIf="errorResult"
-                source="document"
-            ></smart-error-display>
+            <smart-error-display (onClearError)="retry()" [errorContent]="errorContent" *ngIf="errorResult" source="document"></smart-error-display>
         </div>
 
         <div fxFlex="10%" fxFlex.lt-lg="0"></div>
