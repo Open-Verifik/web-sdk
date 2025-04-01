@@ -30,318 +30,318 @@ import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 
 @Component({
-	animations: fuseAnimations,
-	encapsulation: ViewEncapsulation.None,
-	selector: "auth-sign-up-create-form",
-	standalone: true,
-	styleUrls: ["../../sign-in/sign-in.scss"],
-	templateUrl: "./sign-up-create-form.component.html",
-	imports: [
-		CommonModule,
-		FlexLayoutModule,
-		MatButtonModule,
-		MatCheckboxModule,
-		MatFormFieldModule,
-		MatIconModule,
-		MatInputModule,
-		MatProgressSpinnerModule,
-		MatSelectModule,
-		NgIf,
-		ReactiveFormsModule,
-		RouterLink,
-		TranslocoModule,
-	],
+    animations: fuseAnimations,
+    encapsulation: ViewEncapsulation.None,
+    selector: "auth-sign-up-create-form",
+    standalone: true,
+    styleUrls: ["../../sign-in/sign-in.scss"],
+    templateUrl: "./sign-up-create-form.component.html",
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        MatSelectModule,
+        NgIf,
+        ReactiveFormsModule,
+        RouterLink,
+        TranslocoModule,
+    ],
 })
 export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
-	@ViewChild("signUpNgForm") signUpNgForm: NgForm;
+    @ViewChild("signUpNgForm") signUpNgForm: NgForm;
 
-	@Input("location") location: any;
-	@Input("project") project: Project;
-	@Input("projectFlow") projectFlow: ProjectFlow;
+    @Input("location") location: any;
+    @Input("project") project: Project;
+    @Input("projectFlow") projectFlow: ProjectFlow;
 
-	private unsubscriber$: Subject<void> = new Subject<void>();
+    private unsubscriber$: Subject<void> = new Subject<void>();
 
-	alert: { type: FuseAlertType; message: string } = {
-		type: "success",
-		message: "",
-	};
+    alert: { type: FuseAlertType; message: string } = {
+        type: "success",
+        message: "",
+    };
 
-	appRegistration: AppRegistration;
-	countries: Array<any>;
-	demoData: any;
-	fields: any;
-	hasLogin: Boolean = false;
-	language: string;
-	loginProjectFlow: ProjectFlow;
-	onboardingSignUpForm: any;
-	roles: Array<any>;
-	showError: boolean = false;
-	signUpForm: UntypedFormGroup;
-	token: string;
+    appRegistration: AppRegistration;
+    countries: Array<any>;
+    demoData: any;
+    fields: any;
+    hasLogin: Boolean = false;
+    language: string;
+    loginProjectFlow: ProjectFlow;
+    onboardingSignUpForm: any;
+    roles: Array<any>;
+    showError: boolean = false;
+    signUpForm: UntypedFormGroup;
+    token: string;
 
-	/**
-	 * Constructor
-	 */
-	constructor(
-		private _countries: CountriesService,
-		private _demoService: DemoService,
-		private _formBuilder: UntypedFormBuilder,
-		private _passwordlessService: PasswordlessService,
-		private _router: Router,
-		private _smartEnrollService: SmartEnrollService,
-	) {
-		this.countries = this._countries.countryCodes;
-		this.fields = {};
+    /**
+     * Constructor
+     */
+    constructor(
+        private _countries: CountriesService,
+        private _demoService: DemoService,
+        private _formBuilder: UntypedFormBuilder,
+        private _passwordlessService: PasswordlessService,
+        private _router: Router,
+        private _smartEnrollService: SmartEnrollService
+    ) {
+        this.countries = this._countries.countryCodes;
+        this.fields = {};
 
-		this.roles = [
-			{
-				label: "signup.roles.founder",
-				code: "founder",
-			},
-			{
-				label: "signup.roles.high_management",
-				code: "high_management",
-			},
-			{
-				label: "signup.roles.manager",
-				code: "manager",
-			},
-			{
-				label: "signup.roles.developer",
-				code: "developer",
-			},
-			{
-				label: "signup.roles.compliance",
-				code: "compliance",
-			},
-			{
-				label: "signup.roles.marketing",
-				code: "marketing",
-			},
-			{
-				label: "signup.roles.ciso",
-				code: "ciso",
-			},
-		];
+        this.roles = [
+            {
+                label: "signup.roles.founder",
+                code: "founder",
+            },
+            {
+                label: "signup.roles.high_management",
+                code: "high_management",
+            },
+            {
+                label: "signup.roles.manager",
+                code: "manager",
+            },
+            {
+                label: "signup.roles.developer",
+                code: "developer",
+            },
+            {
+                label: "signup.roles.compliance",
+                code: "compliance",
+            },
+            {
+                label: "signup.roles.marketing",
+                code: "marketing",
+            },
+            {
+                label: "signup.roles.ciso",
+                code: "ciso",
+            },
+        ];
 
-		this.demoData = this._demoService.getDemoData();
-		this._demoService.cleanVariables();
-	}
+        this.demoData = this._demoService.getDemoData();
+        this._demoService.cleanVariables();
+    }
 
-	ngOnDestroy(): void {
-		localStorage.setItem("signUpData", JSON.stringify({}));
+    ngOnDestroy(): void {
+        localStorage.setItem("signUpData", JSON.stringify({}));
 
-		this.unsubscriber$.next();
-		this.unsubscriber$.complete();
-	}
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
+    }
 
-	ngOnChanges(changes: SimpleChanges): void {
-		if (changes.project.currentValue) {
-			const data = changes.project.currentValue;
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.project.currentValue) {
+            const data = changes.project.currentValue;
 
-			try {
-				this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+            try {
+                this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
 
-				this.initForm();
-			} catch (exception) {
-				console.error({ exception });
-			}
+                this.initForm();
+            } catch (exception) {
+                console.error({ exception });
+            }
 
-			for (let index = 0; index < data.projectFlows.length; index++) {
-				const projectFlow = data.projectFlows[index];
+            for (let index = 0; index < data.projectFlows.length; index++) {
+                const projectFlow = data.projectFlows[index];
 
-				if (projectFlow.status !== "active") continue;
-				if (projectFlow.type === "login") this.hasLogin = true;
-			}
+                if (projectFlow.status !== "active") continue;
+                if (projectFlow.type === "login") this.hasLogin = true;
+            }
 
-			if (this.projectFlow.systemForm) {
-				this._assignRoles(this.projectFlow.systemForm);
-			}
-		}
-	}
+            if (this.projectFlow.systemForm) {
+                this._assignRoles(this.projectFlow.systemForm);
+            }
+        }
+    }
 
-	private _assignRoles(systemForm: ProjectFlow["systemForm"]): void {
-		let roleField = null;
+    private _assignRoles(systemForm: ProjectFlow["systemForm"]): void {
+        let roleField = null;
 
-		for (let index = 0; index < systemForm.formFields.length; index++) {
-			const formField = systemForm.formFields[index];
+        for (let index = 0; index < systemForm.formFields.length; index++) {
+            const formField = systemForm.formFields[index];
 
-			if (formField.label === "role") {
-				roleField = formField;
+            if (formField.label === "role") {
+                roleField = formField;
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		if (!roleField) return;
+        if (!roleField) return;
 
-		this.roles.length = 0;
+        this.roles.length = 0;
 
-		for (let index = 0; index < roleField.options.length; index++) {
-			const option = roleField.options[index];
+        for (let index = 0; index < roleField.options.length; index++) {
+            const option = roleField.options[index];
 
-			this.roles.push({
-				label: `signup.roles.${option}`,
-				code: option,
-			});
-		}
-	}
+            this.roles.push({
+                label: `signup.roles.${option}`,
+                code: option,
+            });
+        }
+    }
 
-	private _generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
+    private _generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
 
-	initForm(): void {
-		const r1 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1) || 0;
-		const r2 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1) || 0;
+    initForm(): void {
+        const r1 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1) || 0;
+        const r2 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1) || 0;
 
-		const randomNumber = Math.floor(Math.random() * 1234567);
+        const randomNumber = Math.floor(Math.random() * 1234567);
 
-		const demoData = {
-			fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
-			firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
-			lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
-			email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-			phone: environment.production ? "" : this._generateRandomPhoneNumber(),
-			countryCode: environment.production ? "+1" : "+1",
-			company: environment.production ? "" : `company ${randomNumber}`,
-			role: environment.production ? this.roles[1].code : this.roles[3].code,
-			agreements: !Boolean(environment.production),
-		};
+        const demoData = {
+            fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
+            firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
+            lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
+            email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
+            phone: environment.production ? "" : this._generateRandomPhoneNumber(),
+            countryCode: environment.production ? "+1" : "+1",
+            company: environment.production ? "" : `company ${randomNumber}`,
+            role: environment.production ? this.roles[1].code : this.roles[3].code,
+            agreements: !Boolean(environment.production),
+        };
 
-		this.fields = {};
+        this.fields = {};
 
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
-			this.fields["fullName"] = [
-				demoData.fullName,
-				[Validators.required, Validators.maxLength(50), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
-		}
+        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
+            this.fields["fullName"] = [
+                demoData.fullName,
+                [Validators.required, Validators.maxLength(50), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+            ];
+        }
 
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.firstName) {
-			this.fields["firstName"] = [
-				demoData.firstName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
+        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.firstName) {
+            this.fields["firstName"] = [
+                demoData.firstName,
+                [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+            ];
 
-			this.fields["lastName"] = [
-				demoData.lastName,
-				[Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
-		}
+            this.fields["lastName"] = [
+                demoData.lastName,
+                [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+            ];
+        }
 
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.email) {
-			this.fields["email"] = [demoData.email, [Validators.email, Validators.required]];
-		}
+        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.email) {
+            this.fields["email"] = [demoData.email, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]];
+        }
 
-		if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
-			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
+        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
+            this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
-			this.fields["phone"] = [demoData.phone, [Validators.minLength(4), Validators.maxLength(15), Validators.required]];
-		}
+            this.fields["phone"] = [demoData.phone, [Validators.minLength(4), Validators.maxLength(15), Validators.required]];
+        }
 
-		if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {
-			this.fields["agreements"] = ["", Validators.requiredTrue];
-		}
+        if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {
+            this.fields["agreements"] = ["", Validators.requiredTrue];
+        }
 
-		if (this.onboardingSignUpForm && Array.isArray(this.onboardingSignUpForm?.extraFields)) {
-			for (const field of this.onboardingSignUpForm?.extraFields) {
-				this.fields[field] = [demoData[field] || "", Validators.required];
-			}
-		}
+        if (this.onboardingSignUpForm && Array.isArray(this.onboardingSignUpForm?.extraFields)) {
+            for (const field of this.onboardingSignUpForm?.extraFields) {
+                this.fields[field] = [demoData[field] || "", Validators.required];
+            }
+        }
 
-		// Create the form
-		this.signUpForm = this._formBuilder.group(this.fields);
-		this.signUpForm.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
-			this.showError = false;
-			this.alert = null;
-		});
-	}
+        // Create the form
+        this.signUpForm = this._formBuilder.group(this.fields);
+        this.signUpForm.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
+            this.showError = false;
+            this.alert = null;
+        });
+    }
 
-	isFormDisabled(): boolean {
-		return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
-	}
+    isFormDisabled(): boolean {
+        return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
+    }
 
-	preventInputFocus(event: InputEvent): void {
-		event.stopPropagation();
-	}
+    preventInputFocus(event: InputEvent): void {
+        event.stopPropagation();
+    }
 
-	removeSpacesFromEmail() {
-		const emailFormControl = this.signUpForm?.get("email");
+    removeSpacesFromEmail() {
+        const emailFormControl = this.signUpForm?.get("email");
 
-		if (emailFormControl.value) {
-			let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
+        if (emailFormControl.value) {
+            let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
 
-			if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
-				cleanedEmail = cleanedEmail.replace(/@/g, "");
-			}
+            if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
+                cleanedEmail = cleanedEmail.replace(/@/g, "");
+            }
 
-			emailFormControl.patchValue(cleanedEmail);
-		}
-	}
+            emailFormControl.patchValue(cleanedEmail);
+        }
+    }
 
-	removeSpacesFromPhone() {
-		const phoneFormControl = this.signUpForm.get("phone");
+    removeSpacesFromPhone() {
+        const phoneFormControl = this.signUpForm.get("phone");
 
-		if (phoneFormControl.value) {
-			const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
-			phoneFormControl.patchValue(cleanedPhone);
-		}
-	}
+        if (phoneFormControl.value) {
+            const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
+            phoneFormControl.patchValue(cleanedPhone);
+        }
+    }
 
-	signUp(): void {
-		if (!this.project || this.signUpForm.invalid) return null;
+    signUp(): void {
+        if (!this.project || this.signUpForm.invalid) return null;
 
-		dataLayer.push({
-			event: "clickEvent",
-			clickId: `form_${this.project._id}`,
-			eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
-		});
+        dataLayer.push({
+            event: "clickEvent",
+            clickId: `form_${this.project._id}`,
+            eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
+        });
 
-		this.signUpForm.disable();
-		this.showError = false;
-		this.alert = null;
+        this.signUpForm.disable();
+        this.showError = false;
+        this.alert = null;
 
-		localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
+        localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
 
-		Object.keys(this.signUpForm.value).forEach((key) => {
-			if (this.signUpForm.value !== typeof "string") return;
+        Object.keys(this.signUpForm.value).forEach((key) => {
+            if (this.signUpForm.value !== typeof "string") return;
 
-			this.signUpForm.value[key] = this.signUpForm.value[key].trim();
-		});
+            this.signUpForm.value[key] = this.signUpForm.value[key].trim();
+        });
 
-		this._passwordlessService
-			.createAppRegistration({
-				project: this.project._id,
-				projectFlow: this.projectFlow._id,
-				language: this.language,
-				location: this.location,
-				...this.signUpForm.value,
-			})
-			.subscribe({
-				next: (v) => {
-					this.appRegistration = v?.data?.appRegistration;
-					this.appRegistration.token = v?.data?.token;
-				},
-				error: (exception) => {
-					this.signUpForm.enable();
-					this.signUpNgForm.resetForm({ countryCode: this.location?.countryCode || "+1" });
+        this._passwordlessService
+            .createAppRegistration({
+                project: this.project._id,
+                projectFlow: this.projectFlow._id,
+                language: this.language,
+                location: this.location,
+                ...this.signUpForm.value,
+            })
+            .subscribe({
+                next: (v) => {
+                    this.appRegistration = v?.data?.appRegistration;
+                    this.appRegistration.token = v?.data?.token;
+                },
+                error: (exception) => {
+                    this.signUpForm.enable();
+                    this.signUpNgForm.resetForm({ countryCode: this.location?.countryCode || "+1" });
 
-					setTimeout(() => {
-						this.showError = true;
-						this.alert = {
-							type: "error",
-							message:
-								exception.error?.message === "phone, email, projectFlow must be unique"
-									? this._smartEnrollService.errorTranslation("errors.phone_or_email_is_not_unique")
-									: this._smartEnrollService.errorTranslation(`errors.${exception.error?.message}`),
-						};
-					});
-				},
-				complete: () => {
-					this._router.navigate(["/sign-up", this.project._id], {
-						queryParams: { token: this.appRegistration.token },
-						queryParamsHandling: "merge",
-					});
-				},
-			});
-	}
+                    setTimeout(() => {
+                        this.showError = true;
+                        this.alert = {
+                            type: "error",
+                            message:
+                                exception.error?.message === "phone, email, projectFlow must be unique"
+                                    ? this._smartEnrollService.errorTranslation("errors.phone_or_email_is_not_unique")
+                                    : this._smartEnrollService.errorTranslation(`errors.${exception.error?.message}`),
+                        };
+                    });
+                },
+                complete: () => {
+                    this._router.navigate(["/sign-up", this.project._id], {
+                        queryParams: { token: this.appRegistration.token },
+                        queryParamsHandling: "merge",
+                    });
+                },
+            });
+    }
 }
