@@ -78,6 +78,42 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
     showError: boolean = false;
     signUpForm: UntypedFormGroup;
     token: string;
+    phoneLengthMapping = {
+        "+507": 8, // Panama
+        "+1": 10, // USA
+        "+44": 10, // United Kingdom
+        "+91": 10, // India
+        "+81": 10, // Japan
+        "+49": 11, // Germany
+        "+33": 9, // France
+        "+39": 10, // Italy
+        "+86": 11, // China
+        "+7": 10, // Russia
+        "+55": 11, // Brazil
+        "+61": 9, // Australia
+        "+34": 9, // Spain
+        "+82": 10, // South Korea
+        "+62": 10, // Indonesia
+        "+52": 10, // Mexico
+        "+27": 9, // South Africa
+        "+90": 10, // Turkey
+        "+31": 9, // Netherlands
+        "+46": 10, // Sweden
+        "+63": 10, // Philippines
+        "+54": 10, // Argentina
+        "+56": 9, // Chile
+        "+57": 10, // Colombia
+        "+506": 8, // Costa Rica
+        "+593": 9, // Ecuador
+        "+503": 8, // El Salvador
+        "+502": 8, // Guatemala
+        "+504": 8, // Honduras
+        "+595": 9, // Paraguay
+        "+51": 9, // Peru
+        "+598": 9, // Uruguay
+        "+58": 10, // Venezuela
+        // Add more country codes and their respective phone lengths here
+    };
 
     /**
      * Constructor
@@ -235,7 +271,13 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
         if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
             this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
-            this.fields["phone"] = [demoData.phone, [Validators.minLength(4), Validators.maxLength(15), Validators.required]];
+            const countryCode = this.location?.countryCode || demoData.countryCode;
+            const phoneLength = this.phoneLengthMapping[countryCode] || 10; // Default to 10 if not mapped
+
+            this.fields["phone"] = [
+                demoData.phone,
+                [Validators.minLength(phoneLength), Validators.maxLength(phoneLength), Validators.required, Validators.pattern(/^\d+$/)],
+            ];
         }
 
         if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {
@@ -280,10 +322,23 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
     removeSpacesFromPhone() {
         const phoneFormControl = this.signUpForm.get("phone");
+        const countryCodeFormControl = this.signUpForm.get("countryCode");
 
         if (phoneFormControl.value) {
             const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
             phoneFormControl.patchValue(cleanedPhone);
+
+            if (countryCodeFormControl?.value) {
+                const phoneLength = this.phoneLengthMapping[countryCodeFormControl.value] || 10; // Default to 10 if not mapped
+                phoneFormControl.setValidators([
+                    Validators.minLength(phoneLength),
+                    Validators.maxLength(phoneLength),
+                    Validators.required,
+                    Validators.pattern(/^\d+$/),
+                ]);
+
+                phoneFormControl.updateValueAndValidity();
+            }
         }
     }
 
