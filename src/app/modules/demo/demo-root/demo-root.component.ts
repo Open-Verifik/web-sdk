@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
-import { RouterLink } from "@angular/router";
 import { DemoStepOneComponent } from "../demo-step-one/demo-step-one.component";
 import { DemoService } from "../demo.service";
 import { CommonModule } from "@angular/common";
@@ -15,110 +14,102 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import Hotjar from "@hotjar/browser";
 import { Lead, Session } from "../lead";
 
 @Component({
-	selector: "app-demo-root",
-	templateUrl: "./demo-root.component.html",
-	styleUrls: ["./demo-root.component.scss"],
-	standalone: true,
-	imports: [
-		MatButtonModule,
-		RouterLink,
-		MatIconModule,
-		FlexLayoutModule,
-		DemoStepOneComponent,
-		DemoStepTwoComponent,
-		DemoStepThreeComponent,
-		DemoStepFourComponent,
-		DemoStepFiveComponent,
-		CommonModule,
-		DemoFooterComponent,
-		TranslocoModule,
-		LanguagesComponent,
-		MatProgressBarModule,
-	],
+    selector: "app-demo-root",
+    templateUrl: "./demo-root.component.html",
+    styleUrls: ["./demo-root.component.scss"],
+    standalone: true,
+    imports: [
+        MatButtonModule,
+        MatIconModule,
+        FlexLayoutModule,
+        DemoStepOneComponent,
+        DemoStepTwoComponent,
+        DemoStepThreeComponent,
+        DemoStepFourComponent,
+        DemoStepFiveComponent,
+        CommonModule,
+        DemoFooterComponent,
+        TranslocoModule,
+        LanguagesComponent,
+        MatProgressBarModule,
+    ],
 })
 export class DemoRootComponent implements OnInit {
-	navigation: any;
-	requirementsLoaded: boolean;
-	step: number;
-	demoData: any;
-	lead: Lead;
-	session: Session;
+    navigation: any;
+    requirementsLoaded: boolean;
+    step: number;
+    demoData: any;
+    lead: Lead;
+    session: Session;
 
-	constructor(private _demoService: DemoService, private _splashScreenService: FuseSplashScreenService) {
-		this.demoData = {};
+    constructor(private _demoService: DemoService, private _splashScreenService: FuseSplashScreenService) {
+        this.demoData = {};
 
-		this.demoData.loading = true;
+        this.demoData.loading = true;
 
-		this._splashScreenService.show();
+        this._splashScreenService.show();
 
-		this.navigation = this._demoService.getNavigation();
+        this.navigation = this._demoService.getNavigation();
 
-		this._demoService.getDeviceDetails();
+        this._demoService.getDeviceDetails();
 
-		this.step = Number(localStorage.getItem("step")) || 1;
+        this.step = Number(localStorage.getItem("step")) || 1;
+    }
 
-		// const siteId = 3732219;
+    async ngOnInit(): Promise<any> {
+        this.demoData = this._demoService.getDemoData();
 
-		// const hotjarVersion = 6;
+        this.lead = this._demoService.getLead();
 
-		// Hotjar.init(siteId, hotjarVersion);
-	}
+        this.session = this._demoService.getSession();
 
-	async ngOnInit(): Promise<any> {
-		this.demoData = this._demoService.getDemoData();
+        if (this.step > 1) {
+            this.demoData.loading = true;
 
-		this.lead = this._demoService.getLead();
+            await this._loadContent();
 
-		this.session = this._demoService.getSession();
+            this._demoService.moveToStep(this.step);
 
-		if (this.step > 1) {
-			this.demoData.loading = true;
+            this.demoData.loading = false;
 
-			await this._loadContent();
+            this._splashScreenService.hide();
 
-			this._demoService.moveToStep(this.step);
+            return;
+        }
 
-			this.demoData.loading = false;
+        this._demoService.cleanVariables();
 
-			this._splashScreenService.hide();
+        this.requirementsLoaded = true;
 
-			return;
-		}
+        this._splashScreenService.hide();
+    }
 
-		this._demoService.cleanVariables();
+    async _loadContent(): Promise<any> {
+        this._demoService.getDeviceDetails();
 
-		this.requirementsLoaded = true;
+        await this._demoService.getAddress();
 
-		this._splashScreenService.hide();
-	}
+        this.requirementsLoaded = true;
+    }
 
-	async _loadContent(): Promise<any> {
-		this._demoService.getDeviceDetails();
+    talkToSales(): void {
+        const url = "https://meetings.hubspot.com/lina-yepes";
 
-		await this._demoService.getAddress();
+        window.open(url, "_blank");
+    }
 
-		this.requirementsLoaded = true;
-	}
+    partnerWithUs(): void {
+        const url = "https://verifik.co/en/partners/";
 
-	talkToSales(): void {
-		const url = "https://meetings.hubspot.com/lina-yepes";
+        window.open(url, "_blank");
+    }
 
-		window.open(url, "_blank");
-	}
+    restartDemo(): void {
+        this._demoService.cleanVariables();
 
-	partnerWithUs(): void {
-		const url = "https://verifik.co/en/partners/";
-
-		window.open(url, "_blank");
-	}
-
-	restartDemo(): void {
-		this._demoService.cleanVariables();
-
-		this._demoService.moveToStep(1);
-	}
+        this._demoService.moveToStep(1);
+    }
 }

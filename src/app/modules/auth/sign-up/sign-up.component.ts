@@ -159,6 +159,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
                 this.location.os = this.deviceDetails?.platform;
                 this.location.type = "browser";
                 this.location.countryCode = this._countries.findCountryCode(this.location.country);
+
+                console.log({ location: this.location });
             },
             error(err) {
                 this.locationError = err;
@@ -347,11 +349,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     }
 
     showLocationError(): boolean {
-        return Boolean(this.locationError && !this.showCountryNotAllowed());
+        return Boolean(!this.location && this.locationError && !this.showCountryNotAllowed());
     }
 
     showMainContainer(): boolean {
-        return Boolean(!this.showUpgradeRequired && !this.locationError && this.projectFlow?._id && this.project?._id);
+        return Boolean(!this.showUpgradeRequired && this.location && this.projectFlow?._id && this.project?._id);
     }
 
     showNoProjectError(): boolean {

@@ -391,6 +391,11 @@ export class DemoService {
     }
 
     showPosition(position: GeolocationPosition) {
+        console.log({
+            position,
+            geoLocation: _this._geoLocation,
+        });
+
         if (!_this._geoLocation || !position?.coords) return;
 
         _this.demoData.lat = position?.coords.latitude;
@@ -423,6 +428,8 @@ export class DemoService {
                 break;
         }
 
+        console.log({ errorMessage, error });
+
         localStorage.setItem("locationError", errorMessage);
 
         _this._geoLocation.next({ errorMessage });
@@ -431,6 +438,7 @@ export class DemoService {
             navigator.geolocation.clearWatch(_this.geoLocationId);
 
             _this.geoLocationId = null;
+
             _this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
         }, 2000);
     }
