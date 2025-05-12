@@ -349,11 +349,11 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     }
 
     showLocationError(): boolean {
-        return Boolean(!this.location && this.locationError && !this.showCountryNotAllowed());
+        return false;
     }
 
     showMainContainer(): boolean {
-        return Boolean(!this.showUpgradeRequired && this.location && this.projectFlow?._id && this.project?._id);
+        return Boolean(!this.showUpgradeRequired && this.projectFlow?._id && this.project?._id);
     }
 
     showNoProjectError(): boolean {
