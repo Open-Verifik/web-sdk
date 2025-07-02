@@ -2,7 +2,7 @@ import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -13,18 +13,16 @@ import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { Router, RouterLink } from "@angular/router";
-
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertType } from "@fuse/components/alert";
-
 import { TranslocoModule } from "@ngneat/transloco";
 
-import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 
-import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { CountriesService } from "app/modules/demo/countries.service";
+import { DemoService } from "app/modules/demo/demo.service";
 import { PasswordlessService } from "../../passwordless.service";
+import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 
 declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
@@ -119,6 +117,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
      * Constructor
      */
     constructor(
+        private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
         private _demoService: DemoService,
         private _formBuilder: UntypedFormBuilder,
@@ -178,7 +177,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
             try {
                 this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
 
-                this.initForm();
+                this._initForm();
             } catch (exception) {
                 console.error({ exception });
             }
@@ -194,6 +193,10 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
                 this._assignRoles(this.projectFlow.systemForm);
             }
         }
+    }
+
+    get isFormDisabled(): boolean {
+        return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
     }
 
     private _assignRoles(systemForm: ProjectFlow["systemForm"]): void {
@@ -225,22 +228,22 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
     private _generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
 
-    initForm(): void {
+    private _initForm(): void {
         const r1 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1) || 0;
         const r2 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1) || 0;
 
         const randomNumber = Math.floor(Math.random() * 1234567);
 
         const demoData = {
-            fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
-            firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
-            lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
-            email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-            phone: environment.production ? "" : this._generateRandomPhoneNumber(),
-            countryCode: environment.production ? "+1" : "+1",
-            company: environment.production ? "" : `company ${randomNumber}`,
-            role: environment.production ? this.roles[1].code : this.roles[3].code,
             agreements: !Boolean(environment.production),
+            company: environment.production ? "" : `company ${randomNumber}`,
+            countryCode: environment.production ? "+1" : "+1",
+            email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
+            firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
+            fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
+            lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
+            phone: environment.production ? "" : this._generateRandomPhoneNumber(),
+            role: environment.production ? this.roles[1].code : this.roles[3].code,
         };
 
         this.fields = {};
@@ -292,14 +295,11 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
 
         // Create the form
         this.signUpForm = this._formBuilder.group(this.fields);
+
         this.signUpForm.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
             this.showError = false;
             this.alert = null;
         });
-    }
-
-    isFormDisabled(): boolean {
-        return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
     }
 
     preventInputFocus(event: InputEvent): void {
@@ -309,37 +309,55 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
     removeSpacesFromEmail() {
         const emailFormControl = this.signUpForm?.get("email");
 
-        if (emailFormControl.value) {
-            let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
+        if (!emailFormControl.value) return;
 
-            if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
-                cleanedEmail = cleanedEmail.replace(/@/g, "");
-            }
+        let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
 
-            emailFormControl.patchValue(cleanedEmail);
+        if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
+            cleanedEmail = cleanedEmail.replace(/@/g, "");
         }
+
+        emailFormControl.patchValue(cleanedEmail);
     }
 
     removeSpacesFromPhone() {
         const phoneFormControl = this.signUpForm.get("phone");
         const countryCodeFormControl = this.signUpForm.get("countryCode");
 
-        if (phoneFormControl.value) {
-            const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
-            phoneFormControl.patchValue(cleanedPhone);
+        if (!phoneFormControl.value) return;
 
-            if (countryCodeFormControl?.value) {
-                const phoneLength = this.phoneLengthMapping[countryCodeFormControl.value] || 10; // Default to 10 if not mapped
-                phoneFormControl.setValidators([
-                    Validators.minLength(phoneLength),
-                    Validators.maxLength(phoneLength),
-                    Validators.required,
-                    Validators.pattern(/^\d+$/),
-                ]);
+        const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
 
-                phoneFormControl.updateValueAndValidity();
-            }
+        phoneFormControl.patchValue(cleanedPhone);
+
+        if (countryCodeFormControl?.value) {
+            const phoneLength = this.phoneLengthMapping[countryCodeFormControl.value] || 10; // Default to 10 if not mapped
+
+            phoneFormControl.setValidators([
+                Validators.minLength(phoneLength),
+                Validators.maxLength(phoneLength),
+                Validators.required,
+                Validators.pattern(/^\d+$/),
+            ]);
+
+            phoneFormControl.updateValueAndValidity();
         }
+
+        // Force change detection for touch devices
+        this._changeDetectorRef.detectChanges();
+    }
+
+    onCountryCodeChange() {
+        // Handle country code change for touch devices
+        this.removeSpacesFromPhone();
+
+        // Force UI update for Android devices
+        this._changeDetectorRef.markForCheck();
+        this._changeDetectorRef.detectChanges();
+    }
+
+    trackByCountryCode(_index: number, country: any): string {
+        return country?.code;
     }
 
     signUp(): void {
