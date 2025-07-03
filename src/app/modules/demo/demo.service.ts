@@ -7,8 +7,6 @@ import * as faceapi from "@vladmandic/face-api";
 import { DocumentValidation } from "./document-validation";
 import { Lead, Session } from "./lead";
 
-let _this = null;
-
 @Injectable({
     providedIn: "root",
 })
@@ -32,9 +30,7 @@ export class DemoService {
         this.initDemoData();
         this.initSampleData();
 
-        _this = this;
-
-        breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
+        this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
             this.demoData.isMobile = result.matches;
 
             this.demoData.time = result.matches ? 500 : 250;
@@ -373,44 +369,39 @@ export class DemoService {
         const lat = localStorage.getItem("lat");
         const lng = localStorage.getItem("lng");
 
-        if (lat && lng) {
-            _this._geoLocation.next({
-                lat,
-                lng,
-            });
-        }
+        if (lat && lng) this._geoLocation.next({ lat, lng });
 
         if (navigator.geolocation) {
-            navigator.geolocation.clearWatch(_this.geoLocationId);
+            const isEdge = navigator.userAgent?.includes("Edg") || navigator.userAgent?.includes("Edge");
 
-            _this.geoLocationId = null;
-            _this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
+            if (isEdge) {
+                // MicrosoftEdge bug: https://answers.microsoft.com/en-us/microsoftedge/forum/all/microsoft-edge-for-mac-is-not-able-to-get/7e27322b-7125-4f5f-90e0-3a9416d67cfe
+                // Cannot retrieve location from Microsoft Edge browser on MacOS
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(this.showPosition, this.showGeolocationError);
         } else {
             console.info("Geolocation is not supported by this browser.");
         }
     }
 
-    showPosition(position: GeolocationPosition) {
-        console.log({
-            position,
-            geoLocation: _this._geoLocation,
-        });
+    showPosition = (position: GeolocationPosition) => {
+        if (!this._geoLocation || !position?.coords) return;
 
-        if (!_this._geoLocation || !position?.coords) return;
+        this.demoData.lat = position?.coords.latitude;
+        this.demoData.lng = position?.coords.longitude;
 
-        _this.demoData.lat = position?.coords.latitude;
-        _this.demoData.lng = position?.coords.longitude;
+        localStorage.setItem("lat", this.demoData.lat);
+        localStorage.setItem("lng", this.demoData.lng);
 
-        localStorage.setItem("lat", _this.demoData.lat);
-        localStorage.setItem("lng", _this.demoData.lng);
-
-        _this._geoLocation.next({
+        this._geoLocation.next({
             lat: position?.coords.latitude,
             lng: position?.coords.longitude,
         });
-    }
+    };
 
-    showError(error: GeolocationPositionError) {
+    showGeolocationError = (error: GeolocationPositionError) => {
         let errorMessage = "";
 
         switch (error.code) {
@@ -428,20 +419,16 @@ export class DemoService {
                 break;
         }
 
-        console.log({ errorMessage, error });
+        console.error({ errorMessage, error });
 
         localStorage.setItem("locationError", errorMessage);
 
-        _this._geoLocation.next({ errorMessage });
+        this._geoLocation.next({ errorMessage });
 
         setTimeout(() => {
-            navigator.geolocation.clearWatch(_this.geoLocationId);
-
-            _this.geoLocationId = null;
-
-            _this.geoLocationId = navigator.geolocation.watchPosition(_this.showPosition, _this.showError);
+            navigator.geolocation.getCurrentPosition(this.showPosition, this.showGeolocationError);
         }, 2000);
-    }
+    };
 
     async reverseGeocodeWithOSM(lat, lng) {
         const endpoint = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
