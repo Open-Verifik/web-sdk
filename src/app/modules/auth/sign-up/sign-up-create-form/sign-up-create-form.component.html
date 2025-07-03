@@ -100,8 +100,8 @@
 
                 <mat-select
                     (click)="preventInputFocus($event)"
-                    (selectionChange)="removeSpacesFromPhone()"
-                    [disableOptionCentering]="true"
+                    (selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
+                    (closed)="onCountryCodeChange()"
                     [formControl]="signUpForm.get('countryCode')"
                     *ngIf="countries"
                     matPrefix
@@ -110,12 +110,12 @@
                     <mat-select-trigger>
                         <span class="flex items-center">
                             <span class="sm:mx-0.5 font-medium text-default">
-                                {{ signUpForm.get("countryCode").value }}
+                                {{ signUpForm.get("countryCode")?.value || "" }}
                             </span>
                         </span>
                     </mat-select-trigger>
 
-                    <mat-option *ngFor="let country of countries" [value]="country.code">
+                    <mat-option *ngFor="let country of countries; trackBy: trackByCountryCode" [value]="country.code">
                         <span class="flex items-center">
                             <span class="ml-2">{{ country.name }}</span>
                             <span class="ml-2 font-medium">{{ country.code }}</span>
@@ -209,10 +209,10 @@
 
     <button
         (click)="signUp()"
-        [disabled]="isFormDisabled()"
+        [disabled]="isFormDisabled"
         [id]="'signUp-' + project._id"
-        [style.background]="isFormDisabled() ? '' : project.branding.buttonColor"
-        [style.color]="isFormDisabled() ? '' : project.branding.buttonTxtColor"
+        [style.background]="isFormDisabled ? '' : project.branding.buttonColor"
+        [style.color]="isFormDisabled ? '' : project.branding.buttonTxtColor"
         class="fuse-mat-button-large w-full mt-8"
         mat-flat-button
     >
