@@ -1,8 +1,8 @@
 export const environment = {
     production: false,
     baseUrl: "/",
-    // baseUrl: "https://demo-sandbox.verifik.co/",
-    // apiUrl: "https://demo-sandbox.verifik.co",
+    // baseUrl: "https://testing-access.verifik.co/",
+    // apiUrl: "https://testing-access.verifik.co",
     // apiUrl: "https://api.verifik.co",
     apiUrl: "http://localhost:3001",
     appUrl: "https://verifik.app",
