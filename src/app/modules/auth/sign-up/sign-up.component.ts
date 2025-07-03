@@ -144,23 +144,23 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
         this._demoService.geoLocation$.pipe(takeUntil(this.unsubscriber$)).subscribe({
             next: async (response) => {
+                if (!response) return;
+
                 if (response.errorMessage) {
-                    this.locationError = response;
-                    this.showKYCApp = false;
+                    // this.locationError = response;
+                    // this.showKYCApp = false;
 
                     return;
                 }
 
                 this.locationError = null;
 
-                if (!response || this.location) return;
+                if (this.location) return;
 
                 this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
                 this.location.os = this.deviceDetails?.platform;
                 this.location.type = "browser";
                 this.location.countryCode = this._countries.findCountryCode(this.location.country);
-
-                console.log({ location: this.location });
             },
             error(err) {
                 this.locationError = err;
@@ -335,7 +335,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
     onServiceChange(enrollStep: EnrollStep): void {
         setTimeout(() => {
-            this.showKYCApp = true;
+            this.showKYCApp = !this.locationError;
             this._smartEnrollService.setCurrentStep(enrollStep);
         });
     }
