@@ -613,9 +613,14 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
     successLogin(token: any) {
         let redirectUrl = this.projectFlow.redirectUrl;
 
-        if (environment.verifikProject === this.project._id) {
+        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
+        const origin = window.location.origin;
+
+        if (origin.includes("staging-access.verifik.co")) {
+            redirectUrl = `${environment.stagingUrl}/sign-in`;
+        } else if (origin.includes("access.verifik.co")) {
             redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (environment.sandboxProject === this.project._id) {
+        } else if (origin.includes("testing-access.verifik.co")) {
             redirectUrl = `${environment.sandboxUrl}/sign-in`;
         }
 
