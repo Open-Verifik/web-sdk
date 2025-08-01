@@ -624,6 +624,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
             redirectUrl = `${environment.sandboxUrl}/sign-in`;
         }
 
+        console.log({ redirectUrl });
+
         window.location.href = `${redirectUrl}?type=login&token=${token}`;
     }
 
