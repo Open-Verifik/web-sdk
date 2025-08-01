@@ -29,6 +29,7 @@ import { environment } from "environments/environment";
 
 import { KYCService } from "app/modules/auth/kyc.service";
 import { Project, ProjectFlow } from "app/modules/auth/project";
+import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
     selector: "kyc-liveness-ios",
@@ -84,7 +85,8 @@ export class KycLivenessIosComponent implements OnInit, OnDestroy {
         private _translocoService: TranslocoService,
         private _splashScreenService: FuseSplashScreenService,
         private renderer: Renderer2,
-        private _KYCService: KYCService
+        private _KYCService: KYCService,
+        private _authService: AuthService
     ) {
         this.continueWithLiveness = this._initAppRegistrationData();
 
@@ -616,26 +618,11 @@ export class KycLivenessIosComponent implements OnInit, OnDestroy {
     continueRedirection(): void {
         if (this.showError && this.errorContent.message === "person_not_found") {
             window.location.reload();
-
             return;
         }
 
         const token = localStorage.getItem("accessToken");
-
-        let redirectUrl = this.projectFlow.redirectUrl;
-
-        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
-
-        window.location.href = `${redirectUrl}?type=login&token=${token}`;
+        this._authService.handleRedirect(this.projectFlow, this.project._id, token, "login");
     }
 
     ngOnDestroy(): void {

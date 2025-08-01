@@ -14,6 +14,7 @@ import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll
 import { KYCService } from "../../kyc.service";
 import { AppRegistration, Face, Project, ProjectFlow } from "../../project";
 import { environment } from "environments/environment";
+import { AuthService } from "app/core/auth/auth.service";
 
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 
@@ -50,7 +51,7 @@ export class SmartResultsComponent implements OnInit {
     redirectUrl: string;
     revealQRCode: boolean = false;
 
-    constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
+    constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService, private _authService: AuthService) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
         this.enrollStore = this._smartEnrollService.store;
@@ -115,16 +116,7 @@ export class SmartResultsComponent implements OnInit {
                 this.fetchingToken = false;
             },
             complete: () => {
-                let redirectUrl = this.projectFlow.redirectUrl;
-
-                if (environment.verifikProject === this.project._id) {
-                    redirectUrl = `${environment.appUrl}/sign-in`;
-                } else if (environment.sandboxProject === this.project._id) {
-                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                }
-
-                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-
+                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
                 this.fetchingToken = false;
             },
         });
@@ -202,15 +194,7 @@ export class SmartResultsComponent implements OnInit {
             complete: () => {
                 if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
-                let redirectUrl = this.projectFlow.redirectUrl;
-
-                if (environment.verifikProject === this.project._id) {
-                    redirectUrl = `${environment.appUrl}/sign-in`;
-                } else if (environment.sandboxProject === this.project._id) {
-                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                }
-
-                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
             },
         });
     }

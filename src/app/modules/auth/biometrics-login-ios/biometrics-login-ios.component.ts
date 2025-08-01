@@ -29,6 +29,7 @@ import { environment } from "environments/environment";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
 import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
+import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
     selector: "app-biometrics-login-ios",
@@ -82,7 +83,8 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
         private _translocoService: TranslocoService,
         private _splashScreenService: FuseSplashScreenService,
         private renderer: Renderer2,
-        private _passwordlessService: PasswordlessService
+        private _passwordlessService: PasswordlessService,
+        private _authService: AuthService
     ) {
         this.demoData = this._demoService.getDemoData();
 
@@ -556,20 +558,7 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
     }
 
     successLogin(token: any) {
-        let redirectUrl = this.projectFlow.redirectUrl;
-
-        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
-
-        window.location.href = `${redirectUrl}?type=login&token=${token}`;
+        this._authService.handleRedirect(this.projectFlow, this.project._id, token, "login");
     }
 
     liveness() {
@@ -630,26 +619,11 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
     continueRedirection(): void {
         if (this.showError && this.errorContent.message === "person_not_found") {
             window.location.reload();
-
             return;
         }
 
         const token = localStorage.getItem("accessToken");
-
-        let redirectUrl = this.projectFlow.redirectUrl;
-
-        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
-
-        window.location.href = `${redirectUrl}?type=login&token=${token}`;
+        this._authService.handleRedirect(this.projectFlow, this.project._id, token, "login");
     }
 
     ngOnDestroy(): void {

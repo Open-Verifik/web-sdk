@@ -5,6 +5,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslocoModule } from "@ngneat/transloco";
 import { environment } from "environments/environment";
+import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
     selector: "auth-biometric-errors-display",
@@ -20,6 +21,8 @@ export class AuthBiometricErrorsDisplayComponent implements OnInit {
     @Input() callback: any;
     @Input() appLoginToken: any;
 
+    constructor(private _authService: AuthService) {}
+
     ngOnInit(): void {
         if (!this.errorContent) return;
 
@@ -33,23 +36,9 @@ export class AuthBiometricErrorsDisplayComponent implements OnInit {
     callbackFunction(): void {
         if (["person_not_found", "liveness_failed"].includes(this.errorContent.message)) {
             window.location.reload();
-
             return;
         }
 
-        let redirectUrl = this.projectFlow.redirectUrl;
-
-        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
-
-        window.location.href = `${redirectUrl}?type=login&token=${this.appLoginToken}`;
+        this._authService.handleRedirect(this.projectFlow, this.project._id, this.appLoginToken, "login");
     }
 }

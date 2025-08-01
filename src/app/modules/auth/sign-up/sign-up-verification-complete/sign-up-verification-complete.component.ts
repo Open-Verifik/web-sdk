@@ -21,6 +21,7 @@ import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { EnrollStep, SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 import { Subject, takeUntil } from "rxjs";
 import { DemoService } from "app/modules/demo/demo.service";
+import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
     selector: "auth-sign-up-verification-complete",
@@ -67,7 +68,8 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
         private _formBuilder: UntypedFormBuilder,
         private _KYCService: KYCService,
         private _smartEnrollService: SmartEnrollService,
-        private _translocoService: TranslocoService
+        private _translocoService: TranslocoService,
+        private _authService: AuthService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.device = this._demoService.detectOS();
@@ -170,16 +172,7 @@ export class AuthSignUpVerificationCompleteComponent implements OnInit, OnDestro
             error: () => {},
             complete: () => {
                 if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
-                    let redirectUrl = this.projectFlow.redirectUrl;
-
-                    if (environment.verifikProject === this.project._id) {
-                        redirectUrl = `${environment.appUrl}/sign-in`;
-                    } else if (environment.sandboxProject === this.project._id) {
-                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                    }
-
-                    window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
-
+                    this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
                     return;
                 }
 

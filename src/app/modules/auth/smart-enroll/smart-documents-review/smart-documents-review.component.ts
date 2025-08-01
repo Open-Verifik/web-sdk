@@ -14,6 +14,7 @@ import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { SmartEnrollService } from "../smart-enroll.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
     selector: "smart-documents-review",
@@ -49,7 +50,12 @@ export class SmartDocumentsReviewComponent {
         dateOfBirth: 12,
     };
 
-    constructor(private translocoService: TranslocoService, private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
+    constructor(
+        private translocoService: TranslocoService,
+        private _smartEnrollService: SmartEnrollService,
+        private _KYCService: KYCService,
+        private _authService: AuthService
+    ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
@@ -117,15 +123,7 @@ export class SmartDocumentsReviewComponent {
             complete: () => {
                 if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
-                let redirectUrl = this.projectFlow.redirectUrl;
-
-                if (environment.verifikProject === this.project._id) {
-                    redirectUrl = `${environment.appUrl}/sign-in`;
-                } else if (environment.sandboxProject === this.project._id) {
-                    redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                }
-
-                window.location.href = `${redirectUrl}?type=onboarding&token=${_response.token}`;
+                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
             },
         });
     }

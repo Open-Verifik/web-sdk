@@ -15,6 +15,7 @@ import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
 import { environment } from "environments/environment";
 import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
+import { AuthService } from "app/core/auth/auth.service";
 
 let _biometricLoginThis = null;
 
@@ -114,7 +115,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
         private _translocoService: TranslocoService,
         private _splashScreenService: FuseSplashScreenService,
         private renderer: Renderer2,
-        private _passwordlessService: PasswordlessService
+        private _passwordlessService: PasswordlessService,
+        private _authService: AuthService
     ) {
         _biometricLoginThis = this;
 
@@ -611,22 +613,7 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
     }
 
     successLogin(token: any) {
-        let redirectUrl = this.projectFlow.redirectUrl;
-
-        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
-
-        console.log({ redirectUrl });
-
-        window.location.href = `${redirectUrl}?type=login&token=${token}`;
+        this._authService.handleRedirect(this.projectFlow, this.project._id, token, "login");
     }
 
     completeResults() {

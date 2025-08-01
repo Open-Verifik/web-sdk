@@ -25,6 +25,7 @@ import moment from "moment";
 import { DemoService } from "app/modules/demo/demo.service";
 import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
 import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
+import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
     selector: "auth-sign-in",
@@ -113,6 +114,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         private _passwordlessService: PasswordlessService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
+        private _authService: AuthService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this.setLanguage();
@@ -444,20 +446,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     successLogin(token: any) {
-        let redirectUrl = this.projectFlow.redirectUrl;
-
-        // check the origin of the request (if we are staging-access.verifik.co, access.verifik.co or testing-access.verifik.co)
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
-
-        window.location.href = `${redirectUrl}?type=login&token=${token}`;
+        this._authService.handleRedirect(this.projectFlow, this.project._id, token, "login");
     }
 
     errorLogin(error: string) {

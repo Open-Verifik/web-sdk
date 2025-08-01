@@ -22,6 +22,7 @@ import moment from "moment";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { AuthService } from "app/core/auth/auth.service";
 @Component({
     selector: "auth-confirmation-required",
     templateUrl: "./confirmation-required.component.html",
@@ -88,7 +89,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _formBuilder: UntypedFormBuilder,
         private _countries: CountriesService,
-        private _demoService: DemoService
+        private _demoService: DemoService,
+        private _authService: AuthService
     ) {
         this._splashScreenService.show();
 
@@ -468,15 +470,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
             error: () => {},
             complete: () => {
                 if (status === "COMPLETED_WITHOUT_KYC" && action === "redirect") {
-                    let redirectUrl = this.projectFlow.redirectUrl;
-
-                    if (environment.verifikProject === this.project._id) {
-                        redirectUrl = `${environment.appUrl}/sign-in`;
-                    } else if (environment.sandboxProject === this.project._id) {
-                        redirectUrl = `${environment.sandboxUrl}/sign-in`;
-                    }
-
-                    window.location.href = `${redirectUrl}?type=onboarding&token=${this.syncResponse.token}`;
+                    this._authService.handleRedirect(this.projectFlow, this.project._id, this.syncResponse.token, "onboarding");
                 }
 
                 if (step === "instructions" && action === "redirect") {
