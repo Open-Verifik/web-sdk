@@ -132,6 +132,9 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         this._initForms();
 
         if (changes.project?.currentValue) {
+            // Update the KYCService with the current project data
+            this._KYCService.setProjectData(this.project, this.projectFlow);
+
             const steps = this.projectFlow.onboardingSettings.steps;
             const mandatorySteps = ["basicInformation", "document", "form", "liveness"];
 
@@ -254,6 +257,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
         if (this.emailOtp) {
             this.checkSixDigits();
+
             this.emailOtp = "";
 
             return;

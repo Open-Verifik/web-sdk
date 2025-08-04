@@ -136,6 +136,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
                     this.projectFlow = new ProjectFlowModel(this.appRegistration.projectFlow);
 
+                    // Update the KYCService with the current project data
+                    this._KYCService.setProjectData(this.project, this.projectFlow);
+
                     this._initForm();
 
                     this.isVerifikProject = Boolean(

@@ -18,6 +18,29 @@ export class KYCService {
 
     constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService, private _http: HttpClient) {}
 
+    /**
+     * Set the current project and project flow
+     * This should be called when the component receives project data
+     */
+    setProjectData(project: Project, projectFlow: ProjectFlow): void {
+        this.currentProject = project;
+        this.currentProjectFlow = projectFlow;
+    }
+
+    /**
+     * Validate that project and projectFlow are properly set
+     * @throws Error if project data is not available
+     */
+    private _validateProjectData(): void {
+        if (!this.currentProject || !this.currentProjectFlow) {
+            throw new Error("Project or ProjectFlow is not set. Please ensure project data is properly initialized.");
+        }
+
+        if (this.currentProject._id === "new") {
+            throw new Error("Project is not set");
+        }
+    }
+
     getNavigation(): any {
         return this.navigation;
     }
@@ -145,6 +168,8 @@ export class KYCService {
     }
 
     sendEmailValidation(email: string): Observable<any> {
+        this._validateProjectData();
+
         return this._httpWrapper
             .sendRequest("post", `${this.baseUrl}/v2/email-validations`, {
                 email,
@@ -158,6 +183,8 @@ export class KYCService {
     }
 
     sendAppRegistationEmailValidation(email: string): Observable<any> {
+        this._validateProjectData();
+
         return this._httpWrapper
             .sendRequest("post", `${this.baseUrl}/v2/email-validations/app-registration`, {
                 email,
@@ -171,6 +198,8 @@ export class KYCService {
     }
 
     sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
+        this._validateProjectData();
+
         return this._httpWrapper
             .sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
                 countryCode,
@@ -186,6 +215,8 @@ export class KYCService {
     }
 
     sendAppRegistrationPhoneValidation(countryCode: string, phone: string, phoneGateway?: string): Observable<any> {
+        this._validateProjectData();
+
         return this._httpWrapper
             .sendRequest("post", `${this.baseUrl}/v2/phone-validations/app-registration`, {
                 countryCode,
@@ -201,6 +232,8 @@ export class KYCService {
     }
 
     confirmEmailValidation(email: string, otp: string): Observable<any> {
+        this._validateProjectData();
+
         return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/email-validations/validate`, {
             email,
             otp,
@@ -211,6 +244,8 @@ export class KYCService {
     }
 
     confirmPhoneValidation(countryCode: string, phone: string, otp: string): Observable<any> {
+        this._validateProjectData();
+
         return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/phone-validations/validate`, {
             countryCode,
             phone,

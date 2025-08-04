@@ -238,13 +238,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
             next: (v) => {
                 this.project = new ProjectModel({ ...v.data, type: "onboarding" });
+
                 this.projectFlow = this.project.currentProjectFlow;
 
-                if (!v.planCode) {
-                    this.showUpgradeRequired = true;
-                } else {
-                    this._setSteps();
-                }
+                this._setSteps();
             },
             error: (e) => {
                 window.location.href = "/sign-up";
