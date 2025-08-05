@@ -8,3 +8,4 @@ app/node_modules
 toRemove
 .angular
 /src/environments/environment.ts
+proxy.config.json
