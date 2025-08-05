@@ -130,10 +130,9 @@
                     <button
                         (click)="enabledLocation()"
                         [id]="'enable_your_location-' + project._id"
-                        [style.background]="project.branding.buttonColor"
-                        [style.color]="project.branding.buttonTxtColor"
                         class="fuse-mat-button-large w-full mt-8"
                         mat-flat-button
+                        color="primary"
                     >
                         <span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
                     </button>
@@ -150,11 +149,7 @@
         <div class="flex overflow-hidden bg-card" ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small">
             <div class="w-full sm:w-auto p-6" fxLayout="column" ngClass.gt-sm="p-10">
                 <div class="w-full" fxLayout="column" fxLayoutAlign="center center">
-                    <mat-icon
-                        class="sign-in-content__icon"
-                        svgIcon="fa_solid:location-pin-lock"
-                        [style.color]="project.branding.buttonColor"
-                    ></mat-icon>
+                    <mat-icon class="sign-in-content__icon" svgIcon="fa_solid:location-pin-lock" color="primary"></mat-icon>
                 </div>
 
                 <div class="mt-8 text-3xl font-medium text-center tracking-tight leading-tight">
@@ -166,13 +161,7 @@
                 </div>
 
                 <div class="w-full" fxLayout="row" fxLayoutAlign="center center">
-                    <button
-                        (click)="countryNotAllowedAccept()"
-                        [style.background]="project.branding.buttonColor"
-                        [style.color]="project.branding.buttonTxtColor"
-                        class="fuse-mat-button-large mt-12"
-                        mat-flat-button
-                    >
+                    <button (click)="countryNotAllowedAccept()" class="fuse-mat-button-large mt-12" mat-flat-button color="primary">
                         {{ "accept" | transloco }}
                     </button>
                 </div>
@@ -188,7 +177,7 @@
         <div class="flex overflow-hidden bg-card" ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small">
             <div class="w-full sm:w-auto p-6" fxLayout="column" ngClass.gt-sm="p-10">
                 <div class="w-full" fxLayout="column" fxLayoutAlign="center center">
-                    <mat-icon class="sign-in-content__icon" svgIcon="fa_solid:lock" [style.color]="project.branding.buttonColor"></mat-icon>
+                    <mat-icon class="sign-in-content__icon" svgIcon="fa_solid:lock" color="primary"></mat-icon>
                 </div>
 
                 <div class="mt-8 text-3xl font-medium text-center tracking-tight leading-tight">
@@ -201,12 +190,7 @@
 
                 <div class="w-full" fxLayout="row" fxLayoutAlign="center center">
                     <a class="mt-12" [href]="appUrl">
-                        <button
-                            [style.background]="project.branding.buttonColor"
-                            [style.color]="project.branding.buttonTxtColor"
-                            class="fuse-mat-button-large"
-                            mat-flat-button
-                        >
+                        <button class="fuse-mat-button-large" mat-flat-button color="primary">
                             {{ "continue" | transloco }}
                         </button>
                     </a>

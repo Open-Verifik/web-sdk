@@ -1,3 +1,12 @@
+@import "tailwind";
+@import "vendors";
+
+/* Import custom theme */
+@import "custom-theme";
+
+/* Import custom Angular Material overrides */
+@import "custom-angular-material";
+
 /* ----------------------------------------------------------------------------------------------------- */
 /*  @ Import/write your custom styles here.
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.

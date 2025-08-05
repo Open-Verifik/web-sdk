@@ -382,10 +382,9 @@
                                 <button
                                     (click)="goPrevious()"
                                     [disabled]="!canGoPrevious()"
-                                    [style.color]="!canGoPrevious() ? '' : project.branding.buttonColor"
-                                    [style.border]="!canGoPrevious() ? '' : '1px solid' + project.branding.buttonColor"
                                     class="fuse-mat-button"
-                                    mat-flat-button
+                                    mat-stroked-button
+                                    color="primary"
                                     ngClass.lt-md="hidden"
                                 >
                                     {{ "go_back" | transloco }}
@@ -394,11 +393,10 @@
                                 <button
                                     (click)="goNext()"
                                     [disabled]="!canSkip()"
-                                    [style.color]="!canSkip() ? '' : project.branding.buttonColor"
-                                    [style.border]="!canSkip() ? '' : '1px solid' + project.branding.buttonColor"
                                     *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
                                     class="fuse-mat-button"
-                                    mat-flat-button
+                                    mat-stroked-button
+                                    color="primary"
                                 >
                                     {{ "skip" | transloco }}
                                 </button>
@@ -406,10 +404,9 @@
                                 <button
                                     (click)="takePicture()"
                                     [disabled]="(side === 'front' && errorFace) || uploading"
-                                    [style.background]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonColor"
-                                    [style.color]="(side === 'front' && errorFace) || uploading ? '' : project.branding.buttonTxtColor"
                                     class="fuse-mat-button"
                                     mat-flat-button
+                                    color="primary"
                                 >
                                     {{ "id_scanning.manual_capture_button" | transloco }}
                                 </button>
@@ -464,13 +461,7 @@
                             </p>
 
                             <div fxLayout="row" fxLayoutAlign="center">
-                                <button
-                                    (click)="goNext()"
-                                    [style.background]="project.branding.buttonColor"
-                                    [style.color]="project.branding.buttonTxtColor"
-                                    class="fuse-mat-button mt-8"
-                                    mat-flat-button
-                                >
+                                <button (click)="goNext()" class="fuse-mat-button mt-8" mat-flat-button color="primary">
                                     <span>{{ "next" | transloco }}</span>
                                 </button>
                             </div>

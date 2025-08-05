@@ -70,13 +70,12 @@
             <div class="mt-4" ngClass.lt-md="flex flex-col flex-grow justify-end">
                 <button
                     (click)="skipKYC()"
-                    [style.border]="'1px solid' + project.branding.buttonColor"
-                    [style.color]="project.branding.buttonColor"
                     *ngIf="
                         projectFlow.onboardingSettings.steps.document !== 'mandatory' && projectFlow.onboardingSettings.steps.liveness !== 'mandatory'
                     "
                     class="fuse-mat-button-large w-full mt-6"
-                    mat-flat-button
+                    mat-stroked-button
+                    color="primary"
                     type="button"
                 >
                     {{ "welcome.skip" | transloco }}
@@ -84,11 +83,10 @@
 
                 <button
                     (click)="goToKYCApp('')"
-                    [style.background]="agreementForm.invalid ? '' : project.branding.buttonColor"
-                    [style.color]="agreementForm.invalid ? '' : project.branding.buttonTxtColor"
                     [disabled]="agreementForm.invalid"
                     class="fuse-mat-button-large w-full mt-2"
                     mat-flat-button
+                    color="primary"
                     type="button"
                 >
                     {{ "welcome.start_on_device" | transloco }}
@@ -99,6 +97,7 @@
                     *ngIf="device === 'DESKTOP'"
                     class="fuse-mat-button-large w-full mt-2"
                     mat-flat-button
+                    color="primary"
                     type="button"
                 >
                     <mat-icon matLeadingIcon>smartphone</mat-icon>
@@ -156,14 +155,7 @@
     </div>
 
     <div class="flex-grow w-full" fxLayout.lt-md="column" fxLayoutAlign.lt-md="start end">
-        <button
-            (click)="showQrCode = false"
-            [style.border]="'1px solid' + project.branding.buttonColor"
-            [style.color]="project.branding.buttonColor"
-            class="fuse-mat-button-large w-full"
-            mat-flat-button
-            type="button"
-        >
+        <button (click)="showQrCode = false" class="fuse-mat-button-large w-full" mat-stroked-button color="primary" type="button">
             {{ "go_back" | transloco }}
         </button>
     </div>

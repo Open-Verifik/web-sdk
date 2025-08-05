@@ -129,8 +129,8 @@
                         [style.background]="project.branding.buttonColor"
                         [style.color]="project.branding.buttonTxtColor"
                         *ngIf="devices.length > 1"
-                        class="camera__change-camera z-20"
                         mat-icon-button
+                        class="camera__change-camera z-20"
                     >
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -219,13 +219,7 @@
     </mat-dialog-content>
 
     <mat-dialog-actions ngClass.lt-md="p-2" class="mt-4 flex justify-center">
-        <button
-            [style.color]="project.branding.buttonTxtColor"
-            [style.background]="project.branding.buttonColor"
-            class="fuse-mat-button"
-            mat-flat-button
-            mat-dialog-close
-        >
+        <button class="fuse-mat-button" mat-flat-button color="primary" mat-dialog-close>
             {{ "continue" | transloco }}
         </button>
     </mat-dialog-actions>

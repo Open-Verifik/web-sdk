@@ -13,19 +13,19 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-scr
 
 import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
 
-import { environment } from "environments/environment";
-
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
 import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+import { AppService } from "app/core/services/app.service";
 
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
 import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
+import { environment } from "environments/environment";
 
 @Component({
     selector: "auth-sign-up",
@@ -89,6 +89,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
      */
     constructor(
         private _activatedRoute: ActivatedRoute,
+        private _appService: AppService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
         private _demoService: DemoService,
@@ -147,12 +148,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
             next: async (response) => {
                 if (!response) return;
 
-                if (response.errorMessage) {
-                    // this.locationError = response;
-                    // this.showKYCApp = false;
-
-                    return;
-                }
+                if (response.errorMessage) return;
 
                 this.locationError = null;
 
@@ -241,10 +237,15 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
             next: (v) => {
                 this.project = new ProjectModel({ ...v.data, type: "onboarding" });
-
                 this.projectFlow = this.project.currentProjectFlow;
 
-                this._setSteps();
+                this._appService.applyDynamicTheming(this.project);
+
+                if (!v.planCode) {
+                    this.showUpgradeRequired = true;
+                } else {
+                    this._setSteps();
+                }
             },
             error: (e) => {
                 window.location.href = "/sign-up";

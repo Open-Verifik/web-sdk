@@ -6,6 +6,7 @@ import { Injectable } from "@angular/core";
 
 import { AppRegistration, ProjectFlow } from "../project";
 import { TranslocoService } from "@ngneat/transloco";
+import { CountryOption } from "app/core/services/country.service";
 
 export interface FaceDetectionWithLandmarks extends faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68> {}
 
@@ -105,9 +106,13 @@ export interface DocumentDetection {
 }
 
 export interface EnrollSettings {
+    country: keyof CountryOption;
     currentStep: EnrollStep;
     documentMethod: EnrollDocumentMethod;
+    documentCategory: DocumentCategory;
 }
+
+export type DocumentCategory = "passport" | "id" | "driving_license" | "tax_information";
 
 export interface EnrollStore {
     document: {
@@ -150,6 +155,8 @@ export class SmartEnrollService {
         this._enrollSettings = {
             currentStep: "",
             documentMethod: localStorage.getItem("documentMethod") as EnrollDocumentMethod,
+            documentCategory: localStorage.getItem("documentCategory") as DocumentCategory,
+            country: localStorage.getItem("country") as keyof CountryOption,
         };
 
         this.enrollSettings$ = this._enrollSettings$.asObservable();
@@ -409,12 +416,30 @@ export class SmartEnrollService {
         };
     }
 
-    setDocumentMethod(method: EnrollDocumentMethod) {
-        localStorage.setItem("documentMethod", method);
+    setCountry(country: keyof CountryOption) {
+        localStorage.setItem("country", country);
 
         this.enrollSettings = {
             ...this._enrollSettings,
-            documentMethod: method,
+            country,
+        };
+    }
+
+    setDocumentMethod(documentMethod: EnrollDocumentMethod) {
+        localStorage.setItem("documentMethod", documentMethod);
+
+        this.enrollSettings = {
+            ...this._enrollSettings,
+            documentMethod,
+        };
+    }
+
+    setDocumentCategory(documentCategory: DocumentCategory) {
+        localStorage.setItem("documentCategory", documentCategory);
+
+        this.enrollSettings = {
+            ...this._enrollSettings,
+            documentCategory,
         };
     }
 

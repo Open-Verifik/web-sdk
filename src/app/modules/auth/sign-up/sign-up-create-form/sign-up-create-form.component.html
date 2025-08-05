@@ -211,10 +211,9 @@
         (click)="signUp()"
         [disabled]="isFormDisabled"
         [id]="'signUp-' + project._id"
-        [style.background]="isFormDisabled ? '' : project.branding.buttonColor"
-        [style.color]="isFormDisabled ? '' : project.branding.buttonTxtColor"
         class="fuse-mat-button-large w-full mt-8"
         mat-flat-button
+        color="primary"
     >
         <span *ngIf="!signUpForm.disabled">{{ "step_two.continue_button" | transloco }}</span>
 

@@ -185,8 +185,6 @@
                                 [class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
                                 [disabled]="!canSendOTP()"
                                 *ngIf="projectFlow.loginSettings.phoneGateway === 'sms' || projectFlow.loginSettings.phoneGateway === 'both'"
-                                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
-                                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
                             >
                                 <span *ngIf="activeSendOtp"> SMS </span>
 
@@ -201,8 +199,6 @@
                                 [class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
                                 [disabled]="!canSendOTP()"
                                 *ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
-                                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
-                                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
                             >
                                 <span *ngIf="activeSendOtp"> Whatsapp </span>
 
@@ -213,11 +209,10 @@
                         <button
                             mat-stroked-button
                             class="w-full mt-4"
+                            color="primary"
                             (click)="sendOTP($event)"
                             [disabled]="!canSendOTP()"
                             *ngIf="typeLogin === 'email'"
-                            [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
-                            [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
                         >
                             <span *ngIf="activeSendOtp"> {{ "login.send_email" | transloco }} </span>
 
@@ -239,13 +234,7 @@
                     </div>
 
                     <div class="flex items-center mt-8 space-x-4" *ngIf="projectFlow.loginSettings.faceLiveness">
-                        <button
-                            class="flex-auto"
-                            type="button"
-                            [style.color]="project.branding.txtColor"
-                            mat-stroked-button
-                            (click)="showBiometricsLogin()"
-                        >
+                        <button class="flex-auto" type="button" mat-stroked-button color="primary" (click)="showBiometricsLogin()">
                             {{ "login.use_biometrics_button" | transloco }}
                         </button>
                     </div>
@@ -543,8 +532,6 @@
 									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
 									*ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
-									[style.color]="project.branding.buttonTxtColor"
-									[style.background]="project.branding.buttonColor"
 								>
 									<span *ngIf="activeSendOtp"> Whatsapp </span>
 
@@ -555,11 +542,10 @@
 							<button
 								mat-stroked-button
 								class="w-full mt-4"
+								color="primary"
 								(click)="sendOTP($event)"
 								[disabled]="!canSendOTP()"
 								*ngIf="typeLogin === 'email'"
-								[style.background]="project.branding.buttonColor"
-								[style.color]="project.branding.buttonTxtColor"
 							>
 								<span *ngIf="activeSendOtp"> {{ "login.send_email" | transloco }} </span>
 
@@ -618,11 +604,11 @@
 
 					<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
 						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="showBiometricsLogin()">
-							<span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_button" | transloco }} </span>
+							<span>{{ "add_biometrics.verifik_button" | transloco }} </span>
 						</button>
 
 						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueRedirection()">
-							<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.verifik_dismiss" | transloco }} </span>
+							<span> {{ "add_biometrics.verifik_dismiss" | transloco }} </span>
 						</button>
 					</div>
 				</div>
@@ -647,11 +633,11 @@
 
 					<div fxLayout="column" fxLayoutAlign="center center" class="w-full">
 						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="showBiometricsLogin()">
-							<span [style.color]="project.branding.txtColor">{{ "add_biometrics.button" | transloco }} </span>
+							<span>{{ "add_biometrics.button" | transloco }} </span>
 						</button>
 
 						<button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueRedirection()">
-							<span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
+							<span> {{ "add_biometrics.dismiss" | transloco }} </span>
 						</button>
 					</div>
 				</div>

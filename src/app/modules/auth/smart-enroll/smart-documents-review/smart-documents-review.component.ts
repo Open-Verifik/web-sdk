@@ -8,8 +8,6 @@ import { MatCardModule } from "@angular/material/card";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
-import { environment } from "environments/environment";
-
 import { AppRegistration, Project, ProjectFlow } from "../../project";
 import { KYCService } from "../../kyc.service";
 import { SmartEnrollService } from "../smart-enroll.service";
@@ -17,12 +15,12 @@ import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.com
 import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
-    selector: "smart-documents-review",
-    templateUrl: "./smart-documents-review.component.html",
-    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
     animations: fuseAnimations,
-    standalone: true,
     imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, NgIf, SmartStepperComponent, MatCardModule, TranslocoModule],
+    selector: "smart-documents-review",
+    standalone: true,
+    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
+    templateUrl: "./smart-documents-review.component.html",
 })
 export class SmartDocumentsReviewComponent {
     appRegistration: AppRegistration;
@@ -33,28 +31,28 @@ export class SmartDocumentsReviewComponent {
     ocrKeys: Array<string> = [];
 
     ORDER_OCR_BY: { [key: string]: number } = {
-        fullName: 90,
-        name1: 31,
-        name2: 30,
-        name3: 29,
-        firstName: 27,
-        firstNameMRZ: 26,
-        middleName: 25,
-        lastName: 24,
-        firstLastNameMRZ: 22,
-        secondLastName: 23,
-        documentNumber: 17,
-        documentType: 16,
-        address: 15,
-        age: 13,
-        dateOfBirth: 12,
+        Address: 15,
+        Age: 13,
+        "Date Of Birth": 12,
+        "Document Number": 17,
+        "Document Type": 16,
+        "First Last Name MRZ": 22,
+        "First Name": 27,
+        "First Name MRZ": 26,
+        "Full Name": 90,
+        "Last Name": 24,
+        "Middle Name": 25,
+        "Name 1": 31,
+        "Name 2": 30,
+        "Name 3": 29,
+        "Second Last Name": 23,
     };
 
     constructor(
-        private translocoService: TranslocoService,
-        private _smartEnrollService: SmartEnrollService,
+        private _authService: AuthService,
         private _KYCService: KYCService,
-        private _authService: AuthService
+        private _smartEnrollService: SmartEnrollService,
+        private _translocoService: TranslocoService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._KYCService.currentProject;
@@ -73,12 +71,20 @@ export class SmartDocumentsReviewComponent {
     private _cleanOCR(OCRExtraction: any) {
         if (!OCRExtraction) return {};
 
-        Object.keys(OCRExtraction).forEach((key) => {
-            const translationKey = `extracted_information.${key}`;
+        if (OCRExtraction["confidenceScore"]) delete OCRExtraction["confidenceScore"];
 
-            if (!OCRExtraction[key] || this.translocoService.translate(translationKey) === translationKey) {
-                delete OCRExtraction[key];
+        Object.keys(OCRExtraction).forEach((key) => {
+            let fieldKey = "";
+
+            if (["documentType", "country", "documentNumber"].includes(key)) {
+                fieldKey = this._translocoService.translate(`extracted_information.${key}`);
+            } else {
+                fieldKey = key.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
             }
+
+            if (OCRExtraction[key]) OCRExtraction[fieldKey] = OCRExtraction[key];
+
+            delete OCRExtraction[key];
         });
 
         this.ocrKeys = Object.keys(OCRExtraction).sort((a, b) => {
@@ -98,6 +104,13 @@ export class SmartDocumentsReviewComponent {
 
         if (!docValidation && this.projectFlow.onboardingSettings.steps.document === "mandatory") {
             this.errors.mandatory = true;
+
+            return;
+        }
+
+        if (this.appRegistration?.documentValidation?.OCRExtraction?.error) {
+            this.errors.extractionError = this.appRegistration?.documentValidation?.OCRExtraction?.error;
+
             return;
         }
 

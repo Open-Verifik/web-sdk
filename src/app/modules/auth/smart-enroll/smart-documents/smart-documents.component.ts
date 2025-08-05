@@ -1,26 +1,32 @@
-import { catchError, forkJoin, map, of, Subject, Subscription } from "rxjs";
+import { catchError, forkJoin, map, of, Subject, takeUntil } from "rxjs";
 
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatListModule } from "@angular/material/list";
+import { MatRadioModule } from "@angular/material/radio";
+import { MatSelectModule } from "@angular/material/select";
 
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 
-import { AppRegistration, Project, ProjectFlow, DocumentValidation, ImageScan, CriminalValidation, FaceVerification } from "../../project";
-import { KYCService } from "../../kyc.service";
-import { DemoService } from "app/modules/demo/demo.service";
-import { EnrollDocumentMethod, SmartEnrollService } from "../smart-enroll.service";
 import { environment } from "environments/environment";
+import { AppRegistration, CriminalValidation, DocumentValidation, FaceVerification, ImageScan, Project, ProjectFlow } from "../../project";
 
-import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
+import { CountryOption, CountryService } from "app/core/services/country.service";
+import { DemoService } from "app/modules/demo/demo.service";
+import { KYCService } from "../../kyc.service";
 import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
-import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
+import { DocumentCategory, EnrollDocumentMethod, EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
+import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
+import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
 
 type CombinedValidationResponse = {
     criminalValidation: CriminalValidationResponse;
@@ -59,54 +65,72 @@ type NameValidationResponse = {
         CommonModule,
         FlexLayoutModule,
         MatButtonModule,
-        NgIf,
-        SmartUploadComponent,
-        SmartStepperComponent,
-        SmartScannerComponent,
-        SmartScannerMobileComponent,
-        SmartErrorDisplayComponent,
-        TranslocoModule,
         MatCardModule,
         MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatRadioModule,
+        MatSelectModule,
+        NgIf,
+        ReactiveFormsModule,
+        SmartErrorDisplayComponent,
+        SmartScannerComponent,
+        SmartScannerMobileComponent,
+        SmartStepperComponent,
+        SmartUploadComponent,
+        TranslocoModule,
     ],
 })
 export class SmartDocumentsComponent implements OnDestroy {
-    @ViewChild("faceCardCanvas", { static: true })
-    faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
-    private smartEnrollSettingsSubscription = new Subscription();
+    private _unsubscriber$ = new Subject<void>();
 
     appRegistration: AppRegistration;
+    countries: CountryOption[];
     demoData: any;
+    enrollSettings: EnrollSettings;
     errorContent: { message: string };
     errorResult: boolean;
     faceIdCard: string;
+    formSubmitted: boolean = false;
+    methodSelectionForm: FormGroup;
     project: Project;
     projectFlow: ProjectFlow;
-    selectedMethod: EnrollDocumentMethod = "";
     successfulUploadSubject: Subject<void> = new Subject<void>();
 
-    constructor(private _demoService: DemoService, private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService) {
+    constructor(
+        private _changeDetectorRef: ChangeDetectorRef,
+        private _countryService: CountryService,
+        private _demoService: DemoService,
+        private _formBuilder: FormBuilder,
+        private _KYCService: KYCService,
+        private _smartEnrollService: SmartEnrollService
+    ) {
         this.appRegistration = this._KYCService.appRegistration;
+        this.enrollSettings = this._smartEnrollService.enrollSettings;
         this.project = this._KYCService.currentProject;
         this.projectFlow = this._KYCService.currentProjectFlow;
 
-        const settings = this._smartEnrollService.enrollSettings;
+        this.countries = this._countryService.findAllowedCountryOptions(this.project.allowedCountries);
 
-        this.selectedMethod = settings.documentMethod;
+        this._initForm();
+
         this.errorResult = this._smartEnrollService.store.document.remaining === 0;
         this.errorContent = { message: "" };
 
         this.demoData = this._demoService.getDemoData();
 
-        this.smartEnrollSettingsSubscription = this._smartEnrollService.enrollSettings$.subscribe({
-            next: (enrollSettings) => this.onDocumentMethodChange(enrollSettings.documentMethod),
+        this._smartEnrollService.enrollSettings$.pipe(takeUntil(this._unsubscriber$)).subscribe({
+            next: (enrollSettings) => this._onEnrollSettingsChange(enrollSettings),
         });
     }
 
     ngOnDestroy(): void {
-        this.smartEnrollSettingsSubscription.unsubscribe();
         this.successfulUploadSubject.complete();
+
+        this._unsubscriber$.next();
+        this._unsubscriber$.complete();
     }
 
     private _createDocumentValidation(body: any) {
@@ -130,6 +154,8 @@ export class SmartDocumentsComponent implements OnDestroy {
     }
 
     private _handleError(exception: any): void {
+        console.error("error", exception);
+
         if (exception?.error?.code === "PaymentRequired") {
             this._smartEnrollService.insufficientCreditsTrigger();
 
@@ -139,11 +165,99 @@ export class SmartDocumentsComponent implements OnDestroy {
         this._smartEnrollService.subtractAttempt("document");
 
         this.errorResult = true;
-        this.errorContent = { message: exception?.error?.message || "" };
 
-        const split = this.errorContent.message.split("@");
+        if (exception?.error?.details?.error) {
+            this.errorContent = { message: exception?.error?.details?.error || "failed_to_read" };
+        } else {
+            this.errorContent = { message: exception?.error?.message || "" };
 
-        this.errorContent.message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(split[0]) ? split[0] : "failed_to_read";
+            const split = this.errorContent.message.split("@");
+
+            this.errorContent.message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(split[0]) ? split[0] : "failed_to_read";
+        }
+    }
+
+    private _initForm() {
+        this.methodSelectionForm = this._formBuilder.group({
+            country: ["", Validators.required],
+            documentCategory: ["", Validators.required],
+            documentMethod: ["", Validators.required],
+        });
+
+        const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
+
+        let country = "";
+        let documentMethod = "";
+        let documentCategory = "";
+
+        if (this.enrollSettings.country) {
+            country = this.enrollSettings.country;
+        }
+
+        if (this.enrollSettings.documentMethod) {
+            documentMethod = this.enrollSettings.documentMethod;
+        } else {
+            const documentMethods = Object.keys(onboardSettingsDocument).filter((key) =>
+                ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key)
+            );
+
+            if (documentMethods.length === 1) {
+                switch (documentMethods[0]) {
+                    case "uploadDocumentAllowed":
+                        documentMethod = "upload";
+                        break;
+                    case "scanDocumentAllowed":
+                        documentMethod = "scan";
+                        break;
+                }
+            }
+        }
+
+        if (this.enrollSettings.documentCategory) {
+            documentCategory = this.enrollSettings.documentCategory;
+        } else {
+            const documentCategorys = Object.keys(onboardSettingsDocument).filter((key) =>
+                ["useLicense", "usePassport", "useGovernmentID", "useTaxInformation"].includes(key)
+            );
+
+            if (documentCategorys.length === 1) {
+                switch (documentCategorys[0]) {
+                    case "useLicense":
+                        documentCategory = "driver-license";
+                        break;
+                    case "usePassport":
+                        documentCategory = "passport";
+                        break;
+                    case "useGovernmentID":
+                        documentCategory = "id";
+                        break;
+                }
+            }
+        }
+
+        this.methodSelectionForm.patchValue({
+            country,
+            documentMethod,
+            documentCategory,
+        });
+
+        this._changeDetectorRef.markForCheck();
+    }
+
+    private _onEnrollSettingsChange(settings: EnrollSettings) {
+        if (!this.methodSelectionForm || !settings.documentMethod) this.formSubmitted = false;
+
+        if (settings.documentMethod && this.methodSelectionForm?.value.documentMethod !== settings.documentMethod) {
+            this.methodSelectionForm.setValue({ documentMethod: settings.documentMethod });
+        }
+
+        if (settings.documentCategory && this.methodSelectionForm?.value.documentCategory !== settings.documentCategory) {
+            this.methodSelectionForm.setValue({ documentCategory: settings.documentCategory });
+        }
+
+        if (settings.country && this.methodSelectionForm?.value.country !== settings.country) {
+            this.methodSelectionForm.setValue({ country: settings.country });
+        }
     }
 
     private _sendDocumentValidationAndNameValidation(): void {
@@ -286,13 +400,11 @@ export class SmartDocumentsComponent implements OnDestroy {
         return `linear-gradient(34deg, rgba(0,0,0,0) 25%, ${this.project.branding.buttonColor} 230%)`;
     }
 
-    onDocumentMethodChange(method: EnrollDocumentMethod) {
-        this.selectedMethod = method;
-    }
-
     onImageScan(imageScan: ImageScan): void {
         const body = {
             backImage: undefined,
+            category: this.enrollSettings.documentCategory,
+            country: this._countryService.getCountryFromCode(this.enrollSettings.country),
             documentFace: undefined,
             force: imageScan.force,
             image: undefined,
@@ -314,8 +426,30 @@ export class SmartDocumentsComponent implements OnDestroy {
         this.errorContent = { message: "" };
     }
 
+    submitMethodSelectionForm() {
+        if (!this.methodSelectionForm.valid) return;
+
+        this.enrollSettings.documentMethod = this.methodSelectionForm.value.documentMethod;
+        this.enrollSettings.documentCategory = this.methodSelectionForm.value.documentCategory;
+        this.enrollSettings.country = this.methodSelectionForm.value.country;
+
+        this.updateDocumentMethod(this.methodSelectionForm.value.documentMethod);
+        this.updateDocumentCategory(this.methodSelectionForm.value.documentCategory);
+        this.updateCountry(this.methodSelectionForm.value.country);
+
+        this.formSubmitted = true;
+    }
+
     updateDocumentMethod(method: EnrollDocumentMethod) {
         this._smartEnrollService.setCurrentStep("document");
         this._smartEnrollService.setDocumentMethod(method);
+    }
+
+    updateDocumentCategory(category: DocumentCategory) {
+        this._smartEnrollService.setDocumentCategory(category);
+    }
+
+    updateCountry(country: keyof CountryOption) {
+        this._smartEnrollService.setCountry(country);
     }
 }

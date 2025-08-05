@@ -241,12 +241,12 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this.isExtracting = false;
     }
 
-    showPassportColor(): boolean {
+    showGovernmentIDColor(): boolean {
         return (
             !this.appRegistration.documentValidation ||
             (this.fileProgress < 100 && this.side === "front") ||
             ((this.fileProgress === 100 || this.side === "back") &&
-                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport")
+                ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase()))
         );
     }
 
@@ -259,12 +259,21 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         );
     }
 
-    showGovernmentIDColor(): boolean {
+    showPassportColor(): boolean {
         return (
             !this.appRegistration.documentValidation ||
             (this.fileProgress < 100 && this.side === "front") ||
             ((this.fileProgress === 100 || this.side === "back") &&
-                ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase()))
+                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport")
+        );
+    }
+
+    showTaxInformationColor(): boolean {
+        return (
+            !this.appRegistration.documentValidation ||
+            (this.fileProgress < 100 && this.side === "front") ||
+            ((this.fileProgress === 100 || this.side === "back") &&
+                this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "taxdocument")
         );
     }
 

@@ -361,6 +361,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
                     this.otpForm?.enable();
                 },
                 error: (exception) => {
+                    console.log(`🚀 ~ AuthSignUpVerificationComponent ~ _initPhoneValidation ~ exception:`, exception);
                     if (exception?.error?.code === "PaymentRequired") {
                         this._smartEnrollService.insufficientCreditsTrigger();
                         return;

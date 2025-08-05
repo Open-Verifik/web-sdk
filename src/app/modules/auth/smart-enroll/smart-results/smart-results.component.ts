@@ -61,9 +61,6 @@ export class SmartResultsComponent implements OnInit {
         this.errorResult = false;
     }
 
-    /**
-     * On init
-     */
     ngOnInit(): void {
         this.biometricSkipped = this._smartEnrollService.wasSkippedBiometric();
         this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
@@ -224,6 +221,7 @@ export class SmartResultsComponent implements OnInit {
     tryAgain(step: "document" | "biometric"): void {
         if (step === "document") {
             this._syncAppRegistration("document", "ONGOING");
+            this._smartEnrollService.skipToStep(step);
             this._smartEnrollService.setDocumentMethod("");
 
             return;

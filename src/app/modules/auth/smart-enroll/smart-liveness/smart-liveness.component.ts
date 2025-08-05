@@ -103,9 +103,12 @@ type VideoStatus = {
 };
 
 @Component({
+    animations: [fuseAnimations],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "smart-liveness",
     standalone: true,
-    animations: [fuseAnimations],
+    styleUrls: ["./smart-liveness.component.scss"],
+    templateUrl: "./smart-liveness.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
@@ -116,9 +119,6 @@ type VideoStatus = {
         SmartCameraResolutionDetectionComponent,
         TranslocoModule,
     ],
-    templateUrl: "./smart-liveness.component.html",
-    styleUrls: ["./smart-liveness.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SmartLivenessComponent implements OnInit, OnDestroy {
     @ViewChild("videoElement") public videoElement: ElementRef<HTMLVideoElement>;

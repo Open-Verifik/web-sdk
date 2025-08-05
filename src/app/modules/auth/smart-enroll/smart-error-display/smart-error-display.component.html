@@ -34,25 +34,11 @@
         }}
     </p>
 
-    <button
-        (click)="tryAgain()"
-        [style.background]="project.branding.buttonColor"
-        [style.color]="project.branding.buttonTxtColor"
-        class="fuse-mat-button-large w-full mt-16"
-        *ngIf="attemptsRemaining"
-        mat-flat-button
-    >
+    <button (click)="tryAgain()" class="fuse-mat-button-large w-full mt-16" *ngIf="attemptsRemaining" mat-flat-button color="primary">
         <span>{{ "id_scanning.retry" | transloco }}</span>
     </button>
 
-    <button
-        (click)="exitApplication()"
-        [style.background]="project.branding.buttonColor"
-        [style.color]="project.branding.buttonTxtColor"
-        class="fuse-mat-button-large w-full mt-16"
-        *ngIf="!attemptsRemaining"
-        mat-flat-button
-    >
+    <button (click)="exitApplication()" class="fuse-mat-button-large w-full mt-16" *ngIf="!attemptsRemaining" mat-flat-button color="primary">
         <span>{{ "log_out" | transloco }}</span>
     </button>
 </div>

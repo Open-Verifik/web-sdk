@@ -102,10 +102,9 @@
             <button
                 (click)="sendPhoneOTP($event, 'sms')"
                 [disabled]="!canSendOTP()"
-                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
-                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
                 class="fuse-mat-button-large mr-2"
                 mat-flat-button
+                color="primary"
             >
                 <span>SMS</span>
             </button>
@@ -113,10 +112,9 @@
             <button
                 (click)="sendPhoneOTP($event, 'whatsapp')"
                 [disabled]="!canSendOTP()"
-                [style.background]="canSendOTP() ? project.branding.buttonColor : ''"
-                [style.color]="canSendOTP() ? project.branding.buttonTxtColor : ''"
                 class="fuse-mat-button-large"
                 mat-flat-button
+                color="primary"
             >
                 <span>Whatsapp</span>
             </button>
@@ -129,14 +127,7 @@
             {{ "confirmation.remaining_time" | transloco }} {{ remainingTime }}
         </div>
 
-        <button
-            (click)="resendOTP()"
-            [style.background]="canResendOTP() ? project.branding.buttonColor : ''"
-            [style.color]="canResendOTP() ? project.branding.buttonTxtColor : ''"
-            *ngIf="canResendOTP()"
-            class="fuse-mat-button-large w-full mt-6"
-            mat-flat-button
-        >
+        <button (click)="resendOTP()" *ngIf="canResendOTP()" class="fuse-mat-button-large w-full mt-6" mat-flat-button color="primary">
             <mat-icon matLeadingIcon class="mr-2" *ngIf="!sendingOTP">refresh</mat-icon>
 
             <mat-progress-spinner *ngIf="sendingOTP" [diameter]="24" mode="indeterminate"></mat-progress-spinner>
@@ -147,11 +138,10 @@
 
     <button
         (click)="chooseAnotherOTPMethod()"
-        [style.background]="project.branding.buttonColor"
-        [style.color]="project.branding.buttonTxtColor"
         *ngIf="canChooseAnotherOTPMethod()"
         class="fuse-mat-button-large w-full mt-3"
         mat-flat-button
+        color="primary"
     >
         <span> {{ "signup.choose_another" | transloco }} </span>
     </button>
@@ -185,10 +175,9 @@
             <button
                 (click)="updateEmail($event)"
                 [disabled]="!canUpdateEmailOrPhone()"
-                [style.background]="canUpdateEmailOrPhone() ? project.branding.buttonColor : ''"
-                [style.color]="canUpdateEmailOrPhone() ? project.branding.buttonTxtColor : ''"
                 class="fuse-mat-button-large w-full mt-6"
                 mat-flat-button
+                color="primary"
             >
                 <span> {{ "signup.change_your_phone_button" | transloco }} </span>
             </button>
