@@ -63,7 +63,11 @@ export class AuthService {
             redirectUrl = `${environment.sandboxUrl}/sign-in`;
         }
 
-        window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+        console.log({ redirectUrl, type, token, origin });
+
+        alert(redirectUrl);
+
+        // window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
     }
 
     /**
