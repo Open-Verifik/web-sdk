@@ -45,10 +45,16 @@ export class AuthService {
     handleRedirect(projectFlow: ProjectFlow, projectId: string, token: string, type: "login" | "onboarding" = "login"): void {
         let redirectUrl = projectFlow.redirectUrl;
 
+        const verifikProject =
+            window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
+                ? environment.sandboxProject
+                : environment.verifikProject;
+
         // Check if this is not the verifik project, use the project flow redirect URL
-        if (projectId !== environment.verifikProject) {
+        if (projectId !== verifikProject) {
             redirectUrl = projectFlow.redirectUrl;
             window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+
             return;
         }
 
@@ -62,10 +68,6 @@ export class AuthService {
         } else if (origin.includes("testing-access.verifik.co")) {
             redirectUrl = `${environment.sandboxUrl}/sign-in`;
         }
-
-        console.log({ redirectUrl, type, token, origin });
-
-        alert(redirectUrl);
 
         window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
     }
