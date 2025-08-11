@@ -4,12 +4,15 @@ import { AuthConfirmationRequiredComponent } from "app/modules/auth/confirmation
 
 import { environment } from "environments/environment";
 
-const defaultPath = `/sign-in/${environment.verifikProject}`;
+const defaultPath =
+    window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
+        ? `/sign-in/${environment.sandboxProject}`
+        : `/sign-in/${environment.verifikProject}`;
 
 export default [
-	{ path: "", pathMatch: "full", redirectTo: defaultPath },
-	{
-		path: ":id",
-		component: AuthConfirmationRequiredComponent,
-	},
+    { path: "", pathMatch: "full", redirectTo: defaultPath },
+    {
+        path: ":id",
+        component: AuthConfirmationRequiredComponent,
+    },
 ] as Routes;

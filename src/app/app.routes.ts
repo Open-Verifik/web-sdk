@@ -8,7 +8,7 @@ import { environment } from "environments/environment";
 // if its production it should use verifikProject
 // if its localhost it should use sandboxProject
 const defaultPath =
-    window.location.hostname.includes("localhost") || window.location.hostname.includes("testing-access.verifik.co")
+    window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
         ? `/sign-in/${environment.sandboxProject}`
         : `/sign-in/${environment.verifikProject}`;
 
