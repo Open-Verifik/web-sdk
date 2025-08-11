@@ -67,7 +67,7 @@ export class AuthService {
 
         alert(redirectUrl);
 
-        // window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+        window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
     }
 
     /**
