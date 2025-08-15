@@ -7,7 +7,7 @@ import { environment } from "environments/environment";
 import { ProjectFlowModel, ProjectModel } from "../project";
 import { CommonModule, NgIf } from "@angular/common";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -78,6 +78,19 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
     deviceDetails: any;
     endstep: boolean;
 
+    flagCodes = {
+        en: "us",
+        es: "es",
+        br: "br",
+        fr: "fr",
+        it: "it",
+        ru: "ru",
+        kr: "kr",
+        in: "in",
+        cn: "cn",
+        ph: "ph",
+    };
+
     /**
      * Constructor
      */
@@ -90,7 +103,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
         private _formBuilder: UntypedFormBuilder,
         private _countries: CountriesService,
         private _demoService: DemoService,
-        private _authService: AuthService
+        private _authService: AuthService,
+        private _translocoService: TranslocoService
     ) {
         this._splashScreenService.show();
 
@@ -526,6 +540,17 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
                 this._changeDetectorRef.detectChanges();
             });
+    }
+
+    /**
+     * Handle language change from LanguagesComponent
+     */
+    onLanguageChange(lang: string): void {
+        if (!this.flagCodes || !this.flagCodes[lang]) return;
+
+        localStorage.setItem("currentLanguage", lang);
+        this._translocoService.setActiveLang(lang);
+        this._changeDetectorRef.markForCheck();
     }
 
     ngOnDestroy(): void {

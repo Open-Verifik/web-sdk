@@ -252,7 +252,7 @@
                 </form>
                 <div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
                     <small> Powered by Verifik </small>
-                    <languages [colorText]="project.branding.txtColor"></languages>
+                    <languages [colorText]="project.branding.txtColor" (languageChange)="onLanguageChange($event)"></languages>
                 </div>
             </div>
         </div>
@@ -316,7 +316,11 @@
             </div>
 
             <div class="w-full text-center mt-6">
-                <languages [colorText]="project.branding.txtColor" *ngIf="project.branding.txtColor"></languages>
+                <languages
+                    [colorText]="project.branding.txtColor"
+                    *ngIf="project.branding.txtColor"
+                    (languageChange)="onLanguageChange($event)"
+                ></languages>
             </div>
         </div>
 
@@ -588,10 +592,10 @@
 							</button>
 						</div>
 					</form>
-					<div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
-						<small> Powered by Verifik </small>
-						<languages [colorText]="project.branding.txtColor"></languages>
-					</div>
+					                <div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
+                    <small> Powered by Verifik </small>
+                    <languages [colorText]="project.branding.txtColor" (languageChange)="onLanguageChange($event)"></languages>
+                </div>
 				</div>
 			</div>
 
@@ -653,7 +657,7 @@
 				</div>
 
 				<div class="w-full text-center mt-6">
-					<languages [colorText]="project.branding.txtColor" *ngIf="project.branding.txtColor"></languages>
+					                <languages [colorText]="project.branding.txtColor" *ngIf="project.branding.txtColor" (languageChange)="onLanguageChange($event)"></languages>
 				</div>
 			</div>
 		</div>

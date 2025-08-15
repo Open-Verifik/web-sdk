@@ -1,4 +1,4 @@
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { combineLatest, map, Subject, takeUntil } from "rxjs";
 
 import { CommonModule, isPlatformBrowser, NgIf } from "@angular/common";
@@ -97,6 +97,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _smartEnrollService: SmartEnrollService,
         private _splashScreenService: FuseSplashScreenService,
+        private _translocoService: TranslocoService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this._splashScreenService.show();
@@ -166,6 +167,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
                 this.locationError = err;
             },
         });
+
+        this._ensureLanguageSync();
     }
 
     ngOnDestroy(): void {
@@ -264,14 +267,57 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     private _setLanguage() {
         if (!isPlatformBrowser(this.platformId)) {
             this.language = "en";
+            return;
         }
 
-        // Get the browser's language setting
-        const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
-        // Check if the browser's language is one of the specified options, otherwise default to 'en'
-        this.language = this.flagCodes[browserLang] ? browserLang : "en";
+        // First check if user has previously selected a language
+        const savedLanguage = localStorage.getItem("currentLanguage");
 
-        localStorage.setItem("currentLanguage", this.language);
+        if (savedLanguage && this.flagCodes[savedLanguage]) {
+            this.language = savedLanguage;
+            // Sync with TranslocoService
+            this._translocoService.setActiveLang(savedLanguage);
+        } else {
+            // Get the browser's language setting as fallback
+            let browserLang = navigator.language;
+
+            // Handle different language formats (e.g., "pt-BR", "pt", "en-US", "en")
+            if (browserLang.includes("-")) {
+                browserLang = browserLang.split("-")[0]; // Get the primary language subtag
+            }
+
+            // Check if the browser's language is one of the specified options, otherwise default to 'en'
+            this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+            // Save the detected language to localStorage
+            localStorage.setItem("currentLanguage", this.language);
+            // Sync with TranslocoService
+            this._translocoService.setActiveLang(this.language);
+        }
+    }
+
+    /**
+     * Handle language change from LanguagesComponent
+     */
+    onLanguageChange(lang: string): void {
+        if (!this.flagCodes[lang]) return;
+
+        this.language = lang;
+        localStorage.setItem("currentLanguage", lang);
+        this._translocoService.setActiveLang(lang);
+        this._changeDetectorRef.markForCheck();
+    }
+
+    /**
+     * Ensure language synchronization after view initialization
+     */
+    private _ensureLanguageSync(): void {
+        const savedLanguage = localStorage.getItem("currentLanguage");
+        if (savedLanguage && this.flagCodes[savedLanguage] && savedLanguage !== this.language) {
+            this.language = savedLanguage;
+            this._translocoService.setActiveLang(savedLanguage);
+            this._changeDetectorRef.markForCheck();
+        }
     }
 
     private _setStep(step: string): void {

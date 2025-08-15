@@ -16,7 +16,7 @@ import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project
 import { Subject } from "rxjs";
 import { MatTabsModule } from "@angular/material/tabs";
 import { environment } from "environments/environment";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { MatSelectModule } from "@angular/material/select";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
@@ -115,6 +115,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
         private _authService: AuthService,
+        private _translocoService: TranslocoService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this.setLanguage();
@@ -148,6 +149,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
             this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
         });
+
+        // Ensure language synchronization after view initialization
+        this._ensureLanguageSync();
 
         this._demoService.geoLocation$.subscribe({
             next: async (response) => {
@@ -186,12 +190,65 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     setLanguage() {
         if (!isPlatformBrowser(this.platformId)) this.language = "en";
 
-        // Get the browser's language setting
-        const browserLang = navigator.language.split("-")[0]; // Get the primary language subtag
-        // Check if the browser's language is one of the specified options, otherwise default to 'en'
-        this.language = this.flagCodes[browserLang] ? browserLang : "en";
+        // First check if user has previously selected a language
+        const savedLanguage = localStorage.getItem("currentLanguage");
+        console.log("setLanguage - savedLanguage from localStorage:", savedLanguage);
 
-        localStorage.setItem("currentLanguage", this.language);
+        if (savedLanguage && this.flagCodes[savedLanguage]) {
+            this.language = savedLanguage;
+            console.log("setLanguage - using saved language:", this.language);
+            // Sync with TranslocoService
+            this._translocoService.setActiveLang(savedLanguage);
+        } else {
+            // Get the browser's language setting as fallback
+            let browserLang = navigator.language;
+            console.log("setLanguage - browser language:", browserLang);
+
+            // Handle different language formats (e.g., "pt-BR", "pt", "en-US", "en")
+            if (browserLang.includes("-")) {
+                browserLang = browserLang.split("-")[0]; // Get the primary language subtag
+            }
+            console.log("setLanguage - processed browser language:", browserLang);
+
+            // Check if the browser's language is one of the specified options, otherwise default to 'en'
+            this.language = this.flagCodes[browserLang] ? browserLang : "en";
+            console.log("setLanguage - final language:", this.language);
+
+            // Save the detected language to localStorage
+            localStorage.setItem("currentLanguage", this.language);
+            // Sync with TranslocoService
+            this._translocoService.setActiveLang(this.language);
+        }
+    }
+
+    /**
+     * Handle language change from LanguagesComponent
+     */
+    onLanguageChange(lang: string): void {
+        if (!this.flagCodes[lang]) return;
+
+        this.language = lang;
+
+        localStorage.setItem("currentLanguage", lang);
+
+        this._translocoService.setActiveLang(lang);
+
+        this._changeDetectorRef.markForCheck();
+    }
+
+    /**
+     * Ensure language synchronization after view initialization
+     */
+    private _ensureLanguageSync(): void {
+        const savedLanguage = localStorage.getItem("currentLanguage");
+
+        if (savedLanguage && this.flagCodes[savedLanguage] && savedLanguage !== this.language) {
+            this.language = savedLanguage;
+
+            this._translocoService.setActiveLang(savedLanguage);
+
+            this._changeDetectorRef.markForCheck();
+        }
     }
 
     requestProject(projectId?: string): void {

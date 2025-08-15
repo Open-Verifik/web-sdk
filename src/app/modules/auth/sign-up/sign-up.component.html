@@ -8,7 +8,7 @@
     fxLayoutAlign.lt-md="start start"
     fxLayoutAlign="center center"
 >
-    <languages class="language-selector" ngClass.lt-md="hidden"></languages>
+    <languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
 
     <div *ngIf="showMainContainer()" class="flex w-full" fxLayout="row" fxLayoutAlign="center end" ngClass.gt-sm="my-8">
         <div class="flex overflow-hidden bg-card" ngClass.gt-sm="sign-in-content rounded-2xl">
@@ -18,7 +18,11 @@
                         <div fxLayout="row" fxLayoutAlign="space-between center" class="w-full mt-2 mb-4 ml-2" ngClass.gt-sm="mb-8">
                             <img [src]="project.branding.logo" ngClass.gt-sm="w-14" ngClass.lt-md="w-12" />
 
-                            <languages class="language-selector relative" ngClass.gt-sm="hidden"></languages>
+                            <languages
+                                class="language-selector relative"
+                                ngClass.gt-sm="hidden"
+                                (languageChange)="onLanguageChange($event)"
+                            ></languages>
                         </div>
 
                         <div class="w-full" ngClass.lt-md="flex flex-col flex-grow">
