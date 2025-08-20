@@ -87,11 +87,11 @@
             </h4>
 
             <p *ngIf="appRegistration.biometricValidation && livenessFailed">
-                {{ "smart_enroll.minimum_liveness" | transloco : { min: enrollStore.biometric.compareMinScore * 100 } }}
+                {{ "smart_enroll.minimum_liveness" | transloco : { min: enrollStore.biometric.livenessMinScore * 100 } }}
             </p>
 
             <p *ngIf="appRegistration.compareFaceVerification && comparisonFailed">
-                {{ "smart_enroll.minimum_comparison" | transloco : { min: enrollStore.biometric.livenessMinScore * 100 } }}
+                {{ "smart_enroll.minimum_comparison" | transloco : { min: enrollStore.biometric.compareMinScore * 100 } }}
             </p>
 
             <div

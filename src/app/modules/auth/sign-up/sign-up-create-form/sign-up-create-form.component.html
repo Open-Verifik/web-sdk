@@ -215,7 +215,7 @@
         mat-flat-button
         color="primary"
     >
-        <span *ngIf="!signUpForm.disabled">{{ "step_two.continue_button" | transloco }}</span>
+        <span *ngIf="!signUpForm?.disabled">{{ "step_two.continue_button" | transloco }}</span>
 
         <mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
     </button>

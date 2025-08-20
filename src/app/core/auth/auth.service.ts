@@ -53,6 +53,7 @@ export class AuthService {
         // Check if this is not the verifik project, use the project flow redirect URL
         if (projectId !== verifikProject) {
             redirectUrl = projectFlow.redirectUrl;
+
             window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
 
             return;
