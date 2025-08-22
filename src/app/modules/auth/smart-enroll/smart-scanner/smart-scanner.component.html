@@ -23,7 +23,7 @@
     <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
         <div class="w-full" fxLayout="row" fxLayoutAlign="space-between center">
             <div class="flex">
-                <button (click)="goPrevious()" [disabled]="!canGoPrevious()" class="mr-4" style.backgroundColor="rgba(0,0,0,0)" mat-flat-button>
+                <button (click)="goPrevious()" [disabled]="!canGoPrevious()" class="mr-4" style.backgroundColor="white" mat-flat-button>
                     <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
                     <span class="ml-2">{{ "cancel" | transloco }}</span>
                 </button>
@@ -311,7 +311,7 @@
                                     ></mat-icon>
 
                                     <p class="font-medium">
-                                        {{ "smart_enroll.documents.upload.passport" | transloco }}
+                                        {{ "smart_enroll.documents.passport" | transloco }}
                                     </p>
                                 </div>
 
@@ -331,7 +331,7 @@
                                     ></mat-icon>
 
                                     <p class="font-medium">
-                                        {{ "smart_enroll.documents.upload.driver_license" | transloco }}
+                                        {{ "smart_enroll.documents.driver_license" | transloco }}
                                     </p>
                                 </div>
 
@@ -351,7 +351,7 @@
                                     ></mat-icon>
 
                                     <p class="font-medium">
-                                        {{ "smart_enroll.documents.upload.id" | transloco }}
+                                        {{ "smart_enroll.documents.id" | transloco }}
                                     </p>
                                 </div>
                             </div>
@@ -382,7 +382,7 @@
                                 <button
                                     (click)="goPrevious()"
                                     [disabled]="!canGoPrevious()"
-                                    class="fuse-mat-button"
+                                    class="fuse-mat-button bg-white"
                                     mat-stroked-button
                                     color="primary"
                                     ngClass.lt-md="hidden"
@@ -394,7 +394,7 @@
                                     (click)="goNext()"
                                     [disabled]="!canSkip()"
                                     *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
-                                    class="fuse-mat-button"
+                                    class="fuse-mat-button bg-white"
                                     mat-stroked-button
                                     color="primary"
                                 >
