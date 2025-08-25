@@ -81,4 +81,20 @@ export const appRoutes: Route[] = [
             },
         ],
     },
+    // Development-only routes (only available in non-production)
+    ...(environment.production ? [] : [
+        {
+            path: "dev-test",
+            component: LayoutComponent,
+            data: {
+                layout: "empty",
+            },
+            children: [
+                {
+                    path: "",
+                    loadChildren: () => import("app/modules/dev-test/dev-test.routes"),
+                },
+            ],
+        }
+    ])
 ];

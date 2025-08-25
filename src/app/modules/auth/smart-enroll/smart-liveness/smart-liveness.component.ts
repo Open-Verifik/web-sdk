@@ -45,7 +45,7 @@ type AngleThreshold = {
     mid?: Angle;
     min: Angle;
     max: Angle;
-    indicatorAdjust: number;
+    indicatorAdjust: number | undefined;
     instructions?: string;
 };
 
@@ -137,7 +137,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     private DEBUG = false;
     private MINIMUM_DEPTH = 300 * 300;
 
-    angleThreshold: AngleThreshold = { min: {}, max: {}, indicatorAdjust: 0 };
+    angleThreshold: AngleThreshold = { min: {}, max: {}, indicatorAdjust: undefined };
     angleThresholds: Array<AngleThreshold> = [];
     appRegistration: AppRegistration;
     bounds: DetectionBounds = {};
@@ -226,16 +226,23 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     private _calculateThresholdScore(angle: Angle) {
         const { min, mid, max } = this.angleThreshold;
 
+        // Weighted scoring - yaw is most important, roll least important
+        const weights = { pitch: 0.4, yaw: 0.5, roll: 0.1 };
+
+        // Calculate normalized scores with bounds checking
+        const pitchRange = max.pitch - min.pitch;
         const pitchDifference = Math.abs(mid.pitch - angle.pitch);
-        const pitchScore = 1 - pitchDifference / (max.pitch - min.pitch);
+        const pitchScore = pitchRange > 0 ? Math.max(0, 1 - pitchDifference / pitchRange) : 1;
 
+        const rollRange = max.roll - min.roll;
         const rollDifference = Math.abs(mid.roll - angle.roll);
-        const rollScore = 1 - rollDifference / (max.roll - min.roll);
+        const rollScore = rollRange > 0 ? Math.max(0, 1 - rollDifference / rollRange) : 1;
 
+        const yawRange = max.yaw - min.yaw;
         const yawDifference = Math.abs(mid.yaw - angle.yaw);
-        const yawScore = 1 - yawDifference / (max.yaw - min.yaw);
+        const yawScore = yawRange > 0 ? Math.max(0, 1 - yawDifference / yawRange) : 1;
 
-        return (pitchScore + rollScore + yawScore) / 3;
+        return pitchScore * weights.pitch + rollScore * weights.roll + yawScore * weights.yaw;
     }
 
     private _calculateVideoCoverDimensions(video: VideoStatus, container: VideoStatus) {
@@ -342,158 +349,127 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private _generateRandomAngleThresholds(): void {
-        const minRoll = -30;
-        const maxRoll = 30;
+        const randomIndicatorAngles = this._generateRandomIndicatorAngles(2);
 
-        const north = {
-            min: {
-                pitch: 10,
-                roll: minRoll,
-                yaw: -50,
-            },
-            max: {
-                pitch: 70,
-                roll: maxRoll,
-                yaw: 50,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up"),
-            indicatorAdjust: 1,
-        };
+        randomIndicatorAngles.forEach((indicatorAngle) => {
+            this.angleThresholds.push(indicatorAngle);
+        });
 
-        const northEast = {
-            min: {
-                pitch: 0,
-                roll: minRoll,
-                yaw: 50,
-            },
-            max: {
-                pitch: 60,
-                roll: maxRoll,
-                yaw: 200,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_right"),
-            indicatorAdjust: 45,
-        };
+        this._changeDetectionRef.detectChanges();
+    }
 
-        const east = {
-            min: {
-                pitch: -30,
-                roll: minRoll,
-                yaw: 100,
-            },
-            max: {
-                pitch: 30,
-                roll: maxRoll,
-                yaw: 250,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_right"),
-            indicatorAdjust: 90,
-        };
+    private _generateRandomIndicatorAngles(count: number): AngleThreshold[] {
+        const indicatorAngles: number[] = [];
+        const minSeparation = 60; // Minimum 60° separation between directions
 
-        const southEast = {
-            min: {
-                pitch: -60,
-                roll: minRoll,
-                yaw: 50,
-            },
-            max: {
-                pitch: 0,
-                roll: maxRoll,
-                yaw: 200,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down_and_right"),
-            indicatorAdjust: 135,
-        };
+        for (let i = 0; i < count; i++) {
+            let angle: number;
+            let attempts = 0;
 
-        const south = {
-            min: {
-                pitch: -70,
-                roll: minRoll,
-                yaw: -50,
-            },
-            max: {
-                pitch: 10,
-                roll: maxRoll,
-                yaw: 50,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_down"),
-            indicatorAdjust: 180,
-        };
+            do {
+                angle = Math.floor(Math.random() * 360); // 0-359°
 
-        const southWest = {
-            min: {
-                pitch: -60,
-                roll: minRoll,
-                yaw: -200,
-            },
-            max: {
-                pitch: 0,
-                roll: maxRoll,
-                yaw: 50,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
-            indicatorAdjust: 225,
-        };
+                attempts++;
+            } while (
+                attempts < 100 &&
+                indicatorAngles.some((existingAngle) => {
+                    const diff = Math.abs(angle - existingAngle);
+                    return Math.min(diff, 360 - diff) < minSeparation;
+                })
+            );
 
-        const west = {
-            min: {
-                pitch: -30,
-                roll: minRoll,
-                yaw: -250,
-            },
-            max: {
-                pitch: 30,
-                roll: maxRoll,
-                yaw: -100,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
-            indicatorAdjust: 270,
-        };
-
-        const northWest = {
-            min: {
-                pitch: 0,
-                roll: minRoll,
-                yaw: -200,
-            },
-            max: {
-                pitch: 60,
-                roll: maxRoll,
-                yaw: 50,
-            },
-            instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_up_and_left"),
-            indicatorAdjust: 315,
-        };
-
-        const directions = {
-            north,
-            northEast,
-            east,
-            southEast,
-            south,
-            southWest,
-            west,
-            northWest,
-        };
-
-        const directionToSet = new Set();
-        const keys = Object.keys(directions);
-
-        while (directionToSet.size < 2) {
-            const random = Math.floor(Math.random() * 8);
-
-            directionToSet.add(keys[random]);
+            indicatorAngles.push(angle);
         }
 
-        [...directionToSet].forEach((key: string) => {
-            directions[key].mid = {
-                pitch: (directions[key].min.pitch + directions[key].max.pitch) / 2,
-                roll: (directions[key].min.roll + directions[key].max.roll) / 2,
-                yaw: (directions[key].min.yaw + directions[key].max.yaw) / 2,
+        return indicatorAngles.map((indicatorAngle, index) => {
+            const { targetYaw, targetPitch } = this._indicatorAngleToYawPitch(indicatorAngle);
+
+            let instruction = "Look ";
+
+            const pitchAbs = Math.abs(targetPitch);
+            const yawAbs = Math.abs(targetYaw);
+
+            if (pitchAbs > yawAbs) {
+                instruction += targetPitch > 0 ? "up" : "down";
+
+                if (yawAbs > 15) {
+                    instruction += targetYaw > 0 ? " and right" : " and left";
+                }
+            } else {
+                instruction += targetYaw > 0 ? "right" : "left";
+
+                if (pitchAbs > 15) {
+                    instruction += targetPitch > 0 ? " and up" : " and down";
+                }
+            }
+
+            const { minBounds, maxBounds } = this._calculateOvalBounds(indicatorAngle);
+
+            const finalThreshold: AngleThreshold = {
+                min: minBounds,
+                max: maxBounds,
+                mid: {
+                    pitch: targetPitch,
+                    roll: 0,
+                    yaw: targetYaw,
+                },
+                instructions: instruction,
+                indicatorAdjust: indicatorAngle + 20,
             };
 
-            this.angleThresholds.push(directions[key]);
+            return finalThreshold;
         });
+    }
+
+    private _indicatorAngleToYawPitch(indicatorAngle: number): { targetYaw: number; targetPitch: number } {
+        let targetYaw: number;
+        let targetPitch: number;
+
+        if (indicatorAngle >= 315 || indicatorAngle < 45) {
+            // North (up) - 315° to 45°
+            targetYaw = 0;
+            targetPitch = 30;
+        } else if (indicatorAngle >= 45 && indicatorAngle < 135) {
+            // East (right) - 45° to 135°
+            targetYaw = 120;
+            targetPitch = 0;
+        } else if (indicatorAngle >= 135 && indicatorAngle < 225) {
+            // South (down) - 135° to 225°
+            targetYaw = 0;
+            targetPitch = -30;
+        } else {
+            // West (left) - 225° to 315°
+            targetYaw = -120;
+            targetPitch = 0;
+        }
+
+        return { targetYaw, targetPitch };
+    }
+
+    private _calculateOvalBounds(indicatorAngle: number): { minBounds: any; maxBounds: any } {
+        const { targetYaw, targetPitch } = this._indicatorAngleToYawPitch(indicatorAngle);
+
+        const minBounds = {
+            pitch: targetPitch === 0 ? -10 : targetPitch > 0 ? 2 : -2, // Pitch: ±2° minimum (very forgiving)
+            roll: -45, // Roll: standard range
+            yaw: targetYaw === 0 ? -90 : targetYaw > 0 ? 35 : -35, // Yaw: ±35° minimum (moderate)
+        };
+
+        const maxBounds = {
+            pitch: targetPitch === 0 ? 10 : targetPitch > 0 ? 40 : -40, // Pitch: ±40° maximum (generous)
+            roll: 45, // Roll: standard range
+            yaw: targetYaw === 0 ? 90 : targetYaw > 0 ? 180 : -180, // Yaw: ±180° maximum (very generous)
+        };
+
+        return { minBounds, maxBounds };
+    }
+
+    private _isInRange(value: number, min: number, max: number): boolean {
+        if (min <= max) {
+            return value >= min && value <= max;
+        } else {
+            return value <= min && value >= max;
+        }
     }
 
     private _onIntervalDetect = () => {
@@ -547,8 +523,11 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this.camera.loading = false;
 
-        const detectionDelay = 20;
-        const detectionsPerSecond = Math.floor(1000 / 30);
+        // Adaptive detection timing based on device performance
+        const isMobile = this.device !== "DESKTOP";
+        const detectionDelay = isMobile ? 30 : 20; // Slower on mobile
+        const frameRate = isMobile ? 45 : 30; // Lower FPS on mobile
+        const detectionsPerSecond = Math.floor(1000 / frameRate);
 
         let frameCount = 0;
 
@@ -588,7 +567,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                     roll: 30,
                     yaw: 30,
                 },
-                indicatorAdjust: 0,
+                indicatorAdjust: undefined, // Hide indicator for center/straight position
                 instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
             },
         ];
@@ -743,24 +722,15 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         ) {
             this.face.error = true;
             this.face.message = "not-in-frame";
-        } else if (this.angleThreshold.min.pitch > angle.pitch) {
+        } else if (!this._isInRange(angle.pitch, this.angleThreshold.min.pitch, this.angleThreshold.max.pitch)) {
             this.face.error = true;
-            this.face.message = "pitch-up";
-        } else if (this.angleThreshold.max.pitch < angle.pitch) {
+            this.face.message = "pitch-range";
+        } else if (!this._isInRange(angle.roll, this.angleThreshold.min.roll, this.angleThreshold.max.roll)) {
             this.face.error = true;
-            this.face.message = "pitch-down";
-        } else if (this.angleThreshold.min.roll > angle.roll) {
+            this.face.message = "roll-range";
+        } else if (!this._isInRange(angle.yaw, this.angleThreshold.min.yaw, this.angleThreshold.max.yaw)) {
             this.face.error = true;
-            this.face.message = "roll-right";
-        } else if (this.angleThreshold.max.roll < angle.roll) {
-            this.face.error = true;
-            this.face.message = "roll-left";
-        } else if (this.angleThreshold.min.yaw > angle.yaw) {
-            this.face.error = true;
-            this.face.message = "yaw-right";
-        } else if (this.angleThreshold.max.yaw < angle.yaw) {
-            this.face.error = true;
-            this.face.message = "yaw-left";
+            this.face.message = "yaw-range";
         } else {
             this.face.error = false;
             this.face.success = true;
@@ -773,7 +743,10 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             this.face.success = false;
         }
 
-        if (this.face.successPosition < 2) return;
+        // Require fewer consecutive successes on mobile for better UX
+        const requiredSuccesses = this.device !== "DESKTOP" ? 1 : 2;
+
+        if (this.face.successPosition < requiredSuccesses) return;
 
         this.faceCaptures.push({ angle, base64: this.videoCanvas.nativeElement.toDataURL(), detection });
 
@@ -787,7 +760,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         this._changeDetectionRef.detectChanges();
 
         if (this.currentLivenessIndex === this.angleThresholds.length) {
-            this.angleThreshold = { min: {}, max: {}, indicatorAdjust: 0 };
+            this.angleThreshold = { min: {}, max: {}, indicatorAdjust: undefined }; // Hide indicator when complete
             this.uploading = true;
 
             this._stopCamera();
