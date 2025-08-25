@@ -74,15 +74,9 @@ export class SmartLivenessTestComponent implements OnInit {
         this.setupMockData();
     }
 
-    ngOnInit(): void {
-        console.log("🧪 Smart Liveness Test Component initialized");
-        console.log("📱 Device detection:", this.getDeviceType());
-        console.log("📊 Current settings:", this._smartEnrollService.enrollSettings);
-    }
+    ngOnInit(): void {}
 
     private setupMockData(): void {
-        // Setup mock data required by the smart-liveness component
-
         // Mock project data
         const mockProject: Project = {
             _id: "test-project",
@@ -137,9 +131,6 @@ export class SmartLivenessTestComponent implements OnInit {
         // Set instructions as closed to skip the dialog
         this._smartEnrollService.instructionsClosed = true;
 
-        // Ensure face-api models are loaded
-        this.ensureFaceApiLoaded();
-
         console.log("✅ Mock data setup complete:", {
             project: mockProject,
             projectFlow: mockProjectFlow,
@@ -153,14 +144,6 @@ export class SmartLivenessTestComponent implements OnInit {
         this.lastImageScan = imageScan;
         this.lastResult = "Success";
 
-        console.log("🎉 Image scan received:", {
-            attempts: this.attempts,
-            hasBase64: !!imageScan.base64Image,
-            hasFace: !!imageScan.face,
-            imageSize: imageScan.base64Image?.length || 0,
-        });
-
-        // Simulate successful upload after a short delay
         setTimeout(() => {
             this.successfulUploadSubject.next();
         }, 1000);
@@ -171,7 +154,6 @@ export class SmartLivenessTestComponent implements OnInit {
         this.lastResult = null;
         this.lastImageScan = null;
         this.retrySubject.next();
-        console.log("🔄 Test reset");
     }
 
     private getDeviceType(): string {
@@ -183,16 +165,5 @@ export class SmartLivenessTestComponent implements OnInit {
             return "MOBILE";
         }
         return "DESKTOP";
-    }
-
-    private ensureFaceApiLoaded(): void {
-        // Check if face-api is already loaded via DemoService
-        this._demoService.faceapi$.subscribe((faceApi) => {
-            if (faceApi) {
-                console.log("✅ Face-API loaded via DemoService");
-            } else {
-                console.log("⏳ Waiting for Face-API to load...");
-            }
-        });
     }
 }
