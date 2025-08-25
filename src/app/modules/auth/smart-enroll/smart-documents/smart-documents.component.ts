@@ -404,7 +404,7 @@ export class SmartDocumentsComponent implements OnDestroy {
         const body = {
             backImage: undefined,
             category: this.enrollSettings.documentCategory,
-            country: this._countryService.getCountryFromCode(this.enrollSettings.country),
+            country: this.enrollSettings.country,
             documentFace: undefined,
             force: imageScan.force,
             image: undefined,
