@@ -360,7 +360,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private _generateRandomAngleThresholds(): void {
-        const randomIndicatorAngles = this._generateRandomIndicatorAngles(10);
+        const randomIndicatorAngles = this._generateRandomIndicatorAngles(2);
 
         randomIndicatorAngles.forEach((indicatorAngle) => {
             this.angleThresholds.push(indicatorAngle);
