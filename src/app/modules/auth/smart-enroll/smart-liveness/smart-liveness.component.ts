@@ -436,31 +436,33 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         let targetYaw: number;
         let targetPitch: number;
 
-        if (indicatorAngle >= 315 || indicatorAngle < 45) {
+        const angle = indicatorAngle + 20; // Adjusted for the indicator skew
+
+        if (angle >= 315 || angle < 45) {
             // North (up) - 315° to 45°
             targetYaw = 0;
             targetPitch = 30;
-        } else if (indicatorAngle >= 45 && indicatorAngle < 67.5) {
+        } else if (angle >= 45 && angle < 67.5) {
             // Northeast (up-right) - 45° to 67.5°
             targetYaw = 60;
             targetPitch = 20;
-        } else if (indicatorAngle >= 67.5 && indicatorAngle < 112.5) {
+        } else if (angle >= 67.5 && angle < 112.5) {
             // East (right) - 67.5° to 112.5°
             targetYaw = 120;
             targetPitch = 0;
-        } else if (indicatorAngle >= 112.5 && indicatorAngle < 157.5) {
+        } else if (angle >= 112.5 && angle < 157.5) {
             // Southeast (down-right) - 112.5° to 157.5°
             targetYaw = 60;
             targetPitch = -20;
-        } else if (indicatorAngle >= 157.5 && indicatorAngle < 202.5) {
+        } else if (angle >= 157.5 && angle < 202.5) {
             // South (down) - 157.5° to 202.5°
             targetYaw = 0;
             targetPitch = -30;
-        } else if (indicatorAngle >= 202.5 && indicatorAngle < 247.5) {
+        } else if (angle >= 202.5 && angle < 247.5) {
             // Southwest (down-left) - 202.5° to 247.5°
             targetYaw = -60;
             targetPitch = -20;
-        } else if (indicatorAngle >= 247.5 && indicatorAngle < 292.5) {
+        } else if (angle >= 247.5 && angle < 292.5) {
             // West (left) - 247.5° to 292.5°
             targetYaw = -120;
             targetPitch = 0;
