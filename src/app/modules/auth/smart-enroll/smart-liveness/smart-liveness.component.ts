@@ -360,7 +360,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private _generateRandomAngleThresholds(): void {
-        const randomIndicatorAngles = this._generateRandomIndicatorAngles(2);
+        const randomIndicatorAngles = this._generateRandomIndicatorAngles(10);
 
         randomIndicatorAngles.forEach((indicatorAngle) => {
             this.angleThresholds.push(indicatorAngle);
@@ -481,13 +481,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         const minBounds = {
             pitch: targetPitch === 0 ? -15 : targetPitch > 0 ? 4 : -4, // Pitch: ±4° minimum (very forgiving)
             roll: -45, // Roll: standard range
-            yaw: targetYaw === 0 ? -90 : targetYaw > 0 ? 40 : -40, // Yaw: ±40° minimum (moderate)
+            yaw: targetYaw === 0 ? -110 : targetYaw > 0 ? 40 : -40, // Yaw: ±40° minimum (moderate)
         };
 
         const maxBounds = {
             pitch: targetPitch === 0 ? 15 : targetPitch > 0 ? 40 : -40, // Pitch: ±40° maximum (generous)
             roll: 45, // Roll: standard range
-            yaw: targetYaw === 0 ? 90 : targetYaw > 0 ? 180 : -180, // Yaw: ±180° maximum (very generous)
+            yaw: targetYaw === 0 ? 110 : targetYaw > 0 ? 200 : -200, // Yaw: ±180° maximum (very generous)
         };
 
         return { minBounds, maxBounds };
@@ -597,12 +597,12 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                 min: {
                     pitch: -30,
                     roll: -30,
-                    yaw: -30,
+                    yaw: -75,
                 },
                 max: {
                     pitch: 30,
                     roll: 30,
-                    yaw: 30,
+                    yaw: 75,
                 },
                 indicatorAdjust: undefined,
                 instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
