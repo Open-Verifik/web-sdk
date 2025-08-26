@@ -1,18 +1,35 @@
 :host {
     position: fixed;
     inset: 0;
+    // Ensure proper stacking and prevent overflow
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .smart-liveness {
     &__text {
-        max-width: 180px;
+        max-width: min(180px, 80vw);
         margin: 0 auto;
+        text-align: center;
+        line-height: 1.4;
+
+        @media (max-width: 400px) {
+            font-size: 0.9rem;
+        }
     }
 }
 
 .camera {
-    height: 800px;
-    width: 800px;
+    // Use viewport units but reserve space for indicators that extend beyond camera bounds
+    height: min(calc(80vw - 100px), calc(80vh - 160px), 700px);
+    width: min(calc(80vw - 100px), calc(80vh - 160px), 700px);
+    max-height: 700px;
+    max-width: 700px;
+
+    // Ensure minimum size for usability while leaving room for indicators
+    min-height: 260px;
+    min-width: 260px;
 
     &__loader {
         background-color: rgba(30, 41, 59, 0.5);
@@ -24,141 +41,87 @@
 
     &__change-camera {
         bottom: 10%;
-        height: 80px;
-        left: 50%;
-        min-height: 80px;
-        min-width: 80px;
         position: absolute;
+        left: 50%;
         transform: translateX(-50%);
-        width: 80px;
+
+        // Responsive button sizing
+        height: clamp(36px, 8vw, 80px);
+        width: clamp(36px, 8vw, 80px);
+        min-height: 36px;
+        min-width: 36px;
 
         svg {
-            transform: scale(1.8);
-        }
-    }
+            // Responsive scaling based on container size
+            transform: scale(1.2);
 
-    @media (max-width: 576px) {
-        height: 350px;
-        width: 350px;
-
-        &__change-camera {
-            height: 36px;
-            width: 36px;
-            min-height: 36px;
-            min-width: 36px;
-
-            svg {
+            @media (max-width: 576px) {
                 transform: scale(0.8);
             }
-        }
-    }
 
-    @media (min-width: 576px) and (max-width: 768px) {
-        height: 400px;
-        width: 400px;
+            @media (min-width: 577px) and (max-width: 768px) {
+                transform: scale(1);
+            }
 
-        &__change-camera {
-            height: 48px;
-            width: 48px;
-            min-height: 48px;
-            min-width: 48px;
-
-            svg {
-                transform: scale(1.2);
+            @media (min-width: 769px) {
+                transform: scale(1.4);
             }
         }
     }
 
-    @media (min-width: 768px) and (max-width: 959px) {
-        height: 600px;
-        width: 600px;
+    // Responsive sizing with better space management
+    @media (max-width: 576px) {
+        height: min(calc(85vw - 60px), calc(85vh - 120px), 300px);
+        width: min(calc(85vw - 60px), calc(85vh - 120px), 300px);
+        min-height: 220px;
+        min-width: 220px;
+    }
 
-        &__change-camera {
-            height: 64px;
-            width: 64px;
-            min-height: 64px;
-            min-width: 64px;
+    // Ensure camera doesn't overlap with stepper on smaller screens
+    @media (max-height: 600px) {
+        height: min(calc(55vh - 80px), calc(55vw - 80px), 400px);
+        width: min(calc(55vh - 80px), calc(55vw - 80px), 400px);
+    }
 
-            svg {
-                transform: scale(1.5);
-            }
-        }
+    // Landscape mode - constrained by height, give more room for indicators
+    @media (orientation: landscape) and (max-height: 500px) {
+        height: min(calc(60vh - 60px), 320px);
+        width: min(calc(60vh - 60px), 320px);
     }
 }
 
 .indicator {
-    $indicator-size: 48px;
+    // Responsive indicator sizing that's proportional to camera size
+    --indicator-size: clamp(12px, min(3vw, 3vh), 40px);
 
     position: absolute;
+    // Ensure indicators stay within viewport bounds
+    z-index: 1;
 
     &--a {
-        top: -($indicator-size);
-        left: -($indicator-size);
-        height: calc(100% + (($indicator-size) * 2));
-        width: calc(100% + (($indicator-size) * 2));
+        top: calc(-1 * var(--indicator-size));
+        left: calc(-1 * var(--indicator-size));
+        height: calc(100% + (var(--indicator-size) * 2));
+        width: calc(100% + (var(--indicator-size) * 2));
     }
 
     &--b {
-        top: -($indicator-size);
-        left: -($indicator-size);
-        height: calc(100% + ($indicator-size * 2));
-        width: calc(100% + ($indicator-size * 2));
+        top: calc(-1 * var(--indicator-size));
+        left: calc(-1 * var(--indicator-size));
+        height: calc(100% + (var(--indicator-size) * 2));
+        width: calc(100% + (var(--indicator-size) * 2));
         transform: scale3d(0.8, 0.8, 1);
         transition: transform 0.5s ease-in-out;
     }
 
+    // Smaller indicators for mobile to prevent overflow
     @media (max-width: 576px) {
-        $indicator-size: 16px;
-
-        &--a {
-            top: -($indicator-size);
-            left: -($indicator-size);
-            height: calc(100% + (($indicator-size) * 2));
-            width: calc(100% + (($indicator-size) * 2));
-        }
-
-        &--b {
-            top: -($indicator-size);
-            left: -($indicator-size);
-            height: calc(100% + ($indicator-size * 2));
-            width: calc(100% + ($indicator-size * 2));
-        }
+        --indicator-size: clamp(8px, 2vw, 16px);
     }
 
-    @media (min-width: 576px) and (max-width: 768px) {
-        $indicator-size: 24px;
-
-        &--a {
-            top: -($indicator-size);
-            left: -($indicator-size);
-            height: calc(100% + (($indicator-size) * 2));
-            width: calc(100% + (($indicator-size) * 2));
-        }
-
-        &--b {
-            top: -($indicator-size);
-            left: -($indicator-size);
-            height: calc(100% + ($indicator-size * 2));
-            width: calc(100% + ($indicator-size * 2));
-        }
-    }
-
-    @media (min-width: 768px) and (max-width: 959px) {
-        $indicator-size: 32px;
-
-        &--a {
-            top: -($indicator-size);
-            left: -($indicator-size);
-            height: calc(100% + (($indicator-size) * 2));
-            width: calc(100% + (($indicator-size) * 2));
-        }
-
-        &--b {
-            top: -($indicator-size);
-            left: -($indicator-size);
-            height: calc(100% + ($indicator-size * 2));
-            width: calc(100% + ($indicator-size * 2));
-        }
+    // Even smaller for landscape mobile where height is constrained
+    @media (orientation: landscape) and (max-height: 500px) {
+        --indicator-size: clamp(6px, 2vh, 20px);
     }
 
     &__pie {

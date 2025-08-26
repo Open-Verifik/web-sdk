@@ -81,4 +81,17 @@ export const appRoutes: Route[] = [
             },
         ],
     },
+    {
+        path: "dev-test",
+        component: LayoutComponent,
+        data: {
+            layout: "empty",
+        },
+        children: [
+            {
+                path: "",
+                loadChildren: () => import("app/modules/dev-test/dev-test.routes"),
+            },
+        ],
+    },
 ];
