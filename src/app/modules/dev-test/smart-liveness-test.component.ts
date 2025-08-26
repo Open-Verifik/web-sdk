@@ -150,20 +150,8 @@ export class SmartLivenessTestComponent implements OnInit {
     }
 
     resetTest(): void {
-        this.attempts = 0;
         this.lastResult = null;
         this.lastImageScan = null;
         this.retrySubject.next();
-    }
-
-    private getDeviceType(): string {
-        const userAgent = navigator.userAgent;
-        if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
-            return "TABLET";
-        }
-        if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)) {
-            return "MOBILE";
-        }
-        return "DESKTOP";
     }
 }

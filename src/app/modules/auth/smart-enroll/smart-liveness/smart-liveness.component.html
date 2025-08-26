@@ -22,7 +22,7 @@
 
             <div class="row-span-4 flex flex-row justify-center items-center min-h-0 relative px-4 py-4">
                 <div class="camera rounded-full flex flex-row justify-center items-center relative">
-                    <div class="border-8 border-indigo-800 h-full w-full rounded-full z-10">
+                    <div class="border-8 h-full w-full rounded-full z-10" [style.border-color]="project.branding.buttonColor">
                         <div class="absolute inset-5 rounded-full overflow-hidden">
                             <div #viewportContainer class="absolute rounded-full overflow-hidden inset-0 z-10">
                                 <canvas #videoCanvas></canvas>
@@ -102,24 +102,32 @@
                         <div class="indicator indicator--a">
                             <div [style.opacity]="angleThreshold?.indicatorAdjust !== undefined ? 1 : 0" class="indicator__pie bg-opacity-100">
                                 <div
-                                    [ngClass]="{ 'bg-indigo-200': !face.success, 'bg-green-200': face.success }"
+                                    [ngClass]="{ 'bg-green-200': face.success }"
+                                    [ngStyle]="{
+                                        'background-color': !face.success ? project.branding.buttonColor : '',
+                                        opacity: !face.success ? 0.4 : 1
+                                    }"
                                     [style.transform]="indicatorCutTransform"
                                     class="indicator__cut"
                                 ></div>
 
-                                <div class="indicator__clip" [style.backgroundColor]="project.branding.bgColor"></div>
+                                <div class="indicator__clip" [style.backgroundColor]="project.branding.buttonColor"></div>
                             </div>
                         </div>
 
                         <div class="indicator indicator--b" [style.transform]="indicatorTransform">
                             <div [style.opacity]="angleThreshold?.indicatorAdjust !== undefined ? 1 : 0" class="indicator__pie bg-opacity-100">
                                 <div
-                                    [ngClass]="{ 'bg-indigo-400': !face.success, 'bg-green-400': face.success }"
+                                    [ngClass]="{ 'bg-green-400': face.success }"
+                                    [ngStyle]="{
+                                        'background-color': !face.success ? project.branding.buttonColor : '',
+                                        opacity: !face.success ? 0.6 : 1
+                                    }"
                                     [style.transform]="indicatorCutTransform"
                                     class="indicator__cut"
                                 ></div>
 
-                                <div class="indicator__clip" [style.backgroundColor]="project.branding.bgColor"></div>
+                                <div class="indicator__clip" [style.backgroundColor]="project.branding.buttonColor"></div>
                             </div>
                         </div>
                     </ng-container>

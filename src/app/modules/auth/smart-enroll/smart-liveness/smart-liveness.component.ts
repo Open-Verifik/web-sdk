@@ -199,8 +199,19 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         });
 
         this.retry.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
+            // Reset all state completely
             this.faceCaptures = [];
             this.currentLivenessIndex = 0;
+            this.angleThresholds = [];
+            this.angleThreshold = { min: {}, max: {}, indicatorAdjust: undefined };
+            this.face.successPosition = 0;
+            this.face.success = false;
+            this.face.error = false;
+            this.face.message = "";
+
+            // Reset indicator transforms
+            this.indicatorTransform = "scale3d(0.8, 0.8, 1)";
+            this.indicatorCutTransform = "rotate(-20deg) skewY(-50deg)";
 
             this._restartCamera();
         });
@@ -360,7 +371,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
     private _generateRandomIndicatorAngles(count: number): AngleThreshold[] {
         const indicatorAngles: number[] = [];
-        const minSeparation = 60; // Minimum 60° separation between directions
+        const minSeparation = 45; // Reduced to 45° separation to accommodate diagonal directions
 
         for (let i = 0; i < count; i++) {
             let angle: number;
@@ -429,18 +440,34 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             // North (up) - 315° to 45°
             targetYaw = 0;
             targetPitch = 30;
-        } else if (indicatorAngle >= 45 && indicatorAngle < 135) {
-            // East (right) - 45° to 135°
+        } else if (indicatorAngle >= 45 && indicatorAngle < 67.5) {
+            // Northeast (up-right) - 45° to 67.5°
+            targetYaw = 60;
+            targetPitch = 20;
+        } else if (indicatorAngle >= 67.5 && indicatorAngle < 112.5) {
+            // East (right) - 67.5° to 112.5°
             targetYaw = 120;
             targetPitch = 0;
-        } else if (indicatorAngle >= 135 && indicatorAngle < 225) {
-            // South (down) - 135° to 225°
+        } else if (indicatorAngle >= 112.5 && indicatorAngle < 157.5) {
+            // Southeast (down-right) - 112.5° to 157.5°
+            targetYaw = 60;
+            targetPitch = -20;
+        } else if (indicatorAngle >= 157.5 && indicatorAngle < 202.5) {
+            // South (down) - 157.5° to 202.5°
             targetYaw = 0;
             targetPitch = -30;
-        } else {
-            // West (left) - 225° to 315°
+        } else if (indicatorAngle >= 202.5 && indicatorAngle < 247.5) {
+            // Southwest (down-left) - 202.5° to 247.5°
+            targetYaw = -60;
+            targetPitch = -20;
+        } else if (indicatorAngle >= 247.5 && indicatorAngle < 292.5) {
+            // West (left) - 247.5° to 292.5°
             targetYaw = -120;
             targetPitch = 0;
+        } else {
+            // Northwest (up-left) - 292.5° to 315°
+            targetYaw = -60;
+            targetPitch = 20;
         }
 
         return { targetYaw, targetPitch };
@@ -450,13 +477,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         const { targetYaw, targetPitch } = this._indicatorAngleToYawPitch(indicatorAngle);
 
         const minBounds = {
-            pitch: targetPitch === 0 ? -10 : targetPitch > 0 ? 2 : -2, // Pitch: ±2° minimum (very forgiving)
+            pitch: targetPitch === 0 ? -15 : targetPitch > 0 ? 4 : -4, // Pitch: ±4° minimum (very forgiving)
             roll: -45, // Roll: standard range
             yaw: targetYaw === 0 ? -90 : targetYaw > 0 ? 40 : -40, // Yaw: ±40° minimum (moderate)
         };
 
         const maxBounds = {
-            pitch: targetPitch === 0 ? 10 : targetPitch > 0 ? 40 : -40, // Pitch: ±40° maximum (generous)
+            pitch: targetPitch === 0 ? 15 : targetPitch > 0 ? 40 : -40, // Pitch: ±40° maximum (generous)
             roll: 45, // Roll: standard range
             yaw: targetYaw === 0 ? 90 : targetYaw > 0 ? 180 : -180, // Yaw: ±180° maximum (very generous)
         };
@@ -500,6 +527,14 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         this._setDimensions();
         this._setDetectionBounds();
         this._setAngleThresholds();
+
+        if (this.angleThresholds.length > 0) {
+            this.angleThreshold = this.angleThresholds[0];
+
+            if (this.angleThreshold.indicatorAdjust !== undefined) {
+                this.indicatorCutTransform = `rotate(${this.angleThreshold.indicatorAdjust - 20}deg) skewY(-50deg)`;
+            }
+        }
 
         this._startCamera();
     }
@@ -567,7 +602,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
                     roll: 30,
                     yaw: 30,
                 },
-                indicatorAdjust: undefined, // Hide indicator for center/straight position
+                indicatorAdjust: undefined,
                 instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
             },
         ];
@@ -724,13 +759,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             this.face.message = "not-in-frame";
         } else if (!this._isInRange(angle.pitch, this.angleThreshold.min.pitch, this.angleThreshold.max.pitch)) {
             this.face.error = true;
-            this.face.message = "pitch-range";
+            this.face.message = angle.pitch > this.angleThreshold.max.pitch ? "pitch-down" : "pitch-up";
         } else if (!this._isInRange(angle.roll, this.angleThreshold.min.roll, this.angleThreshold.max.roll)) {
             this.face.error = true;
-            this.face.message = "roll-range";
+            this.face.message = angle.roll > this.angleThreshold.max.roll ? "roll-right" : "roll-left";
         } else if (!this._isInRange(angle.yaw, this.angleThreshold.min.yaw, this.angleThreshold.max.yaw)) {
             this.face.error = true;
-            this.face.message = "yaw-range";
+            this.face.message = angle.yaw > this.angleThreshold.max.yaw ? "yaw-left" : "yaw-right";
         } else {
             this.face.error = false;
             this.face.success = true;
