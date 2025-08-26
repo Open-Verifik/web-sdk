@@ -479,13 +479,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         const { targetYaw, targetPitch } = this._indicatorAngleToYawPitch(indicatorAngle);
 
         const minBounds = {
-            pitch: targetPitch === 0 ? -15 : targetPitch > 0 ? 4 : -4, // Pitch: ±4° minimum (very forgiving)
+            pitch: targetPitch === 0 ? -15 : targetPitch > 0 ? 2 : -2, // Pitch: ±2° minimum (very forgiving)
             roll: -45, // Roll: standard range
             yaw: targetYaw === 0 ? -110 : targetYaw > 0 ? 40 : -40, // Yaw: ±40° minimum (moderate)
         };
 
         const maxBounds = {
-            pitch: targetPitch === 0 ? 15 : targetPitch > 0 ? 40 : -40, // Pitch: ±40° maximum (generous)
+            pitch: targetPitch === 0 ? 15 : targetPitch > 0 ? 60 : -60, // Pitch: ±40° maximum (generous)
             roll: 45, // Roll: standard range
             yaw: targetYaw === 0 ? 110 : targetYaw > 0 ? 200 : -200, // Yaw: ±180° maximum (very generous)
         };
