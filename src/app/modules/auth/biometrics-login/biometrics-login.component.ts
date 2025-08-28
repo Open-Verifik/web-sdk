@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild, inject } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
-import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { MatDialogModule } from "@angular/material/dialog";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { MatButtonModule } from "@angular/material/button";
 import { DemoService } from "app/modules/demo/demo.service";
@@ -13,7 +13,6 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
-import { environment } from "environments/environment";
 import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
 import { AuthService } from "app/core/auth/auth.service";
 
@@ -36,19 +35,18 @@ let _biometricLoginThis = null;
     ],
 })
 export class BiometricsLoginComponent implements OnInit, OnDestroy {
-    private _matDialog: MatDialog = inject(MatDialog);
-
-    //ACTIVE DEBUG GRAPHIC MODE
-    isActiveDebug: Boolean;
-    debugIndex: number;
-    debugText: string = "debug";
+    private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     @ViewChild("video", { static: false }) public video: ElementRef;
     @ViewChild("canvas", { static: false }) public canvasRef: ElementRef;
     @ViewChild("result", { static: false }) public canvasResultRef: ElementRef;
     @ViewChild("toSend", { static: false }) public canvasToSendRef: ElementRef;
     @ViewChild("credentialCanvas", { static: false }) credentialRef: ElementRef;
-    //
+
+    isActiveDebug: Boolean;
+    debugIndex: number;
+    debugText: string = "debug";
+
     canvasEl: any;
     canvas: any;
     canvasResult: any;
@@ -85,8 +83,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
         canvas?: string;
     } | null;
 
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
-
     faceIdCard: any;
     left: HTMLImageElement;
     right: HTMLImageElement;
@@ -121,13 +117,9 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
         _biometricLoginThis = this;
 
         this.loadingModel = true;
-
         this.lowCamera = false;
-
         this.debugIndex = 0;
-
         this.successPosition = 0;
-
         this.showError = false;
 
         this.errorContent = {
@@ -135,11 +127,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
         };
 
         this.osInfo = this.detectOS();
-
         this.demoData = this._demoService.getDemoData();
-
         this.project = this._passwordlessService.getProject();
-
         this.projectFlow = this.project.currentProjectFlow;
 
         let key = this.demoData.isMobile ? "width" : "height";

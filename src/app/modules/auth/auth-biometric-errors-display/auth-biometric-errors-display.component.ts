@@ -4,7 +4,6 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslocoModule } from "@ngneat/transloco";
-import { environment } from "environments/environment";
 import { AuthService } from "app/core/auth/auth.service";
 
 @Component({
@@ -25,11 +24,11 @@ export class AuthBiometricErrorsDisplayComponent implements OnInit {
 
     ngOnInit(): void {
         if (!this.errorContent) return;
+        console.log(`🚀 ~ AuthBiometricErrorsDisplayComponent ~ ngOnInit ~ this.errorContent:`, this.errorContent);
 
         const split = this.errorContent.message.split("@");
 
         this.errorContent.message = split[0];
-
         this.errorContent.livenessScore = Math.round(Number(split[1] * 100 || 0));
     }
 
