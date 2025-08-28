@@ -114,6 +114,7 @@
         "camera_not_found": "Aucune caméra n'a été trouvée sur l'appareil ou elle est momentanément désactivée.",
         "continue": "Continuer",
         "country_not_allowed": "Les documents de ce pays ne sont pas autorisés",
+        "country_mismatch": "Le document fourni ne correspond pas au pays sélectionné.",
         "document_not_detected_description": "Assurez-vous de scanner un document d'identité tel qu'une carte d'ID, un permis de conduire ou un passeport",
         "document_not_detected": "Type de document non détecté",
         "driver_license_not_allowed": "Permis de conduire non autorisé",

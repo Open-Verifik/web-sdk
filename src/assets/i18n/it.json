@@ -114,6 +114,7 @@
         "camera_not_found": "Nessuna telecamera trovata sul dispositivo o temporaneamente disabilitata.",
         "continue": "Continua",
         "country_not_allowed": "Documento di questo paese non consentito",
+        "country_mismatch": "Il documento fornito non corrisponde al paese selezionato.",
         "document_not_detected_description": "Assicurati di stare scansionando un documento d'identità come una carta d'identità, una patente di guida o un passaporto",
         "document_not_detected": "Tipo di documento non rilevato",
         "driver_license_not_allowed": "Patente di guida non consentita",

@@ -113,6 +113,7 @@
         "camera_not_found_description": "Pakitiyak na ang device na iyong ginagamit sa pag-demo ay may camera at mayroon kang mga pahintulot na ma-access ito.",
         "camera_not_found": "Walang nakitang camera sa device o pansamantalang hindi gumagana.",
         "continue": "Magpatuloy",
+        "country_mismatch": "Ang dokumento na inilagay ay hindi tumugma sa bansa na pinili.",
         "country_not_allowed": "Hindi pinapayagan ang dokumento mula sa bansang ito",
         "document_not_detected_description": "Pakitiyak na ikaw ay nag-scan ng isang dokumento ng pagkakakilanlan tulad ng ID card, lisensya sa pagmamaneho o pasaporte",
         "document_not_detected": "Hindi natukoy ang uri ng dokumento",
