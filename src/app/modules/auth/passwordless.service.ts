@@ -97,12 +97,9 @@ export class PasswordlessService {
 
     createLivenessSession(data: any): Observable<any> {
         const appLoginToken = localStorage.getItem("accessToken");
-
         const location = localStorage.getItem("loginLocation");
 
-        if (location) {
-            data.location = JSON.parse(location);
-        }
+        if (location) data.location = JSON.parse(location);
 
         let url = `${this.baseUrl}/v2/biometric-validations`;
 
@@ -127,9 +124,7 @@ export class PasswordlessService {
     validateBiometrics(data: any): Observable<any> {
         const location = localStorage.getItem("loginLocation");
 
-        if (location) {
-            data.location = JSON.parse(location);
-        }
+        if (location) data.location = JSON.parse(location);
 
         return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/validate`, data);
     }

@@ -25,7 +25,6 @@ import {
     FacingMode,
     OvalData,
 } from "app/modules/demo/models/sdk.models";
-import { environment } from "environments/environment";
 import { PasswordlessService } from "../passwordless.service";
 import { Project, ProjectFlow } from "../project";
 import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
@@ -50,6 +49,8 @@ import { AuthService } from "app/core/auth/auth.service";
 })
 export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
     private _matDialog: MatDialog = inject(MatDialog);
+    private _unsubscribeAll: Subject<any> = new Subject<any>();
+    private takePicture: Subject<void> = new Subject<void>();
 
     @ViewChild("maskResult", { static: false }) public maskResultCanvasRef: ElementRef;
     @ViewChild("toSend", { static: false }) public ToSendCanvasRef: ElementRef;
@@ -72,10 +73,6 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
     showError: Boolean;
     errorContent: any;
 
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
-
-    private takePicture: Subject<void> = new Subject<void>();
-
     constructor(
         private _dom: ElementRef,
         private _changeDetectorRef: ChangeDetectorRef,
@@ -89,13 +86,9 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
         this.demoData = this._demoService.getDemoData();
 
         this.startDefaultValues();
-
         this.setDefaultAttempts();
-
         this.setDefaultDirections();
-
         this.setDefaultFace();
-
         this.setDefaultInterval();
 
         this.renderer.listen("window", "resize", () => {
@@ -112,7 +105,6 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
         };
 
         this.project = this._passwordlessService.getProject();
-
         this.projectFlow = this.project.currentProjectFlow;
 
         this._changeDetectorRef.markForCheck();
@@ -531,7 +523,6 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
     }
 
     biometricsLogin(): void {
-        // do login
         if (this.response.isLoading) return;
 
         this.loading({ result: true });
@@ -546,11 +537,9 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
                 this.successLogin(response.data.token);
             },
             error: (err) => {
-                console.error({ errorFromValidatingBiometrics: err });
                 this.showError = true;
-
                 this.errorContent = err.error;
-                // 	this.retryLivenessModal(error.error?.message);
+
                 this.loading({ isLoading: false, result: true });
             },
             complete: () => {},
