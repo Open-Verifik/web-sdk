@@ -114,6 +114,7 @@
         "camera_not_found_description": "Please make sure that the device on which you are performing the demonstration has a camera and that you have permissions to access it.",
         "camera_not_found": "A camera has not been found on the device or is momentarily disabled.",
         "continue": "Continue",
+        "country_mismatch": "The document provided does not match the selected country.",
         "country_not_allowed": "Document from this country is not allowed",
         "document_not_detected_description": "Please make sure you are scanning an identity document such as an ID card, driver license or passport",
         "document_not_detected": "Document type not detected",

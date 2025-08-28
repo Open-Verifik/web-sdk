@@ -113,6 +113,7 @@
         "camera_not_found_description": "请确保您使用的设备具有摄像头并且您有权限访问。",
         "camera_not_found": "设备上未找到摄像头或暂时禁用。",
         "continue": "继续",
+        "country_mismatch": "提供的文件与所选国家不匹配。",
         "country_not_allowed": "不允许使用该国家的文件",
         "document_not_detected_description": "请确保您正在扫描身份证件，如身份证、驾驶证或护照",
         "document_not_detected": "未检测到文件类型",
