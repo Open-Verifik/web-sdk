@@ -46,10 +46,10 @@
         transform: translateX(-50%);
 
         // Responsive button sizing
-        height: clamp(36px, 8vw, 80px);
-        width: clamp(36px, 8vw, 80px);
-        min-height: 36px;
-        min-width: 36px;
+        height: clamp(56px, 8vw, 80px);
+        width: clamp(56px, 8vw, 80px);
+        min-height: 56px;
+        min-width: 56px;
 
         svg {
             // Responsive scaling based on container size
