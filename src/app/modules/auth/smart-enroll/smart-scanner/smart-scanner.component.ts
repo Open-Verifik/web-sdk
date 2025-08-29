@@ -178,15 +178,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this._paintMaskCanvas();
 
         try {
-            let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
-
-            if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
-                faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
-            } else {
-                faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
-            }
-
-            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true);
+            const faceEngine = this._demoService.faceEngine;
+            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
 
             if (detections.length) {
                 this.faceDetection = this._demoService.findBiggestFace(detections);
@@ -675,15 +668,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             image.src = rawBase64Image;
 
             try {
-                let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
+                const faceEngine = this._demoService.faceEngine;
+                const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
 
-                if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
-                    faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
-                } else {
-                    faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
-                }
-
-                const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true);
                 const face = this._demoService.findBiggestFace(detections);
 
                 if (!face) throw Error("face_not_found");

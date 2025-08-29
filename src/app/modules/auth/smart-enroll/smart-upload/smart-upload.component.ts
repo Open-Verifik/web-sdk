@@ -94,7 +94,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     private async _detectFace(image: HTMLImageElement) {
-        const faces = await faceapi.detectAllFaces(image, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks();
+        const faceEngine = this._demoService.faceEngine;
+        const faces = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
 
         if (!faces.length) return;
 

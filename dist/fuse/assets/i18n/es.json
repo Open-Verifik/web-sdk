@@ -113,6 +113,7 @@
         "camera_not_found_description": "Asegúrate de que el dispositivo en el que estás realizando la demostración tenga una cámara y que tengas permisos para acceder a ella.",
         "camera_not_found": "No se ha encontrado una cámara en el dispositivo o está momentáneamente desactivada.",
         "continue": "Continuar",
+        "country_mismatch": "El documento proporcionado no coincide con el país seleccionado.",
         "country_not_allowed": "Documento de este país no permitido",
         "document_not_detected_description": "Asegúrate de estar escaneando un documento de identidad como una tarjeta de identificación, licencia de conducir o pasaporte",
         "document_not_detected": "Tipo de documento no detectado",

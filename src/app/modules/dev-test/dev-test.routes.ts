@@ -1,22 +1,22 @@
-import { Routes } from '@angular/router';
-import { SmartLivenessTestComponent } from './smart-liveness-test.component';
+import { Routes } from "@angular/router";
+import { SmartLivenessTestComponent } from "./smart-liveness-test.component";
 
 export default [
     {
-        path: '',
+        path: "",
         children: [
             {
-                path: 'smart-liveness',
+                path: "smart-liveness",
                 component: SmartLivenessTestComponent,
                 data: {
-                    title: 'Smart Liveness Test'
-                }
+                    title: "Smart Liveness Test",
+                },
             },
             {
-                path: '',
-                redirectTo: 'smart-liveness',
-                pathMatch: 'full'
-            }
-        ]
-    }
+                path: "",
+                redirectTo: "smart-liveness",
+                pathMatch: "full",
+            },
+        ],
+    },
 ] as Routes;

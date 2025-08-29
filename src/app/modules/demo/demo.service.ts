@@ -11,7 +11,10 @@ import { Lead, Session } from "./lead";
     providedIn: "root",
 })
 export class DemoService {
+    private readonly REQUIRED_DEVICE_MEMORY: number = 4;
+
     private _faceapi: BehaviorSubject<any> = new BehaviorSubject(null);
+    private _faceEngineCache: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
     private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
 
     apiUrl: any;
@@ -21,6 +24,7 @@ export class DemoService {
     sampleFirstNames: Array<any>;
     sampleLastNames: Array<any>;
     session: any;
+    webGLSupported: boolean = true;
 
     constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
         this.apiUrl = environment.apiUrl;
@@ -37,6 +41,116 @@ export class DemoService {
         });
 
         this.demoData.OS = this.detectOS();
+    }
+
+    get faceapi$(): Observable<boolean> {
+        return this._faceapi.asObservable();
+    }
+
+    get geoLocation$(): Observable<any> {
+        return this._geoLocation.asObservable();
+    }
+
+    get faceEngine(): faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options {
+        if (this.webGLSupported) {
+            if (this._faceEngineCache) return this._faceEngineCache;
+
+            this._faceEngineCache = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+
+            return this._faceEngineCache;
+        } else {
+            if (this._faceEngineCache) return this._faceEngineCache;
+
+            this._faceEngineCache = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
+
+            return this._faceEngineCache;
+        }
+    }
+
+    get performantDevice(): boolean {
+        return (navigator as any)?.deviceMemory !== undefined && (navigator as any)?.deviceMemory >= this.REQUIRED_DEVICE_MEMORY;
+    }
+
+    private async _checkWebGLSupport(): Promise<boolean> {
+        try {
+            const canvas = document.createElement("canvas");
+
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+
+            return gl !== null;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    private async _prepareFaceDetection() {
+        const image = new Image();
+
+        image.src = "/assets/images/face.jpg";
+
+        const promise = new Promise((resolve, reject) => {
+            image.onload = async () => {
+                try {
+                    const faceEngine = this.faceEngine;
+
+                    const result = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this.performantDevice);
+
+                    resolve(result);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+        });
+
+        await promise;
+    }
+
+    private async _loadLandmarkModel(): Promise<void> {
+        if (this.performantDevice) {
+            await faceapi.nets.faceLandmark68Net.loadFromUri("assets/models");
+        } else {
+            await faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models");
+        }
+    }
+
+    private async _loadFaceModels(): Promise<void> {
+        if (this.webGLSupported) {
+            await faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models");
+        } else {
+            await faceapi.nets.tinyFaceDetector.loadFromUri("assets/models");
+        }
+    }
+
+    async loadModels(): Promise<void> {
+        this.webGLSupported = await this._checkWebGLSupport();
+
+        try {
+            const promises = [];
+
+            promises.push(this._loadFaceModels());
+            promises.push(this._loadLandmarkModel());
+
+            await Promise.allSettled(promises);
+
+            await this._prepareFaceDetection();
+
+            this._faceapi.next(true);
+        } catch (error) {
+            console.error(`Failed to load ${this.webGLSupported ? "GPU" : "CPU"} models:`, error);
+
+            this._faceapi.next(false);
+        }
+    }
+
+    getNavigation(): any {
+        return this.navigation;
+    }
+
+    initNavigation(): void {
+        this.navigation = {
+            currentStep: 1,
+            lastStep: 5,
+        };
     }
 
     initSampleData(): void {
@@ -107,62 +221,6 @@ export class DemoService {
         }
 
         return "DESKTOP";
-    }
-
-    get faceapi$(): Observable<boolean> {
-        return this._faceapi.asObservable();
-    }
-
-    get geoLocation$(): Observable<any> {
-        return this._geoLocation.asObservable();
-    }
-
-    async loadModels(): Promise<void> {
-        const promises = [];
-
-        promises.push(faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models"));
-        promises.push(faceapi.nets.faceLandmark68Net.loadFromUri("assets/models"));
-        promises.push(faceapi.nets.tinyFaceDetector.loadFromUri("assets/models"));
-        promises.push(faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models"));
-
-        await Promise.allSettled(promises);
-
-        await this._prepareFaceDetection();
-
-        this._faceapi.next(true);
-    }
-
-    private async _prepareFaceDetection() {
-        const image = new Image();
-
-        image.src = "/assets/images/face.jpg";
-
-        const promise = new Promise((resolve, reject) => {
-            image.onload = () => {
-                let faceEngine: faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options;
-
-                if ((navigator as any)?.deviceMemory === undefined || (navigator as any)?.deviceMemory >= 4) {
-                    faceEngine = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
-                } else {
-                    faceEngine = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
-                }
-
-                faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(true).run().then(resolve).catch(reject);
-            };
-        });
-
-        await promise;
-    }
-
-    getNavigation(): any {
-        return this.navigation;
-    }
-
-    initNavigation(): void {
-        this.navigation = {
-            currentStep: 1,
-            lastStep: 5,
-        };
     }
 
     getDemoData(): any {

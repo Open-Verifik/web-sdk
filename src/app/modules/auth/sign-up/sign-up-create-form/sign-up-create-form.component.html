@@ -180,9 +180,10 @@
                 </span>
 
                 <a
-                    class="hover:underline"
+                    class="hover:underline underline hover:text-primary"
                     [style.color]="project.branding.titleColor"
                     [href]="project.termsAndConditionsUrl"
+                    target="_blank"
                     *ngIf="this.onboardingSignUpForm.showTermsAndConditions"
                 >
                     {{ "signup.terms" | transloco }}
@@ -196,9 +197,10 @@
                 </span>
 
                 <a
-                    class="hover:underline"
+                    class="hover:underline underline hover:text-primary"
                     [style.color]="project.branding.titleColor"
                     [href]="project.privacyUrl"
+                    target="_blank"
                     *ngIf="onboardingSignUpForm.showPrivacyNotice"
                 >
                     {{ "signup.privacyPolicy" | transloco }}
