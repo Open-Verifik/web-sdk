@@ -68,27 +68,18 @@ export class SmartBiometricsComponent implements OnDestroy {
 
                 this._smartEnrollService.setLivenessScore(response.data.biometricValidation.livenessScore);
 
-                if (this.appRegistration.documentValidation && this.appRegistration.biometricValidation) {
-                    this._KYCService.compareFaces().subscribe({
-                        next: (response) => {
-                            this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
+                this._KYCService.compareFaces().subscribe({
+                    next: (response) => {
+                        this.appRegistration.compareFaceVerification = response.data.compareFaceVerification;
 
-                            this._smartEnrollService.setCompareScore(response.data.compareFaceVerification.result.score);
-                        },
-                        error: (error) => this._handleError(error),
-                        complete: () => {
-                            this._syncAppRegistration("end", "ONGOING");
-                            this.successfulUploadSubject.next();
-                            this._smartEnrollService.goToNextStep();
-                        },
-                    });
+                        this._smartEnrollService.setCompareScore(response.data.compareFaceVerification.result.score);
 
-                    return;
-                }
-
-                this._syncAppRegistration("end", "ONGOING");
-                this._smartEnrollService.goToNextStep();
-                this.successfulUploadSubject.next();
+                        this._syncAppRegistration("end", "ONGOING");
+                        this.successfulUploadSubject.next();
+                        this._smartEnrollService.goToNextStep();
+                    },
+                    error: (error) => this._handleError(error),
+                });
             },
             error: (error) => this._handleError(error),
         });

@@ -268,11 +268,17 @@ export class SmartDocumentsComponent implements OnDestroy {
         }
 
         const settings = this.projectFlow.onboardingSettings.document;
+
         const observables$ = {
+            compareValidation: null,
             criminalValidation: null,
             nameValidation: null,
-            compareValidation: null,
         };
+
+        observables$.compareValidation = this._KYCService.compareFaces().pipe(
+            map((result) => ({ status: "fulfilled", data: result.data })),
+            catchError((error) => of({ status: "rejected", reason: error }))
+        );
 
         if (settings.verifyNames) {
             const payload = {
@@ -321,25 +327,12 @@ export class SmartDocumentsComponent implements OnDestroy {
             });
         }
 
-        if (this.appRegistration.biometricValidation) {
-            const observable$ = this._KYCService.compareFaces().pipe(
-                map((result) => ({ status: "fulfilled", data: result.data })),
-                catchError((error) => of({ status: "rejected", reason: error }))
-            );
-
-            observables$.compareValidation = observable$;
-        } else {
-            observables$.compareValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
-        }
-
         forkJoin(observables$).subscribe({
             next: (results: CombinedValidationResponse) => {
                 if (results.criminalValidation?.status === "rejected") {
                     if (results.criminalValidation?.error?.code === "PaymentRequired") {
                         this._smartEnrollService.insufficientCreditsTrigger();
+
                         return;
                     }
 
