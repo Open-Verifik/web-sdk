@@ -409,7 +409,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                     this.loading = false;
 
-                    // return this.successLogin(response.data.token);
+                    return this.successLogin(response.data.token);
                 },
                 error: (err) => {
                     console.error({
