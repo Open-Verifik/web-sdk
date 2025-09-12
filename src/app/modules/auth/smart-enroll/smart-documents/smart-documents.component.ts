@@ -153,6 +153,52 @@ export class SmartDocumentsComponent implements OnDestroy {
         });
     }
 
+    private _getFormDefaults(onboardSettingsDocument: any) {
+        let country = "";
+        let documentMethod = "";
+        let documentCategory = "";
+
+        if (this.enrollSettings.country) country = this.enrollSettings.country;
+
+        const documentMethodSettings = ["uploadDocumentAllowed", "scanDocumentAllowed"];
+        const documentCategorySettings = ["useLicense", "usePassport", "useGovernmentID", "useTaxInformation"];
+
+        const documentMethods = Object.keys(onboardSettingsDocument).filter(
+            (key) => documentMethodSettings.includes(key) && onboardSettingsDocument[key]
+        );
+
+        if (documentMethods.length === 1) {
+            switch (documentMethods[0]) {
+                case "uploadDocumentAllowed":
+                    documentMethod = "upload";
+                    break;
+                case "scanDocumentAllowed":
+                    documentMethod = "scan";
+                    break;
+            }
+        } else if (this.enrollSettings.documentMethod) documentMethod = this.enrollSettings.documentMethod;
+
+        const documentCategorys = Object.keys(onboardSettingsDocument).filter(
+            (key) => documentCategorySettings.includes(key) && onboardSettingsDocument[key]
+        );
+
+        if (documentCategorys.length === 1) {
+            switch (documentCategorys[0]) {
+                case "useLicense":
+                    documentCategory = "driver-license";
+                    break;
+                case "usePassport":
+                    documentCategory = "passport";
+                    break;
+                case "useGovernmentID":
+                    documentCategory = "id";
+                    break;
+            }
+        } else if (this.enrollSettings.documentCategory) documentCategory = this.enrollSettings.documentCategory;
+
+        return { country, documentCategory, documentMethod };
+    }
+
     private _handleError(exception: any): void {
         console.error("error", exception);
 
@@ -178,67 +224,14 @@ export class SmartDocumentsComponent implements OnDestroy {
     }
 
     private _initForm() {
-        this.methodSelectionForm = this._formBuilder.group({
-            country: ["", Validators.required],
-            documentCategory: ["", Validators.required],
-            documentMethod: ["", Validators.required],
-        });
-
         const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
 
-        let country = "";
-        let documentMethod = "";
-        let documentCategory = "";
+        const { country, documentCategory, documentMethod } = this._getFormDefaults(onboardSettingsDocument);
 
-        if (this.enrollSettings.country) {
-            country = this.enrollSettings.country;
-        }
-
-        if (this.enrollSettings.documentMethod) {
-            documentMethod = this.enrollSettings.documentMethod;
-        } else {
-            const documentMethods = Object.keys(onboardSettingsDocument).filter((key) =>
-                ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key)
-            );
-
-            if (documentMethods.length === 1) {
-                switch (documentMethods[0]) {
-                    case "uploadDocumentAllowed":
-                        documentMethod = "upload";
-                        break;
-                    case "scanDocumentAllowed":
-                        documentMethod = "scan";
-                        break;
-                }
-            }
-        }
-
-        if (this.enrollSettings.documentCategory) {
-            documentCategory = this.enrollSettings.documentCategory;
-        } else {
-            const documentCategorys = Object.keys(onboardSettingsDocument).filter((key) =>
-                ["useLicense", "usePassport", "useGovernmentID", "useTaxInformation"].includes(key)
-            );
-
-            if (documentCategorys.length === 1) {
-                switch (documentCategorys[0]) {
-                    case "useLicense":
-                        documentCategory = "driver-license";
-                        break;
-                    case "usePassport":
-                        documentCategory = "passport";
-                        break;
-                    case "useGovernmentID":
-                        documentCategory = "id";
-                        break;
-                }
-            }
-        }
-
-        this.methodSelectionForm.patchValue({
-            country,
-            documentMethod,
-            documentCategory,
+        this.methodSelectionForm = this._formBuilder.group({
+            country: [country, Validators.required],
+            documentCategory: [documentCategory, Validators.required],
+            documentMethod: [documentMethod, Validators.required],
         });
 
         this._changeDetectorRef.markForCheck();
