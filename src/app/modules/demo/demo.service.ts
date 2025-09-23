@@ -1,10 +1,11 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
-import { HttpWrapperService } from "./http-wrapper.service";
-import { environment } from "environments/environment";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { Injectable } from "@angular/core";
 import * as faceapi from "@vladmandic/face-api";
+import { BehaviorSubject, Observable } from "rxjs";
+
+import { environment } from "environments/environment";
 import { DocumentValidation } from "./document-validation";
+import { HttpWrapperService } from "./http-wrapper.service";
 import { Lead, Session } from "./lead";
 
 @Injectable({
@@ -24,23 +25,22 @@ export class DemoService {
     sampleFirstNames: Array<any>;
     sampleLastNames: Array<any>;
     session: any;
-    webGLSupported: boolean = true;
+    useSsdMobilenetv1: boolean = false;
+    webGLSupported: boolean = false;
 
     constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
         this.apiUrl = environment.apiUrl;
 
-        this.loadModels();
+        this._initializeDeviceAndModels();
+
+        this.initSampleData();
         this.initNavigation();
         this.initDemoData();
-        this.initSampleData();
 
         this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
             this.demoData.isMobile = result.matches;
-
             this.demoData.time = result.matches ? 500 : 250;
         });
-
-        this.demoData.OS = this.detectOS();
     }
 
     get faceapi$(): Observable<boolean> {
@@ -52,23 +52,84 @@ export class DemoService {
     }
 
     get faceEngine(): faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options {
-        if (this.webGLSupported) {
-            if (this._faceEngineCache) return this._faceEngineCache;
+        if (this._faceEngineCache) return this._faceEngineCache;
 
-            this._faceEngineCache = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 });
+        this._faceEngineCache = this.useSsdMobilenetv1
+            ? new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })
+            : new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
 
-            return this._faceEngineCache;
-        } else {
-            if (this._faceEngineCache) return this._faceEngineCache;
-
-            this._faceEngineCache = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
-
-            return this._faceEngineCache;
-        }
+        return this._faceEngineCache;
     }
 
-    get performantDevice(): boolean {
-        return (navigator as any)?.deviceMemory !== undefined && (navigator as any)?.deviceMemory >= this.REQUIRED_DEVICE_MEMORY;
+    get hasSufficientMemory(): boolean {
+        return !isNaN((navigator as any)?.deviceMemory) && Number((navigator as any)?.deviceMemory) >= this.REQUIRED_DEVICE_MEMORY;
+    }
+
+    private async _initializeDeviceAndModels(): Promise<void> {
+        this.webGLSupported = await this._checkWebGLSupport();
+        this.useSsdMobilenetv1 = this._canUseSsdModelMobilenetv1();
+
+        await this.loadModels();
+    }
+
+    private _canUseSsdModelMobilenetv1(): boolean {
+        // 1. Check WebGL support first
+        if (!this.webGLSupported) return false;
+
+        // 2. Check device memory is more than the minimum 4GB required
+        if (!this.hasSufficientMemory) return false;
+
+        // 3. Check hardware concurrency (CPU cores)
+        if ((navigator.hardwareConcurrency || 1) < 4) return false;
+
+        // 4. Check screen resolution and pixel density
+        // If screen resolution is very low, use lighter model
+        const screen = window.screen;
+        const pixelRatio = window.devicePixelRatio || 1;
+        const totalPixels = screen.width * screen.height * pixelRatio;
+
+        // Less than 1MP
+        if (totalPixels < 1000000) return false;
+
+        // 5. Check for low-end Android devices
+        const userAgent = navigator.userAgent.toLowerCase();
+
+        if (/android/.test(userAgent)) {
+            const isLowEndAndroid = this._isLowEndAndroid();
+
+            if (isLowEndAndroid) return false;
+        }
+
+        return true;
+    }
+
+    private _isLowEndAndroid(): boolean {
+        const userAgent = navigator.userAgent.toLowerCase();
+
+        // Check for Android version (older versions are more likely to be low-end)
+        const androidVersionMatch = userAgent.match(/android (\d+)/);
+
+        if (androidVersionMatch) {
+            const version = parseInt(androidVersionMatch[1]);
+
+            if (version < 8) return true;
+        }
+
+        // Check for specific low-end device indicators
+        const lowEndIndicators = [
+            "go edition",
+            "go_edition",
+            "lite",
+            "prime",
+            "essential",
+            "galaxy j",
+            "galaxy a0",
+            "redmi go",
+            "redmi 7a",
+            "redmi 8a",
+        ];
+
+        return lowEndIndicators.some((indicator) => userAgent.includes(indicator));
     }
 
     private async _checkWebGLSupport(): Promise<boolean> {
@@ -92,8 +153,7 @@ export class DemoService {
             image.onload = async () => {
                 try {
                     const faceEngine = this.faceEngine;
-
-                    const result = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this.performantDevice);
+                    const result = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this.useSsdMobilenetv1);
 
                     resolve(result);
                 } catch (error) {
@@ -106,7 +166,7 @@ export class DemoService {
     }
 
     private async _loadLandmarkModel(): Promise<void> {
-        if (this.performantDevice) {
+        if (this.useSsdMobilenetv1) {
             await faceapi.nets.faceLandmark68Net.loadFromUri("assets/models");
         } else {
             await faceapi.nets.faceLandmark68TinyNet.loadFromUri("assets/models");
@@ -114,7 +174,7 @@ export class DemoService {
     }
 
     private async _loadFaceModels(): Promise<void> {
-        if (this.webGLSupported) {
+        if (this.useSsdMobilenetv1) {
             await faceapi.nets.ssdMobilenetv1.loadFromUri("assets/models");
         } else {
             await faceapi.nets.tinyFaceDetector.loadFromUri("assets/models");
@@ -122,8 +182,6 @@ export class DemoService {
     }
 
     async loadModels(): Promise<void> {
-        this.webGLSupported = await this._checkWebGLSupport();
-
         try {
             const promises = [];
 
@@ -260,23 +318,24 @@ export class DemoService {
 
     initDemoData(): void {
         this.demoData = {
-            loading: false,
-            liveness: {},
             comparison: {},
-            livenessResult: [],
             comparisonResult: [],
-            generalInformation: [],
-            location: [],
             documentType: {},
             documentTypeFields: [],
+            generalInformation: [],
+            lat: null,
+            liveness: {},
+            livenessResult: [],
+            lng: null,
+            loading: false,
+            location: [],
+            OS: this.detectOS(),
             pro: {},
             proFields: [],
-            studio: {},
-            studioFields: [],
             prompt: {},
             promptFields: [],
-            lat: null,
-            lng: null,
+            studio: {},
+            studioFields: [],
         };
     }
 
@@ -885,5 +944,36 @@ export class DemoService {
         }
 
         return sum / (data.length / 4);
+    }
+
+    generateRandomPhoneNumber(): string {
+        return Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
+    }
+
+    generateSignUpDemoData(location?: any, roles?: any[]): any {
+        const randomNumber = Math.floor(Math.random() * 1000);
+        const r1 = Math.floor(Math.random() * (this.sampleLastNames?.length || 1));
+        const r2 = Math.floor(Math.random() * (this.sampleFirstNames?.length || 1));
+
+        return {
+            addressLine1: environment.production ? "" : "123 Main Street",
+            addressLine2: environment.production ? "" : "Apt 4B",
+            age: environment.production ? "" : "34",
+            agreements: !Boolean(environment.production),
+            city: environment.production ? "" : "New York",
+            company: environment.production ? "" : `company ${randomNumber}`,
+            country: environment.production ? "" : "United States",
+            countryCode: environment.production ? "+1" : "+1",
+            dateOfBirth: environment.production ? null : new Date(1990, 0, 1),
+            email: environment.production ? "" : `${this.sampleFirstNames?.[r2]?.toLowerCase() || "user"}_${randomNumber}@verifik.co`,
+            firstName: environment.production ? "" : this.sampleFirstNames?.[r2] || "User",
+            fullName: environment.production ? "" : `${this.sampleFirstNames?.[r2] || "User"} ${this.sampleLastNames?.[r1] || "Name"}`,
+            gender: environment.production ? "" : "M",
+            lastName: environment.production ? "" : this.sampleLastNames?.[r1] || "Name",
+            phone: environment.production ? "" : this.generateRandomPhoneNumber(),
+            postalCode: environment.production ? "" : "10001",
+            role: environment.production ? roles?.[1]?.code || "user" : roles?.[3]?.code || "admin",
+            state: environment.production ? "" : "NY",
+        };
     }
 }

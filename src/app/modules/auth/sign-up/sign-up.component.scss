@@ -20,41 +20,45 @@
     @include ios-input-zoom();
 }
 
-.mat-country-code-select {
-    margin-top: -20px !important;
-    margin-bottom: -24px !important;
+:host ::ng-deep {
+    .verifik-cards {
+        &--disabled {
+            opacity: 0.5;
+        }
+    }
 }
 
+// Signup component styling with custom branding
 .signup {
     &__steps {
         padding: 4px;
     }
-    
+
     &__step {
-        background-color: #C4C6D0;
+        background-color: var(--custom-verifik-primary-200);
         border-radius: 4px;
         height: 8px;
         transition: width 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
         width: 8px;
         margin-right: 4px;
-    
+
         &--wide {
-            background-color: #0140EC;
+            background-color: var(--custom-verifik-primary);
             width: 24px;
         }
     }
 
     &__hint {
-        background-color: #EDEFF2;
+        background-color: var(--custom-verifik-primary-50);
         width: 100%;
         padding: 16px;
 
         &--red {
-            background-color: #ffe5e5;
-            color: #da1313;
+            background-color: var(--custom-verifik-warn-50);
+            color: var(--custom-verifik-warn);
 
             mat-icon {
-                color: #da1313;
+                color: var(--custom-verifik-warn);
             }
         }
     }
@@ -67,6 +71,10 @@
     right: 0;
 
     @media screen and (max-width: 959px) {
-        margin: 16px;
+        margin: 8px;
     }
+}
+
+.verifik-services-video {
+    background-color: #e2e6ff;
 }

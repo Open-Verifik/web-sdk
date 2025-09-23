@@ -1,24 +1,24 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnDestroy, Output, ViewEncapsulation } from "@angular/core";
-import { FlexLayoutModule } from "@angular/flex-layout";
-
+import { MatButtonModule } from "@angular/material/button";
 import { fuseAnimations } from "@fuse/animations";
-
 import { TranslocoModule } from "@ngneat/transloco";
 import { Subscription } from "rxjs";
-import { AppRegistration, Project, ProjectFlow } from "../../project";
-import { EnrollSettings, EnrollStep, SmartEnrollService } from "../smart-enroll.service";
+
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
 import { KYCService } from "../../kyc.service";
-import { MatButtonModule } from "@angular/material/button";
+import { AppRegistration } from "../../project";
+import { EnrollSettings, EnrollStep, SmartEnrollService } from "../smart-enroll.service";
 
 @Component({
-    selector: "smart-error-display",
-    templateUrl: "./smart-error-display.component.html",
-    styleUrls: ["../smart-enroll.component.scss"],
-    encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
+    encapsulation: ViewEncapsulation.None,
+    imports: [CommonModule, MatButtonModule, TranslocoModule],
+    selector: "smart-error-display",
     standalone: true,
-    imports: [CommonModule, FlexLayoutModule, MatButtonModule, TranslocoModule],
+    styleUrls: ["./smart-error-display.component.scss"],
+    templateUrl: "./smart-error-display.component.html",
 })
 export class SmartErrorDisplayComponent implements OnDestroy {
     @Input("errorContent") errorContent: { message?: string; title?: string };
@@ -54,6 +54,12 @@ export class SmartErrorDisplayComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.smartEnrollSettings$.unsubscribe();
+    }
+
+    get translationKey(): string {
+        if (this.source === "document") return "id_scanning." + this.errorContent.message;
+        if (this.source === "face") return "liveness." + this.errorContent.message;
+        return "errors.something_went_wrong";
     }
 
     private _syncAppRegistration(step: string, status?: string, action?: string) {

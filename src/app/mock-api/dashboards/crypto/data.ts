@@ -1,24 +1,24 @@
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 
 /* Get the current instant */
 const now = DateTime.now();
 
 /* tslint:disable:max-line-length */
 export const crypto = {
-    btc      : {
-        amount     : 8878.48,
-        trend      : {
-            dir   : 'up',
+    btc: {
+        amount: 8878.48,
+        trend: {
+            dir: "up",
             amount: 0.17,
         },
-        marketCap  : 148752956966,
-        volume     : 22903438381,
-        supply     : 18168448,
-        allTimeHigh: 19891.00,
-        price      : {
+        marketCap: 148752956966,
+        volume: 22903438381,
+        supply: 18168448,
+        allTimeHigh: 19891.0,
+        price: {
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
                             x: -145,
@@ -62,7 +62,7 @@ export const crypto = {
                         },
                         {
                             x: -135,
-                            y: 6540.10,
+                            y: 6540.1,
                         },
                         {
                             x: -134,
@@ -142,7 +142,7 @@ export const crypto = {
                         },
                         {
                             x: -115,
-                            y: 6558.70,
+                            y: 6558.7,
                         },
                         {
                             x: -114,
@@ -150,15 +150,15 @@ export const crypto = {
                         },
                         {
                             x: -113,
-                            y: 6568.80,
+                            y: 6568.8,
                         },
                         {
                             x: -112,
-                            y: 6568.80,
+                            y: 6568.8,
                         },
                         {
                             x: -111,
-                            y: 6568.80,
+                            y: 6568.8,
                         },
                         {
                             x: -110,
@@ -178,7 +178,7 @@ export const crypto = {
                         },
                         {
                             x: -106,
-                            y: 6560.40,
+                            y: 6560.4,
                         },
                         {
                             x: -105,
@@ -194,7 +194,7 @@ export const crypto = {
                         },
                         {
                             x: -102,
-                            y: 6553.30,
+                            y: 6553.3,
                         },
                         {
                             x: -101,
@@ -210,11 +210,11 @@ export const crypto = {
                         },
                         {
                             x: -98,
-                            y: 6560.00,
+                            y: 6560.0,
                         },
                         {
                             x: -97,
-                            y: 6560.00,
+                            y: 6560.0,
                         },
                         {
                             x: -96,
@@ -246,7 +246,7 @@ export const crypto = {
                         },
                         {
                             x: -89,
-                            y: 6565.10,
+                            y: 6565.1,
                         },
                         {
                             x: -88,
@@ -378,7 +378,7 @@ export const crypto = {
                         },
                         {
                             x: -56,
-                            y: 6562.10,
+                            y: 6562.1,
                         },
                         {
                             x: -55,
@@ -434,11 +434,11 @@ export const crypto = {
                         },
                         {
                             x: -42,
-                            y: 6569.70,
+                            y: 6569.7,
                         },
                         {
                             x: -41,
-                            y: 6570.10,
+                            y: 6570.1,
                         },
                         {
                             x: -40,
@@ -494,7 +494,7 @@ export const crypto = {
                         },
                         {
                             x: -27,
-                            y: 6577.70,
+                            y: 6577.7,
                         },
                         {
                             x: -26,
@@ -506,7 +506,7 @@ export const crypto = {
                         },
                         {
                             x: -24,
-                            y: 6581.30,
+                            y: 6581.3,
                         },
                         {
                             x: -23,
@@ -574,11 +574,11 @@ export const crypto = {
                         },
                         {
                             x: -7,
-                            y: 6562.70,
+                            y: 6562.7,
                         },
                         {
                             x: -6,
-                            y: 6562.70,
+                            y: 6562.7,
                         },
                         {
                             x: -5,
@@ -598,20 +598,20 @@ export const crypto = {
                         },
                         {
                             x: -1,
-                            y: 6571.30,
+                            y: 6571.3,
                         },
                     ],
                 },
             ],
         },
     },
-    prices   : {
+    prices: {
         btc: 8878.48,
         eth: 170.46,
         bch: 359.93,
         xrp: 0.23512,
     },
-    wallets  : {
+    wallets: {
         btc: 24.97311243,
         eth: 126.3212,
         bch: 78.454412,
@@ -619,95 +619,95 @@ export const crypto = {
     },
     watchlist: [
         {
-            title : 'Ethereum',
-            iso   : 'ETH',
+            title: "Ethereum",
+            iso: "ETH",
             amount: 170.46,
-            trend : {
-                dir   : 'up',
+            trend: {
+                dir: "up",
                 amount: 2.35,
             },
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
-                            x: now.minus({minutes: 20}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 20 }).toFormat("HH:mm"),
                             y: 154.36,
                         },
                         {
-                            x: now.minus({minutes: 19}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 19 }).toFormat("HH:mm"),
                             y: 154.36,
                         },
                         {
-                            x: now.minus({minutes: 18}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 18 }).toFormat("HH:mm"),
                             y: 146.94,
                         },
                         {
-                            x: now.minus({minutes: 17}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 17 }).toFormat("HH:mm"),
                             y: 146.96,
                         },
                         {
-                            x: now.minus({minutes: 16}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 16 }).toFormat("HH:mm"),
                             y: 146.11,
                         },
                         {
-                            x: now.minus({minutes: 15}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 15 }).toFormat("HH:mm"),
                             y: 150.26,
                         },
                         {
-                            x: now.minus({minutes: 14}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 14 }).toFormat("HH:mm"),
                             y: 146.11,
                         },
                         {
-                            x: now.minus({minutes: 13}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 13 }).toFormat("HH:mm"),
                             y: 150.79,
                         },
                         {
-                            x: now.minus({minutes: 12}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 12 }).toFormat("HH:mm"),
                             y: 145.36,
                         },
                         {
-                            x: now.minus({minutes: 11}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 11 }).toFormat("HH:mm"),
                             y: 141.06,
                         },
                         {
-                            x: now.minus({minutes: 10}).toFormat('HH:mm'),
-                            y: 140.10,
+                            x: now.minus({ minutes: 10 }).toFormat("HH:mm"),
+                            y: 140.1,
                         },
                         {
-                            x: now.minus({minutes: 9}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 9 }).toFormat("HH:mm"),
                             y: 138.31,
                         },
                         {
-                            x: now.minus({minutes: 8}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 8 }).toFormat("HH:mm"),
                             y: 138.42,
                         },
                         {
-                            x: now.minus({minutes: 7}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 7 }).toFormat("HH:mm"),
                             y: 138.48,
                         },
                         {
-                            x: now.minus({minutes: 6}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 6 }).toFormat("HH:mm"),
                             y: 138.71,
                         },
                         {
-                            x: now.minus({minutes: 5}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 5 }).toFormat("HH:mm"),
                             y: 148.42,
                         },
                         {
-                            x: now.minus({minutes: 4}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 4 }).toFormat("HH:mm"),
                             y: 146.87,
                         },
                         {
-                            x: now.minus({minutes: 3}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 3 }).toFormat("HH:mm"),
                             y: 147.07,
                         },
                         {
-                            x: now.minus({minutes: 2}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 2 }).toFormat("HH:mm"),
                             y: 135.07,
                         },
                         {
-                            x: now.minus({minutes: 1}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 1 }).toFormat("HH:mm"),
                             y: 135.01,
                         },
                     ],
@@ -715,287 +715,287 @@ export const crypto = {
             ],
         },
         {
-            title : 'Bitcoin Cash',
-            iso   : 'BCH',
+            title: "Bitcoin Cash",
+            iso: "BCH",
             amount: 359.93,
-            trend : {
-                dir   : 'up',
+            trend: {
+                dir: "up",
                 amount: 9.94,
             },
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
-                            x: now.minus({minutes: 20}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 20 }).toFormat("HH:mm"),
                             y: 374.77,
                         },
                         {
-                            x: now.minus({minutes: 19}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 19 }).toFormat("HH:mm"),
                             y: 374.41,
                         },
                         {
-                            x: now.minus({minutes: 18}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 18 }).toFormat("HH:mm"),
                             y: 375.08,
                         },
                         {
-                            x: now.minus({minutes: 17}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 17 }).toFormat("HH:mm"),
                             y: 375.08,
                         },
                         {
-                            x: now.minus({minutes: 16}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 16 }).toFormat("HH:mm"),
                             y: 374.09,
                         },
                         {
-                            x: now.minus({minutes: 15}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 15 }).toFormat("HH:mm"),
                             y: 368.84,
                         },
                         {
-                            x: now.minus({minutes: 14}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 14 }).toFormat("HH:mm"),
                             y: 367.49,
                         },
                         {
-                            x: now.minus({minutes: 13}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 13 }).toFormat("HH:mm"),
                             y: 359.75,
                         },
                         {
-                            x: now.minus({minutes: 12}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 12 }).toFormat("HH:mm"),
                             y: 366.65,
                         },
                         {
-                            x: now.minus({minutes: 11}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 11 }).toFormat("HH:mm"),
                             y: 367.52,
                         },
                         {
-                            x: now.minus({minutes: 10}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 10 }).toFormat("HH:mm"),
                             y: 367.59,
                         },
                         {
-                            x: now.minus({minutes: 9}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 9 }).toFormat("HH:mm"),
                             y: 364.18,
                         },
                         {
-                            x: now.minus({minutes: 8}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 8 }).toFormat("HH:mm"),
                             y: 370.11,
                         },
                         {
-                            x: now.minus({minutes: 7}).toFormat('HH:mm'),
-                            y: 362.70,
+                            x: now.minus({ minutes: 7 }).toFormat("HH:mm"),
+                            y: 362.7,
                         },
                         {
-                            x: now.minus({minutes: 6}).toFormat('HH:mm'),
-                            y: 362.70,
+                            x: now.minus({ minutes: 6 }).toFormat("HH:mm"),
+                            y: 362.7,
                         },
                         {
-                            x: now.minus({minutes: 5}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 5 }).toFormat("HH:mm"),
                             y: 362.77,
                         },
                         {
-                            x: now.minus({minutes: 4}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 4 }).toFormat("HH:mm"),
                             y: 369.46,
                         },
                         {
-                            x: now.minus({minutes: 3}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 3 }).toFormat("HH:mm"),
                             y: 371.04,
                         },
                         {
-                            x: now.minus({minutes: 2}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 2 }).toFormat("HH:mm"),
                             y: 371.48,
                         },
                         {
-                            x: now.minus({minutes: 1}).toFormat('HH:mm'),
-                            y: 371.30,
+                            x: now.minus({ minutes: 1 }).toFormat("HH:mm"),
+                            y: 371.3,
                         },
                     ],
                 },
             ],
         },
         {
-            title : 'XRP',
-            iso   : 'XRP',
+            title: "XRP",
+            iso: "XRP",
             amount: 0.23512,
-            trend : {
-                dir   : 'down',
+            trend: {
+                dir: "down",
                 amount: 0.35,
             },
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
-                            x: now.minus({minutes: 20}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 20 }).toFormat("HH:mm"),
                             y: 0.258,
                         },
                         {
-                            x: now.minus({minutes: 19}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 19 }).toFormat("HH:mm"),
                             y: 0.256,
                         },
                         {
-                            x: now.minus({minutes: 18}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 18 }).toFormat("HH:mm"),
                             y: 0.255,
                         },
                         {
-                            x: now.minus({minutes: 17}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 17 }).toFormat("HH:mm"),
                             y: 0.255,
                         },
                         {
-                            x: now.minus({minutes: 16}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 16 }).toFormat("HH:mm"),
                             y: 0.254,
                         },
                         {
-                            x: now.minus({minutes: 15}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 15 }).toFormat("HH:mm"),
                             y: 0.248,
                         },
                         {
-                            x: now.minus({minutes: 14}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 14 }).toFormat("HH:mm"),
                             y: 0.247,
                         },
                         {
-                            x: now.minus({minutes: 13}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 13 }).toFormat("HH:mm"),
                             y: 0.249,
                         },
                         {
-                            x: now.minus({minutes: 12}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 12 }).toFormat("HH:mm"),
                             y: 0.246,
                         },
                         {
-                            x: now.minus({minutes: 11}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 11 }).toFormat("HH:mm"),
                             y: 0.247,
                         },
                         {
-                            x: now.minus({minutes: 10}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 10 }).toFormat("HH:mm"),
                             y: 0.247,
                         },
                         {
-                            x: now.minus({minutes: 9}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 9 }).toFormat("HH:mm"),
                             y: 0.244,
                         },
                         {
-                            x: now.minus({minutes: 8}).toFormat('HH:mm'),
-                            y: 0.250,
+                            x: now.minus({ minutes: 8 }).toFormat("HH:mm"),
+                            y: 0.25,
                         },
                         {
-                            x: now.minus({minutes: 7}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 7 }).toFormat("HH:mm"),
                             y: 0.242,
                         },
                         {
-                            x: now.minus({minutes: 6}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 6 }).toFormat("HH:mm"),
                             y: 0.251,
                         },
                         {
-                            x: now.minus({minutes: 5}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 5 }).toFormat("HH:mm"),
                             y: 0.251,
                         },
                         {
-                            x: now.minus({minutes: 4}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 4 }).toFormat("HH:mm"),
                             y: 0.251,
                         },
                         {
-                            x: now.minus({minutes: 3}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 3 }).toFormat("HH:mm"),
                             y: 0.249,
                         },
                         {
-                            x: now.minus({minutes: 2}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 2 }).toFormat("HH:mm"),
                             y: 0.242,
                         },
                         {
-                            x: now.minus({minutes: 1}).toFormat('HH:mm'),
-                            y: 0.240,
+                            x: now.minus({ minutes: 1 }).toFormat("HH:mm"),
+                            y: 0.24,
                         },
                     ],
                 },
             ],
         },
         {
-            title : 'Litecoin',
-            iso   : 'LTC',
+            title: "Litecoin",
+            iso: "LTC",
             amount: 60.15,
-            trend : {
-                dir   : 'up',
+            trend: {
+                dir: "up",
                 amount: 0.99,
             },
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
-                            x: now.minus({minutes: 20}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 20 }).toFormat("HH:mm"),
                             y: 62.54,
                         },
                         {
-                            x: now.minus({minutes: 19}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 19 }).toFormat("HH:mm"),
                             y: 61.54,
                         },
                         {
-                            x: now.minus({minutes: 18}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 18 }).toFormat("HH:mm"),
                             y: 62.55,
                         },
                         {
-                            x: now.minus({minutes: 17}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 17 }).toFormat("HH:mm"),
                             y: 60.55,
                         },
                         {
-                            x: now.minus({minutes: 16}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 16 }).toFormat("HH:mm"),
                             y: 59.54,
                         },
                         {
-                            x: now.minus({minutes: 15}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 15 }).toFormat("HH:mm"),
                             y: 58.48,
                         },
                         {
-                            x: now.minus({minutes: 14}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 14 }).toFormat("HH:mm"),
                             y: 54.47,
                         },
                         {
-                            x: now.minus({minutes: 13}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 13 }).toFormat("HH:mm"),
                             y: 51.49,
                         },
                         {
-                            x: now.minus({minutes: 12}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 12 }).toFormat("HH:mm"),
                             y: 51.46,
                         },
                         {
-                            x: now.minus({minutes: 11}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 11 }).toFormat("HH:mm"),
                             y: 53.47,
                         },
                         {
-                            x: now.minus({minutes: 10}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 10 }).toFormat("HH:mm"),
                             y: 52.47,
                         },
                         {
-                            x: now.minus({minutes: 9}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 9 }).toFormat("HH:mm"),
                             y: 54.44,
                         },
                         {
-                            x: now.minus({minutes: 8}).toFormat('HH:mm'),
-                            y: 59.50,
+                            x: now.minus({ minutes: 8 }).toFormat("HH:mm"),
+                            y: 59.5,
                         },
                         {
-                            x: now.minus({minutes: 7}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 7 }).toFormat("HH:mm"),
                             y: 62.42,
                         },
                         {
-                            x: now.minus({minutes: 6}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 6 }).toFormat("HH:mm"),
                             y: 61.42,
                         },
                         {
-                            x: now.minus({minutes: 5}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 5 }).toFormat("HH:mm"),
                             y: 60.42,
                         },
                         {
-                            x: now.minus({minutes: 4}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 4 }).toFormat("HH:mm"),
                             y: 58.49,
                         },
                         {
-                            x: now.minus({minutes: 3}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 3 }).toFormat("HH:mm"),
                             y: 57.51,
                         },
                         {
-                            x: now.minus({minutes: 2}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 2 }).toFormat("HH:mm"),
                             y: 54.51,
                         },
                         {
-                            x: now.minus({minutes: 1}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 1 }).toFormat("HH:mm"),
                             y: 51.25,
                         },
                     ],
@@ -1003,95 +1003,95 @@ export const crypto = {
             ],
         },
         {
-            title : 'Zcash',
-            iso   : 'ZEC',
+            title: "Zcash",
+            iso: "ZEC",
             amount: 58.41,
-            trend : {
-                dir   : 'down',
+            trend: {
+                dir: "down",
                 amount: 8.79,
             },
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
-                            x: now.minus({minutes: 20}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 20 }).toFormat("HH:mm"),
                             y: 53.54,
                         },
                         {
-                            x: now.minus({minutes: 19}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 19 }).toFormat("HH:mm"),
                             y: 52.54,
                         },
                         {
-                            x: now.minus({minutes: 18}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 18 }).toFormat("HH:mm"),
                             y: 52.55,
                         },
                         {
-                            x: now.minus({minutes: 17}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 17 }).toFormat("HH:mm"),
                             y: 46.44,
                         },
                         {
-                            x: now.minus({minutes: 16}).toFormat('HH:mm'),
-                            y: 49.50,
+                            x: now.minus({ minutes: 16 }).toFormat("HH:mm"),
+                            y: 49.5,
                         },
                         {
-                            x: now.minus({minutes: 15}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 15 }).toFormat("HH:mm"),
                             y: 55.42,
                         },
                         {
-                            x: now.minus({minutes: 14}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 14 }).toFormat("HH:mm"),
                             y: 54.42,
                         },
                         {
-                            x: now.minus({minutes: 13}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 13 }).toFormat("HH:mm"),
                             y: 43.49,
                         },
                         {
-                            x: now.minus({minutes: 12}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 12 }).toFormat("HH:mm"),
                             y: 43.46,
                         },
                         {
-                            x: now.minus({minutes: 11}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 11 }).toFormat("HH:mm"),
                             y: 41.47,
                         },
                         {
-                            x: now.minus({minutes: 10}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 10 }).toFormat("HH:mm"),
                             y: 41.47,
                         },
                         {
-                            x: now.minus({minutes: 9}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 9 }).toFormat("HH:mm"),
                             y: 51.55,
                         },
                         {
-                            x: now.minus({minutes: 8}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 8 }).toFormat("HH:mm"),
                             y: 48.54,
                         },
                         {
-                            x: now.minus({minutes: 7}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 7 }).toFormat("HH:mm"),
                             y: 49.48,
                         },
                         {
-                            x: now.minus({minutes: 6}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 6 }).toFormat("HH:mm"),
                             y: 45.47,
                         },
                         {
-                            x: now.minus({minutes: 5}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 5 }).toFormat("HH:mm"),
                             y: 51.42,
                         },
                         {
-                            x: now.minus({minutes: 4}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 4 }).toFormat("HH:mm"),
                             y: 49.49,
                         },
                         {
-                            x: now.minus({minutes: 3}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 3 }).toFormat("HH:mm"),
                             y: 46.51,
                         },
                         {
-                            x: now.minus({minutes: 2}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 2 }).toFormat("HH:mm"),
                             y: 41.51,
                         },
                         {
-                            x: now.minus({minutes: 1}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 1 }).toFormat("HH:mm"),
                             y: 44.25,
                         },
                     ],
@@ -1099,96 +1099,96 @@ export const crypto = {
             ],
         },
         {
-            title : 'Bitcoin Gold',
-            iso   : 'BTG',
+            title: "Bitcoin Gold",
+            iso: "BTG",
             amount: 12.23,
-            trend : {
-                dir   : 'down',
+            trend: {
+                dir: "down",
                 amount: 4.42,
             },
             series: [
                 {
-                    name: 'Price',
+                    name: "Price",
                     data: [
                         {
-                            x: now.minus({minutes: 20}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 20 }).toFormat("HH:mm"),
                             y: 14.77,
                         },
                         {
-                            x: now.minus({minutes: 19}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 19 }).toFormat("HH:mm"),
                             y: 14.41,
                         },
                         {
-                            x: now.minus({minutes: 18}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 18 }).toFormat("HH:mm"),
                             y: 15.08,
                         },
                         {
-                            x: now.minus({minutes: 17}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 17 }).toFormat("HH:mm"),
                             y: 15.08,
                         },
                         {
-                            x: now.minus({minutes: 16}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 16 }).toFormat("HH:mm"),
                             y: 14.09,
                         },
                         {
-                            x: now.minus({minutes: 15}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 15 }).toFormat("HH:mm"),
                             y: 18.84,
                         },
                         {
-                            x: now.minus({minutes: 14}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 14 }).toFormat("HH:mm"),
                             y: 17.49,
                         },
                         {
-                            x: now.minus({minutes: 13}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 13 }).toFormat("HH:mm"),
                             y: 19.75,
                         },
                         {
-                            x: now.minus({minutes: 12}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 12 }).toFormat("HH:mm"),
                             y: 16.65,
                         },
                         {
-                            x: now.minus({minutes: 11}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 11 }).toFormat("HH:mm"),
                             y: 17.52,
                         },
                         {
-                            x: now.minus({minutes: 10}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 10 }).toFormat("HH:mm"),
                             y: 17.59,
                         },
                         {
-                            x: now.minus({minutes: 9}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 9 }).toFormat("HH:mm"),
                             y: 14.18,
                         },
                         {
-                            x: now.minus({minutes: 8}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 8 }).toFormat("HH:mm"),
                             y: 10.11,
                         },
                         {
-                            x: now.minus({minutes: 7}).toFormat('HH:mm'),
-                            y: 12.70,
+                            x: now.minus({ minutes: 7 }).toFormat("HH:mm"),
+                            y: 12.7,
                         },
                         {
-                            x: now.minus({minutes: 6}).toFormat('HH:mm'),
-                            y: 12.70,
+                            x: now.minus({ minutes: 6 }).toFormat("HH:mm"),
+                            y: 12.7,
                         },
                         {
-                            x: now.minus({minutes: 5}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 5 }).toFormat("HH:mm"),
                             y: 12.77,
                         },
                         {
-                            x: now.minus({minutes: 4}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 4 }).toFormat("HH:mm"),
                             y: 19.46,
                         },
                         {
-                            x: now.minus({minutes: 3}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 3 }).toFormat("HH:mm"),
                             y: 11.04,
                         },
                         {
-                            x: now.minus({minutes: 2}).toFormat('HH:mm'),
+                            x: now.minus({ minutes: 2 }).toFormat("HH:mm"),
                             y: 11.48,
                         },
                         {
-                            x: now.minus({minutes: 1}).toFormat('HH:mm'),
-                            y: 11.30,
+                            x: now.minus({ minutes: 1 }).toFormat("HH:mm"),
+                            y: 11.3,
                         },
                     ],
                 },
@@ -1196,4 +1196,3 @@ export const crypto = {
         },
     ],
 };
-

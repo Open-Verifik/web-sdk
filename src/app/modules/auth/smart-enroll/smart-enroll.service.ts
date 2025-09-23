@@ -1,12 +1,13 @@
-import * as faceapi from "@vladmandic/face-api";
-import { Observable, Subject } from "rxjs";
-import { Contour } from "libs/jscanify";
-
 import { Injectable } from "@angular/core";
-
-import { AppRegistration, ProjectFlow } from "../project";
 import { TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
+import { Contour } from "libs/jscanify";
+import { Observable, Subject } from "rxjs";
+
+import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { CountryOption } from "app/core/services/country.service";
+import { AppRegistration } from "../project";
+import { PromptTemplate } from "app/core/models/prompt-template.model";
 
 export interface FaceDetectionWithLandmarks extends faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68> {}
 
@@ -110,6 +111,7 @@ export interface EnrollSettings {
     currentStep: EnrollStep;
     documentMethod: EnrollDocumentMethod;
     documentCategory: DocumentCategory;
+    promptTemplate: PromptTemplate;
 }
 
 export type DocumentCategory = "passport" | "id" | "driving_license" | "tax_information";
@@ -140,7 +142,6 @@ export type EnrollDocumentMethod = "" | "scan" | "upload";
 export class SmartEnrollService {
     private _enrollSettings: EnrollSettings;
     private _enrollSettings$: Subject<EnrollSettings> = new Subject<EnrollSettings>();
-    private _instructionsClosed: boolean;
     private _insufficientCredits$: Subject<void> = new Subject<void>();
     private _skipChanged$: Subject<void> = new Subject<void>();
 
@@ -150,13 +151,12 @@ export class SmartEnrollService {
     skipChanged$: Observable<void>;
 
     constructor(private translocoService: TranslocoService) {
-        this.instructionsClosed = false;
-
         this._enrollSettings = {
-            currentStep: "",
-            documentMethod: localStorage.getItem("documentMethod") as EnrollDocumentMethod,
-            documentCategory: localStorage.getItem("documentCategory") as DocumentCategory,
             country: localStorage.getItem("country") as keyof CountryOption,
+            currentStep: "",
+            documentCategory: localStorage.getItem("documentCategory") as DocumentCategory,
+            documentMethod: localStorage.getItem("documentMethod") as EnrollDocumentMethod,
+            promptTemplate: JSON.parse(localStorage.getItem("promptTemplate") || "null") as PromptTemplate,
         };
 
         this.enrollSettings$ = this._enrollSettings$.asObservable();
@@ -195,14 +195,6 @@ export class SmartEnrollService {
 
     get insufficientCredits$(): Observable<void> {
         return this._insufficientCredits$.asObservable();
-    }
-
-    get instructionsClosed(): boolean {
-        return this._instructionsClosed;
-    }
-
-    set instructionsClosed(status: boolean) {
-        this._instructionsClosed = status;
     }
 
     errorTranslation(message: string = "errors.something_went_wrong"): string {
@@ -416,8 +408,8 @@ export class SmartEnrollService {
         };
     }
 
-    setCountry(country: keyof CountryOption) {
-        localStorage.setItem("country", country);
+    setCountry(country?: keyof CountryOption) {
+        localStorage.setItem("country", country || "");
 
         this.enrollSettings = {
             ...this._enrollSettings,
@@ -425,8 +417,17 @@ export class SmartEnrollService {
         };
     }
 
-    setDocumentMethod(documentMethod: EnrollDocumentMethod) {
-        localStorage.setItem("documentMethod", documentMethod);
+    setPromptTemplate(promptTemplate?: PromptTemplate) {
+        localStorage.setItem("promptTemplate", JSON.stringify(promptTemplate || null));
+
+        this.enrollSettings = {
+            ...this._enrollSettings,
+            promptTemplate,
+        };
+    }
+
+    setDocumentMethod(documentMethod?: EnrollDocumentMethod) {
+        localStorage.setItem("documentMethod", documentMethod || "");
 
         this.enrollSettings = {
             ...this._enrollSettings,
@@ -434,8 +435,8 @@ export class SmartEnrollService {
         };
     }
 
-    setDocumentCategory(documentCategory: DocumentCategory) {
-        localStorage.setItem("documentCategory", documentCategory);
+    setDocumentCategory(documentCategory?: DocumentCategory) {
+        localStorage.setItem("documentCategory", documentCategory || "");
 
         this.enrollSettings = {
             ...this._enrollSettings,
@@ -472,7 +473,10 @@ export class SmartEnrollService {
     }
 
     unsetLocalStorage() {
+        localStorage.removeItem("country");
+        localStorage.removeItem("documentCategory");
         localStorage.removeItem("documentMethod");
+        localStorage.removeItem("promptTemplate");
         localStorage.removeItem("skippedBiometric");
         localStorage.removeItem("skippedDocument");
     }

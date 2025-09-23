@@ -1,0 +1,61 @@
+---
+description: HTML/SCSS guides and component standards
+globs: *.scss,*.html,*.css
+alwaysApply: false
+---
+# Style Guide - HTML/SCSS Standards
+
+## SCSS Guidelines
+* Prefer Tailwind 2.x when styling components
+* Use SCSS with proper nesting (max 3 levels deep)
+* Create reusable mixins for common patterns
+* Use functions for calculations and transformations
+* Organize SCSS with @import statements
+* Use partial files (_filename.scss) for modularity
+* Utilize variables from `_variables.scss` for breakpoints, colours etc.
+
+## BEM Convention
+* Use BEM CSS convention with proper naming:
+  * Block: `.wallet-card`
+  * Element: `.wallet-card__header`
+  * Modifier: `.wallet-card--active`
+* Use kebab-case for class names
+* Keep class names descriptive and semantic
+* Avoid deep nesting in BEM (max 2 levels)
+
+## Accessibility Standards
+* Add accessibility attributes (aria-label, aria-describedby)
+* Ensure proper color contrast ratios (4.5:1 minimum)
+* Use correct semantic HTML elements (button, nav, main, etc.)
+* Provide focus indicators for keyboard navigation
+* Support screen readers with proper ARIA roles
+* Test with keyboard-only navigation
+
+## Responsive Design
+* Implement breakpoints consistently
+* Use Tailwind for breakpoint definition
+* Test on multiple screen sizes
+* Use relative units (rem, em, %) over fixed units
+* Ensure touch targets are at least 40px
+
+## Performance & Best Practices
+* Avoid inline styles, unless angular style bindings
+* Use CSS custom properties for dynamic values
+* Minimize CSS bundle size
+* Use CSS containment where appropriate
+* Optimize critical rendering path
+
+## Component Styling
+* Use material components
+* Create component-specific SCSS files
+* Use :host selector for component styles
+* Implement proper encapsulation
+* Use Angular's class binding for dynamic tyles
+* Follow consistent spacing and typography scales
+
+## Design System
+* Use design tokens for consistency
+* Implement consistent spacing scale
+* Use typography scale for font sizes
+* Create reusable component patterns
+* Maintain visual hierarchy

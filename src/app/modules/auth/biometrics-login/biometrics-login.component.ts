@@ -1,37 +1,38 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { Subject } from "rxjs";
-import { MatDialogModule } from "@angular/material/dialog";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from "@angular/core";
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
-import { DemoService } from "app/modules/demo/demo.service";
-
-import * as faceapi from "@vladmandic/face-api";
+import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { FlexLayoutModule } from "@angular/flex-layout";
-import { PasswordlessService } from "../passwordless.service";
-import { Project, ProjectFlow } from "../project";
-import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
+import { DemoService } from "app/modules/demo/demo.service";
+import { Subject } from "rxjs";
+
 import { AuthService } from "app/core/auth/auth.service";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
+import { PasswordlessService } from "../passwordless.service";
 
 let _biometricLoginThis = null;
 
 @Component({
     selector: "app-biometrics-login",
     standalone: true,
-    templateUrl: "./biometrics-login.component.html",
     styleUrls: ["./biometrics-login.component.scss"],
+    templateUrl: "./biometrics-login.component.html",
     imports: [
-        FlexLayoutModule,
+        AuthBiometricErrorsDisplayComponent,
         CommonModule,
-        MatDialogModule,
-        TranslocoModule,
+        FlexLayoutModule,
         MatButtonModule,
+        MatDialogModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
-        AuthBiometricErrorsDisplayComponent,
+        TranslocoModule,
     ],
 })
 export class BiometricsLoginComponent implements OnInit, OnDestroy {
@@ -116,11 +117,11 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
     ) {
         _biometricLoginThis = this;
 
+        this.debugIndex = 0;
         this.loadingModel = true;
         this.lowCamera = false;
-        this.debugIndex = 0;
-        this.successPosition = 0;
         this.showError = false;
+        this.successPosition = 0;
 
         this.errorContent = {
             message: "",
@@ -128,8 +129,8 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
 
         this.osInfo = this.detectOS();
         this.demoData = this._demoService.getDemoData();
-        this.project = this._passwordlessService.getProject();
-        this.projectFlow = this.project.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
 
         let key = this.demoData.isMobile ? "width" : "height";
 
@@ -170,6 +171,18 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
                 this.startAsyncVideo();
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this._unsubscribeAll.next(null);
+
+        this.loadingResults = false;
+
+        this.video = undefined;
+
+        if (this.detectFaceInterval) {
+            this.stopRecord();
+        }
     }
 
     _generateSession(): void {
@@ -621,18 +634,6 @@ export class BiometricsLoginComponent implements OnInit, OnDestroy {
         this._splashScreenService.hide();
 
         this._changeDetectorRef.markForCheck();
-    }
-
-    ngOnDestroy(): void {
-        this._unsubscribeAll.next(null);
-
-        this.loadingResults = false;
-
-        this.video = undefined;
-
-        if (this.detectFaceInterval) {
-            this.stopRecord();
-        }
     }
 
     continueRedirection(event: any): void {}

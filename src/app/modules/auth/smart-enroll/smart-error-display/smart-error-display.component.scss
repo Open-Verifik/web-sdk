@@ -1,0 +1,13 @@
+.smart-error-display {
+    &__title {
+        color: var(--custom-verifik-accent-800, #1e293b);
+    }
+
+    &__attempts {
+        background-color: var(--custom-verifik-accent-100, #f1f5f9);
+    }
+
+    &__attempts-text {
+        color: var(--custom-verifik-accent-800, #1e293b);
+    }
+}

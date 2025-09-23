@@ -1,12 +1,10 @@
 <div
-    [ngStyle.gt-sm]="{ backgroundColor: project.branding.bgColor }"
+    [style.background-color]="project.branding.backgroundColor"
     @fadeIn
     *ngIf="project"
-    class="app min-h-screen"
-    fxLayout="column"
-    fxLayoutAlign="center center"
+    class="app min-h-screen flex flex-col items-center justify-center"
 >
-    <main #appContent class="app__content min-h-screen" fxLayout="column" fxLayoutAlign="start center" ngClass.lt-md="flex-grow">
+    <main #appContent class="app__content min-h-screen w-full flex flex-col items-center justify-center flex-grow md:flex-grow-0">
         <smart-documents @fadeIn *ngIf="currentStep === 'document'" class="app__page"></smart-documents>
 
         <smart-documents-review @fadeIn *ngIf="currentStep === 'document-review'" class="app__page"></smart-documents-review>

@@ -23,6 +23,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { AuthService } from "app/core/auth/auth.service";
+import { AppService } from "app/core/services/app.service";
 @Component({
     selector: "auth-confirmation-required",
     templateUrl: "./confirmation-required.component.html",
@@ -104,13 +105,14 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
         private _countries: CountriesService,
         private _demoService: DemoService,
         private _authService: AuthService,
-        private _translocoService: TranslocoService
+        private _translocoService: TranslocoService,
+        private _appService: AppService
     ) {
         this._splashScreenService.show();
 
         this.countries = this._countries.countryCodes;
 
-        this.deviceDetails = this._demoService.getDeviceDetails();
+        this.deviceDetails = this._appService.getDeviceDetails();
     }
 
     ngOnInit(): void {
@@ -249,8 +251,8 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
                       phone: this.appRegistration.phone,
                   }
                 : this.appRegistration.phoneValidation?.status !== "validated"
-                ? this.appRegistration.phoneValidation
-                : null;
+                  ? this.appRegistration.phoneValidation
+                  : null;
 
             if (this.remainingTime) {
                 this.remainingTime = null;

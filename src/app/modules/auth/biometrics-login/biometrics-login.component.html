@@ -5,7 +5,7 @@
         <div fxLayout="column" fxLayoutAlign="center center" class="text-center h-20 sm:h-8 xs:h-8 my-2">
             <div *ngIf="errorFace && !loadingResults" class="mb-4">
                 <div [style.color]="project ? project.branding.titleColor : null" class="text-3xl font-bold">{{ errorFace.title }}</div>
-                <div [style.color]="project ? project.branding.txtColor : null" class="text-gray-600">{{ errorFace.subtitle }}</div>
+                <div [style.color]="project ? project.branding.textColor : null" class="text-gray-600">{{ errorFace.subtitle }}</div>
             </div>
         </div>
 
@@ -37,7 +37,7 @@
 
         <h1 class="mt-4" [style.color]="project.branding.titleColor">{{ "id_scanning.camera_not_found" | transloco }}</h1>
 
-        <p class="mt-4" [style.color]="project.branding.txtColor">
+        <p class="mt-4" [style.color]="project.branding.textColor">
             {{ "id_scanning.camera_not_found_description" | transloco }}
         </p>
     </div>

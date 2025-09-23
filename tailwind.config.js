@@ -209,7 +209,7 @@ const config = {
                             backgroundColor: "var(--fuse-text-hint)",
                         },
                         hr: {
-                            borderColor: "var(--fuse-border)",
+                            buttonTextColor: "var(--fuse-border)",
                         },
                         blockquote: {
                             color: "var(--fuse-text-default)",

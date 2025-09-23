@@ -1,12 +1,11 @@
-import moment from "moment";
-import { Subject, takeUntil } from "rxjs";
-
 import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { AbstractControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatNativeDateModule } from "@angular/material/core";
+import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
@@ -16,13 +15,17 @@ import { Router, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertType } from "@fuse/components/alert";
 import { TranslocoModule } from "@ngneat/transloco";
+import moment from "moment";
+import { Subject, takeUntil } from "rxjs";
 
-import { environment } from "environments/environment";
-
-import { CountriesService } from "app/modules/demo/countries.service";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { SmartEnrollProjectFlow } from "app/core/models/smart-enroll-project.model";
+import { CountryCodeOption, CountryOption, CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
-import { AppRegistration, Project, ProjectFlow } from "../../project";
+import { AppRegistration } from "../../project";
 import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 
 declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
@@ -30,18 +33,20 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 @Component({
     animations: fuseAnimations,
     encapsulation: ViewEncapsulation.None,
-    selector: "auth-sign-up-create-form",
+    selector: "sign-up-create-form",
     standalone: true,
-    styleUrls: ["../../sign-in/sign-in.scss"],
+    styleUrls: ["./sign-up-create-form.component.scss"],
     templateUrl: "./sign-up-create-form.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
         MatButtonModule,
         MatCheckboxModule,
+        MatDatepickerModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
+        MatNativeDateModule,
         MatProgressSpinnerModule,
         MatSelectModule,
         NgIf,
@@ -50,9 +55,7 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
         TranslocoModule,
     ],
 })
-export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
-    @ViewChild("signUpNgForm") signUpNgForm: NgForm;
-
+export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     @Input("location") location: any;
     @Input("project") project: Project;
     @Input("projectFlow") projectFlow: ProjectFlow;
@@ -65,99 +68,34 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
     };
 
     appRegistration: AppRegistration;
-    countries: Array<any>;
+    countries: CountryOption[];
+    countryCodes: CountryCodeOption[];
     demoData: any;
     fields: any;
     hasLogin: Boolean = false;
     language: string;
     loginProjectFlow: ProjectFlow;
-    onboardingSignUpForm: any;
     roles: Array<any>;
+    saving: boolean = false;
     showError: boolean = false;
     signUpForm: UntypedFormGroup;
+    signUpFormSettings: SmartEnrollProjectFlow["signUpForm"];
     token: string;
-    phoneLengthMapping = {
-        "+507": 8, // Panama
-        "+1": 10, // USA
-        "+44": 10, // United Kingdom
-        "+91": 10, // India
-        "+81": 10, // Japan
-        "+49": 11, // Germany
-        "+33": 9, // France
-        "+39": 10, // Italy
-        "+86": 11, // China
-        "+7": 10, // Russia
-        "+55": 11, // Brazil
-        "+61": 9, // Australia
-        "+34": 9, // Spain
-        "+82": 10, // South Korea
-        "+62": 10, // Indonesia
-        "+52": 10, // Mexico
-        "+27": 9, // South Africa
-        "+90": 10, // Turkey
-        "+31": 9, // Netherlands
-        "+46": 10, // Sweden
-        "+63": 10, // Philippines
-        "+54": 10, // Argentina
-        "+56": 9, // Chile
-        "+57": 10, // Colombia
-        "+506": 8, // Costa Rica
-        "+593": 9, // Ecuador
-        "+503": 8, // El Salvador
-        "+502": 8, // Guatemala
-        "+504": 8, // Honduras
-        "+595": 9, // Paraguay
-        "+51": 9, // Peru
-        "+598": 9, // Uruguay
-        "+58": 10, // Venezuela
-        // Add more country codes and their respective phone lengths here
-    };
 
-    /**
-     * Constructor
-     */
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
-        private _countries: CountriesService,
+        private _countryService: CountryService,
         private _demoService: DemoService,
         private _formBuilder: UntypedFormBuilder,
+        private _kycService: KYCService,
         private _passwordlessService: PasswordlessService,
         private _router: Router,
         private _smartEnrollService: SmartEnrollService
     ) {
-        this.countries = this._countries.countryCodes;
+        this.countryCodes = this._countryService.countryCodes;
+        this.countries = this._countryService.countries;
         this.fields = {};
-
-        this.roles = [
-            {
-                label: "signup.roles.founder",
-                code: "founder",
-            },
-            {
-                label: "signup.roles.high_management",
-                code: "high_management",
-            },
-            {
-                label: "signup.roles.manager",
-                code: "manager",
-            },
-            {
-                label: "signup.roles.developer",
-                code: "developer",
-            },
-            {
-                label: "signup.roles.compliance",
-                code: "compliance",
-            },
-            {
-                label: "signup.roles.marketing",
-                code: "marketing",
-            },
-            {
-                label: "signup.roles.ciso",
-                code: "ciso",
-            },
-        ];
+        this.roles = this._kycService.roles;
 
         this.demoData = this._demoService.getDemoData();
         this._demoService.cleanVariables();
@@ -175,7 +113,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
             const data = changes.project.currentValue;
 
             try {
-                this.onboardingSignUpForm = this.projectFlow.onboardingSettings.signUpForm;
+                this.signUpFormSettings = this.projectFlow.signUpForm;
 
                 this._initForm();
             } catch (exception) {
@@ -188,74 +126,52 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
                 if (projectFlow.status !== "active") continue;
                 if (projectFlow.type === "login") this.hasLogin = true;
             }
-
-            if (this.projectFlow.systemForm) {
-                this._assignRoles(this.projectFlow.systemForm);
-            }
         }
     }
 
     get isFormDisabled(): boolean {
-        return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
+        return (
+            this.saving ||
+            Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements))
+        );
     }
 
-    private _assignRoles(systemForm: ProjectFlow["systemForm"]): void {
-        let roleField = null;
+    static _dateOfBirthValidator = (control: AbstractControl) => {
+        if (!control.value) return null;
 
-        for (let index = 0; index < systemForm.formFields.length; index++) {
-            const formField = systemForm.formFields[index];
+        const dob = new Date(control.value);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        const day = today.getDate() - dob.getDate();
 
-            if (formField.label === "role") {
-                roleField = formField;
+        let actualAge = age;
 
-                break;
-            }
-        }
+        if (m < 0 || (m === 0 && day < 0)) actualAge--;
+        if (actualAge < 18) return { minAge: true };
+        if (actualAge > 120) return { maxAge: true };
 
-        if (!roleField) return;
-
-        this.roles.length = 0;
-
-        for (let index = 0; index < roleField.options.length; index++) {
-            const option = roleField.options[index];
-
-            this.roles.push({
-                label: `signup.roles.${option}`,
-                code: option,
-            });
-        }
-    }
-
-    private _generateRandomPhoneNumber = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
+        return null;
+    };
 
     private _initForm(): void {
-        const r1 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleLastNames.length - 1) || 0;
-        const r2 = environment.production ? 0 : Math.floor(Math.random() * this._demoService.sampleFirstNames.length - 1) || 0;
-
-        const randomNumber = Math.floor(Math.random() * 1234567);
-
-        const demoData = {
-            agreements: !Boolean(environment.production),
-            company: environment.production ? "" : `company ${randomNumber}`,
-            countryCode: environment.production ? "+1" : "+1",
-            email: environment.production ? "" : `${this._demoService.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-            firstName: environment.production ? "" : this._demoService.sampleFirstNames[r2],
-            fullName: environment.production ? "" : `${this._demoService.sampleFirstNames[r2]} ${this._demoService.sampleLastNames[r1]}`,
-            lastName: environment.production ? "" : this._demoService.sampleLastNames[r1],
-            phone: environment.production ? "" : this._generateRandomPhoneNumber(),
-            role: environment.production ? this.roles[1].code : this.roles[3].code,
-        };
+        const demoData = this._demoService.generateSignUpDemoData(this.location, this.roles);
 
         this.fields = {};
 
-        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.fullName && !this.onboardingSignUpForm?.firstName) {
+        if (this._passwordlessService.isVerifikProject) {
+            this.fields["company"] = [demoData.company, Validators.required];
+            this.fields["role"] = [demoData.role, Validators.required];
+        }
+
+        if (this.signUpFormSettings?.fullNameStyle === "together") {
             this.fields["fullName"] = [
                 demoData.fullName,
                 [Validators.required, Validators.maxLength(50), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
             ];
         }
 
-        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.firstName) {
+        if (this.signUpFormSettings?.fullNameStyle === "separate") {
             this.fields["firstName"] = [
                 demoData.firstName,
                 [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
@@ -267,15 +183,15 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
             ];
         }
 
-        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.email) {
+        if (this.signUpFormSettings?.email) {
             this.fields["email"] = [demoData.email, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]];
         }
 
-        if (this.onboardingSignUpForm && this.onboardingSignUpForm?.phone) {
+        if (this.signUpFormSettings?.phone) {
             this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
 
             const countryCode = this.location?.countryCode || demoData.countryCode;
-            const phoneLength = this.phoneLengthMapping[countryCode] || 10; // Default to 10 if not mapped
+            const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
 
             this.fields["phone"] = [
                 demoData.phone,
@@ -283,17 +199,48 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
             ];
         }
 
-        if (this.onboardingSignUpForm && (this.onboardingSignUpForm?.showTermsAndConditions || this.onboardingSignUpForm?.showPrivacyNotice)) {
-            this.fields["agreements"] = ["", Validators.requiredTrue];
+        if (this.signUpFormSettings?.showTermsAndConditions || this.signUpFormSettings?.showPrivacyNotice) {
+            this.fields["agreements"] = [false, [Validators.requiredTrue]];
         }
 
-        if (this.onboardingSignUpForm && Array.isArray(this.onboardingSignUpForm?.extraFields)) {
-            for (const field of this.onboardingSignUpForm?.extraFields) {
-                this.fields[field] = [demoData[field] || "", Validators.required];
+        if (this.signUpFormSettings?.allowAdditionalFields && Array.isArray(this.signUpFormSettings?.additionalFields)) {
+            for (const field of this.signUpFormSettings.additionalFields) {
+                switch (field) {
+                    case "gender":
+                        this.fields["gender"] = [demoData.gender, [Validators.required]];
+
+                        break;
+                    case "dateOfBirth":
+                        this.fields["dateOfBirth"] = [demoData.dateOfBirth, [Validators.required, SignUpCreateFormComponent._dateOfBirthValidator]];
+
+                        break;
+                    case "age":
+                        this.fields["age"] = [demoData.age, [Validators.required, Validators.min(18), Validators.max(120)]];
+
+                        break;
+                    case "address":
+                        this.fields["addressLine1"] = [demoData.addressLine1, [Validators.required]];
+                        this.fields["addressLine2"] = [demoData.addressLine2, [Validators.required]];
+                        this.fields["city"] = [demoData.city, [Validators.required]];
+                        this.fields["state"] = [demoData.state, [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÖØ-öø-ÿ\s.'-]{2,40}$/)]];
+
+                        break;
+                    case "postalCode":
+                        this.fields["postalCode"] = [demoData.postalCode, [Validators.required, Validators.pattern(/^[A-Za-z0-9\s\-]{3,12}$/)]];
+
+                        break;
+                    case "country":
+                        this.fields["country"] = [demoData.country, [Validators.required]];
+
+                        break;
+                    default:
+                        this.fields[field] = [demoData[field] || "", [Validators.required]];
+
+                        break;
+                }
             }
         }
 
-        // Create the form
         this.signUpForm = this._formBuilder.group(this.fields);
 
         this.signUpForm.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
@@ -331,7 +278,7 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
         phoneFormControl.patchValue(cleanedPhone);
 
         if (countryCodeFormControl?.value) {
-            const phoneLength = this.phoneLengthMapping[countryCodeFormControl.value] || 10; // Default to 10 if not mapped
+            const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCodeFormControl.value);
 
             phoneFormControl.setValidators([
                 Validators.minLength(phoneLength),
@@ -343,15 +290,12 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
             phoneFormControl.updateValueAndValidity();
         }
 
-        // Force change detection for touch devices
         this._changeDetectorRef.detectChanges();
     }
 
     onCountryCodeChange() {
-        // Handle country code change for touch devices
         this.removeSpacesFromPhone();
 
-        // Force UI update for Android devices
         this._changeDetectorRef.markForCheck();
         this._changeDetectorRef.detectChanges();
     }
@@ -363,20 +307,22 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
     signUp(): void {
         if (!this.project || this.signUpForm.invalid) return null;
 
+        this.saving = true;
+
         dataLayer.push({
-            event: "clickEvent",
             clickId: `form_${this.project._id}`,
+            event: "clickEvent",
             eventId: moment().format("HH:mm:ss"), // You can use this to identify different clicks if necessary.
         });
 
-        this.signUpForm.disable();
-        this.showError = false;
         this.alert = null;
+        this.showError = false;
+        this.signUpForm.disable();
 
         localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
 
         Object.keys(this.signUpForm.value).forEach((key) => {
-            if (this.signUpForm.value !== typeof "string") return;
+            if (this.signUpForm.value[key] !== typeof "string") return;
 
             this.signUpForm.value[key] = this.signUpForm.value[key].trim();
         });
@@ -391,12 +337,16 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
             })
             .subscribe({
                 next: (v) => {
+                    this.saving = false;
+
                     this.appRegistration = v?.data?.appRegistration;
                     this.appRegistration.token = v?.data?.token;
                 },
                 error: (exception) => {
+                    this.saving = false;
+
                     this.signUpForm.enable();
-                    this.signUpNgForm.resetForm({ countryCode: this.location?.countryCode || "+1" });
+                    this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
 
                     setTimeout(() => {
                         this.showError = true;
@@ -410,6 +360,8 @@ export class AuthSignUpCreateFormComponent implements OnDestroy, OnChanges {
                     });
                 },
                 complete: () => {
+                    this.saving = false;
+
                     this._router.navigate(["/sign-up", this.project._id], {
                         queryParams: { token: this.appRegistration.token },
                         queryParamsHandling: "merge",

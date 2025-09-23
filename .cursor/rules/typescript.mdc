@@ -1,0 +1,46 @@
+---
+globs: *.ts,*.json,*.js
+alwaysApply: false
+---
+## Component Structure
+* Use OnPush change detection strategy when possible
+* Implement OnDestroy for cleanup in components with subscriptions
+* Use typed interfaces for component inputs/outputs
+* Prefer composition over inheritance
+
+## Import & Module Guidelines
+* Use barrel exports for clean imports (index.ts files)
+* Group imports: Angular, Third-party, Internal, Relative
+* Remove unused imports automatically
+
+## Class Organization
+* Order declarations: Decorators → Private Readonly → Private → Public → Constructor → Lifecycles → Getters/Setters → Private Methods → Public Methods
+* Private methods and variables should be prefixed with `_`
+* Alphabetize declarations
+* Use meaningful names that reveal intent
+
+## Method Guidelines
+* Methods less than 50 lines where possible
+* Use early returns to reduce nesting
+* Prefer pure functions when possible
+* Methods that could be reused go to services
+* App-wide methods go to `app.service.ts`
+* Use async/await over .then() chains
+
+## TypeScript Best Practices
+* Use early exit strategy
+* Avoid nesting
+* Use strict TypeScript configuration
+* Prefer interfaces over types for object shapes
+* Avoid `any` type - use `unknown` or proper typing
+* Use utility types when appropriate
+
+## Documentation
+* No commenting unless values are "arbitrary" and the source of the values aren't clear
+* Use meaningful variable names instead of comments
+* Document complex business logic with inline comments
+
+## Translations
+* All translations must be added if new values are created. `src/assets/i18n`
+* Support all 4 languages when adding new translations
+* Use descriptive and hierarchical translation keys

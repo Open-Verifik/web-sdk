@@ -1,21 +1,20 @@
-import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject, Input, OnInit, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { FSDocument, FSDocumentElement } from '@fuse/components/fullscreen/fullscreen.types';
+import { DOCUMENT, NgTemplateOutlet } from "@angular/common";
+import { ChangeDetectionStrategy, Component, Inject, Input, OnInit, TemplateRef, ViewEncapsulation } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { FSDocument, FSDocumentElement } from "@fuse/components/fullscreen/fullscreen.types";
 
 @Component({
-    selector       : 'fuse-fullscreen',
-    templateUrl    : './fullscreen.component.html',
-    encapsulation  : ViewEncapsulation.None,
+    selector: "fuse-fullscreen",
+    templateUrl: "./fullscreen.component.html",
+    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    exportAs       : 'fuseFullscreen',
-    standalone     : true,
-    imports        : [MatButtonModule, MatTooltipModule, NgTemplateOutlet, MatIconModule],
+    exportAs: "fuseFullscreen",
+    standalone: true,
+    imports: [MatButtonModule, MatTooltipModule, NgTemplateOutlet, MatIconModule],
 })
-export class FuseFullscreenComponent implements OnInit
-{
+export class FuseFullscreenComponent implements OnInit {
     @Input() iconTpl: TemplateRef<any>;
     @Input() tooltip: string;
     private _fsDoc: FSDocument;
@@ -25,8 +24,7 @@ export class FuseFullscreenComponent implements OnInit
     /**
      * Constructor
      */
-    constructor(@Inject(DOCUMENT) private _document: Document)
-    {
+    constructor(@Inject(DOCUMENT) private _document: Document) {
         this._fsDoc = _document as FSDocument;
     }
 
@@ -37,8 +35,7 @@ export class FuseFullscreenComponent implements OnInit
     /**
      * On init
      */
-    ngOnInit(): void
-    {
+    ngOnInit(): void {
         this._fsDocEl = document.documentElement as FSDocumentElement;
     }
 
@@ -49,18 +46,14 @@ export class FuseFullscreenComponent implements OnInit
     /**
      * Toggle the fullscreen mode
      */
-    toggleFullscreen(): void
-    {
+    toggleFullscreen(): void {
         // Check if the fullscreen is open
         this._isFullscreen = this._getBrowserFullscreenElement() !== null;
 
         // Toggle the fullscreen
-        if ( this._isFullscreen )
-        {
+        if (this._isFullscreen) {
             this._closeFullscreen();
-        }
-        else
-        {
+        } else {
             this._openFullscreen();
         }
     }
@@ -74,29 +67,24 @@ export class FuseFullscreenComponent implements OnInit
      *
      * @private
      */
-    private _getBrowserFullscreenElement(): Element
-    {
-        if ( typeof this._fsDoc.fullscreenElement !== 'undefined' )
-        {
+    private _getBrowserFullscreenElement(): Element {
+        if (typeof this._fsDoc.fullscreenElement !== "undefined") {
             return this._fsDoc.fullscreenElement;
         }
 
-        if ( typeof this._fsDoc.mozFullScreenElement !== 'undefined' )
-        {
+        if (typeof this._fsDoc.mozFullScreenElement !== "undefined") {
             return this._fsDoc.mozFullScreenElement;
         }
 
-        if ( typeof this._fsDoc.msFullscreenElement !== 'undefined' )
-        {
+        if (typeof this._fsDoc.msFullscreenElement !== "undefined") {
             return this._fsDoc.msFullscreenElement;
         }
 
-        if ( typeof this._fsDoc.webkitFullscreenElement !== 'undefined' )
-        {
+        if (typeof this._fsDoc.webkitFullscreenElement !== "undefined") {
             return this._fsDoc.webkitFullscreenElement;
         }
 
-        throw new Error('Fullscreen mode is not supported by this browser');
+        throw new Error("Fullscreen mode is not supported by this browser");
     }
 
     /**
@@ -104,31 +92,26 @@ export class FuseFullscreenComponent implements OnInit
      *
      * @private
      */
-    private _openFullscreen(): void
-    {
-        if ( this._fsDocEl.requestFullscreen )
-        {
+    private _openFullscreen(): void {
+        if (this._fsDocEl.requestFullscreen) {
             this._fsDocEl.requestFullscreen();
             return;
         }
 
         // Firefox
-        if ( this._fsDocEl.mozRequestFullScreen )
-        {
+        if (this._fsDocEl.mozRequestFullScreen) {
             this._fsDocEl.mozRequestFullScreen();
             return;
         }
 
         // Chrome, Safari and Opera
-        if ( this._fsDocEl.webkitRequestFullscreen )
-        {
+        if (this._fsDocEl.webkitRequestFullscreen) {
             this._fsDocEl.webkitRequestFullscreen();
             return;
         }
 
         // IE/Edge
-        if ( this._fsDocEl.msRequestFullscreen )
-        {
+        if (this._fsDocEl.msRequestFullscreen) {
             this._fsDocEl.msRequestFullscreen();
             return;
         }
@@ -139,31 +122,26 @@ export class FuseFullscreenComponent implements OnInit
      *
      * @private
      */
-    private _closeFullscreen(): void
-    {
-        if ( this._fsDoc.exitFullscreen )
-        {
+    private _closeFullscreen(): void {
+        if (this._fsDoc.exitFullscreen) {
             this._fsDoc.exitFullscreen();
             return;
         }
 
         // Firefox
-        if ( this._fsDoc.mozCancelFullScreen )
-        {
+        if (this._fsDoc.mozCancelFullScreen) {
             this._fsDoc.mozCancelFullScreen();
             return;
         }
 
         // Chrome, Safari and Opera
-        if ( this._fsDoc.webkitExitFullscreen )
-        {
+        if (this._fsDoc.webkitExitFullscreen) {
             this._fsDoc.webkitExitFullscreen();
             return;
         }
 
         // IE/Edge
-        else if ( this._fsDoc.msExitFullscreen )
-        {
+        else if (this._fsDoc.msExitFullscreen) {
             this._fsDoc.msExitFullscreen();
             return;
         }

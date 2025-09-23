@@ -1,240 +1,170 @@
-/* Custom Dynamic Theme for Verifik */
-/* This theme uses CSS variables that can be updated at runtime */
-
-/* Define the custom theme structure */
-$custom-theme: (
-    selector: ".theme-custom",
-    primary: (
-        50: var(--custom-verifik-primary-50, #eef2ff),
-        100: var(--custom-verifik-primary-100, #e0e7ff),
-        200: var(--custom-verifik-primary-200, #c7d2fe),
-        300: var(--custom-verifik-primary-300, #a5b4fc),
-        400: var(--custom-verifik-primary-400, #818cf8),
-        500: var(--custom-verifik-primary-500, #6366f1),
-        600: var(--custom-verifik-primary-600, #4f46e5),
-        700: var(--custom-verifik-primary-700, #4338ca),
-        800: var(--custom-verifik-primary-800, #3730a3),
-        900: var(--custom-verifik-primary-900, #312e81),
-        950: var(--custom-verifik-primary-950, #1e1b4b),
-        DEFAULT: var(--custom-verifik-primary, #4f46e5),
-        contrast: (
-            50: var(--custom-verifik-primary-contrast-50, #1e1b4b),
-            100: var(--custom-verifik-primary-contrast-100, #1e1b4b),
-            200: var(--custom-verifik-primary-contrast-200, #1e1b4b),
-            300: var(--custom-verifik-primary-contrast-300, #1e1b4b),
-            400: var(--custom-verifik-primary-contrast-400, #1e1b4b),
-            500: var(--custom-verifik-primary-contrast-500, #ffffff),
-            600: var(--custom-verifik-primary-contrast-600, #ffffff),
-            700: var(--custom-verifik-primary-contrast-700, #ffffff),
-            800: var(--custom-verifik-primary-contrast-800, #ffffff),
-            900: var(--custom-verifik-primary-contrast-900, #ffffff),
-            950: var(--custom-verifik-primary-contrast-950, #ffffff),
-            DEFAULT: var(--custom-verifik-primary-contrast, #ffffff),
-        ),
-    ),
-    accent: (
-        50: var(--custom-verifik-accent-50, #f8fafc),
-        100: var(--custom-verifik-accent-100, #f1f5f9),
-        200: var(--custom-verifik-accent-200, #e2e8f0),
-        300: var(--custom-verifik-accent-300, #cbd5e1),
-        400: var(--custom-verifik-accent-400, #94a3b8),
-        500: var(--custom-verifik-accent-500, #64748b),
-        600: var(--custom-verifik-accent-600, #475569),
-        700: var(--custom-verifik-accent-700, #334155),
-        800: var(--custom-verifik-accent-800, #1e293b),
-        900: var(--custom-verifik-accent-900, #0f172a),
-        950: var(--custom-verifik-accent-950, #020617),
-        DEFAULT: var(--custom-verifik-accent, #64748b),
-        contrast: (
-            50: var(--custom-verifik-accent-contrast-50, #020617),
-            100: var(--custom-verifik-accent-contrast-100, #020617),
-            200: var(--custom-verifik-accent-contrast-200, #020617),
-            300: var(--custom-verifik-accent-contrast-300, #020617),
-            400: var(--custom-verifik-accent-contrast-400, #020617),
-            500: var(--custom-verifik-accent-contrast-500, #ffffff),
-            600: var(--custom-verifik-accent-contrast-600, #ffffff),
-            700: var(--custom-verifik-accent-contrast-700, #ffffff),
-            800: var(--custom-verifik-accent-contrast-800, #ffffff),
-            900: var(--custom-verifik-accent-contrast-900, #ffffff),
-            950: var(--custom-verifik-accent-contrast-950, #ffffff),
-            DEFAULT: var(--custom-verifik-accent-contrast, #ffffff),
-        ),
-    ),
-    warn: (
-        50: var(--custom-verifik-warn-50, #fef2f2),
-        100: var(--custom-verifik-warn-100, #fee2e2),
-        200: var(--custom-verifik-warn-200, #fecaca),
-        300: var(--custom-verifik-warn-300, #fca5a5),
-        400: var(--custom-verifik-warn-400, #f87171),
-        500: var(--custom-verifik-warn-500, #ef4444),
-        600: var(--custom-verifik-warn-600, #dc2626),
-        700: var(--custom-verifik-warn-700, #b91c1c),
-        800: var(--custom-verifik-warn-800, #991b1b),
-        900: var(--custom-verifik-warn-900, #7f1d1d),
-        950: var(--custom-verifik-warn-950, #450a0a),
-        DEFAULT: var(--custom-verifik-warn, #dc2626),
-        contrast: (
-            50: var(--custom-verifik-warn-contrast-50, #450a0a),
-            100: var(--custom-verifik-warn-contrast-100, #450a0a),
-            200: var(--custom-verifik-warn-contrast-200, #450a0a),
-            300: var(--custom-verifik-warn-contrast-300, #450a0a),
-            400: var(--custom-verifik-warn-contrast-400, #450a0a),
-            500: var(--custom-verifik-warn-contrast-500, #fef2f2),
-            600: var(--custom-verifik-warn-contrast-600, #ffffff),
-            700: var(--custom-verifik-warn-contrast-700, #ffffff),
-            800: var(--custom-verifik-warn-contrast-800, #ffffff),
-            900: var(--custom-verifik-warn-contrast-900, #ffffff),
-            950: var(--custom-verifik-warn-contrast-950, #ffffff),
-            DEFAULT: var(--custom-verifik-warn-contrast, #ffffff),
-        ),
-    ),
-);
-
-/* Export the theme for use in other files */
 @use "sass:map";
 @use "@angular/material" as mat;
+@use "mdc-color-tokens" as mdc;
 
-/* Include the custom theme in the themes generation */
+// Include core Angular Material styles
 @include mat.core();
 
-/* Generate the palettes for the custom theme */
-$custom-palettes: ();
-@each $name in (primary, accent, warn) {
-    /* Define the Angular Material theme */
-    $palette: mat.define-palette(map.get($custom-theme, $name));
+// Define custom color palettes using CSS custom properties with fallbacks
+// This allows dynamic theming from AppService while maintaining fallback values
+$custom-primary-palette: (
+    50: var(--custom-verifik-primary-50, #eef2ff),
+    100: var(--custom-verifik-primary-100, #e0e7ff),
+    200: var(--custom-verifik-primary-200, #c7d2fe),
+    300: var(--custom-verifik-primary-300, #a5b4fc),
+    400: var(--custom-verifik-primary-400, #818cf8),
+    500: var(--custom-verifik-primary-500, #6366f1),
+    600: var(--custom-verifik-primary-600, #4f46e5),
+    700: var(--custom-verifik-primary-700, #4338ca),
+    800: var(--custom-verifik-primary-800, #3730a3),
+    900: var(--custom-verifik-primary-900, #312e81),
+    A100: var(--custom-verifik-primary-200, #c7d2fe),
+    A200: var(--custom-verifik-primary-300, #a5b4fc),
+    A400: var(--custom-verifik-primary-400, #818cf8),
+    A700: var(--custom-verifik-primary-700, #4338ca),
+    contrast: (
+        50: var(--custom-verifik-primary-contrast-50, #1e1b4b),
+        100: var(--custom-verifik-primary-contrast-100, #1e1b4b),
+        200: var(--custom-verifik-primary-contrast-200, #1e1b4b),
+        300: var(--custom-verifik-primary-contrast-300, #1e1b4b),
+        400: var(--custom-verifik-primary-contrast-400, #1e1b4b),
+        500: var(--custom-verifik-primary-contrast-500, #ffffff),
+        600: var(--custom-verifik-primary-contrast-600, #ffffff),
+        700: var(--custom-verifik-primary-contrast-700, #ffffff),
+        800: var(--custom-verifik-primary-contrast-800, #ffffff),
+        900: var(--custom-verifik-primary-contrast-900, #ffffff),
+        A100: var(--custom-verifik-primary-contrast-200, #1e1b4b),
+        A200: var(--custom-verifik-primary-contrast-300, #1e1b4b),
+        A400: var(--custom-verifik-primary-contrast-400, #1e1b4b),
+        A700: var(--custom-verifik-primary-contrast-700, #ffffff),
+    ),
+);
 
-    /* Replace the default colors on the defined Material palette */
-    $palette: map.merge(
-        $palette,
-        (
-            default: map.get(map.get($custom-theme, $name), DEFAULT),
-            lighter: map.get(map.get($custom-theme, $name), 100),
-            darker: map.get(map.get($custom-theme, $name), 700),
-            text: map.get(map.get($custom-theme, $name), DEFAULT),
-            default-contrast: map.get(map.get(map.get($custom-theme, $name), contrast), DEFAULT),
-            lighter-contrast: map.get(map.get(map.get($custom-theme, $name), contrast), 100),
-            darker-contrast: map.get(map.get(map.get($custom-theme, $name), contrast), 700),
-        )
-    );
+$custom-accent-palette: (
+    50: var(--custom-verifik-accent-50, #f8fafc),
+    100: var(--custom-verifik-accent-100, #f1f5f9),
+    200: var(--custom-verifik-accent-200, #e2e8f0),
+    300: var(--custom-verifik-accent-300, #cbd5e1),
+    400: var(--custom-verifik-accent-400, #94a3b8),
+    500: var(--custom-verifik-accent-500, #64748b),
+    600: var(--custom-verifik-accent-600, #475569),
+    700: var(--custom-verifik-accent-700, #334155),
+    800: var(--custom-verifik-accent-800, #1e293b),
+    900: var(--custom-verifik-accent-900, #0f172a),
+    A100: var(--custom-verifik-accent-200, #e2e8f0),
+    A200: var(--custom-verifik-accent-300, #cbd5e1),
+    A400: var(--custom-verifik-accent-400, #94a3b8),
+    A700: var(--custom-verifik-accent-700, #334155),
+    contrast: (
+        50: var(--custom-verifik-accent-contrast-50, #020617),
+        100: var(--custom-verifik-accent-contrast-100, #020617),
+        200: var(--custom-verifik-accent-contrast-200, #020617),
+        300: var(--custom-verifik-accent-contrast-300, #020617),
+        400: var(--custom-verifik-accent-contrast-400, #020617),
+        500: var(--custom-verifik-accent-contrast-500, #ffffff),
+        600: var(--custom-verifik-accent-contrast-600, #ffffff),
+        700: var(--custom-verifik-accent-contrast-700, #ffffff),
+        800: var(--custom-verifik-accent-contrast-800, #ffffff),
+        900: var(--custom-verifik-accent-contrast-900, #ffffff),
+        A100: var(--custom-verifik-accent-contrast-200, #020617),
+        A200: var(--custom-verifik-accent-contrast-300, #020617),
+        A400: var(--custom-verifik-accent-contrast-400, #020617),
+        A700: var(--custom-verifik-accent-contrast-700, #ffffff),
+    ),
+);
 
-    $custom-palettes: map.merge($custom-palettes, (#{$name}: $palette));
-}
+$custom-warn-palette: (
+    50: var(--custom-verifik-warn-50, #fef2f2),
+    100: var(--custom-verifik-warn-100, #fee2e2),
+    200: var(--custom-verifik-warn-200, #fecaca),
+    300: var(--custom-verifik-warn-300, #fca5a5),
+    400: var(--custom-verifik-warn-400, #f87171),
+    500: var(--custom-verifik-warn-500, #ef4444),
+    600: var(--custom-verifik-warn-600, #dc2626),
+    700: var(--custom-verifik-warn-700, #b91c1c),
+    800: var(--custom-verifik-warn-800, #991b1b),
+    900: var(--custom-verifik-warn-900, #7f1d1d),
+    A100: var(--custom-verifik-warn-200, #fecaca),
+    A200: var(--custom-verifik-warn-300, #fca5a5),
+    A400: var(--custom-verifik-warn-400, #f87171),
+    A700: var(--custom-verifik-warn-700, #b91c1c),
+    contrast: (
+        50: var(--custom-verifik-warn-contrast-50, #450a0a),
+        100: var(--custom-verifik-warn-contrast-100, #450a0a),
+        200: var(--custom-verifik-warn-contrast-200, #450a0a),
+        300: var(--custom-verifik-warn-contrast-300, #450a0a),
+        400: var(--custom-verifik-warn-contrast-400, #450a0a),
+        500: var(--custom-verifik-warn-contrast-500, #fef2f2),
+        600: var(--custom-verifik-warn-contrast-600, #ffffff),
+        700: var(--custom-verifik-warn-contrast-700, #ffffff),
+        800: var(--custom-verifik-warn-contrast-800, #ffffff),
+        900: var(--custom-verifik-warn-contrast-900, #ffffff),
+        A100: var(--custom-verifik-warn-contrast-200, #450a0a),
+        A200: var(--custom-verifik-warn-contrast-300, #450a0a),
+        A400: var(--custom-verifik-warn-contrast-400, #450a0a),
+        A700: var(--custom-verifik-warn-contrast-700, #ffffff),
+    ),
+);
 
-/* Define light & dark Angular Material themes with the custom palettes */
+// Create Angular Material palettes
+$custom-primary: mat.define-palette($custom-primary-palette, 500);
+$custom-accent: mat.define-palette($custom-accent-palette, 500);
+$custom-warn: mat.define-palette($custom-warn-palette, 500);
+
+// Define light theme with custom color system
 $custom-light-theme: mat.define-light-theme(
     (
-        color: $custom-palettes,
+        color: (
+            primary: $custom-primary,
+            accent: $custom-accent,
+            warn: $custom-warn,
+        ),
+        typography:
+            mat.define-typography-config(
+                $font-family:
+                    'Poppins, ui-sans-serif, system-ui, -apple-system, "system-ui", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+            ),
+        density: 0,
     )
 );
 
+// Override the theme's color system to use our comprehensive MDC color tokens
+$custom-light-theme: map.merge(
+    $custom-light-theme,
+    (
+        color: map.merge(map.get($custom-light-theme, color), mdc.$mdc-color-tokens),
+    )
+);
+
+// Define dark theme with custom color system
 $custom-dark-theme: mat.define-dark-theme(
     (
-        color: $custom-palettes,
+        color: (
+            primary: $custom-primary,
+            accent: $custom-accent,
+            warn: $custom-warn,
+        ),
+        typography:
+            mat.define-typography-config(
+                $font-family:
+                    'Poppins, ui-sans-serif, system-ui, -apple-system, "system-ui", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+            ),
+        density: 0,
     )
 );
 
-/* Set the base colors for custom light theme */
-$custom-light-base: (
-    foreground: (
-        base: #000000,
-        divider: #e2e8f0,
-        dividers: #e2e8f0,
-        disabled: #94a3b8,
-        disabled-button: #94a3b8,
-        disabled-text: #94a3b8,
-        elevation: #000000,
-        hint-text: #94a3b8,
-        secondary-text: #5470a0,
-        icon: #64748b,
-        icons: #64748b,
-        mat-icon: #64748b,
-        text: #1e293b,
-        slider-min: #1e293b,
-        slider-off: #cbd5e1,
-        slider-off-active: #94a3b8,
-    ),
-    background: (
-        status-bar: #cbd5e1,
-        app-bar: #ffffff,
-        background: #f8f9fc,
-        hover: rgba(148, 163, 184, 0.12),
-        card: #ffffff,
-        dialog: #ffffff,
-        disabled-button: rgba(148, 163, 184, 0.38),
-        raised-button: #ffffff,
-        focused-button: #64748b,
-        selected-button: #e2e8f0,
-        selected-disabled-button: #e2e8f0,
-        disabled-button-toggle: #cbd5e1,
-        unselected-chip: #e2e8f0,
-        disabled-list-option: #cbd5e1,
-        tooltip: #1e293b,
-    ),
-);
-
-/* Set the base colors for custom dark theme */
-$custom-dark-base: (
-    foreground: (
-        base: #ffffff,
-        divider: rgba(241, 245, 249, 0.12),
-        dividers: rgba(241, 245, 249, 0.12),
-        disabled: #475569,
-        disabled-button: #1e293b,
-        disabled-text: #475569,
-        elevation: #000000,
-        hint-text: #64748b,
-        secondary-text: #94a3b8,
-        icon: #f1f5f9,
-        icons: #f1f5f9,
-        mat-icon: #94a3b8,
-        text: #ffffff,
-        slider-min: #ffffff,
-        slider-off: #64748b,
-        slider-off-active: #94a3b8,
-    ),
-    background: (
-        status-bar: #0f172a,
-        app-bar: #0f172a,
-        background: #0f172a,
-        hover: rgba(255, 255, 255, 0.05),
-        card: #1e293b,
-        dialog: #1e293b,
-        disabled-button: rgba(15, 23, 42, 0.38),
-        raised-button: #0f172a,
-        focused-button: #e2e8f0,
-        selected-button: rgba(255, 255, 255, 0.05),
-        selected-disabled-button: #1e293b,
-        disabled-button-toggle: #0f172a,
-        unselected-chip: #475569,
-        disabled-list-option: #e2e8f0,
-        tooltip: #64748b,
-    ),
-);
-
-/* Merge the custom base colors with the generated themes */
-$custom-light-theme-colors: map.merge(map.get($custom-light-theme, color), $custom-light-base);
-$custom-light-theme: map.merge(
-    (
-        color: $custom-light-theme-colors,
-    ),
-    $custom-light-theme-colors
-);
-
-$custom-dark-theme-colors: map.merge(map.get($custom-dark-theme, color), $custom-dark-base);
+// Override the dark theme's color system to use our comprehensive MDC color tokens
 $custom-dark-theme: map.merge(
+    $custom-dark-theme,
     (
-        color: $custom-dark-theme-colors,
-    ),
-    $custom-dark-theme-colors
+        color: map.merge(map.get($custom-dark-theme, color), mdc.$mdc-color-tokens),
+    )
 );
 
-/* Generate and encapsulate Angular Material themes for custom theme */
-#{map.get($custom-theme, selector)} .light,
-#{map.get($custom-theme, selector)}.light {
+.theme-custom {
     @include mat.all-component-colors($custom-light-theme);
-}
 
-#{map.get($custom-theme, selector)} .dark,
-#{map.get($custom-theme, selector)}.dark {
-    @include mat.all-component-colors($custom-dark-theme);
+    &.dark {
+        @include mat.all-component-colors($custom-dark-theme);
+    }
 }

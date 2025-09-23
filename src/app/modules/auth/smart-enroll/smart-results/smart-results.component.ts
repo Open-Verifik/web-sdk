@@ -1,35 +1,33 @@
-import QRCode from "qrcode";
-
 import { CommonModule, NgIf } from "@angular/common";
-import { Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
+import QRCode from "qrcode";
 
-import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll.service";
-import { KYCService } from "../../kyc.service";
-import { AppRegistration, Face, Project, ProjectFlow } from "../../project";
-import { environment } from "environments/environment";
 import { AuthService } from "app/core/auth/auth.service";
-
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
+import { KYCService } from "../../kyc.service";
+import { PasswordlessService } from "../../passwordless.service";
+import { AppRegistration, Face } from "../../project";
+import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll.service";
 
 @Component({
-    selector: "smart-results",
-    templateUrl: "./smart-results.component.html",
-    styleUrls: ["../smart-enroll.component.scss"],
-    encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
+    encapsulation: ViewEncapsulation.None,
+    imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, NgIf, TranslocoModule, VerifikMediaDisplayComponent],
+    selector: "smart-results",
     standalone: true,
-    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, NgIf, SmartStepperComponent, TranslocoModule],
+    styleUrls: ["../smart-enroll.component.scss"],
+    templateUrl: "./smart-results.component.html",
 })
-export class SmartResultsComponent implements OnInit {
-    @ViewChild("qrCodeCanvas")
-    public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+export class SmartResultsComponent implements OnInit, AfterViewInit {
+    @ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
     appRegistration: AppRegistration;
     biometricSkipped: boolean = false;
@@ -43,20 +41,26 @@ export class SmartResultsComponent implements OnInit {
     face: Face;
     fetchingToken: boolean;
     identityLoading: boolean = false;
-    loadingQRCode: boolean = false;
     livenessFailed: boolean;
     livenessScore: number;
+    isVerifikProject: boolean = false;
+    loadingQRCode: boolean = false;
     project: Project;
     projectFlow: ProjectFlow;
-    redirectUrl: string;
-    revealQRCode: boolean = false;
+    showQrCode: boolean = false;
 
-    constructor(private _smartEnrollService: SmartEnrollService, private _KYCService: KYCService, private _authService: AuthService) {
+    constructor(
+        private _smartEnrollService: SmartEnrollService,
+        private _KYCService: KYCService,
+        private _authService: AuthService,
+        private _passwordlessService: PasswordlessService
+    ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
         this.enrollStore = this._smartEnrollService.store;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
+        this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
         this.errorResult = false;
     }
@@ -67,6 +71,10 @@ export class SmartResultsComponent implements OnInit {
 
         this._checkScoreStatus();
         this._requestIdentityImages();
+    }
+
+    ngAfterViewInit(): void {
+        this._prepareQrCode();
     }
 
     private _checkScoreStatus() {
@@ -145,6 +153,12 @@ export class SmartResultsComponent implements OnInit {
         } catch (e) {}
     }
 
+    private _prepareQrCode(): void {
+        const canvas = this.qrCodeCanvas.nativeElement;
+
+        this._generateQRCode(canvas, window.location.href);
+    }
+
     private _requestIdentityImages(): void {
         if (this.documentSkipped && this.biometricSkipped) {
             this.identityLoading = false;
@@ -204,23 +218,22 @@ export class SmartResultsComponent implements OnInit {
         return this.fetchingToken || this.appRegistration.status === "FAILED" || this.comparisonFailed || this.livenessFailed;
     }
 
-    loadQRCode(): void {
-        this.revealQRCode = true;
-
-        const qrCanvas = this.qrCodeCanvas.nativeElement;
-
-        this._generateQRCode(qrCanvas, window.location.href);
-    }
-
     loginToPlatform(): void {
         if (this.fetchingToken) return;
 
         this._endAndRedirect();
     }
 
+    logout(): void {
+        localStorage.clear();
+
+        window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+    }
+
     tryAgain(step: "document" | "biometric"): void {
         if (step === "document") {
             this._syncAppRegistration("document", "ONGOING");
+
             this._smartEnrollService.skipToStep(step);
             this._smartEnrollService.setDocumentMethod("");
 
@@ -228,6 +241,7 @@ export class SmartResultsComponent implements OnInit {
         }
 
         this._syncAppRegistration("liveness", "ONGOING");
+
         this._smartEnrollService.skipToStep(step);
     }
 }

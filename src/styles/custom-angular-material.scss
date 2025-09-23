@@ -1,521 +1,606 @@
-/* Custom Angular Material Overrides for Verifik */
-/* These overrides maintain the same specificity as the original angular-material.scss */
-/* but only override color-related properties to use our custom theme variables */
+/* Dynamic CSS Variable Overrides for Custom Branding */
+/* This file handles high-specificity overrides for Angular Material components */
+/* The actual Angular Material theming is handled in custom-theme.scss */
+
+:root {
+    /* Override Fuse theme variables with our custom variables */
+    --fuse-primary: var(--custom-verifik-primary, #4f46e5);
+    --fuse-accent: var(--custom-verifik-accent, #64748b);
+    --fuse-warn: var(--custom-verifik-warn, #dc2626);
+
+    /* Override Material Design Components theme variables */
+    --mdc-theme-primary: var(--custom-verifik-primary, #4f46e5);
+    --mdc-theme-on-primary: var(--custom-verifik-primary-contrast, #ffffff);
+    --mdc-theme-secondary: var(--custom-verifik-accent, #64748b);
+    --mdc-theme-on-secondary: var(--custom-verifik-accent-contrast, #ffffff);
+    --mdc-theme-error: var(--custom-verifik-warn, #dc2626);
+    --mdc-theme-on-error: var(--custom-verifik-warn-contrast, #ffffff);
+    --mdc-theme-surface: var(white, #ffffff);
+    --mdc-theme-on-surface: var(--custom-verifik-accent, #64748b);
+
+    /* Override Angular Material theme variables */
+    --mat-sys-color-primary: var(--custom-verifik-primary, #4f46e5);
+    --mat-sys-color-on-primary: var(--custom-verifik-primary-contrast, #ffffff);
+    --mat-sys-color-secondary: var(--custom-verifik-accent, #64748b);
+    --mat-sys-color-on-secondary: var(--custom-verifik-accent-contrast, #ffffff);
+    --mat-sys-color-error: var(--custom-verifik-warn, #dc2626);
+    --mat-sys-color-on-error: var(--custom-verifik-warn-contrast, #ffffff);
+    --mat-sys-color-surface: var(white, #ffffff);
+    --mat-sys-color-on-surface: var(--custom-verifik-accent, #64748b);
+}
 
 .theme-custom {
-    /* -------------------------------------------------------------------------- */
-    /*  @ Form Fields - Focused and valid fields
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-form-field.mat-focused:not(.mat-form-field-invalid) .mat-mdc-text-field-wrapper {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Buttons - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-button.mat-primary:not(:disabled),
-    .mat-mdc-raised-button.mat-primary:not(:disabled),
-    .mat-mdc-outlined-button.mat-primary:not(:disabled),
-    .mat-mdc-unelevated-button.mat-primary:not(:disabled),
-    .mat-mdc-icon-button.mat-primary:not(:disabled),
-    .mat-mdc-fab.mat-primary:not(:disabled),
-    .mat-mdc-mini-fab.mat-primary:not(:disabled) {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Primary button backgrounds - only for non-disabled */
-    .mat-mdc-raised-button.mat-primary:not(:disabled),
-    .mat-mdc-unelevated-button.mat-primary:not(:disabled),
-    .mat-mdc-fab.mat-primary:not(:disabled),
-    .mat-mdc-mini-fab.mat-primary:not(:disabled) {
-        background-color: var(--custom-verifik-primary-500) !important;
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* Primary outlined button borders - only for non-disabled */
-    .mat-mdc-outlined-button.mat-primary:not(:disabled) {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Disabled button states - preserve default disabled colors */
-    .mat-mdc-button.mat-primary:disabled,
-    .mat-mdc-raised-button.mat-primary:disabled,
-    .mat-mdc-outlined-button.mat-primary:disabled,
-    .mat-mdc-unelevated-button.mat-primary:disabled,
-    .mat-mdc-icon-button.mat-primary:disabled,
-    .mat-mdc-fab.mat-primary:disabled,
-    .mat-mdc-mini-fab.mat-primary:disabled {
-        color: rgba(0, 0, 0, 0.38) !important;
-        background-color: transparent !important;
-        border-color: rgba(0, 0, 0, 0.12) !important;
-    }
-
-    /* Disabled raised/unelevated buttons */
-    .mat-mdc-raised-button.mat-primary:disabled,
-    .mat-mdc-unelevated-button.mat-primary:disabled,
-    .mat-mdc-fab.mat-primary:disabled,
-    .mat-mdc-mini-fab.mat-primary:disabled {
-        background-color: rgba(0, 0, 0, 0.12) !important;
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    /* Dark mode disabled states */
-    .dark .mat-mdc-button.mat-primary:disabled,
-    .dark .mat-mdc-raised-button.mat-primary:disabled,
-    .dark .mat-mdc-outlined-button.mat-primary:disabled,
-    .dark .mat-mdc-unelevated-button.mat-primary:disabled,
-    .dark .mat-mdc-icon-button.mat-primary:disabled,
-    .dark .mat-mdc-fab.mat-primary:disabled,
-    .dark .mat-mdc-mini-fab.mat-primary:disabled {
-        color: rgba(255, 255, 255, 0.38) !important;
-        background-color: transparent !important;
-        border-color: rgba(255, 255, 255, 0.12) !important;
-    }
-
-    .dark .mat-mdc-raised-button.mat-primary:disabled,
-    .dark .mat-mdc-unelevated-button.mat-primary:disabled,
-    .dark .mat-mdc-fab.mat-primary:disabled,
-    .dark .mat-mdc-mini-fab.mat-primary:disabled {
-        background-color: rgba(255, 255, 255, 0.12) !important;
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Checkboxes - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-checkbox.mat-primary:not(:disabled) .mdc-checkbox__background {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-checked:not(:disabled) .mdc-checkbox__background {
-        background-color: var(--custom-verifik-primary-500) !important;
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-checked:not(:disabled) .mdc-checkbox__checkmark {
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-indeterminate:not(:disabled) .mdc-checkbox__background {
-        background-color: var(--custom-verifik-primary-500) !important;
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-indeterminate:not(:disabled) .mdc-checkbox__mixedmark {
-        background-color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* Disabled checkbox states */
-    .mat-mdc-checkbox.mat-primary:disabled .mdc-checkbox__background {
-        border-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-checked:disabled .mdc-checkbox__background {
-        background-color: rgba(0, 0, 0, 0.38) !important;
-        border-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-checked:disabled .mdc-checkbox__checkmark {
-        color: rgba(255, 255, 255, 0.7) !important;
-    }
-
-    .dark .mat-mdc-checkbox.mat-primary:disabled .mdc-checkbox__background {
-        border-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    .dark .mat-mdc-checkbox.mat-primary.mat-mdc-checkbox-checked:disabled .mdc-checkbox__background {
-        background-color: rgba(255, 255, 255, 0.38) !important;
-        border-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Radio Buttons - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-radio-button.mat-primary:not(:disabled) .mdc-radio__background .mdc-radio__outer-circle {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-radio-button.mat-primary:not(:disabled) .mdc-radio__background .mdc-radio__inner-circle {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-radio-button.mat-primary.mat-mdc-radio-checked:not(:disabled) .mdc-radio__background .mdc-radio__outer-circle {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-radio-button.mat-primary.mat-mdc-radio-checked:not(:disabled) .mdc-radio__background .mdc-radio__inner-circle {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Disabled radio states */
-    .mat-mdc-radio-button.mat-primary:disabled .mdc-radio__background .mdc-radio__outer-circle {
-        border-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-radio-button.mat-primary:disabled .mdc-radio__background .mdc-radio__inner-circle {
-        border-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-radio-button.mat-primary:disabled .mdc-radio__background .mdc-radio__outer-circle {
-        border-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    .dark .mat-mdc-radio-button.mat-primary:disabled .mdc-radio__background .mdc-radio__inner-circle {
-        border-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Progress Indicators - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-progress-spinner.mat-primary circle {
-        stroke: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-progress-bar.mat-primary .mdc-linear-progress__buffer-bar {
-        background-color: var(--custom-verifik-primary-200) !important;
-    }
-
-    .mat-mdc-progress-bar.mat-primary .mdc-linear-progress__bar-inner {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Sliders - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-slider.mat-primary:not(:disabled) .mdc-slider__track--active {
-        background-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-slider.mat-primary:not(:disabled) .mdc-slider__thumb {
-        background-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-slider.mat-primary:not(:disabled) .mdc-slider__track--inactive {
-        background-color: var(--custom-verifik-primary-200) !important;
-    }
-
-    /* Disabled slider states */
-    .mat-mdc-slider.mat-primary:disabled .mdc-slider__track--active {
-        background-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-slider.mat-primary:disabled .mdc-slider__thumb {
-        background-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-slider.mat-primary:disabled .mdc-slider__track--inactive {
-        background-color: rgba(0, 0, 0, 0.12) !important;
-    }
-
-    .dark .mat-mdc-slider.mat-primary:disabled .mdc-slider__track--active {
-        background-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    .dark .mat-mdc-slider.mat-primary:disabled .mdc-slider__thumb {
-        background-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    .dark .mat-mdc-slider.mat-primary:disabled .mdc-slider__track--inactive {
-        background-color: rgba(255, 255, 255, 0.12) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Chips - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-chip.mat-primary:not(:disabled) {
-        background-color: var(--custom-verifik-primary-100) !important;
-        color: var(--custom-verifik-primary-700) !important;
-    }
-
-    /* Disabled chip states */
-    .mat-mdc-chip.mat-primary:disabled {
-        background-color: rgba(0, 0, 0, 0.12) !important;
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-chip.mat-primary:disabled {
-        background-color: rgba(255, 255, 255, 0.12) !important;
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Tabs - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-tab-group.mat-primary .mdc-tab-indicator__content--underline {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-tab.mat-primary.mdc-tab--active .mdc-tab__text-label {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Tooltips - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-tooltip.mat-primary .mdc-tooltip__surface {
-        background-color: var(--custom-verifik-primary-700) !important;
-        color: var(--custom-verifik-primary-contrast-700) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Snackbars - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-snack-bar.mat-primary .mdc-snackbar__surface {
-        background-color: var(--custom-verifik-primary-500) !important;
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Dialogs - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-dialog.mat-primary .mdc-dialog__surface {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Select - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-select.mat-primary:not(:disabled) .mdc-select__anchor {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-select.mat-primary:not(:disabled) .mdc-select__dropdown-icon {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Disabled select states */
-    .mat-mdc-select.mat-primary:disabled .mdc-select__anchor {
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-select.mat-primary:disabled .mdc-select__dropdown-icon {
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-select.mat-primary:disabled .mdc-select__anchor {
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    .dark .mat-mdc-select.mat-primary:disabled .mdc-select__dropdown-icon {
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Date Picker - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-datepicker.mat-primary .mdc-calendar__day--selected {
-        background-color: var(--custom-verifik-primary-500) !important;
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Tree - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-tree.mat-primary .mdc-tree__node {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Expansion Panel - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-expansion-panel.mat-primary .mdc-expansion-panel__header {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Stepper - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-stepper.mat-primary .mdc-step__label--selected {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-stepper.mat-primary .mdc-step__label--completed {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Paginator - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-paginator.mat-primary .mdc-icon-button:not(:disabled) {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Disabled paginator states */
-    .mat-mdc-paginator.mat-primary .mdc-icon-button:disabled {
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-paginator.mat-primary .mdc-icon-button:disabled {
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Sort - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-sort.mat-primary .mdc-data-table__header-cell-wrapper {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Table - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-table.mat-primary .mdc-data-table__header-cell {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Card - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-card.mat-primary {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ List - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-list.mat-primary .mdc-list-item {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Bottom Sheet - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-bottom-sheet.mat-primary .mdc-bottom-sheet__surface {
-        border-top-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Side Nav - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-drawer.mat-primary .mdc-drawer__surface {
-        border-right-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Toolbar - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-toolbar.mat-primary {
-        background-color: var(--custom-verifik-primary-500) !important;
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Button Toggle - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-button-toggle.mat-primary:not(:disabled) .mdc-button__label {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-button-toggle.mat-primary.mat-mdc-button-toggle-checked:not(:disabled) {
-        background-color: var(--custom-verifik-primary-500) !important;
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* Disabled button toggle states */
-    .mat-mdc-button-toggle.mat-primary:disabled .mdc-button__label {
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-button-toggle.mat-primary.mat-mdc-button-toggle-checked:disabled {
-        background-color: rgba(0, 0, 0, 0.12) !important;
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-button-toggle.mat-primary:disabled .mdc-button__label {
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    .dark .mat-mdc-button-toggle.mat-primary.mat-mdc-button-toggle-checked:disabled {
-        background-color: rgba(255, 255, 255, 0.12) !important;
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Slide Toggle - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-slide-toggle.mat-primary:not(:disabled) .mdc-switch__track {
-        background-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    .mat-mdc-slide-toggle.mat-primary:not(:disabled) .mdc-switch__thumb {
-        background-color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* Disabled slide toggle states */
-    .mat-mdc-slide-toggle.mat-primary:disabled .mdc-switch__track {
-        background-color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .mat-mdc-slide-toggle.mat-primary:disabled .mdc-switch__thumb {
-        background-color: rgba(255, 255, 255, 0.7) !important;
-    }
-
-    .dark .mat-mdc-slide-toggle.mat-primary:disabled .mdc-switch__track {
-        background-color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Badge - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-badge.mat-primary .mdc-badge__content {
-        background-color: var(--custom-verifik-primary-500) !important;
-        color: var(--custom-verifik-primary-contrast-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Divider - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-divider.mat-primary {
-        border-color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Icon - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-icon.mat-primary:not(:disabled) {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Disabled icon states */
-    .mat-mdc-icon.mat-primary:disabled {
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-icon.mat-primary:disabled {
-        color: rgba(255, 255, 255, 0.38) !important;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*  @ Button Icons - Primary color overrides
-    /* -------------------------------------------------------------------------- */
-    .mat-mdc-button.mat-primary:not(:disabled) .mat-icon,
-    .mat-mdc-raised-button.mat-primary:not(:disabled) .mat-icon,
-    .mat-mdc-outlined-button.mat-primary:not(:disabled) .mat-icon,
-    .mat-mdc-unelevated-button.mat-primary:not(:disabled) .mat-icon,
-    .mat-mdc-icon-button.mat-primary:not(:disabled) .mat-icon,
-    .mat-mdc-fab.mat-primary:not(:disabled) .mat-icon,
-    .mat-mdc-mini-fab.mat-primary:not(:disabled) .mat-icon {
-        color: var(--custom-verifik-primary-500) !important;
-    }
-
-    /* Disabled button icon states */
-    .mat-mdc-button.mat-primary:disabled .mat-icon,
-    .mat-mdc-raised-button.mat-primary:disabled .mat-icon,
-    .mat-mdc-outlined-button.mat-primary:disabled .mat-icon,
-    .mat-mdc-unelevated-button.mat-primary:disabled .mat-icon,
-    .mat-mdc-icon-button.mat-primary:disabled .mat-icon,
-    .mat-mdc-fab.mat-primary:disabled .mat-icon,
-    .mat-mdc-mini-fab.mat-primary:disabled .mat-icon {
-        color: rgba(0, 0, 0, 0.38) !important;
-    }
-
-    .dark .mat-mdc-button.mat-primary:disabled .mat-icon,
-    .dark .mat-mdc-raised-button.mat-primary:disabled .mat-icon,
-    .dark .mat-mdc-outlined-button.mat-primary:disabled .mat-icon,
-    .dark .mat-mdc-unelevated-button.mat-primary:disabled .mat-icon,
-    .dark .mat-mdc-icon-button.mat-primary:disabled .mat-icon,
-    .dark .mat-mdc-fab.mat-primary:disabled .mat-icon,
-    .dark .mat-mdc-mini-fab.mat-primary:disabled .mat-icon {
-        color: rgba(255, 255, 255, 0.38) !important;
+    /* Override Fuse theme variables within our theme scope */
+    --fuse-primary: var(--custom-verifik-primary, #4f46e5);
+    --fuse-accent: var(--custom-verifik-accent, #64748b);
+    --fuse-warn: var(--custom-verifik-warn, #dc2626);
+
+    /* Override Material Design Components theme variables */
+    --mdc-theme-primary: var(--custom-verifik-primary, #4f46e5);
+    --mdc-theme-on-primary: var(--custom-verifik-primary-contrast, #ffffff);
+    --mdc-theme-secondary: var(--custom-verifik-accent, #64748b);
+    --mdc-theme-on-secondary: var(--custom-verifik-accent-contrast, #ffffff);
+    --mdc-theme-error: var(--custom-verifik-warn, #dc2626);
+    --mdc-theme-on-error: var(--custom-verifik-warn-contrast, #ffffff);
+    --mdc-theme-surface: var(white, #ffffff);
+    --mdc-theme-on-surface: var(--custom-verifik-accent, #64748b);
+
+    /* Override Angular Material theme variables */
+    --mat-sys-color-primary: var(--custom-verifik-primary, #4f46e5);
+    --mat-sys-color-on-primary: var(--custom-verifik-primary-contrast, #ffffff);
+    --mat-sys-color-secondary: var(--custom-verifik-accent, #64748b);
+    --mat-sys-color-on-secondary: var(--custom-verifik-accent-contrast, #ffffff);
+    --mat-sys-color-error: var(--custom-verifik-warn, #dc2626);
+    --mat-sys-color-on-error: var(--custom-verifik-warn-contrast, #ffffff);
+    --mat-sys-color-surface: var(white, #ffffff);
+    --mat-sys-color-on-surface: var(--custom-verifik-accent, #64748b);
+}
+
+/* High-specificity overrides for Angular Material components */
+/* These ensure our CSS variables take precedence over Angular Material's defaults */
+
+/* Button overrides */
+.mat-mdc-unelevated-button.mat-primary:not([disabled="true"]),
+.mat-mdc-raised-button.mat-primary:not([disabled="true"]),
+.mat-mdc-filled-button.mat-primary:not([disabled="true"]) {
+    --mdc-filled-button-container-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-filled-button-label-text-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-filled-button-hover-state-layer-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-filled-button-focus-state-layer-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-filled-button-pressed-state-layer-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+}
+
+.mat-mdc-outlined-button.mat-primary:not([disabled="true"]) {
+    --mdc-outlined-button-outline-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-hover-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-focus-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-pressed-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* Override any general outlined button styles for primary buttons */
+.mat-mdc-outlined-button.mat-primary:not([disabled="true"]) {
+    --mdc-outlined-button-outline-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-hover-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-focus-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-button-pressed-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    border-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    border-width: 2px !important;
+}
+
+.mat-mdc-text-button.mat-primary:not([disabled="true"]) {
+    --mdc-text-button-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-text-button-hover-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-text-button-focus-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-text-button-pressed-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* Icon button overrides */
+.mat-mdc-icon-button.mat-primary:not([disabled="true"]) {
+    --mdc-icon-button-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-icon-button-hover-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-icon-button-focus-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-icon-button-pressed-state-layer-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* FAB overrides */
+.mat-mdc-fab.mat-primary:not([disabled="true"]) {
+    --mdc-fab-container-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-fab-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-fab-hover-state-layer-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-fab-focus-state-layer-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-fab-pressed-state-layer-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+}
+
+/* Checkbox overrides */
+.mat-mdc-checkbox.mat-primary:not([disabled="true"]) {
+    --mdc-checkbox-selected-container-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-checkbox-selected-checkmark-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-focus-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-hover-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-pressed-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-checkbox-unselected-focus-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-checkbox-unselected-hover-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-checkbox-unselected-pressed-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* Radio button overrides */
+.mat-mdc-radio-button.mat-primary:not([disabled="true"]) {
+    --mdc-radio-selected-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-focus-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-hover-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-pressed-icon-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-radio-unselected-focus-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-radio-unselected-hover-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-radio-unselected-pressed-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* Slider overrides */
+.mat-mdc-slider.mat-primary:not([disabled="true"]) {
+    --mdc-slider-active-track-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-slider-handle-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-slider-inactive-track-color: var(--custom-verifik-primary-200, #c7d2fe) !important;
+}
+
+/* Switch overrides */
+.mat-mdc-slide-toggle.mat-primary:not([disabled="true"]) {
+    --mdc-switch-selected-handle-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-hover-handle-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-focus-handle-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-pressed-handle-color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-track-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-switch-selected-hover-track-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-switch-selected-focus-track-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-switch-selected-pressed-track-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-switch-unselected-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-hover-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-focus-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-pressed-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-hover-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-focus-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-pressed-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+}
+
+/* Form field overrides */
+.mat-mdc-form-field.mat-primary:not([disabled="true"]) {
+    --mdc-outlined-text-field-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-outlined-text-field-focus-outline-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-text-field-hover-outline-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-text-field-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-outlined-text-field-focus-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-text-field-input-text-color: var(--custom-verifik-accent-800, #1e293b) !important;
+    --mdc-outlined-text-field-supporting-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+/* Select overrides */
+.mat-mdc-select.mat-primary:not([disabled="true"]) {
+    --mdc-outlined-select-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-outlined-select-focus-outline-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-select-hover-outline-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-select-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-outlined-select-focus-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-select-dropdown-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-focus-dropdown-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-outlined-select-hover-dropdown-icon-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* Progress bar overrides */
+.mat-mdc-progress-bar.mat-primary:not([disabled="true"]) {
+    --mdc-linear-progress-active-indicator-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-linear-progress-track-color: var(--custom-verifik-primary-200, #c7d2fe) !important;
+}
+
+/* Chip overrides */
+.mat-mdc-chip.mat-primary:not([disabled="true"]) {
+    --mdc-chip-outline-color: var(--custom-verifik-primary-300, #a5b4fc) !important;
+    --mdc-chip-container-color: var(--custom-verifik-primary-100, #e0e7ff) !important;
+    --mdc-chip-label-text-color: var(--custom-verifik-primary-700, #4338ca) !important;
+    --mdc-chip-with-icon-icon-color: var(--custom-verifik-primary-600, #4f46e5) !important;
+    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--custom-verifik-accent-600, #475569) !important;
+}
+
+/* Tab overrides */
+.mat-mdc-tab.mat-primary:not([disabled="true"]) {
+    --mdc-tab-indicator-active-indicator-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-tab-indicator-focus-indicator-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-tab-indicator-hover-indicator-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-tab-text-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-tab-text-active-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-tab-text-focus-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+    --mdc-tab-text-hover-label-text-color: var(--custom-verifik-primary-500, #6366f1) !important;
+}
+
+/* Accent color overrides */
+.mat-mdc-unelevated-button.mat-accent:not([disabled="true"]),
+.mat-mdc-raised-button.mat-accent:not([disabled="true"]),
+.mat-mdc-filled-button.mat-accent:not([disabled="true"]) {
+    --mdc-filled-button-container-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-filled-button-label-text-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-filled-button-hover-state-layer-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-filled-button-focus-state-layer-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-filled-button-pressed-state-layer-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+}
+
+.mat-mdc-outlined-button.mat-accent:not([disabled="true"]) {
+    --mdc-outlined-button-outline-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-button-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-button-hover-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-button-focus-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-button-pressed-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-text-button.mat-accent:not([disabled="true"]) {
+    --mdc-text-button-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-text-button-hover-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-text-button-focus-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-text-button-pressed-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-icon-button.mat-accent:not([disabled="true"]) {
+    --mdc-icon-button-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-icon-button-hover-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-icon-button-focus-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-icon-button-pressed-state-layer-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-fab.mat-accent:not([disabled="true"]) {
+    --mdc-fab-container-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-fab-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-fab-hover-state-layer-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-fab-focus-state-layer-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-fab-pressed-state-layer-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+}
+
+.mat-mdc-checkbox.mat-accent:not([disabled="true"]) {
+    --mdc-checkbox-selected-container-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-checkbox-selected-checkmark-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-focus-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-hover-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-pressed-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-checkbox-unselected-focus-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-checkbox-unselected-hover-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-checkbox-unselected-pressed-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-radio-button.mat-accent:not([disabled="true"]) {
+    --mdc-radio-selected-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-focus-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-hover-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-pressed-icon-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-radio-unselected-focus-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-radio-unselected-hover-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-radio-unselected-pressed-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-slider.mat-accent:not([disabled="true"]) {
+    --mdc-slider-active-track-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-slider-handle-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-slider-inactive-track-color: var(--custom-verifik-accent-200, #e2e8f0) !important;
+}
+
+.mat-mdc-slide-toggle.mat-accent:not([disabled="true"]) {
+    --mdc-switch-selected-handle-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-hover-handle-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-focus-handle-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-pressed-handle-color: var(--custom-verifik-accent-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-track-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-switch-selected-hover-track-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-switch-selected-focus-track-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-switch-selected-pressed-track-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-switch-unselected-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-hover-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-focus-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-pressed-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-hover-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-focus-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-pressed-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+}
+
+.mat-mdc-form-field.mat-accent:not([disabled="true"]) {
+    --mdc-outlined-text-field-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-outlined-text-field-focus-outline-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-text-field-hover-outline-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-text-field-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-outlined-text-field-focus-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-text-field-input-text-color: var(--custom-verifik-accent-800, #1e293b) !important;
+    --mdc-outlined-text-field-supporting-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-select.mat-accent:not([disabled="true"]) {
+    --mdc-outlined-select-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-outlined-select-focus-outline-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-hover-outline-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-outlined-select-focus-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-dropdown-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-focus-dropdown-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-hover-dropdown-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-progress-bar.mat-accent:not([disabled="true"]) {
+    --mdc-linear-progress-active-indicator-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-linear-progress-track-color: var(--custom-verifik-accent-200, #e2e8f0) !important;
+}
+
+.mat-mdc-chip.mat-accent:not([disabled="true"]) {
+    --mdc-chip-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-chip-container-color: var(--custom-verifik-accent-100, #f1f5f9) !important;
+    --mdc-chip-label-text-color: var(--custom-verifik-accent-700, #334155) !important;
+    --mdc-chip-with-icon-icon-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--custom-verifik-accent-600, #475569) !important;
+}
+
+.mat-mdc-tab.mat-accent:not([disabled="true"]) {
+    --mdc-tab-indicator-active-indicator-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-tab-indicator-focus-indicator-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-tab-indicator-hover-indicator-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-tab-text-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-tab-text-active-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-tab-text-focus-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-tab-text-hover-label-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+/* Warn color overrides */
+.mat-mdc-unelevated-button.mat-warn:not([disabled="true"]),
+.mat-mdc-raised-button.mat-warn:not([disabled="true"]),
+.mat-mdc-filled-button.mat-warn:not([disabled="true"]) {
+    --mdc-filled-button-container-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-filled-button-label-text-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-filled-button-hover-state-layer-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-filled-button-focus-state-layer-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-filled-button-pressed-state-layer-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+}
+
+.mat-mdc-outlined-button.mat-warn:not([disabled="true"]) {
+    --mdc-outlined-button-outline-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-button-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-button-hover-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-button-focus-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-button-pressed-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+.mat-mdc-text-button.mat-warn:not([disabled="true"]) {
+    --mdc-text-button-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-text-button-hover-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-text-button-focus-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-text-button-pressed-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+.mat-mdc-icon-button.mat-warn:not([disabled="true"]) {
+    --mdc-icon-button-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-icon-button-hover-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-icon-button-focus-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-icon-button-pressed-state-layer-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+.mat-mdc-fab.mat-warn:not([disabled="true"]) {
+    --mdc-fab-container-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-fab-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-fab-hover-state-layer-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-fab-focus-state-layer-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-fab-pressed-state-layer-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+}
+
+.mat-mdc-checkbox.mat-warn:not([disabled="true"]) {
+    --mdc-checkbox-selected-container-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-checkbox-selected-checkmark-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-focus-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-hover-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-checkbox-selected-pressed-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-checkbox-unselected-focus-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-checkbox-unselected-hover-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-checkbox-unselected-pressed-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+.mat-mdc-radio-button.mat-warn:not([disabled="true"]) {
+    --mdc-radio-selected-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-focus-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-hover-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-radio-selected-pressed-icon-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-radio-unselected-focus-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-radio-unselected-hover-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-radio-unselected-pressed-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+.mat-mdc-slider.mat-warn:not([disabled="true"]) {
+    --mdc-slider-active-track-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-slider-handle-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-slider-inactive-track-color: var(--custom-verifik-warn-200, #fecaca) !important;
+}
+
+.mat-mdc-slide-toggle.mat-warn:not([disabled="true"]) {
+    --mdc-switch-selected-handle-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-hover-handle-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-focus-handle-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-pressed-handle-color: var(--custom-verifik-warn-contrast-500, #ffffff) !important;
+    --mdc-switch-selected-track-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-switch-selected-hover-track-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-switch-selected-focus-track-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-switch-selected-pressed-track-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-switch-unselected-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-hover-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-focus-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-pressed-handle-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-hover-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-focus-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-switch-unselected-pressed-track-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+}
+
+.mat-mdc-form-field.mat-warn:not([disabled="true"]) {
+    --mdc-outlined-text-field-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-outlined-text-field-focus-outline-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-text-field-hover-outline-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-text-field-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-outlined-text-field-focus-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-text-field-input-text-color: var(--custom-verifik-accent-800, #1e293b) !important;
+    --mdc-outlined-text-field-supporting-text-color: var(--custom-verifik-accent-500, #64748b) !important;
+}
+
+.mat-mdc-select.mat-warn:not([disabled="true"]) {
+    --mdc-outlined-select-outline-color: var(--custom-verifik-accent-300, #cbd5e1) !important;
+    --mdc-outlined-select-focus-outline-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-select-hover-outline-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-select-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-outlined-select-focus-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-select-dropdown-icon-color: var(--custom-verifik-accent-500, #64748b) !important;
+    --mdc-outlined-select-focus-dropdown-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-outlined-select-hover-dropdown-icon-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+.mat-mdc-progress-bar.mat-warn:not([disabled="true"]) {
+    --mdc-linear-progress-active-indicator-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-linear-progress-track-color: var(--custom-verifik-warn-200, #fecaca) !important;
+}
+
+.mat-mdc-chip.mat-warn:not([disabled="true"]) {
+    --mdc-chip-outline-color: var(--custom-verifik-warn-300, #fca5a5) !important;
+    --mdc-chip-container-color: var(--custom-verifik-warn-100, #fee2e2) !important;
+    --mdc-chip-label-text-color: var(--custom-verifik-warn-700, #b91c1c) !important;
+    --mdc-chip-with-icon-icon-color: var(--custom-verifik-warn-600, #dc2626) !important;
+    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--custom-verifik-accent-600, #475569) !important;
+}
+
+.mat-mdc-tab.mat-warn:not([disabled="true"]) {
+    --mdc-tab-indicator-active-indicator-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-tab-indicator-focus-indicator-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-tab-indicator-hover-indicator-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-tab-text-label-text-color: var(--custom-verifik-accent-600, #475569) !important;
+    --mdc-tab-text-active-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-tab-text-focus-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+    --mdc-tab-text-hover-label-text-color: var(--custom-verifik-warn-500, #ef4444) !important;
+}
+
+/* Additional customizations that can't be handled by Angular Material theming alone */
+/* These are minimal overrides for specific design requirements */
+
+/* Form field appearance overrides */
+.mat-mdc-form-field {
+    .mat-mdc-form-field-outline {
+        background-color: white !important;
+    }
+}
+
+/* Custom form field styling for better visual hierarchy */
+.mat-form-field-appearance-outline {
+    .mat-form-field-outline {
+        background-color: white !important;
+    }
+
+    &:not(.mat-focused):not(.mat-form-field-invalid) {
+        .mat-form-field-outline-start,
+        .mat-form-field-outline-end,
+        .mat-form-field-outline-gap {
+            border-color: #d1d5db !important; /* Light gray for inactive borders */
+        }
+    }
+}
+
+/* Typography overrides */
+.mat-input-element,
+.mat-select-value,
+.mat-select-placeholder,
+.mat-form-field-label {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 15px !important;
+}
+
+/* Form field wrapper adjustments */
+.mat-form-field-wrapper {
+    padding-bottom: 0px !important;
+}
+
+.mat-mdc-text-field-wrapper {
+    background-color: white !important;
+}
+
+.mat-mdc-button,
+.mat-mdc-icon-button,
+.mat-mdc-outlined-button {
+    &:not([disabled="true"]) {
+        /* Apply primary color */
+        &.mat-primary {
+            .mat-icon {
+                color: var(--custom-verifik-primary-500, #6366f1) !important;
+            }
+        }
+
+        /* Apply accent color */
+        &.mat-accent {
+            .mat-icon {
+                color: var(--custom-verifik-accent-500, #64748b) !important;
+            }
+        }
+
+        /* Apply warn color */
+        &.mat-warn {
+            .mat-icon {
+                color: var(--custom-verifik-warn-500, #ef4444) !important;
+            }
+        }
+    }
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+    /* Invalid */
+    &.mat-form-field-invalid {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+            border-color: var(--custom-verifik-warn-500, #ef4444) !important;
+        }
+    }
+
+    /* Focused */
+    &.mat-focused:not(.mat-form-field-invalid) {
+        /* Primary */
+        &.mat-primary {
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+                border-color: var(--custom-verifik-primary-500, #6366f1) !important;
+            }
+        }
+
+        /* Accent */
+        &.mat-accent {
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+                border-color: var(--custom-verifik-accent-500, #64748b) !important;
+            }
+        }
+    }
+
+    &:not(.mat-focused):not(.mat-form-field-invalid) {
+        .mat-mdc-text-field-wrapper {
+            .mat-mdc-form-field-flex {
+                .mdc-notched-outline {
+                    .mdc-notched-outline__leading,
+                    .mdc-notched-outline__notch,
+                    .mdc-notched-outline__trailing {
+                        border-color: var(--custom-verifik-accent-500, #64748b) !important;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Remove the extra border on the right side of the notch */
+    /* Tailwind's global border setter causes this issue */
+    .mat-mdc-text-field-wrapper {
+        .mat-mdc-form-field-flex {
+            .mdc-notched-outline {
+                .mdc-notched-outline__notch {
+                    border-right-style: none !important;
+                }
+            }
+        }
     }
 }

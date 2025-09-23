@@ -1,0 +1,24 @@
+---
+description: Languages, translations, transloco
+alwaysApply: false
+---
+# Available Languages in Zelf Extension
+
+The application supports 4 languages with translation files in `src/assets/i18n/`:
+
+## Language List
+
+1. **English** (`en.json`) - Primary language
+2. **Spanish** (`es.json`) - Español
+3. **French** (`fr.json`) - Français
+
+## Translation Guidelines
+
+- When adding new translation keys, always add them to ALL language files
+- Use appropriate cultural translations, not just direct translations
+- Maintain consistency with existing translation patterns
+- Test translations with native speakers when possible
+- Keep translations concise and user-friendly
+- Consider right-to-left (RTL) languages like Arabic and Urdu for UI layout
+- Ensure translations are contextually appropriate for the application domain
+- Use `*transloco="let t"` and `t()` syntax for HTML templates

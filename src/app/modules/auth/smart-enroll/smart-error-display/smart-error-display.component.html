@@ -1,44 +1,52 @@
-<div
-    [style.border]="project.branding.borderColor ? '1px solid ' + project.branding.borderColor : ''"
-    class="smart-documents__card rounded-2xl w-full bg-card"
-    fxLayout="column"
-    fxLayoutAlign="center center"
-    ngClass.gt-sm="m-4 p-6"
-    ngClass.lt-md="p-4"
->
-    <div class="results__score mt-4" *ngIf="attemptsRemaining">
-        <p class="font-medium">
-            {{ "smart_enroll.remaining_attempts" | transloco : { attempts: attemptsRemaining } }}
-        </p>
+<div class="inline-flex flex-col justify-center items-center gap-8" *transloco="let t">
+    <div class="w-96 flex flex-col justify-start items-center gap-4">
+        <svg width="56" height="57" viewBox="0 0 56 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M10.4296 48.3424H45.5696C49.163 48.3424 51.403 44.4457 49.6063 41.3424L32.0363 10.9857C30.2396 7.88237 25.7596 7.88237 23.963 10.9857L6.39297 41.3424C4.5963 44.4457 6.8363 48.3424 10.4296 48.3424ZM27.9996 32.009C26.7163 32.009 25.6663 30.959 25.6663 29.6757V25.009C25.6663 23.7257 26.7163 22.6757 27.9996 22.6757C29.283 22.6757 30.333 23.7257 30.333 25.009V29.6757C30.333 30.959 29.283 32.009 27.9996 32.009ZM30.333 41.3424H25.6663V36.6757H30.333V41.3424Z"
+                fill="#EC3A4F"
+            />
+        </svg>
+
+        <div class="smart-error-display__title w-full text-center justify-start text-2xl font-semibold leading-loose" *ngIf="!attemptsRemaining">
+            {{ t("no_more_attempts_title") }}
+        </div>
+
+        <ng-container *ngIf="errorContent.message && t(translationKey) !== translationKey; else defaultTranslation">
+            <div class="w-full text-center justify-center text-base font-medium leading-tight">
+                {{ t(translationKey) }}
+            </div>
+        </ng-container>
+
+        <ng-template #defaultTranslation>
+            <div class="w-full text-center justify-center text-base font-medium leading-tight">
+                {{ t("errors.something_went_wrong") }}
+            </div>
+        </ng-template>
+
+        <div class="w-full text-center justify-center text-base font-medium leading-tight" *ngIf="!attemptsRemaining">
+            {{ t("no_more_attempts_description", { recordName: currentStep === "document" ? "document" : "biometric" }) }}
+        </div>
     </div>
 
-    <h4 class="mt-2 font-medium text-2xl" [style.color]="project.branding.titleColor" *ngIf="!attemptsRemaining">
-        {{ "no_more_attempts_title" | transloco }}
-    </h4>
+    <div class="smart-error-display__attempts px-4 py-2 rounded-3xl inline-flex justify-center items-center gap-2.5" *ngIf="attemptsRemaining">
+        <div class="smart-error-display__attempts-text text-center justify-center text-base font-medium leading-tight">
+            {{ t("smart_enroll.remaining_attempts", { attempts: attemptsRemaining }) }}
+        </div>
+    </div>
 
-    <p class="text-center mt-8" *ngIf="source === 'document' && errorContent.message">
-        {{ "id_scanning." + errorContent.message | transloco }}
-    </p>
+    <div class="flex flex-row items-center gap-6">
+        <button (click)="exitApplication()" mat-flat-button *ngIf="!attemptsRemaining" color="primary" class="min-h-14 h-14 rounded-lg">
+            {{ t("log_out") }}
+        </button>
 
-    <p class="text-center mt-8" *ngIf="source === 'face' && errorContent.message">
-        {{ "liveness." + errorContent.message | transloco }}
-    </p>
+        <ng-container *ngIf="attemptsRemaining">
+            <button (click)="exitApplication()" mat-stroked-button color="primary" class="min-h-14 h-14 rounded-lg">
+                {{ t("log_out") }}
+            </button>
 
-    <p class="text-center mt-8" *ngIf="!attemptsRemaining">
-        {{
-            "no_more_attempts_description"
-                | transloco
-                    : {
-                          recordName: currentStep === "document" ? "document" : "biometric"
-                      }
-        }}
-    </p>
-
-    <button (click)="tryAgain()" class="fuse-mat-button-large w-full mt-16" *ngIf="attemptsRemaining" mat-flat-button color="primary">
-        <span>{{ "id_scanning.retry" | transloco }}</span>
-    </button>
-
-    <button (click)="exitApplication()" class="fuse-mat-button-large w-full mt-16" *ngIf="!attemptsRemaining" mat-flat-button color="primary">
-        <span>{{ "log_out" | transloco }}</span>
-    </button>
+            <button (click)="tryAgain()" mat-flat-button color="primary" class="min-h-14 h-14 rounded-lg">
+                {{ t("id_scanning.retry") }}
+            </button>
+        </ng-container>
+    </div>
 </div>

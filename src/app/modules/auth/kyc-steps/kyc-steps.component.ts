@@ -19,6 +19,7 @@ import { KycInstructionsComponent } from "./kyc-instructions/kyc-instructions.co
 import { KycLivenessComponent } from "app/modules/kyc/kyc-liveness/kyc-liveness.component";
 import { KycEndComponent } from "app/modules/kyc/kyc-end/kyc-end.component";
 import { DemoService } from "app/modules/demo/demo.service";
+import { AppService } from "app/core/services/app.service";
 import { KycLivenessIosComponent } from "app/modules/kyc/kyc-liveness-ios/kyc-liveness-ios.component";
 import { KycDocumentComponent } from "app/modules/kyc/kyc-document/kyc-document.component";
 import { KycDocumentReviewComponent } from "app/modules/kyc/kyc-document-review/kyc-document-review.component";
@@ -78,7 +79,8 @@ export class KYCStepsComponent implements OnInit {
         private _KYCService: KYCService,
         private _splashScreenService: FuseSplashScreenService,
         private activatedRoute: ActivatedRoute,
-        private _demoService: DemoService
+        private _demoService: DemoService,
+        private _appService: AppService
     ) {
         this._splashScreenService.show();
 
@@ -108,7 +110,7 @@ export class KYCStepsComponent implements OnInit {
     }
 
     async _loadContent(): Promise<any> {
-        this._demoService.getDeviceDetails();
+        this._appService.getDeviceDetails();
 
         await this._demoService.getAddress();
     }
