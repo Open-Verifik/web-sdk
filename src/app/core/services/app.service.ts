@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 
 export interface Project {
     branding?: {
@@ -6,7 +7,63 @@ export interface Project {
         buttonColor?: string;
         titleColor?: string;
         txtColor?: string;
-        borderColor?: string;
+        buttonTextColor?: string;
+    };
+}
+
+export interface DeviceDetails {
+    // Browser information
+    userAgent: string;
+    language: string;
+    languages: string[];
+    onLine: boolean;
+    onlineStatus: string;
+    cookiesEnabled: boolean;
+    javaEnabled: boolean;
+
+    // Screen and display
+    screenResolution: string;
+    screenAvailableResolution: string;
+    colorDepth: number;
+    pixelDepth: number;
+    devicePixelRatio: number;
+
+    // Window dimensions
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+
+    // Hardware capabilities
+    touchSupported: boolean;
+    maxTouchPoints: number;
+    hardwareConcurrency: number;
+    deviceMemory?: number; // Optional as not all browsers support this
+
+    // Network and connectivity
+    geolocationSupported: boolean;
+    connectionEffectiveType?: string; // Optional
+    connectionDownlink?: number; // Optional
+    connectionRtt?: number; // Optional
+
+    // Platform detection (using modern detection methods)
+    operatingSystem: string;
+    browserName: string;
+    browserVersion: string;
+    isMobile: boolean;
+    isTablet: boolean;
+    isDesktop: boolean;
+
+    // Privacy and preferences
+    timezoneOffset: number;
+    prefersDarkMode: boolean;
+    prefersReducedMotion: boolean;
+
+    // User-Agent Client Hints (when available)
+    userAgentData?: {
+        brands: Array<{ brand: string; version: string }>;
+        mobile: boolean;
+        platform: string;
     };
 }
 
@@ -15,42 +72,19 @@ export interface Project {
 })
 export class AppService {
     private originalTheme: string | null = null;
+    private _geoLocation: BehaviorSubject<any> = new BehaviorSubject(null);
 
     /**
-     * Apply dynamic theming based on project branding
+     * Get geolocation observable
      */
-    applyDynamicTheming(project: Project): void {
-        if (!project?.branding) {
-            this.resetTheming();
-            return;
-        }
-
-        // Store original theme if not already stored
-        if (!this.originalTheme) {
-            this.originalTheme = this.getCurrentTheme();
-        }
-
-        // Update CSS variables for the custom theme
-        this.updateCustomThemeVariables(project.branding);
-
-        // Switch to custom theme
-        this.switchToCustomTheme();
-    }
-
-    /**
-     * Reset theming to original state
-     */
-    resetTheming(): void {
-        if (this.originalTheme) {
-            this.switchToTheme(this.originalTheme);
-            this.originalTheme = null;
-        }
+    get geoLocation$(): Observable<any> {
+        return this._geoLocation.asObservable();
     }
 
     /**
      * Update CSS variables for the custom theme
      */
-    private updateCustomThemeVariables(branding: any): void {
+    private _updateCustomThemeVariables(branding: any): void {
         const root = document.documentElement;
 
         // Generate color palette from buttonColor
@@ -105,6 +139,12 @@ export class AppService {
         root.style.setProperty("--custom-verifik-primary-contrast", primaryPalette.contrast?.DEFAULT || "#FFFFFF");
         root.style.setProperty("--custom-verifik-accent-contrast", accentPalette.contrast?.DEFAULT || "#FFFFFF");
         root.style.setProperty("--custom-verifik-warn-contrast", warnPalette.contrast?.DEFAULT || "#FFFFFF");
+
+        root.style.setProperty("--custom-verifik-background", branding.backgroundColor || "#FFFFFF");
+        root.style.setProperty("--custom-verifik-text-color", branding.textColor || "#181818");
+        root.style.setProperty("--custom-verifik-title-color", branding.titleColor || "#181818");
+        root.style.setProperty("--custom-verifik-button-color", branding.buttonColor || "#181818");
+        root.style.setProperty("--custom-verifik-button-text-color", branding.buttonTextColor || "#FFFFFF");
     }
 
     /**
@@ -183,10 +223,7 @@ export class AppService {
         return contrast;
     }
 
-    /**
-     * Switch to custom theme
-     */
-    private switchToCustomTheme(): void {
+    private _switchToCustomTheme(): void {
         // Remove existing theme classes
         document.body.classList.remove("theme-default", "theme-brand", "theme-teal", "theme-rose", "theme-purple", "theme-amber");
 
@@ -194,21 +231,12 @@ export class AppService {
         document.body.classList.add("theme-custom");
     }
 
-    /**
-     * Switch to a specific theme
-     */
-    private switchToTheme(themeName: string): void {
-        // Remove all theme classes
+    private _switchToTheme(themeName: string): void {
         document.body.classList.remove("theme-default", "theme-brand", "theme-teal", "theme-rose", "theme-purple", "theme-amber", "theme-custom");
-
-        // Add the specified theme class
         document.body.classList.add(themeName);
     }
 
-    /**
-     * Get current theme from body classes
-     */
-    private getCurrentTheme(): string {
+    private _getCurrentTheme(): string {
         const themeClasses = ["theme-default", "theme-brand", "theme-teal", "theme-rose", "theme-purple", "theme-amber", "theme-custom"];
 
         for (const themeClass of themeClasses) {
@@ -217,7 +245,248 @@ export class AppService {
             return themeClass;
         }
 
-        return "theme-default"; // Default fallback
+        return "theme-default";
+    }
+
+    applyDynamicTheming(project: Project): void {
+        if (!project?.branding) {
+            this.resetTheming();
+
+            return;
+        }
+
+        if (!this.originalTheme) this.originalTheme = this._getCurrentTheme();
+
+        this._updateCustomThemeVariables(project.branding);
+
+        this._switchToCustomTheme();
+    }
+
+    resetTheming(): void {
+        if (!this.originalTheme) return;
+
+        this._switchToTheme(this.originalTheme);
+
+        this.originalTheme = null;
+    }
+
+    getDeviceDetails(): DeviceDetails {
+        // Get platform and browser information using modern detection
+        const platformInfo = this._detectPlatformAndBrowser();
+
+        // Get User-Agent Client Hints if available
+        const userAgentData = this._getUserAgentClientHints();
+
+        // Get network information if available
+        const networkInfo = this._getNetworkInformation();
+
+        // Get media preferences
+        const mediaPreferences = this._getMediaPreferences();
+
+        const details: DeviceDetails = {
+            // Browser information
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            languages: navigator.languages ? Array.from(navigator.languages) : [navigator.language],
+            onLine: navigator.onLine,
+            onlineStatus: navigator.onLine ? "Online" : "Offline",
+            cookiesEnabled: navigator.cookieEnabled,
+            javaEnabled: typeof navigator.javaEnabled === "function" ? navigator.javaEnabled() : false,
+
+            // Screen and display
+            screenResolution: `${screen.width} x ${screen.height}`,
+            screenAvailableResolution: `${screen.availWidth} x ${screen.availHeight}`,
+            colorDepth: screen.colorDepth,
+            pixelDepth: screen.pixelDepth,
+            devicePixelRatio: window.devicePixelRatio || 1,
+
+            // Window dimensions
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight,
+            outerWidth: window.outerWidth,
+            outerHeight: window.outerHeight,
+
+            // Hardware capabilities
+            touchSupported: "ontouchstart" in window || navigator.maxTouchPoints > 0,
+            maxTouchPoints: navigator.maxTouchPoints || 0,
+            hardwareConcurrency: navigator.hardwareConcurrency || 1,
+            deviceMemory: (navigator as any).deviceMemory,
+
+            // Network and connectivity
+            geolocationSupported: "geolocation" in navigator,
+            connectionEffectiveType: networkInfo.effectiveType,
+            connectionDownlink: networkInfo.downlink,
+            connectionRtt: networkInfo.rtt,
+
+            // Platform detection
+            operatingSystem: platformInfo.os,
+            browserName: platformInfo.browser,
+            browserVersion: platformInfo.version,
+            isMobile: platformInfo.isMobile,
+            isTablet: platformInfo.isTablet,
+            isDesktop: platformInfo.isDesktop,
+
+            // Privacy and preferences
+            timezoneOffset: new Date().getTimezoneOffset(),
+            prefersDarkMode: mediaPreferences.prefersDarkMode,
+            prefersReducedMotion: mediaPreferences.prefersReducedMotion,
+
+            // User-Agent Client Hints (when available)
+            userAgentData: userAgentData,
+        };
+
+        this.getLocation();
+
+        return details;
+    }
+
+    getLocation(): void {
+        localStorage.removeItem("locationError");
+
+        const lat = localStorage.getItem("lat");
+        const lng = localStorage.getItem("lng");
+
+        if (lat && lng) this._geoLocation.next({ lat, lng });
+
+        if (navigator.geolocation) {
+            const isEdge = navigator.userAgent?.includes("Edg") || navigator.userAgent?.includes("Edge");
+
+            if (isEdge) {
+                // MicrosoftEdge bug: https://answers.microsoft.com/en-us/microsoftedge/forum/all/microsoft-edge-for-mac-is-not-able-to-get/7e27322b-7125-4f5f-90e0-3a9416d67cfe
+                // Cannot retrieve location from Microsoft Edge browser on MacOS
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(this.showPosition, this.showGeolocationError);
+        } else {
+            console.info("Geolocation is not supported by this browser.");
+        }
+    }
+
+    /**
+     * Handle successful geolocation
+     */
+    private showPosition = (position: GeolocationPosition): void => {
+        if (!this._geoLocation || !position?.coords) return;
+
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        localStorage.setItem("lat", lat.toString());
+        localStorage.setItem("lng", lng.toString());
+
+        this._geoLocation.next({ lat, lng });
+    };
+
+    /**
+     * Handle geolocation error
+     */
+    private showGeolocationError = (error: GeolocationPositionError): void => {
+        console.error("Geolocation error:", error);
+        localStorage.setItem("locationError", error.message);
+    };
+
+    /**
+     * Get User-Agent Client Hints data if available
+     */
+    private _getUserAgentClientHints(): any {
+        if ("userAgentData" in navigator) {
+            const uaData = (navigator as any).userAgentData;
+            return {
+                brands: uaData.brands || [],
+                mobile: uaData.mobile || false,
+                platform: uaData.platform || "Unknown",
+            };
+        }
+        return undefined;
+    }
+
+    /**
+     * Get network information if available
+     */
+    private _getNetworkInformation(): any {
+        const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+
+        if (connection) {
+            return {
+                effectiveType: connection.effectiveType,
+                downlink: connection.downlink,
+                rtt: connection.rtt,
+            };
+        }
+
+        return {
+            effectiveType: undefined,
+            downlink: undefined,
+            rtt: undefined,
+        };
+    }
+
+    /**
+     * Get media preferences using modern CSS media queries
+     */
+    private _getMediaPreferences(): any {
+        return {
+            prefersDarkMode: window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches,
+            prefersReducedMotion: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+        };
+    }
+
+    /**
+     * Detect platform and browser using modern user agent parsing
+     */
+    private _detectPlatformAndBrowser(): any {
+        const userAgent = navigator.userAgent.toLowerCase();
+
+        // Operating System Detection
+        let os = "Unknown";
+        if (userAgent.includes("windows nt")) {
+            os = "Windows";
+        } else if (userAgent.includes("mac os x")) {
+            os = "macOS";
+        } else if (userAgent.includes("linux")) {
+            os = "Linux";
+        } else if (userAgent.includes("android")) {
+            os = "Android";
+        } else if (userAgent.includes("iphone") || userAgent.includes("ipad") || userAgent.includes("ipod")) {
+            os = "iOS";
+        }
+
+        // Browser Detection
+        let browser = "Unknown";
+        let version = "Unknown";
+
+        if (userAgent.includes("firefox/")) {
+            browser = "Firefox";
+            const match = userAgent.match(/firefox\/(\d+\.\d+)/);
+            version = match ? match[1] : "Unknown";
+        } else if (userAgent.includes("chrome/") && !userAgent.includes("edg/")) {
+            browser = "Chrome";
+            const match = userAgent.match(/chrome\/(\d+\.\d+)/);
+            version = match ? match[1] : "Unknown";
+        } else if (userAgent.includes("edg/")) {
+            browser = "Edge";
+            const match = userAgent.match(/edg\/(\d+\.\d+)/);
+            version = match ? match[1] : "Unknown";
+        } else if (userAgent.includes("safari/") && !userAgent.includes("chrome/")) {
+            browser = "Safari";
+            const match = userAgent.match(/version\/(\d+\.\d+)/);
+            version = match ? match[1] : "Unknown";
+        }
+
+        // Device Type Detection
+        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+        const isTablet = /ipad|android(?!.*mobile)|tablet/i.test(userAgent);
+        const isDesktop = !isMobile && !isTablet;
+
+        return {
+            os,
+            browser,
+            version,
+            isMobile,
+            isTablet,
+            isDesktop,
+        };
     }
 
     // Utility methods

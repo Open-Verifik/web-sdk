@@ -1,43 +1,38 @@
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { combineLatest, map, Subject, takeUntil } from "rxjs";
-
 import { CommonModule, isPlatformBrowser, NgIf } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-
 import { fuseAnimations } from "@fuse/animations";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
-
-import { AppRegistration, Project, ProjectFlow, ProjectModel } from "../project";
-
-import { CountriesService } from "app/modules/demo/countries.service";
-import { DemoService } from "app/modules/demo/demo.service";
-import { KYCService } from "../kyc.service";
-import { PasswordlessService } from "../passwordless.service";
-import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
-import { AppService } from "app/core/services/app.service";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { combineLatest, map, Subject, takeUntil } from "rxjs";
 
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
-import { AuthSignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
-import { AuthSignUpVerificationCompleteComponent } from "./sign-up-verification-complete/sign-up-verification-complete.component";
-import { AuthSignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
+import { CountriesService } from "app/modules/demo/countries.service";
+import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
+import { ProjectFlow } from "../../../core/classes/project-flow.class";
+import { Project } from "../../../core/classes/project.class";
+import { AppService } from "../../../core/services/app.service";
+import { ProjectStorageService } from "../../../core/services/project-storage.service";
+import { KYCService } from "../kyc.service";
+import { PasswordlessService } from "../passwordless.service";
+import { AppRegistration } from "../project";
+import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
+import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+import { SignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
+import { SignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 
 @Component({
-    selector: "auth-sign-up",
-    templateUrl: "./sign-up.component.html",
-    styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
-    encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
+    encapsulation: ViewEncapsulation.None,
+    selector: "sign-up",
     standalone: true,
+    styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
+    templateUrl: "./sign-up.component.html",
     imports: [
-        AuthSignUpCreateFormComponent,
-        AuthSignUpVerificationCompleteComponent,
-        AuthSignUpVerificationComponent,
         CommonModule,
         FlexLayoutModule,
         LanguagesComponent,
@@ -45,6 +40,8 @@ import { environment } from "environments/environment";
         MatIconModule,
         NgIf,
         RouterModule,
+        SignUpCreateFormComponent,
+        SignUpVerificationComponent,
         SmartEnrollComponent,
         TranslocoModule,
     ],
@@ -58,7 +55,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     currentStepIndex: number = 0;
     deviceDetails: any;
     enrollStep: EnrollStep;
-    isVerifikProject: Boolean;
     language: string;
     location: any;
     locationError: any;
@@ -69,7 +65,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     steps: Array<string> = ["create"];
     token: string;
     showUpgradeRequired: boolean = false;
-    verificationComplete: boolean = false;
 
     flagCodes = {
         en: "us",
@@ -84,9 +79,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         ph: "ph",
     };
 
-    /**
-     * Constructor
-     */
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _appService: AppService,
@@ -95,6 +87,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         private _demoService: DemoService,
         private _KYCService: KYCService,
         private _passwordlessService: PasswordlessService,
+        private _projectStorageService: ProjectStorageService,
         private _router: Router,
         private _smartEnrollService: SmartEnrollService,
         private _splashScreenService: FuseSplashScreenService,
@@ -102,25 +95,32 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this._splashScreenService.show();
+        this._passwordlessService.flow = "onboarding";
 
         this._setToken();
         this._setLanguage();
 
-        this.deviceDetails = this._demoService.getDeviceDetails();
+        this.deviceDetails = this._appService.getDeviceDetails();
         this.location = null;
         this.locationError = null;
         this.project = null;
         this.projectFlow = null;
-
         this.sendingOTP = false;
     }
 
-    /**
-     * On init
-     */
     ngOnInit(): void {
         this._splashScreenService.show();
 
+        this._initializeSubscriptions();
+        this._ensureLanguageSync();
+    }
+
+    ngOnDestroy(): void {
+        this.unsubscriber$.next();
+        this.unsubscriber$.complete();
+    }
+
+    private _initializeSubscriptions(): void {
         this._smartEnrollService.insufficientCredits$.pipe(takeUntil(this.unsubscriber$)).subscribe({
             next: () => {
                 this.showKYCApp = false;
@@ -139,7 +139,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
                 if (this.projectFlow) {
                     this._requestAppRegistration();
                 } else {
-                    this.isVerifikProject = Boolean(results.id === environment.verifikProject || results.id === environment.sandboxProject);
                     this._requestProject(results.id);
                 }
             });
@@ -163,24 +162,15 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
                 this.locationError = err;
             },
         });
-
-        this._ensureLanguageSync();
-    }
-
-    ngOnDestroy(): void {
-        this.unsubscriber$.next();
-        this.unsubscriber$.complete();
     }
 
     private _checkVerification(): void {
         const emailStatus = this.appRegistration?.emailValidation?.status;
         const phoneStatus = this.appRegistration?.phoneValidation?.status;
 
-        const {
-            onboardingSettings: {
-                signUpForm: { email, emailGateway, phone, phoneGateway },
-            },
-        } = this.projectFlow;
+        const onboardingSettings = this.projectFlow?.onboardingSettings;
+        const signUpForm = onboardingSettings?.signUpForm;
+        const { email, emailGateway, phone, phoneGateway } = signUpForm || {};
 
         const emailVerificationEnabled = email && emailGateway !== "none";
         const phoneVerificationEnabled = phone && phoneGateway !== "none";
@@ -190,7 +180,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         } else if (phoneVerificationEnabled && phoneStatus !== "validated") {
             this._setStep("verify_phone");
         } else {
-            this.verificationComplete = true;
+            this._setStep("complete");
         }
     }
 
@@ -235,19 +225,24 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
     private _requestProject(projectId: string): void {
         this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
-            next: (v) => {
-                this.project = new ProjectModel({ ...v.data, type: "onboarding" });
-                this.projectFlow = this.project.currentProjectFlow;
+            next: (response) => {
+                this.project = new Project({ ...response.data, type: "onboarding" });
+
+                this._projectStorageService.setProject(this.project);
+
+                this.projectFlow = this.project.getOnboardingProjectFlow();
+
+                if (this.projectFlow) this._projectStorageService.setProjectFlow(this.projectFlow);
 
                 this._appService.applyDynamicTheming(this.project);
 
-                if (!v.planCode) {
+                if (!response.planCode) {
                     this.showUpgradeRequired = true;
                 } else {
                     this._setSteps();
                 }
             },
-            error: (e) => {
+            error: () => {
                 window.location.href = "/sign-up";
 
                 this._splashScreenService.hide();
@@ -268,62 +263,52 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     private _setLanguage() {
         if (!isPlatformBrowser(this.platformId)) {
             this.language = "en";
+
             return;
         }
 
-        // First check if user has previously selected a language
         const savedLanguage = localStorage.getItem("currentLanguage");
 
         if (savedLanguage && this.flagCodes[savedLanguage]) {
             this.language = savedLanguage;
-            // Sync with TranslocoService
+
             this._translocoService.setActiveLang(savedLanguage);
         } else {
-            // Get the browser's language setting as fallback
             let browserLang = navigator.language;
 
-            // Handle different language formats (e.g., "pt-BR", "pt", "en-US", "en")
-            if (browserLang.includes("-")) {
-                browserLang = browserLang.split("-")[0]; // Get the primary language subtag
-            }
+            if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
 
-            // Check if the browser's language is one of the specified options, otherwise default to 'en'
             this.language = this.flagCodes[browserLang] ? browserLang : "en";
 
-            // Save the detected language to localStorage
             localStorage.setItem("currentLanguage", this.language);
-            // Sync with TranslocoService
+
             this._translocoService.setActiveLang(this.language);
         }
     }
 
-    /**
-     * Handle language change from LanguagesComponent
-     */
     onLanguageChange(lang: string): void {
         if (!this.flagCodes[lang]) return;
 
-        this.language = lang;
         localStorage.setItem("currentLanguage", lang);
+
+        this.language = lang;
         this._translocoService.setActiveLang(lang);
         this._changeDetectorRef.markForCheck();
     }
 
-    /**
-     * Ensure language synchronization after view initialization
-     */
     private _ensureLanguageSync(): void {
         const savedLanguage = localStorage.getItem("currentLanguage");
-        if (savedLanguage && this.flagCodes[savedLanguage] && savedLanguage !== this.language) {
-            this.language = savedLanguage;
-            this._translocoService.setActiveLang(savedLanguage);
-            this._changeDetectorRef.markForCheck();
-        }
+
+        if (!savedLanguage || !this.flagCodes[savedLanguage] || savedLanguage === this.language) return;
+
+        this.language = savedLanguage;
+        this._translocoService.setActiveLang(savedLanguage);
+        this._changeDetectorRef.markForCheck();
     }
 
     private _setStep(step: string): void {
         if (step === "complete") {
-            this.verificationComplete = true;
+            this.showKYCApp = true;
             this.currentStep = "";
             this.currentStepIndex = 0;
 
@@ -342,7 +327,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
         this.steps = ["create"];
 
-        const { email, emailGateway, phone, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
+        const onboardingSettings = this.projectFlow.onboardingSettings;
+        const signUpForm = onboardingSettings?.signUpForm;
+        const { email, emailGateway, phone, phoneGateway } = signUpForm || {};
 
         if (email && emailGateway !== "none") this.steps.push("verify_email");
         if (phone && phoneGateway !== "none") this.steps.push("verify_phone");
@@ -353,18 +340,19 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     private _setToken(token?: string): void {
         if (!token) {
             this.token = null;
+
             localStorage.removeItem("accessToken");
 
             return;
         }
 
         this.token = token;
+
         localStorage.setItem("accessToken", token);
     }
 
     countryNotAllowedAccept(): void {
-        ``;
-        const redirectUrl = this.projectFlow.redirectUrl;
+        const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
 
         if (redirectUrl) {
             window.location.href = redirectUrl;
@@ -375,13 +363,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
     enabledLocation(): void {
         window.location.reload();
-    }
-
-    onServiceChange(enrollStep: EnrollStep): void {
-        setTimeout(() => {
-            this.showKYCApp = !this.locationError;
-            this._smartEnrollService.setCurrentStep(enrollStep);
-        });
     }
 
     onStepChange(step: string): void {

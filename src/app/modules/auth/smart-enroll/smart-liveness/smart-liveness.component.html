@@ -98,44 +98,10 @@
                         </div>
                     </div>
 
-                    <ng-container *ngIf="currentLivenessIndex">
-                        <div class="indicator indicator--a">
-                            <div [style.opacity]="angleThreshold?.indicatorAdjust !== undefined ? 1 : 0" class="indicator__pie bg-opacity-100">
-                                <div
-                                    [ngClass]="{ 'bg-green-200': face.success }"
-                                    [ngStyle]="{
-                                        'background-color': !face.success ? project.branding.buttonColor : '',
-                                        opacity: !face.success ? 0.4 : 1
-                                    }"
-                                    [style.transform]="indicatorCutTransform"
-                                    class="indicator__cut"
-                                ></div>
-
-                                <div class="indicator__clip" [style.backgroundColor]="project.branding.buttonColor"></div>
-                            </div>
-                        </div>
-
-                        <div class="indicator indicator--b" [style.transform]="indicatorTransform">
-                            <div [style.opacity]="angleThreshold?.indicatorAdjust !== undefined ? 1 : 0" class="indicator__pie bg-opacity-100">
-                                <div
-                                    [ngClass]="{ 'bg-green-400': face.success }"
-                                    [ngStyle]="{
-                                        'background-color': !face.success ? project.branding.buttonColor : '',
-                                        opacity: !face.success ? 0.6 : 1
-                                    }"
-                                    [style.transform]="indicatorCutTransform"
-                                    class="indicator__cut"
-                                ></div>
-
-                                <div class="indicator__clip" [style.backgroundColor]="project.branding.buttonColor"></div>
-                            </div>
-                        </div>
-                    </ng-container>
-
                     <button
                         (click)="cycleCamera()"
                         [style.background]="project.branding.buttonColor"
-                        [style.color]="project.branding.buttonTxtColor"
+                        [style.color]="project.branding.buttonTextColor"
                         *ngIf="devices.length > 1"
                         mat-icon-button
                         class="camera__change-camera z-20"
@@ -160,79 +126,8 @@
 
                         <p class="mt-0.5 text-sm leading-tight">{{ angleThreshold?.instructions }}</p>
                     </div>
-
-                    <div class="flex flex-row justify-center gap-3 mt-6">
-                        <ng-container *ngFor="let threshold of angleThresholds; let i = index">
-                            <div
-                                class="h-8 w-8 rounded-full flex flex-row justify-center items-center transition-colors duration-300"
-                                [ngClass]="{ 'bg-green-500': !!faceCaptures[i], 'bg-gray-200': !faceCaptures[i] }"
-                            >
-                                <mat-icon
-                                    class="text-xs"
-                                    [ngClass]="{ 'text-white': !!faceCaptures[i], 'text-gray-400': !faceCaptures[i] }"
-                                    svgIcon="feather:check"
-                                ></mat-icon>
-                            </div>
-                        </ng-container>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </ng-container>
-
-<ng-template #instructions>
-    <mat-dialog-content ngClass.lt-md="p-2">
-        <div class="flex justify-center items-center">
-            <img src="/assets/images/ui/liveness-instructions.gif" ngClass.lt-md="w-56 h-56" ngClass.gt-sm="w-100 h-100" alt="instructions" />
-        </div>
-
-        <h4 ngClass.lt-md="text-xl" class="mt-4 text-3xl font-semibold text-center">
-            {{ "smart_enroll.liveness.instructions.before_continuing" | transloco }}
-        </h4>
-
-        <div class="mt-6 flex flex-col gap-2">
-            <div class="flex flex-row justify-center items-center">
-                <div
-                    class="instructions__step-index"
-                    [style.color]="project.branding.buttonTxtColor"
-                    [style.background]="project.branding.buttonColor"
-                >
-                    1
-                </div>
-
-                <p class="w-full">{{ "smart_enroll.liveness.instructions.step_1" | transloco }}</p>
-            </div>
-
-            <div class="flex flex-row justify-center items-center">
-                <div
-                    class="instructions__step-index"
-                    [style.color]="project.branding.buttonTxtColor"
-                    [style.background]="project.branding.buttonColor"
-                >
-                    2
-                </div>
-
-                <p class="w-full">{{ "smart_enroll.liveness.instructions.step_2" | transloco }}</p>
-            </div>
-
-            <div class="flex flex-row justify-center items-center">
-                <div
-                    class="instructions__step-index"
-                    [style.color]="project.branding.buttonTxtColor"
-                    [style.background]="project.branding.buttonColor"
-                >
-                    3
-                </div>
-
-                <p class="w-full">{{ "smart_enroll.liveness.instructions.step_3" | transloco }}</p>
-            </div>
-        </div>
-    </mat-dialog-content>
-
-    <mat-dialog-actions ngClass.lt-md="p-2" class="mt-4 flex justify-center">
-        <button class="fuse-mat-button" mat-flat-button color="primary" mat-dialog-close>
-            {{ "continue" | transloco }}
-        </button>
-    </mat-dialog-actions>
-</ng-template>

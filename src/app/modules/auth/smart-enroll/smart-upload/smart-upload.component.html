@@ -1,271 +1,163 @@
 <canvas #faceCardCanvas hidden></canvas>
 
-<div class="w-full mb-4" fxLayout="column" fxLayoutAlign.gt-sm="center center" fxLayoutAlign.lt-md="start center">
-    <mat-card-header class="mb-4 w-full" ngClass.gt-sm="hidden">
-        <div fxLayout="row" fxLayoutAlign="space-between center">
-            <button (click)="goPrevious()" mat-flat-button>
-                <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
-                <span class="ml-2">{{ "cancel" | transloco }}</span>
-            </button>
+<div class="w-full flex flex-col justify-center items-center max-w-128 m-auto gap-6" *transloco="let t">
+    <div class="flex flex-col gap-2 justify-center items-center">
+        <div class="flex flex-row items-center justify-center">
+            <ng-container *ngIf="project.branding.logo; else defaultLogo">
+                <img class="max-w-16 max-h-16 object-contain" [src]="project.branding.logo" alt="Logo" />
+            </ng-container>
 
-            <smart-stepper></smart-stepper>
+            <ng-template #defaultLogo>
+                <svg width="64" height="57" viewBox="0 0 64 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M63.8557 2.39913C63.8557 2.39913 56.0619 -0.606346 49.6056 6.27888C44.4715 2.38899 37.9745 0.0715332 31.0292 0.0715332C24.2121 0.0715332 17.498 2.43207 12.1366 6.63492C6.86023 10.7732 3.04461 16.6878 1.39337 23.1815C-1.00599 32.6097 0.950082 44.2629 8.6715 50.768C16.3154 57.2085 26.5239 58.4034 34.8804 54.1067C40.0983 51.4244 43.5748 47.2659 45.9589 41.9505C49.0899 34.9703 52.5867 26.9282 55.7164 19.948C58.2885 25.352 58.3774 31.5061 57.2597 36.7834C56.1432 42.0595 53.2332 46.9415 49.1204 50.4411C48.5081 50.9619 47.8553 51.47 47.4577 52.1669C46.4631 53.9053 48.3824 55.9579 50.0768 54.6364C50.8376 54.0434 51.615 53.368 52.3403 52.6192C58.0739 47.0733 61.7536 39.291 61.7536 30.6939C61.7536 25.281 60.2979 20.0126 57.8211 15.6045C61.2112 8.15794 63.8582 2.39786 63.8582 2.39786M18.4087 42.0164C13.3318 42.3154 8.31585 39.5203 5.94824 35.0324C4.87748 33.0038 4.33638 30.6952 4.4418 28.4018C4.68822 23.0421 6.82085 17.8535 10.2135 13.7127C13.5109 9.68855 17.9933 6.66914 22.961 5.10558C23.953 4.79388 24.9641 4.53793 25.9866 4.34407C27.6531 4.02731 29.3488 3.87019 31.0457 3.87019C37.5325 3.87019 43.3792 6.10402 47.4425 9.38065C46.6753 10.5083 45.9055 11.6348 45.1345 12.7612C43.3169 15.4169 41.4929 18.0689 39.6613 20.7145C37.5173 23.81 35.3643 26.8991 33.186 29.9704C30.1972 34.1822 27.6251 39.106 22.5787 41.1358C21.2717 41.6616 19.8135 41.9341 18.41 42.0164H18.4087Z"
+                        fill="#010333"
+                    />
+                </svg>
+            </ng-template>
         </div>
-    </mat-card-header>
 
-    <div
-        class="smart-documents__card smart-documents__card--large rounded-2xl bg-card w-full"
-        fxLayout="column"
-        [ngStyle.gt-sm]="{ border: '1px solid ' + project.branding.borderColor }"
-        ngClass.gt-sm="p-6 m-4"
-        ngClass.lt-md="flex-grow"
-    >
-        <ng-container [ngTemplateOutlet]="stepChip"></ng-container>
+        <h5 [style.color]="project.branding.titleColor" class="w-full text-3xl font-medium text-center" ngClass.gt-sm="mt-2" ngClass.lt-md="text-2xl">
+            {{ t("smart_enroll.documents.upload.title") }}
+        </h5>
 
-        <mat-card-content class="w-full" fxLayout="column" fxLayoutAlign="start center" ngClass.gt-sm="mt-4">
-            <div
-                (fileDropped)="onFileDropped($event)"
-                class="rounded-2xl p-8 w-full drag-and-drop"
-                dragAndDrop
-                fxLayout="column"
-                fxLayoutAlign="center center"
-                fxFlexOrder.lt-md="2"
-                ngClass.lt-md="mt-4"
-            >
-                <div class="drag-and-drop__loader" *ngIf="fileProgress > 0 && fileProgress !== 100">
-                    <mat-progress-bar [value]="fileProgress" mode="determinate"></mat-progress-bar>
+        <p class="smart-documents__subtitle text-center">
+            {{ t("smart_enroll.documents.upload.subtitle") }}
+        </p>
+    </div>
+
+    <div class="flex flex-row justify-center items-center gap-4">
+        <ng-container *ngTemplateOutlet="stepChip"></ng-container>
+    </div>
+
+    <div class="w-full flex flex-col justify-center items-center gap-8">
+        <div
+            (click)="isExtracting ? null : fileInput.click()"
+            (fileDropped)="onFileDropped($event)"
+            class="rounded-2xl p-8 w-full drag-and-drop"
+            dragAndDrop
+        >
+            <div class="drag-and-drop__loader" *ngIf="fileProgress > 0 && fileProgress !== 100">
+                <mat-progress-bar [value]="fileProgress" mode="determinate"></mat-progress-bar>
+            </div>
+
+            <div class="drag-and-drop__loader-overlay" fxLayout="row" fxLayoutAlign="center center" *ngIf="isExtracting || errorResult">
+                <div fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtracting">
+                    <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
+
+                    <p class="mt-4">{{ t("smart_enroll.extracting_data") }}...</p>
                 </div>
 
-                <div class="drag-and-drop__loader-overlay" fxLayout="row" fxLayoutAlign="center center" *ngIf="isExtracting || errorResult">
-                    <div fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtracting">
-                        <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
-
-                        <p class="mt-4">{{ "smart_enroll.extracting_data" | transloco }}...</p>
-                    </div>
-
-                    <div fxLayout="column" fxLayoutAlign="center center" *ngIf="errorResult">
-                        <p class="mt-4 red-500 text-center">
-                            {{ "id_scanning." + errorContent.message | transloco }}
-                        </p>
-                    </div>
-                </div>
-
-                <div [ngClass]="file ? 'hidden' : ''" fxLayout="column" fxLayoutAlign="center center">
-                    <input (change)="fileBrowseHandler($event.target.files)" #fileInput accept=".jpg, .jpeg, .png" type="file" />
-
-                    <mat-icon [style.color]="project.branding.buttonColor" class="welcome__icon welcome__icon--medium">file_upload</mat-icon>
-
-                    <p class="font-medium mt-4">
-                        {{ "step_two.drag_n_drop_title" | transloco }}
+                <div fxLayout="column" fxLayoutAlign="center center" *ngIf="errorResult">
+                    <p class="mt-4 red-500 text-center">
+                        {{ t("id_scanning." + errorContent.message) }}
                     </p>
                 </div>
+            </div>
 
-                <div *ngIf="file" fxLayout="column" fxLayoutAlign="center center">
-                    <img class="drag-and-drop__preview" [src]="base64Image" *ngIf="base64Image" />
+            <div [ngClass]="file ? 'hidden' : ''" fxLayout="column" fxLayoutAlign="center center">
+                <input hidden (change)="fileBrowseHandler($event.target.files)" #fileInput accept=".jpg, .jpeg, .png" type="file" />
 
-                    <mat-icon [style.color]="project.branding.buttonColor" class="welcome__icon welcome__icon--medium" *ngIf="errorResult"
-                        >error</mat-icon
-                    >
+                <mat-icon [style.color]="project.branding.buttonColor" class="welcome__icon welcome__icon--medium">file_upload</mat-icon>
 
-                    <div class="drag-and-drop__data" *ngIf="!errorResult">
-                        <div fxLayout="row" fxLayoutAlign="space-between">
-                            <h4 class="mr-4">{{ file?.name }}</h4>
-                            <p>{{ formatBytes(file?.size) }}</p>
-                        </div>
+                <p class="font-semibold text-xl mt-4">
+                    {{ t("step_two.drag_n_drop_title") }}
+                </p>
+            </div>
+
+            <div *ngIf="file" fxLayout="column" fxLayoutAlign="center center">
+                <img class="drag-and-drop__preview" [src]="base64Image" *ngIf="base64Image" />
+
+                <mat-icon [style.color]="project.branding.buttonColor" class="welcome__icon welcome__icon--medium" *ngIf="errorResult"
+                    >error</mat-icon
+                >
+
+                <div class="drag-and-drop__data" *ngIf="!errorResult">
+                    <div fxLayout="row" fxLayoutAlign="space-between">
+                        <h4 class="mr-4">{{ file?.name }}</h4>
+                        <p>{{ formatBytes(file?.size) }}</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <button
-                (click)="fileInput.click()"
-                *ngIf="!file"
-                class="fuse-mat-button w-full mt-6"
-                color="primary"
-                fxFlexOrder.lt-md="3"
-                mat-flat-button
-            >
-                <span *ngIf="side === 'front'">{{ "smart_enroll.documents.upload.upload_frontside" | transloco }}</span>
-                <span *ngIf="side === 'back'">{{ "smart_enroll.documents.upload.upload_backside" | transloco }}</span>
-            </button>
+        <button (click)="fileInput.click()" *ngIf="!file" class="w-full max-w-56 min-h-14 h-14 rounded-lg" color="primary" mat-flat-button>
+            <span *ngIf="side === 'front'">{{ t("smart_enroll.documents.upload.upload_frontside") }}</span>
+            <span *ngIf="side === 'back'">{{ t("smart_enroll.documents.upload.upload_backside") }}</span>
+        </button>
 
-            <button
-                (click)="resetFileUpload()"
-                [disabled]="isExtracting"
-                *ngIf="file"
-                class="fuse-mat-button w-full mt-6"
-                color="primary"
-                fxFlexOrder.lt-md="4"
-                mat-stroked-button
-            >
-                {{ "smart_enroll.documents.upload.again" | transloco }}
-            </button>
+        <button
+            (click)="resetFileUpload()"
+            [disabled]="isExtracting"
+            *ngIf="file"
+            class="w-full max-w-56 min-h-14 h-14 rounded-lg"
+            color="primary"
+            mat-stroked-button
+        >
+            {{ t("smart_enroll.documents.upload.again") }}
+        </button>
 
-            <div class="smart-documents__heading text-center w-full" fxLayout="column" fxLayoutAlign="center center" fxFlexOrder.lt-md="1">
-                <div class="w-full mt-8 smart-documents__id-types" fxLayout="row wrap" fxLayoutAlign="space-between" fxLayoutGap="12px">
-                    <div
-                        [style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
-                        *ngIf="projectFlow.onboardingSettings.document.usePassport"
-                        fxLayout="row"
-                        fxLayoutAlign="center center"
-                        ngClass.lt-md="text-sm"
-                        fxFlex="0 0 auto"
-                    >
-                        <mat-icon
-                            [style.color]="showPassportColor() ? project.branding.txtColor : '#a7a7a7'"
-                            ngClass.gt-sm="mr-4"
-                            ngClass.lt-md="mr-2"
-                            svgIcon="fa_solid:passport"
-                        ></mat-icon>
-
-                        <p class="font-medium smart-documents__category-text">
-                            {{ "smart_enroll.documents.passport" | transloco }}
-                        </p>
-                    </div>
-
-                    <div
-                        [style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
-                        *ngIf="projectFlow.onboardingSettings.document.useLicense"
-                        fxLayout="row"
-                        fxLayoutAlign="center center"
-                        ngClass.lt-md="text-sm"
-                        fxFlex="0 0 auto"
-                    >
-                        <mat-icon
-                            [style.color]="showLicenseColor() ? project.branding.txtColor : '#a7a7a7'"
-                            ngClass.gt-sm="mr-4"
-                            ngClass.lt-md="mr-2"
-                            svgIcon="fa_regular:id-card"
-                        ></mat-icon>
-
-                        <p class="font-medium smart-documents__category-text">
-                            {{ "smart_enroll.documents.driver_license" | transloco }}
-                        </p>
-                    </div>
-
-                    <div
-                        [style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
-                        *ngIf="projectFlow.onboardingSettings.document.useGovernmentID"
-                        fxLayout="row"
-                        fxLayoutAlign="center center"
-                        ngClass.lt-md="text-sm"
-                        fxFlex="0 0 auto"
-                    >
-                        <mat-icon
-                            [style.color]="showGovernmentIDColor() ? project.branding.txtColor : '#a7a7a7'"
-                            ngClass.gt-sm="mr-4"
-                            ngClass.lt-md="mr-2"
-                            svgIcon="fa_regular:address-card"
-                        ></mat-icon>
-
-                        <p class="font-medium smart-documents__category-text">
-                            {{ "smart_enroll.documents.id" | transloco }}
-                        </p>
-                    </div>
-
-                    <div
-                        [style.color]="showTaxInformationColor() ? project.branding.txtColor : '#a7a7a7'"
-                        *ngIf="projectFlow.onboardingSettings.document.useTaxInformation"
-                        fxLayout="row"
-                        fxLayoutAlign="center center"
-                        ngClass.lt-md="text-sm"
-                        fxFlex="1 0 auto"
-                    >
-                        <mat-icon
-                            [style.color]="showTaxInformationColor() ? project.branding.txtColor : '#a7a7a7'"
-                            ngClass.gt-sm="mr-4"
-                            ngClass.lt-md="mr-2"
-                            svgIcon="mat_outline:receipt_long"
-                        ></mat-icon>
-
-                        <p class="font-medium smart-documents__category-text">
-                            {{ "smart_enroll.documents.tax_information" | transloco }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <p class="mt-8 text-center" fxFlexOrder.lt-md="4">
-                {{ "smart_enroll.documents.upload.identification_document_tip" | transloco }}
-            </p>
-        </mat-card-content>
-
-        <div fxLayout="column" fxFlex="1 1 0 auto"></div>
-
-        <mat-card-actions class="mt-12 w-full" fxLayout="row" fxLayoutAlign.gt-sm="space-between end" fxLayoutAlign="end end">
-            <button
-                (click)="goPrevious()"
-                [style.border]="'1px solid ' + project.branding.buttonColor"
-                [style.color]="project.branding.buttonColor"
-                class="fuse-mat-button-large"
-                mat-flat-button
-                ngClass.lt-md="hidden"
-            >
-                <span>{{ "cancel" | transloco }}</span>
-            </button>
-
-            <div fxLayout.lt-md="end end" fxLayout="row">
-                <button
-                    (click)="skipStep()"
-                    [style.border]="'1px solid ' + project.branding.buttonColor"
-                    [style.color]="project.branding.buttonColor"
-                    class="fuse-mat-button-large mr-4"
-                    mat-flat-button
-                    *ngIf="canSkipStep()"
-                >
-                    <span>{{ "skip" | transloco }}</span>
-                </button>
-
-                <button
-                    (click)="goNext()"
-                    [disabled]="!isContinueActive()"
-                    [style.background]="isContinueActive() ? project.branding.buttonColor : ''"
-                    [style.color]="isContinueActive() ? project.branding.buttonTxtColor : ''"
-                    class="fuse-mat-button-large"
-                    mat-flat-button
-                >
-                    <span>{{ "next" | transloco }}</span>
-                </button>
-            </div>
-        </mat-card-actions>
+        <p class="flex justify-start items-center gap-2">
+            <mat-icon [style.fill]="project.branding.textColor" svgIcon="mat_outline:description"></mat-icon>
+            {{ t("smart_enroll.documents.upload.identification_document_tip") }}
+        </p>
     </div>
+
+    <mat-card-actions class="flex justify-space-between items-end gap-4">
+        <button (click)="goBack()" class="w-full min-h-14 h-14 min-w-36 rounded-lg" color="primary" mat-stroked-button type="button">
+            <span>{{ t("go_back") }}</span>
+        </button>
+
+        <button
+            (click)="goNext()"
+            [disabled]="!isContinueActive()"
+            class="w-full min-h-14 h-14 min-w-36 rounded-lg"
+            color="primary"
+            mat-flat-button
+            type="button"
+        >
+            <span>{{ t("next") }}</span>
+        </button>
+    </mat-card-actions>
+
+    <ng-template #stepChip>
+        <mat-card-title class="w-full flex flex-row justify-center items-center gap-4">
+            <div
+                class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
+                [class.side-indicator__step-row--active]="side === 'front'"
+            >
+                <p
+                    class="side-indicator__step"
+                    [class.side-indicator__step--active]="side === 'front'"
+                    [class.side-indicator__step--inactive]="side !== 'front'"
+                >
+                    <span class="font-medium" *ngIf="side === 'front'">1</span>
+
+                    <mat-icon svgIcon="feather:check" *ngIf="side === 'back'" class="side-indicator__step-icon"></mat-icon>
+                </p>
+
+                <p class="side-indicator__step-text">
+                    {{ t("smart_enroll.documents.upload.frontside") }}
+                </p>
+            </div>
+
+            <div
+                class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
+                [class.side-indicator__step-row--active]="side === 'back'"
+                *ngIf="requiresBack"
+            >
+                <p
+                    class="side-indicator__step"
+                    [class.side-indicator__step--active]="side === 'back'"
+                    [class.side-indicator__step--inactive]="side !== 'back'"
+                >
+                    <span class="font-medium">2</span>
+                </p>
+
+                <p class="side-indicator__step-text">
+                    {{ t("smart_enroll.documents.upload.backside") }}
+                </p>
+            </div>
+        </mat-card-title>
+    </ng-template>
 </div>
-
-<ng-template #stepChip>
-    <mat-card-title class="w-full" fxLayout="row" fxLayoutAlign="center space-between" fxLayoutGap="12px">
-        <div
-            class="flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl"
-            [style.border]="side === 'front' ? '2px solid ' + project.branding.buttonColor : '2px solid #ffffff'"
-        >
-            <p
-                class="welcome__step"
-                [style.backgroundColor]="side === 'front' ? project.branding.bgColor : ''"
-                [style.color]="side === 'front' ? project.branding.buttonColor : ''"
-            >
-                <span class="font-medium" *ngIf="side === 'front'">1</span>
-
-                <mat-icon svgIcon="feather:check" *ngIf="side === 'back'" [style.color]="project.branding.buttonColor"></mat-icon>
-            </p>
-
-            <p class="mt-0.5">
-                {{ "smart_enroll.documents.upload.frontside" | transloco }}
-            </p>
-        </div>
-
-        <div
-            class="flex welcome__step-row py-2 px-3 welcome__step-row--forward rounded-3xl"
-            [style.border]="side === 'back' ? '2px solid ' + project.branding.buttonColor : '2px solid #ffffff'"
-            *ngIf="requiresBack"
-        >
-            <p
-                class="welcome__step"
-                [style.backgroundColor]="side === 'back' ? project.branding.bgColor : ''"
-                [style.color]="side === 'back' ? project.branding.buttonColor : ''"
-            >
-                <span class="font-medium">2</span>
-            </p>
-
-            <p class="mt-0.5">
-                {{ "smart_enroll.documents.upload.backside" | transloco }}
-            </p>
-        </div>
-    </mat-card-title>
-</ng-template>

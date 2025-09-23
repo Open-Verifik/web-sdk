@@ -1,16 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { PasswordlessService } from './passwordless.service';
+import { PasswordlessService } from "./passwordless.service";
 
-describe('PasswordlessService', () => {
-  let service: PasswordlessService;
+describe("PasswordlessService", () => {
+    let service: PasswordlessService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(PasswordlessService);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(PasswordlessService);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it("should be created", () => {
+        expect(service).toBeTruthy();
+    });
 });

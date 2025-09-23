@@ -1,5 +1,3 @@
-import { Observable, Subject, takeUntil } from "rxjs";
-
 import { CommonModule, NgIf } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
@@ -8,30 +6,30 @@ import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-
 import { fuseAnimations } from "@fuse/animations";
-
 import { TranslocoModule } from "@ngneat/transloco";
-
 import * as faceapi from "@vladmandic/face-api";
+import { Observable, Subject, takeUntil } from "rxjs";
 
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
 import { DragAndDropModule } from "app/modules/auth/drag-and-drop/drag-and-drop.module";
-import { DemoService } from "app/modules/demo/demo.service";
-
-import { AppRegistration, ImageScan, Project, ProjectFlow } from "../../project";
 import { KYCService } from "app/modules/auth/kyc.service";
+import { DemoService } from "app/modules/demo/demo.service";
+import { AppRegistration, ImageScan } from "../../project";
 import { SmartEnrollService } from "../smart-enroll.service";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { PasswordlessService } from "../../passwordless.service";
+import { PromptTemplate } from "app/core/models/prompt-template.model";
 
 const MAX_FILE_SIZE = 10485760;
 
 @Component({
-    selector: "smart-upload",
-    templateUrl: "./smart-upload.component.html",
-    styleUrls: ["../smart-enroll.component.scss"],
-    encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
+    encapsulation: ViewEncapsulation.None,
+    selector: "smart-upload",
     standalone: true,
+    styleUrls: ["../smart-enroll.component.scss"],
+    templateUrl: "./smart-upload.component.html",
     imports: [
         CommonModule,
         DragAndDropModule,
@@ -42,7 +40,6 @@ const MAX_FILE_SIZE = 10485760;
         MatProgressBarModule,
         MatProgressSpinnerModule,
         NgIf,
-        SmartStepperComponent,
         TranslocoModule,
     ],
 })
@@ -51,6 +48,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     @ViewChild("fileInput") fileInput: ElementRef<HTMLInputElement>;
 
     @Output("onImageUpload") onImageUpload: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
+    @Output("goBackToMethodSelection") goBackToMethodSelection: EventEmitter<void> = new EventEmitter<void>();
 
     @Input() successfulUpload: Observable<{ livenessScore?: number }>;
 
@@ -67,15 +65,22 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     isExtracting: boolean = false;
     project: Project;
     projectFlow: ProjectFlow;
-    requiresBack: boolean = false;
+    promptTemplate: PromptTemplate;
     side: "back" | "front" = "front";
 
-    constructor(private _demoService: DemoService, private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
+    constructor(
+        private _demoService: DemoService,
+        private _KYCService: KYCService,
+        private _smartEnrollService: SmartEnrollService,
+        private _passwordlessService: PasswordlessService
+    ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.demoData = this._demoService.getDemoData();
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
-        this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
+
+        this.promptTemplate = this._smartEnrollService.enrollSettings.promptTemplate;
     }
 
     ngOnInit(): void {
@@ -84,13 +89,18 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             this.errorResult = false;
             this.errorContent = { message: "" };
             this.isExtracting = false;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+
+            this.appRegistration = this._KYCService.appRegistration;
         });
     }
 
     ngOnDestroy(): void {
         this.unsubscriber$.next();
         this.unsubscriber$.complete();
+    }
+
+    get requiresBack(): boolean {
+        return this.promptTemplate.requiresBackSide || this.appRegistration?.documentValidation?.requiresBackSide;
     }
 
     private async _detectFace(image: HTMLImageElement) {
@@ -213,6 +223,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         }
 
         this.skipStep();
+    }
+
+    goBack(): void {
+        this.goBackToMethodSelection.emit();
     }
 
     goPrevious(): void {

@@ -16,45 +16,50 @@ import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import moment from "moment";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { AuthService } from "app/core/auth/auth.service";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { AppService } from "app/core/services/app.service";
+import { ProjectStorageService } from "app/core/services/project-storage.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
+import { OneTimePasswordInputComponent } from "../../../core/components/one-time-password-input/one-time-password-input.component";
 import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
 import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
 import { PasswordlessService } from "../passwordless.service";
-import { Project, ProjectFlow, ProjectFlowModel, ProjectModel } from "../project";
 
 @Component({
-    selector: "auth-sign-in",
-    templateUrl: "./sign-in.component.html",
-    styleUrls: ["./sign-in.scss"],
-    encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
+    encapsulation: ViewEncapsulation.None,
+    selector: "auth-sign-in",
     standalone: true,
+    styleUrls: ["./sign-in.scss"],
+    templateUrl: "./sign-in.component.html",
     imports: [
-        FlexLayoutModule,
-        RouterLink,
-        FuseAlertComponent,
-        NgIf,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatCheckboxModule,
-        MatSelectModule,
-        MatProgressSpinnerModule,
-        MatTabsModule,
-        TranslocoModule,
-        CommonModule,
-        LanguagesComponent,
         BiometricsLoginComponent,
         BiometricsLoginIosComponent,
+        CommonModule,
+        FlexLayoutModule,
+        FormsModule,
+        FuseAlertComponent,
+        LanguagesComponent,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        MatSelectModule,
+        MatTabsModule,
+        NgIf,
+        OneTimePasswordInputComponent,
+        ReactiveFormsModule,
+        RouterLink,
+        TranslocoModule,
     ],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
@@ -107,18 +112,22 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     };
 
     constructor(
+        @Inject(PLATFORM_ID) private platformId: Object,
         private _activatedRoute: ActivatedRoute,
-        private _demoService: DemoService,
-        private _formBuilder: UntypedFormBuilder,
-        private _splashScreenService: FuseSplashScreenService,
-        private _passwordlessService: PasswordlessService,
+        private _appService: AppService,
+        private _authService: AuthService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
-        private _authService: AuthService,
-        private _translocoService: TranslocoService,
-        @Inject(PLATFORM_ID) private platformId: Object
+        private _demoService: DemoService,
+        private _formBuilder: UntypedFormBuilder,
+        private _passwordlessService: PasswordlessService,
+        private _projectStorageService: ProjectStorageService,
+        private _splashScreenService: FuseSplashScreenService,
+        private _translocoService: TranslocoService
     ) {
         this.setLanguage();
+
+        this._passwordlessService.flow = "login";
 
         this.countries = this._countries.countryCodes;
         this.emailValidation = null;
@@ -133,16 +142,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         localStorage.removeItem("accessToken");
 
-        this.deviceDetails = this._demoService.getDeviceDetails();
+        this.deviceDetails = this._appService.getDeviceDetails();
 
         this.sendingOTP = false;
         this.smsSent = false;
         this.showFaceLivenessRecommendation = false;
     }
 
-    /**
-     * On init
-     */
     ngOnInit(): void {
         this._activatedRoute.params.subscribe((params) => {
             this.requestProject(params.id);
@@ -195,17 +201,19 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             this.language = savedLanguage;
 
             this._translocoService.setActiveLang(savedLanguage);
-        } else {
-            let browserLang = navigator.language;
 
-            if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
-
-            this.language = this.flagCodes[browserLang] ? browserLang : "en";
-
-            localStorage.setItem("currentLanguage", this.language);
-
-            this._translocoService.setActiveLang(this.language);
+            return;
         }
+
+        let browserLang = navigator.language;
+
+        if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
+
+        this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+        localStorage.setItem("currentLanguage", this.language);
+
+        this._translocoService.setActiveLang(this.language);
     }
 
     /**
@@ -223,19 +231,16 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this._changeDetectorRef.markForCheck();
     }
 
-    /**
-     * Ensure language synchronization after view initialization
-     */
     private _ensureLanguageSync(): void {
         const savedLanguage = localStorage.getItem("currentLanguage");
 
-        if (savedLanguage && this.flagCodes[savedLanguage] && savedLanguage !== this.language) {
-            this.language = savedLanguage;
+        if (!savedLanguage || !this.flagCodes[savedLanguage] || savedLanguage === this.language) return;
 
-            this._translocoService.setActiveLang(savedLanguage);
+        this.language = savedLanguage;
 
-            this._changeDetectorRef.markForCheck();
-        }
+        this._translocoService.setActiveLang(savedLanguage);
+
+        this._changeDetectorRef.markForCheck();
     }
 
     requestProject(projectId?: string): void {
@@ -243,20 +248,25 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this._passwordlessService.requestProject(projectId, "login").subscribe({
             next: (v) => {
-                this.project = new ProjectModel({ ...v.data, type: "login" });
-                this.projectFlow = this.project.currentProjectFlow;
+                this.project = new Project({ ...v.data, type: "login" });
+                console.log(`🚀 ~ AuthSignInComponent ~ requestProject ~ this.project :`, this.project);
+                this.projectFlow = this._passwordlessService.currentProjectFlow;
+
+                this._projectStorageService.setProject(this.project);
+                this._projectStorageService.setProjectFlow(this.projectFlow);
+
+                this._appService.applyDynamicTheming(this.project);
 
                 for (let index = 0; index < v.data.projectFlows.length; index++) {
                     const projectFlow = v.data.projectFlows[index];
 
-                    if (projectFlow.type === "onboarding") this.kycProjectFlow = new ProjectFlowModel(projectFlow);
+                    if (projectFlow.type === "onboarding") this.kycProjectFlow = new ProjectFlow(projectFlow);
                 }
             },
             error: (e) => {
                 console.info({ errorHERE: e });
-                if (e.error.code === "InternalServer") {
-                    alert("something went wrong, try  again");
-                }
+
+                if (e.error.code === "InternalServer") alert("something went wrong, try  again");
 
                 this._splashScreenService.hide();
             },
@@ -266,7 +276,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 this.initForm();
 
                 this._changeDetectorRef.markForCheck();
-
                 this._splashScreenService.hide();
             },
         });
@@ -277,10 +286,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this.buttonSendOtp();
         this.setFieldRequiredInForm();
-
         this._init2FAForm();
 
-        this._activatedRoute.queryParams.subscribe((queryParams) => {
+        this._activatedRoute.queryParams.pipe(takeUntil(this.unsubscriber$)).subscribe((queryParams) => {
             const type = queryParams.type;
 
             if (type === "liveness") {
@@ -301,10 +309,30 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         });
     }
 
-    _init2FAForm(): void {
+    private _init2FAForm(): void {
         this.secondFactorForm = this._formBuilder.group({
             authenticatorOTP: ["", [Validators.required, Validators.minLength(6)]],
         });
+    }
+
+    private _initFormListeners(): void {
+        this.signInForm
+            .get("emailOTP")
+            .valueChanges.pipe(takeUntil(this.unsubscriber$))
+            .subscribe((value) => {
+                if (!value || value.length !== 6 || this.typeLogin !== "email") return;
+
+                setTimeout(() => this.signIn());
+            });
+
+        this.signInForm
+            .get("phoneOTP")
+            .valueChanges.pipe(takeUntil(this.unsubscriber$))
+            .subscribe((value) => {
+                if (!value || value.length !== 6 || this.typeLogin !== "phone") return;
+
+                setTimeout(() => this.signIn());
+            });
     }
 
     buttonSendOtp() {
@@ -319,10 +347,10 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this.groupFields = {
             email: [localStorage.getItem("defaultEmail") || ""],
-            emailOTP: [,],
+            emailOTP: [null],
             countryCode: [this.selectedCountryCode],
             phone: [localStorage.getItem("defaultPhone") || ""],
-            phoneOTP: [,],
+            phoneOTP: [null],
         };
 
         switch (this.typeLogin) {
@@ -331,7 +359,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 this.groupFields["emailOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 
                 break;
-
             case "phone":
                 this.groupFields["countryCode"][1] = [Validators.required];
                 this.groupFields["phone"][1] = [Validators.required];
@@ -341,6 +368,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         }
 
         this.signInForm = this._formBuilder.group(this.groupFields);
+
+        this._initFormListeners();
     }
 
     selectLogin(event) {
@@ -378,14 +407,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         input.value = input.value.replace(/[^0-9]/g, "");
     }
 
-    checkSixDigits(field: string): void {
-        if (!this.signInForm.value[field] || (this.signInForm.value[field] && this.signInForm.value[field].length !== 6) || this.signInForm.invalid)
-            return;
-
-        this.signIn();
-    }
-
-    _signInWithEmail(dataForm): void {
+    private _signInWithEmail(dataForm): void {
         this._passwordlessService
             .confirmEmailValidation(dataForm.email, dataForm.emailOTP, this.secondFactorForm?.value?.authenticatorOTP, this.location)
             .subscribe({
@@ -423,7 +445,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             });
     }
 
-    _signInWithPhone(dataForm): void {
+    private _signInWithPhone(dataForm): void {
         this._passwordlessService
             .confirmPhoneValidation(
                 dataForm.countryCode,
@@ -455,8 +477,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                     }
 
                     this.loading = false;
-
-                    // return this.successLogin(this.appLoginToken);
                 },
                 error: (err) => {
                     this.errorLogin(err.error.message);
@@ -516,10 +536,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 this._passwordlessService.sendEmailValidation(this.signInForm.value.email, this.location).subscribe({
                     next: (response) => {
                         this.emailValidation = response.data;
-
                         this.emailSent = true;
 
-                        this.startTimer(this.typeLogin);
+                        this._startTimer(this.typeLogin);
 
                         this.sendingOTP = false;
                     },
@@ -533,17 +552,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 });
 
                 break;
-
             case "phone":
                 this._passwordlessService
                     .sendPhoneValidation(this.signInForm.value.countryCode, this.signInForm.value.phone, gateway, this.location)
                     .subscribe({
                         next: (response) => {
                             this.phoneValidation = response.data;
-
                             this.smsSent = true;
 
-                            this.startTimer(this.typeLogin);
+                            this._startTimer(this.typeLogin);
 
                             this.sendingOTP = false;
                         },
@@ -558,7 +575,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         }
     }
 
-    startTimer(field: any): number {
+    private _startTimer(field: any): number {
         let interval: ReturnType<typeof setInterval>;
 
         const dateToCompare = moment(
@@ -579,6 +596,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                         this.emailValidation = null;
                         this.emailSent = false;
+                        this.signInForm.get("email")?.enable();
                     }
 
                     this.buttonSendOtp();
@@ -599,6 +617,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                         this.phoneValidation = null;
                         this.smsSent = false;
+                        this.signInForm.get("phone")?.enable();
+                        this.signInForm.get("countryCode")?.enable();
                     }
 
                     this.buttonSendOtp();

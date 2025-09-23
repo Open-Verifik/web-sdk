@@ -1,0 +1,171 @@
+/* Focus state for accessibility */
+:host:focus {
+    outline: 2px solid var(--custom-verifik-primary-500, #6366f1);
+    outline-offset: 2px;
+    opacity: 0.3;
+}
+
+/* Disabled state */
+:host(.disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Hover state */
+:host:not(.disabled):hover {
+    border-color: var(--custom-verifik-accent-400, #94a3b8);
+}
+
+/* Slab variant styles */
+.verifik-radio-item--selected {
+    background-color: var(--custom-verifik-primary-50, #eef2ff);
+    border-color: var(--custom-verifik-primary-200, #c7d2fe);
+}
+
+.verifik-radio-item--selected-error {
+    background-color: var(--custom-verifik-warn-50, #fef2f2);
+    border-color: var(--custom-verifik-warn-200, #fecaca);
+}
+
+.verifik-radio-item--unselected {
+    background-color: var(--custom-verifik-accent-50, #f8fafc);
+    border-color: var(--custom-verifik-accent-200, #e2e8f0);
+}
+
+.verifik-radio-item--unselected-error {
+    background-color: var(--custom-verifik-warn-50, #fef2f2);
+    border-color: var(--custom-verifik-warn-200, #fecaca);
+}
+
+.verifik-radio-item--hover {
+    &:hover {
+        border-color: var(--custom-verifik-primary-400, #818cf8);
+    }
+    
+    &:focus {
+        border-color: var(--custom-verifik-primary-200, #c7d2fe);
+    }
+}
+
+.verifik-radio-item--hover-error {
+    &:hover {
+        border-color: var(--custom-verifik-warn-400, #f87171);
+    }
+    
+    &:focus {
+        border-color: var(--custom-verifik-warn-200, #fecaca);
+    }
+}
+
+/* Pill variant styles */
+.verifik-radio-item--pill {
+    border-radius: 9999px;
+    padding: 1rem 2rem;
+}
+
+.verifik-radio-item--pill-selected {
+    background-color: var(--custom-verifik-primary-100, #e0e7ff);
+}
+
+.verifik-radio-item--pill-selected-error {
+    background-color: var(--custom-verifik-warn-100, #fee2e2);
+}
+
+.verifik-radio-item--pill-unselected {
+    background-color: var(--custom-verifik-accent-100, #f1f5f9);
+}
+
+.verifik-radio-item--pill-unselected-error {
+    background-color: var(--custom-verifik-warn-100, #fee2e2);
+    border-color: var(--custom-verifik-warn-200, #fecaca);
+}
+
+.verifik-radio-item--pill-hover {
+    &:hover {
+        background-color: var(--custom-verifik-primary-100, #e0e7ff);
+    }
+}
+
+.verifik-radio-item--pill-hover-error {
+    &:hover {
+        background-color: var(--custom-verifik-warn-100, #fee2e2);
+    }
+}
+
+/* Default variant styles */
+.verifik-radio-item--default {
+    border-radius: 0.5rem;
+    border: 1px solid;
+    padding: 0.75rem 1rem;
+}
+
+.verifik-radio-item--default-selected {
+    background-color: var(--custom-verifik-primary-50, #eef2ff);
+    border-color: var(--custom-verifik-primary-200, #c7d2fe);
+    color: var(--custom-verifik-accent-800, #1e293b);
+}
+
+.verifik-radio-item--default-selected-error {
+    background-color: var(--custom-verifik-warn-50, #fef2f2);
+    border-color: var(--custom-verifik-warn-200, #fecaca);
+    color: var(--custom-verifik-accent-800, #1e293b);
+}
+
+.verifik-radio-item--default-unselected {
+    background-color: var(--custom-verifik-accent-50, #f8fafc);
+    border-color: var(--custom-verifik-accent-200, #e2e8f0);
+    color: var(--custom-verifik-accent-500, #64748b);
+}
+
+.verifik-radio-item--default-unselected-error {
+    background-color: var(--custom-verifik-accent-50, #f8fafc);
+    border-color: var(--custom-verifik-warn-200, #fecaca);
+    color: var(--custom-verifik-accent-500, #64748b);
+}
+
+.verifik-radio-item--default-hover {
+    &:hover {
+        border-color: var(--custom-verifik-primary-400, #818cf8);
+    }
+    
+    &:focus {
+        border-color: var(--custom-verifik-primary-200, #c7d2fe);
+    }
+}
+
+.verifik-radio-item--default-hover-error {
+    &:hover {
+        border-color: var(--custom-verifik-warn-400, #f87171);
+    }
+    
+    &:focus {
+        border-color: var(--custom-verifik-warn-200, #fecaca);
+    }
+}
+
+/* Icon and label styles */
+.verifik-radio-item__icon {
+    color: var(--custom-verifik-accent-800, #1e293b);
+}
+
+.verifik-radio-item__label {
+    color: var(--custom-verifik-accent-800, #1e293b);
+}
+
+/* Checkmark styles */
+.verifik-radio-item__checkmark-path {
+    fill: var(--custom-verifik-primary-500, #6366f1);
+}
+
+.verifik-radio-item__checkmark-path--unselected {
+    fill: var(--custom-verifik-accent-300, #cbd5e1);
+}
+
+/* Error state for checkmark */
+.verifik-radio-item--selected-error .verifik-radio-item__checkmark-path {
+    fill: var(--custom-verifik-warn-600, #dc2626);
+}
+
+.verifik-radio-item--unselected-error .verifik-radio-item__checkmark-path--unselected {
+    fill: var(--custom-verifik-warn-200, #fecaca);
+}

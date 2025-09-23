@@ -108,9 +108,8 @@ export interface Project {
     };
     branding?: {
         bgColor?: string;
-        borderColor?: string;
-        buttonColor?: string;
         buttonTxtColor?: string;
+        buttonColor?: string;
         txtColor?: string;
         titleColor?: string;
         logo?: string;
@@ -223,7 +222,7 @@ export class ProjectModel implements Project {
     };
     branding?: {
         bgColor?: string;
-        borderColor?: string;
+        buttonTextColor?: string;
         txtColor?: string;
         titleColor?: string;
         logo?: string;
@@ -261,7 +260,7 @@ export class ProjectModel implements Project {
         };
         this.branding = data.branding || {
             bgColor: "#01236D",
-            borderColor: "#B2BDD3",
+            buttonTextColor: "#B2BDD3",
             txtColor: "#8091B6",
             titleColor: "#FFFFFF",
             logo: "",

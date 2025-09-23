@@ -1,48 +1,49 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { Observable, Subject } from "rxjs";
-import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild, inject } from "@angular/core";
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
-import { DemoService } from "app/modules/demo/demo.service";
-import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
-
-import * as faceapi from "@vladmandic/face-api";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { FuseConfirmationDialogComponent } from "@fuse/services/confirmation/dialog/dialog.component";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
+import { DemoService } from "app/modules/demo/demo.service";
 import { WebcamImage, WebcamInitError, WebcamModule } from "ngx-webcam";
+import { Observable, Subject } from "rxjs";
+
+import { AuthService } from "app/core/auth/auth.service";
 import {
     Attemps,
     CameraData,
-    ResponseData,
-    FaceData,
-    Intervals,
     ErrorFace,
-    IdCard,
-    directionImage,
+    FaceData,
     FacingMode,
+    IdCard,
+    Intervals,
     OvalData,
+    ResponseData,
+    directionImage,
 } from "app/modules/demo/models/sdk.models";
-import { PasswordlessService } from "../passwordless.service";
-import { Project, ProjectFlow } from "../project";
 import { AuthBiometricErrorsDisplayComponent } from "../auth-biometric-errors-display/auth-biometric-errors-display.component";
-import { AuthService } from "app/core/auth/auth.service";
+import { PasswordlessService } from "../passwordless.service";
+import { Project } from "app/core/classes/project.class";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
 
 @Component({
     selector: "app-biometrics-login-ios",
     standalone: true,
     imports: [
-        FlexLayoutModule,
+        AuthBiometricErrorsDisplayComponent,
         CommonModule,
-        MatDialogModule,
-        TranslocoModule,
+        FlexLayoutModule,
         MatButtonModule,
+        MatDialogModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
+        TranslocoModule,
         WebcamModule,
-        AuthBiometricErrorsDisplayComponent,
     ],
     templateUrl: "./biometrics-login-ios.component.html",
     styleUrls: ["./biometrics-login-ios.component.scss"],
@@ -104,8 +105,8 @@ export class BiometricsLoginIosComponent implements OnInit, OnDestroy {
             message: "",
         };
 
-        this.project = this._passwordlessService.getProject();
-        this.projectFlow = this.project.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
 
         this._changeDetectorRef.markForCheck();
     }

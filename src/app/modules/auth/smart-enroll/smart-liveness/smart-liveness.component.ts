@@ -1,5 +1,4 @@
-import * as faceapi from "@vladmandic/face-api";
-
+import { CommonModule } from "@angular/common";
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -11,29 +10,30 @@ import {
     OnInit,
     Output,
     Renderer2,
-    TemplateRef,
     ViewChild,
 } from "@angular/core";
-
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDialogModule } from "@angular/material/dialog";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { fuseAnimations } from "@fuse/animations";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
 import { Observable, Subject, takeUntil } from "rxjs";
+
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { MediaStreamService } from "app/media-stream.service";
 import { DemoService } from "app/modules/demo/demo.service";
-import { AppRegistration, ImageScan, Project, ProjectFlow } from "../../project";
+import { KYCService } from "../../kyc.service";
+import { PasswordlessService } from "../../passwordless.service";
+import { AppRegistration, ImageScan } from "../../project";
+import { FaceDetectionWithLandmarks } from "../smart-enroll.service";
 import {
     Resolution,
     SmartCameraResolutionDetectionComponent,
 } from "../smart-scanner/smart-camera-resolution-detection/smart-camera-resolution-detection.component";
-
-import { FlexLayoutModule } from "@angular/flex-layout";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { CommonModule } from "@angular/common";
-import { MatIconModule } from "@angular/material/icon";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { KYCService } from "../../kyc.service";
-import { fuseAnimations } from "@fuse/animations";
-import { FaceDetectionWithLandmarks, SmartEnrollService } from "../smart-enroll.service";
-import { MediaStreamService } from "app/media-stream.service";
-import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { MatButtonModule } from "@angular/material/button";
 
 type Angle = {
     roll?: number;
@@ -42,10 +42,8 @@ type Angle = {
 };
 
 type AngleThreshold = {
-    mid?: Angle;
     min: Angle;
     max: Angle;
-    indicatorAdjust: number | undefined;
     instructions?: string;
 };
 
@@ -124,7 +122,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     @ViewChild("videoElement") public videoElement: ElementRef<HTMLVideoElement>;
     @ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("viewportContainer") public viewportContainer: ElementRef<HTMLElement>;
-    @ViewChild("instructions", { static: true }) instructions: TemplateRef<HTMLElement>;
 
     @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
@@ -137,21 +134,16 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     private DEBUG = false;
     private MINIMUM_DEPTH = 300 * 300;
 
-    angleThreshold: AngleThreshold = { min: {}, max: {}, indicatorAdjust: undefined };
-    angleThresholds: Array<AngleThreshold> = [];
+    angleThreshold: AngleThreshold = { min: {}, max: {} };
     appRegistration: AppRegistration;
     bounds: DetectionBounds = {};
     boundsRelaxed: DetectionBounds = {};
     camera: CameraStatus = { loading: true, permissions: false, quality: false };
-    currentLivenessIndex = 0;
     device: "IOS" | "ANDROID" | "DESKTOP";
     devices: MediaDeviceInfo[] = [];
     face: FaceStatus = { error: false, success: false, successPosition: 0, message: "" };
-    faceCaptures: Array<FaceCapture> = [];
+    faceCapture: FaceCapture | null = null;
     faceApiLoaded: boolean = false;
-    instructionsClosed: boolean = false;
-    indicatorTransform: string = "scale3d(0.8, 0.8, 1)";
-    indicatorCutTransform: string = "rotate(-20deg) skewY(-50deg)";
     project: Project;
     projectFlow: ProjectFlow;
     scaledVideo: VideoStatus = { height: 0, width: 0 };
@@ -167,15 +159,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     constructor(
         private _changeDetectionRef: ChangeDetectorRef,
         private _demoService: DemoService,
-        private _dialog: MatDialog,
-        private _kycService: KYCService,
+        private _KYCService: KYCService,
         private _mediaStreamService: MediaStreamService,
+        private _passwordlessService: PasswordlessService,
         private _renderer: Renderer2,
-        private _smartEnrollService: SmartEnrollService,
-        private translocoService: TranslocoService
+        private _translocoService: TranslocoService
     ) {
         this.device = this._demoService.detectOS();
-        this.instructionsClosed = this._smartEnrollService.instructionsClosed;
 
         this._setScreenStatus();
 
@@ -187,31 +177,23 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this._openInstructions();
         this._mediaStreamService.stopAllStreams();
 
-        this.appRegistration = this._kycService.appRegistration;
-        this.project = this._kycService.currentProject;
-        this.projectFlow = this._kycService.currentProjectFlow;
+        this.appRegistration = this._KYCService.appRegistration;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
 
         this.successfulUpload.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
             this.uploading = false;
         });
 
         this.retry.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
-            // Reset all state completely
-            this.faceCaptures = [];
-            this.currentLivenessIndex = 0;
-            this.angleThresholds = [];
-            this.angleThreshold = { min: {}, max: {}, indicatorAdjust: undefined };
+            this.faceCapture = null;
+
             this.face.successPosition = 0;
             this.face.success = false;
             this.face.error = false;
             this.face.message = "";
-
-            // Reset indicator transforms
-            this.indicatorTransform = "scale3d(0.8, 0.8, 1)";
-            this.indicatorCutTransform = "rotate(-20deg) skewY(-50deg)";
 
             this._restartCamera();
         });
@@ -226,34 +208,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this._unsubscriber$.next();
         this._unsubscriber$.complete();
-    }
-
-    private _calculateIndicatorScale(angleScore: number) {
-        const scale = 0.8 + (angleScore * 2) / 10;
-
-        this.indicatorTransform = `scale3d(${scale}, ${scale}, 1)`;
-    }
-
-    private _calculateThresholdScore(angle: Angle) {
-        const { min, mid, max } = this.angleThreshold;
-
-        // Weighted scoring - yaw is most important, roll least important
-        const weights = { pitch: 0.4, yaw: 0.5, roll: 0.1 };
-
-        // Calculate normalized scores with bounds checking
-        const pitchRange = max.pitch - min.pitch;
-        const pitchDifference = Math.abs(mid.pitch - angle.pitch);
-        const pitchScore = pitchRange > 0 ? Math.max(0, 1 - pitchDifference / pitchRange) : 1;
-
-        const rollRange = max.roll - min.roll;
-        const rollDifference = Math.abs(mid.roll - angle.roll);
-        const rollScore = rollRange > 0 ? Math.max(0, 1 - rollDifference / rollRange) : 1;
-
-        const yawRange = max.yaw - min.yaw;
-        const yawDifference = Math.abs(mid.yaw - angle.yaw);
-        const yawScore = yawRange > 0 ? Math.max(0, 1 - yawDifference / yawRange) : 1;
-
-        return pitchScore * weights.pitch + rollScore * weights.roll + yawScore * weights.yaw;
     }
 
     private _calculateVideoCoverDimensions(video: VideoStatus, container: VideoStatus) {
@@ -292,7 +246,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private _captureAndCropImage(): Promise<string> {
-        const faceCapture = this.faceCaptures[0];
+        const faceCapture = this.faceCapture;
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -352,140 +306,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             currentDeviceIndex === -1 ? this.devices[0].deviceId : this.devices[(currentDeviceIndex + 1) % this.devices.length].deviceId;
     }
 
-    private _generateRandomAngleThresholds(): void {
-        const randomIndicatorAngles = this._generateRandomIndicatorAngles(2);
-
-        randomIndicatorAngles.forEach((indicatorAngle) => {
-            this.angleThresholds.push(indicatorAngle);
-        });
-
-        this._changeDetectionRef.detectChanges();
-    }
-
-    private _generateRandomIndicatorAngles(count: number): AngleThreshold[] {
-        const indicatorAngles: number[] = [];
-        const minSeparation = 45; // Reduced to 45° separation to accommodate diagonal directions
-
-        for (let i = 0; i < count; i++) {
-            let angle: number;
-            let attempts = 0;
-
-            do {
-                angle = Math.floor(Math.random() * 360); // 0-359°
-
-                attempts++;
-            } while (
-                attempts < 100 &&
-                indicatorAngles.some((existingAngle) => {
-                    const diff = Math.abs(angle - existingAngle);
-                    return Math.min(diff, 360 - diff) < minSeparation;
-                })
-            );
-
-            indicatorAngles.push(angle);
-        }
-
-        return indicatorAngles.map((indicatorAngle, index) => {
-            const { targetYaw, targetPitch } = this._indicatorAngleToYawPitch(indicatorAngle);
-
-            let instruction = "Look ";
-
-            const pitchAbs = Math.abs(targetPitch);
-            const yawAbs = Math.abs(targetYaw);
-
-            if (pitchAbs > yawAbs) {
-                instruction += targetPitch > 0 ? "up" : "down";
-
-                if (yawAbs > 15) {
-                    instruction += targetYaw > 0 ? " and right" : " and left";
-                }
-            } else {
-                instruction += targetYaw > 0 ? "right" : "left";
-
-                if (pitchAbs > 15) {
-                    instruction += targetPitch > 0 ? " and up" : " and down";
-                }
-            }
-
-            const { minBounds, maxBounds } = this._calculateOvalBounds(indicatorAngle);
-
-            const finalThreshold: AngleThreshold = {
-                min: minBounds,
-                max: maxBounds,
-                mid: {
-                    pitch: targetPitch,
-                    roll: 0,
-                    yaw: targetYaw,
-                },
-                instructions: instruction,
-                indicatorAdjust: indicatorAngle + 20,
-            };
-
-            return finalThreshold;
-        });
-    }
-
-    private _indicatorAngleToYawPitch(indicatorAngle: number): { targetYaw: number; targetPitch: number } {
-        let targetYaw: number;
-        let targetPitch: number;
-
-        const angle = indicatorAngle + 20; // Adjusted for the indicator skew
-
-        if (angle >= 315 || angle < 45) {
-            // North (up) - 315° to 45°
-            targetYaw = 0;
-            targetPitch = 30;
-        } else if (angle >= 45 && angle < 67.5) {
-            // Northeast (up-right) - 45° to 67.5°
-            targetYaw = 60;
-            targetPitch = 20;
-        } else if (angle >= 67.5 && angle < 112.5) {
-            // East (right) - 67.5° to 112.5°
-            targetYaw = 120;
-            targetPitch = 0;
-        } else if (angle >= 112.5 && angle < 157.5) {
-            // Southeast (down-right) - 112.5° to 157.5°
-            targetYaw = 60;
-            targetPitch = -20;
-        } else if (angle >= 157.5 && angle < 202.5) {
-            // South (down) - 157.5° to 202.5°
-            targetYaw = 0;
-            targetPitch = -30;
-        } else if (angle >= 202.5 && angle < 247.5) {
-            // Southwest (down-left) - 202.5° to 247.5°
-            targetYaw = -60;
-            targetPitch = -20;
-        } else if (angle >= 247.5 && angle < 292.5) {
-            // West (left) - 247.5° to 292.5°
-            targetYaw = -120;
-            targetPitch = 0;
-        } else {
-            // Northwest (up-left) - 292.5° to 315°
-            targetYaw = -60;
-            targetPitch = 20;
-        }
-
-        return { targetYaw, targetPitch };
-    }
-
-    private _calculateOvalBounds(indicatorAngle: number): { minBounds: any; maxBounds: any } {
-        const { targetYaw, targetPitch } = this._indicatorAngleToYawPitch(indicatorAngle);
-
-        const minBounds = {
-            pitch: targetPitch === 0 ? -15 : targetPitch > 0 ? 2 : -2, // Pitch: ±2° minimum (very forgiving)
-            roll: -45, // Roll: standard range
-            yaw: targetYaw === 0 ? -110 : targetYaw > 0 ? 40 : -40, // Yaw: ±40° minimum (moderate)
-        };
-
-        const maxBounds = {
-            pitch: targetPitch === 0 ? 15 : targetPitch > 0 ? 60 : -60, // Pitch: ±40° maximum (generous)
-            roll: 45, // Roll: standard range
-            yaw: targetYaw === 0 ? 110 : targetYaw > 0 ? 200 : -200, // Yaw: ±180° maximum (very generous)
-        };
-
-        return { minBounds, maxBounds };
-    }
-
     private _isInRange(value: number, min: number, max: number): boolean {
         if (min <= max) {
             return value >= min && value <= max;
@@ -495,7 +315,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     }
 
     private _onIntervalDetect = () => {
-        if (!this.faceApiLoaded || this.currentLivenessIndex === this.angleThresholds.length) return;
+        if (!this.faceApiLoaded) return;
 
         this._findFace(this.videoCanvas.nativeElement)
             .then(this._validateFace)
@@ -505,31 +325,12 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             });
     };
 
-    private _openInstructions() {
-        if (this.instructionsClosed) return;
-
-        const dialogRef = this._dialog.open(this.instructions, { disableClose: true, panelClass: "rounded-2xl" });
-
-        dialogRef.afterClosed().subscribe(() => {
-            this.instructionsClosed = true;
-            this._smartEnrollService.instructionsClosed = true;
-        });
-    }
-
     private _restartCamera() {
         this._stopCamera();
 
         this._setDimensions();
         this._setDetectionBounds();
         this._setAngleThresholds();
-
-        if (this.angleThresholds.length > 0) {
-            this.angleThreshold = this.angleThresholds[0];
-
-            if (this.angleThreshold.indicatorAdjust !== undefined) {
-                this.indicatorCutTransform = `rotate(${this.angleThreshold.indicatorAdjust - 20}deg) skewY(-50deg)`;
-            }
-        }
 
         this._startCamera();
     }
@@ -562,8 +363,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         let frameCount = 0;
 
         this._detectionInterval = setInterval(() => {
-            if (!this.instructionsClosed) return;
-
             ++frameCount;
 
             if (this.device === "DESKTOP") {
@@ -584,25 +383,20 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     };
 
     private _setAngleThresholds(): void {
-        // Always face center for the first threshold
-        this.angleThresholds = [
-            {
-                min: {
-                    pitch: -30,
-                    roll: -30,
-                    yaw: -75,
-                },
-                max: {
-                    pitch: 30,
-                    roll: 30,
-                    yaw: 75,
-                },
-                indicatorAdjust: undefined,
-                instructions: this.translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
+        // Only face center - no angle variations
+        this.angleThreshold = {
+            min: {
+                pitch: -30,
+                roll: -30,
+                yaw: -75,
             },
-        ];
-
-        this._generateRandomAngleThresholds();
+            max: {
+                pitch: 30,
+                roll: 30,
+                yaw: 75,
+            },
+            instructions: this._translocoService.translate("smart_enroll.liveness.instructions.look_straight"),
+        };
     }
 
     private _setDetectionBounds() {
@@ -729,12 +523,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     private _validateFace = ({ angle, detection }: FaceDetectionWithLandmarks) => {
         const bounds = this.bounds;
 
-        if (this.currentLivenessIndex) {
-            const angleScore = this._calculateThresholdScore(angle);
-
-            this._calculateIndicatorScale(angleScore);
-        }
-
         if (bounds.min.score > detection.score) {
             this.face.error = true;
             this.face.message = "low-score";
@@ -778,9 +566,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         if (this.face.successPosition < requiredSuccesses) return;
 
-        this.faceCaptures.push({ angle, base64: this.videoCanvas.nativeElement.toDataURL(), detection });
-
-        this.currentLivenessIndex += 1;
+        this.faceCapture = { angle, base64: this.videoCanvas.nativeElement.toDataURL(), detection };
 
         this.face.successPosition = 0;
         this.face.success = false;
@@ -789,30 +575,23 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
         this._changeDetectionRef.detectChanges();
 
-        if (this.currentLivenessIndex === this.angleThresholds.length) {
-            this.angleThreshold = { min: {}, max: {}, indicatorAdjust: undefined }; // Hide indicator when complete
-            this.uploading = true;
+        this.uploading = true;
 
-            this._stopCamera();
+        this._stopCamera();
 
-            this._captureAndCropImage().then((base64Image) => {
-                const croppedImage = base64Image.replace(/^data:.*;base64,/, "");
+        this._captureAndCropImage().then((base64Image) => {
+            const croppedImage = base64Image.replace(/^data:.*;base64,/, "");
 
-                this.onImageScan.emit({
-                    base64Image: croppedImage,
-                    face: croppedImage,
-                    force: !!this.appRegistration.biometricValidation,
-                    front: true,
-                    inputMethod: "CAMERA",
-                    rawImage: base64Image,
-                    source: "face",
-                });
+            this.onImageScan.emit({
+                base64Image: croppedImage,
+                face: croppedImage,
+                force: !!this.appRegistration.biometricValidation,
+                front: true,
+                inputMethod: "CAMERA",
+                rawImage: base64Image,
+                source: "face",
             });
-        } else {
-            this.indicatorTransform = "scale(0.8)";
-            this.angleThreshold = this.angleThresholds[this.currentLivenessIndex];
-            this.indicatorCutTransform = `rotate(${this.angleThreshold.indicatorAdjust - 20}deg) skewY(-50deg)`;
-        }
+        });
     };
 
     cycleCamera(): void {
@@ -843,8 +622,6 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         if (!this.camera.quality) return;
 
         this._setAngleThresholds();
-
-        this.angleThreshold = this.angleThresholds[0];
 
         this.videoOptions = {
             aspectRatio: { exact: this.resolution.aspectRatio },

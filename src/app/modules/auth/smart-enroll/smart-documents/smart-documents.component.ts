@@ -1,27 +1,31 @@
-import { catchError, forkJoin, map, of, Subject, takeUntil } from "rxjs";
-
 import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatListModule } from "@angular/material/list";
-import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
-
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
+import QRCode from "qrcode";
+import { catchError, forkJoin, map, of, Subject, takeUntil } from "rxjs";
 
-import { environment } from "environments/environment";
-import { AppRegistration, CriminalValidation, DocumentValidation, FaceVerification, ImageScan, Project, ProjectFlow } from "../../project";
-
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { VerifikRadioGroupComponent } from "app/core/components/verifik-radio-group/verifik-radio-group.component";
+import { VerifikRadioItemComponent } from "app/core/components/verifik-radio-item/verifik-radio-item.component";
+import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { CountryOption, CountryService } from "app/core/services/country.service";
+import { CoreValidators } from "app/core/validators/validators";
 import { DemoService } from "app/modules/demo/demo.service";
+import { environment } from "environments/environment";
 import { KYCService } from "../../kyc.service";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { PasswordlessService } from "../../passwordless.service";
+import { AppRegistration, CriminalValidation, DocumentValidation, FaceVerification, ImageScan } from "../../project";
 import { DocumentCategory, EnrollDocumentMethod, EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
@@ -56,33 +60,35 @@ type NameValidationResponse = {
 };
 
 @Component({
-    selector: "smart-documents",
-    templateUrl: "./smart-documents.component.html",
-    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
     animations: fuseAnimations,
+    selector: "smart-documents",
     standalone: true,
+    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
+    templateUrl: "./smart-documents.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
         MatButtonModule,
         MatCardModule,
+        MatDividerModule,
         MatIconModule,
         MatInputModule,
         MatListModule,
-        MatRadioModule,
         MatSelectModule,
         NgIf,
         ReactiveFormsModule,
         SmartErrorDisplayComponent,
         SmartScannerComponent,
         SmartScannerMobileComponent,
-        SmartStepperComponent,
         SmartUploadComponent,
         TranslocoModule,
+        VerifikRadioGroupComponent,
+        VerifikRadioItemComponent,
     ],
 })
-export class SmartDocumentsComponent implements OnDestroy {
+export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
     private _unsubscriber$ = new Subject<void>();
 
@@ -105,14 +111,15 @@ export class SmartDocumentsComponent implements OnDestroy {
         private _demoService: DemoService,
         private _formBuilder: FormBuilder,
         private _KYCService: KYCService,
+        private _passwordlessService: PasswordlessService,
         private _smartEnrollService: SmartEnrollService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
 
-        this.countries = this._countryService.findAllowedCountryOptions(this.project.allowedCountries);
+        this.countries = this._countryService.findAllowedCountryOptions(this.projectFlow.allowedCountries());
 
         this._initForm();
 
@@ -124,6 +131,10 @@ export class SmartDocumentsComponent implements OnDestroy {
         this._smartEnrollService.enrollSettings$.pipe(takeUntil(this._unsubscriber$)).subscribe({
             next: (enrollSettings) => this._onEnrollSettingsChange(enrollSettings),
         });
+    }
+
+    ngAfterViewInit(): void {
+        this._prepareQrCode();
     }
 
     ngOnDestroy(): void {
@@ -153,6 +164,14 @@ export class SmartDocumentsComponent implements OnDestroy {
         });
     }
 
+    private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+        try {
+            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     private _handleError(exception: any): void {
         console.error("error", exception);
 
@@ -179,69 +198,160 @@ export class SmartDocumentsComponent implements OnDestroy {
 
     private _initForm() {
         this.methodSelectionForm = this._formBuilder.group({
-            country: ["", Validators.required],
-            documentCategory: ["", Validators.required],
-            documentMethod: ["", Validators.required],
+            country: [{ value: "", disabled: true }, [Validators.required]],
+            documentCategory: [{ value: "", disabled: true }, [Validators.required]],
+            documentMethod: ["", [Validators.required]],
+            promptTemplate: [{ value: null, disabled: true }, [CoreValidators.requiredIfVersion3(this.projectFlow.version)]],
         });
 
-        const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
-
-        let country = "";
-        let documentMethod = "";
-        let documentCategory = "";
-
-        if (this.enrollSettings.country) {
-            country = this.enrollSettings.country;
-        }
-
-        if (this.enrollSettings.documentMethod) {
-            documentMethod = this.enrollSettings.documentMethod;
-        } else {
-            const documentMethods = Object.keys(onboardSettingsDocument).filter((key) =>
-                ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key)
-            );
-
-            if (documentMethods.length === 1) {
-                switch (documentMethods[0]) {
-                    case "uploadDocumentAllowed":
-                        documentMethod = "upload";
-                        break;
-                    case "scanDocumentAllowed":
-                        documentMethod = "scan";
-                        break;
-                }
-            }
-        }
-
-        if (this.enrollSettings.documentCategory) {
-            documentCategory = this.enrollSettings.documentCategory;
-        } else {
-            const documentCategorys = Object.keys(onboardSettingsDocument).filter((key) =>
-                ["useLicense", "usePassport", "useGovernmentID", "useTaxInformation"].includes(key)
-            );
-
-            if (documentCategorys.length === 1) {
-                switch (documentCategorys[0]) {
-                    case "useLicense":
-                        documentCategory = "driver-license";
-                        break;
-                    case "usePassport":
-                        documentCategory = "passport";
-                        break;
-                    case "useGovernmentID":
-                        documentCategory = "id";
-                        break;
-                }
-            }
-        }
-
-        this.methodSelectionForm.patchValue({
-            country,
-            documentMethod,
-            documentCategory,
-        });
+        this._initializeFormValues();
+        this._setFormSubscriptions();
 
         this._changeDetectorRef.markForCheck();
+    }
+
+    private _initializeFormValues(): void {
+        const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
+
+        // Step 1: Set documentMethod (required for all subsequent steps)
+        const documentMethod = this._getDocumentMethod(onboardSettingsDocument);
+        this.methodSelectionForm.patchValue({ documentMethod });
+        this._handleDocumentMethodChange(documentMethod);
+
+        // Step 2: Set country (only if documentMethod is set)
+        if (!documentMethod) return;
+
+        const country = this._getCountry();
+
+        this.methodSelectionForm.patchValue({ country });
+        this._handleCountryChange(country);
+
+        // Step 3: Set documentCategory (only if country is set)
+        if (!country) return;
+
+        const documentCategory = this._getDocumentCategory(onboardSettingsDocument);
+        this.methodSelectionForm.patchValue({ documentCategory });
+        this._handleDocumentCategoryChange(documentCategory);
+
+        // Step 4: Set promptTemplate (only if documentCategory is set)
+        if (!documentCategory) return;
+
+        const promptTemplate = this._getPromptTemplate();
+        this.methodSelectionForm.patchValue({ promptTemplate });
+    }
+
+    private _getDocumentMethod(onboardSettingsDocument: any): string {
+        if (this.enrollSettings.documentMethod) return this.enrollSettings.documentMethod;
+
+        const documentMethods = Object.keys(onboardSettingsDocument).filter((key) => ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key));
+
+        if (documentMethods.length === 1) {
+            switch (documentMethods[0]) {
+                case "uploadDocumentAllowed":
+                    return "upload";
+                case "scanDocumentAllowed":
+                    return "scan";
+            }
+        }
+
+        return "";
+    }
+
+    private _getCountry(): string {
+        return this.enrollSettings.country || "";
+    }
+
+    private _getDocumentCategory(onboardSettingsDocument: any): string {
+        if (this.enrollSettings.documentCategory) {
+            return this.enrollSettings.documentCategory;
+        }
+
+        const documentCategories = Object.keys(onboardSettingsDocument).filter((key) =>
+            ["useLicense", "usePassport", "useGovernmentID"].includes(key)
+        );
+
+        if (documentCategories.length === 1) {
+            switch (documentCategories[0]) {
+                case "useLicense":
+                    return "driver-license";
+                case "usePassport":
+                    return "passport";
+                case "useGovernmentID":
+                    return "id";
+            }
+        }
+
+        return "";
+    }
+
+    private _getPromptTemplate(): PromptTemplate | null {
+        return this.enrollSettings.promptTemplate || null;
+    }
+
+    private _prepareQrCode(): void {
+        const canvas = this.qrCodeCanvas.nativeElement;
+
+        this._generateQRCode(canvas, window.location.href);
+    }
+
+    private _setFormSubscriptions() {
+        this.methodSelectionForm
+            .get("documentMethod")
+            ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
+            .subscribe((value) => {
+                this._handleDocumentMethodChange(value);
+            });
+
+        this.methodSelectionForm
+            .get("country")
+            ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
+            .subscribe((value) => {
+                this._handleCountryChange(value);
+            });
+
+        this.methodSelectionForm
+            .get("documentCategory")
+            ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
+            .subscribe((value) => {
+                this._handleDocumentCategoryChange(value);
+            });
+    }
+
+    private _handleDocumentMethodChange(value: string): void {
+        if (!value) {
+            this.methodSelectionForm.get("country")?.disable();
+            this.methodSelectionForm.get("documentCategory")?.disable();
+            this.methodSelectionForm.get("promptTemplate")?.disable();
+            return;
+        }
+
+        this.methodSelectionForm.get("country")?.enable();
+    }
+
+    private _handleCountryChange(value: string): void {
+        // Reset dependent fields
+        this.methodSelectionForm.get("documentCategory")?.setValue("");
+        this.methodSelectionForm.get("promptTemplate")?.setValue(null);
+
+        if (!value) {
+            this.methodSelectionForm.get("documentCategory")?.disable();
+            this.methodSelectionForm.get("promptTemplate")?.disable();
+            return;
+        }
+
+        this.methodSelectionForm.get("documentCategory")?.enable();
+    }
+
+    private _handleDocumentCategoryChange(value: string): void {
+        // Reset dependent field
+        this.methodSelectionForm.get("promptTemplate")?.setValue(null);
+
+        if (!value) {
+            this.methodSelectionForm.get("promptTemplate")?.disable();
+            return;
+        }
+
+        this.methodSelectionForm.get("promptTemplate")?.enable();
     }
 
     private _onEnrollSettingsChange(settings: EnrollSettings) {
@@ -268,10 +378,11 @@ export class SmartDocumentsComponent implements OnDestroy {
         }
 
         const settings = this.projectFlow.onboardingSettings.document;
+
         const observables$ = {
+            compareValidation: null,
             criminalValidation: null,
             nameValidation: null,
-            compareValidation: null,
         };
 
         if (settings.verifyNames) {
@@ -394,6 +505,11 @@ export class SmartDocumentsComponent implements OnDestroy {
         });
     }
 
+    comparePromptTemplates(option: PromptTemplate, value: PromptTemplate): boolean {
+        if (!option || !value) return false;
+        return option._id === value._id;
+    }
+
     getBackgroundGradient() {
         if (!this.project.branding.buttonColor) return `linear-gradient(34deg, rgba(0,0,0,0) 25%, rgba(0,0,0,0.2) 120%`;
 
@@ -409,6 +525,7 @@ export class SmartDocumentsComponent implements OnDestroy {
             force: imageScan.force,
             image: undefined,
             inputMethod: imageScan.inputMethod,
+            promptTemplate: this.enrollSettings.promptTemplate,
         };
 
         if (imageScan.front) {
@@ -419,6 +536,22 @@ export class SmartDocumentsComponent implements OnDestroy {
         }
 
         this._createDocumentValidation(body);
+    }
+
+    onGoBackToMethodSelection(): void {
+        this.formSubmitted = false;
+    }
+
+    onSkipStep() {
+        if (this.projectFlow.onboardingSettings.steps.document === "mandatory") return;
+
+        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(true);
+            this._smartEnrollService.skipToStep("biometric");
+        } else {
+            this._smartEnrollService.setSkippedBiometric(true);
+            this._smartEnrollService.skipToStep("result");
+        }
     }
 
     retry() {
@@ -432,10 +565,12 @@ export class SmartDocumentsComponent implements OnDestroy {
         this.enrollSettings.documentMethod = this.methodSelectionForm.value.documentMethod;
         this.enrollSettings.documentCategory = this.methodSelectionForm.value.documentCategory;
         this.enrollSettings.country = this.methodSelectionForm.value.country;
+        this.enrollSettings.promptTemplate = this.methodSelectionForm.value.promptTemplate;
 
         this.updateDocumentMethod(this.methodSelectionForm.value.documentMethod);
         this.updateDocumentCategory(this.methodSelectionForm.value.documentCategory);
         this.updateCountry(this.methodSelectionForm.value.country);
+        this.updatePromptTemplate(this.methodSelectionForm.value.promptTemplate);
 
         this.formSubmitted = true;
     }
@@ -451,5 +586,9 @@ export class SmartDocumentsComponent implements OnDestroy {
 
     updateCountry(country: keyof CountryOption) {
         this._smartEnrollService.setCountry(country);
+    }
+
+    updatePromptTemplate(promptTemplate: PromptTemplate) {
+        this._smartEnrollService.setPromptTemplate(promptTemplate);
     }
 }

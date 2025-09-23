@@ -1,29 +1,26 @@
-import { Subject } from "rxjs";
-
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
-import { FlexLayoutModule } from "@angular/flex-layout";
-
 import { fuseAnimations } from "@fuse/animations";
-
 import { TranslocoModule } from "@ngneat/transloco";
+import { Subject } from "rxjs";
 
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../../kyc.service";
+import { PasswordlessService } from "../../passwordless.service";
+import { AppRegistration, BiometricValidation, ImageScan } from "../../project";
 import { EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
-import { AppRegistration, BiometricValidation, ImageScan, Project, ProjectFlow } from "../../project";
-
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartLivenessComponent } from "../smart-liveness/smart-liveness.component";
 
 @Component({
-    selector: "smart-biometrics",
-    templateUrl: "./smart-biometrics.component.html",
-    styleUrls: ["../smart-enroll.component.scss"],
     animations: fuseAnimations,
+    imports: [CommonModule, SmartLivenessComponent, SmartErrorDisplayComponent, TranslocoModule],
+    selector: "smart-biometrics",
     standalone: true,
-    imports: [CommonModule, FlexLayoutModule, SmartLivenessComponent, SmartStepperComponent, SmartErrorDisplayComponent, TranslocoModule],
+    styleUrls: ["../smart-enroll.component.scss"],
+    templateUrl: "./smart-biometrics.component.html",
 })
 export class SmartBiometricsComponent implements OnDestroy {
     @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
@@ -36,15 +33,20 @@ export class SmartBiometricsComponent implements OnDestroy {
     faceIdCard: string;
     project: Project;
     projectFlow: ProjectFlow;
-    successfulUploadSubject: Subject<void> = new Subject<void>();
     retrySubject: Subject<void> = new Subject<void>();
+    successfulUploadSubject: Subject<void> = new Subject<void>();
 
-    constructor(private _demoService: DemoService, private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
+    constructor(
+        private _demoService: DemoService,
+        private _KYCService: KYCService,
+        private _smartEnrollService: SmartEnrollService,
+        private _passwordlessService: PasswordlessService
+    ) {
         this.enrollSettings = this._smartEnrollService.enrollSettings;
 
         this.appRegistration = this._KYCService.appRegistration;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
 
         this.errorResult = this._smartEnrollService.store.biometric.remaining === 0;
         this.errorContent = { message: "" };

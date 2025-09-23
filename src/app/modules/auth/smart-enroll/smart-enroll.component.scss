@@ -25,7 +25,6 @@ smart-scanner-corrections {
 
 .app {
     width: 100%;
-    background-color: #ffffff;
 
     &__content {
         position: relative;
@@ -42,7 +41,6 @@ smart-scanner-corrections {
 }
 
 .toolbar {
-    background-color: #ffffff;
     width: 100%;
     height: 56px;
     z-index: 9999;
@@ -231,7 +229,7 @@ smart-scanner-corrections {
 
     &__subtitle {
         font-size: small;
-        color: #cccccc;
+        color: var(--custom-verifik-accent-500, #64748b);
     }
 
     &__template-value {
@@ -249,14 +247,14 @@ smart-scanner-corrections {
                 position: absolute;
                 width: 100%;
                 height: 1px;
-                background-color: #cccccc;
+                background-color: var(--custom-verifik-accent-400, #94a3b8);
                 bottom: 0;
             }
         }
     }
 
     &__label {
-        color: #cccccc;
+        color: var(--custom-verifik-accent-500, #64748b);
         max-width: 125px;
     }
 }
@@ -297,10 +295,10 @@ smart-scanner-corrections {
 
         @media screen and (max-width: 959px) {
             background: rgba(255, 255, 255, 0);
-            background: radial-gradient(circle, rgba(255, 255, 255, 0) 55%, rgb(255, 255, 255) 80%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0) 55%, var(--custom-verifik-background) 80%);
 
             &--ios {
-                background: radial-gradient(circle, rgba(255, 255, 255, 0) 65%, rgb(255, 255, 255) 87%);
+                background: radial-gradient(circle, rgba(255, 255, 255, 0) 65%, var(--custom-verifik-background) 87%);
             }
         }
     }
@@ -321,22 +319,26 @@ smart-scanner-corrections {
 }
 
 .drag-and-drop {
-    position: relative;
-    height: 340px;
-    background-color: rgba(0, 0, 0, 0.08);
-    transition: background-color cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
+    align-items: center;
+    background-color: var(--custom-primary-100, #e6f4ff);
+    border-radius: 24px;
+    border: 1px dashed var(--custom-primary-500, #007aff);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 316px;
+    justify-content: center;
+    max-width: 432px;
     overflow: hidden;
+    position: relative;
+    transition: background-color cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
 
-    &--active {
-        border: 1px dashed #64748b;
-        background-color: rgba(0, 0, 0, 0.08) !important;
+    &:hover {
+        background-color: var(--custom-primary-300, #e6f4ff);
     }
 
-    &__loader {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        z-index: 2;
+    &--active {
+        background-color: var(--custom-primary-200, #e6f4ff);
     }
 
     &__loader {
@@ -429,6 +431,7 @@ smart-scanner-corrections {
         padding: 8px 12px;
         min-height: 37px;
         line-height: 1.25;
+        color: var(--custom-verifik-primary-800, #1e293b);
     }
 
     &__score {
@@ -461,6 +464,76 @@ smart-scanner-corrections {
 
         &--green {
             color: #35d219;
+        }
+    }
+}
+
+// Welcome step styling using theme variables
+.side-indicator {
+    &__step-row {
+        transition: all 0.3s ease;
+        border: 2px solid var(--custom-verifik-accent-200, #e2e8f0);
+        gap: 12px;
+
+        &--active {
+            border-color: var(--custom-verifik-primary-500, #6366f1);
+        }
+    }
+
+    &__step {
+        align-items: center;
+        border-radius: 50%;
+        display: flex;
+        font-size: 14px;
+        font-weight: 500;
+        height: 24px;
+        justify-content: center;
+        transition: all 0.3s ease;
+        width: 24px;
+
+        &--active {
+            background-color: var(--custom-verifik-primary-500, #6366f1);
+            color: var(--custom-verifik-primary-contrast-500, #ffffff);
+        }
+
+        &--inactive {
+            background-color: transparent;
+            border: 1px solid var(--custom-verifik-accent-300, #64748b);
+            color: var(--custom-verifik-accent-300, #64748b);
+        }
+    }
+
+    &__step-text {
+        color: var(--custom-verifik-primary-500, #6366f1);
+        font-weight: 500;
+        margin-top: 2px;
+    }
+
+    &__step-icon {
+        color: var(--custom-verifik-primary-500, #6366f1);
+        height: 16px;
+        width: 16px;
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+    }
+}
+
+// Smart Results Component Styles
+.smart-results {
+    &__title {
+        color: var(--custom-verifik-accent-800, #1e293b);
+    }
+
+    &__icon {
+        &--success {
+            fill: #00b67a;
+        }
+
+        &--error {
+            fill: var(--custom-verifik-warn-500, #ef4444);
         }
     }
 }

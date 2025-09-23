@@ -1,1 +1,1 @@
-export * from './fuse.provider';
+export * from "./fuse.provider";

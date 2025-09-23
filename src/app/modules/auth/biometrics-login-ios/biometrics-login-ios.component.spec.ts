@@ -1,21 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { BiometricsLoginIosComponent } from './biometrics-login-ios.component';
+import { BiometricsLoginIosComponent } from "./biometrics-login-ios.component";
 
-describe('BiometricsLoginIosComponent', () => {
-  let component: BiometricsLoginIosComponent;
-  let fixture: ComponentFixture<BiometricsLoginIosComponent>;
+describe("BiometricsLoginIosComponent", () => {
+    let component: BiometricsLoginIosComponent;
+    let fixture: ComponentFixture<BiometricsLoginIosComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [BiometricsLoginIosComponent]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [BiometricsLoginIosComponent],
+        });
+        fixture = TestBed.createComponent(BiometricsLoginIosComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    fixture = TestBed.createComponent(BiometricsLoginIosComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it("should create", () => {
+        expect(component).toBeTruthy();
+    });
 });

@@ -1,0 +1,107 @@
+<div class="theme-test-container">
+  <h2>Angular Material Theme Test</h2>
+  
+  <div class="test-section">
+    <h3>Theme Controls</h3>
+    <button mat-raised-button color="primary" (click)="applyCustomTheme()">Apply Custom Theme</button>
+    <button mat-stroked-button color="primary" (click)="resetTheme()">Reset to Default</button>
+  </div>
+  
+  <div class="test-section">
+    <h3>Buttons</h3>
+    <button mat-raised-button color="primary">Primary Button</button>
+    <button mat-raised-button color="accent">Accent Button</button>
+    <button mat-raised-button color="warn">Warn Button</button>
+    <button mat-stroked-button color="primary">Outlined Primary</button>
+    <button mat-flat-button color="primary">Flat Button</button>
+  </div>
+
+  <div class="test-section">
+    <h3>Form Fields</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Test Input</mat-label>
+      <input matInput placeholder="Enter text" [(ngModel)]="selectedValue">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline">
+      <mat-label>Select Option</mat-label>
+      <mat-select [(ngModel)]="selectedValue">
+        <mat-option value="option1">Option 1</mat-option>
+        <mat-option value="option2">Option 2</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="test-section">
+    <h3>Checkboxes & Radio Buttons</h3>
+    <mat-checkbox color="primary" [(ngModel)]="checkboxValue">Primary Checkbox</mat-checkbox>
+    <mat-radio-group [(ngModel)]="radioValue">
+      <mat-radio-button value="option1" color="primary">Option 1</mat-radio-button>
+      <mat-radio-button value="option2" color="primary">Option 2</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <div class="test-section">
+    <h3>Progress Indicators</h3>
+    <mat-progress-bar mode="determinate" value="60" color="primary"></mat-progress-bar>
+    <mat-spinner diameter="40" color="primary"></mat-spinner>
+  </div>
+
+  <div class="test-section">
+    <h3>Sliders & Toggles</h3>
+    <mat-slider min="0" max="100" step="1" [(ngModel)]="sliderValue" color="primary">
+      <input matSliderThumb>
+    </mat-slider>
+    <mat-slide-toggle [(ngModel)]="slideToggleValue" color="primary">Slide Toggle</mat-slide-toggle>
+  </div>
+
+  <div class="test-section">
+    <h3>Chips</h3>
+    <mat-chip-set>
+      <mat-chip color="primary">Primary Chip</mat-chip>
+      <mat-chip color="accent">Accent Chip</mat-chip>
+      <mat-chip color="warn">Warn Chip</mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <div class="test-section">
+    <h3>Cards</h3>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Test Card</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        This card should use the custom theme colors. All buttons and form elements inside should also use the custom theme.
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Action</button>
+        <button mat-raised-button color="accent">Action 2</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="test-section">
+    <h3>CSS Variables Test</h3>
+    <p>These color swatches show the current CSS variable values:</p>
+    <div class="color-swatch primary-500" style="background-color: var(--custom-verifik-primary-500, #6366f1);">
+      Primary 500
+    </div>
+    <div class="color-swatch accent-500" style="background-color: var(--custom-verifik-accent-500, #64748b);">
+      Accent 500
+    </div>
+    <div class="color-swatch warn-500" style="background-color: var(--custom-verifik-warn-500, #ef4444);">
+      Warn 500
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h3>How It Works</h3>
+    <p>This demonstrates how Angular Material components automatically use your custom CSS variables:</p>
+    <ul>
+      <li><strong>No manual CSS overrides needed</strong> - Angular Material handles all component states</li>
+      <li><strong>Dynamic theming</strong> - CSS variables can be updated at runtime</li>
+      <li><strong>Fallback values</strong> - If CSS variables aren't defined, fallback colors are used</li>
+      <li><strong>Consistent behavior</strong> - All components follow the same theming rules</li>
+    </ul>
+  </div>
+</div>

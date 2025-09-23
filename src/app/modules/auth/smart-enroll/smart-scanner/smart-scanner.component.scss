@@ -197,6 +197,59 @@ h2 {
     width: 40%;
 }
 
+// Welcome step styling using theme variables
+.side-indicator {
+    &__step-row {
+        transition: all 0.3s ease;
+        border: 2px solid var(--custom-verifik-accent-200, #e2e8f0);
+        gap: 12px;
+
+        &--active {
+            border-color: var(--custom-verifik-primary-500, #6366f1);
+        }
+    }
+
+    &__step {
+        align-items: center;
+        border-radius: 50%;
+        display: flex;
+        font-size: 14px;
+        font-weight: 500;
+        height: 24px;
+        justify-content: center;
+        transition: all 0.3s ease;
+        width: 24px;
+
+        &--active {
+            background-color: var(--custom-verifik-primary-500, #6366f1);
+            color: var(--custom-verifik-primary-contrast-500, #ffffff);
+        }
+
+        &--inactive {
+            background-color: transparent;
+            border: 1px solid var(--custom-verifik-accent-300, #64748b);
+            color: var(--custom-verifik-accent-300, #64748b);
+        }
+    }
+
+    &__step-text {
+        color: var(--custom-verifik-primary-500, #6366f1);
+        font-weight: 500;
+        margin-top: 2px;
+    }
+
+    &__step-icon {
+        color: var(--custom-verifik-primary-500, #6366f1);
+        height: 16px;
+        width: 16px;
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+    }
+}
+
 // Extra small screens
 @media (max-width: 599px) {
     .id-scanning-error-container {

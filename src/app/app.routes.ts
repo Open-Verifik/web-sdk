@@ -12,9 +12,6 @@ const defaultPath =
         ? `/sign-in/${environment.sandboxProject}`
         : `/sign-in/${environment.verifikProject}`;
 
-// @formatter:off
-/* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 export const appRoutes: Route[] = [
     { path: "", pathMatch: "full", redirectTo: defaultPath },
     { path: "signed-in-redirect", pathMatch: "full", redirectTo: "demo" },
@@ -30,10 +27,6 @@ export const appRoutes: Route[] = [
             {
                 path: "confirmation-required",
                 loadChildren: () => import("app/modules/auth/confirmation-required/confirmation-required.routes"),
-            },
-            {
-                path: "kyc",
-                loadChildren: () => import("app/modules/auth/kyc-steps/kyc-steps.routes"),
             },
             {
                 path: "reset-password",
@@ -65,19 +58,6 @@ export const appRoutes: Route[] = [
             {
                 path: "unlock-session",
                 loadChildren: () => import("app/modules/auth/unlock-session/unlock-session.routes"),
-            },
-        ],
-    },
-    {
-        path: "",
-        component: LayoutComponent,
-        data: {
-            layout: "empty",
-        },
-        children: [
-            {
-                path: "demo",
-                loadChildren: () => import("app/modules/demo/demo.routes"),
             },
         ],
     },

@@ -3,16 +3,40 @@ import { environment } from "environments/environment";
 import { HttpWrapperService } from "../demo/http-wrapper.service";
 import { TranslocoService } from "@ngneat/transloco";
 import { Observable, tap } from "rxjs";
-import { Project, ProjectModel } from "./project";
+import { Project } from "app/core/classes/project.class";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
 
 @Injectable({
     providedIn: "root",
 })
 export class PasswordlessService {
+    private _currentProject: Project;
+    protected _isVerifikProject: boolean = false;
+
     baseUrl: String = environment.apiUrl;
-    currentProject: Project;
+    flow: "onboarding" | "login" = "onboarding";
 
     constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService) {}
+
+    get currentProjectFlow(): ProjectFlow {
+        return this.flow === "onboarding" ? this.currentProject?.getOnboardingProjectFlow() : this.currentProject?.getLoginProjectFlow();
+    }
+
+    get currentProject(): Project {
+        return this._currentProject;
+    }
+
+    set currentProject(project: Project) {
+        this._currentProject = project;
+
+        this._isVerifikProject = Boolean(
+            this._currentProject._id === environment.verifikProject || this._currentProject._id === environment.sandboxProject
+        );
+    }
+
+    get isVerifikProject(): boolean {
+        return this._isVerifikProject;
+    }
 
     requestProject(projectId: string, type: string = "onboarding"): Observable<any> {
         return this._httpWrapper
@@ -22,7 +46,7 @@ export class PasswordlessService {
             })
             .pipe(
                 tap((response) => {
-                    this.currentProject = new ProjectModel({
+                    this.currentProject = new Project({
                         ...response.data,
                         type,
                     });
@@ -31,60 +55,51 @@ export class PasswordlessService {
     }
 
     sendEmailValidation(email: string, location: any): Observable<any> {
-        return this._httpWrapper
-            .sendRequest("post", `${this.baseUrl}/v2/email-validations`, {
-                email,
-                project: this.currentProject._id,
-                projectFlow: this.currentProject.currentProjectFlow._id,
-                type: "login",
-                validationMethod: "verificationCode",
-                language: this._translocoService.getActiveLang(),
-                location,
-            })
-            .pipe(tap((response: any) => {}));
+        return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/email-validations`, {
+            email,
+            project: this.currentProject._id,
+            projectFlow: this.currentProjectFlow?._id,
+            type: "login",
+            validationMethod: "verificationCode",
+            language: this._translocoService.getActiveLang(),
+            location,
+        });
     }
 
     sendPhoneValidation(countryCode: string, phone: string, phoneGateway?: string, location?: any): Observable<any> {
-        return this._httpWrapper
-            .sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
-                phone,
-                countryCode,
-                projectFlow: this.currentProject.currentProjectFlow._id,
-                project: this.currentProject._id,
-                phoneGateway,
-                type: "login",
-                language: this._translocoService.getActiveLang(),
-                validationMethod: "verificationCode",
-                location,
-            })
-            .pipe(tap((response: any) => {}));
+        return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/phone-validations`, {
+            countryCode,
+            language: this._translocoService.getActiveLang(),
+            location,
+            phone,
+            phoneGateway,
+            project: this.currentProject._id,
+            projectFlow: this.currentProjectFlow?._id,
+            type: "login",
+            validationMethod: "verificationCode",
+        });
     }
 
     confirmPhoneValidation(countryCode: string, phone: string, otp: string, authenticatorOTP: string, location?: any): Observable<any> {
-        return this._httpWrapper
-            .sendRequest("post", `${this.baseUrl}/v2/phone-validations/validate`, {
-                projectFlow: this.currentProject.currentProjectFlow._id,
-                countryCode,
-                phone,
-                otp,
-                authenticatorOTP,
-                type: "login",
-                location,
-                // ipData: JSON.parse(localStorage.getItem("ipData")),
-            })
-            .pipe(tap((response: any) => {}));
+        return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/phone-validations/validate`, {
+            authenticatorOTP,
+            countryCode,
+            location,
+            otp,
+            phone,
+            projectFlow: this.currentProjectFlow?._id,
+            type: "login",
+        });
     }
 
     confirmEmailValidation(email: string, otp: string, authenticatorOTP: string, location?: any): Observable<any> {
-        return this._httpWrapper
-            .sendRequest("post", `${this.baseUrl}/v2/email-validations/validate`, {
-                email,
-                otp,
-                projectFlow: this.currentProject.currentProjectFlow._id,
-                location,
-                type: "login",
-            })
-            .pipe(tap((response: any) => {}));
+        return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/email-validations/validate`, {
+            email,
+            location,
+            otp,
+            projectFlow: this.currentProjectFlow?._id,
+            type: "login",
+        });
     }
 
     getProject(): Project {
@@ -110,7 +125,7 @@ export class PasswordlessService {
             url,
             {
                 ...data,
-                projectFlow: this.currentProject.currentProjectFlow._id,
+                projectFlow: this.currentProjectFlow?._id,
                 project: this.currentProject._id,
             },
             {

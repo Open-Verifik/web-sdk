@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+# Security Rules
+
+## Core Principles
+* Always prefer the most secure solution when creating new code
+* If there are security concerns, note them in the chat with specific risks
+* Keep responses concise unless security implications require detailed explanation
+
+## Input Validation & Sanitization
+* Always validate and sanitize user inputs before processing
+* Use parameterized queries for database operations
+* Implement proper file upload validation and restrictions
+
+## Data Protection
+* Never store sensitive data in plain text
+* Implement proper error handling without exposing internals
+
+## Development Process
+* Confirm with developer for large refactors or security-sensitive changes
+* Avoid changing existing code without confirmation
+* Suggest security testing for new features
+* Flag areas needing security expert review

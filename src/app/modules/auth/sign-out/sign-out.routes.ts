@@ -1,10 +1,10 @@
-import { Routes } from '@angular/router';
+import { Routes } from "@angular/router";
 
-import { AuthSignOutComponent } from 'app/modules/auth/sign-out/sign-out.component';
+import { AuthSignOutComponent } from "app/modules/auth/sign-out/sign-out.component";
 
 export default [
     {
-        path: '',
+        path: "",
         component: AuthSignOutComponent,
     },
 ] as Routes;

@@ -6,6 +6,15 @@ export interface CountryOption {
     country: string;
 }
 
+export interface CountryCodeOption {
+    code: string;
+    name: string;
+}
+
+export interface PhoneLengthMapping {
+    [countryCode: string]: number;
+}
+
 @Injectable({
     providedIn: "root",
 })
@@ -18,6 +27,221 @@ export class CountryService {
 
             this._countryMap.set(country.country, country);
         });
+    }
+
+    get countryCodes(): CountryCodeOption[] {
+        const countryNameToTranslationKey = new Map<string, string>();
+
+        this.countries.forEach((country) => {
+            countryNameToTranslationKey.set(country.country, country.name);
+        });
+
+        return [
+            {
+                code: "+54",
+                name: countryNameToTranslationKey.get("Argentina") || "Argentina",
+            },
+            {
+                code: "+61",
+                name: countryNameToTranslationKey.get("Australia") || "Australia",
+            },
+            {
+                code: "+43",
+                name: countryNameToTranslationKey.get("Austria") || "Austria",
+            },
+            {
+                code: "+32",
+                name: countryNameToTranslationKey.get("Belgium") || "Belgium",
+            },
+            {
+                code: "+55",
+                name: countryNameToTranslationKey.get("Brazil") || "Brazil",
+            },
+            {
+                code: "+1",
+                name: countryNameToTranslationKey.get("Canada") || "Canada",
+            },
+            {
+                code: "+56",
+                name: countryNameToTranslationKey.get("Chile") || "Chile",
+            },
+            {
+                code: "+57",
+                name: countryNameToTranslationKey.get("Colombia") || "Colombia",
+            },
+            {
+                code: "+506",
+                name: countryNameToTranslationKey.get("Costa Rica") || "Costa Rica",
+            },
+            {
+                code: "+593",
+                name: countryNameToTranslationKey.get("Ecuador") || "Ecuador",
+            },
+            {
+                code: "+503",
+                name: countryNameToTranslationKey.get("El Salvador") || "El Salvador",
+            },
+            {
+                code: "+33",
+                name: countryNameToTranslationKey.get("France") || "France",
+            },
+            {
+                code: "+49",
+                name: countryNameToTranslationKey.get("Germany") || "Germany",
+            },
+            {
+                code: "+502",
+                name: countryNameToTranslationKey.get("Guatemala") || "Guatemala",
+            },
+            {
+                code: "+504",
+                name: countryNameToTranslationKey.get("Honduras") || "Honduras",
+            },
+            {
+                code: "+91",
+                name: countryNameToTranslationKey.get("India") || "India",
+            },
+            {
+                code: "+353",
+                name: countryNameToTranslationKey.get("Ireland") || "Ireland",
+            },
+            {
+                code: "+39",
+                name: countryNameToTranslationKey.get("Italy") || "Italy",
+            },
+            {
+                code: "+52",
+                name: countryNameToTranslationKey.get("Mexico") || "Mexico",
+            },
+            {
+                code: "+31",
+                name: countryNameToTranslationKey.get("Netherlands") || "Netherlands",
+            },
+            {
+                code: "+505",
+                name: countryNameToTranslationKey.get("Nicaragua") || "Nicaragua",
+            },
+            {
+                code: "+47",
+                name: countryNameToTranslationKey.get("Norway") || "Norway",
+            },
+            {
+                code: "+507",
+                name: countryNameToTranslationKey.get("Panama") || "Panama",
+            },
+            {
+                code: "+595",
+                name: countryNameToTranslationKey.get("Paraguay") || "Paraguay",
+            },
+            {
+                code: "+51",
+                name: countryNameToTranslationKey.get("Peru") || "Peru",
+            },
+            {
+                code: "+351",
+                name: countryNameToTranslationKey.get("Portugal") || "Portugal",
+            },
+            {
+                code: "+1-787",
+                name: countryNameToTranslationKey.get("Puerto Rico") || "Puerto Rico",
+            },
+            {
+                code: "+1-939",
+                name: countryNameToTranslationKey.get("Puerto Rico") || "Puerto Rico",
+            },
+            {
+                code: "+7",
+                name: countryNameToTranslationKey.get("Russia") || "Russia",
+            },
+            {
+                code: "+34",
+                name: countryNameToTranslationKey.get("Spain") || "Spain",
+            },
+            {
+                code: "+46",
+                name: countryNameToTranslationKey.get("Sweden") || "Sweden",
+            },
+            {
+                code: "+41",
+                name: countryNameToTranslationKey.get("Switzerland") || "Switzerland",
+            },
+            {
+                code: "+1-868",
+                name: countryNameToTranslationKey.get("Trinidad and Tobago") || "Trinidad and Tobago",
+            },
+            {
+                code: "+44",
+                name: countryNameToTranslationKey.get("United Kingdom") || "United Kingdom",
+            },
+            {
+                code: "+1",
+                name: countryNameToTranslationKey.get("United States") || "United States",
+            },
+            {
+                code: "+598",
+                name: countryNameToTranslationKey.get("Uruguay") || "Uruguay",
+            },
+            {
+                code: "+58",
+                name: countryNameToTranslationKey.get("Venezuela") || "Venezuela",
+            },
+            {
+                code: "+86",
+                name: countryNameToTranslationKey.get("China") || "China",
+            },
+            {
+                code: "+81",
+                name: countryNameToTranslationKey.get("Japan") || "Japan",
+            },
+            {
+                code: "+82",
+                name: countryNameToTranslationKey.get("South Korea") || "South Korea",
+            },
+            {
+                code: "+62",
+                name: countryNameToTranslationKey.get("Indonesia") || "Indonesia",
+            },
+            {
+                code: "+60",
+                name: countryNameToTranslationKey.get("Malaysia") || "Malaysia",
+            },
+            {
+                code: "+66",
+                name: countryNameToTranslationKey.get("Thailand") || "Thailand",
+            },
+            {
+                code: "+63",
+                name: countryNameToTranslationKey.get("Philippines") || "Philippines",
+            },
+            {
+                code: "+92",
+                name: countryNameToTranslationKey.get("Pakistan") || "Pakistan",
+            },
+            {
+                code: "+65",
+                name: countryNameToTranslationKey.get("Singapore") || "Singapore",
+            },
+            {
+                code: "+971",
+                name: countryNameToTranslationKey.get("United Arab Emirates") || "United Arab Emirates",
+            },
+            {
+                code: "+90",
+                name: countryNameToTranslationKey.get("Turkey") || "Turkey",
+            },
+            {
+                code: "+880",
+                name: countryNameToTranslationKey.get("Bangladesh") || "Bangladesh",
+            },
+            {
+                code: "+94",
+                name: countryNameToTranslationKey.get("Sri Lanka") || "Sri Lanka",
+            },
+            {
+                code: "+976",
+                name: countryNameToTranslationKey.get("Mongolia") || "Mongolia",
+            },
+        ];
     }
 
     get countries(): CountryOption[] {
@@ -218,6 +442,44 @@ export class CountryService {
         ];
     }
 
+    get phoneLengthMapping(): PhoneLengthMapping {
+        return {
+            "+507": 8, // Panama
+            "+1": 10, // USA
+            "+44": 10, // United Kingdom
+            "+91": 10, // India
+            "+81": 10, // Japan
+            "+49": 11, // Germany
+            "+33": 9, // France
+            "+39": 10, // Italy
+            "+86": 11, // China
+            "+7": 10, // Russia
+            "+55": 11, // Brazil
+            "+61": 9, // Australia
+            "+34": 9, // Spain
+            "+82": 10, // South Korea
+            "+62": 10, // Indonesia
+            "+52": 10, // Mexico
+            "+27": 9, // South Africa
+            "+90": 10, // Turkey
+            "+31": 9, // Netherlands
+            "+46": 10, // Sweden
+            "+63": 10, // Philippines
+            "+54": 10, // Argentina
+            "+56": 9, // Chile
+            "+57": 10, // Colombia
+            "+506": 8, // Costa Rica
+            "+593": 9, // Ecuador
+            "+503": 8, // El Salvador
+            "+502": 8, // Guatemala
+            "+504": 8, // Honduras
+            "+595": 9, // Paraguay
+            "+51": 9, // Peru
+            "+598": 9, // Uruguay
+            "+58": 10, // Venezuela
+        };
+    }
+
     findAllowedCountryOptions(countries: string[]): CountryOption[] {
         const allowedCountries = [];
 
@@ -234,5 +496,9 @@ export class CountryService {
 
     getCountryFromCode(code: string): CountryOption {
         return this._countryMap.get(code);
+    }
+
+    getPhoneLengthForCountryCode(countryCode: string): number {
+        return this.phoneLengthMapping[countryCode] || 10;
     }
 }

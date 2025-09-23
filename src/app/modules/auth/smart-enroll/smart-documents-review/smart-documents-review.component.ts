@@ -2,21 +2,22 @@ import { CommonModule, NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
-
+import { MatIconModule } from "@angular/material/icon";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
-import { AppRegistration, Project, ProjectFlow } from "../../project";
-import { KYCService } from "../../kyc.service";
-import { SmartEnrollService } from "../smart-enroll.service";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
 import { AuthService } from "app/core/auth/auth.service";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { KYCService } from "../../kyc.service";
+import { AppRegistration } from "../../project";
+import { SmartEnrollService } from "../smart-enroll.service";
+import { PasswordlessService } from "../../passwordless.service";
 
 @Component({
     animations: fuseAnimations,
-    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, NgIf, SmartStepperComponent, MatCardModule, TranslocoModule],
+    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, NgIf, MatCardModule, TranslocoModule],
     selector: "smart-documents-review",
     standalone: true,
     styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
@@ -52,11 +53,12 @@ export class SmartDocumentsReviewComponent {
         private _authService: AuthService,
         private _KYCService: KYCService,
         private _smartEnrollService: SmartEnrollService,
-        private _translocoService: TranslocoService
+        private _translocoService: TranslocoService,
+        private _passwordlessService: PasswordlessService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
 
         if (!this.appRegistration.documentValidation) {
             this.onPreviousStep();
@@ -147,16 +149,17 @@ export class SmartDocumentsReviewComponent {
 
     onNextStep(): void {
         this._syncAppRegistration("liveness", "ONGOING");
+
         this._smartEnrollService.goToNextStep();
     }
 
     onTryAgain(): void {
         this._syncAppRegistration("document", "ONGOING");
-        this._smartEnrollService.goToPreviousStep();
+
+        this.onPreviousStep();
     }
 
     onPreviousStep(): void {
-        this._smartEnrollService.setDocumentMethod("");
         this._smartEnrollService.goToPreviousStep();
     }
 }

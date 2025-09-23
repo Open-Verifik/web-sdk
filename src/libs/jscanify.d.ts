@@ -16,10 +16,7 @@ declare class jscanify {
      * @param {*} options options for highlighting. Accepts `color` and `thickness` parameter
      * @returns `HTMLCanvasElement` with original image and paper highlighted
      */
-    highlightPaper(
-        image: HTMLCanvasElement,
-        options?: HighlightOptions
-    ): HTMLCanvasElement;
+    highlightPaper(image: HTMLCanvasElement, options?: HighlightOptions): HTMLCanvasElement;
 
     /**
      * Extracts and undistorts the image detected within the frame.
@@ -29,12 +26,7 @@ declare class jscanify {
      * @param {*} cornerPoints optional custom corner points, in case automatic corner points are incorrect
      * @returns `HTMLCanvasElement` containing undistorted image
      */
-    extractPaper(
-        image: HTMLCanvasElement,
-        resultWidth: number,
-        resultHeight: number,
-        cornerPoints: number
-    ): HTMLCanvasElement;
+    extractPaper(image: HTMLCanvasElement, resultWidth: number, resultHeight: number, cornerPoints: number): HTMLCanvasElement;
 
     /**
      * Calculates the corner points of a contour.

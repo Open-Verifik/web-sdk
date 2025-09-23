@@ -46,7 +46,11 @@ export class SmartCameraResolutionDetectionComponent implements OnInit, OnDestro
     /** On the last attempt, we try to get whatever camera settings we can - this should aid for instances where the camera doesn't fit usual aspect ratios */
     lastAttempt: boolean = false;
 
-    constructor(private _renderer: Renderer2, private _mediaStreamService: MediaStreamService, private _demoService: DemoService) {
+    constructor(
+        private _renderer: Renderer2,
+        private _mediaStreamService: MediaStreamService,
+        private _demoService: DemoService
+    ) {
         this._renderer.listen("window", "resize", () => this._init());
 
         this.cameraCycle$.pipe(takeUntil(this.unsubscriber$)).subscribe({

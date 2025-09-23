@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { HttpWrapperService } from "./http-wrapper.service";
 import { environment } from "environments/environment";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import * as faceapi from "@vladmandic/face-api";
+import { HttpWrapperService } from "./http-wrapper.service";
 import { DocumentValidation } from "./document-validation";
 import { Lead, Session } from "./lead";
 
@@ -29,10 +29,10 @@ export class DemoService {
     constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
         this.apiUrl = environment.apiUrl;
 
+        this.initSampleData();
         this.loadModels();
         this.initNavigation();
         this.initDemoData();
-        this.initSampleData();
 
         this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
             this.demoData.isMobile = result.matches;
@@ -885,5 +885,36 @@ export class DemoService {
         }
 
         return sum / (data.length / 4);
+    }
+
+    generateRandomPhoneNumber(): string {
+        return Array.from({ length: 10 }, () => Math.floor(Math.random() * 10)).join("");
+    }
+
+    generateSignUpDemoData(location?: any, roles?: any[]): any {
+        const randomNumber = Math.floor(Math.random() * 1000);
+        const r1 = Math.floor(Math.random() * this.sampleLastNames.length);
+        const r2 = Math.floor(Math.random() * this.sampleFirstNames.length);
+
+        return {
+            addressLine1: environment.production ? "" : "123 Main Street",
+            addressLine2: environment.production ? "" : "Apt 4B",
+            age: environment.production ? "" : "34",
+            agreements: !Boolean(environment.production),
+            city: environment.production ? "" : "New York",
+            company: environment.production ? "" : `company ${randomNumber}`,
+            country: environment.production ? "" : "United States",
+            countryCode: environment.production ? "+1" : "+1",
+            dateOfBirth: environment.production ? null : new Date(1990, 0, 1),
+            email: environment.production ? "" : `${this.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
+            firstName: environment.production ? "" : this.sampleFirstNames[r2],
+            fullName: environment.production ? "" : `${this.sampleFirstNames[r2]} ${this.sampleLastNames[r1]}`,
+            gender: environment.production ? "" : "M",
+            lastName: environment.production ? "" : this.sampleLastNames[r1],
+            phone: environment.production ? "" : this.generateRandomPhoneNumber(),
+            postalCode: environment.production ? "" : "10001",
+            role: environment.production ? roles?.[1]?.code || "user" : roles?.[3]?.code || "admin",
+            state: environment.production ? "" : "NY",
+        };
     }
 }

@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="center center" class="w-full" [style.background]="project?.branding.bgColor">
+<div fxLayout="row" fxLayoutAlign="center center" class="w-full" [style.background]="project?.branding.backgroundColor">
     <div
         fxLayout="row"
         fxLayoutAlign="center end"
@@ -32,7 +32,7 @@
                                     | transloco
                                         : {
                                               method: currentValidation.email ? "Verifik" : (phoneGateway | uppercase),
-                                              destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone
+                                              destination: currentValidation.email || currentValidation.countryCode + " " + currentValidation.phone,
                                           }
                             }}
                         </span>
@@ -49,7 +49,7 @@
                     <!-- end of PICK GATEWAY -->
 
                     <small
-                        [style.color]="project.branding.txtColor"
+                        [style.color]="project.branding.textColor"
                         class="cursor-pointer underline"
                         (click)="showUpdatePhoneCard()"
                         *ngIf="currentValidation.countryCode"
@@ -58,7 +58,7 @@
                     </small>
 
                     <!-- no account -->
-                    <div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.txtColor">
+                    <div class="flex items-baseline mt-0.5 font-medium" *ngIf="kycProjectFlow" [style.color]="project.branding.textColor">
                         <div>{{ "login.no_account" | transloco }}</div>
                         <!--  -->
                         <a class="ml-1 text-primary-500 hover:underline cursor-pointer" [routerLink]="['/sign-up', project._id]">{{
@@ -81,7 +81,7 @@
                     <!-- FORM HERE WHEN GATEWAY HAS BEEN SELECTED -->
                     <form class="mt-8" [formGroup]="otpForm" #otpNgForm="ngForm">
                         <mat-form-field class="w-full" *ngIf="currentValidation.email || (currentValidation.phone && phoneGateway !== 'both')">
-                            <mat-label [style.color]="project.branding.txtColor">{{ "login.email_otp" | transloco }}</mat-label>
+                            <mat-label [style.color]="project.branding.textColor">{{ "login.email_otp" | transloco }}</mat-label>
 
                             <input
                                 id="otp"
@@ -121,7 +121,7 @@
                             [class.col-span-2]="phoneGateway !== 'both'"
                             [disabled]="!canSendOTP()"
                             *ngIf="phoneGateway === 'sms' || phoneGateway === 'both'"
-                            [style.color]="project.branding.buttonTxtColor"
+                            [style.color]="project.branding.buttonTextColor"
                             [style.background]="project.branding.buttonColor"
                         >
                             <span> SMS </span>
@@ -135,7 +135,7 @@
                             [class.col-span-2]="phoneGateway !== 'both'"
                             [disabled]="!canSendOTP()"
                             *ngIf="phoneGateway === 'whatsapp' || phoneGateway === 'both'"
-                            [style.color]="project.branding.buttonTxtColor"
+                            [style.color]="project.branding.buttonTextColor"
                             [style.background]="project.branding.buttonColor"
                         >
                             <span> Whatsapp </span>
@@ -157,7 +157,7 @@
 
                     <div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
                         <small> {{ "powered_by_verifik" | transloco }} </small>
-                        <languages [colorText]="project.branding.txtColor" (languageChange)="onLanguageChange($event)"></languages>
+                        <languages [colorText]="project.branding.textColor" (languageChange)="onLanguageChange($event)"></languages>
                     </div>
                 </div>
             </div>
@@ -191,7 +191,7 @@
                     mat-stroked-button
                     class="w-11/12 mt-4 biometrics-button"
                     (click)="startKYC()"
-                    [style.color]="project.branding.buttonTxtColor"
+                    [style.color]="project.branding.buttonTextColor"
                     [style.background]="project.branding.buttonColor"
                 >
                     <span>{{ "add_biometrics.verifik_button" | transloco }} </span>
@@ -204,7 +204,7 @@
                     (click)="continueWithoutKYC()"
                     *ngIf="showSkipDoingKYC"
                 >
-                    <span [style.color]="project.branding.txtColor">{{ "add_biometrics.verifik_dismiss" | transloco }} </span>
+                    <span [style.color]="project.branding.textColor">{{ "add_biometrics.verifik_dismiss" | transloco }} </span>
                 </button>
             </div>
         </div>
@@ -223,7 +223,7 @@
 
                     <img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
 
-                    <h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.txtColor">
+                    <h2 class="pt-2 text-2xl font-extrabold" [style.color]="project.branding.textColor">
                         {{ "signup.kyc_start_popup.title" | transloco }}
                     </h2>
 
@@ -236,7 +236,7 @@
                     <button
                         mat-stroked-button
                         class="w-11/12 mt-4 biometrics-button"
-                        [style.color]="project.branding.buttonTxtColor"
+                        [style.color]="project.branding.buttonTextColor"
                         [style.background]="project.branding.buttonColor"
                         (click)="startKYC()"
                     >
@@ -250,7 +250,7 @@
                         (click)="continueWithoutKYC()"
                         *ngIf="showSkipDoingKYC"
                     >
-                        <span [style.color]="project.branding.txtColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
+                        <span [style.color]="project.branding.textColor"> {{ "add_biometrics.dismiss" | transloco }} </span>
                     </button>
                 </div>
             </div>
@@ -274,7 +274,7 @@
 
                 <div fxLayout="column" fxLayoutAlign="center center" class="w-full">
                     <button mat-stroked-button class="w-11/12 mt-4 biometrics-button" color="primary" (click)="continueWithoutKYC()">
-                        <span [style.color]="project.branding.txtColor"> {{ "signup.kyc_start_popup.end" | transloco }} </span>
+                        <span [style.color]="project.branding.textColor"> {{ "signup.kyc_start_popup.end" | transloco }} </span>
                     </button>
                 </div>
             </div>
@@ -283,7 +283,7 @@
         <!-- END client project -->
         <div class="w-full text-center mt-6" fxLayout="row" fxLayoutAlign="center center">
             <small> {{ "powered_by_verifik" | transloco }} </small>
-            <languages [colorText]="project.branding.txtColor" (languageChange)="onLanguageChange($event)"></languages>
+            <languages [colorText]="project.branding.textColor" (languageChange)="onLanguageChange($event)"></languages>
         </div>
     </div>
 
@@ -310,7 +310,7 @@
             <form class="mt-8" [formGroup]="phoneForm" #phoneNgForm="ngForm">
                 <div fxLayout="row" fxLayoutAlign="start center">
                     <mat-form-field class="w-full mr-2">
-                        <mat-label [style.color]="project.branding.txtColor"> {{ "login.country_code" | transloco }}</mat-label>
+                        <mat-label [style.color]="project.branding.textColor"> {{ "login.country_code" | transloco }}</mat-label>
                         <mat-select *ngIf="countries" class="mr-1.5" [formControl]="phoneForm.get('countryCode')" matPrefix>
                             <mat-select-trigger>
                                 <span class="flex items-center">
@@ -329,7 +329,7 @@
                     </mat-form-field>
 
                     <mat-form-field class="w-full">
-                        <mat-label [style.color]="project.branding.txtColor">{{ "login.phone" | transloco }}</mat-label>
+                        <mat-label [style.color]="project.branding.textColor">{{ "login.phone" | transloco }}</mat-label>
                         <input id="phone" matInput [formControlName]="'phone'" />
                         <mat-error *ngIf="phoneForm.get('phone').hasError('required')">
                             {{ "login.phone" | transloco }} {{ "signup.is_required" | transloco }}
@@ -348,7 +348,7 @@
                 (click)="updatePhone($event)"
                 [class.col-span-2]="phoneGateway === 'sms' || phoneGateway === 'whatsapp'"
                 [disabled]="!canUpdatePhone()"
-                [style.color]="project.branding.buttonTxtColor"
+                [style.color]="project.branding.buttonTextColor"
                 [style.background]="project.branding.buttonColor"
                 *ngIf="currentValidation.countryCode"
             >
@@ -388,7 +388,7 @@
             class="w-full mt-4"
             color="primary"
             (click)="goBack()"
-            [style.color]="project.branding.buttonTxtColor"
+            [style.color]="project.branding.buttonTextColor"
             [style.background]="project.branding.buttonColor"
         >
             <span> {{ "go_back" | transloco }} </span>
