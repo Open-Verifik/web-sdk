@@ -57,7 +57,7 @@
         <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
             <div class="w-full grid grid-cols-7">
                 <div class="col-span-2">
-                    <button (click)="goPrevious()" [disabled]="!canGoPrevious()" class="mr-4" style.backgroundColor="rgba(0,0,0,0)" mat-flat-button>
+                    <button (click)="goPrevious()" [disabled]="!canGoPrevious()" class="m-4" color="primary" mat-stroked-button>
                         <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
                         <span class="ml-2">{{ "cancel" | transloco }}</span>
                     </button>
@@ -83,12 +83,11 @@
 
         <div
             [ngStyle.gt-sm]="{
-            border: project.branding.buttonTextColor ? '1px solid ' + project.branding.buttonTextColor : '',
-        }"
+                border: project.branding.buttonTextColor ? '1px solid ' + project.branding.buttonTextColor : '',
+            }"
             @fadeIn
             *ngIf="!camera.isLoading && camera.isLowQuality"
-            class="smart-documents__card rounded-2xl bg-card p-6 w-full mb-4"
-            fxLayout="column"
+            class="p-6 w-full flex flex-col justify-center items-center"
         >
             <mat-card-title class="text-center mt-2">
                 <mat-icon
@@ -109,12 +108,18 @@
                     <span *ngIf="cameraConstraintsInvalid">{{ "smart_enroll.camera_constraints_description" | transloco }}</span>
                 </p>
 
-                <button (click)="restartCamera()" class="h-14 min-h-14 rounded-lg w-full mt-6" mat-flat-button>
+                <button (click)="restartCamera()" class="h-14 min-h-14 rounded-lg w-full mt-6" color="primary" mat-flat-button>
                     <mat-icon matLeadingIcon>smartphone</mat-icon>
                     <span>{{ "errors.geolocation.enabled_it" | transloco }}</span>
                 </button>
 
-                <button (click)="loadQRCode()" [disabled]="revealQRCode" class="h-14 min-h-14 rounded-lg w-full mt-6" mat-flat-button>
+                <button
+                    (click)="loadQRCode()"
+                    [disabled]="revealQRCode"
+                    class="h-14 min-h-14 rounded-lg w-full mt-6"
+                    color="primary"
+                    mat-stroked-button
+                >
                     <mat-icon matLeadingIcon>smartphone</mat-icon>
                     <span>{{ "welcome.continue_on_another" | transloco }}</span>
                 </button>
@@ -130,16 +135,17 @@
                 <hr class="w-full" />
             </mat-card-content>
 
-            <mat-card-actions fxLayout="row" fxLayoutAlign="space-between">
-                <button (click)="exitApplication()" class="h-14 min-h-14 rounded-lg" mat-stroked-button>
+            <mat-card-actions class="flex flex-row justify-between gap-4 w-full">
+                <button (click)="exitApplication()" class="h-14 min-h-14 rounded-lg" color="primary" mat-stroked-button>
                     <span>{{ "log_out" | transloco }}</span>
                 </button>
 
                 <button
                     (click)="goNext()"
                     [disabled]="!canSkip()"
-                    class="h-14 min-h-14 rounded-lg"
                     *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
+                    class="h-14 min-h-14 rounded-lg"
+                    color="primary"
                     mat-stroked-button
                 >
                     {{ "skip" | transloco }}

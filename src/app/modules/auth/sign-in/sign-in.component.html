@@ -6,7 +6,7 @@
     >
         <div class="flex overflow-hidden h-screen w-full" *ngIf="!showBiometrics">
             <div
-                [ngClass]="{ 'max-w-1/2': project.branding.image }"
+                [ngClass]="{ 'md:max-w-1/2': project.branding.image }"
                 *ngIf="!showFaceLivenessRecommendation"
                 class="flex flex-col items-center justify-center w-full p-2"
             >
@@ -237,7 +237,7 @@
             </div>
 
             <div
-                [ngClass]="{ 'max-w-1/2': project.branding.image }"
+                [ngClass]="{ 'md:max-w-1/2': project.branding.image }"
                 *ngIf="showFaceLivenessRecommendation"
                 class="flex flex-col items-center justify-center w-full p-2"
             >
@@ -264,7 +264,10 @@
 
                             <img src="https://cdn.verifik.co/access/biometrics_icon.svg" alt="" class="w-28" />
 
-                            <h2 class="text-3xl font-semibold tracking-tight leading-tight text-center mt-4" [style.color]="project.branding.titleColor">
+                            <h2
+                                class="text-3xl font-semibold tracking-tight leading-tight text-center mt-4"
+                                [style.color]="project.branding.titleColor"
+                            >
                                 {{ t("add_biometrics.title") }}
                             </h2>
 
