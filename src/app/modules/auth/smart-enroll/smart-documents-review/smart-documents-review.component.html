@@ -1,5 +1,5 @@
 <div class="w-full flex flex-row h-screen" *transloco="let t">
-    <div class="w-full md:w-1/2 md:min-w-1/2 min-w-1/2 flex flex-col items-center p-2 sm:py-8 overflow-y-auto">
+    <div class="w-full flex flex-col items-center p-2 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:w-1/2': project.branding.image }">
         <div class="w-full max-w-128 flex flex-col items-center m-auto gap-6 py-8">
             <div class="flex flex-col gap-2 justify-center items-center">
                 <div class="flex flex-row items-center justify-center">
