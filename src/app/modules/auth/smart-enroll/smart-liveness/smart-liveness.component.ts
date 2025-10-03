@@ -402,26 +402,22 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     private _setDetectionBounds() {
         const { height: viewportHeight, width: viewportWidth, offsetX, offsetY } = this.scaledViewport;
 
-        const __minCalc = (offset: number) => {
-            return Math.floor(offset);
-        };
-
         const __maxCalc = (offset: number, dimension: number) => {
-            return Math.floor(dimension + offset);
+            return Math.floor((dimension + offset) * 0.95);
         };
 
         this.bounds = {
             min: {
-                x: __minCalc(offsetX),
-                y: __minCalc(offsetY),
+                x: Math.floor(offsetX ? offsetX * 1.1 : viewportWidth * 0.1),
+                y: Math.floor(offsetY ? offsetY * 1.1 : viewportHeight * 0.1),
                 score: this.projectFlow.onboardingSettings.liveness.livenessMinScore * 0.8,
-                resolution: Math.max(viewportHeight * viewportWidth * 0.05, this.MINIMUM_DEPTH),
+                resolution: Math.max(Math.floor(viewportHeight * viewportWidth * 0.27), this.MINIMUM_DEPTH),
             },
             max: {
                 x: __maxCalc(offsetX, viewportWidth),
                 y: __maxCalc(offsetY, viewportHeight),
                 score: 1,
-                resolution: Math.max(viewportHeight * viewportWidth * 0.9, this.MINIMUM_DEPTH),
+                resolution: Math.max(Math.floor(viewportHeight * viewportWidth * 0.65), this.MINIMUM_DEPTH),
             },
         };
     }
@@ -562,7 +558,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         }
 
         // Require fewer consecutive successes on mobile for better UX
-        const requiredSuccesses = this.device !== "DESKTOP" ? 1 : 2;
+        const requiredSuccesses = this.device !== "DESKTOP" ? 2 : 2;
 
         if (this.face.successPosition < requiredSuccesses) return;
 

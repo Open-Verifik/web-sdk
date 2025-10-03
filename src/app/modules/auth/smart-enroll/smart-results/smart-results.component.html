@@ -1,5 +1,5 @@
 <div class="w-full flex flex-row h-screen" *transloco="let t">
-    <div class="w-full flex flex-col items-center p-2 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:w-1/2': project.branding.image }">
+    <div class="w-full flex flex-col items-center p-2 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:max-w-1/2': project.branding.image }">
         <div class="w-full max-w-128 flex flex-col items-center m-auto gap-8 py-8">
             <ng-container *ngIf="!showQrCode">
                 <div class="w-full flex flex-col justify-start items-center gap-4">

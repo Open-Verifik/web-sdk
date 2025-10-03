@@ -18,13 +18,13 @@
 
 /* Slab variant styles */
 .verifik-radio-item--selected {
-    background-color: var(--custom-verifik-primary-50, #eef2ff);
+    background-color: var(--custom-verifik-primary-200, #c7d2fe);
     border-color: var(--custom-verifik-primary-200, #c7d2fe);
 }
 
 .verifik-radio-item--selected-error {
     background-color: var(--custom-verifik-warn-50, #fef2f2);
-    border-color: var(--custom-verifik-warn-200, #fecaca);
+    border-color: var(--custom-verifik-warn-800, #dc2626);
 }
 
 .verifik-radio-item--unselected {
@@ -34,14 +34,14 @@
 
 .verifik-radio-item--unselected-error {
     background-color: var(--custom-verifik-warn-50, #fef2f2);
-    border-color: var(--custom-verifik-warn-200, #fecaca);
+    border-color: var(--custom-verifik-warn-800, #dc2626);
 }
 
 .verifik-radio-item--hover {
     &:hover {
         border-color: var(--custom-verifik-primary-400, #818cf8);
     }
-    
+
     &:focus {
         border-color: var(--custom-verifik-primary-200, #c7d2fe);
     }
@@ -51,9 +51,9 @@
     &:hover {
         border-color: var(--custom-verifik-warn-400, #f87171);
     }
-    
+
     &:focus {
-        border-color: var(--custom-verifik-warn-200, #fecaca);
+        border-color: var(--custom-verifik-warn-800, #dc2626);
     }
 }
 
@@ -77,7 +77,7 @@
 
 .verifik-radio-item--pill-unselected-error {
     background-color: var(--custom-verifik-warn-100, #fee2e2);
-    border-color: var(--custom-verifik-warn-200, #fecaca);
+    border-color: var(--custom-verifik-warn-800, #dc2626);
 }
 
 .verifik-radio-item--pill-hover {
@@ -100,52 +100,52 @@
 }
 
 .verifik-radio-item--default-selected {
-    background-color: var(--custom-verifik-primary-50, #eef2ff);
-    border-color: var(--custom-verifik-primary-200, #c7d2fe);
+    background-color: var(--custom-verifik-primary-100, #e0e7ff);
+    border-color: var(--custom-verifik-primary-500, #818cf8);
     color: var(--custom-verifik-accent-800, #1e293b);
 }
 
 .verifik-radio-item--default-selected-error {
-    background-color: var(--custom-verifik-warn-50, #fef2f2);
-    border-color: var(--custom-verifik-warn-200, #fecaca);
+    background-color: var(--custom-verifik-warn-100, #fee2e2);
+    border-color: var(--custom-verifik-warn-500, #f87171);
     color: var(--custom-verifik-accent-800, #1e293b);
 }
 
 .verifik-radio-item--default-unselected {
     background-color: var(--custom-verifik-accent-50, #f8fafc);
-    border-color: var(--custom-verifik-accent-200, #e2e8f0);
-    color: var(--custom-verifik-accent-500, #64748b);
+    border-color: var(--custom-verifik-accent-500, #94a3b8);
+    color: var(--custom-verifik-accent-500, #94a3b8);
 }
 
 .verifik-radio-item--default-unselected-error {
-    background-color: var(--custom-verifik-accent-50, #f8fafc);
-    border-color: var(--custom-verifik-warn-200, #fecaca);
-    color: var(--custom-verifik-accent-500, #64748b);
+    background-color: var(--custom-verifik-accent-50, #f1f5f9);
+    border-color: var(--custom-verifik-warn-500, #f87171);
+    color: var(--custom-verifik-accent-500, #94a3b8);
 }
 
 .verifik-radio-item--default-hover {
     &:hover {
-        border-color: var(--custom-verifik-primary-400, #818cf8);
+        border-color: var(--custom-verifik-accent-500, #94a3b8);
     }
-    
+
     &:focus {
-        border-color: var(--custom-verifik-primary-200, #c7d2fe);
+        border-color: var(--custom-verifik-accent-500, #94a3b8);
     }
 }
 
 .verifik-radio-item--default-hover-error {
     &:hover {
-        border-color: var(--custom-verifik-warn-400, #f87171);
+        border-color: var(--custom-verifik-warn-500, #f87171);
     }
-    
+
     &:focus {
-        border-color: var(--custom-verifik-warn-200, #fecaca);
+        border-color: var(--custom-verifik-warn-500, #f87171);
     }
 }
 
 /* Icon and label styles */
 .verifik-radio-item__icon {
-    color: var(--custom-verifik-accent-800, #1e293b);
+    color: var(--custom-verifik-accent-500, #94a3b8);
 }
 
 .verifik-radio-item__label {
@@ -154,18 +154,18 @@
 
 /* Checkmark styles */
 .verifik-radio-item__checkmark-path {
-    fill: var(--custom-verifik-primary-500, #6366f1);
+    fill: var(--custom-verifik-primary-500, #818cf8);
 }
 
 .verifik-radio-item__checkmark-path--unselected {
-    fill: var(--custom-verifik-accent-300, #cbd5e1);
+    fill: var(--custom-verifik-accent-400, #94a3b8);
 }
 
 /* Error state for checkmark */
 .verifik-radio-item--selected-error .verifik-radio-item__checkmark-path {
-    fill: var(--custom-verifik-warn-600, #dc2626);
+    fill: var(--custom-verifik-warn-500, #f87171);
 }
 
 .verifik-radio-item--unselected-error .verifik-radio-item__checkmark-path--unselected {
-    fill: var(--custom-verifik-warn-200, #fecaca);
+    fill: var(--custom-verifik-warn-500, #f87171);
 }

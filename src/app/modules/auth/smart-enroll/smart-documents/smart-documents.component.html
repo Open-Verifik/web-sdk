@@ -6,7 +6,7 @@
     class="w-full flex flex-col justify-start items-center md:flex-row md:justify-center md:items-center"
 >
     <div @fadeIn class="w-full flex flex-row h-screen overflow-y-auto" *ngIf="project && !formSubmitted">
-        <div class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:w-1/2': project.branding.image }">
+        <div class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project.branding.image }">
             <div class="w-full max-w-2xl flex flex-col items-center m-auto gap-6 py-8">
                 <div class="w-full flex flex-col items-center gap-6" [class.hidden]="showQrCode">
                     <div class="w-full flex flex-col gap-2 justify-center items-center">
@@ -272,7 +272,7 @@
                 [class.hidden]="errorResult"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
                 class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center"
-                [ngClass]="{ 'md:w-1/2': branding.image }"
+                [ngClass]="{ 'md:max-w-1/2': project.branding.image }"
                 source="document"
             ></smart-upload>
 

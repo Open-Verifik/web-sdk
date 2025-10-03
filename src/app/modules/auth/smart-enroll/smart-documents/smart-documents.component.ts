@@ -198,7 +198,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
     private _initForm() {
         this.methodSelectionForm = this._formBuilder.group({
-            country: [{ value: "", disabled: true }, [Validators.required]],
+            country: [{ value: "", disabled: false }, [Validators.required]],
             documentCategory: [{ value: "", disabled: true }, [Validators.required]],
             documentMethod: ["", [Validators.required]],
             promptTemplate: [{ value: null, disabled: true }, [CoreValidators.requiredIfVersion3(this.projectFlow.version)]],
@@ -213,27 +213,24 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     private _initializeFormValues(): void {
         const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
 
-        // Step 1: Set documentMethod (required for all subsequent steps)
+        // Step 1: Set documentMethod
         const documentMethod = this._getDocumentMethod(onboardSettingsDocument);
         this.methodSelectionForm.patchValue({ documentMethod });
         this._handleDocumentMethodChange(documentMethod);
-
-        // Step 2: Set country (only if documentMethod is set)
-        if (!documentMethod) return;
 
         const country = this._getCountry();
 
         this.methodSelectionForm.patchValue({ country });
         this._handleCountryChange(country);
 
-        // Step 3: Set documentCategory (only if country is set)
+        // Step 2: Set documentCategory (only if country is set)
         if (!country) return;
 
         const documentCategory = this._getDocumentCategory(onboardSettingsDocument);
         this.methodSelectionForm.patchValue({ documentCategory });
         this._handleDocumentCategoryChange(documentCategory);
 
-        // Step 4: Set promptTemplate (only if documentCategory is set)
+        // Step 3: Set promptTemplate (only if documentCategory is set)
         if (!documentCategory) return;
 
         const promptTemplate = this._getPromptTemplate();
@@ -296,13 +293,6 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
     private _setFormSubscriptions() {
         this.methodSelectionForm
-            .get("documentMethod")
-            ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
-            .subscribe((value) => {
-                this._handleDocumentMethodChange(value);
-            });
-
-        this.methodSelectionForm
             .get("country")
             ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
             .subscribe((value) => {
@@ -319,7 +309,6 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
     private _handleDocumentMethodChange(value: string): void {
         if (!value) {
-            this.methodSelectionForm.get("country")?.disable();
             this.methodSelectionForm.get("documentCategory")?.disable();
             this.methodSelectionForm.get("promptTemplate")?.disable();
             return;
@@ -336,6 +325,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         if (!value) {
             this.methodSelectionForm.get("documentCategory")?.disable();
             this.methodSelectionForm.get("promptTemplate")?.disable();
+
             return;
         }
 

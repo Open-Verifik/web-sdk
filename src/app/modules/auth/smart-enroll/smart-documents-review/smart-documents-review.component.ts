@@ -32,21 +32,21 @@ export class SmartDocumentsReviewComponent {
     ocrKeys: Array<string> = [];
 
     ORDER_OCR_BY: { [key: string]: number } = {
-        Address: 15,
-        Age: 13,
-        "Date Of Birth": 12,
-        "Document Number": 17,
-        "Document Type": 16,
-        "First Last Name MRZ": 22,
-        "First Name": 27,
-        "First Name MRZ": 26,
-        "Full Name": 90,
-        "Last Name": 24,
-        "Middle Name": 25,
-        "Name 1": 31,
-        "Name 2": 30,
-        "Name 3": 29,
-        "Second Last Name": 23,
+        address: 15,
+        age: 13,
+        "date of birth": 12,
+        "document number": 17,
+        "document type": 16,
+        "first last name mrz": 22,
+        "first name": 27,
+        "first name mrz": 26,
+        "full name": 90,
+        "last name": 24,
+        "middle name": 25,
+        "name 1": 31,
+        "name 2": 30,
+        "name 3": 29,
+        "second last name": 23,
     };
 
     constructor(
@@ -90,7 +90,12 @@ export class SmartDocumentsReviewComponent {
         });
 
         this.ocrKeys = Object.keys(OCRExtraction).sort((a, b) => {
-            return (this.ORDER_OCR_BY[b] || 1) - (this.ORDER_OCR_BY[a] || 1);
+            const lowerA = a.toLowerCase();
+            const lowerB = b.toLowerCase();
+            const orderA = this.ORDER_OCR_BY[lowerA] ?? Infinity;
+            const orderB = this.ORDER_OCR_BY[lowerB] ?? Infinity;
+
+            return orderA - orderB;
         });
     }
 
