@@ -893,8 +893,8 @@ export class DemoService {
 
     generateSignUpDemoData(location?: any, roles?: any[]): any {
         const randomNumber = Math.floor(Math.random() * 1000);
-        const r1 = Math.floor(Math.random() * this.sampleLastNames.length);
-        const r2 = Math.floor(Math.random() * this.sampleFirstNames.length);
+        const r1 = Math.floor(Math.random() * (this.sampleLastNames?.length || 1));
+        const r2 = Math.floor(Math.random() * (this.sampleFirstNames?.length || 1));
 
         return {
             addressLine1: environment.production ? "" : "123 Main Street",
@@ -906,11 +906,11 @@ export class DemoService {
             country: environment.production ? "" : "United States",
             countryCode: environment.production ? "+1" : "+1",
             dateOfBirth: environment.production ? null : new Date(1990, 0, 1),
-            email: environment.production ? "" : `${this.sampleFirstNames[r2].toLowerCase()}_${randomNumber}@verifik.co`,
-            firstName: environment.production ? "" : this.sampleFirstNames[r2],
-            fullName: environment.production ? "" : `${this.sampleFirstNames[r2]} ${this.sampleLastNames[r1]}`,
+            email: environment.production ? "" : `${this.sampleFirstNames?.[r2]?.toLowerCase() || "user"}_${randomNumber}@verifik.co`,
+            firstName: environment.production ? "" : this.sampleFirstNames?.[r2] || "User",
+            fullName: environment.production ? "" : `${this.sampleFirstNames?.[r2] || "User"} ${this.sampleLastNames?.[r1] || "Name"}`,
             gender: environment.production ? "" : "M",
-            lastName: environment.production ? "" : this.sampleLastNames[r1],
+            lastName: environment.production ? "" : this.sampleLastNames?.[r1] || "Name",
             phone: environment.production ? "" : this.generateRandomPhoneNumber(),
             postalCode: environment.production ? "" : "10001",
             role: environment.production ? roles?.[1]?.code || "user" : roles?.[3]?.code || "admin",

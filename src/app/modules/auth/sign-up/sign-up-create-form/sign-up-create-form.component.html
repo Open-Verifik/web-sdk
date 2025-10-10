@@ -154,7 +154,7 @@
                     (click)="preventInputFocus($event)"
                     (closed)="onCountryCodeChange()"
                     (selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
-                    [formControl]="signUpForm.get('countryCode')"
+                    [formControl]="signUpForm.get('countryCode') || null"
                     *ngIf="countryCodes"
                     name="countryCode"
                     autocomplete="country-code"
@@ -219,7 +219,7 @@
         <mat-form-field appearance="outline" class="w-full" *ngIf="fields.role && roles">
             <mat-label>{{ t("signup.role") }}</mat-label>
 
-            <mat-select [formControl]="signUpForm.get('role')" name="role" autocomplete="organization-title" required>
+            <mat-select [formControl]="signUpForm.get('role') || null" name="role" autocomplete="organization-title" required>
                 <mat-option *ngFor="let role of roles" [value]="role.code">
                     {{ role.label | transloco }}
                 </mat-option>
@@ -450,8 +450,8 @@
                 mat-flat-button
                 type="button"
             >
-                <span *ngIf="!signUpForm?.disabled">{{ t("step_two.continue_button") }}</span>
-                <div *ngIf="signUpForm.disabled" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span *ngIf="!isFormDisabled">{{ t("step_two.continue_button") }}</span>
+                <div *ngIf="isFormDisabled" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             </button>
         </div>
     </form>
