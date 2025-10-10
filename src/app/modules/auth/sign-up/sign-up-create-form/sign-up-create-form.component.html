@@ -450,8 +450,8 @@
                 mat-flat-button
                 type="button"
             >
-                <span *ngIf="!isFormDisabled">{{ t("step_two.continue_button") }}</span>
-                <div *ngIf="isFormDisabled" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span *ngIf="!saving">{{ t("step_two.continue_button") }}</span>
+                <div *ngIf="saving" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             </button>
         </div>
     </form>

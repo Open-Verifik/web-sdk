@@ -68,14 +68,15 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     };
 
     appRegistration: AppRegistration;
-    countryCodes: CountryCodeOption[];
     countries: CountryOption[];
+    countryCodes: CountryCodeOption[];
     demoData: any;
     fields: any;
     hasLogin: Boolean = false;
     language: string;
     loginProjectFlow: ProjectFlow;
     roles: Array<any>;
+    saving: boolean = false;
     showError: boolean = false;
     signUpForm: UntypedFormGroup;
     signUpFormSettings: SmartEnrollProjectFlow["signUpForm"];
@@ -129,7 +130,10 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     }
 
     get isFormDisabled(): boolean {
-        return Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements));
+        return (
+            this.saving ||
+            Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements))
+        );
     }
 
     static _dateOfBirthValidator = (control: AbstractControl) => {
@@ -303,6 +307,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     signUp(): void {
         if (!this.project || this.signUpForm.invalid) return null;
 
+        this.saving = true;
+
         dataLayer.push({
             clickId: `form_${this.project._id}`,
             event: "clickEvent",
@@ -331,10 +337,14 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
             })
             .subscribe({
                 next: (v) => {
+                    this.saving = false;
+
                     this.appRegistration = v?.data?.appRegistration;
                     this.appRegistration.token = v?.data?.token;
                 },
                 error: (exception) => {
+                    this.saving = false;
+
                     this.signUpForm.enable();
                     this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
 
@@ -350,6 +360,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
                     });
                 },
                 complete: () => {
+                    this.saving = false;
+
                     this._router.navigate(["/sign-up", this.project._id], {
                         queryParams: { token: this.appRegistration.token },
                         queryParamsHandling: "merge",
