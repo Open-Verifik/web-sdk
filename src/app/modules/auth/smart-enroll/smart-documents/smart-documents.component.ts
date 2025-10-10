@@ -18,6 +18,7 @@ import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { VerifikRadioGroupComponent } from "app/core/components/verifik-radio-group/verifik-radio-group.component";
 import { VerifikRadioItemComponent } from "app/core/components/verifik-radio-item/verifik-radio-item.component";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { CountryOption, CountryService } from "app/core/services/country.service";
 import { CoreValidators } from "app/core/validators/validators";
@@ -82,6 +83,7 @@ type NameValidationResponse = {
         SmartScannerMobileComponent,
         SmartUploadComponent,
         TranslocoModule,
+        VerifikMediaDisplayComponent,
         VerifikRadioGroupComponent,
         VerifikRadioItemComponent,
     ],
@@ -100,6 +102,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     errorResult: boolean;
     faceIdCard: string;
     formSubmitted: boolean = false;
+    isVerifikProject: boolean = false;
     methodSelectionForm: FormGroup;
     project: Project;
     projectFlow: ProjectFlow;
@@ -118,6 +121,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         this.enrollSettings = this._smartEnrollService.enrollSettings;
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
+        this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
         this.countries = this._countryService.findAllowedCountryOptions(this.projectFlow.allowedCountries());
 

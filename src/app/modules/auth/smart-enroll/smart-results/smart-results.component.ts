@@ -11,6 +11,7 @@ import QRCode from "qrcode";
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, Face } from "../../project";
@@ -19,7 +20,7 @@ import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll
 @Component({
     animations: fuseAnimations,
     encapsulation: ViewEncapsulation.None,
-    imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, NgIf, TranslocoModule],
+    imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, NgIf, TranslocoModule, VerifikMediaDisplayComponent],
     selector: "smart-results",
     standalone: true,
     styleUrls: ["../smart-enroll.component.scss"],
@@ -42,6 +43,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
     identityLoading: boolean = false;
     livenessFailed: boolean;
     livenessScore: number;
+    isVerifikProject: boolean = false;
     loadingQRCode: boolean = false;
     project: Project;
     projectFlow: ProjectFlow;
@@ -58,6 +60,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
         this.enrollStore = this._smartEnrollService.store;
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
+        this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
         this.errorResult = false;
     }

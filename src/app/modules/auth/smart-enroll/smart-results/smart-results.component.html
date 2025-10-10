@@ -208,9 +208,9 @@
         </div>
     </div>
 
-    <div
-        [style.background]="'center / cover no-repeat url(' + project.branding.image + ')'"
-        *ngIf="project.branding.image"
-        class="w-1/2 hidden md:block"
-    ></div>
+    <verifik-media-display
+        [isVerifikProject]="isVerifikProject"
+        [brandingImage]="project.branding.image"
+        additionalClasses="w-1/2 hidden md:block"
+    ></verifik-media-display>
 </div>

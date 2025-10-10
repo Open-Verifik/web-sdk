@@ -178,13 +178,7 @@
         </div>
     </div>
 
-    <div
-        [style.background]="'center / cover no-repeat url(' + project.branding.image + ')'"
-        *ngIf="project.branding.image"
-        class="relative hidden md:flex flex-auto justify-center h-full overflow-hidden dark:border-r w-full"
-        fxLayout="row"
-        fxLayoutAlign="end end"
-    ></div>
+    <verifik-media-display [isVerifikProject]="isVerifikProject" [brandingImage]="project.branding.image"></verifik-media-display>
 </div>
 
 <smart-enroll class="w-full" [service]="service" @fadeIn *ngIf="showKYCApp"></smart-enroll>

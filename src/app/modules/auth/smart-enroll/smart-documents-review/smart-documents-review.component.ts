@@ -10,6 +10,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration } from "../../project";
 import { SmartEnrollService } from "../smart-enroll.service";
@@ -17,7 +18,7 @@ import { PasswordlessService } from "../../passwordless.service";
 
 @Component({
     animations: fuseAnimations,
-    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, NgIf, MatCardModule, TranslocoModule],
+    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatIconModule, NgIf, MatCardModule, TranslocoModule, VerifikMediaDisplayComponent],
     selector: "smart-documents-review",
     standalone: true,
     styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
@@ -26,6 +27,7 @@ import { PasswordlessService } from "../../passwordless.service";
 export class SmartDocumentsReviewComponent {
     appRegistration: AppRegistration;
     errors: any = {};
+    isVerifikProject: boolean = false;
     project: Project;
     projectFlow: ProjectFlow;
     showErrors: boolean = false;
@@ -59,6 +61,7 @@ export class SmartDocumentsReviewComponent {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
+        this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
         if (!this.appRegistration.documentValidation) {
             this.onPreviousStep();

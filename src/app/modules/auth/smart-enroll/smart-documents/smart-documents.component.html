@@ -242,11 +242,11 @@
             </div>
         </div>
 
-        <div
-            [style.background]="'center / cover no-repeat url(' + project.branding.image + ')'"
-            *ngIf="project.branding.image"
-            class="hidden md:flex flex-row flex-auto justify-end items-end h-full overflow-hidden w-full"
-        ></div>
+        <verifik-media-display
+            [isVerifikProject]="isVerifikProject"
+            [brandingImage]="project.branding.image"
+            additionalClasses="hidden md:flex flex-row flex-auto justify-end items-end h-full overflow-hidden w-full"
+        ></verifik-media-display>
     </div>
 
     <ng-template #steps let-index="index" let-title="title" let-opacity="opacity">
@@ -276,11 +276,11 @@
                 source="document"
             ></smart-upload>
 
-            <div
-                [style.background]="'center / cover no-repeat url(' + project.branding.image + ')'"
-                *ngIf="project.branding.image"
-                class="hidden md:flex flex-row flex-auto justify-end items-end h-full overflow-hidden w-full"
-            ></div>
+            <verifik-media-display
+                [isVerifikProject]="isVerifikProject"
+                [brandingImage]="project.branding.image"
+                additionalClasses="hidden md:flex flex-row flex-auto justify-end items-end h-full overflow-hidden w-full"
+            ></verifik-media-display>
         </ng-container>
 
         <div

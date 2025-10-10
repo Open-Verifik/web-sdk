@@ -24,6 +24,7 @@ import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
 import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 import { SignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { SignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
+import { VerifikMediaDisplayComponent } from "../../../shared/components/verifik-media-display";
 
 @Component({
     animations: fuseAnimations,
@@ -44,17 +45,19 @@ import { SignUpVerificationComponent } from "./sign-up-verification/sign-up-veri
         SignUpVerificationComponent,
         SmartEnrollComponent,
         TranslocoModule,
+        VerifikMediaDisplayComponent,
     ],
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
     private unsubscriber$: Subject<void> = new Subject<void>();
 
-    appUrl: string = environment.appUrl;
     appRegistration: AppRegistration;
+    appUrl: string = environment.appUrl;
     currentStep: string = "create";
     currentStepIndex: number = 0;
     deviceDetails: any;
     enrollStep: EnrollStep;
+    isVerifikProject: boolean = false;
     language: string;
     location: any;
     locationError: any;
@@ -62,9 +65,9 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     projectFlow: ProjectFlow;
     sendingOTP: Boolean;
     showKYCApp: boolean = false;
+    showUpgradeRequired: boolean = false;
     steps: Array<string> = ["create"];
     token: string;
-    showUpgradeRequired: boolean = false;
 
     flagCodes = {
         en: "us",
@@ -227,6 +230,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
         this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
             next: (response) => {
                 this.project = new Project({ ...response.data, type: "onboarding" });
+
+                this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
                 this._projectStorageService.setProject(this.project);
 
