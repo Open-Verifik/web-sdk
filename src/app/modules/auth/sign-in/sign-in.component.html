@@ -65,7 +65,7 @@
                                 <ng-template matTabContent>
                                     <div class="gap-8 signin-form__tab-content">
                                         <mat-form-field appearance="outline" class="w-full signin-form__field">
-                                            <mat-label class="signin-form__label">{{ t("login.email") }}</mat-label>
+                                            <mat-label class="signin-form__label" for="email">{{ t("login.email") }}</mat-label>
 
                                             <input
                                                 [readOnly]="emailSent && !activeSendOtp"
@@ -86,10 +86,11 @@
                                         </mat-form-field>
 
                                         <div class="w-full justify-center flex flex-col" *ngIf="emailValidation && emailValidation.diff">
-                                            <label class="signin-form__label">{{ t("login.otp") }}</label>
+                                            <label class="signin-form__label" for="emailOTP">{{ t("login.otp") }}</label>
 
                                             <one-time-password-input
                                                 [hasError]="signInForm.get('emailOTP').invalid && signInForm.get('emailOTP').touched"
+                                                [inputId]="'emailOTP'"
                                                 [projectBranding]="project.branding"
                                                 class="mt-2"
                                                 formControlName="emailOTP"
@@ -108,9 +109,10 @@
                                     <div class="gap-8 signin-form__tab-content">
                                         <div class="flex gap-2" *ngIf="groupFields.phone">
                                             <mat-form-field appearance="outline" class="w-24 signin-form__field">
-                                                <mat-label class="signin-form__label">{{ t("login.code") }}</mat-label>
+                                                <mat-label class="signin-form__label" for="countryCode">{{ t("login.code") }}</mat-label>
 
                                                 <mat-select
+                                                    id="countryCode"
                                                     (ngModelChange)="onCountryCodeChange($event)"
                                                     [readOnly]="smsSent && !activeSendOtp"
                                                     *ngIf="countries"
@@ -124,7 +126,7 @@
                                             </mat-form-field>
 
                                             <mat-form-field appearance="outline" class="flex-1 signin-form__field">
-                                                <mat-label class="signin-form__label">{{ t("login.phone") }}</mat-label>
+                                                <mat-label class="signin-form__label" for="phone">{{ t("login.phone") }}</mat-label>
 
                                                 <input
                                                     [readOnly]="smsSent && !activeSendOtp"
@@ -155,10 +157,11 @@
                                         </div>
 
                                         <div class="w-full justify-center flex flex-col" *ngIf="phoneValidation && phoneValidation.diff">
-                                            <label class="signin-form__label">{{ t("login.otp") }}</label>
+                                            <label class="signin-form__label" for="phoneOTP">{{ t("login.otp") }}</label>
 
                                             <one-time-password-input
                                                 [hasError]="signInForm.get('phoneOTP').invalid && signInForm.get('phoneOTP').touched"
+                                                [inputId]="'phoneOTP'"
                                                 [projectBranding]="project.branding"
                                                 formControlName="phoneOTP"
                                                 class="mt-2"

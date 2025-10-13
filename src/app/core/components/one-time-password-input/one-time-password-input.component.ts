@@ -44,6 +44,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
             (input)="onInput($event)"
             (keydown)="onKeyDown($event)"
             (paste)="onPaste($event)"
+            [id]="inputId"
             [value]="value"
             #hiddenInput
             class="sr-only"
@@ -67,6 +68,7 @@ export class OneTimePasswordInputComponent implements ControlValueAccessor, OnIn
 
     @Input() length: number = 6;
     @Input() hasError: boolean = false;
+    @Input() inputId: string = "";
     @Input() projectBranding: any = null;
 
     private _previousValue: string = "";
