@@ -353,12 +353,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             phoneOTP: [null],
         };
 
-        console.log("setFieldRequiredInForm", {
-            typeLogin: this.typeLogin,
-            selectedCountryCode: this.selectedCountryCode,
-            groupFields: this.groupFields,
-        });
-
         switch (this.typeLogin) {
             case "email":
                 this.groupFields["email"][1] = [Validators.required, Validators.email, Validators.minLength(8), Validators.maxLength(60)];
@@ -375,56 +369,41 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this.signInForm = this._formBuilder.group(this.groupFields);
 
-        console.log("Form created", {
-            formValue: this.signInForm.value,
-            formValid: this.signInForm.valid,
-            formErrors: this.signInForm.errors,
-            countryCodeValue: this.signInForm.get("countryCode")?.value,
-            phoneValue: this.signInForm.get("phone")?.value,
-            countryCodeErrors: this.signInForm.get("countryCode")?.errors,
-            phoneErrors: this.signInForm.get("phone")?.errors,
-        });
-
         this._initFormListeners();
     }
 
     selectLogin(event) {
-        console.log("selectLogin", {
-            eventIndex: event.index,
-            newTypeLogin: event.index ? "phone" : "email",
-            currentTypeLogin: this.typeLogin,
-            currentFormValue: this.signInForm?.value,
-        });
-
         this.groupFields = {};
         this.typeLogin = event.index ? "phone" : "email";
 
         this.setFieldRequiredInForm();
         this.buttonSendOtp();
 
-        console.log("After selectLogin", {
-            typeLogin: this.typeLogin,
-            newFormValue: this.signInForm.value,
-            formValid: this.signInForm.valid,
-            activeSendOtp: this.activeSendOtp,
-        });
-
         this._changeDetectorRef.markForCheck();
     }
 
     canSendOTP(): Boolean {
-        const isValid = !this.sendingOTP && this.activeSendOtp && this.signInForm.valid;
-        console.log("canSendOTP", {
-            sendingOTP: this.sendingOTP,
-            activeSendOtp: this.activeSendOtp,
-            formValid: this.signInForm.valid,
-            formValue: this.signInForm.value,
-            formErrors: this.signInForm.errors,
-            countryCodeErrors: this.signInForm.get("countryCode")?.errors,
-            phoneErrors: this.signInForm.get("phone")?.errors,
-            result: isValid,
-        });
-        return Boolean(isValid);
+        if (this.sendingOTP || !this.activeSendOtp) {
+            return false;
+        }
+
+        if (this.typeLogin === "email") {
+            const email = this.signInForm.get('email')?.value;
+            return Boolean(email && email.length >= 8 && email.length <= 60 && this.isValidEmail(email));
+        }
+
+        if (this.typeLogin === "phone") {
+            const countryCode = this.signInForm.get('countryCode')?.value;
+            const phone = this.signInForm.get('phone')?.value;
+            return Boolean(countryCode && phone && phone.length >= 4 && phone.length <= 15);
+        }
+
+        return false;
+    }
+
+    private isValidEmail(email: string): boolean {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
     canUseBiometrics(): boolean {
