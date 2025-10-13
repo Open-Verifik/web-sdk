@@ -388,13 +388,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         }
 
         if (this.typeLogin === "email") {
-            const email = this.signInForm.get('email')?.value;
+            const email = this.signInForm.get("email")?.value;
             return Boolean(email && email.length >= 8 && email.length <= 60 && this.isValidEmail(email));
         }
 
         if (this.typeLogin === "phone") {
-            const countryCode = this.signInForm.get('countryCode')?.value;
-            const phone = this.signInForm.get('phone')?.value;
+            const countryCode = this.signInForm.get("countryCode")?.value;
+            const phone = this.signInForm.get("phone")?.value;
             return Boolean(countryCode && phone && phone.length >= 4 && phone.length <= 15);
         }
 
