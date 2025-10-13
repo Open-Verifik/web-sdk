@@ -383,6 +383,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     canSendOTP(): Boolean {
+        console.log("canSendOTP", !this.sendingOTP && this.activeSendOtp && this.signInForm.valid, { form: this.signInForm.valid });
         return Boolean(!this.sendingOTP && this.activeSendOtp && this.signInForm.valid);
     }
 
