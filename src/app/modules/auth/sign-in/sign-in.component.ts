@@ -361,7 +361,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 break;
             case "phone":
                 this.groupFields["countryCode"][1] = [Validators.required];
-                this.groupFields["phone"][1] = [Validators.required];
+                this.groupFields["phone"][1] = [Validators.required, Validators.minLength(4), Validators.maxLength(15)];
                 this.groupFields["phoneOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 
                 break;

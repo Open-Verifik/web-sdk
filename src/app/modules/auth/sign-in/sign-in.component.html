@@ -139,6 +139,15 @@
                                                     {{ t("login.required_phone") }}
                                                 </mat-error>
 
+                                                <mat-error
+                                                    *ngIf="
+                                                        signInForm.get('phone').hasError('minlength') || signInForm.get('phone').hasError('maxlength')
+                                                    "
+                                                    class="signin-form__error"
+                                                >
+                                                    {{ t("login.invalid_phone") }}
+                                                </mat-error>
+
                                                 <mat-error *ngIf="signInForm.get('phone').hasError('phone')" class="signin-form__error">
                                                     {{ t("login.invalid_phone") }}
                                                 </mat-error>
