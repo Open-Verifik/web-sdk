@@ -1,0 +1,114 @@
+<canvas #toSendCanvas class="hidden"></canvas>
+
+<ng-container *transloco="let t">
+    <!-- Loading State -->
+    <div *ngIf="uploading" class="w-full h-full z-10 absolute inset-0 flex flex-col justify-center items-center bg-white bg-opacity-90">
+        <div class="flex flex-col items-center">
+            <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
+            <p class="mt-4 text-gray-600">{{ t("smart_enroll.extracting_data") }}...</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="w-full h-full flex flex-col">
+        <!-- Canvas Display Area -->
+        <div class="flex-1 flex flex-col justify-center items-center px-4">
+            <!-- Error State -->
+            <div *ngIf="failedToDetectDocument" class="w-full max-w-2xl text-center">
+                <div class="p-8 rounded-2xl bg-red-50 border border-red-200">
+                    <div class="text-red-600 mb-4">
+                        <mat-icon class="text-6xl">error</mat-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-red-800">Failed to Load Demo Images</h3>
+                    <p class="text-red-700 mb-4">There was an error loading the demo images. Please check the console for details.</p>
+                    <button (click)="retryImageLoad()" class="min-h-12 h-12 px-6 rounded-lg bg-red-600 text-white hover:bg-red-700" mat-flat-button>
+                        Retry
+                    </button>
+                </div>
+            </div>
+
+            <!-- Normal State -->
+            <div *ngIf="!base64Image && !failedToDetectDocument" class="w-full max-w-4xl flex flex-col items-center">
+                <!-- Canvas Container -->
+                <div class="relative rounded-3xl overflow-hidden w-full max-w-4xl mx-auto" style="aspect-ratio: 4/3">
+                    <canvas #compositeCanvas class="w-full h-full rounded-3xl" style="display: block; background-color: #f3f4f6"></canvas>
+
+                    <!-- Document Detection Mask Overlay Canvas -->
+                    <canvas #maskCanvas class="absolute inset-0 pointer-events-none w-full h-full" style="z-index: 10"></canvas>
+
+                    <!-- Capture overlay -->
+                    <div *ngIf="capturing" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-3xl">
+                        <div class="text-white text-center">
+                            <mat-spinner diameter="40" class="mx-auto mb-2"></mat-spinner>
+                            <p>{{ t("smart_enroll.demo_mode.capturing") }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-row gap-4 justify-center mt-6">
+                    <button (click)="captureImage()" [disabled]="capturing" class="min-h-14 h-14 rounded-lg px-8" mat-flat-button color="primary">
+                        {{ t("id_scanning.manual_capture_button") }}
+                    </button>
+                </div>
+
+                <!-- Instructions Tip -->
+                <div *ngIf="!hideTip && !base64Image && !uploading" class="mt-6 p-4 rounded-2xl bg-gray-50 border border-gray-200">
+                    <div class="flex items-start gap-3">
+                        <mat-icon class="text-gray-500 mt-1" svgIcon="feather:alert-octagon"></mat-icon>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700">{{ t("smart_enroll.document_instructions") }}</p>
+                        </div>
+                        <button mat-icon-button (click)="closeTip()" class="text-gray-400 hover:text-gray-600">
+                            <mat-icon svgIcon="mat_solid:close"></mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div *ngIf="base64Image && !uploading" class="w-full max-w-2xl text-center">
+                <div class="p-8 rounded-2xl bg-green-50 border border-green-200">
+                    <div class="text-green-600 mb-4">
+                        <mat-icon class="text-6xl">check_circle</mat-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-green-800">
+                        {{ t("smart_enroll.demo_mode.capture_successful") }}
+                    </h3>
+                    <p class="text-green-700">
+                        {{ t("smart_enroll.demo_mode.processing_document") }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center gap-4 p-4 border-t border-gray-200">
+            <button (click)="goBack()" class="min-h-14 h-14 px-6 rounded-lg" color="primary" mat-stroked-button type="button">
+                <span>{{ t("go_back") }}</span>
+            </button>
+
+            <button
+                (click)="goNext()"
+                [disabled]="!canSkip()"
+                *ngIf="projectFlow?.onboardingSettings?.steps?.document !== 'mandatory'"
+                class="min-h-14 h-14 px-6 rounded-lg"
+                mat-stroked-button
+            >
+                {{ t("skip") }}
+            </button>
+
+            <button
+                (click)="goNext()"
+                [disabled]="!base64Image"
+                *ngIf="base64Image"
+                class="min-h-14 h-14 px-6 rounded-lg"
+                color="primary"
+                mat-flat-button
+                type="button"
+            >
+                <span>{{ t("continue") }}</span>
+            </button>
+        </div>
+    </div>
+</ng-container>

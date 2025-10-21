@@ -139,7 +139,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
             this.uploading = false;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+            this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
         });
 
         this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
@@ -254,7 +254,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
-        this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+        this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
 
         this._rectCredential = {};
 
@@ -530,7 +530,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             this._startCamera();
 
             return;
-        } else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+        } else if (this.appRegistration?.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep(); // document-review
 
             return;
@@ -546,7 +546,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     canSkip(): boolean {
         if (this.uploading) return false;
 
-        const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
+        const canSkipDocument = this.projectFlow?.onboardingSettings?.steps?.document !== "mandatory" && !this.appRegistration?.documentValidation;
 
         return canSkipDocument;
     }
@@ -587,34 +587,34 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
     showPassportColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             this.side === "front" ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport"
+            this.appRegistration?.documentValidation?.documentCategory?.toLowerCase() === "passport"
         );
     }
 
     showLicenseColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             this.side === "front" ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
+            this.appRegistration?.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
         );
     }
 
     showGovernmentIDColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             this.side === "front" ||
-            ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase())
+            ["id", "idv2"].includes(this.appRegistration?.documentValidation?.documentCategory?.toLowerCase())
         );
     }
 
     skipStep(): void {
-        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
-            this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
+        if (this.projectFlow?.onboardingSettings?.steps?.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(!this.appRegistration?.documentValidation);
             this._smartEnrollService.skipToStep("biometric");
         } else {
-            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
+            this._smartEnrollService.setSkippedBiometric(!this.appRegistration?.biometricValidation);
             this._smartEnrollService.skipToStep("result");
         }
     }
@@ -677,7 +677,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.onImageScan.next({
             base64Image,
             face,
-            force: !isFront || !!this.appRegistration.documentValidation,
+            force: !isFront || !!this.appRegistration?.documentValidation,
             front: isFront,
             inputMethod: "CAMERA",
             rawImage: rawBase64Image,

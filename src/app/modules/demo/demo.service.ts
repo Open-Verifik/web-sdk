@@ -20,6 +20,7 @@ export class DemoService {
 
     apiUrl: any;
     demoData: any;
+    demoModeChoice: "own" | "demo" | "" = "";
     lead: any;
     navigation: any;
     sampleFirstNames: Array<any>;
@@ -36,6 +37,7 @@ export class DemoService {
         this.initSampleData();
         this.initNavigation();
         this.initDemoData();
+        this.initDemoModeChoice();
 
         this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small]).subscribe((result) => {
             this.demoData.isMobile = result.matches;
@@ -337,6 +339,16 @@ export class DemoService {
             studio: {},
             studioFields: [],
         };
+    }
+
+    initDemoModeChoice(): void {
+        const stored = localStorage.getItem("demoModeChoice");
+        this.demoModeChoice = (stored as "own" | "demo" | "") || "";
+    }
+
+    setDemoModeChoice(choice: "own" | "demo" | ""): void {
+        this.demoModeChoice = choice;
+        localStorage.setItem("demoModeChoice", choice);
     }
 
     setDemoDocument(response: any): void {

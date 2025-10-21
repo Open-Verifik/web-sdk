@@ -1,0 +1,135 @@
+<canvas #faceCardCanvas class="hidden"></canvas>
+<ng-container *transloco="let t">
+    <div class="relative w-full h-full">
+        <div class="absolute inset-0 flex flex-col h-full min-h-0">
+            <div class="flex-shrink-0 flex flex-row justify-center items-center py-4">
+                <h4 class="text-2xl font-medium" [style.color]="project.branding.titleColor">{{ t("smart_enroll.biometric_register") }}</h4>
+            </div>
+
+            <div class="flex-1 flex flex-row justify-center items-center min-h-0 relative px-4 py-4">
+                <div class="camera rounded-full flex flex-row justify-center items-center relative max-w-100 max-h-100 w-full h-full mx-auto">
+                    <div class="border-8 h-full w-full rounded-full z-10" [style.border-color]="project.branding.buttonColor">
+                        <div class="absolute inset-5 rounded-full overflow-hidden">
+                            <div #viewportContainer class="absolute rounded-full overflow-hidden inset-0 z-10">
+                                <canvas #compositeCanvas class="w-full h-full"></canvas>
+                            </div>
+
+                            <div
+                                [ngClass]="{ 'camera__loader--success': face.success }"
+                                @fadeIn
+                                @fadeOut
+                                *ngIf="camera.loading || face.error || face.success || uploading"
+                                class="camera__loader absolute rounded-full overflow-hidden inset-0 flex flex-col justify-center items-center z-10"
+                            >
+                                <mat-progress-spinner
+                                    *ngIf="camera.loading"
+                                    diameter="98"
+                                    mode="indeterminate"
+                                    strokeWidth="8"
+                                ></mat-progress-spinner>
+
+                                <ng-container *ngIf="face.error">
+                                    <div class="absolute inset-auto flex flex-col justify-center items-center">
+                                        <svg
+                                            [ngClass]="'face--' + face.message"
+                                            class="face"
+                                            fill="none"
+                                            height="213"
+                                            viewBox="0 0 148 213"
+                                            width="148"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                d="M74 0C33.1371 0 0 33.1371 0 74C0 114.863 33.1371 148 74 148C114.863 148 148 114.863 148 74C148 33.1371 114.863 0 74 0Z"
+                                                fill="#E5E7EB"
+                                            />
+                                            <path
+                                                d="M74 0C33.1371 0 0 33.1371 0 74C0 114.863 33.1371 148 74 148C114.863 148 148 114.863 148 74C148 33.1371 114.863 0 74 0Z"
+                                                fill="#E5E7EB"
+                                            />
+                                            <path
+                                                d="M74 0C33.1371 0 0 33.1371 0 74C0 114.863 33.1371 148 74 148C114.863 148 148 114.863 148 74C148 33.1371 114.863 0 74 0Z"
+                                                fill="#E5E7EB"
+                                            />
+                                        </svg>
+                                        <p class="mt-4 text-center text-base" [style.color]="project.branding.textColor">
+                                            {{ t("smart_enroll.liveness." + face.message) }}
+                                        </p>
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngIf="face.success">
+                                    <div class="absolute inset-auto flex flex-col justify-center items-center">
+                                        <svg
+                                            class="face--success"
+                                            fill="none"
+                                            height="213"
+                                            viewBox="0 0 148 213"
+                                            width="148"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                d="M74 0C33.1371 0 0 33.1371 0 74C0 114.863 33.1371 148 74 148C114.863 148 148 114.863 148 74C148 33.1371 114.863 0 74 0Z"
+                                                fill="#10B981"
+                                            />
+                                            <path
+                                                d="M74 0C33.1371 0 0 33.1371 0 74C0 114.863 33.1371 148 74 148C114.863 148 148 114.863 148 74C148 33.1371 114.863 0 74 0Z"
+                                                fill="#10B981"
+                                            />
+                                            <path
+                                                d="M74 0C33.1371 0 0 33.1371 0 74C0 114.863 33.1371 148 74 148C114.863 148 148 114.863 148 74C148 33.1371 114.863 0 74 0Z"
+                                                fill="#10B981"
+                                            />
+                                        </svg>
+                                        <p class="mt-4 text-center text-base text-green-600">
+                                            {{ t("smart_enroll.liveness.success") }}
+                                        </p>
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngIf="uploading">
+                                    <div class="absolute inset-auto flex flex-col justify-center items-center">
+                                        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                                        <p class="mt-4 text-center text-base text-white">
+                                            {{ t("smart_enroll.demo_mode.uploading") }}
+                                        </p>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-shrink-0 flex flex-row justify-center items-center px-4 py-4">
+                <div class="w-full max-w-md">
+                    <div class="text-center mb-4">
+                        <h3 class="text-xl font-semibold mb-2" [style.color]="project.branding.titleColor">
+                            {{ t("smart_enroll.demo_mode.liveness_demo_title") }}
+                        </h3>
+                        <p class="text-base text-gray-600">
+                            {{ t("smart_enroll.demo_mode.liveness_demo_description") }}
+                        </p>
+                    </div>
+
+                    <button
+                        (click)="captureImage()"
+                        [disabled]="capturing || uploading"
+                        [style.background-color]="project.branding.buttonColor"
+                        [style.color]="project.branding.buttonTextColor"
+                        class="w-full min-h-14 h-14 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+                        mat-flat-button
+                    >
+                        <div class="flex flex-row justify-center items-center gap-4">
+                            <mat-icon *ngIf="!capturing && !uploading">camera_alt</mat-icon>
+                            <mat-spinner *ngIf="capturing" diameter="20"></mat-spinner>
+                            <span *ngIf="!capturing && !uploading">{{ t("smart_enroll.liveness.capture") }}</span>
+                            <span *ngIf="capturing">{{ t("smart_enroll.demo_mode.capturing") }}</span>
+                            <span *ngIf="uploading">{{ t("smart_enroll.demo_mode.uploading") }}</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

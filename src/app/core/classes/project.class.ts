@@ -13,6 +13,7 @@ export class Project {
     createdAt?: string;
     currentStep: number;
     dataProtection: DataProtection;
+    demoMode?: boolean;
     identifier?: string;
     lastStep: number;
     name: string;
@@ -35,6 +36,7 @@ export class Project {
         this.createdAt = data.createdAt;
         this.currentStep = data.currentStep;
         this.dataProtection = data.dataProtection;
+        this.demoMode = data.demoMode;
         this.identifier = data.identifier;
         this.lastStep = data.lastStep;
         this.name = data.name;
@@ -94,6 +96,7 @@ export class Project {
             createdAt: this.createdAt,
             currentStep: this.currentStep,
             dataProtection: this.dataProtection,
+            demoMode: this.demoMode,
             identifier: this.identifier,
             lastStep: this.lastStep,
             name: this.name,

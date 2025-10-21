@@ -428,7 +428,8 @@
                 "still": "Huminto...",
                 "yaw-left": "Bahagyang iharap ang mukha pakaliwa",
                 "yaw-right": "Bahagyang iharap ang mukha pakanan"
-            }
+            },
+            "capture": "Kunin"
         },
         "failed": {
             "document_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong ID",
@@ -526,7 +527,23 @@
             "upload_document": "I-upload ang Dokumento",
             "upload_frontside": "I-upload ang Harap na Bahagi"
         },
-        "image_captured": "Nakuha na ang Larawan!"
+        "image_captured": "Nakuha na ang Larawan!",
+        "demo_mode": {
+            "title": "Ang proyektong ito ay nasa demo mode",
+            "use_own": "Subukan gamit ang iyong sarili",
+            "use_demo": "Gamitin ang ibinigay na demo",
+            "document_description": "Maaari mong subukan gamit ang iyong sariling dokumento o gamitin ang aming demo na dokumento",
+            "face_description": "Maaari mong subukan gamit ang iyong sariling mukha o gamitin ang aming demo na mukha",
+            "click_to_use_demo": "I-click upang gamitin ang demo na dokumento",
+            "use_demo_document": "Gamitin ang Demo na Dokumento",
+            "scanner_demo_title": "Demo na Document Scanner",
+            "scanner_demo_description": "Ito ay isang demonstrasyon kung paano gumagana ang pag-scan ng dokumento",
+            "liveness_demo_title": "Demo na Liveness Check",
+            "liveness_demo_description": "Ito ay isang demonstrasyon ng biometrics. Sa live na setting, ang inyong mukha ay awtomatikong makukuha.",
+            "capturing": "Kinukuha...",
+            "uploading": "Nag-upload...",
+            "scanner_info": "Ang demo na ito ay nagpapakita kung paano gagana ang document scanning gamit ang tunay na camera"
+        }
     },
     "welcome": {
         "title": "Maligayang pagdating sa {{projectName}}",

@@ -428,7 +428,8 @@
                 "still": "स्थिर रहें...",
                 "yaw-left": "चेहरा बाईं ओर थोड़ा मोड़ें",
                 "yaw-right": "चेहरा दाईं ओर थोड़ा मोड़ें"
-            }
+            },
+            "capture": "Tangkap"
         },
         "failed": {
             "document_registered_incorrectly": "आपका आईडी सही ढंग से पंजीकृत नहीं किया गया",
@@ -526,7 +527,23 @@
             "upload_document": "दस्तावेज़ अपलोड करें",
             "upload_frontside": "सामने का भाग अपलोड करें"
         },
-        "image_captured": "छवि कैप्चर की गई!"
+        "image_captured": "छवि कैप्चर की गई!",
+        "demo_mode": {
+            "title": "Proyek ini dalam mode demo",
+            "use_own": "Coba dengan milik Anda",
+            "use_demo": "Gunakan demo yang disediakan",
+            "document_description": "Anda dapat mencoba dengan dokumen Anda sendiri atau menggunakan dokumen demo kami",
+            "face_description": "Anda dapat mencoba dengan wajah Anda sendiri atau menggunakan wajah demo kami",
+            "click_to_use_demo": "Klik untuk menggunakan dokumen demo",
+            "use_demo_document": "Gunakan Dokumen Demo",
+            "scanner_demo_title": "Pemindai Dokumen Demo",
+            "scanner_demo_description": "Ini adalah demonstrasi bagaimana pemindaian dokumen bekerja",
+            "liveness_demo_title": "Verifikasi Liveness Demo",
+            "liveness_demo_description": "Ini adalah demonstrasi biometrik. Dalam pengaturan langsung, wajah Anda akan ditangkap secara otomatis.",
+            "capturing": "Menangkap...",
+            "uploading": "Mengunggah...",
+            "scanner_info": "Demo ini menunjukkan bagaimana pemindaian dokumen akan bekerja dengan kamera nyata"
+        }
     },
     "welcome": {
         "title": "{{projectName}} में आपका स्वागत है",

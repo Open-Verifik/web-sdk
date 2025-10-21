@@ -428,7 +428,24 @@
                 "still": "Mantente quieto...",
                 "yaw-left": "Gira la cara ligeramente hacia la izquierda",
                 "yaw-right": "Gira la cara ligeramente hacia la derecha"
-            }
+            },
+            "capture": "Capturar"
+        },
+        "demo_mode": {
+            "title": "Este proyecto está en modo demo",
+            "use_own": "Probar con el tuyo",
+            "use_demo": "Usar demo proporcionado",
+            "document_description": "Puedes probar con tu propio documento o usar nuestro documento demo",
+            "face_description": "Puedes probar con tu propia cara o usar nuestra cara demo",
+            "click_to_use_demo": "Haz clic para usar documento demo",
+            "use_demo_document": "Usar Documento Demo",
+            "scanner_demo_title": "Escáner de Documento Demo",
+            "scanner_demo_description": "Esta es una demostración de cómo funciona el escaneo de documentos",
+            "liveness_demo_title": "Verificación de Liveness Demo",
+            "liveness_demo_description": "Esta es una demostración de biometría. En el entorno en vivo, tu rostro sería capturado automáticamente.",
+            "capturing": "Capturando...",
+            "uploading": "Subiendo...",
+            "scanner_info": "Esta demo muestra cómo funcionaría el escaneo de documentos con una cámara real"
         },
         "failed": {
             "document_registered_incorrectly": "Tu documento no fue registrado correctamente",

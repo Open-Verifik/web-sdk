@@ -80,7 +80,7 @@
                 <button
                     (click)="goNext()"
                     [disabled]="!canSkip()"
-                    *ngIf="side !== 'back' && projectFlow.onboardingSettings.steps.document !== 'mandatory'"
+                    *ngIf="side !== 'back' && projectFlow?.onboardingSettings?.steps?.document !== 'mandatory'"
                     class="min-h-14 h-14 rounded-lg"
                     mat-stroked-button
                 >

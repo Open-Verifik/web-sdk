@@ -430,7 +430,24 @@
                 "still": "Hold still...",
                 "yaw-left": "Slightly turn face to the left",
                 "yaw-right": "Slightly turn face to the right"
-            }
+            },
+            "capture": "Capture"
+        },
+        "demo_mode": {
+            "title": "This project is in demo mode",
+            "use_own": "Try with your own",
+            "use_demo": "Use provided demo",
+            "document_description": "You can try with your own document or use our demo document",
+            "face_description": "You can try with your own face or use our demo face",
+            "click_to_use_demo": "Click to use demo document",
+            "use_demo_document": "Use Demo Document",
+            "scanner_demo_title": "Demo Document Scanner",
+            "scanner_demo_description": "This is a demonstration of how document scanning works",
+            "liveness_demo_title": "Demo Liveness Check",
+            "liveness_demo_description": "This is a demonstration of biometrics. In the live setting, your face would be captured automatically.",
+            "capturing": "Capturing...",
+            "uploading": "Uploading...",
+            "scanner_info": "This demo shows how document scanning would work with a real camera"
         },
         "failed": {
             "document_comparison_failed": "A comparison of your face and ID scored too low",

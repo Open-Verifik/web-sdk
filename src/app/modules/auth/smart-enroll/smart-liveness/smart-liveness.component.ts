@@ -183,11 +183,11 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
 
-        this.successfulUpload.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
+        this.successfulUpload?.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
             this.uploading = false;
         });
 
-        this.retry.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
+        this.retry?.pipe(takeUntil(this._unsubscriber$)).subscribe(() => {
             this.faceCapture = null;
 
             this.face.successPosition = 0;
@@ -410,7 +410,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             min: {
                 x: Math.floor(offsetX ? offsetX * 1.1 : viewportWidth * 0.1),
                 y: Math.floor(offsetY ? offsetY * 1.1 : viewportHeight * 0.1),
-                score: this.projectFlow.onboardingSettings.liveness.livenessMinScore * 0.8,
+                score: this.projectFlow?.onboardingSettings?.liveness?.livenessMinScore * 0.8 || 0.5,
                 resolution: Math.max(Math.floor(viewportHeight * viewportWidth * 0.27), this.MINIMUM_DEPTH),
             },
             max: {

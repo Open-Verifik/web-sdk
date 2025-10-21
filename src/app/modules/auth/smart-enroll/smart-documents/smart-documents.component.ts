@@ -29,6 +29,7 @@ import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, CriminalValidation, DocumentValidation, FaceVerification, ImageScan } from "../../project";
 import { DocumentCategory, EnrollDocumentMethod, EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
+import { SmartScannerDemoComponent } from "../smart-scanner/smart-scanner-demo.component";
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
@@ -80,6 +81,7 @@ type NameValidationResponse = {
         ReactiveFormsModule,
         SmartErrorDisplayComponent,
         SmartScannerComponent,
+        SmartScannerDemoComponent,
         SmartScannerMobileComponent,
         SmartUploadComponent,
         TranslocoModule,
@@ -97,6 +99,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     appRegistration: AppRegistration;
     countries: CountryOption[];
     demoData: any;
+    demoModeChoice: "own" | "demo" | "" = "";
     enrollSettings: EnrollSettings;
     errorContent: { message: string };
     errorResult: boolean;
@@ -107,6 +110,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     project: Project;
     projectFlow: ProjectFlow;
     successfulUploadSubject: Subject<void> = new Subject<void>();
+    useDemoData: boolean = false;
 
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
@@ -131,6 +135,8 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         this.errorContent = { message: "" };
 
         this.demoData = this._demoService.getDemoData();
+        this.demoModeChoice = this._demoService.demoModeChoice;
+        this.useDemoData = this.demoModeChoice === "demo";
 
         this._smartEnrollService.enrollSettings$.pipe(takeUntil(this._unsubscriber$)).subscribe({
             next: (enrollSettings) => this._onEnrollSettingsChange(enrollSettings),
@@ -560,6 +566,12 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     retry() {
         this.errorResult = false;
         this.errorContent = { message: "" };
+    }
+
+    onDemoModeSelected(choice: "own" | "demo"): void {
+        this.demoModeChoice = choice;
+        this.useDemoData = choice === "demo";
+        this._demoService.setDemoModeChoice(choice);
     }
 
     submitMethodSelectionForm() {

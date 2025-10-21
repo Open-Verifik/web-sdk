@@ -32,7 +32,7 @@
 
     <div class="w-full flex flex-col justify-center items-center gap-8">
         <div
-            (click)="isExtracting ? null : fileInput.click()"
+            (click)="isExtracting ? null : onUploadButtonClick()"
             (fileDropped)="onFileDropped($event)"
             class="rounded-2xl p-8 w-full drag-and-drop"
             dragAndDrop
@@ -58,10 +58,12 @@
             <div [ngClass]="file ? 'hidden' : ''" fxLayout="column" fxLayoutAlign="center center">
                 <input hidden (change)="fileBrowseHandler($event.target.files)" #fileInput accept=".jpg, .jpeg, .png" type="file" />
 
-                <mat-icon [style.color]="project.branding.buttonColor" class="welcome__icon welcome__icon--medium">file_upload</mat-icon>
+                <mat-icon [style.color]="project.branding.buttonColor" class="welcome__icon welcome__icon--medium">
+                    {{ useDemoData ? "play_circle" : "file_upload" }}
+                </mat-icon>
 
                 <p class="font-semibold text-xl mt-4">
-                    {{ t("step_two.drag_n_drop_title") }}
+                    {{ useDemoData ? t("smart_enroll.demo_mode.click_to_use_demo") : t("step_two.drag_n_drop_title") }}
                 </p>
             </div>
 
@@ -81,9 +83,10 @@
             </div>
         </div>
 
-        <button (click)="fileInput.click()" *ngIf="!file" class="w-full max-w-56 min-h-14 h-14 rounded-lg" color="primary" mat-flat-button>
-            <span *ngIf="side === 'front'">{{ t("smart_enroll.documents.upload.upload_frontside") }}</span>
-            <span *ngIf="side === 'back'">{{ t("smart_enroll.documents.upload.upload_backside") }}</span>
+        <button (click)="onUploadButtonClick()" *ngIf="!file" class="w-full max-w-56 min-h-14 h-14 rounded-lg" color="primary" mat-flat-button>
+            <span *ngIf="side === 'front' && !useDemoData">{{ t("smart_enroll.documents.upload.upload_frontside") }}</span>
+            <span *ngIf="side === 'back' && !useDemoData">{{ t("smart_enroll.documents.upload.upload_backside") }}</span>
+            <span *ngIf="useDemoData">{{ t("smart_enroll.demo_mode.use_demo_document") }}</span>
         </button>
 
         <button
@@ -144,7 +147,7 @@
             <div
                 class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
                 [class.side-indicator__step-row--active]="side === 'back'"
-                *ngIf="requiresBack"
+                *ngIf="requiresBack && !useDemoData"
             >
                 <p
                     class="side-indicator__step"

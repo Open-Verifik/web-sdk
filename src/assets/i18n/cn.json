@@ -428,7 +428,8 @@
                 "still": "保持静止...",
                 "yaw-left": "稍微向左转头",
                 "yaw-right": "稍微向右转头"
-            }
+            },
+            "capture": "捕获"
         },
         "failed": {
             "document_registered_incorrectly": "您的身份证注册不正确",
@@ -526,7 +527,23 @@
             "upload_document": "上传文档",
             "upload_frontside": "上传正面"
         },
-        "image_captured": "图像已捕获！"
+        "image_captured": "图像已捕获！",
+        "demo_mode": {
+            "title": "此项目处于演示模式",
+            "use_own": "使用自己的",
+            "use_demo": "使用提供的演示",
+            "document_description": "您可以使用自己的文档或使用我们的演示文档",
+            "face_description": "您可以使用自己的面部或使用我们的演示面部",
+            "click_to_use_demo": "点击使用演示文档",
+            "use_demo_document": "使用演示文档",
+            "scanner_demo_title": "演示文档扫描器",
+            "scanner_demo_description": "这是文档扫描工作原理的演示",
+            "liveness_demo_title": "演示活体检测",
+            "liveness_demo_description": "这是生物识别技术的演示。在实时环境中，您的面部将被自动捕获。",
+            "capturing": "捕获中...",
+            "uploading": "上传中...",
+            "scanner_info": "此演示展示了文档扫描在真实摄像头下的工作原理"
+        }
     },
     "welcome": {
         "title": "欢迎来到{{projectName}}",

@@ -13,13 +13,13 @@ import { Observable, Subject, takeUntil } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { DragAndDropModule } from "app/modules/auth/drag-and-drop/drag-and-drop.module";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, ImageScan } from "../../project";
 import { SmartEnrollService } from "../smart-enroll.service";
-import { PasswordlessService } from "../../passwordless.service";
-import { PromptTemplate } from "app/core/models/prompt-template.model";
 
 const MAX_FILE_SIZE = 10485760;
 
@@ -51,6 +51,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     @Output("goBackToMethodSelection") goBackToMethodSelection: EventEmitter<void> = new EventEmitter<void>();
 
     @Input() successfulUpload: Observable<{ livenessScore?: number }>;
+    @Input() useDemoData: boolean = false;
 
     private unsubscriber$: Subject<void> = new Subject<void>();
 
@@ -67,6 +68,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     projectFlow: ProjectFlow;
     promptTemplate: PromptTemplate;
     side: "back" | "front" = "front";
+
+    private readonly DEMO_DOC_IMAGE = "assets/images/ui/template_id.png";
 
     constructor(
         private _demoService: DemoService,
@@ -100,7 +103,11 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     get requiresBack(): boolean {
-        return this.promptTemplate.requiresBackSide || this.appRegistration?.documentValidation?.requiresBackSide;
+        // In demo mode, we only use front side
+        if (this.useDemoData) {
+            return false;
+        }
+        return this.promptTemplate?.requiresBackSide || this.appRegistration?.documentValidation?.requiresBackSide || false;
     }
 
     private async _detectFace(image: HTMLImageElement) {
@@ -132,7 +139,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             this.onImageUpload.next({
                 base64Image,
                 face,
-                force: !isFront || !!this.appRegistration.documentValidation,
+                force: !isFront || !!this.appRegistration?.documentValidation,
                 front: isFront,
                 inputMethod: "FILE_UPLOAD",
                 rawImage: this.base64Image,
@@ -175,6 +182,16 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         fileReader.readAsDataURL(this.file);
     }
 
+    private async _loadDemoImage(): Promise<void> {
+        const imagePath = this.side === "front" ? this.DEMO_DOC_IMAGE : this.DEMO_DOC_IMAGE;
+
+        const response = await fetch(imagePath);
+        const blob = await response.blob();
+        const file = new File([blob], "demo-document.png", { type: "image/png" });
+
+        this._prepareFilesList([file]);
+    }
+
     private async _setFaceToCanvas(img: HTMLImageElement) {
         const faces = await this._detectFace(img);
 
@@ -188,13 +205,25 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     canSkipStep(): boolean {
         if (this.isExtracting) return false;
 
-        const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
+        const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration?.documentValidation;
 
         return canSkipDocument;
     }
 
     fileBrowseHandler(files: Array<File>) {
+        if (this.useDemoData) {
+            this._loadDemoImage();
+            return;
+        }
         this._prepareFilesList(files);
+    }
+
+    onUploadButtonClick(): void {
+        if (this.useDemoData) {
+            this._loadDemoImage();
+            return;
+        }
+        this.fileInput.nativeElement.click();
     }
 
     formatBytes(bytes: number, decimals = 2) {
@@ -211,12 +240,22 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
+        // In demo mode, we only use front side, so go directly to next step
+        if (this.useDemoData) {
+            if (this.appRegistration?.documentValidation || !this._smartEnrollService.wasSkippedDocument()) {
+                this._smartEnrollService.goToNextStep(); // document-review
+                return;
+            }
+            this.skipStep();
+            return;
+        }
+
         if (this.requiresBack && this.side !== "back") {
             this.side = "back";
             this.resetFileUpload();
 
             return;
-        } else if (this.appRegistration.documentValidation || !this._smartEnrollService.wasSkippedDocument()) {
+        } else if (this.appRegistration?.documentValidation || !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep(); // document-review
 
             return;
@@ -230,6 +269,13 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     goPrevious(): void {
+        // In demo mode, we only use front side, so go back to method selection
+        if (this.useDemoData) {
+            this._smartEnrollService.setDocumentMethod("");
+            this._smartEnrollService.goToPreviousStep();
+            return;
+        }
+
         if (this.requiresBack && this.side !== "front") {
             this.side = "front";
             this.resetFileUpload();
@@ -244,6 +290,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     }
 
     onFileDropped($event: Array<File>) {
+        if (this.useDemoData) {
+            this._loadDemoImage();
+            return;
+        }
         this._prepareFilesList($event);
     }
 
@@ -258,7 +308,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     showGovernmentIDColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             (this.fileProgress < 100 && this.side === "front") ||
             ((this.fileProgress === 100 || this.side === "back") &&
                 ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase()))
@@ -267,7 +317,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     showLicenseColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             (this.fileProgress < 100 && this.side === "front") ||
             ((this.fileProgress === 100 || this.side === "back") &&
                 this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "driverlicense")
@@ -276,7 +326,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     showPassportColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             (this.fileProgress < 100 && this.side === "front") ||
             ((this.fileProgress === 100 || this.side === "back") &&
                 this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport")
@@ -285,7 +335,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     showTaxInformationColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             (this.fileProgress < 100 && this.side === "front") ||
             ((this.fileProgress === 100 || this.side === "back") &&
                 this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "taxdocument")
@@ -294,10 +344,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     skipStep(): void {
         if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
-            this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
+            this._smartEnrollService.setSkippedDocument(!this.appRegistration?.documentValidation);
             this._smartEnrollService.skipToStep("biometric");
         } else {
-            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
+            this._smartEnrollService.setSkippedBiometric(!this.appRegistration?.biometricValidation);
             this._smartEnrollService.skipToStep("result");
         }
     }

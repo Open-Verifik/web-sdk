@@ -1,0 +1,120 @@
+<div class="fixed inset-0 bg-gray-100 flex flex-col">
+    <!-- Toolbar with integrated test controls -->
+    <div class="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+        <div class="flex items-center justify-between">
+            <!-- Left side: Title -->
+            <div class="flex items-center space-x-4">
+                <div class="bg-blue-500 text-white px-3 py-1 rounded-lg">
+                    <h1 class="text-lg font-bold">🧪 DEMO COMPONENTS TEST MODE</h1>
+                </div>
+                <p class="text-sm text-gray-600">Testing Demo Mode Components in Isolation</p>
+            </div>
+
+            <!-- Right side: Test Controls -->
+            <div class="flex items-center space-x-4">
+                <form [formGroup]="testForm" class="flex items-center space-x-3">
+                    <mat-form-field appearance="outline" class="w-48">
+                        <mat-label>Demo Choice</mat-label>
+                        <mat-select formControlName="demoChoice">
+                            <mat-option value="own">Use Own</mat-option>
+                            <mat-option value="demo">Use Demo</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <button (click)="resetTest()" class="bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600">Reset Test</button>
+                </form>
+
+                <!-- Debug info -->
+                <div class="text-xs text-gray-600 bg-gray-100 px-3 py-2 rounded">
+                    <div class="flex space-x-4">
+                        <span>Attempts: {{ attempts }}</span>
+                        <span>Demo: {{ project.demoMode ? "ON" : "OFF" }}</span>
+                        <span>Use Demo: {{ useDemoData ? "YES" : "NO" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-4 px-4 pb-4 flex-1 flex flex-col">
+        <mat-tab-group class="demo-tabs h-full w-full" [selectedIndex]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+            <!-- Smart Upload Test -->
+            <mat-tab label="Smart Upload">
+                <div *ngIf="selectedTabIndex === 0">
+                    <div *ngIf="!isInitialized" class="flex items-center justify-center h-64">
+                        <mat-spinner></mat-spinner>
+                    </div>
+                    <smart-upload
+                        *ngIf="isInitialized"
+                        (onImageUpload)="onImageUpload($event)"
+                        [useDemoData]="useDemoData"
+                        [successfulUpload]="successfulUploadSubject.asObservable()"
+                    ></smart-upload>
+                </div>
+            </mat-tab>
+
+            <!-- Smart Scanner Test -->
+            <mat-tab label="Smart Scanner">
+                <div *ngIf="selectedTabIndex === 1" class="h-192 w-full relative">
+                    <div *ngIf="!isInitialized" class="flex items-center justify-center h-full">
+                        <mat-spinner></mat-spinner>
+                    </div>
+                    <ng-container *ngIf="isInitialized && project.demoMode && useDemoData; else normalScanner">
+                        <smart-scanner-demo
+                            class="absolute inset-0"
+                            (onImageScan)="onImageScan($event)"
+                            [successfulUpload]="successfulUploadSubject.asObservable()"
+                            source="document"
+                        ></smart-scanner-demo>
+                    </ng-container>
+                    <ng-template #normalScanner>
+                        <smart-scanner
+                            *ngIf="isInitialized"
+                            class="absolute inset-0"
+                            (onImageScan)="onImageScan($event)"
+                            [successfulUpload]="successfulUploadSubject.asObservable()"
+                            source="document"
+                        ></smart-scanner>
+                    </ng-template>
+                </div>
+            </mat-tab>
+
+            <!-- Smart Liveness Test -->
+            <mat-tab label="Smart Liveness">
+                <div *ngIf="selectedTabIndex === 2" class="h-192 w-full relative">
+                    <div *ngIf="!isInitialized" class="flex items-center justify-center h-full">
+                        <mat-spinner></mat-spinner>
+                    </div>
+                    <ng-container *ngIf="isInitialized && project.demoMode && useDemoData; else normalLiveness">
+                        <smart-liveness-demo
+                            class="absolute inset-0"
+                            (onImageScan)="onImageScan($event)"
+                            [successfulUpload]="successfulUploadSubject.asObservable()"
+                        ></smart-liveness-demo>
+                    </ng-container>
+                    <ng-template #normalLiveness>
+                        <smart-liveness
+                            *ngIf="isInitialized"
+                            class="absolute inset-0"
+                            (onImageScan)="onImageScan($event)"
+                            [successfulUpload]="successfulUploadSubject.asObservable()"
+                        ></smart-liveness>
+                    </ng-template>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+
+    <div class="absolute bottom-4 left-4 right-4 z-50" *ngIf="lastImageScan">
+        <div class="bg-green-100 border border-green-400 p-3 rounded-lg">
+            <h3 class="font-semibold text-green-800">✅ Capture Successful!</h3>
+            <p class="text-sm text-green-700">Image captured successfully. Check console for details.</p>
+            <div class="mt-2 text-xs text-green-600">
+                <p>Source: {{ lastImageScan.source }}</p>
+                <p>Method: {{ lastImageScan.inputMethod }}</p>
+                <p>Front: {{ lastImageScan.front }}</p>
+            </div>
+            <button (click)="resetTest()" class="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">Test Again</button>
+        </div>
+    </div>
+</div>

@@ -429,7 +429,8 @@
                 "still": "Restez immobile...",
                 "yaw-left": "Tournez légèrement le visage vers la gauche",
                 "yaw-right": "Tournez légèrement le visage vers la droite"
-            }
+            },
+            "capture": "Capturer"
         },
         "failed": {
             "document_registered_incorrectly": "Votre ID n'a pas été correctement enregistré",
@@ -527,7 +528,23 @@
             "upload_document": "Télécharger le document",
             "upload_frontside": "Télécharger le côté avant"
         },
-        "image_captured": "Image capturée !"
+        "image_captured": "Image capturée !",
+        "demo_mode": {
+            "title": "Ce projet est en mode démo",
+            "use_own": "Essayer avec le vôtre",
+            "use_demo": "Utiliser la démo fournie",
+            "document_description": "Vous pouvez essayer avec votre propre document ou utiliser notre document de démonstration",
+            "face_description": "Vous pouvez essayer avec votre propre visage ou utiliser notre visage de démonstration",
+            "click_to_use_demo": "Cliquez pour utiliser le document de démonstration",
+            "use_demo_document": "Utiliser le Document de Démonstration",
+            "scanner_demo_title": "Scanner de Document de Démonstration",
+            "scanner_demo_description": "Ceci est une démonstration de comment fonctionne la numérisation de documents",
+            "liveness_demo_title": "Vérification de Liveness de Démonstration",
+            "liveness_demo_description": "Ceci est une démonstration de biométrie. Dans un environnement en direct, votre visage serait capturé automatiquement.",
+            "capturing": "Capture en cours...",
+            "uploading": "Téléchargement...",
+            "scanner_info": "Cette démo montre comment la numérisation de documents fonctionnerait avec une vraie caméra"
+        }
     },
     "welcome": {
         "title": "Bienvenue chez {{projectName}}",

@@ -428,7 +428,8 @@
                 "still": "Fique parado...",
                 "yaw-left": "Vire o rosto ligeiramente para a esquerda",
                 "yaw-right": "Vire o rosto ligeiramente para a direita"
-            }
+            },
+            "capture": "Capturar"
         },
         "failed": {
             "document_registered_incorrectly": "Seu ID não foi registrado corretamente",
@@ -526,7 +527,23 @@
             "upload_document": "Carregar Documento",
             "upload_frontside": "Carregar Frente"
         },
-        "image_captured": "Imagem Capturada!"
+        "image_captured": "Imagem Capturada!",
+        "demo_mode": {
+            "title": "Este projeto está em modo demo",
+            "use_own": "Tentar com o seu",
+            "use_demo": "Usar demo fornecido",
+            "document_description": "Você pode tentar com seu próprio documento ou usar nosso documento demo",
+            "face_description": "Você pode tentar com seu próprio rosto ou usar nosso rosto demo",
+            "click_to_use_demo": "Clique para usar documento demo",
+            "use_demo_document": "Usar Documento Demo",
+            "scanner_demo_title": "Scanner de Documento Demo",
+            "scanner_demo_description": "Esta é uma demonstração de como funciona a digitalização de documentos",
+            "liveness_demo_title": "Verificação de Liveness Demo",
+            "liveness_demo_description": "Esta é uma demonstração de biometria. No ambiente ao vivo, seu rosto seria capturado automaticamente.",
+            "capturing": "Capturando...",
+            "uploading": "Enviando...",
+            "scanner_info": "Esta demo mostra como a digitalização de documentos funcionaria com uma câmera real"
+        }
     },
     "welcome": {
         "title": "Bem-vindo ao {{projectName}}",

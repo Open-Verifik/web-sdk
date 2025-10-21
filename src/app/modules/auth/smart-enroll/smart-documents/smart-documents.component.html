@@ -178,6 +178,45 @@
                                 </mat-form-field>
                             </ng-container>
 
+                            <ng-container *ngIf="project.demoMode">
+                                <div class="w-full flex flex-col gap-4">
+                                    <div class="w-full flex flex-col gap-2">
+                                        <h6 class="text-lg font-semibold" [style.color]="project.branding.titleColor">
+                                            {{ t("smart_enroll.demo_mode.title") }}
+                                        </h6>
+                                        <p class="text-sm" [style.color]="project.branding.textColor">
+                                            {{ t("smart_enroll.demo_mode.document_description") }}
+                                        </p>
+                                    </div>
+
+                                    <verifik-radio-group
+                                        class="flex flex-row gap-2 w-full"
+                                        [(ngModel)]="demoModeChoice"
+                                        (ngModelChange)="onDemoModeSelected($event)"
+                                    >
+                                        <verifik-radio-item
+                                            [label]="t('smart_enroll.demo_mode.use_own')"
+                                            value="own"
+                                            variant="slab"
+                                            class="w-full flex flex-col gap-4"
+                                        >
+                                            <mat-icon class="text-gray-800" svgIcon="mat_solid:person"></mat-icon>
+                                            <span>{{ t("smart_enroll.demo_mode.use_own") }}</span>
+                                        </verifik-radio-item>
+
+                                        <verifik-radio-item
+                                            [label]="t('smart_enroll.demo_mode.use_demo')"
+                                            value="demo"
+                                            variant="slab"
+                                            class="w-full flex flex-col gap-4"
+                                        >
+                                            <mat-icon class="text-gray-800" svgIcon="mat_solid:play_circle"></mat-icon>
+                                            <span>{{ t("smart_enroll.demo_mode.use_demo") }}</span>
+                                        </verifik-radio-item>
+                                    </verifik-radio-group>
+                                </div>
+                            </ng-container>
+
                             <div
                                 class="w-full flex flex-row items-center"
                                 [ngClass]="{
@@ -197,7 +236,7 @@
                                 </button>
 
                                 <button
-                                    [disabled]="!methodSelectionForm.valid"
+                                    [disabled]="!methodSelectionForm.valid || (project.demoMode && demoModeChoice === '')"
                                     class="min-h-14 h-14 rounded-lg"
                                     color="primary"
                                     mat-flat-button
@@ -271,6 +310,7 @@
                 (goBackToMethodSelection)="onGoBackToMethodSelection()"
                 [class.hidden]="errorResult"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
+                [useDemoData]="useDemoData"
                 class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center"
                 [ngClass]="{ 'md:max-w-1/2': project.branding.image }"
                 source="document"
@@ -288,10 +328,18 @@
             *ngIf="methodSelectionForm.get('documentMethod')?.value === 'scan' && !errorResult"
             class="w-full min-h-full flex flex-col justify-center items-center"
         >
+            <smart-scanner-demo
+                (onImageScan)="onImageScan($event)"
+                [successfulUpload]="successfulUploadSubject.asObservable()"
+                *ngIf="!errorResult && project.demoMode && useDemoData"
+                class="w-full min-h-full"
+                source="document"
+            ></smart-scanner-demo>
+
             <smart-scanner
                 (onImageScan)="onImageScan($event)"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
-                *ngIf="!errorResult && demoData.OS === 'DESKTOP'"
+                *ngIf="!errorResult && demoData.OS === 'DESKTOP' && !(project.demoMode && useDemoData)"
                 class="w-full min-h-full"
                 source="document"
             ></smart-scanner>
@@ -299,7 +347,7 @@
             <smart-scanner-mobile
                 (onImageScan)="onImageScan($event)"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
-                *ngIf="!errorResult && demoData.OS !== 'DESKTOP'"
+                *ngIf="!errorResult && demoData.OS !== 'DESKTOP' && !(project.demoMode && useDemoData)"
                 class="w-full min-h-full"
                 source="document"
             ></smart-scanner-mobile>
