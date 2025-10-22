@@ -1,1 +1,275 @@
+// Verifik select search styles using BEM
+.verifik-select-search {
+    &__panel {
+        padding: 0 0 8px !important;
+        min-width: 240px !important;
+    }
 
+    &__option {
+        padding: 0 !important;
+        height: auto !important;
+        min-height: 56px !important;
+        pointer-events: auto !important;
+        position: sticky !important;
+        top: 0px !important;
+        z-index: 1000 !important;
+        background: white !important;
+        margin: 0 !important;
+        cursor: default !important;
+        border-bottom: 1px solid #e0e0e0 !important;
+
+        .mat-option-text {
+            display: none;
+        }
+
+        .mdc-list-item__primary-text {
+            width: 100%;
+        }
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.mat-option-active,
+        &.mat-option-selected {
+            background: white !important;
+            color: inherit !important;
+        }
+
+        &.mat-option-disabled {
+            opacity: 1 !important;
+            color: inherit !important;
+        }
+    }
+
+    &__container {
+        align-items: center;
+        background: white;
+        box-sizing: border-box;
+        display: flex;
+        gap: 8px;
+        min-width: 200px;
+        padding: 12px 16px;
+        position: relative;
+        z-index: 1001;
+    }
+
+    &__input {
+        flex: 1;
+        outline: none;
+        font-size: 14px;
+        padding: 0;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+        min-height: 32px;
+    }
+
+    &__clear {
+        flex-shrink: 0;
+        pointer-events: auto !important;
+
+        .mat-icon {
+            margin-right: 0 !important;
+        }
+    }
+}
+
+.country-code-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+// Ensure the search input doesn't interfere with form validation
+.verifik-select-search__input {
+    // Prevent form submission on enter
+    &:focus {
+        outline: none;
+    }
+}
+
+// Override Material Design hover states for search options with ng-deep
+::ng-deep .verifik-select-search__option {
+    // Completely disable all hover effects
+    &:hover,
+    &:focus,
+    &:active,
+    &.mat-option-active,
+    &.mat-option-selected,
+    &.mat-option-highlighted {
+        background: white !important;
+        color: inherit !important;
+        transform: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    // Override any Material Design ripple effects
+    .mat-ripple {
+        display: none !important;
+    }
+
+    // Override any Material Design focus indicators
+    &:focus-visible {
+        outline: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+}
+
+// Global override for mat-option hover effects specifically for search options with ng-deep
+::ng-deep .mat-option.verifik-select-search__option {
+    &:hover {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &:focus {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &.mat-option-active {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &.mat-option-selected {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &.mat-option-highlighted {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    // Disable Material Design ripple and overlay effects
+    .mat-ripple,
+    .mat-option-overlay {
+        display: none !important;
+    }
+
+    // Override any pseudo-elements that might show hover effects
+    &::before,
+    &::after {
+        display: none !important;
+    }
+}
+
+// Additional global overrides to ensure no Material Design hover effects
+::ng-deep .mat-option.verifik-select-search__option {
+    &:hover,
+    &:focus,
+    &:active,
+    &.mat-option-active,
+    &.mat-option-selected,
+    &.mat-option-highlighted {
+        background: white !important;
+        color: inherit !important;
+        transform: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .mat-ripple,
+    .mat-option-overlay,
+    .mat-option-ripple {
+        display: none !important;
+    }
+
+    &::before,
+    &::after {
+        display: none !important;
+    }
+}
+
+// Most specific override for search mat-options only
+::ng-deep mat-option.verifik-select-search__option {
+    &:hover {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &:focus {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &:active {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &.mat-option-active {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &.mat-option-selected {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    &.mat-option-highlighted {
+        background: white !important;
+        color: inherit !important;
+    }
+
+    // Disable all Material Design effects
+    .mat-ripple,
+    .mat-option-overlay,
+    .mat-option-ripple,
+    .mat-ripple-element {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
+    // Override any pseudo-elements
+    &::before,
+    &::after {
+        display: none !important;
+    }
+
+    // Ensure no background changes on any state
+    &[class*="mat-option"] {
+        background: white !important;
+    }
+}
+
+// Ultra-specific override for search mat-options to completely disable hover
+::ng-deep .mat-select-panel .mat-option.verifik-select-search__option {
+    &:hover,
+    &:focus,
+    &:active,
+    &.mat-option-active,
+    &.mat-option-selected,
+    &.mat-option-highlighted {
+        background: white !important;
+        color: inherit !important;
+        transform: none !important;
+    }
+
+    .mat-ripple,
+    .mat-option-overlay,
+    .mat-option-ripple,
+    .mat-ripple-element {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    &::before,
+    &::after {
+        display: none !important;
+    }
+}
+
+.country-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+// Panel styling for mat-select dropdowns
+::ng-deep .verifik-select-search__panel {
+    min-width: 300px !important;
+}

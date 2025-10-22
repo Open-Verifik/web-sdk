@@ -44,14 +44,14 @@
                     <mat-label>{{ t("signup.fullName") }}</mat-label>
 
                     <input
+                        [placeholder]="t('signup.fullName')"
+                        autocomplete="name"
+                        formControlName="fullName"
                         id="fullName"
                         matInput
-                        formControlName="fullName"
-                        maxlength="50"
-                        minlength="3"
-                        [placeholder]="t('signup.fullName')"
                         name="fullName"
-                        autocomplete="name"
+                        required
+                        type="text"
                     />
 
                     <mat-error *ngIf="signUpForm.get('fullName')?.hasError('required') && signUpForm.get('fullName')?.touched">
@@ -66,14 +66,13 @@
 
                         <input
                             [placeholder]="t('signup.firstName')"
+                            autocomplete="given-name"
                             formControlName="firstName"
                             id="firstName"
                             matInput
-                            maxlength="20"
-                            minlength="3"
                             name="firstName"
-                            autocomplete="given-name"
                             required
+                            type="text"
                         />
 
                         <mat-error *ngIf="signUpForm.get('firstName')?.hasError('required') && signUpForm.get('firstName')?.touched">
@@ -85,14 +84,14 @@
                         <mat-label>{{ t("signup.lastName") }}</mat-label>
 
                         <input
+                            [placeholder]="t('signup.lastName')"
+                            autocomplete="family-name"
+                            formControlName="lastName"
                             id="lastName"
                             matInput
-                            formControlName="lastName"
-                            maxlength="20"
-                            minlength="3"
-                            [placeholder]="t('signup.lastName')"
                             name="lastName"
-                            autocomplete="family-name"
+                            required
+                            type="text"
                         />
 
                         <mat-error *ngIf="signUpForm.get('lastName')?.hasError('required') && signUpForm.get('lastName')?.touched">
@@ -127,11 +126,11 @@
             <input
                 (input)="removeSpacesFromEmail()"
                 [placeholder]="t('login.email')"
+                autocomplete="email"
                 formControlName="email"
                 id="email"
                 matInput
                 name="email"
-                autocomplete="email"
                 required
                 type="email"
             />
@@ -152,15 +151,57 @@
 
                 <mat-select
                     (click)="preventInputFocus($event)"
-                    (closed)="onCountryCodeChange()"
+                    (closed)="onCountryCodeSelectClosed()"
+                    (openedChange)="onCountryCodeSelectOpened()"
                     (selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
                     [formControl]="signUpForm.get('countryCode') || null"
                     *ngIf="countryCodes"
-                    name="countryCode"
                     autocomplete="country-code"
+                    disableRipple
+                    name="countryCode"
+                    panelClass="verifik-select-search__panel"
                     required
                 >
-                    <mat-option *ngFor="let country of countryCodes; trackBy: trackByCountryCode" [value]="country.code">
+                    <!-- Search input -->
+                    <mat-option
+                        (click)="$event.preventDefault(); $event.stopPropagation()"
+                        (mousedown)="$event.preventDefault(); $event.stopPropagation()"
+                        (mouseup)="$event.preventDefault(); $event.stopPropagation()"
+                        class="verifik-select-search__option"
+                    >
+                        <div class="verifik-select-search__container">
+                            <input
+                                (click)="$event.stopPropagation()"
+                                (input)="onCountryCodeSearchChange($event.target.value)"
+                                (keydown)="$event.stopPropagation()"
+                                (mousedown)="$event.stopPropagation()"
+                                (mouseup)="$event.stopPropagation()"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="t('search') + '...'"
+                                [value]="countryCodeSearchTerm"
+                                #countryCodeSearchInput
+                                class="verifik-select-search__input"
+                                type="text"
+                            />
+
+                            <button
+                                (click)="clearCountryCodeSearch($event)"
+                                (keydown)="$event.stopPropagation()"
+                                (mousedown)="$event.stopPropagation()"
+                                (mouseup)="$event.stopPropagation()"
+                                *ngIf="countryCodeSearchTerm"
+                                aria-label="Clear search"
+                                class="verifik-select-search__clear"
+                                mat-icon-button
+                                type="button"
+                            >
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                    </mat-option>
+
+                    <!-- Country code options -->
+                    <mat-option *ngFor="let country of filteredCountryCodes; trackBy: trackByCountryCode" [value]="country.code">
                         {{ country.code }}
                     </mat-option>
                 </mat-select>
@@ -172,6 +213,7 @@
                 <input
                     (input)="removeSpacesFromPhone()"
                     [placeholder]="t('login.phone')"
+                    autocomplete="tel"
                     formControlName="phone"
                     id="phone"
                     inputmode="numeric"
@@ -179,10 +221,9 @@
                     maxlength="15"
                     minlength="4"
                     name="phone"
-                    autocomplete="tel"
                     pattern="[0-9]*"
-                    type="tel"
                     required
+                    type="tel"
                 />
 
                 <mat-error *ngIf="signUpForm.get('phone')?.hasError('required') && signUpForm.get('phone')?.touched">
@@ -356,8 +397,54 @@
                 <mat-form-field appearance="outline" class="w-full min-w-2/3" *ngIf="signUpFormSettings.additionalFields.includes('country')">
                     <mat-label>{{ t("signup.country") }}</mat-label>
 
-                    <mat-select formControlName="country" name="country" autocomplete="country" required>
-                        <mat-option *ngFor="let country of countries" [value]="country.country">
+                    <mat-select
+                        (closed)="onCountrySelectClosed()"
+                        (openedChange)="onCountrySelectOpened()"
+                        autocomplete="country"
+                        formControlName="country"
+                        name="country"
+                        panelClass="verifik-select-search__panel"
+                        required
+                    >
+                        <mat-option
+                            (click)="$event.preventDefault(); $event.stopPropagation()"
+                            (mousedown)="$event.preventDefault(); $event.stopPropagation()"
+                            (mouseup)="$event.preventDefault(); $event.stopPropagation()"
+                            class="verifik-select-search__option"
+                        >
+                            <div class="verifik-select-search__container">
+                                <input
+                                    (click)="$event.stopPropagation()"
+                                    (input)="onCountrySearchChange($event.target.value)"
+                                    (keydown)="$event.stopPropagation()"
+                                    (mousedown)="$event.stopPropagation()"
+                                    (mouseup)="$event.stopPropagation()"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [placeholder]="t('search') + '...'"
+                                    [value]="countrySearchTerm"
+                                    #countrySearchInput
+                                    class="verifik-select-search__input"
+                                    type="text"
+                                />
+
+                                <button
+                                    (click)="clearCountrySearch($event)"
+                                    (keydown)="$event.stopPropagation()"
+                                    (mousedown)="$event.stopPropagation()"
+                                    (mouseup)="$event.stopPropagation()"
+                                    *ngIf="countrySearchTerm"
+                                    aria-label="Clear search"
+                                    class="verifik-select-search__clear"
+                                    mat-icon-button
+                                    type="button"
+                                >
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                        </mat-option>
+
+                        <!-- Country options -->
+                        <mat-option *ngFor="let country of filteredCountries; trackBy: trackByCountry" [value]="country.country">
                             {{ t(country.name) }}
                         </mat-option>
                     </mat-select>

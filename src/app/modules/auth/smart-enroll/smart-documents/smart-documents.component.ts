@@ -322,7 +322,6 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     }
 
     private _handleCountryChange(value: string): void {
-        // Reset dependent fields
         this.methodSelectionForm.get("documentCategory")?.setValue("");
         this.methodSelectionForm.get("promptTemplate")?.setValue(null);
 
@@ -334,18 +333,28 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         }
 
         this.methodSelectionForm.get("documentCategory")?.enable();
+
+        const documentCategories = this.projectFlow.documentCategories(value);
+
+        if (documentCategories.length === 1) this.methodSelectionForm.get("documentCategory")?.setValue(documentCategories[0]);
+        else this.methodSelectionForm.get("documentCategory")?.setValue("");
     }
 
     private _handleDocumentCategoryChange(value: string): void {
-        // Reset dependent field
         this.methodSelectionForm.get("promptTemplate")?.setValue(null);
 
         if (!value) {
             this.methodSelectionForm.get("promptTemplate")?.disable();
+
             return;
         }
 
         this.methodSelectionForm.get("promptTemplate")?.enable();
+
+        const promptTemplates = this.projectFlow.promptTemplates(this.methodSelectionForm.get("country")?.value, value);
+
+        if (promptTemplates.length === 1) this.methodSelectionForm.get("promptTemplate")?.setValue(promptTemplates[0]);
+        else this.methodSelectionForm.get("promptTemplate")?.setValue(null);
     }
 
     private _onEnrollSettingsChange(settings: EnrollSettings) {

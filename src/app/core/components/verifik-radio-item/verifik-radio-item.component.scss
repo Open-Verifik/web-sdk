@@ -16,6 +16,10 @@
     border-color: var(--custom-verifik-accent-400, #94a3b8);
 }
 
+.verifik-radio-item {
+    box-sizing: border-box;
+}
+
 /* Slab variant styles */
 .verifik-radio-item--selected {
     background-color: var(--custom-verifik-primary-200, #c7d2fe);
@@ -100,27 +104,39 @@
 }
 
 .verifik-radio-item--default-selected {
-    background-color: var(--custom-verifik-primary-100, #e0e7ff);
+    background-color: var(--custom-verifik-primary-50, #e0e7ff);
     border-color: var(--custom-verifik-primary-500, #818cf8);
-    color: var(--custom-verifik-accent-800, #1e293b);
+
+    .verifik-radio-item__label {
+        color: var(--custom-verifik-accent-500, #1e293b);
+    }
 }
 
 .verifik-radio-item--default-selected-error {
     background-color: var(--custom-verifik-warn-100, #fee2e2);
     border-color: var(--custom-verifik-warn-500, #f87171);
-    color: var(--custom-verifik-accent-800, #1e293b);
+
+    .verifik-radio-item__label {
+        color: var(--custom-verifik-accent-50, #f87171);
+    }
 }
 
 .verifik-radio-item--default-unselected {
     background-color: var(--custom-verifik-accent-50, #f8fafc);
     border-color: var(--custom-verifik-accent-500, #94a3b8);
-    color: var(--custom-verifik-accent-500, #94a3b8);
+
+    .verifik-radio-item__label {
+        color: var(--custom-verifik-accent-500, #1e293b);
+    }
 }
 
 .verifik-radio-item--default-unselected-error {
     background-color: var(--custom-verifik-accent-50, #f1f5f9);
     border-color: var(--custom-verifik-warn-500, #f87171);
-    color: var(--custom-verifik-accent-500, #94a3b8);
+
+    .verifik-radio-item__label {
+        color: var(--custom-verifik-accent-500, #1e293b);
+    }
 }
 
 .verifik-radio-item--default-hover {
@@ -158,7 +174,7 @@
 }
 
 .verifik-radio-item__checkmark-path--unselected {
-    fill: var(--custom-verifik-accent-400, #94a3b8);
+    fill: var(--custom-verifik-accent-200, #e2e8f0);
 }
 
 /* Error state for checkmark */
@@ -167,5 +183,5 @@
 }
 
 .verifik-radio-item--unselected-error .verifik-radio-item__checkmark-path--unselected {
-    fill: var(--custom-verifik-warn-500, #f87171);
+    fill: var(--custom-verifik-warn-200, #fecaca);
 }

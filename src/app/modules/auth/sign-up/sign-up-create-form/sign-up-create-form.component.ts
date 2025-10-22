@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AbstractControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -56,6 +56,9 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
     ],
 })
 export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
+    @ViewChild("countryCodeSearchInput") countryCodeSearchInput: ElementRef<HTMLInputElement>;
+    @ViewChild("countrySearchInput") countrySearchInput: ElementRef<HTMLInputElement>;
+
     @Input("location") location: any;
     @Input("project") project: Project;
     @Input("projectFlow") projectFlow: ProjectFlow;
@@ -70,6 +73,10 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     appRegistration: AppRegistration;
     countries: CountryOption[];
     countryCodes: CountryCodeOption[];
+    filteredCountryCodes: CountryCodeOption[];
+    filteredCountries: CountryOption[];
+    countryCodeSearchTerm: string = "";
+    countrySearchTerm: string = "";
     demoData: any;
     fields: any;
     hasLogin: Boolean = false;
@@ -93,7 +100,9 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
         private _smartEnrollService: SmartEnrollService
     ) {
         this.countryCodes = this._countryService.countryCodes;
+        this.filteredCountryCodes = this.countryCodes;
         this.countries = this._countryService.countries;
+        this.filteredCountries = this.countries;
         this.fields = {};
         this.roles = this._kycService.roles;
 
@@ -167,19 +176,19 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
         if (this.signUpFormSettings?.fullNameStyle === "together") {
             this.fields["fullName"] = [
                 demoData.fullName,
-                [Validators.required, Validators.maxLength(50), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+                [Validators.required, Validators.minLength(2), Validators.maxLength(100), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
             ];
         }
 
         if (this.signUpFormSettings?.fullNameStyle === "separate") {
             this.fields["firstName"] = [
                 demoData.firstName,
-                [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+                [Validators.required, Validators.minLength(2), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
             ];
 
             this.fields["lastName"] = [
                 demoData.lastName,
-                [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+                [Validators.required, Validators.minLength(2), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
             ];
         }
 
@@ -195,7 +204,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
             this.fields["phone"] = [
                 demoData.phone,
-                [Validators.minLength(phoneLength), Validators.maxLength(phoneLength), Validators.required, Validators.pattern(/^\d+$/)],
+                [Validators.minLength(phoneLength[0]), Validators.maxLength(phoneLength[1]), Validators.required, Validators.pattern(/^\d+$/)],
             ];
         }
 
@@ -281,8 +290,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
             const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCodeFormControl.value);
 
             phoneFormControl.setValidators([
-                Validators.minLength(phoneLength),
-                Validators.maxLength(phoneLength),
+                Validators.minLength(phoneLength[0]),
+                Validators.maxLength(phoneLength[1]),
                 Validators.required,
                 Validators.pattern(/^\d+$/),
             ]);
@@ -302,6 +311,110 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
     trackByCountryCode(_index: number, country: any): string {
         return country?.code;
+    }
+
+    trackByCountry(_index: number, country: any): string {
+        return country?.country;
+    }
+
+    onCountryCodeSearchChange(searchTerm: string): void {
+        this.countryCodeSearchTerm = searchTerm;
+        this.filterCountryCodes();
+    }
+
+    clearCountryCodeSearch(event?: Event): void {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        this.countryCodeSearchTerm = "";
+        this.filteredCountryCodes = this.countryCodes;
+        this._changeDetectorRef.detectChanges();
+
+        // Refocus the search input after clearing
+        setTimeout(() => {
+            if (this.countryCodeSearchInput?.nativeElement) {
+                this.countryCodeSearchInput.nativeElement.focus();
+            }
+        }, 0);
+    }
+
+    private filterCountryCodes(): void {
+        if (!this.countryCodeSearchTerm.trim()) {
+            this.filteredCountryCodes = this.countryCodes;
+        } else {
+            const searchTerm = this.countryCodeSearchTerm.toLowerCase().trim();
+            this.filteredCountryCodes = this.countryCodes.filter(
+                (country) => country.code.toLowerCase().includes(searchTerm) || country.name.toLowerCase().includes(searchTerm)
+            );
+        }
+    }
+
+    onCountryCodeSelectOpened(): void {
+        this.countryCodeSearchTerm = "";
+        this.filteredCountryCodes = this.countryCodes;
+        // Focus the search input after the select panel opens
+        setTimeout(() => {
+            if (this.countryCodeSearchInput?.nativeElement) {
+                this.countryCodeSearchInput.nativeElement.focus();
+            }
+        }, 100);
+    }
+
+    onCountryCodeSelectClosed(): void {
+        this.countryCodeSearchTerm = "";
+        this.filteredCountryCodes = this.countryCodes;
+        this.onCountryCodeChange();
+    }
+
+    // Country search methods
+    onCountrySearchChange(searchTerm: string): void {
+        this.countrySearchTerm = searchTerm;
+        this.filterCountries();
+    }
+
+    clearCountrySearch(event?: Event): void {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        this.countrySearchTerm = "";
+        this.filteredCountries = this.countries;
+        this._changeDetectorRef.detectChanges();
+
+        // Refocus the search input after clearing
+        setTimeout(() => {
+            if (this.countrySearchInput?.nativeElement) {
+                this.countrySearchInput.nativeElement.focus();
+            }
+        }, 0);
+    }
+
+    private filterCountries(): void {
+        if (!this.countrySearchTerm.trim()) {
+            this.filteredCountries = this.countries;
+        } else {
+            const searchTerm = this.countrySearchTerm.toLowerCase().trim();
+            this.filteredCountries = this.countries.filter(
+                (country) => country.country.toLowerCase().includes(searchTerm) || country.name.toLowerCase().includes(searchTerm)
+            );
+        }
+    }
+
+    onCountrySelectOpened(): void {
+        this.countrySearchTerm = "";
+        this.filteredCountries = this.countries;
+        // Focus the search input after the select panel opens
+        setTimeout(() => {
+            if (this.countrySearchInput?.nativeElement) {
+                this.countrySearchInput.nativeElement.focus();
+            }
+        }, 100);
+    }
+
+    onCountrySelectClosed(): void {
+        this.countrySearchTerm = "";
+        this.filteredCountries = this.countries;
     }
 
     signUp(): void {

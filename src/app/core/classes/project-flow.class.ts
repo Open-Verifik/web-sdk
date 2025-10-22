@@ -334,6 +334,16 @@ export class ProjectFlow {
         return this.documents?.documentTypes.map((docType: PersonalDocumentType | BusinessDocumentType) => docType.country) || [];
     }
 
+    documentCategories(country: string = ""): string[] {
+        const documents = this.documents as PersonalDocuments;
+
+        return documents.documentTypes.reduce((acc, docType) => {
+            if (docType.country === country) return acc.concat(docType.configurations.map((config) => config.documentCategory));
+
+            return acc;
+        }, [] as string[]);
+    }
+
     documentGovernmentIDAllowed(country: string = ""): boolean {
         return this._hasDocumentType("government_id", country);
     }

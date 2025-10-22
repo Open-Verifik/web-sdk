@@ -1,5 +1,5 @@
 import { NgClass, NgIf, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, Optional, SimpleChanges } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, Optional, SimpleChanges } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { Subject } from "rxjs";
@@ -25,11 +25,7 @@ export class VerifikRadioItemComponent implements OnInit, OnDestroy, OnChanges {
 
     private _destroy$ = new Subject<void>();
 
-    constructor(
-        @Optional() private _radioGroup: VerifikRadioGroupComponent,
-        private _changeDetectorRef: ChangeDetectorRef,
-        private _elementRef: ElementRef
-    ) {}
+    constructor(@Optional() private _radioGroup: VerifikRadioGroupComponent) {}
 
     ngOnInit(): void {
         if (this.formControl && !this._radioGroup) {
@@ -40,10 +36,10 @@ export class VerifikRadioItemComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if ((changes["formControl"] || changes["value"]) && !this._radioGroup) {
-            if (this.formControl) {
-                this._updateSelectionState();
-                this._subscribeToFormControlChanges();
-            }
+            if (!this.formControl) return;
+
+            this._updateSelectionState();
+            this._subscribeToFormControlChanges();
         }
     }
 
