@@ -10,60 +10,60 @@
 ></smart-camera-resolution-detection>
 
 <ng-container *transloco="let t">
-    <ng-container *ngTemplateOutlet="stepChip"></ng-container>
-
-    <ng-template #stepChip>
-        <mat-card-title class="absolute w-full flex flex-row justify-center items-center gap-4 z-10 m-4">
-            <div
-                class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
-                [class.side-indicator__step-row--active]="side === 'front'"
-            >
-                <p
-                    class="side-indicator__step"
-                    [class.side-indicator__step--active]="side === 'front'"
-                    [class.side-indicator__step--inactive]="side !== 'front'"
-                >
-                    <span class="font-medium" *ngIf="side === 'front'">1</span>
-
-                    <mat-icon svgIcon="feather:check" *ngIf="side === 'back'" class="side-indicator__step-icon"></mat-icon>
-                </p>
-
-                <p class="side-indicator__step-text">
-                    {{ t("smart_enroll.documents.upload.frontside") }}
-                </p>
-            </div>
-
-            <div
-                class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
-                [class.side-indicator__step-row--active]="side === 'back'"
-                *ngIf="requiresBack"
-            >
-                <p
-                    class="side-indicator__step"
-                    [class.side-indicator__step--active]="side === 'back'"
-                    [class.side-indicator__step--inactive]="side !== 'back'"
-                >
-                    <span class="font-medium">2</span>
-                </p>
-
-                <p class="side-indicator__step-text">
-                    {{ t("smart_enroll.documents.upload.backside") }}
-                </p>
-            </div>
-        </mat-card-title>
-    </ng-template>
-
     <div class="w-full h-full" fxLayout="column" fxLayoutAlign.lt-md="start center">
-        <div class="-ml-2 w-full z-10" ngClass.gt-sm="hidden">
-            <div class="w-full grid grid-cols-7">
-                <div class="col-span-2">
-                    <button (click)="goPrevious()" [disabled]="!canGoPrevious()" class="m-4" color="primary" mat-stroked-button>
-                        <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
-                        <span class="ml-2">{{ "cancel" | transloco }}</span>
-                    </button>
-                </div>
+        <div class="w-full z-10 grid grid-cols-1 p-2 gap-2" ngClass.gt-sm="hidden">
+            <div class="col-span-1">
+                <button (click)="goPrevious()" [disabled]="!canGoPrevious()" color="primary" mat-stroked-button>
+                    <mat-icon svgIcon="mat_solid:arrow_back"></mat-icon>
+                    <span class="ml-2">{{ "cancel" | transloco }}</span>
+                </button>
+            </div>
+
+            <div class="col-span-1">
+                <ng-container *ngTemplateOutlet="stepChip"></ng-container>
             </div>
         </div>
+
+        <ng-template #stepChip>
+            <mat-card-title class="w-full flex flex-row justify-center items-center gap-4">
+                <div
+                    class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
+                    [class.side-indicator__step-row--active]="side === 'front'"
+                >
+                    <p
+                        class="side-indicator__step"
+                        [class.side-indicator__step--active]="side === 'front'"
+                        [class.side-indicator__step--inactive]="side !== 'front'"
+                    >
+                        <span class="font-medium" *ngIf="side === 'front'">1</span>
+
+                        <mat-icon svgIcon="feather:check" *ngIf="side === 'back'" class="side-indicator__step-icon"></mat-icon>
+                    </p>
+
+                    <p class="side-indicator__step-text">
+                        {{ t("smart_enroll.documents.upload.frontside") }}
+                    </p>
+                </div>
+
+                <div
+                    class="flex side-indicator__step-row py-2 px-3 side-indicator__step-row--forward rounded-3xl"
+                    [class.side-indicator__step-row--active]="side === 'back'"
+                    *ngIf="requiresBack"
+                >
+                    <p
+                        class="side-indicator__step"
+                        [class.side-indicator__step--active]="side === 'back'"
+                        [class.side-indicator__step--inactive]="side !== 'back'"
+                    >
+                        <span class="font-medium">2</span>
+                    </p>
+
+                    <p class="side-indicator__step-text">
+                        {{ t("smart_enroll.documents.upload.backside") }}
+                    </p>
+                </div>
+            </mat-card-title>
+        </ng-template>
 
         <div
             ngClass.lt-md="w-full h-full z-10"
