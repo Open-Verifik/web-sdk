@@ -31,18 +31,18 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
 
     @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
-    private unsubscriber$: Subject<void> = new Subject<void>();
-
+    private readonly DEMO_LIVENESS_IMAGE = "assets/images/ui/template_liveness.jpg";
     private readonly DEMO_FACE_IMAGE = "assets/images/ui/template_person.png";
     private readonly BLURRY_BACKGROUND = "assets/images/ui/blurry-street.jpg";
 
-    // Animation properties
     private animationFrameId: number | null = null;
     private animationStartTime: number = 0;
-    private faceOffset: { x: number; y: number; rotation: number; scale: number } = { x: 0, y: 0, rotation: 0, scale: 1 };
+    private backgroundImage: HTMLImageElement | null = null;
     private backgroundOffset: { x: number; y: number } = { x: 0, y: 0 };
     private faceImage: HTMLImageElement | null = null;
-    private backgroundImage: HTMLImageElement | null = null;
+    private faceOffset: { x: number; y: number; rotation: number; scale: number } = { x: 0, y: 0, rotation: 0, scale: 1 };
+    private livenessImage: HTMLImageElement | null = null;
+    private unsubscriber$: Subject<void> = new Subject<void>();
 
     appRegistration: any;
     base64Image: any;
@@ -53,25 +53,14 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
     projectFlow: ProjectFlow;
     uploading: boolean = false;
     camera: any = { loading: false };
-    side: "front" = "front"; // Demo mode only uses front side
+    side: "front" = "front";
+    useDemoLiveness: boolean = true;
 
     constructor(private _demoService: DemoService, private _KYCService: KYCService, private _passwordlessService: PasswordlessService) {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
         this.demoData = this._demoService.getDemoData();
-
-        // Ensure projectFlow has required structure for demo
-        if (!this.projectFlow) {
-            this.projectFlow = {
-                onboardingSettings: {
-                    steps: {
-                        document: "mandatory",
-                        liveness: "mandatory",
-                    },
-                },
-            } as any;
-        }
     }
 
     ngOnInit(): void {
@@ -88,6 +77,10 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
         this.unsubscriber$.next();
         this.unsubscriber$.complete();
         this._stopAnimation();
+    }
+
+    get requiresBack(): boolean {
+        return false;
     }
 
     private async _composeImages(): Promise<void> {
@@ -112,16 +105,35 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
 
                 const faceImg = new Image();
                 faceImg.crossOrigin = "anonymous";
-
                 faceImg.onload = () => {
                     this.faceImage = faceImg;
+
+                    const livenessImg = new Image();
+                    livenessImg.crossOrigin = "anonymous";
+                    livenessImg.onload = () => {
+                        this.livenessImage = livenessImg;
+                        this._startAnimation();
+                        resolve();
+                    };
+                    livenessImg.onerror = () => {
+                        console.error("Failed to load liveness image");
+                        this._startAnimation();
+                        resolve();
+                    };
+                    livenessImg.src = this.DEMO_LIVENESS_IMAGE;
+                };
+                faceImg.onerror = () => {
+                    console.error("Failed to load face image");
                     this._startAnimation();
                     resolve();
                 };
-
                 faceImg.src = this.DEMO_FACE_IMAGE;
             };
-
+            backgroundImg.onerror = () => {
+                console.error("Failed to load background image");
+                this._startAnimation();
+                resolve();
+            };
             backgroundImg.src = this.BLURRY_BACKGROUND;
         });
     }
@@ -131,35 +143,18 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
 
         this.capturing = true;
 
-        // Simulate capture delay
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const canvas = this.compositeCanvas.nativeElement;
         const base64Image = canvas.toDataURL("image/jpeg");
 
-        // Extract face for comparison
-        const faceImg = new Image();
-        faceImg.src = this.DEMO_FACE_IMAGE;
-
-        faceImg.onload = () => {
-            const faceCanvas = this.faceCardCanvas.nativeElement;
-            const faceCtx = faceCanvas.getContext("2d");
-
-            faceCanvas.width = 300;
-            faceCanvas.height = 300;
-
-            faceCtx.drawImage(faceImg, 0, 0, 300, 300);
-            const faceToUpload = faceCanvas.toDataURL("image/jpeg");
-            const face = faceToUpload?.replace(/^data:.*;base64,/, "");
-
-            this._emitImageScan(base64Image, face);
-        };
+        this._emitImageScan(base64Image);
     }
 
-    private _emitImageScan(base64Image: string, face: string): void {
+    private _emitImageScan(base64Image: string): void {
         this.onImageScan.emit({
             base64Image: base64Image.replace(/^data:.*;base64,/, ""),
-            face,
+            face: base64Image.replace(/^data:.*;base64,/, ""),
             force: true,
             front: this.side === "front",
             inputMethod: "CAMERA",
@@ -172,34 +167,6 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
         this.capturing = false;
     }
 
-    goNext(): void {
-        // Continue to next step
-        this.uploading = false;
-    }
-
-    goPrevious(): void {
-        // Go back to previous step
-        this.uploading = false;
-    }
-
-    get requiresBack(): boolean {
-        // In demo mode, we only use front side
-        return false;
-    }
-
-    canGoPrevious(): boolean {
-        // In demo mode, we only have front side, so no previous side
-        return false;
-    }
-
-    canSkip(): boolean {
-        return true; // Allow skipping in demo mode
-    }
-
-    goBack(): void {
-        // Navigate back to previous step
-    }
-
     private _startAnimation(): void {
         this._stopAnimation();
 
@@ -208,8 +175,11 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
         const animate = () => {
             if (!this.compositeCanvas?.nativeElement || !this.faceImage || !this.backgroundImage) return;
 
+            if (this.uploading || this.capturing) return this._stopAnimation();
+
             const canvas = this.compositeCanvas.nativeElement;
             const ctx = canvas.getContext("2d");
+
             if (!ctx) return;
 
             const viewportSize = 400;
@@ -219,23 +189,43 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
             canvas.height = viewportSize * pixelRatio;
             canvas.style.width = viewportSize + "px";
             canvas.style.height = viewportSize + "px";
+
             ctx.scale(pixelRatio, pixelRatio);
 
-            this._drawAnimatedBackground(ctx, viewportSize);
-            this._drawAnimatedFace(ctx, viewportSize);
-            this._updateAnimation();
+            if (this.useDemoLiveness) {
+                this._drawDemoLiveness(ctx, viewportSize);
+            } else {
+                this._drawAnimatedBackground(ctx, viewportSize);
+                this._drawAnimatedFace(ctx, viewportSize);
+                this._updateAnimation();
 
-            this.animationFrameId = requestAnimationFrame(animate);
+                this.animationFrameId = requestAnimationFrame(animate);
+            }
         };
 
         animate();
     }
 
     private _stopAnimation(): void {
-        if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
-            this.animationFrameId = null;
-        }
+        if (!this.animationFrameId) return;
+
+        cancelAnimationFrame(this.animationFrameId);
+
+        this.animationFrameId = null;
+    }
+
+    private _drawDemoLiveness(ctx: CanvasRenderingContext2D, viewportSize: number): void {
+        if (!this.livenessImage) return;
+
+        ctx.clearRect(0, 0, viewportSize, viewportSize);
+
+        const zoomFactor = 1.6;
+        const zoomedSize = viewportSize * zoomFactor;
+
+        const offsetY = 0;
+        const offsetX = (viewportSize - zoomedSize) / 2 + viewportSize * 0.05;
+
+        ctx.drawImage(this.livenessImage, offsetX, offsetY, zoomedSize, zoomedSize);
     }
 
     private _drawAnimatedBackground(ctx: CanvasRenderingContext2D, viewportSize: number): void {
@@ -252,9 +242,11 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
         if (!this.faceImage) return;
 
         const baseSize = viewportSize * 1.2;
-        const faceSize = baseSize * 1.25 * 1.25 * this.faceOffset.scale;
+        const faceSize = baseSize * 1.25 * 1.1 * this.faceOffset.scale;
         const aspectRatio = this.faceImage.naturalWidth / this.faceImage.naturalHeight;
-        let faceWidth, faceHeight;
+
+        let faceWidth: number;
+        let faceHeight: number;
 
         if (aspectRatio > 1) {
             faceWidth = faceSize;
@@ -274,25 +266,27 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
         ctx.translate(animatedX + faceWidth / 2, animatedY + faceHeight / 2);
         ctx.rotate(this.faceOffset.rotation);
         ctx.scale(this.faceOffset.scale, this.faceOffset.scale);
+
         ctx.globalAlpha = 0.95;
+
         ctx.drawImage(this.faceImage, -faceWidth / 2, -faceHeight / 2, faceWidth, faceHeight);
+
         ctx.globalAlpha = 1.0;
+
         ctx.restore();
     }
 
     private _updateAnimation(): void {
         const now = Date.now();
         const elapsed = now - this.animationStartTime;
+        const time = elapsed * 0.001;
 
-        // Continuous background movement using sine waves for smooth, natural motion
-        const time = elapsed * 0.001; // Convert to seconds
-        this.backgroundOffset.x = Math.sin(time * 0.5) * 20; // Faster horizontal drift with larger range
-        this.backgroundOffset.y = Math.cos(time * 0.4) * 15; // Faster vertical drift with larger range
+        this.backgroundOffset.x = Math.sin(time * 0.5) * 20;
+        this.backgroundOffset.y = Math.cos(time * 0.4) * 15;
 
-        // Gentle person movement - very subtle to avoid discomfort
-        this.faceOffset.x = Math.sin(time * 0.15) * 3; // Very gentle horizontal movement
-        this.faceOffset.y = Math.cos(time * 0.12) * 2; // Very gentle vertical movement
-        this.faceOffset.rotation = Math.sin(time * 0.08) * 0.02; // Very gentle rotation
-        this.faceOffset.scale = 1 + Math.sin(time * 0.1) * 0.05; // Gentle size breathing effect
+        this.faceOffset.x = Math.sin(time * 0.15) * 3;
+        this.faceOffset.y = Math.cos(time * 0.12) * 2;
+        this.faceOffset.rotation = Math.sin(time * 0.08) * 0.02;
+        this.faceOffset.scale = 1 + Math.sin(time * 0.1) * 0.05;
     }
 }

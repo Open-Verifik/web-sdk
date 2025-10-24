@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, forwardRef, Input, OnInit, ViewChild } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from "@angular/forms";
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
@@ -54,7 +54,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
             type="text"
         />
     `,
-    imports: [CommonModule, ReactiveFormsModule, MatIconModule, MatProgressSpinnerModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, MatProgressSpinnerModule],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

@@ -20,7 +20,16 @@ import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll
 @Component({
     animations: fuseAnimations,
     encapsulation: ViewEncapsulation.None,
-    imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, NgIf, TranslocoModule, VerifikMediaDisplayComponent],
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        NgIf,
+        TranslocoModule,
+        VerifikMediaDisplayComponent,
+    ],
     selector: "smart-results",
     standalone: true,
     styleUrls: ["../smart-enroll.component.scss"],
@@ -121,7 +130,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
                 this.fetchingToken = false;
             },
             complete: () => {
-                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
+                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding", this.project.demoMode);
                 this.fetchingToken = false;
             },
         });

@@ -79,34 +79,31 @@ export class DemoComponentsTestComponent implements OnInit {
         private _passwordlessService: PasswordlessService
     ) {
         this.setupMockData();
+
         this.testForm = this._fb.group({
             demoMode: [true, Validators.required],
             demoChoice: ["demo", Validators.required],
         });
 
-        // Initialize services with mock data
         this._passwordlessService.currentProject = this.project;
         this._kycService.currentProjectFlow = this.projectFlow;
         this._kycService.appRegistration = this.appRegistration;
     }
 
     ngOnInit(): void {
-        // Apply initial form values
         const initialValues = this.testForm.value;
+
         this.project.demoMode = initialValues.demoMode;
         this.useDemoData = initialValues.demoChoice === "demo";
 
-        // Set up form value changes subscription
         this.testForm.valueChanges.subscribe((values) => {
             this.project.demoMode = values.demoMode;
             this.useDemoData = values.demoChoice === "demo";
 
-            // Update services with current mock data immediately
             this._passwordlessService.currentProject = this.project;
             this._kycService.currentProjectFlow = this.projectFlow;
             this._kycService.appRegistration = this.appRegistration;
 
-            // Force change detection to update components
             setTimeout(() => {
                 this._passwordlessService.currentProject = this.project;
                 this._kycService.currentProjectFlow = this.projectFlow;
@@ -121,7 +118,6 @@ export class DemoComponentsTestComponent implements OnInit {
     }
 
     private setupMockData(): void {
-        // Create mock project with demo mode enabled
         this.project = new Project({
             _id: "demo-test-project",
             name: "Demo Test Project",

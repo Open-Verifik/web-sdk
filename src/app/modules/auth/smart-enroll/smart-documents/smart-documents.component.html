@@ -45,146 +45,14 @@
                             [formGroup]="methodSelectionForm"
                             class="smart-documents__card flex flex-col justify-start items-center rounded-2xl gap-4"
                         >
-                            <ng-container
-                                *ngTemplateOutlet="steps; context: { index: 1, title: 'smart_enroll.documents.verification_method' }"
-                            ></ng-container>
-
-                            <verifik-radio-group class="flex flex-col gap-4 w-full" formControlName="documentMethod">
-                                <verifik-radio-item
-                                    [label]="t('smart_enroll.documents.upload_document')"
-                                    *ngIf="projectFlow.documentUploadAllowed"
-                                    class="w-full"
-                                    icon="mat_outline:file_upload"
-                                    value="upload"
-                                    variant="default"
-                                ></verifik-radio-item>
-
-                                <verifik-radio-item
-                                    [label]="t('smart_enroll.documents.scan_document')"
-                                    *ngIf="projectFlow.documentScanAllowed"
-                                    class="w-full"
-                                    icon="mat_outline:camera"
-                                    value="scan"
-                                    variant="default"
-                                ></verifik-radio-item>
-                            </verifik-radio-group>
-
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    steps;
-                                    context: {
-                                        index: 2,
-                                        title: 'smart_enroll.documents.issuing_country',
-                                        opacity: !methodSelectionForm.get('documentMethod')?.value ? '0.5' : '1'
-                                    }
-                                "
-                            ></ng-container>
-
-                            <div class="w-full flex flex-col">
-                                <mat-form-field
-                                    [style.opacity]="!methodSelectionForm.get('documentMethod')?.value ? '0.5' : '1'"
-                                    appearance="outline"
-                                    class="country-select w-full"
-                                >
-                                    <mat-label>{{ t("smart_enroll.documents.country") }}</mat-label>
-
-                                    <mat-select class="country-select__input" formControlName="country" required>
-                                        <mat-option *ngFor="let country of countries" [value]="country.country">
-                                            {{ t(country.name) }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-
-                                <ng-container
-                                    *ngTemplateOutlet="
-                                        steps;
-                                        context: {
-                                            index: 3,
-                                            title: 'smart_enroll.documents.category',
-                                            opacity: !methodSelectionForm.get('country')?.value ? '0.5' : '1'
-                                        }
-                                    "
-                                ></ng-container>
-                            </div>
-
-                            <verifik-radio-group
-                                [style.opacity]="!methodSelectionForm.get('country')?.value ? '0.5' : '1'"
-                                class="flex flex-col gap-4 w-full"
-                                formControlName="documentCategory"
-                                required
-                            >
-                                <verifik-radio-item
-                                    [disabled]="!methodSelectionForm.get('country')?.value"
-                                    [label]="t('smart_enroll.documents.id_card')"
-                                    *ngIf="projectFlow.documentGovernmentIDAllowed(methodSelectionForm.get('country')?.value)"
-                                    class="w-full"
-                                    icon="fa_regular:id-card"
-                                    value="government_id"
-                                    variant="default"
-                                ></verifik-radio-item>
-
-                                <verifik-radio-item
-                                    [disabled]="!methodSelectionForm.get('country')?.value"
-                                    [label]="t('smart_enroll.documents.passport')"
-                                    *ngIf="projectFlow.documentPassportAllowed(methodSelectionForm.get('country')?.value)"
-                                    class="w-full"
-                                    icon="fa_solid:passport"
-                                    value="passport"
-                                    variant="default"
-                                ></verifik-radio-item>
-
-                                <verifik-radio-item
-                                    [label]="t('smart_enroll.documents.driver_license')"
-                                    *ngIf="projectFlow.documentLicenseAllowed(methodSelectionForm.get('country')?.value)"
-                                    class="w-full"
-                                    icon="fa_regular:address-card"
-                                    value="license"
-                                    variant="default"
-                                ></verifik-radio-item>
-                            </verifik-radio-group>
-
-                            <ng-container *ngIf="projectFlow.version === 3">
-                                <ng-container
-                                    *ngTemplateOutlet="
-                                        steps;
-                                        context: {
-                                            index: 4,
-                                            opacity: !methodSelectionForm.get('documentCategory')?.value ? '0.5' : '1',
-                                            title: 'smart_enroll.documents.document_type'
-                                        }
-                                    "
-                                ></ng-container>
-
-                                <mat-form-field
-                                    [style.opacity]="!methodSelectionForm.get('documentCategory')?.value ? '0.5' : '1'"
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-label>{{ t("smart_enroll.documents.document_type") }}</mat-label>
-
-                                    <mat-select formControlName="promptTemplate" matInput required [compareWith]="comparePromptTemplates">
-                                        <mat-option
-                                            *ngFor="
-                                                let promptTemplate of projectFlow.promptTemplates(
-                                                    methodSelectionForm.get('country')?.value,
-                                                    methodSelectionForm.get('documentCategory')?.value
-                                                )
-                                            "
-                                            [value]="promptTemplate"
-                                        >
-                                            {{ promptTemplate.name }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </ng-container>
-
                             <ng-container *ngIf="project.demoMode">
-                                <div class="w-full flex flex-col gap-4">
+                                <div class="w-full flex flex-col gap-4 my-4 border rounded-3xl p-6">
                                     <div class="w-full flex flex-col gap-2">
-                                        <h6 class="text-lg font-semibold" [style.color]="project.branding.titleColor">
+                                        <h6 [style.color]="project.branding.titleColor" class="w-full text-2xl font-medium text-center">
                                             {{ t("smart_enroll.demo_mode.title") }}
                                         </h6>
-                                        <p class="text-sm" [style.color]="project.branding.textColor">
+
+                                        <p class="smart-documents__subtitle text-center" [style.color]="project.branding.textColor">
                                             {{ t("smart_enroll.demo_mode.document_description") }}
                                         </p>
                                     </div>
@@ -193,6 +61,7 @@
                                         class="flex flex-row gap-2 w-full"
                                         [(ngModel)]="demoModeChoice"
                                         (ngModelChange)="onDemoModeSelected($event)"
+                                        [ngModelOptions]="{ standalone: true }"
                                     >
                                         <verifik-radio-item
                                             [label]="t('smart_enroll.demo_mode.use_own')"
@@ -217,8 +86,143 @@
                                 </div>
                             </ng-container>
 
+                            <ng-container
+                                *ngTemplateOutlet="steps; context: { index: 1, title: 'smart_enroll.documents.verification_method' }"
+                            ></ng-container>
+
+                            <verifik-radio-group class="flex flex-col gap-4 w-full" formControlName="documentMethod">
+                                <verifik-radio-item
+                                    [label]="t('smart_enroll.documents.upload_document')"
+                                    *ngIf="projectFlow.documentUploadAllowed"
+                                    class="w-full"
+                                    icon="mat_outline:file_upload"
+                                    value="upload"
+                                    variant="default"
+                                ></verifik-radio-item>
+
+                                <verifik-radio-item
+                                    [label]="t('smart_enroll.documents.scan_document')"
+                                    *ngIf="projectFlow.documentScanAllowed"
+                                    class="w-full"
+                                    icon="mat_outline:camera"
+                                    value="scan"
+                                    variant="default"
+                                ></verifik-radio-item>
+                            </verifik-radio-group>
+
+                            <ng-container *ngIf="!project.demoMode || demoModeChoice === 'own'">
+                                <ng-container
+                                    *ngTemplateOutlet="
+                                        steps;
+                                        context: {
+                                            index: 2,
+                                            title: 'smart_enroll.documents.issuing_country',
+                                            opacity: !methodSelectionForm.get('documentMethod')?.value ? '0.5' : '1'
+                                        }
+                                    "
+                                ></ng-container>
+
+                                <div class="w-full flex flex-col">
+                                    <mat-form-field
+                                        [style.opacity]="!methodSelectionForm.get('documentMethod')?.value ? '0.5' : '1'"
+                                        appearance="outline"
+                                        class="country-select w-full"
+                                    >
+                                        <mat-label>{{ t("smart_enroll.documents.country") }}</mat-label>
+
+                                        <mat-select class="country-select__input" formControlName="country" required>
+                                            <mat-option *ngFor="let country of countries" [value]="country.country">
+                                                {{ t(country.name) }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+
+                                    <ng-container
+                                        *ngTemplateOutlet="
+                                            steps;
+                                            context: {
+                                                index: 3,
+                                                title: 'smart_enroll.documents.category',
+                                                opacity: !methodSelectionForm.get('country')?.value ? '0.5' : '1'
+                                            }
+                                        "
+                                    ></ng-container>
+                                </div>
+
+                                <verifik-radio-group
+                                    [style.opacity]="!methodSelectionForm.get('country')?.value ? '0.5' : '1'"
+                                    class="flex flex-col gap-4 w-full"
+                                    formControlName="documentCategory"
+                                    required
+                                >
+                                    <verifik-radio-item
+                                        [disabled]="!methodSelectionForm.get('country')?.value"
+                                        [label]="t('smart_enroll.documents.id_card')"
+                                        *ngIf="projectFlow.documentGovernmentIDAllowed(methodSelectionForm.get('country')?.value)"
+                                        class="w-full"
+                                        icon="fa_regular:id-card"
+                                        value="government_id"
+                                        variant="default"
+                                    ></verifik-radio-item>
+
+                                    <verifik-radio-item
+                                        [disabled]="!methodSelectionForm.get('country')?.value"
+                                        [label]="t('smart_enroll.documents.passport')"
+                                        *ngIf="projectFlow.documentPassportAllowed(methodSelectionForm.get('country')?.value)"
+                                        class="w-full"
+                                        icon="fa_solid:passport"
+                                        value="passport"
+                                        variant="default"
+                                    ></verifik-radio-item>
+
+                                    <verifik-radio-item
+                                        [label]="t('smart_enroll.documents.driver_license')"
+                                        *ngIf="projectFlow.documentLicenseAllowed(methodSelectionForm.get('country')?.value)"
+                                        class="w-full"
+                                        icon="fa_regular:address-card"
+                                        value="license"
+                                        variant="default"
+                                    ></verifik-radio-item>
+                                </verifik-radio-group>
+
+                                <ng-container *ngIf="projectFlow.version === 3">
+                                    <ng-container
+                                        *ngTemplateOutlet="
+                                            steps;
+                                            context: {
+                                                index: 4,
+                                                opacity: !methodSelectionForm.get('documentCategory')?.value ? '0.5' : '1',
+                                                title: 'smart_enroll.documents.document_type'
+                                            }
+                                        "
+                                    ></ng-container>
+
+                                    <mat-form-field
+                                        [style.opacity]="!methodSelectionForm.get('documentCategory')?.value ? '0.5' : '1'"
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-label>{{ t("smart_enroll.documents.document_type") }}</mat-label>
+
+                                        <mat-select formControlName="promptTemplate" matInput required [compareWith]="comparePromptTemplates">
+                                            <mat-option
+                                                *ngFor="
+                                                    let promptTemplate of projectFlow.promptTemplates(
+                                                        methodSelectionForm.get('country')?.value,
+                                                        methodSelectionForm.get('documentCategory')?.value
+                                                    )
+                                                "
+                                                [value]="promptTemplate"
+                                            >
+                                                {{ promptTemplate.name }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </ng-container>
+                            </ng-container>
+
                             <div
-                                class="w-full flex flex-row items-center"
+                                class="w-full flex flex-row items-center mt-4"
                                 [ngClass]="{
                                     'justify-between': projectFlow.onboardingSettings.steps.document !== 'mandatory',
                                     'justify-end': projectFlow.onboardingSettings.steps.document === 'mandatory'
@@ -236,7 +240,7 @@
                                 </button>
 
                                 <button
-                                    [disabled]="!methodSelectionForm.valid || (project.demoMode && demoModeChoice === '')"
+                                    [disabled]="disableSubmitButton()"
                                     class="min-h-14 h-14 rounded-lg"
                                     color="primary"
                                     mat-flat-button

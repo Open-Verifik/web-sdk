@@ -1,4 +1,5 @@
 <canvas #toSendCanvas class="hidden"></canvas>
+<canvas #faceCardCanvas class="hidden"></canvas>
 
 <ng-container *transloco="let t">
     <!-- Loading State -->
@@ -67,16 +68,18 @@
             </div>
 
             <!-- Success State -->
-            <div *ngIf="base64Image && !uploading" class="w-full max-w-2xl text-center">
-                <div class="p-8 rounded-2xl bg-green-50 border border-green-200">
-                    <div class="text-green-600 mb-4">
-                        <mat-icon class="text-6xl">check_circle</mat-icon>
+            <div *ngIf="base64Image && !uploading" class="w-full max-w-xl text-center">
+                <div class="p-8 rounded-3xl bg-green-50 border border-green-200">
+                    <div class="flex justify-center items-center mb-4">
+                        <mat-icon class="text-green-600">check_circle</mat-icon>
                     </div>
+
                     <h3 class="text-xl font-semibold mb-2 text-green-800">
                         {{ t("smart_enroll.demo_mode.capture_successful") }}
                     </h3>
+
                     <p class="text-green-700">
-                        {{ t("smart_enroll.demo_mode.processing_document") }}
+                        {{ t("smart_enroll.demo_mode.document_processed_successfully") }}
                     </p>
                 </div>
             </div>

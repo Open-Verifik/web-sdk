@@ -1,10 +1,21 @@
 <div class="min-h-full w-full flex flex-row justify-center items-center" ngClass.gt-sm="px-4 py-4" ngClass.lt-md="p-4">
-    <smart-liveness
-        (onImageScan)="onImageScan($event)"
-        [successfulUpload]="successfulUploadSubject.asObservable()"
-        [retry]="retrySubject.asObservable()"
-        *ngIf="!errorResult"
-    ></smart-liveness>
+    <ng-container *ngIf="!project.demoMode || !useDemoData">
+        <smart-liveness
+            (onImageScan)="onImageScan($event)"
+            [successfulUpload]="successfulUploadSubject.asObservable()"
+            [retry]="retrySubject.asObservable()"
+            *ngIf="!errorResult"
+        ></smart-liveness>
+    </ng-container>
+
+    <ng-container *ngIf="project.demoMode && useDemoData">
+        <smart-liveness-demo
+            (onImageScan)="onImageScan($event)"
+            [successfulUpload]="successfulUploadSubject.asObservable()"
+            [retry]="retrySubject.asObservable()"
+            *ngIf="!errorResult"
+        ></smart-liveness-demo>
+    </ng-container>
 
     <div class="flex justify-center items-center" *ngIf="errorResult">
         <smart-error-display (onClearError)="retry()" [errorContent]="errorContent" class="flex relative z-50" source="face"></smart-error-display>

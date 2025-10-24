@@ -69,7 +69,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     promptTemplate: PromptTemplate;
     side: "back" | "front" = "front";
 
-    private readonly DEMO_DOC_IMAGE = "assets/images/ui/template_id.png";
+    private readonly DEMO_DOC_IMAGE = "assets/images/ui/template_id_2.png";
 
     constructor(
         private _demoService: DemoService,

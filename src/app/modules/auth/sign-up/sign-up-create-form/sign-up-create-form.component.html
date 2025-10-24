@@ -176,7 +176,6 @@
                                 (keydown)="$event.stopPropagation()"
                                 (mousedown)="$event.stopPropagation()"
                                 (mouseup)="$event.stopPropagation()"
-                                [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="t('search') + '...'"
                                 [value]="countryCodeSearchTerm"
                                 #countryCodeSearchInput
@@ -419,7 +418,6 @@
                                     (keydown)="$event.stopPropagation()"
                                     (mousedown)="$event.stopPropagation()"
                                     (mouseup)="$event.stopPropagation()"
-                                    [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="t('search') + '...'"
                                     [value]="countrySearchTerm"
                                     #countrySearchInput

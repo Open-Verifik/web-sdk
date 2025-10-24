@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import { Observable, Subject, takeUntil } from "rxjs";
+import * as faceapi from "@vladmandic/face-api";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
@@ -14,6 +15,7 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { ImageScan } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
 import { PasswordlessService } from "../../passwordless.service";
+import { SmartEnrollService } from "../smart-enroll.service";
 
 @Component({
     animations: fuseAnimations,
@@ -27,72 +29,58 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
     @ViewChild("compositeCanvas") public compositeCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("maskCanvas") public maskCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("canvasContainer") public canvasContainer: ElementRef<HTMLDivElement>;
+    @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
     @Input() source: "document" | "face";
     @Input() successfulUpload: Observable<void>;
 
     @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
 
-    private unsubscriber$: Subject<void> = new Subject<void>();
-
-    private readonly DEMO_DOC_IMAGE = "assets/images/ui/template_id.png";
+    private readonly DEMO_DOC_IMAGE = "assets/images/ui/template_id_2.png";
     private readonly BLURRY_BACKGROUND = "assets/images/ui/blurry-street.jpg";
+
+    private unsubscriber$: Subject<void> = new Subject<void>();
+    private actualHeight: number = 600;
+    private actualWidth: number = 800;
+    private animationFrameId: number | null = null;
+    private animationStartTime: number = 0;
+    private backgroundImage: HTMLImageElement | null = null;
+    private baseDocumentPosition: { x: number; y: number; width: number; height: number } = { x: 0, y: 0, width: 0, height: 0 };
+    private documentOffset: { x: number; y: number; rotation: number } = { x: 0, y: 0, rotation: 0 };
+    private documentPosition: { x: number; y: number; width: number; height: number } = { x: 0, y: 0, width: 0, height: 0 };
+    private overlayImage: HTMLImageElement | null = null;
+    private resizeObserver: ResizeObserver | null = null;
+    private targetOffset: { x: number; y: number; rotation: number } = { x: 0, y: 0, rotation: 0 };
 
     appRegistration: any;
     base64Image: any;
     capturing: boolean = false;
     demoData: any;
     faceIdCard: string;
+    failedToDetectDocument: boolean = false;
     hasCameraPermissions: boolean = true;
+    HEIGHT = 600;
+    hideTip: boolean = false;
     loadingCamera: boolean = false;
     project: Project;
     projectFlow: ProjectFlow;
-    side: "front" = "front"; // Demo mode only uses front side
+    side: "front" = "front";
     uploading: boolean = false;
     WIDTH = 800;
-    HEIGHT = 600;
-    hideTip: boolean = false;
-    failedToDetectDocument: boolean = false;
 
-    // Document position for mask
-    private documentPosition: { x: number; y: number; width: number; height: number } = { x: 0, y: 0, width: 0, height: 0 };
-
-    // Responsive canvas properties
-    private resizeObserver: ResizeObserver | null = null;
-    private actualWidth: number = 800;
-    private actualHeight: number = 600;
-
-    // Animation properties for ID movement
-    private animationFrameId: number | null = null;
-    private animationStartTime: number = 0;
-    private documentOffset: { x: number; y: number; rotation: number } = { x: 0, y: 0, rotation: 0 };
-    private targetOffset: { x: number; y: number; rotation: number } = { x: 0, y: 0, rotation: 0 };
-    private overlayImage: HTMLImageElement | null = null;
-    private backgroundImage: HTMLImageElement | null = null;
-    private baseDocumentPosition: { x: number; y: number; width: number; height: number } = { x: 0, y: 0, width: 0, height: 0 };
-
-    constructor(private _demoService: DemoService, private _KYCService: KYCService, private _passwordlessService: PasswordlessService) {
+    constructor(
+        private _demoService: DemoService,
+        private _KYCService: KYCService,
+        private _passwordlessService: PasswordlessService,
+        private _smartEnrollService: SmartEnrollService
+    ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.project = this._passwordlessService.currentProject;
         this.projectFlow = this._passwordlessService.currentProjectFlow;
         this.demoData = this._demoService.getDemoData();
-
-        // Ensure projectFlow has required structure for demo
-        if (!this.projectFlow) {
-            this.projectFlow = {
-                onboardingSettings: {
-                    steps: {
-                        document: "mandatory",
-                        liveness: "mandatory",
-                    },
-                },
-            } as any;
-        }
     }
 
     ngOnInit(): void {
-        console.log("🎬 Smart Scanner Demo Component Initialized");
-
         this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
             this.uploading = false;
         });
@@ -119,17 +107,17 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         this._stopDocumentAnimation();
     }
 
+    get requiresBack(): boolean {
+        return false;
+    }
+
     private async _composeImages(): Promise<void> {
-        if (!this.compositeCanvas?.nativeElement) {
-            return;
-        }
+        if (!this.compositeCanvas?.nativeElement) return;
 
         const canvas = this.compositeCanvas.nativeElement;
         const ctx = canvas.getContext("2d");
 
-        if (!ctx) {
-            return;
-        }
+        if (!ctx) return;
 
         const pixelRatio = (window.devicePixelRatio || 1) * 1.5;
 
@@ -137,11 +125,12 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         canvas.height = this.HEIGHT * pixelRatio;
         canvas.style.width = this.WIDTH + "px";
         canvas.style.height = this.HEIGHT + "px";
-        ctx.scale(pixelRatio, pixelRatio);
 
+        ctx.scale(pixelRatio, pixelRatio);
         ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
 
         const backgroundImg = new Image();
+
         backgroundImg.crossOrigin = "anonymous";
 
         return new Promise((resolve, reject) => {
@@ -150,8 +139,8 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
                     ctx.drawImage(backgroundImg, 0, 0, this.WIDTH, this.HEIGHT);
 
                     const overlayImg = new Image();
-                    overlayImg.crossOrigin = "anonymous";
 
+                    overlayImg.crossOrigin = "anonymous";
                     overlayImg.onload = () => {
                         try {
                             const targetWidth = this.WIDTH * 0.765;
@@ -197,100 +186,12 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         });
     }
 
-    async captureImage(): Promise<void> {
-        if (this.capturing) return;
-
-        this.capturing = true;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        const canvas = this.compositeCanvas.nativeElement;
-        const base64Image = canvas.toDataURL("image/jpeg");
-
-        this._emitImageScan(base64Image, null);
-    }
-
-    private _emitImageScan(base64Image: string, face: string): void {
-        const isFront = this.side === "front";
-
-        this.onImageScan.emit({
-            base64Image: base64Image.replace(/^data:.*;base64,/, ""),
-            face,
-            force: !isFront || !!this.appRegistration.documentValidation,
-            front: isFront,
-            inputMethod: "CAMERA",
-            rawImage: base64Image,
-            source: this.source,
-        });
-
-        this.base64Image = base64Image;
-        this.uploading = true;
-        this.capturing = false;
-    }
-
-    goNext(): void {
-        this.uploading = false;
-    }
-
-    goPrevious(): void {
-        this.uploading = false;
-    }
-
-    get requiresBack(): boolean {
-        return false;
-    }
-
-    showPassportColor(): boolean {
-        return (
-            !this.appRegistration?.documentValidation ||
-            this.side === "front" ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport"
-        );
-    }
-
-    showLicenseColor(): boolean {
-        return (
-            !this.appRegistration?.documentValidation ||
-            this.side === "front" ||
-            this.appRegistration?.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
-        );
-    }
-
-    showGovernmentIDColor(): boolean {
-        return (
-            !this.appRegistration?.documentValidation ||
-            this.side === "front" ||
-            ["id", "idv2"].includes(this.appRegistration?.documentValidation?.documentCategory?.toLowerCase())
-        );
-    }
-
-    canGoPrevious(): boolean {
-        return false;
-    }
-
-    canSkip(): boolean {
-        return true;
-    }
-
-    goBack(): void {
-        // Navigate back to previous step
-    }
-
-    closeTip(): void {
-        this.hideTip = true;
-    }
-
-    retryImageLoad(): void {
-        this.failedToDetectDocument = false;
-        this._composeImages().catch(() => {
-            this.failedToDetectDocument = true;
-        });
-    }
-
     private _drawMaskOverlay(): void {
         if (!this.maskCanvas?.nativeElement) return;
 
         const canvas = this.maskCanvas.nativeElement;
         const ctx = canvas.getContext("2d");
+
         if (!ctx) return;
 
         const pixelRatio = (window.devicePixelRatio || 1) * 3;
@@ -299,6 +200,7 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         canvas.height = this.HEIGHT * pixelRatio;
         canvas.style.width = this.WIDTH + "px";
         canvas.style.height = this.HEIGHT + "px";
+
         ctx.scale(pixelRatio, pixelRatio);
 
         this._drawDocumentMask(ctx);
@@ -320,6 +222,7 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
 
         // Create the document outline with rounded corners (using the padded dimensions)
         const cornerRadius = 20;
+
         ctx.beginPath();
         ctx.moveTo(maskX + cornerRadius, maskY);
         ctx.lineTo(maskX + maskWidth - cornerRadius, maskY);
@@ -377,32 +280,28 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         const cornerThickness = 3;
         const padding = 10;
 
-        ctx.strokeStyle = "#10b981"; // Tailwind emerald-500
+        ctx.strokeStyle = "#10b981";
         ctx.lineWidth = cornerThickness;
-        ctx.setLineDash([]); // Solid lines for corners
+        ctx.setLineDash([]);
 
-        // Top-left corner
         ctx.beginPath();
         ctx.moveTo(x + padding, y + padding + cornerSize);
         ctx.lineTo(x + padding, y + padding);
         ctx.lineTo(x + padding + cornerSize, y + padding);
         ctx.stroke();
 
-        // Top-right corner
         ctx.beginPath();
         ctx.moveTo(x + width - padding - cornerSize, y + padding);
         ctx.lineTo(x + width - padding, y + padding);
         ctx.lineTo(x + width - padding, y + padding + cornerSize);
         ctx.stroke();
 
-        // Bottom-left corner
         ctx.beginPath();
         ctx.moveTo(x + padding, y + height - padding - cornerSize);
         ctx.lineTo(x + padding, y + height - padding);
         ctx.lineTo(x + padding + cornerSize, y + height - padding);
         ctx.stroke();
 
-        // Bottom-right corner
         ctx.beginPath();
         ctx.moveTo(x + width - padding - cornerSize, y + height - padding);
         ctx.lineTo(x + width - padding, y + height - padding);
@@ -411,7 +310,7 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private _drawDetectionText(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
-        ctx.fillStyle = "#10b981"; // Tailwind emerald-500
+        ctx.fillStyle = "#10b981";
         ctx.font = "bold 16px Arial";
         ctx.textAlign = "center";
         ctx.fillText("Face Detected", x + width / 2, y - 10);
@@ -420,14 +319,11 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
     private _setupResponsiveCanvas(): void {
         if (!this.canvasContainer?.nativeElement) return;
 
-        // Set initial dimensions
         this._updateCanvasDimensions();
 
-        // Set up resize observer
         this.resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 this._updateCanvasDimensions();
-                // Redraw images when container resizes
                 this._composeImages().catch((error) => {
                     console.error("❌ Failed to recompose images on resize:", error);
                 });
@@ -443,15 +339,11 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         const container = this.canvasContainer.nativeElement;
         const rect = container.getBoundingClientRect();
 
-        // Update actual dimensions based on container size
         this.actualWidth = rect.width;
         this.actualHeight = rect.height;
 
-        // Update WIDTH and HEIGHT for drawing calculations
         this.WIDTH = this.actualWidth;
         this.HEIGHT = this.actualHeight;
-
-        console.log("📐 Canvas dimensions updated:", this.WIDTH, "x", this.HEIGHT);
     }
 
     private _cleanupResponsiveCanvas(): void {
@@ -470,12 +362,16 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         const animate = () => {
             if (!this.compositeCanvas?.nativeElement || !this.overlayImage || !this.backgroundImage) return;
 
+            if (this.uploading || this.capturing) return this._stopDocumentAnimation();
+
             const canvas = this.compositeCanvas.nativeElement;
             const ctx = canvas.getContext("2d");
+
             if (!ctx) return;
 
             ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
             ctx.drawImage(this.backgroundImage, 0, 0, this.WIDTH, this.HEIGHT);
+
             this._drawAnimatedDocument(ctx);
 
             this.animationFrameId = requestAnimationFrame(animate);
@@ -485,10 +381,10 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     private _stopDocumentAnimation(): void {
-        if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
-            this.animationFrameId = null;
-        }
+        if (!this.animationFrameId) return;
+
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
     }
 
     private _drawAnimatedDocument(ctx: CanvasRenderingContext2D): void {
@@ -516,6 +412,7 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
         const elapsed = now - this.animationStartTime;
 
         const lerpFactor = 0.02;
+
         this.documentOffset.x += (this.targetOffset.x - this.documentOffset.x) * lerpFactor;
         this.documentOffset.y += (this.targetOffset.y - this.documentOffset.y) * lerpFactor;
         this.documentOffset.rotation += (this.targetOffset.rotation - this.documentOffset.rotation) * lerpFactor;
@@ -532,12 +429,134 @@ export class SmartScannerDemoComponent implements OnInit, AfterViewInit, OnDestr
 
         if (Math.random() < 0.3) {
             this.targetOffset = { x: 0, y: 0, rotation: 0 };
-        } else {
-            this.targetOffset = {
-                x: (Math.random() - 0.5) * maxOffset * 2,
-                y: (Math.random() - 0.5) * maxOffset * 2,
-                rotation: (Math.random() - 0.5) * maxRotation * 2,
-            };
+
+            return;
         }
+
+        this.targetOffset = {
+            x: (Math.random() - 0.5) * maxOffset * 2,
+            y: (Math.random() - 0.5) * maxOffset * 2,
+            rotation: (Math.random() - 0.5) * maxRotation * 2,
+        };
+    }
+
+    async captureImage(): Promise<void> {
+        if (this.capturing) return;
+
+        this.capturing = true;
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const canvas = this.compositeCanvas.nativeElement;
+        const base64Image = canvas.toDataURL("image/jpeg");
+
+        let face: string | null = null;
+
+        try {
+            const image = new Image();
+            image.src = base64Image;
+
+            await new Promise<void>((resolve) => {
+                image.onload = async () => {
+                    try {
+                        const faceEngine = this._demoService.faceEngine;
+                        const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.useSsdMobilenetv1);
+
+                        if (!detections.length) return resolve();
+
+                        const detection = this._demoService.findBiggestFace(detections);
+
+                        if (!detection) return resolve();
+
+                        const faceToUpload = this._demoService.cutFaceIdCard(image, detection.alignedRect.box, this.faceCardCanvas.nativeElement);
+
+                        face = faceToUpload?.replace(/^data:.*;base64,/, "");
+
+                        resolve();
+                    } catch (error) {
+                        resolve();
+                    }
+                };
+
+                image.onerror = () => resolve();
+            });
+        } catch (error) {}
+
+        this._emitImageScan(base64Image, face);
+    }
+
+    private _emitImageScan(base64Image: string, face: string | null): void {
+        const isFront = this.side === "front";
+
+        this.onImageScan.emit({
+            base64Image: base64Image.replace(/^data:.*;base64,/, ""),
+            face,
+            force: !isFront || !!this.appRegistration.documentValidation,
+            front: isFront,
+            inputMethod: "CAMERA",
+            rawImage: base64Image,
+            source: this.source,
+        });
+
+        this.base64Image = base64Image;
+        this.uploading = true;
+        this.capturing = false;
+    }
+
+    goNext(): void {
+        this._smartEnrollService.goToNextStep();
+    }
+
+    showPassportColor(): boolean {
+        return (
+            !this.appRegistration?.documentValidation ||
+            this.side === "front" ||
+            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport"
+        );
+    }
+
+    showLicenseColor(): boolean {
+        return (
+            !this.appRegistration?.documentValidation ||
+            this.side === "front" ||
+            this.appRegistration?.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
+        );
+    }
+
+    showGovernmentIDColor(): boolean {
+        return (
+            !this.appRegistration?.documentValidation ||
+            this.side === "front" ||
+            ["id", "idv2"].includes(this.appRegistration?.documentValidation?.documentCategory?.toLowerCase())
+        );
+    }
+
+    canGoPrevious(): boolean {
+        return !this.uploading;
+    }
+
+    canSkip(): boolean {
+        if (this.uploading) return false;
+
+        const canSkipDocument = this.projectFlow?.onboardingSettings?.steps?.document !== "mandatory" && !this.appRegistration?.documentValidation;
+
+        return canSkipDocument;
+    }
+
+    goBack(): void {
+        this._smartEnrollService.setDocumentMethod("");
+        this._smartEnrollService.skipToStep("document");
+    }
+
+    closeTip(): void {
+        this.hideTip = true;
+    }
+
+    retryImageLoad(): void {
+        this.failedToDetectDocument = false;
+
+        this._composeImages().catch(() => {
+            this.failedToDetectDocument = true;
+        });
     }
 }

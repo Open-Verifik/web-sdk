@@ -12,7 +12,7 @@ import {
     ViewEncapsulation,
 } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -45,6 +45,7 @@ import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
     imports: [
         CommonModule,
         FlexLayoutModule,
+        FormsModule,
         MatButtonModule,
         MatChipsModule,
         MatFormFieldModule,

@@ -1,7 +1,7 @@
 import { CommonModule, NgIf } from "@angular/common";
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDividerModule } from "@angular/material/divider";
@@ -70,6 +70,7 @@ type NameValidationResponse = {
     imports: [
         CommonModule,
         FlexLayoutModule,
+        FormsModule,
         MatButtonModule,
         MatCardModule,
         MatDividerModule,
@@ -516,7 +517,20 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
     comparePromptTemplates(option: PromptTemplate, value: PromptTemplate): boolean {
         if (!option || !value) return false;
+
         return option._id === value._id;
+    }
+
+    disableSubmitButton(): boolean {
+        if (this.project.demoMode) {
+            return (
+                this.demoModeChoice === "" ||
+                (this.demoModeChoice === "demo" && !this.methodSelectionForm.get("documentMethod")?.value) ||
+                (this.demoModeChoice === "own" && !this.methodSelectionForm.valid)
+            );
+        }
+
+        return !this.methodSelectionForm.valid;
     }
 
     getBackgroundGradient() {
@@ -575,7 +589,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     }
 
     submitMethodSelectionForm() {
-        if (!this.methodSelectionForm.valid) return;
+        if (this.disableSubmitButton()) return;
 
         this.enrollSettings.documentMethod = this.methodSelectionForm.value.documentMethod;
         this.enrollSettings.documentCategory = this.methodSelectionForm.value.documentCategory;

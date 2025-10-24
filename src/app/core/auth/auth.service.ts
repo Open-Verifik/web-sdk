@@ -20,7 +20,33 @@ export class AuthService {
         return localStorage.getItem("accessToken") ?? "";
     }
 
-    handleRedirect(projectFlow: ProjectFlow, projectId: string, token: string, type: "login" | "onboarding" = "login"): void {
+    get baseAppUrl(): string {
+        const origin = window.location.origin;
+
+        if (origin.includes("staging-access.verifik.co")) {
+            return `${environment.stagingUrl}`;
+        } else if (origin.includes("testing-access.verifik.co")) {
+            return `${environment.sandboxUrl}`;
+        } else {
+            return `${environment.appUrl}`;
+        }
+    }
+
+    handleRedirect(
+        projectFlow: ProjectFlow,
+        projectId: string,
+        token: string,
+        type: "login" | "onboarding" = "login",
+        demoMode: boolean = false
+    ): void {
+        if (demoMode) {
+            const redirectUrl = `${this.baseAppUrl}/smart-enroll-preview`;
+
+            window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+
+            return;
+        }
+
         let redirectUrl = projectFlow.integrations.redirectUrl;
 
         const verifikProject =
@@ -36,15 +62,7 @@ export class AuthService {
             return;
         }
 
-        const origin = window.location.origin;
-
-        if (origin.includes("staging-access.verifik.co")) {
-            redirectUrl = `${environment.stagingUrl}/sign-in`;
-        } else if (origin.includes("access.verifik.co") || origin.includes("access.app")) {
-            redirectUrl = `${environment.appUrl}/sign-in`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            redirectUrl = `${environment.sandboxUrl}/sign-in`;
-        }
+        redirectUrl = `${this.baseAppUrl}/sign-in`;
 
         window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
     }

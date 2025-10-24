@@ -13,10 +13,11 @@ import { AppRegistration, BiometricValidation, ImageScan } from "../../project";
 import { EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartLivenessComponent } from "../smart-liveness/smart-liveness.component";
+import { SmartLivenessDemoComponent } from "../smart-liveness/smart-liveness-demo.component";
 
 @Component({
     animations: fuseAnimations,
-    imports: [CommonModule, SmartLivenessComponent, SmartErrorDisplayComponent, TranslocoModule],
+    imports: [CommonModule, SmartLivenessComponent, SmartLivenessDemoComponent, SmartErrorDisplayComponent, TranslocoModule],
     selector: "smart-biometrics",
     standalone: true,
     styleUrls: ["../smart-enroll.component.scss"],
@@ -27,6 +28,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 
     appRegistration: AppRegistration;
     demoData: any;
+    demoModeChoice: "own" | "demo" | "" = "";
     enrollSettings: EnrollSettings;
     errorContent: { message: string };
     errorResult: boolean;
@@ -35,6 +37,7 @@ export class SmartBiometricsComponent implements OnDestroy {
     projectFlow: ProjectFlow;
     retrySubject: Subject<void> = new Subject<void>();
     successfulUploadSubject: Subject<void> = new Subject<void>();
+    useDemoData: boolean = false;
 
     constructor(
         private _demoService: DemoService,
@@ -51,6 +54,8 @@ export class SmartBiometricsComponent implements OnDestroy {
         this.errorResult = this._smartEnrollService.store.biometric.remaining === 0;
         this.errorContent = { message: "" };
 
+        this.demoModeChoice = this._demoService.demoModeChoice;
+        this.useDemoData = this.demoModeChoice === "demo";
         this.demoData = this._demoService.getDemoData();
     }
 
