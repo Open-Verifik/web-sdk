@@ -147,4 +147,11 @@ export class SmartBiometricsComponent implements OnDestroy {
 
         this.retrySubject.next();
     }
+
+    skipStep() {
+        if (this.projectFlow.onboardingSettings.steps.liveness === "mandatory") return;
+
+        this._smartEnrollService.setSkippedBiometric(true);
+        this._smartEnrollService.skipToStep("result");
+    }
 }

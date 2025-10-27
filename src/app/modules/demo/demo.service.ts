@@ -49,10 +49,6 @@ export class DemoService {
         return this._faceapi.asObservable();
     }
 
-    get geoLocation$(): Observable<any> {
-        return this._geoLocation.asObservable();
-    }
-
     get faceEngine(): faceapi.TinyFaceDetectorOptions | faceapi.SsdMobilenetv1Options {
         if (this._faceEngineCache) return this._faceEngineCache;
 
@@ -61,6 +57,10 @@ export class DemoService {
             : new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
 
         return this._faceEngineCache;
+    }
+
+    get geoLocation$(): Observable<any> {
+        return this._geoLocation.asObservable();
     }
 
     get hasSufficientMemory(): boolean {

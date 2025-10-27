@@ -338,7 +338,11 @@ export class ProjectFlow {
         const documents = this.documents as PersonalDocuments;
 
         return documents.documentTypes.reduce((acc, docType) => {
-            if (docType.country === country) return acc.concat(docType.configurations.map((config) => config.documentCategory));
+            const categoriesWithTemplates = docType.configurations
+                .filter((config) => config.active && config.documentTemplates.length > 0)
+                .map((config) => config.documentCategory);
+
+            if (docType.country === country) return acc.concat(categoriesWithTemplates);
 
             return acc;
         }, [] as string[]);

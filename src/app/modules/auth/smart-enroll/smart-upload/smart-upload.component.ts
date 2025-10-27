@@ -104,9 +104,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
     get requiresBack(): boolean {
         // In demo mode, we only use front side
-        if (this.useDemoData) {
-            return false;
-        }
+        if (this.useDemoData) return false;
+
         return this.promptTemplate?.requiresBackSide || this.appRegistration?.documentValidation?.requiresBackSide || false;
     }
 

@@ -30,6 +30,7 @@ export class SmartLivenessDemoComponent implements OnInit, AfterViewInit, OnDest
     @Input() successfulUpload: Observable<void>;
 
     @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
+    @Output("skipStep") skipStep: EventEmitter<void> = new EventEmitter<void>();
 
     private readonly DEMO_LIVENESS_IMAGE = "assets/images/ui/template_liveness.jpg";
     private readonly DEMO_FACE_IMAGE = "assets/images/ui/template_person.png";

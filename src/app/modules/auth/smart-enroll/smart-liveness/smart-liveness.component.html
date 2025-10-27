@@ -15,12 +15,12 @@
     ></smart-camera-resolution-detection>
 
     <div class="absolute inset-0">
-        <div class="grid grid-rows-6 h-full min-h-0">
+        <div class="grid grid-rows-10 h-full min-h-0">
             <div class="row-span-1 flex flex-row justify-center items-center">
                 <h4 class="text-2xl font-medium">{{ t("smart_enroll.biometric_register") }}</h4>
             </div>
 
-            <div class="row-span-4 flex flex-row justify-center items-center min-h-0 relative px-4 py-4">
+            <div class="row-span-8 flex flex-row justify-center items-center min-h-0 relative px-4 py-4">
                 <div class="camera rounded-full flex flex-row justify-center items-center relative">
                     <div class="border-8 h-full w-full rounded-full z-10" [style.border-color]="project.branding.buttonColor">
                         <div class="absolute inset-5 rounded-full overflow-hidden">
@@ -110,23 +110,23 @@
                             <path
                                 d="M21 6h-1.5a.5.5 0 0 1-.5-.5A1.502 1.502 0 0 0 17.5 4h-6A1.502 1.502 0 0 0 10 5.5a.5.5 0 0 1-.5.5H8V5H4v1H3a2.002 2.002 0 0 0-2 2v10a2.002 2.002 0 0 0 2 2h18a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2zm1 12a1.001 1.001 0 0 1-1 1H3a1.001 1.001 0 0 1-1-1V8a1.001 1.001 0 0 1 1-1h2V6h2v1h2.5A1.502 1.502 0 0 0 11 5.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5A1.502 1.502 0 0 0 19.5 7H21a1.001 1.001 0 0 1 1 1zM8.2 13h-1a4.796 4.796 0 0 1 8.8-2.644V9h1v3h-3v-1h1.217A3.79 3.79 0 0 0 8.2 13zm7.6 0h1A4.796 4.796 0 0 1 8 15.644V17H7v-3h3v1H8.783a3.79 3.79 0 0 0 7.017-2z"
                             ></path>
+
                             <path fill="none" d="M0 0h24v24H0z"></path>
                         </svg>
                     </button>
                 </div>
             </div>
 
-            <div class="row-span-1 flex flex-row justify-center items-center z-20 min-h-0">
-                <div class="flex flex-col w-full justify-center items-center px-4">
-                    <div
-                        class="bg-white px-4 py-3 border-1 border-gray-400 rounded-xl flex flex-row justify-center max-w-sm mx-auto"
-                        *ngIf="angleThreshold?.instructions"
-                    >
-                        <mat-icon class="mr-2 flex-shrink-0" svgIcon="feather:alert-octagon"></mat-icon>
-
-                        <p class="mt-0.5 text-sm leading-tight">{{ angleThreshold?.instructions }}</p>
-                    </div>
-                </div>
+            <div class="row-span-1 flex flex-row justify-center items-center z-20 min-h-0 p-2">
+                <button
+                    (click)="skipStep.emit()"
+                    mat-stroked-button
+                    color="primary"
+                    class="h-14 min-h-14 rounded-lg"
+                    *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'mandatory'"
+                >
+                    {{ t("skip") }}
+                </button>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, forwardRef } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, forwardRef } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Subject } from "rxjs";
 
@@ -27,17 +27,13 @@ export class VerifikRadioGroupComponent implements OnInit, OnDestroy, ControlVal
     private _onChange = (value: string | string[] | null) => {};
     private _onTouched = () => {};
 
-    constructor(private _changeDetectorRef: ChangeDetectorRef, private _elementRef: ElementRef) {}
+    constructor(private _changeDetectorRef: ChangeDetectorRef) {}
 
     ngOnInit(): void {}
 
     ngOnDestroy(): void {
         this._destroy$.next();
         this._destroy$.complete();
-    }
-
-    get hostClasses(): string {
-        return this._elementRef.nativeElement.className || "";
     }
 
     get value(): string | string[] | null {

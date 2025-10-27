@@ -184,8 +184,6 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     }
 
     private _handleError(exception: any): void {
-        console.error("error", exception);
-
         if (exception?.error?.code === "PaymentRequired") {
             this._smartEnrollService.insufficientCreditsTrigger();
 
@@ -226,6 +224,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
         // Step 1: Set documentMethod
         const documentMethod = this._getDocumentMethod(onboardSettingsDocument);
+
         this.methodSelectionForm.patchValue({ documentMethod });
         this._handleDocumentMethodChange(documentMethod);
 
@@ -238,6 +237,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         if (!country) return;
 
         const documentCategory = this._getDocumentCategory(onboardSettingsDocument);
+
         this.methodSelectionForm.patchValue({ documentCategory });
         this._handleDocumentCategoryChange(documentCategory);
 
@@ -245,6 +245,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         if (!documentCategory) return;
 
         const promptTemplate = this._getPromptTemplate();
+
         this.methodSelectionForm.patchValue({ promptTemplate });
     }
 
@@ -266,6 +267,8 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     }
 
     private _getCountry(): string {
+        if (this.countries.length === 1) return this.enrollSettings.country || this.countries[0].country || "";
+
         return this.enrollSettings.country || "";
     }
 
@@ -303,66 +306,72 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     }
 
     private _setFormSubscriptions() {
-        this.methodSelectionForm
-            .get("country")
-            ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
-            .subscribe((value) => {
-                this._handleCountryChange(value);
-            });
+        this.methodSelectionForm.get("documentMethod")?.valueChanges.pipe(takeUntil(this._unsubscriber$)).subscribe(this._handleDocumentMethodChange);
+
+        this.methodSelectionForm.get("country")?.valueChanges.pipe(takeUntil(this._unsubscriber$)).subscribe(this._handleCountryChange);
 
         this.methodSelectionForm
             .get("documentCategory")
             ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
-            .subscribe((value) => {
-                this._handleDocumentCategoryChange(value);
-            });
+            .subscribe(this._handleDocumentCategoryChange);
     }
 
-    private _handleDocumentMethodChange(value: string): void {
-        if (!value) {
-            this.methodSelectionForm.get("documentCategory")?.disable();
-            this.methodSelectionForm.get("promptTemplate")?.disable();
-            return;
-        }
+    private _handleDocumentMethodChange = (documentMethodValue: string): void => {
+        const countryControl = this.methodSelectionForm.get("country");
 
-        this.methodSelectionForm.get("country")?.enable();
-    }
-
-    private _handleCountryChange(value: string): void {
-        this.methodSelectionForm.get("documentCategory")?.setValue("");
-        this.methodSelectionForm.get("promptTemplate")?.setValue(null);
-
-        if (!value) {
-            this.methodSelectionForm.get("documentCategory")?.disable();
-            this.methodSelectionForm.get("promptTemplate")?.disable();
+        if (!documentMethodValue) {
+            countryControl?.disable();
 
             return;
         }
 
-        this.methodSelectionForm.get("documentCategory")?.enable();
+        countryControl?.enable();
+    };
 
-        const documentCategories = this.projectFlow.documentCategories(value);
+    private _handleCountryChange = (countryValue: string): void => {
+        const documentMethodControl = this.methodSelectionForm.get("documentMethod");
+        const countryControl = this.methodSelectionForm.get("country");
+        const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
 
-        if (documentCategories.length === 1) this.methodSelectionForm.get("documentCategory")?.setValue(documentCategories[0]);
-        else this.methodSelectionForm.get("documentCategory")?.setValue("");
-    }
-
-    private _handleDocumentCategoryChange(value: string): void {
-        this.methodSelectionForm.get("promptTemplate")?.setValue(null);
-
-        if (!value) {
-            this.methodSelectionForm.get("promptTemplate")?.disable();
+        if (!countryValue) {
+            documentCategoryControl?.disable();
 
             return;
         }
 
-        this.methodSelectionForm.get("promptTemplate")?.enable();
+        if (documentMethodControl?.value && countryControl?.value) {
+            documentCategoryControl?.enable();
+        }
 
-        const promptTemplates = this.projectFlow.promptTemplates(this.methodSelectionForm.get("country")?.value, value);
+        const documentCategories = this.projectFlow.documentCategories(countryValue);
 
-        if (promptTemplates.length === 1) this.methodSelectionForm.get("promptTemplate")?.setValue(promptTemplates[0]);
-        else this.methodSelectionForm.get("promptTemplate")?.setValue(null);
-    }
+        if (documentCategories.length === 1) documentCategoryControl?.setValue(documentCategories[0]);
+        else documentCategoryControl?.setValue("");
+    };
+
+    private _handleDocumentCategoryChange = (documentCategoryValue: string): void => {
+        const documentMethodControl = this.methodSelectionForm.get("documentMethod");
+        const countryControl = this.methodSelectionForm.get("country");
+        const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
+        const promptTemplateControl = this.methodSelectionForm.get("promptTemplate");
+
+        promptTemplateControl?.setValue(null);
+
+        if (!documentCategoryValue) {
+            promptTemplateControl?.disable();
+
+            return;
+        }
+
+        if (documentMethodControl?.value && countryControl?.value && documentCategoryControl?.value) {
+            promptTemplateControl?.enable();
+        }
+
+        const promptTemplates = this.projectFlow.promptTemplates(this.methodSelectionForm.get("country")?.value, documentCategoryValue);
+
+        if (promptTemplates.length === 1) promptTemplateControl?.setValue(promptTemplates[0]);
+        else promptTemplateControl?.setValue(null);
+    };
 
     private _onEnrollSettingsChange(settings: EnrollSettings) {
         if (!this.methodSelectionForm || !settings.documentMethod) this.formSubmitted = false;

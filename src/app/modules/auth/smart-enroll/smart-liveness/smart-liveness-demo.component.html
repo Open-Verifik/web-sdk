@@ -1,4 +1,5 @@
 <canvas #faceCardCanvas class="hidden"></canvas>
+
 <ng-container *transloco="let t">
     <div class="relative w-full h-full">
         <div class="absolute inset-0 flex flex-col h-full min-h-0">
@@ -102,11 +103,12 @@
             </div>
 
             <div class="flex-shrink-0 flex flex-row justify-center items-center px-4 py-4">
-                <div class="w-full max-w-md">
+                <div class="max-w-md flex flex-col gap-4 items-center justify-center">
                     <div class="text-center mb-4">
                         <h3 class="text-xl font-semibold mb-2" [style.color]="project.branding.titleColor">
                             {{ t("smart_enroll.demo_mode.liveness_demo_title") }}
                         </h3>
+
                         <p class="text-base text-gray-600">
                             {{ t("smart_enroll.demo_mode.liveness_demo_description") }}
                         </p>
@@ -117,7 +119,7 @@
                         [disabled]="capturing || uploading"
                         [style.background-color]="project.branding.buttonColor"
                         [style.color]="project.branding.buttonTextColor"
-                        class="w-full min-h-14 h-14 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+                        class="min-h-14 h-14 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
                         mat-flat-button
                     >
                         <div class="flex flex-row justify-center items-center gap-4">
@@ -127,6 +129,16 @@
                             <span *ngIf="capturing">{{ t("smart_enroll.demo_mode.capturing") }}</span>
                             <span *ngIf="uploading">{{ t("smart_enroll.demo_mode.uploading") }}</span>
                         </div>
+                    </button>
+
+                    <button
+                        (click)="skipStep.emit()"
+                        *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'mandatory'"
+                        class="h-14 min-h-14 rounded-lg"
+                        color="primary"
+                        mat-stroked-button
+                    >
+                        {{ t("skip") }}
                     </button>
                 </div>
             </div>

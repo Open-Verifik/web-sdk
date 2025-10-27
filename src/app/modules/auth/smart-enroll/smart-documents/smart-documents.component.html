@@ -58,30 +58,31 @@
                                     </div>
 
                                     <verifik-radio-group
-                                        class="flex flex-row gap-2 w-full"
-                                        [(ngModel)]="demoModeChoice"
                                         (ngModelChange)="onDemoModeSelected($event)"
+                                        [(ngModel)]="demoModeChoice"
                                         [ngModelOptions]="{ standalone: true }"
                                     >
-                                        <verifik-radio-item
-                                            [label]="t('smart_enroll.demo_mode.use_own')"
-                                            value="own"
-                                            variant="slab"
-                                            class="w-full flex flex-col gap-4"
-                                        >
-                                            <mat-icon class="text-gray-800" svgIcon="mat_solid:person"></mat-icon>
-                                            <span>{{ t("smart_enroll.demo_mode.use_own") }}</span>
-                                        </verifik-radio-item>
+                                        <div class="flex flex-row gap-2 w-full">
+                                            <verifik-radio-item
+                                                [label]="t('smart_enroll.demo_mode.use_own')"
+                                                class="w-full flex flex-col gap-4"
+                                                value="own"
+                                                variant="slab"
+                                            >
+                                                <mat-icon class="text-gray-800" svgIcon="mat_solid:person"></mat-icon>
+                                                <span>{{ t("smart_enroll.demo_mode.use_own") }}</span>
+                                            </verifik-radio-item>
 
-                                        <verifik-radio-item
-                                            [label]="t('smart_enroll.demo_mode.use_demo')"
-                                            value="demo"
-                                            variant="slab"
-                                            class="w-full flex flex-col gap-4"
-                                        >
-                                            <mat-icon class="text-gray-800" svgIcon="mat_solid:play_circle"></mat-icon>
-                                            <span>{{ t("smart_enroll.demo_mode.use_demo") }}</span>
-                                        </verifik-radio-item>
+                                            <verifik-radio-item
+                                                [label]="t('smart_enroll.demo_mode.use_demo')"
+                                                class="w-full flex flex-col gap-4"
+                                                value="demo"
+                                                variant="slab"
+                                            >
+                                                <mat-icon class="text-gray-800" svgIcon="mat_solid:play_circle"></mat-icon>
+                                                <span>{{ t("smart_enroll.demo_mode.use_demo") }}</span>
+                                            </verifik-radio-item>
+                                        </div>
                                     </verifik-radio-group>
                                 </div>
                             </ng-container>
@@ -90,24 +91,26 @@
                                 *ngTemplateOutlet="steps; context: { index: 1, title: 'smart_enroll.documents.verification_method' }"
                             ></ng-container>
 
-                            <verifik-radio-group class="flex flex-col gap-4 w-full" formControlName="documentMethod">
-                                <verifik-radio-item
-                                    [label]="t('smart_enroll.documents.upload_document')"
-                                    *ngIf="projectFlow.documentUploadAllowed"
-                                    class="w-full"
-                                    icon="mat_outline:file_upload"
-                                    value="upload"
-                                    variant="default"
-                                ></verifik-radio-item>
+                            <verifik-radio-group formControlName="documentMethod">
+                                <div class="flex flex-col gap-2 w-full">
+                                    <verifik-radio-item
+                                        [label]="t('smart_enroll.documents.upload_document')"
+                                        *ngIf="projectFlow.documentUploadAllowed"
+                                        class="w-full"
+                                        icon="mat_outline:file_upload"
+                                        value="upload"
+                                        variant="default"
+                                    ></verifik-radio-item>
 
-                                <verifik-radio-item
-                                    [label]="t('smart_enroll.documents.scan_document')"
-                                    *ngIf="projectFlow.documentScanAllowed"
-                                    class="w-full"
-                                    icon="mat_outline:camera"
-                                    value="scan"
-                                    variant="default"
-                                ></verifik-radio-item>
+                                    <verifik-radio-item
+                                        [label]="t('smart_enroll.documents.scan_document')"
+                                        *ngIf="projectFlow.documentScanAllowed"
+                                        class="w-full"
+                                        icon="mat_outline:camera"
+                                        value="scan"
+                                        variant="default"
+                                    ></verifik-radio-item>
+                                </div>
                             </verifik-radio-group>
 
                             <ng-container *ngIf="!project.demoMode || demoModeChoice === 'own'">
@@ -151,38 +154,39 @@
 
                                 <verifik-radio-group
                                     [style.opacity]="!methodSelectionForm.get('country')?.value ? '0.5' : '1'"
-                                    class="flex flex-col gap-4 w-full"
                                     formControlName="documentCategory"
                                     required
                                 >
-                                    <verifik-radio-item
-                                        [disabled]="!methodSelectionForm.get('country')?.value"
-                                        [label]="t('smart_enroll.documents.id_card')"
-                                        *ngIf="projectFlow.documentGovernmentIDAllowed(methodSelectionForm.get('country')?.value)"
-                                        class="w-full"
-                                        icon="fa_regular:id-card"
-                                        value="government_id"
-                                        variant="default"
-                                    ></verifik-radio-item>
+                                    <div class="flex flex-col gap-2 w-full">
+                                        <verifik-radio-item
+                                            [disabled]="!methodSelectionForm.get('country')?.value"
+                                            [label]="t('smart_enroll.documents.id_card')"
+                                            *ngIf="projectFlow.documentGovernmentIDAllowed(methodSelectionForm.get('country')?.value)"
+                                            class="w-full"
+                                            icon="fa_regular:id-card"
+                                            value="government_id"
+                                            variant="default"
+                                        ></verifik-radio-item>
 
-                                    <verifik-radio-item
-                                        [disabled]="!methodSelectionForm.get('country')?.value"
-                                        [label]="t('smart_enroll.documents.passport')"
-                                        *ngIf="projectFlow.documentPassportAllowed(methodSelectionForm.get('country')?.value)"
-                                        class="w-full"
-                                        icon="fa_solid:passport"
-                                        value="passport"
-                                        variant="default"
-                                    ></verifik-radio-item>
+                                        <verifik-radio-item
+                                            [disabled]="!methodSelectionForm.get('country')?.value"
+                                            [label]="t('smart_enroll.documents.passport')"
+                                            *ngIf="projectFlow.documentPassportAllowed(methodSelectionForm.get('country')?.value)"
+                                            class="w-full"
+                                            icon="fa_solid:passport"
+                                            value="passport"
+                                            variant="default"
+                                        ></verifik-radio-item>
 
-                                    <verifik-radio-item
-                                        [label]="t('smart_enroll.documents.driver_license')"
-                                        *ngIf="projectFlow.documentLicenseAllowed(methodSelectionForm.get('country')?.value)"
-                                        class="w-full"
-                                        icon="fa_regular:address-card"
-                                        value="license"
-                                        variant="default"
-                                    ></verifik-radio-item>
+                                        <verifik-radio-item
+                                            [label]="t('smart_enroll.documents.driver_license')"
+                                            *ngIf="projectFlow.documentLicenseAllowed(methodSelectionForm.get('country')?.value)"
+                                            class="w-full"
+                                            icon="fa_regular:address-card"
+                                            value="license"
+                                            variant="default"
+                                        ></verifik-radio-item>
+                                    </div>
                                 </verifik-radio-group>
 
                                 <ng-container *ngIf="projectFlow.version === 3">

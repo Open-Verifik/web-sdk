@@ -124,6 +124,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     @ViewChild("viewportContainer") public viewportContainer: ElementRef<HTMLElement>;
 
     @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
+    @Output("skipStep") skipStep: EventEmitter<void> = new EventEmitter<void>();
 
     @Input() retry: Observable<void>;
     @Input() successfulUpload: Observable<void>;

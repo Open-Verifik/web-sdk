@@ -131,6 +131,9 @@ export class DemoComponentsTestComponent implements OnInit {
             client: "demo-client",
             currentStep: 1,
             lastStep: 5,
+            status: "active",
+            target: "personal",
+            demoMode: true, // Enable demo mode by default
             dataProtection: {
                 address: "123 Demo Street",
                 city: "Demo City",
@@ -139,28 +142,28 @@ export class DemoComponentsTestComponent implements OnInit {
                 name: "Demo Company",
                 postalCode: "12345",
             },
-            status: "active",
-            target: "personal",
-            demoMode: true, // Enable demo mode by default
+            projectFlows: [
+                {
+                    _id: "demo-test-flow",
+                    client: "demo-client",
+                    project: "demo-project",
+                    status: "active",
+                    target: "personal",
+                    type: "onboarding",
+                    version: 3,
+                    steps: {
+                        document: "mandatory",
+                        liveness: "mandatory",
+                    },
+                    liveness: {
+                        livenessMinScore: 0.7,
+                        searchMode: "FAST",
+                        searchMinScore: 0.8,
+                        maxAttempts: 3,
+                    },
+                } as any,
+            ],
         });
-
-        // Create mock project flow
-        this.projectFlow = new ProjectFlow({
-            _id: "demo-test-flow",
-            client: "demo-client",
-            project: "demo-project",
-            status: "active",
-            target: "personal",
-            type: "onboarding",
-            version: 2,
-            onboardingSettings: {
-                steps: {
-                    document: "mandatory",
-                    liveness: "mandatory",
-                },
-            },
-            allowedCountries: ["US", "CA", "MX"],
-        } as any);
 
         // Create mock app registration
         const mockAppRegistration: AppRegistration = {
