@@ -556,52 +556,54 @@ export interface FaceVerification {
 
 export interface InformationValidation {
     _id: string;
+    address: string;
     age: string;
     appRegistration: string;
-    client: string;
     city: string;
+    client: string;
+    country: string;
+    criminalData?: any;
     dateOfBirth: string;
-    documentType: string;
     documentNumber: string;
+    documentType: string;
+    extraParams: any;
     firstName: string;
+    gender: string;
+    lastName: string;
     name?: string;
+    notes: string;
+    postalCode: string;
     project: string;
     projectFlow: string;
     status: string;
-    validationMethod: string;
-    lastName: string;
-    gender: string;
-    country: string;
-    address: string;
-    postalCode: string;
     type: string;
-    extraParams: any;
-    notes: string;
+    validationMethod: string;
 }
 
 export class InformationValidationModel implements InformationValidation {
     _id: string;
+    address: string;
+    age: string;
+    appRegistration: string;
+    city: string;
     client: string;
+    country: string;
+    criminalData?: any;
+    dateOfBirth: string;
+    documentNumber: string;
+    documentType: string;
+    extraParams: any;
+    firstName: string;
+    gender: string;
+    lastName: string;
+    name?: string;
+    notes: string;
+    postalCode: string;
     project: string;
     projectFlow: string;
-    appRegistration: string;
     status: string;
-    validationMethod: string;
-    name?: string;
-    firstName: string;
-    lastName: string;
-    age: string;
-    dateOfBirth: string;
-    gender: string;
-    country: string;
-    city: string;
-    address: string;
-    postalCode: string;
     type: string;
-    extraParams: any;
-    notes: string;
-    documentType: string;
-    documentNumber: string;
+    validationMethod: string;
 
     constructor(data: any = {}) {
         if (!data && !data._id) {
@@ -609,27 +611,28 @@ export class InformationValidationModel implements InformationValidation {
         }
 
         this._id = data._id;
+        this.address = data.address;
+        this.age = data.age;
+        this.appRegistration = data.appRegistration;
+        this.city = data.city;
         this.client = data.client;
+        this.country = data.country;
+        this.criminalData = data.criminalData;
+        this.dateOfBirth = data.dateOfBirth;
+        this.documentNumber = data.documentNumber;
+        this.documentType = data.documentType;
+        this.extraParams = data.extraParams;
+        this.firstName = data.firstName;
+        this.gender = data.gender;
+        this.lastName = data.lastName;
+        this.name = data.name;
+        this.notes = data.notes;
+        this.postalCode = data.postalCode;
         this.project = data.project;
         this.projectFlow = data.projectFlow;
-        this.appRegistration = data.appRegistration;
         this.status = data.status;
-        this.validationMethod = data.validationMethod;
-        this.name = data.name;
-        this.firstName = data.firstName;
-        this.lastName = data.lastName;
-        this.age = data.age;
-        this.dateOfBirth = data.dateOfBirth;
-        this.gender = data.gender;
-        this.country = data.country;
-        this.city = data.city;
-        this.address = data.address;
-        this.postalCode = data.postalCode;
         this.type = data.type;
-        this.extraParams = data.extraParams;
-        this.notes = data.notes;
-        this.documentType = data.documentType;
-        this.documentNumber = data.documentNumber;
+        this.validationMethod = data.validationMethod;
     }
 }
 

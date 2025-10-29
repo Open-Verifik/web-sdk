@@ -12,54 +12,26 @@ import { MatSelectModule } from "@angular/material/select";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import QRCode from "qrcode";
-import { catchError, forkJoin, map, of, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { VerifikRadioGroupComponent } from "app/core/components/verifik-radio-group/verifik-radio-group.component";
 import { VerifikRadioItemComponent } from "app/core/components/verifik-radio-item/verifik-radio-item.component";
-import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { CountryOption, CountryService } from "app/core/services/country.service";
 import { CoreValidators } from "app/core/validators/validators";
 import { DemoService } from "app/modules/demo/demo.service";
-import { environment } from "environments/environment";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
-import { AppRegistration, CriminalValidation, DocumentValidation, FaceVerification, ImageScan } from "../../project";
+import { AppRegistration, DocumentValidation, ImageScan } from "../../project";
 import { DocumentCategory, EnrollDocumentMethod, EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartScannerDemoComponent } from "../smart-scanner/smart-scanner-demo.component";
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
-
-type CombinedValidationResponse = {
-    criminalValidation: CriminalValidationResponse;
-    compareValidation: CompareFaceVerificationResponse;
-    nameValidation: NameValidationResponse;
-};
-
-type CompareFaceVerificationResponse = {
-    data: FaceVerification;
-    error: any;
-    reason: any;
-    status: "fulfilled" | "rejected" | "NA";
-};
-
-type CriminalValidationResponse = {
-    data: CriminalValidation;
-    error: any;
-    reason: any;
-    status: "fulfilled" | "rejected" | "NA";
-};
-
-type NameValidationResponse = {
-    data: DocumentValidation;
-    error: any;
-    reason: any;
-    status: "fulfilled" | "rejected" | "NA";
-};
 
 @Component({
     animations: fuseAnimations,
@@ -128,7 +100,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         this.projectFlow = this._passwordlessService.currentProjectFlow;
         this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
-        this.countries = this._countryService.findAllowedCountryOptions(this.projectFlow.allowedCountries());
+        this.countries = this.projectFlow ? this._countryService.findAllowedCountryOptions(this.projectFlow.allowedCountries()) : [];
 
         this._initForm();
 
@@ -169,7 +141,10 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
                     return;
                 }
 
-                this._sendDocumentValidationAndNameValidation();
+                // Delete criminalData locally to force re-validation once the user hits the `document-results` step
+                delete this.appRegistration.informationValidation?.criminalData;
+
+                this.successfulUploadSubject.next();
             },
             error: (error) => this._handleError(error),
         });
@@ -343,9 +318,14 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
             documentCategoryControl?.enable();
         }
 
+        if (!this.projectFlow?.documentCategories) {
+            console.warn("ProjectFlow or documentCategories method not available");
+            return;
+        }
+
         const documentCategories = this.projectFlow.documentCategories(countryValue);
 
-        if (documentCategories.length === 1) documentCategoryControl?.setValue(documentCategories[0]);
+        if (documentCategories && documentCategories.length === 1) documentCategoryControl?.setValue(documentCategories[0]);
         else documentCategoryControl?.setValue("");
     };
 
@@ -367,9 +347,9 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
             promptTemplateControl?.enable();
         }
 
-        const promptTemplates = this.projectFlow.promptTemplates(this.methodSelectionForm.get("country")?.value, documentCategoryValue);
+        const promptTemplates = this.getPromptTemplates(this.methodSelectionForm.get("country")?.value, documentCategoryValue);
 
-        if (promptTemplates.length === 1) promptTemplateControl?.setValue(promptTemplates[0]);
+        if (promptTemplates && promptTemplates.length === 1) promptTemplateControl?.setValue(promptTemplates[0]);
         else promptTemplateControl?.setValue(null);
     };
 
@@ -389,145 +369,32 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    private _sendDocumentValidationAndNameValidation(): void {
-        if (!this.appRegistration.documentValidation._id) {
-            this.successfulUploadSubject.next();
-
-            return;
-        }
-
-        const settings = this.projectFlow.onboardingSettings.document;
-
-        const observables$ = {
-            compareValidation: null,
-            criminalValidation: null,
-            nameValidation: null,
-        };
-
-        if (settings.verifyNames) {
-            const payload = {
-                _id: this.appRegistration.documentValidation._id,
-                force: true,
-            };
-
-            const observable$ = this._KYCService.updateDocumentValidationNameValidation(payload).pipe(
-                map((result) => ({
-                    status: "fulfilled",
-                    data: result.data,
-                })),
-                catchError((error) => of({ status: "rejected", reason: error }))
-            );
-
-            observables$.nameValidation = observable$;
-        } else {
-            observables$.nameValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
-        }
-
-        if (settings.verifyCriminalHistory) {
-            const payload = {
-                _id:
-                    typeof this.appRegistration.informationValidation === "string"
-                        ? this.appRegistration.informationValidation
-                        : this.appRegistration.informationValidation._id,
-                force: environment.production,
-            };
-
-            const observable$ = this._KYCService.updateInformationValidationWithCriminalRecords(payload).pipe(
-                map((result) => ({
-                    status: "fulfilled",
-                    data: result.data,
-                })),
-                catchError((error) => of({ status: "rejected", reason: error }))
-            );
-
-            observables$.criminalValidation = observable$;
-        } else {
-            observables$.criminalValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
-        }
-
-        if (this.appRegistration.biometricValidation) {
-            const observable$ = this._KYCService.compareFaces().pipe(
-                map((result) => ({ status: "fulfilled", data: result.data })),
-                catchError((error) => of({ status: "rejected", reason: error }))
-            );
-
-            observables$.compareValidation = observable$;
-        } else {
-            observables$.compareValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
-        }
-
-        forkJoin(observables$).subscribe({
-            next: (results: CombinedValidationResponse) => {
-                if (results.criminalValidation?.status === "rejected") {
-                    if (results.criminalValidation?.error?.code === "PaymentRequired") {
-                        this._smartEnrollService.insufficientCreditsTrigger();
-                        return;
-                    }
-
-                    console.error("criminalValidation rejected:", {
-                        criminalValidation: results.criminalValidation?.data,
-                    });
-                }
-
-                if (results.nameValidation?.status === "fulfilled") {
-                    if (!results.nameValidation?.data?.infoValidationSupported) {
-                        this.appRegistration.documentValidation.infoValidationSupported = results.nameValidation?.data?.infoValidationSupported;
-                        this.appRegistration.documentValidation.infoValidationSupportedReason =
-                            results.nameValidation?.data?.infoValidationSupportedReason;
-
-                        return;
-                    }
-
-                    this.appRegistration.documentValidation.namesMatch = results.nameValidation.data.namesMatch;
-                    this.appRegistration.documentValidation.fullNameMatchPercentage = results.nameValidation.data.fullNameMatchPercentage;
-                    this.appRegistration.documentValidation.firstNameMatchPercentage = results.nameValidation.data.firstNameMatchPercentage;
-                    this.appRegistration.documentValidation.lastNameMatchPercentage = results.nameValidation.data.lastNameMatchPercentage;
-                } else if (results.nameValidation?.status === "rejected") {
-                    if (results.nameValidation?.error?.code === "PaymentRequired") {
-                        this._smartEnrollService.insufficientCreditsTrigger();
-
-                        return;
-                    }
-
-                    console.error("nameValidation rejected:", {
-                        nameValidation: results.nameValidation?.reason,
-                    });
-                }
-
-                if (results.compareValidation?.status === "fulfilled") {
-                    this.appRegistration.compareFaceVerification = results.compareValidation.data;
-                } else if (results.compareValidation?.status === "rejected") {
-                    if (results.compareValidation?.error?.code === "PaymentRequired") {
-                        this._smartEnrollService.insufficientCreditsTrigger();
-
-                        return;
-                    }
-
-                    console.error("compareValidation rejected:", {
-                        compareValidation: results.compareValidation?.reason,
-                    });
-                }
-            },
-            error: (error) => this._handleError(error),
-            complete: () => {
-                this.successfulUploadSubject.next();
-            },
-        });
-    }
-
     comparePromptTemplates(option: PromptTemplate, value: PromptTemplate): boolean {
         if (!option || !value) return false;
 
         return option._id === value._id;
+    }
+
+    trackByPromptTemplate(index: number, item: PromptTemplate): any {
+        return item?._id || index;
+    }
+
+    trackByCountry(index: number, item: CountryOption): any {
+        return item?.country || index;
+    }
+
+    getPromptTemplates(country: string, documentCategory: string): PromptTemplate[] {
+        if (!this.projectFlow || !country || !documentCategory) {
+            return [];
+        }
+
+        try {
+            const templates = this.projectFlow.promptTemplates(country, documentCategory);
+            return templates ? templates.filter((template) => template != null) : [];
+        } catch (error) {
+            console.warn("Error getting prompt templates:", error);
+            return [];
+        }
     }
 
     disableSubmitButton(): boolean {

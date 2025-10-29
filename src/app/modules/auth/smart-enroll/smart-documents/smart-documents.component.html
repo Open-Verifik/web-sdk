@@ -5,13 +5,13 @@
     *transloco="let t"
     class="w-full flex flex-col justify-start items-center md:flex-row md:justify-center md:items-center"
 >
-    <div @fadeIn class="w-full flex flex-row h-screen overflow-y-auto" *ngIf="project && !formSubmitted">
-        <div class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project.branding.image }">
+    <div @fadeIn class="w-full flex flex-row h-screen overflow-y-auto" *ngIf="project && projectFlow && !formSubmitted">
+        <div class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image }">
             <div class="w-full max-w-2xl flex flex-col items-center m-auto gap-6 py-8">
                 <div class="w-full flex flex-col items-center gap-6" [class.hidden]="showQrCode">
                     <div class="w-full flex flex-col gap-2 justify-center items-center">
                         <div class="flex flex-row items-center justify-center">
-                            <ng-container *ngIf="project.branding.logo; else defaultLogo">
+                            <ng-container *ngIf="project?.branding?.logo; else defaultLogo">
                                 <img class="max-w-16 max-h-16 object-contain" [src]="project.branding.logo" alt="Logo" />
                             </ng-container>
 
@@ -26,7 +26,7 @@
                         </div>
 
                         <h5
-                            [style.color]="project.branding.titleColor"
+                            [style.color]="project?.branding?.titleColor"
                             class="w-full text-3xl font-medium text-center"
                             ngClass.gt-sm="mt-2"
                             ngClass.lt-md="text-2xl"
@@ -95,7 +95,7 @@
                                 <div class="flex flex-col gap-2 w-full">
                                     <verifik-radio-item
                                         [label]="t('smart_enroll.documents.upload_document')"
-                                        *ngIf="projectFlow.documentUploadAllowed"
+                                        *ngIf="projectFlow?.documentUploadAllowed"
                                         class="w-full"
                                         icon="mat_outline:file_upload"
                                         value="upload"
@@ -104,7 +104,7 @@
 
                                     <verifik-radio-item
                                         [label]="t('smart_enroll.documents.scan_document')"
-                                        *ngIf="projectFlow.documentScanAllowed"
+                                        *ngIf="projectFlow?.documentScanAllowed"
                                         class="w-full"
                                         icon="mat_outline:camera"
                                         value="scan"
@@ -134,8 +134,8 @@
                                         <mat-label>{{ t("smart_enroll.documents.country") }}</mat-label>
 
                                         <mat-select class="country-select__input" formControlName="country" required>
-                                            <mat-option *ngFor="let country of countries" [value]="country.country">
-                                                {{ t(country.name) }}
+                                            <mat-option *ngFor="let country of countries || []; trackBy: trackByCountry" [value]="country?.country">
+                                                {{ country?.name ? t(country.name) : "Unknown Country" }}
                                             </mat-option>
                                         </mat-select>
                                     </mat-form-field>
@@ -161,7 +161,10 @@
                                         <verifik-radio-item
                                             [disabled]="!methodSelectionForm.get('country')?.value"
                                             [label]="t('smart_enroll.documents.id_card')"
-                                            *ngIf="projectFlow.documentGovernmentIDAllowed(methodSelectionForm.get('country')?.value)"
+                                            *ngIf="
+                                                projectFlow?.documentGovernmentIDAllowed &&
+                                                projectFlow.documentGovernmentIDAllowed(methodSelectionForm.get('country')?.value)
+                                            "
                                             class="w-full"
                                             icon="fa_regular:id-card"
                                             value="government_id"
@@ -171,7 +174,10 @@
                                         <verifik-radio-item
                                             [disabled]="!methodSelectionForm.get('country')?.value"
                                             [label]="t('smart_enroll.documents.passport')"
-                                            *ngIf="projectFlow.documentPassportAllowed(methodSelectionForm.get('country')?.value)"
+                                            *ngIf="
+                                                projectFlow?.documentPassportAllowed &&
+                                                projectFlow.documentPassportAllowed(methodSelectionForm.get('country')?.value)
+                                            "
                                             class="w-full"
                                             icon="fa_solid:passport"
                                             value="passport"
@@ -180,7 +186,10 @@
 
                                         <verifik-radio-item
                                             [label]="t('smart_enroll.documents.driver_license')"
-                                            *ngIf="projectFlow.documentLicenseAllowed(methodSelectionForm.get('country')?.value)"
+                                            *ngIf="
+                                                projectFlow?.documentLicenseAllowed &&
+                                                projectFlow.documentLicenseAllowed(methodSelectionForm.get('country')?.value)
+                                            "
                                             class="w-full"
                                             icon="fa_regular:address-card"
                                             value="license"
@@ -189,7 +198,7 @@
                                     </div>
                                 </verifik-radio-group>
 
-                                <ng-container *ngIf="projectFlow.version === 3">
+                                <ng-container *ngIf="projectFlow?.version === 3">
                                     <ng-container
                                         *ngTemplateOutlet="
                                             steps;
@@ -211,14 +220,15 @@
                                         <mat-select formControlName="promptTemplate" matInput required [compareWith]="comparePromptTemplates">
                                             <mat-option
                                                 *ngFor="
-                                                    let promptTemplate of projectFlow.promptTemplates(
+                                                    let promptTemplate of getPromptTemplates(
                                                         methodSelectionForm.get('country')?.value,
                                                         methodSelectionForm.get('documentCategory')?.value
-                                                    )
+                                                    );
+                                                    trackBy: trackByPromptTemplate
                                                 "
                                                 [value]="promptTemplate"
                                             >
-                                                {{ promptTemplate.name }}
+                                                {{ promptTemplate?.name || "Unknown Template" }}
                                             </mat-option>
                                         </mat-select>
                                     </mat-form-field>
@@ -228,13 +238,13 @@
                             <div
                                 class="w-full flex flex-row items-center mt-4"
                                 [ngClass]="{
-                                    'justify-between': projectFlow.onboardingSettings.steps.document !== 'mandatory',
-                                    'justify-end': projectFlow.onboardingSettings.steps.document === 'mandatory'
+                                    'justify-between': projectFlow?.onboardingSettings?.steps?.document !== 'mandatory',
+                                    'justify-end': projectFlow?.onboardingSettings?.steps?.document === 'mandatory'
                                 }"
                             >
                                 <button
                                     (click)="onSkipStep()"
-                                    *ngIf="projectFlow.onboardingSettings.steps.document !== 'mandatory'"
+                                    *ngIf="projectFlow?.onboardingSettings?.steps?.document !== 'mandatory'"
                                     class="min-h-14 h-14 rounded-lg"
                                     color="primary"
                                     mat-stroked-button
@@ -261,8 +271,8 @@
 
                         <span
                             class="absolute px-3 text-base font-semibold"
-                            [style.background-color]="project.branding.backgroundColor"
-                            [style.color]="project.branding.titleColor"
+                            [style.background-color]="project?.branding?.backgroundColor"
+                            [style.color]="project?.branding?.titleColor"
                             >OR</span
                         >
                     </div>
@@ -300,12 +310,12 @@
         <div class="self-stretch inline-flex justify-start items-center gap-2" [style.opacity]="opacity || 1">
             <div
                 class="w-6 h-6 rounded-full inline-flex flex-col justify-center items-center gap-2"
-                [style.background-color]="project.branding.buttonColor"
+                [style.background-color]="project?.branding?.buttonColor"
             >
                 <div class="text-center justify-center text-white text-md font-medium leading-tight">{{ index }}</div>
             </div>
 
-            <div class="text-center justify-center text-md font-medium leading-tight" [style.color]="project.branding.titleColor">
+            <div class="text-center justify-center text-md font-medium leading-tight" [style.color]="project?.branding?.titleColor">
                 {{ t(title) }}
             </div>
         </div>

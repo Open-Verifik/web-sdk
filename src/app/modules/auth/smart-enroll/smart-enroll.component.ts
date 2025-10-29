@@ -174,6 +174,7 @@ export class SmartEnrollComponent implements OnInit, OnDestroy {
         } else if (
             (this.appRegistration.documentValidation &&
                 this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration) &&
+                this.appRegistration.currentStep === "liveness" &&
                 !this.appRegistration.biometricValidation) ||
             this._smartEnrollService.wasSkippedDocument()
         ) {
