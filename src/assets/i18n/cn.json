@@ -525,7 +525,19 @@
             "template_id": "模板ID",
             "upload_backside": "上传背面",
             "upload_document": "上传文档",
-            "upload_frontside": "上传正面"
+            "upload_frontside": "上传正面",
+            "validation_progress": "验证进度",
+            "validating_your_information": "我们正在验证您的信息以确保安全性和准确性",
+            "name_validation_title": "姓名验证",
+            "criminal_validation_title": "背景调查",
+            "biometric_validation_title": "生物识别比较",
+            "validating_names": "验证文档上的姓名",
+            "running_background_check": "正在进行背景调查",
+            "comparing_biometrics": "将生物识别与文档进行比较",
+            "name_validation_success": "姓名验证成功",
+            "name_validation_failed": "姓名验证失败",
+            "background_check_complete": "背景调查完成",
+            "biometric_comparison_complete": "生物识别比较完成"
         },
         "image_captured": "图像已捕获！",
         "demo_mode": {
