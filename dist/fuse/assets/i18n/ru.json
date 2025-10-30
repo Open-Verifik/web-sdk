@@ -525,7 +525,19 @@
             "template_id": "ID шаблона",
             "upload_backside": "Загрузить обратную сторону",
             "upload_document": "Загрузить документ",
-            "upload_frontside": "Загрузить лицевую сторону"
+            "upload_frontside": "Загрузить лицевую сторону",
+            "validation_progress": "Прогресс проверки",
+            "validating_your_information": "Мы проверяем вашу информацию для обеспечения безопасности и точности",
+            "name_validation_title": "Проверка имени",
+            "criminal_validation_title": "Проверка судимости",
+            "biometric_validation_title": "Биометрическое сравнение",
+            "validating_names": "Проверка имен в документе",
+            "running_background_check": "Выполнение проверки судимости",
+            "comparing_biometrics": "Сравнение биометрии с документом",
+            "name_validation_success": "Имена успешно проверены",
+            "name_validation_failed": "Проверка имени не удалась",
+            "background_check_complete": "Проверка судимости завершена",
+            "biometric_comparison_complete": "Биометрическое сравнение завершено"
         },
         "image_captured": "Изображение захвачено!",
         "demo_mode": {

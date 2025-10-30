@@ -524,7 +524,19 @@
             "template_id": "템플릿 ID",
             "upload_backside": "뒷면 업로드",
             "upload_document": "문서 업로드",
-            "upload_frontside": "앞면 업로드"
+            "upload_frontside": "앞면 업로드",
+            "validation_progress": "검증 진행 상황",
+            "validating_your_information": "보안과 정확성을 보장하기 위해 귀하의 정보를 검증하고 있습니다",
+            "name_validation_title": "이름 검증",
+            "criminal_validation_title": "범죄 경력 조회",
+            "biometric_validation_title": "생체 인식 비교",
+            "validating_names": "문서의 이름을 검증하는 중",
+            "running_background_check": "범죄 경력 조회 실행 중",
+            "comparing_biometrics": "생체 인식을 문서와 비교하는 중",
+            "name_validation_success": "이름이 성공적으로 검증되었습니다",
+            "name_validation_failed": "이름 검증에 실패했습니다",
+            "background_check_complete": "범죄 경력 조회 완료",
+            "biometric_comparison_complete": "생체 인식 비교 완료"
         },
         "image_captured": "이미지가 캡처되었습니다!",
         "demo_mode": {

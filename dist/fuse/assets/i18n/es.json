@@ -531,6 +531,18 @@
                 "extracted_information": "Información Extraída",
                 "process_information": "Información del Proceso"
             },
+            "validation_progress": "Progreso de validación",
+            "validating_your_information": "Estamos validando tu información para garantizar la seguridad y precisión",
+            "name_validation_title": "Verificación de nombre",
+            "criminal_validation_title": "Verificación de antecedentes",
+            "biometric_validation_title": "Comparación biométrica",
+            "validating_names": "Validando nombres en el documento",
+            "running_background_check": "Ejecutando verificación de antecedentes",
+            "comparing_biometrics": "Comparando biometría con el documento",
+            "name_validation_success": "Nombres validados correctamente",
+            "name_validation_failed": "Falló la validación de nombres",
+            "background_check_complete": "Verificación de antecedentes completa",
+            "biometric_comparison_complete": "Comparación biométrica completa",
             "scan_document_title": "Escanear documento",
             "scan": {
                 "scan_front": "Escanea la cara frontal del documento",

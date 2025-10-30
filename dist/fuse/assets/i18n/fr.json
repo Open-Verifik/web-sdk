@@ -526,7 +526,19 @@
             "template_id": "ID du modèle",
             "upload_backside": "Télécharger le côté arrière",
             "upload_document": "Télécharger le document",
-            "upload_frontside": "Télécharger le côté avant"
+            "upload_frontside": "Télécharger le côté avant",
+            "validation_progress": "Progrès de validation",
+            "validating_your_information": "Nous validons vos informations pour assurer la sécurité et la précision",
+            "name_validation_title": "Vérification du nom",
+            "criminal_validation_title": "Vérification des antécédents",
+            "biometric_validation_title": "Comparaison biométrique",
+            "validating_names": "Validation des noms sur le document",
+            "running_background_check": "Vérification des antécédents en cours",
+            "comparing_biometrics": "Comparaison de la biométrie avec le document",
+            "name_validation_success": "Noms validés avec succès",
+            "name_validation_failed": "Échec de la validation du nom",
+            "background_check_complete": "Vérification des antécédents terminée",
+            "biometric_comparison_complete": "Comparaison biométrique terminée"
         },
         "image_captured": "Image capturée !",
         "demo_mode": {

@@ -542,7 +542,19 @@
                     "3": "Hold the document steadily within the rectangle frame.",
                     "4": "Confirm that the result matches your data."
                 }
-            }
+            },
+            "validation_progress": "Validation Progress",
+            "validating_your_information": "We're validating your information to ensure security and accuracy",
+            "name_validation_title": "Name Verification",
+            "criminal_validation_title": "Background Check",
+            "biometric_validation_title": "Biometric Comparison",
+            "validating_names": "Validating names on document",
+            "running_background_check": "Running background check",
+            "comparing_biometrics": "Comparing biometrics to document",
+            "name_validation_success": "Names validated successfully",
+            "name_validation_failed": "Name validation failed",
+            "background_check_complete": "Background check complete",
+            "biometric_comparison_complete": "Biometric comparison complete"
         }
     },
     "welcome": {

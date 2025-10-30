@@ -429,7 +429,7 @@
                 "yaw-left": "चेहरा बाईं ओर थोड़ा मोड़ें",
                 "yaw-right": "चेहरा दाईं ओर थोड़ा मोड़ें"
             },
-            "capture": "Tangkap"
+            "capture": "कैप्चर करें"
         },
         "failed": {
             "document_registered_incorrectly": "आपका आईडी सही ढंग से पंजीकृत नहीं किया गया",
@@ -525,24 +525,36 @@
             "template_id": "टेम्पलेट आईडी",
             "upload_backside": "पिछला भाग अपलोड करें",
             "upload_document": "दस्तावेज़ अपलोड करें",
-            "upload_frontside": "सामने का भाग अपलोड करें"
+            "upload_frontside": "सामने का भाग अपलोड करें",
+            "validation_progress": "सत्यापन की प्रगति",
+            "validating_your_information": "हम सुरक्षा और सटीकता सुनिश्चित करने के लिए आपकी जानकारी का सत्यापन कर रहे हैं",
+            "name_validation_title": "नाम सत्यापन",
+            "criminal_validation_title": "पृष्ठभूमि जांच",
+            "biometric_validation_title": "बायोमेट्रिक तुलना",
+            "validating_names": "दस्तावेज़ पर नामों का सत्यापन",
+            "running_background_check": "पृष्ठभूमि जांच चलाई जा रही है",
+            "comparing_biometrics": "दस्तावेज़ के साथ बायोमेट्रिक की तुलना",
+            "name_validation_success": "नाम सफलतापूर्वक सत्यापित",
+            "name_validation_failed": "नाम सत्यापन असफल",
+            "background_check_complete": "पृष्ठभूमि जांच पूर्ण",
+            "biometric_comparison_complete": "बायोमेट्रिक तुलना पूर्ण"
         },
         "image_captured": "छवि कैप्चर की गई!",
         "demo_mode": {
-            "title": "Proyek ini dalam mode demo",
-            "use_own": "Coba dengan milik Anda",
-            "use_demo": "Gunakan demo yang disediakan",
-            "document_description": "Anda dapat mencoba dengan dokumen Anda sendiri atau menggunakan dokumen demo kami",
-            "face_description": "Anda dapat mencoba dengan wajah Anda sendiri atau menggunakan wajah demo kami",
-            "click_to_use_demo": "Klik untuk menggunakan dokumen demo",
-            "use_demo_document": "Gunakan Dokumen Demo",
-            "scanner_demo_title": "Pemindai Dokumen Demo",
-            "scanner_demo_description": "Ini adalah demonstrasi bagaimana pemindaian dokumen bekerja",
-            "liveness_demo_title": "Verifikasi Liveness Demo",
-            "liveness_demo_description": "Ini adalah demonstrasi biometrik. Dalam pengaturan langsung, wajah Anda akan ditangkap secara otomatis.",
-            "capturing": "Menangkap...",
-            "uploading": "Mengunggah...",
-            "scanner_info": "Demo ini menunjukkan bagaimana pemindaian dokumen akan bekerja dengan kamera nyata"
+            "title": "यह प्रोजेक्ट डेमो मोड में है",
+            "use_own": "अपने से आज़माएं",
+            "use_demo": "उपलब्ध डेमो का उपयोग करें",
+            "document_description": "आप अपने दस्तावेज़ के साथ कोशिश कर सकते हैं या हमारे डेमो दस्तावेज़ का उपयोग कर सकते हैं",
+            "face_description": "आप अपने चेहरे के साथ कोशिश कर सकते हैं या हमारे डेमो चेहरे का उपयोग कर सकते हैं",
+            "click_to_use_demo": "डेमो दस्तावेज़ का उपयोग करने के लिए क्लिक करें",
+            "use_demo_document": "डेमो दस्तावेज़ का उपयोग करें",
+            "scanner_demo_title": "डेमो दस्तावेज़ स्कैनर",
+            "scanner_demo_description": "यह एक डेमो है कि दस्तावेज़ स्कैनिंग कैसे काम करती है",
+            "liveness_demo_title": "लाइवनेस वेरिफिकेशन डेमो",
+            "liveness_demo_description": "यह बायोमेट्रिक का डेमो है। लाइव सेटिंग में, आपका चेहरा स्वचालित रूप से कैप्चर हो जाएगा।",
+            "capturing": "कैप्चर हो रहा है...",
+            "uploading": "अपलोड हो रहा है...",
+            "scanner_info": "यह डेमो दिखाता है कि वास्तविक कैमरे के साथ दस्तावेज़ स्कैनिंग कैसे काम करेगी"
         }
     },
     "welcome": {

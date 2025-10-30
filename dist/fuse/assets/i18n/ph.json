@@ -525,7 +525,19 @@
             "template_id": "ID ng Template",
             "upload_backside": "I-upload ang Likod na Bahagi",
             "upload_document": "I-upload ang Dokumento",
-            "upload_frontside": "I-upload ang Harap na Bahagi"
+            "upload_frontside": "I-upload ang Harap na Bahagi",
+            "validation_progress": "Progreso ng Pagpapatunay",
+            "validating_your_information": "Pinapatunayan namin ang inyong impormasyon upang matiyak ang kaligtasan at katumpakan",
+            "name_validation_title": "Pagpapatunay ng Pangalan",
+            "criminal_validation_title": "Pagsusuri ng Kasaysayan",
+            "biometric_validation_title": "Paghahambing ng Biometric",
+            "validating_names": "Pinapatunayan ang mga pangalan sa dokumento",
+            "running_background_check": "Ginagawa ang pagsusuri ng kasaysayan",
+            "comparing_biometrics": "Inihahambing ang biometric sa dokumento",
+            "name_validation_success": "Matagumpay na napatunayan ang mga pangalan",
+            "name_validation_failed": "Hindi napatunayan ang pangalan",
+            "background_check_complete": "Tapos na ang pagsusuri ng kasaysayan",
+            "biometric_comparison_complete": "Tapos na ang paghahambing ng biometric"
         },
         "image_captured": "Nakuha na ang Larawan!",
         "demo_mode": {
