@@ -202,7 +202,6 @@ function main() {
         // Create missing translations file with metadata
         const missingTranslationsData = {
             metadata: {
-                generatedAt: new Date().toISOString(),
                 totalLanguages: Object.keys(allMissingKeys).length,
                 totalMissingKeys: globalStats.totalMissingKeys,
                 languageNames: {

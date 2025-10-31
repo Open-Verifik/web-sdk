@@ -156,7 +156,6 @@ function main() {
     // Clean up missing translations file by resetting it to empty structure
     const emptyMissingTranslations = {
         metadata: {
-            generatedAt: new Date().toISOString(),
             totalLanguages: 0,
             totalMissingKeys: 0,
             languageNames: missingTranslationsData.metadata?.languageNames || {},
