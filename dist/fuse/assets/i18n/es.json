@@ -13,6 +13,7 @@
     "previous": "Anterior",
     "restart": "Reiniciar",
     "scan": "Escanear",
+    "search": "Buscar",
     "skip": "Omitir paso",
     "upload": "Subir",
     "header": {
@@ -292,6 +293,7 @@
         "error_security_not_set": "El proyecto no está configurado correctamente. Faltan configuraciones de seguridad",
         "firstName": "Nombre",
         "fullName": "Nombre completo",
+        "gender": "Género",
         "gender_female": "Femenino",
         "gender_male": "Masculino",
         "gender_non_binary": "No binario",
@@ -445,13 +447,14 @@
             "liveness_demo_description": "Esta es una demostración de biometría. En el entorno en vivo, tu rostro sería capturado automáticamente.",
             "capturing": "Capturando...",
             "uploading": "Subiendo...",
-            "scanner_info": "Esta demo muestra cómo funcionaría el escaneo de documentos con una cámara real"
+            "scanner_info": "Esta demo muestra cómo funcionaría el escaneo de documentos con una cámara real",
+            "capture_successful": "Captura exitosa",
+            "document_processed_successfully": "Documento procesado exitosamente"
         },
         "failed": {
-            "document_registered_incorrectly": "Tu documento no fue registrado correctamente",
             "liveness_registered_incorrectly": "Tu rostro no fue registrado correctamente",
             "liveness": "La imagen biométrica tuvo una puntuación demasiado baja.",
-            "compare": "Una comparación entre tu documento e imagen biométrica tuvo una puntuación demasiado baja"
+            "document_comparison_failed": "La comparación entre tu rostro e identificación obtuvo una puntuación demasiado baja"
         },
         "step_titles": {
             "id": "ID",
@@ -476,7 +479,6 @@
             "back": "Atrás",
             "backside": "Lado Posterior",
             "document_scan": "Instrucciones de Escaneo de Documento",
-            "document_template": "Plantilla del Documento",
             "document_upload": "Instrucciones de Subida de Documento",
             "driver_license": "Licencia de Conducir",
             "extracted_information": "Información Extraída",
@@ -502,6 +504,8 @@
             "upload_document": "Subir Documento",
             "upload_frontside": "Subir Lado Frontal",
             "upload": {
+                "title": "Subir Documento",
+                "subtitle": "Recopila imagen(es) de tu documento y súbela(s) a continuación",
                 "steps": {
                     "1": "Sube un archivo en formato .jpeg, .png o .jpg.",
                     "2": "Confirma que la subida fue exitosa.",
@@ -518,9 +522,6 @@
                 "back": "Posterior",
                 "upload_frontside": "Subir Lado Frontal",
                 "upload_backside": "Subir Lado Posterior",
-                "passport": "Pasaporte",
-                "driver_license": "Licencia de Conducir",
-                "id": "ID",
                 "find_file": "Encontrar archivo en tu dispositivo",
                 "identification_document_tip": "El archivo debe estar en uno de los siguientes formatos: .jpeg, .png o .jpg",
                 "ocr_details_front_title": "Detalles de OCR del Documento Frontal",

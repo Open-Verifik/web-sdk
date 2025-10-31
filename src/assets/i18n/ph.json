@@ -432,10 +432,9 @@
             "capture": "Kunin"
         },
         "failed": {
-            "document_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong ID",
             "liveness_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong mukha",
             "liveness": "Mababa ang iskor ng iyong imahe ng biometric.",
-            "compare": "Mababa ang iskor ng paghahambing ng iyong ID at mga biometrics"
+            "document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
         },
         "step_titles": {
             "id": "ID",
@@ -472,9 +471,6 @@
                 "back": "Likod",
                 "upload_frontside": "I-upload ang Unahang Bahagi",
                 "upload_backside": "I-upload ang Likurang Bahagi",
-                "passport": "Pasaporte",
-                "driver_license": "Lisensya ng Pagmamaneho",
-                "id": "ID",
                 "find_file": "Hanapin ang file sa iyong device",
                 "identification_document_tip": "Ang file ay dapat nasa alinman sa mga sumusunod na format: .jpeg, .png, o .jpg",
                 "ocr_details_front_title": "OCR Detalye mula sa Unahang Bahagi ng Dokumento",
@@ -483,7 +479,9 @@
                 "template_id": "Template ID",
                 "platform": "Platforma",
                 "extracted_information": "Na-extract na Impormasyon",
-                "process_information": "Impormasyon sa Proseso"
+                "process_information": "Impormasyon sa Proseso",
+                "title": "[TO TRANSLATE] Upload Document",
+                "subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
             },
             "scan_document_title": "I-scan ang dokumento",
             "scan": {
@@ -500,7 +498,6 @@
             "back": "Bumalik",
             "backside": "Likod na Bahagi",
             "document_scan": "Mga Tagubilin sa Pag-scan ng Dokumento",
-            "document_template": "Template ng Dokumento",
             "document_upload": "Mga Tagubilin sa Pag-upload ng Dokumento",
             "driver_license": "Lisensya sa Pagmamaneho",
             "extracted_information": "Nakuha na Impormasyon",
@@ -554,7 +551,9 @@
             "liveness_demo_description": "Ito ay isang demonstrasyon ng biometrics. Sa live na setting, ang inyong mukha ay awtomatikong makukuha.",
             "capturing": "Kinukuha...",
             "uploading": "Nag-upload...",
-            "scanner_info": "Ang demo na ito ay nagpapakita kung paano gagana ang document scanning gamit ang tunay na camera"
+            "scanner_info": "Ang demo na ito ay nagpapakita kung paano gagana ang document scanning gamit ang tunay na camera",
+            "capture_successful": "[TO TRANSLATE] Capture successful",
+            "document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
         }
     },
     "welcome": {
@@ -778,5 +777,6 @@
         "yemen": "Yemen",
         "zambia": "Zambia",
         "zimbabwe": "Zimbabwe"
-    }
+    },
+    "search": "[TO TRANSLATE] Search"
 }

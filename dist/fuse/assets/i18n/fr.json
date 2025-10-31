@@ -170,7 +170,6 @@
         "person_linked_to_another_email": "Vos données biométriques sont liées à un autre e-mail.",
         "face_not_found_title": "Visage Non Trouvé",
         "face_not_found_subtitle": "Votre visage ne peut pas être détecté.",
-        "image_captured": "Image capturée !",
         "loading_stream": "Chargement de la caméra",
         "review_liveness": "L'image est-elle claire, centrée et sans flou ? Si vous êtes satisfait du résultat, téléchargez l'image pour le traitement."
     },
@@ -433,10 +432,9 @@
             "capture": "Capturer"
         },
         "failed": {
-            "document_registered_incorrectly": "Votre ID n'a pas été correctement enregistré",
             "liveness_registered_incorrectly": "Votre visage n'a pas été correctement enregistré",
             "liveness": "Votre image biométrique a obtenu un score trop bas.",
-            "compare": "Une comparaison de votre ID et de vos biométries a obtenu un score trop bas"
+            "document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
         },
         "step_titles": {
             "id": "ID",
@@ -473,9 +471,6 @@
                 "back": "Arrière",
                 "upload_frontside": "Téléverser le Côté Avant",
                 "upload_backside": "Téléverser le Côté Arrière",
-                "passport": "Passeport",
-                "driver_license": "Permis de Conduire",
-                "id": "ID",
                 "find_file": "Trouver un fichier sur votre appareil",
                 "identification_document_tip": "Le fichier doit être dans l'un des formats suivants : .jpeg, .png ou .jpg",
                 "ocr_details_front_title": "Détails OCR du Document Avant",
@@ -484,7 +479,9 @@
                 "template_id": "ID du Modèle",
                 "platform": "Plateforme",
                 "extracted_information": "Informations Extraites",
-                "process_information": "Informations sur le Processus"
+                "process_information": "Informations sur le Processus",
+                "title": "[TO TRANSLATE] Upload Document",
+                "subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
             },
             "scan_document_title": "Scanner le document",
             "scan": {
@@ -501,7 +498,6 @@
             "back": "Retour",
             "backside": "Côté arrière",
             "document_scan": "Instructions de numérisation de document",
-            "document_template": "Modèle de document",
             "document_upload": "Instructions de téléchargement de document",
             "driver_license": "Permis de conduire",
             "extracted_information": "Informations extraites",
@@ -555,7 +551,9 @@
             "liveness_demo_description": "Ceci est une démonstration de biométrie. Dans un environnement en direct, votre visage serait capturé automatiquement.",
             "capturing": "Capture en cours...",
             "uploading": "Téléchargement...",
-            "scanner_info": "Cette démo montre comment la numérisation de documents fonctionnerait avec une vraie caméra"
+            "scanner_info": "Cette démo montre comment la numérisation de documents fonctionnerait avec une vraie caméra",
+            "capture_successful": "[TO TRANSLATE] Capture successful",
+            "document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
         }
     },
     "welcome": {
@@ -779,5 +777,6 @@
         "yemen": "Yémen",
         "zambia": "Zambie",
         "zimbabwe": "Zimbabwe"
-    }
+    },
+    "search": "[TO TRANSLATE] Search"
 }

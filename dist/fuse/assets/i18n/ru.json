@@ -432,10 +432,9 @@
             "capture": "Захватить"
         },
         "failed": {
-            "document_registered_incorrectly": "Ваш документ был неправильно зарегистрирован",
             "liveness_registered_incorrectly": "Ваше лицо было неправильно зарегистрировано",
             "liveness": "Ваше биометрическое изображение получило слишком низкую оценку.",
-            "compare": "Сравнение вашего удостоверения личности и биометрии получило слишком низкую оценку"
+            "document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
         },
         "step_titles": {
             "id": "ID",
@@ -472,9 +471,6 @@
                 "back": "Зад",
                 "upload_frontside": "Загрузить переднюю сторону",
                 "upload_backside": "Загрузить заднюю сторону",
-                "passport": "Паспорт",
-                "driver_license": "Водительские права",
-                "id": "ID",
                 "find_file": "Найти файл на вашем устройстве",
                 "identification_document_tip": "Файл должен быть в одном из следующих форматов: .jpeg, .png, или .jpg",
                 "ocr_details_front_title": "OCR Детали из Передней Стороны Документа",
@@ -483,7 +479,9 @@
                 "template_id": "ID Шаблона",
                 "platform": "Платформа",
                 "extracted_information": "Извлеченная информация",
-                "process_information": "Информация о процессе"
+                "process_information": "Информация о процессе",
+                "title": "[TO TRANSLATE] Upload Document",
+                "subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
             },
             "scan_document_title": "Сканировать документ",
             "scan": {
@@ -500,7 +498,6 @@
             "back": "Назад",
             "backside": "Обратная сторона",
             "document_scan": "Инструкции по сканированию документа",
-            "document_template": "Шаблон документа",
             "document_upload": "Инструкции по загрузке документа",
             "driver_license": "Водительские права",
             "extracted_information": "Извлеченная информация",
@@ -554,7 +551,9 @@
             "liveness_demo_description": "Это демонстрация биометрии. В реальной среде ваше лицо будет захвачено автоматически.",
             "capturing": "Захват...",
             "uploading": "Загрузка...",
-            "scanner_info": "Эта демо показывает, как сканирование документов работало бы с настоящей камерой"
+            "scanner_info": "Эта демо показывает, как сканирование документов работало бы с настоящей камерой",
+            "capture_successful": "[TO TRANSLATE] Capture successful",
+            "document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
         }
     },
     "welcome": {
@@ -778,5 +777,6 @@
         "yemen": "Yemen",
         "zambia": "Zambia",
         "zimbabwe": "Zimbabwe"
-    }
+    },
+    "search": "[TO TRANSLATE] Search"
 }

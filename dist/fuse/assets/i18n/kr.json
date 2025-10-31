@@ -364,7 +364,8 @@
             "ciso": "정보 보안 책임자",
             "employee": "직원",
             "other": "기타"
-        }
+        },
+        "gender": "[TO TRANSLATE] Gender"
     },
     "confirmation": {
         "pick_phone_gateway_title": "6자리 인증 코드를 받을 방법을 선택하세요",
@@ -431,10 +432,9 @@
             "capture": "캡처"
         },
         "failed": {
-            "document_registered_incorrectly": "신분증이 정확하게 등록되지 않았습니다",
             "liveness_registered_incorrectly": "얼굴이 정확하게 등록되지 않았습니다",
             "liveness": "생체 이미지 점수가 너무 낮습니다",
-            "compare": "신분증과 생체 정보의 비교 점수가 너무 낮습니다"
+            "document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
         },
         "step_titles": {
             "id": "ID",
@@ -471,9 +471,6 @@
                 "back": "뒷면",
                 "upload_frontside": "앞면 업로드",
                 "upload_backside": "뒷면 업로드",
-                "passport": "여권",
-                "driver_license": "운전면허증",
-                "id": "ID",
                 "find_file": "기기에서 파일 찾기",
                 "identification_document_tip": "파일 형식은 .jpeg, .png 또는 .jpg 중 하나여야 합니다.",
                 "ocr_details_front_title": "앞면 문서의 OCR 세부정보",
@@ -482,7 +479,9 @@
                 "template_id": "템플릿 ID",
                 "platform": "플랫폼",
                 "extracted_information": "추출된 정보",
-                "process_information": "프로세스 정보"
+                "process_information": "프로세스 정보",
+                "title": "[TO TRANSLATE] Upload Document",
+                "subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
             },
             "scan_document_title": "문서 스캔",
             "scan": {
@@ -499,7 +498,6 @@
             "back": "뒤로",
             "backside": "뒷면",
             "document_scan": "문서 스캔 지침",
-            "document_template": "문서 템플릿",
             "document_upload": "문서 업로드 지침",
             "driver_license": "운전면허증",
             "extracted_information": "추출된 정보",
@@ -553,7 +551,9 @@
             "liveness_demo_description": "이것은 생체 인식의 데모입니다. 실제 환경에서는 귀하의 얼굴이 자동으로 캡처됩니다.",
             "capturing": "캡처 중...",
             "uploading": "업로드 중...",
-            "scanner_info": "이 데모는 실제 카메라로 문서 스캔이 어떻게 작동할지 보여줍니다"
+            "scanner_info": "이 데모는 실제 카메라로 문서 스캔이 어떻게 작동할지 보여줍니다",
+            "capture_successful": "[TO TRANSLATE] Capture successful",
+            "document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
         }
     },
     "welcome": {
@@ -777,5 +777,6 @@
         "yemen": "Yemen",
         "zambia": "Zambia",
         "zimbabwe": "Zimbabwe"
-    }
+    },
+    "search": "[TO TRANSLATE] Search"
 }

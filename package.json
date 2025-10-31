@@ -11,7 +11,9 @@
         "build": "ng build",
         "build:testing": "ng build --configuration testing",
         "watch": "ng build --watch --configuration development",
-        "test": "ng test"
+        "test": "ng test",
+        "check-translations": "node scripts/check-translations.js",
+        "apply-translations": "node scripts/apply-translations.js"
     },
     "dependencies": {
         "@angular/animations": "16.0.3",

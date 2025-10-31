@@ -13,6 +13,7 @@
     "previous": "上一步",
     "restart": "重启",
     "scan": "扫描",
+    "search": "搜索",
     "skip": "跳过步骤",
     "upload": "上传",
     "header": {
@@ -432,10 +433,9 @@
             "capture": "捕获"
         },
         "failed": {
-            "document_registered_incorrectly": "您的身份证注册不正确",
             "liveness_registered_incorrectly": "您的面部注册不正确",
             "liveness": "您的生物图像得分太低。",
-            "compare": "您的身份证和生物特征的对比得分太低"
+            "document_comparison_failed": "您的面部与身份证的比较得分过低"
         },
         "step_titles": {
             "id": "身份证",
@@ -456,6 +456,8 @@
             "issuing_country": "签发国家",
             "verification_method": "验证方法",
             "upload": {
+                "title": "上传文档",
+                "subtitle": "收集您的文档图像并在下方上传",
                 "steps": {
                     "1": "上传 .jpeg、.png 或 .jpg 格式的文件。",
                     "2": "确认上传成功。",
@@ -472,9 +474,6 @@
                 "back": "背面",
                 "upload_frontside": "上传正面",
                 "upload_backside": "上传背面",
-                "passport": "护照",
-                "driver_license": "驾照",
-                "id": "身份证",
                 "find_file": "在您的设备上找到文件",
                 "identification_document_tip": "文件格式必须是以下之一：.jpeg, .png, .jpg",
                 "ocr_details_front_title": "正面文件的 OCR 详情",
@@ -500,7 +499,6 @@
             "back": "返回",
             "backside": "背面",
             "document_scan": "文档扫描说明",
-            "document_template": "文档模板",
             "document_upload": "文档上传说明",
             "driver_license": "驾驶执照",
             "extracted_information": "提取的信息",
@@ -554,7 +552,9 @@
             "liveness_demo_description": "这是生物识别技术的演示。在实时环境中，您的面部将被自动捕获。",
             "capturing": "捕获中...",
             "uploading": "上传中...",
-            "scanner_info": "此演示展示了文档扫描在真实摄像头下的工作原理"
+            "scanner_info": "此演示展示了文档扫描在真实摄像头下的工作原理",
+            "capture_successful": "捕获成功",
+            "document_processed_successfully": "文档处理成功"
         }
     },
     "welcome": {

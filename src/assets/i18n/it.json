@@ -432,10 +432,9 @@
             "capture": "Cattura"
         },
         "failed": {
-            "document_registered_incorrectly": "Il tuo ID non è stato registrato correttamente",
             "liveness_registered_incorrectly": "Il tuo volto non è stato registrato correttamente",
             "liveness": "La tua immagine biometrica ha ottenuto un punteggio troppo basso.",
-            "compare": "Un confronto tra il tuo ID e le biometrie ha ottenuto un punteggio troppo basso"
+            "document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
         },
         "step_titles": {
             "id": "ID",
@@ -472,9 +471,6 @@
                 "back": "Retro",
                 "upload_frontside": "Carica il Lato Frontale",
                 "upload_backside": "Carica il Lato Posteriore",
-                "passport": "Passaporto",
-                "driver_license": "Patente di Guida",
-                "id": "ID",
                 "find_file": "Trova il file sul tuo dispositivo",
                 "identification_document_tip": "Il file deve essere in uno dei seguenti formati: .jpeg, .png o .jpg",
                 "ocr_details_front_title": "Dettagli OCR del Documento Frontale",
@@ -483,7 +479,9 @@
                 "template_id": "ID del Modello",
                 "platform": "Piattaforma",
                 "extracted_information": "Informazioni Estratte",
-                "process_information": "Informazioni sul Processo"
+                "process_information": "Informazioni sul Processo",
+                "title": "[TO TRANSLATE] Upload Document",
+                "subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
             },
             "scan_document_title": "Scansiona documento",
             "scan": {
@@ -500,7 +498,6 @@
             "back": "Indietro",
             "backside": "Lato Posteriore",
             "document_scan": "Istruzioni per la Scansione del Documento",
-            "document_template": "Modello del Documento",
             "document_upload": "Istruzioni per il Caricamento del Documento",
             "driver_license": "Patente di Guida",
             "extracted_information": "Informazioni Estratte",
@@ -554,7 +551,9 @@
             "liveness_demo_description": "Questa è una dimostrazione di biometria. Nell'ambiente dal vivo, il tuo volto verrebbe catturato automaticamente.",
             "capturing": "Catturando...",
             "uploading": "Caricamento...",
-            "scanner_info": "Questa demo mostra come funzionerebbe la scansione dei documenti con una vera fotocamera"
+            "scanner_info": "Questa demo mostra come funzionerebbe la scansione dei documenti con una vera fotocamera",
+            "capture_successful": "[TO TRANSLATE] Capture successful",
+            "document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
         }
     },
     "welcome": {
@@ -778,5 +777,6 @@
         "yemen": "Yemen",
         "zambia": "Zambia",
         "zimbabwe": "Zimbabwe"
-    }
+    },
+    "search": "[TO TRANSLATE] Search"
 }

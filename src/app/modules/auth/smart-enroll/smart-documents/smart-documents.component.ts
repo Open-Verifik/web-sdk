@@ -108,8 +108,9 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         this.errorContent = { message: "" };
 
         this.demoData = this._demoService.getDemoData();
-        this.demoModeChoice = this._demoService.demoModeChoice;
-        this.useDemoData = this.demoModeChoice === "demo";
+        this.demoModeChoice = this._demoService.demoModeChoice as "own" | "demo" | "";
+
+        this.onDemoModeSelected(this.demoModeChoice);
 
         this._smartEnrollService.enrollSettings$.pipe(takeUntil(this._unsubscriber$)).subscribe({
             next: (enrollSettings) => this._onEnrollSettingsChange(enrollSettings),
@@ -133,16 +134,10 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         this._KYCService.createDocumentValidation(body).subscribe({
             next: (response) => {
                 this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
+                this.appRegistration.informationValidation =
+                    response.data.appRegistration?.informationValidation || this.appRegistration.informationValidation;
+
                 this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod);
-
-                if (body.backImage) {
-                    this.successfulUploadSubject.next();
-
-                    return;
-                }
-
-                // Delete criminalData locally to force re-validation once the user hits the `document-results` step
-                delete this.appRegistration.informationValidation?.criminalData;
 
                 this.successfulUploadSubject.next();
             },
@@ -458,9 +453,17 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
         this.errorContent = { message: "" };
     }
 
-    onDemoModeSelected(choice: "own" | "demo"): void {
+    onDemoModeSelected(choice: "own" | "demo" | ""): void {
         this.demoModeChoice = choice;
         this.useDemoData = choice === "demo";
+
+        if (this.useDemoData) {
+            this.methodSelectionForm.get("documentMethod")?.setValue("");
+            this.methodSelectionForm.get("documentCategory")?.setValue("");
+            this.methodSelectionForm.get("country")?.setValue("");
+            this.methodSelectionForm.get("promptTemplate")?.setValue(null);
+        }
+
         this._demoService.setDemoModeChoice(choice);
     }
 

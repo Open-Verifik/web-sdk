@@ -432,10 +432,9 @@
             "capture": "कैप्चर करें"
         },
         "failed": {
-            "document_registered_incorrectly": "आपका आईडी सही ढंग से पंजीकृत नहीं किया गया",
             "liveness_registered_incorrectly": "आपका चेहरा सही ढंग से पंजीकृत नहीं किया गया",
             "liveness": "आपकी बायोमेट्रिक छवि का स्कोर बहुत कम था।",
-            "compare": "आपके आईडी और बायोमेट्रिक्स की तुलना का स्कोर बहुत कम था"
+            "document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
         },
         "step_titles": {
             "id": "आईडी",
@@ -472,9 +471,6 @@
                 "back": "पीछे",
                 "upload_frontside": "सामने का भाग अपलोड करें",
                 "upload_backside": "पीछे का भाग अपलोड करें",
-                "passport": "पासपोर्ट",
-                "driver_license": "ड्राइविंग लाइसेंस",
-                "id": "आईडी",
                 "find_file": "अपने डिवाइस पर फ़ाइल ढूंढें",
                 "identification_document_tip": "फ़ाइल निम्न प्रारूपों में से एक में होनी चाहिए: .jpeg, .png, या .jpg",
                 "ocr_details_front_title": "सामने वाले दस्तावेज़ से ओसीआर विवरण",
@@ -483,7 +479,9 @@
                 "template_id": "टेम्पलेट आईडी",
                 "platform": "प्लेटफ़ॉर्म",
                 "extracted_information": "निकाली गई जानकारी",
-                "process_information": "प्रक्रिया की जानकारी"
+                "process_information": "प्रक्रिया की जानकारी",
+                "title": "[TO TRANSLATE] Upload Document",
+                "subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
             },
             "scan_document_title": "दस्तावेज़ स्कैन करें",
             "scan": {
@@ -500,7 +498,6 @@
             "back": "वापस",
             "backside": "पिछला भाग",
             "document_scan": "दस्तावेज़ स्कैनिंग निर्देश",
-            "document_template": "दस्तावेज़ टेम्पलेट",
             "document_upload": "दस्तावेज़ अपलोड निर्देश",
             "driver_license": "ड्राइवर लाइसेंस",
             "extracted_information": "निकाली गई जानकारी",
@@ -554,7 +551,9 @@
             "liveness_demo_description": "यह बायोमेट्रिक का डेमो है। लाइव सेटिंग में, आपका चेहरा स्वचालित रूप से कैप्चर हो जाएगा।",
             "capturing": "कैप्चर हो रहा है...",
             "uploading": "अपलोड हो रहा है...",
-            "scanner_info": "यह डेमो दिखाता है कि वास्तविक कैमरे के साथ दस्तावेज़ स्कैनिंग कैसे काम करेगी"
+            "scanner_info": "यह डेमो दिखाता है कि वास्तविक कैमरे के साथ दस्तावेज़ स्कैनिंग कैसे काम करेगी",
+            "capture_successful": "[TO TRANSLATE] Capture successful",
+            "document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
         }
     },
     "welcome": {
@@ -778,5 +777,6 @@
         "yemen": "यमन",
         "zambia": "ज़ाम्बिया",
         "zimbabwe": "ज़िम्बाब्वे"
-    }
+    },
+    "search": "[TO TRANSLATE] Search"
 }

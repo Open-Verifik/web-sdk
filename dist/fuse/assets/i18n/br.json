@@ -13,6 +13,7 @@
     "previous": "Anterior",
     "restart": "Reiniciar",
     "scan": "Escanear",
+    "search": "Pesquisar",
     "skip": "Pular etapa",
     "upload": "Enviar",
     "header": {
@@ -432,10 +433,9 @@
             "capture": "Capturar"
         },
         "failed": {
-            "document_registered_incorrectly": "Seu ID não foi registrado corretamente",
             "liveness_registered_incorrectly": "Seu rosto não foi registrado corretamente",
             "liveness": "Sua imagem biométrica teve uma pontuação muito baixa.",
-            "compare": "Uma comparação entre seu ID e biometria teve uma pontuação muito baixa"
+            "document_comparison_failed": "A comparação entre seu rosto e ID teve pontuação muito baixa"
         },
         "step_titles": {
             "id": "ID",
@@ -456,6 +456,8 @@
             "issuing_country": "País emissor",
             "verification_method": "Método de verificação",
             "upload": {
+                "title": "Carregar Documento",
+                "subtitle": "Colete imagem(s) do seu documento e envie abaixo",
                 "steps": {
                     "1": "Carregue um arquivo nos formatos .jpeg, .png ou .jpg.",
                     "2": "Confirme que o upload foi bem-sucedido.",
@@ -472,9 +474,6 @@
                 "back": "Verso",
                 "upload_frontside": "Carregar Frente",
                 "upload_backside": "Carregar Verso",
-                "passport": "Passaporte",
-                "driver_license": "Carteira de Motorista",
-                "id": "ID",
                 "find_file": "Encontrar arquivo no seu dispositivo",
                 "identification_document_tip": "O arquivo deve estar em um dos seguintes formatos: .jpeg, .png ou .jpg",
                 "ocr_details_front_title": "Detalhes de OCR do Documento Frente",
@@ -500,7 +499,6 @@
             "back": "Voltar",
             "backside": "Verso",
             "document_scan": "Instruções de Digitalização de Documento",
-            "document_template": "Modelo de Documento",
             "document_upload": "Instruções de Upload de Documento",
             "driver_license": "Carteira de Motorista",
             "extracted_information": "Informações Extraídas",
@@ -554,7 +552,9 @@
             "liveness_demo_description": "Esta é uma demonstração de biometria. No ambiente ao vivo, seu rosto seria capturado automaticamente.",
             "capturing": "Capturando...",
             "uploading": "Enviando...",
-            "scanner_info": "Esta demo mostra como a digitalização de documentos funcionaria com uma câmera real"
+            "scanner_info": "Esta demo mostra como a digitalização de documentos funcionaria com uma câmera real",
+            "capture_successful": "Captura bem-sucedida",
+            "document_processed_successfully": "Documento processado com sucesso"
         }
     },
     "welcome": {
