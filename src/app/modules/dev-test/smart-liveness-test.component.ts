@@ -1,19 +1,21 @@
-import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { SmartLivenessComponent } from "../auth/smart-enroll/smart-liveness/smart-liveness.component";
-import { SmartEnrollService } from "../auth/smart-enroll/smart-enroll.service";
-import { KYCService } from "../auth/kyc.service";
-import { DemoService } from "../demo/demo.service";
+import { Component, OnInit } from "@angular/core";
 import { Subject } from "rxjs";
-import { ImageScan, AppRegistration, Project, ProjectFlow } from "../auth/project";
+
+import { KYCService } from "../auth/kyc.service";
+import { AppRegistration, ImageScan } from "../auth/project";
+import { SmartEnrollService } from "../auth/smart-enroll/smart-enroll.service";
+import { SmartLivenessComponent } from "../auth/smart-enroll/smart-liveness/smart-liveness.component";
+import { Project } from "app/core/classes/project.class";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { PasswordlessService } from "../auth/passwordless.service";
 
 @Component({
+    imports: [CommonModule, SmartLivenessComponent],
     selector: "smart-liveness-test",
     standalone: true,
-    imports: [CommonModule, SmartLivenessComponent],
     template: `
         <div class="fixed inset-0 bg-gray-100">
-            <!-- Test Header -->
             <div class="absolute top-4 left-4 right-4 z-50">
                 <div class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg">
                     <h1 class="text-lg font-bold">🧪 DEVELOPMENT TEST MODE</h1>
@@ -21,7 +23,6 @@ import { ImageScan, AppRegistration, Project, ProjectFlow } from "../auth/projec
                 </div>
             </div>
 
-            <!-- Test Controls -->
             <div class="absolute top-20 left-4 z-50">
                 <div class="bg-white p-3 rounded-lg shadow-lg">
                     <h3 class="font-semibold mb-2">Test Controls</h3>
@@ -33,18 +34,18 @@ import { ImageScan, AppRegistration, Project, ProjectFlow } from "../auth/projec
                 </div>
             </div>
 
-            <!-- Smart Liveness Component -->
             <smart-liveness
                 (onImageScan)="onImageScan($event)"
                 [successfulUpload]="successfulUploadSubject.asObservable()"
                 [retry]="retrySubject.asObservable()"
             ></smart-liveness>
 
-            <!-- Test Results -->
             <div class="absolute bottom-4 left-4 right-4 z-50" *ngIf="lastImageScan">
                 <div class="bg-green-100 border border-green-400 p-3 rounded-lg">
                     <h3 class="font-semibold text-green-800">✅ Capture Successful!</h3>
+
                     <p class="text-sm text-green-700">Image captured successfully. Check console for details.</p>
+
                     <button (click)="resetTest()" class="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
                         Test Again
                     </button>
@@ -70,54 +71,71 @@ export class SmartLivenessTestComponent implements OnInit {
     lastResult: string | null = null;
     lastImageScan: ImageScan | null = null;
 
-    constructor(private _smartEnrollService: SmartEnrollService, private _kycService: KYCService, private _demoService: DemoService) {
+    constructor(private _smartEnrollService: SmartEnrollService, private _kycService: KYCService, private _passwordlessService: PasswordlessService) {
         this.setupMockData();
     }
 
     ngOnInit(): void {}
 
     private setupMockData(): void {
-        // Mock project data
-        const mockProject: Project = {
+        const mockProject = new Project({
             _id: "test-project",
+            client: "test-client",
+            currentStep: 1,
+            lastStep: 3,
+            name: "Test Project",
+            status: "active",
+            target: "personal",
+            projectFlows: [
+                {
+                    _id: "test-project-flow",
+                    client: "test-client",
+                    project: "test-project",
+                    status: "active",
+                    type: "onboarding",
+                    version: 2,
+                    onboardingSettings: {
+                        steps: {
+                            liveness: "mandatory",
+                            document: "skip",
+                        },
+                        liveness: {
+                            livenessMinScore: 0.7,
+                            maxAttempts: 3,
+                            searchMinScore: 0.85,
+                            searchMode: "FAST",
+                        },
+                    },
+                },
+            ],
             branding: {
-                bgColor: "#ffffff",
+                backgroundColor: "#ffffff",
                 buttonColor: "#3b82f6",
-                buttonTxtColor: "#ffffff",
+                buttonTextColor: "#ffffff",
                 titleColor: "#1f2937",
             },
-            name: "Test Project",
-        } as Project;
-
-        // Mock project flow with proper liveness settings
-        const mockProjectFlow: ProjectFlow = {
-            onboardingSettings: {
-                steps: {
-                    liveness: "mandatory",
-                    document: "skip",
-                },
-                liveness: {
-                    livenessMinScore: 0.7,
-                    searchMode: "SEARCH_MODE_AUTO",
-                    searchMinScore: 0.85,
-                    maxAttempts: 3,
-                },
+            dataProtection: {
+                address: "123 Test St",
+                city: "Test City",
+                country: "US",
+                email: "test@example.com",
+                name: "Test Company",
+                postalCode: "12345",
             },
-        } as ProjectFlow;
+        });
 
         // Mock app registration
         const mockAppRegistration: AppRegistration = {
             _id: "test-registration",
-            person: {},
-            face: null,
             biometricValidation: null,
-            documentValidation: null,
             compareFaceVerification: null,
+            documentValidation: null,
+            face: null,
+            person: {},
         } as AppRegistration;
 
         // Set up the services with mock data
-        this._kycService.currentProject = mockProject;
-        this._kycService.currentProjectFlow = mockProjectFlow;
+        this._passwordlessService.currentProject = mockProject;
         this._kycService.appRegistration = mockAppRegistration;
 
         // Initialize smart enroll service store with proper structure
@@ -127,16 +145,6 @@ export class SmartLivenessTestComponent implements OnInit {
         this._smartEnrollService.store.document.attempts = 0;
         this._smartEnrollService.store.document.remaining = 3;
         this._smartEnrollService.store.document.limit = 3;
-
-        // Set instructions as closed to skip the dialog
-        this._smartEnrollService.instructionsClosed = true;
-
-        console.log("✅ Mock data setup complete:", {
-            project: mockProject,
-            projectFlow: mockProjectFlow,
-            appRegistration: mockAppRegistration,
-            livenessSettings: mockProjectFlow.onboardingSettings.liveness,
-        });
     }
 
     onImageScan(imageScan: ImageScan): void {

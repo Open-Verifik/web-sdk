@@ -1,27 +1,25 @@
-import * as faceapi from "@vladmandic/face-api";
-import QRCode from "qrcode";
-
-import { debounce, DebouncedFunc } from "lodash";
-import { Observable, Subject, takeUntil } from "rxjs";
-
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
-
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-
 import { fuseAnimations } from "@fuse/animations";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
+import { debounce, DebouncedFunc } from "lodash";
+import QRCode from "qrcode";
+import { Observable, Subject, takeUntil } from "rxjs";
 
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
 import { KYCService } from "app/modules/auth/kyc.service";
-import { AppRegistration, ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
+import { AppRegistration, ImageScan } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
-import { Corrections, SmartEnrollService } from "../smart-enroll.service";
 import { environment } from "environments/environment";
+import { Corrections, SmartEnrollService } from "../smart-enroll.service";
+import { PasswordlessService } from "../../passwordless.service";
 
 interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
     zoom?: ConstrainULong;
@@ -29,36 +27,21 @@ interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
 
 @Component({
     animations: fuseAnimations,
+    imports: [CommonModule, FlexLayoutModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatProgressSpinnerModule, TranslocoModule],
     selector: "smart-scanner",
     standalone: true,
     styleUrls: ["./smart-scanner.component.scss"],
     templateUrl: "./smart-scanner.component.html",
-    imports: [
-        CommonModule,
-        FlexLayoutModule,
-        MatButtonModule,
-        MatCheckboxModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        SmartStepperComponent,
-        TranslocoModule,
-    ],
 })
 export class SmartScannerComponent implements OnInit, OnDestroy {
     @Input() source;
     @Input() successfulUpload: Observable<void>;
 
     @ViewChild("canvasContainer") canvasContainer: ElementRef<HTMLDivElement>;
-    @ViewChild("faceCardCanvas", { static: true })
-    faceCardCanvas: ElementRef<HTMLCanvasElement>;
-
-    @ViewChild("qrCodeCanvas")
-    public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
-
+    @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("maskCanvas") public maskCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild("toSendCanvas")
-    public toSendCanvas: ElementRef<HTMLCanvasElement>;
-
+    @ViewChild("toSendCanvas") public toSendCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("videoElement") videoElement: ElementRef<HTMLVideoElement>;
 
@@ -131,6 +114,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     constructor(
         private _demoService: DemoService,
         private _KYCService: KYCService,
+        private _passwordlessService: PasswordlessService,
         private _renderer: Renderer2,
         private _smartEnrollService: SmartEnrollService,
         private _translocoService: TranslocoService
@@ -155,7 +139,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
             this.uploading = false;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+            this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
         });
 
         this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
@@ -179,7 +163,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
         try {
             const faceEngine = this._demoService.faceEngine;
-            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
+            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.useSsdMobilenetv1);
 
             if (detections.length) {
                 this.faceDetection = this._demoService.findBiggestFace(detections);
@@ -268,9 +252,9 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
     private _resetVariables() {
         this.appRegistration = this._KYCService.appRegistration;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
-        this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
+        this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
 
         this._rectCredential = {};
 
@@ -546,7 +530,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
             this._startCamera();
 
             return;
-        } else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+        } else if (this.appRegistration?.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep(); // document-review
 
             return;
@@ -562,7 +546,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
     canSkip(): boolean {
         if (this.uploading) return false;
 
-        const canSkipDocument = this.projectFlow.onboardingSettings.steps.document !== "mandatory" && !this.appRegistration.documentValidation;
+        const canSkipDocument = this.projectFlow?.onboardingSettings?.steps?.document !== "mandatory" && !this.appRegistration?.documentValidation;
 
         return canSkipDocument;
     }
@@ -603,34 +587,34 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
     showPassportColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             this.side === "front" ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "passport"
+            this.appRegistration?.documentValidation?.documentCategory?.toLowerCase() === "passport"
         );
     }
 
     showLicenseColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             this.side === "front" ||
-            this.appRegistration.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
+            this.appRegistration?.documentValidation?.documentCategory?.toLowerCase() === "driverlicense"
         );
     }
 
     showGovernmentIDColor(): boolean {
         return (
-            !this.appRegistration.documentValidation ||
+            !this.appRegistration?.documentValidation ||
             this.side === "front" ||
-            ["id", "idv2"].includes(this.appRegistration.documentValidation?.documentCategory?.toLowerCase())
+            ["id", "idv2"].includes(this.appRegistration?.documentValidation?.documentCategory?.toLowerCase())
         );
     }
 
     skipStep(): void {
-        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
-            this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
+        if (this.projectFlow?.onboardingSettings?.steps?.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(!this.appRegistration?.documentValidation);
             this._smartEnrollService.skipToStep("biometric");
         } else {
-            this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
+            this._smartEnrollService.setSkippedBiometric(!this.appRegistration?.biometricValidation);
             this._smartEnrollService.skipToStep("result");
         }
     }
@@ -669,7 +653,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
             try {
                 const faceEngine = this._demoService.faceEngine;
-                const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
+                const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.useSsdMobilenetv1);
 
                 const face = this._demoService.findBiggestFace(detections);
 
@@ -693,7 +677,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
         this.onImageScan.next({
             base64Image,
             face,
-            force: !isFront || !!this.appRegistration.documentValidation,
+            force: !isFront || !!this.appRegistration?.documentValidation,
             front: isFront,
             inputMethod: "CAMERA",
             rawImage: rawBase64Image,

@@ -22,10 +22,10 @@
 
 .camera {
     // Use viewport units but reserve space for indicators that extend beyond camera bounds
-    height: min(calc(80vw - 100px), calc(80vh - 160px), 700px);
-    width: min(calc(80vw - 100px), calc(80vh - 160px), 700px);
-    max-height: 700px;
-    max-width: 700px;
+    height: min(calc(90vw), calc(90vh - 150px), 800px);
+    width: min(calc(90vw), calc(90vh - 150px), 800px);
+    max-height: 800px;
+    max-width: 800px;
 
     // Ensure minimum size for usability while leaving room for indicators
     min-height: 260px;
@@ -46,10 +46,10 @@
         transform: translateX(-50%);
 
         // Responsive button sizing
-        height: clamp(56px, 8vw, 80px);
-        width: clamp(56px, 8vw, 80px);
-        min-height: 56px;
-        min-width: 56px;
+        height: clamp(40px, 8vw, 80px);
+        width: clamp(40px, 8vw, 80px);
+        min-height: clamp(40px, 8vw, 80px);
+        min-width: clamp(40px, 8vw, 80px);
 
         svg {
             // Responsive scaling based on container size
@@ -67,26 +67,6 @@
                 transform: scale(1.4);
             }
         }
-    }
-
-    // Responsive sizing with better space management
-    @media (max-width: 576px) {
-        height: min(calc(85vw - 60px), calc(85vh - 120px), 300px);
-        width: min(calc(85vw - 60px), calc(85vh - 120px), 300px);
-        min-height: 220px;
-        min-width: 220px;
-    }
-
-    // Ensure camera doesn't overlap with stepper on smaller screens
-    @media (max-height: 600px) {
-        height: min(calc(55vh - 80px), calc(55vw - 80px), 400px);
-        width: min(calc(55vh - 80px), calc(55vw - 80px), 400px);
-    }
-
-    // Landscape mode - constrained by height, give more room for indicators
-    @media (orientation: landscape) and (max-height: 500px) {
-        height: min(calc(60vh - 60px), 320px);
-        width: min(calc(60vh - 60px), 320px);
     }
 }
 

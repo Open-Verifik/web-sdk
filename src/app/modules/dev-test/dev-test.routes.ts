@@ -1,5 +1,7 @@
 import { Routes } from "@angular/router";
+import { DemoComponentsTestComponent } from "./demo-components-test.component";
 import { SmartLivenessTestComponent } from "./smart-liveness-test.component";
+import { ThemeTestComponent } from "./theme-test/theme-test.component";
 
 export default [
     {
@@ -13,8 +15,22 @@ export default [
                 },
             },
             {
+                path: "theme-test",
+                component: ThemeTestComponent,
+                data: {
+                    title: "Theme Test",
+                },
+            },
+            {
+                path: "demo-components",
+                component: DemoComponentsTestComponent,
+                data: {
+                    title: "Demo Components Test",
+                },
+            },
+            {
                 path: "",
-                redirectTo: "smart-liveness",
+                redirectTo: "demo-components",
                 pathMatch: "full",
             },
         ],

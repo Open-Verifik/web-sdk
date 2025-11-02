@@ -1,0 +1,89 @@
+<!-- Slab variant with ng-content -->
+<div
+    (click)="onSelect()"
+    (keydown)="onKeyDown($event)"
+    [attr.aria-checked]="ariaChecked"
+    [attr.aria-disabled]="isDisabled"
+    [attr.aria-label]="label"
+    [attr.role]="role"
+    [class.disabled]="isDisabled"
+    [class]="combinedClasses + ' p-4 rounded-3xl border'"
+    [ngClass]="{
+        'verifik-radio-item--selected': isSelected && !hasError,
+        'verifik-radio-item--selected-error': isSelected && hasError,
+        'verifik-radio-item--unselected': !isSelected && !hasError,
+        'verifik-radio-item--unselected-error': !isSelected && hasError,
+        'verifik-radio-item--hover': !hasError,
+        'verifik-radio-item--hover-error': hasError
+    }"
+    *ngIf="variant === 'slab'"
+    tabindex="0"
+>
+    <ng-content></ng-content>
+
+    <ng-container *ngTemplateOutlet="checkMarkTemplate"></ng-container>
+</div>
+
+<!-- Default and pill variants -->
+<div
+    *ngIf="variant !== 'slab'"
+    (click)="onSelect()"
+    (keydown)="onKeyDown($event)"
+    [attr.aria-checked]="ariaChecked"
+    [attr.aria-disabled]="isDisabled"
+    [attr.aria-label]="label"
+    [attr.role]="role"
+    [class.disabled]="isDisabled"
+    [class]="combinedClasses"
+    [ngClass]="{
+        'verifik-radio-item--pill-selected': isSelected && variant === 'pill' && !hasError,
+        'verifik-radio-item--default-selected': isSelected && variant === 'default' && !hasError,
+        'verifik-radio-item--pill-unselected-error': !isSelected && variant === 'pill' && hasError,
+        'verifik-radio-item--pill-unselected': !isSelected && variant === 'pill' && !hasError,
+        'verifik-radio-item--pill-selected-error': isSelected && variant === 'pill' && hasError,
+        'verifik-radio-item--default-selected-error': isSelected && variant === 'default' && hasError,
+        'verifik-radio-item--default-unselected': !isSelected && variant === 'default' && !hasError,
+        'verifik-radio-item--default-unselected-error': !isSelected && variant === 'default' && hasError,
+        'verifik-radio-item--pill-hover': variant === 'pill' && !hasError,
+        'verifik-radio-item--pill-hover-error': variant === 'pill' && hasError,
+        'verifik-radio-item--default-hover': variant === 'default' && !hasError,
+        'verifik-radio-item--default-hover-error': variant === 'default' && hasError,
+        'verifik-radio-item--pill': variant === 'pill',
+        'verifik-radio-item--default': variant === 'default'
+    }"
+    tabindex="0"
+>
+    <div class="flex justify-start items-center gap-2">
+        <ng-container *ngIf="hasIcon">
+            <div class="flex-shrink-0 flex flex-row justify-center items-center" *ngIf="!isIconSvg">
+                <mat-icon [svgIcon]="icon" class="text-lg fill-current verifik-radio-item__icon"></mat-icon>
+            </div>
+
+            <div class="flex-shrink-0 verifik-radio-item__icon" *ngIf="isIconSvg" [innerHTML]="icon"></div>
+        </ng-container>
+
+        <div class="justify-center text-base font-medium leading-tight verifik-radio-item__label">{{ label }}</div>
+    </div>
+
+    <ng-container *ngTemplateOutlet="checkMarkTemplate"></ng-container>
+</div>
+
+<ng-template #checkMarkTemplate>
+    <ng-container *ngIf="isSelected">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="verifik-radio-item__checkmark">
+            <path
+                d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM9.29 16.29L5.7 12.7C5.31 12.31 5.31 11.68 5.7 11.29C6.09 10.9 6.72 10.9 7.11 11.29L10 14.17L16.88 7.29C17.27 6.9 17.9 6.9 18.29 7.29C18.68 7.68 18.68 8.31 18.29 8.7L10.7 16.29C10.32 16.68 9.68 16.68 9.29 16.29Z"
+                class="verifik-radio-item__checkmark-path"
+            />
+        </svg>
+    </ng-container>
+
+    <ng-container *ngIf="!isSelected">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="verifik-radio-item__checkmark">
+            <path
+                d="M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2Z"
+                class="verifik-radio-item__checkmark-path--unselected"
+            />
+        </svg>
+    </ng-container>
+</ng-template>

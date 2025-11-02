@@ -1,12 +1,3 @@
-import QRCode from "qrcode";
-import { Observable, Subject, takeUntil } from "rxjs";
-
-import * as faceapi from "@vladmandic/face-api";
-
-import { Contour } from "libs/jscanify";
-
-import { ErrorFace, IdCard, ResponseData } from "app/modules/demo/models/sdk.models";
-
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
@@ -14,27 +5,32 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-
-import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-
-import { ImageScan, Project, ProjectFlow } from "app/modules/auth/project";
-import { environment } from "environments/environment";
-
 import { fuseAnimations } from "@fuse/animations";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
+import { Contour } from "libs/jscanify";
+import QRCode from "qrcode";
+import { Observable, Subject, takeUntil } from "rxjs";
+
+import { AuthService } from "app/core/auth/auth.service";
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { MediaStreamService } from "app/media-stream.service";
 import { KYCService } from "app/modules/auth/kyc.service";
+import { ImageScan } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { ErrorFace, IdCard, ResponseData } from "app/modules/demo/models/sdk.models";
+import { environment } from "environments/environment";
 import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, SmartEnrollService } from "../smart-enroll.service";
 import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
-import { MediaStreamService } from "app/media-stream.service";
-import { AuthService } from "app/core/auth/auth.service";
+import { PasswordlessService } from "../../passwordless.service";
 
 @Component({
     animations: fuseAnimations,
     selector: "smart-scanner-mobile",
-    templateUrl: "./smart-scanner-mobile.component.html",
-    styleUrls: ["./smart-scanner.component.scss"],
     standalone: true,
+    styleUrls: ["./smart-scanner.component.scss"],
+    templateUrl: "./smart-scanner-mobile.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
@@ -42,20 +38,15 @@ import { AuthService } from "app/core/auth/auth.service";
         MatIconModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
-        SmartStepperComponent,
         SmartCameraResolutionDetectionComponent,
         TranslocoModule,
     ],
 })
 export class SmartScannerMobileComponent implements OnInit, OnDestroy {
-    @ViewChild("faceCardCanvas", { static: true })
-    faceCardCanvas: ElementRef<HTMLCanvasElement>;
-
-    @ViewChild("videoElement")
-    public videoElement: ElementRef<HTMLVideoElement>;
+    @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("videoElement") public videoElement: ElementRef<HTMLVideoElement>;
     @ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild("qrCodeCanvas")
-    public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("maskCanvas") public maskCanvas: ElementRef;
 
     @Input("source") source: "document" | "face";
@@ -117,6 +108,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
         private _demoService: DemoService,
         private _KYCService: KYCService,
         private _smartEnrollService: SmartEnrollService,
+        private _passwordlessService: PasswordlessService,
         private _translocoService: TranslocoService,
         private _mediaStreamService: MediaStreamService,
         private _authService: AuthService
@@ -164,7 +156,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
     private async _detectFace(image: HTMLImageElement) {
         try {
             const faceEngine = this._demoService.faceEngine;
-            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
+            const detections = await faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.useSsdMobilenetv1);
 
             if (!detections.length) throw Error("no_face");
             else {
@@ -309,8 +301,9 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
     private _initAppRegistrationData(): void {
         this.appRegistration = this._KYCService.appRegistration;
         this.demoData = this._demoService.getDemoData();
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
     }
 
     private _isCaptureValid(): boolean {
@@ -666,7 +659,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
             image.onload = () => {
                 const faceEngine = this._demoService.faceEngine;
-                const promise = faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.performantDevice);
+                const promise = faceapi.detectAllFaces(image, faceEngine).withFaceLandmarks(!this._demoService.useSsdMobilenetv1);
 
                 promise
                     .then((detections) => {

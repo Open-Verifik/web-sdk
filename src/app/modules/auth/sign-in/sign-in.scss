@@ -1,98 +1,203 @@
-auth-sign-up {
-    position: relative;
-}
-
-.main-logo {
-    position: absolute;
-    top: 10px;
-    left: 20px;
-    z-index: 0;
-}
-
-.w-400 {
-    width: 400px !important;
-}
-
-bg-white {
-    background-color: white;
-}
-
-.sign-in-content {
-    margin: 16px 0;
-    border: 1px solid #c4c6d0;
-    z-index: 2 !important;
-
-    &--small {
-        max-width: 432px;
+.signin-form {
+    &__tab-content {
+        min-width: 416px;
     }
 
-    &__icon {
-        height: 80px !important;
-        width: 80px !important;
+    &__field {
+        .mat-mdc-form-field-outline {
+            color: var(--custom-verifik-accent-300, #cbd5e1);
+        }
+
+        .mat-mdc-form-field-focus-overlay {
+            background-color: transparent;
+        }
+
+        &.mat-focused {
+            .mat-mdc-form-field-outline {
+                color: var(--custom-verifik-primary-500, #6366f1);
+            }
+
+            .mat-mdc-form-field-label {
+                color: var(--custom-verifik-primary-600, #4f46e5);
+            }
+        }
+
+        .mat-mdc-form-field-label {
+            color: var(--custom-verifik-accent-600, #475569);
+        }
+
+        .mat-mdc-input-element {
+            color: var(--custom-verifik-accent-800, #1e293b);
+            font-family: "Poppins", sans-serif;
+        }
+
+        .mat-mdc-form-field-required-marker {
+            color: var(--custom-verifik-warn-500, #ef4444);
+        }
+    }
+
+    &__label {
+        color: var(--custom-verifik-accent-600, #475569);
+        font-weight: 500;
+    }
+
+    &__tab-content {
+        min-width: 416px;
+
+        @media (max-width: 640px) {
+            min-width: auto;
+        }
+    }
+
+    // Mobile responsiveness for OTP component
+    @media (max-width: 640px) {
+        :host {
+            ::ng-deep {
+                one-time-password-input {
+                    .otp-input-container {
+                        gap: 0.5rem;
+                        justify-content: center;
+                    }
+
+                    .otp-digit {
+                        width: 2.5rem !important;
+                        height: 2.5rem !important;
+                        padding: 0.5rem !important;
+                    }
+
+                    .otp-digit-text {
+                        font-size: 1.5rem !important;
+                    }
+                }
+            }
+        }
+    }
+
+    &__tab-label {
+        color: var(--custom-verifik-accent-600, #475569);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        letter-spacing: 0.05em;
+
+        &:hover {
+            color: var(--custom-verifik-primary-600, #4f46e5);
+        }
+    }
+
+    &__error {
+        color: var(--custom-verifik-warn-600, #dc2626);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    &__actions {
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+
+    &__button {
+        min-height: 3.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        font-size: 1rem;
+        background-color: var(--custom-verifik-primary-500, #6366f1);
+        color: white;
+        transition: all 0.2s ease-in-out;
+
+        &:hover:not(:disabled) {
+            background-color: var(--custom-verifik-primary-600, #4f46e5);
+            transform: translateY(-1px);
+        }
+
+        &:disabled {
+            background-color: var(--custom-verifik-primary-200, #c7d2fe);
+            color: var(--custom-verifik-primary-400, #818cf8);
+            cursor: not-allowed;
+        }
+    }
+
+    &__divider {
+        color: var(--custom-verifik-accent-400, #94a3b8);
+    }
+
+    &__biometrics-button {
+        min-height: 3.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        font-size: 1rem;
+        background-color: var(--custom-verifik-accent-500, #64748b);
+        color: white;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+            background-color: var(--custom-verifik-accent-600, #475569);
+            transform: translateY(-1px);
+        }
+    }
+
+    &__toggle-password {
+        .mat-icon {
+            color: var(--custom-verifik-accent-500, #64748b);
+        }
+
+        &:hover .mat-icon {
+            color: var(--custom-verifik-primary-500, #6366f1);
+        }
     }
 }
 
-.credits-h2 {
-    font-size: 24px;
-    text-align: center;
-}
+// One-time-password-input component styling
+:host {
+    ::ng-deep {
+        one-time-password-input {
+            .otp-input-container {
+                gap: 1rem;
+            }
 
-.credits-h3 {
-    font-size: 16px;
-    text-align: center;
-    font-weight: 600;
-    color: grey;
-}
+            .otp-digit {
+                border-color: var(--custom-verifik-accent-300, #cbd5e1);
+                background-color: var(--custom-verifik-background, #ffffff);
 
-.biometrics-button {
-    background-color: #82269e;
-    color: white !important;
-    width: 80% !important;
-}
+                &:hover {
+                    border-color: var(--custom-verifik-primary-400, #818cf8);
+                }
 
-mat-form-field {
-    padding-right: 4px !important;
-}
+                &--active {
+                    border-color: var(--custom-verifik-primary-500, #6366f1);
+                    box-shadow: 0 0 0 2px var(--custom-verifik-primary-200, #c7d2fe);
+                }
 
-.mat-mdc-tab-label-container {
-    margin: 0 !important;
-}
+                &--error {
+                    border-color: var(--custom-verifik-warn-500, #ef4444);
+                }
 
-mat-tab-body {
-    .mat-mdc-tab-body-content {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        padding-top: 8px !important;
-        padding-bottom: 5px !important;
+                &--disabled {
+                    background-color: var(--custom-verifik-accent-100, #f1f5f9);
+                    border-color: var(--custom-verifik-accent-200, #e2e8f0);
+                    color: var(--custom-verifik-accent-400, #94a3b8);
+                }
+            }
+
+            .otp-digit-text {
+                color: var(--custom-verifik-accent-800, #1e293b);
+
+                &--disabled {
+                    color: var(--custom-verifik-accent-400, #94a3b8);
+                }
+            }
+
+            .otp-cursor-blink {
+                background-color: var(--custom-verifik-primary-500, #6366f1);
+            }
+
+            .mat-progress-spinner {
+                color: var(--custom-verifik-primary-500, #6366f1);
+            }
+        }
     }
-}
-
-.w-120px {
-    width: 60% !important;
-}
-
-.main-div {
-    padding: 2rem;
-}
-
-.half-width-image {
-    width: 50vw; /* vw stands for viewport width */
-    object-fit: fill;
-    height: 100%;
-}
-
-.full-size-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.left-card-inner-div {
-    max-width: 20rem;
-}
-
-.biometric-instructions {
-    min-width: 400px;
 }
 
 .welcome {
@@ -255,171 +360,50 @@ mat-tab-body {
     }
 }
 
-/* For mobile devices (up to 599px) */
-@media (max-width: 599px) {
-    .biometric-instructions {
-        min-width: 300px !important;
+// Responsive design with Tailwind breakpoints
+@media (max-width: 767px) {
+    .signin-card {
+        &__left {
+            min-width: auto;
+            padding: 1rem;
+        }
+
+        &__content {
+            padding: 0 0.5rem;
+        }
     }
 
-    .main-div {
-        padding: 4px;
-    }
+    .signin-form {
+        &__actions {
+            margin-top: 1.5rem;
+        }
 
-    .whole-card {
-        width: 90%;
-    }
+        &__button {
+            min-height: 3rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
 
-    .left-card {
-        width: 100% !important;
-
-        .left-card-inner-div {
-            width: 90% !important;
-            max-width: 90% !important;
-            padding-left: 8px;
-            padding-right: 8px;
-            padding-top: 12px;
-            padding-bottom: 12px;
+        &__biometrics-button {
+            min-height: 3rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
         }
     }
 }
 
-/* For small tablets (600px to 767px) */
-@media (min-width: 600px) and (max-width: 767px) {
-    .whole-card {
-        width: 70%;
-    }
-
-    .left-card {
-        width: 100% !important;
-
-        .left-card-inner-div {
-            width: 90% !important;
-            max-width: 90% !important;
-            padding: 24px;
+@media (min-width: 768px) and (max-width: 1023px) {
+    .signin-card {
+        &__left {
+            min-width: 400px;
         }
     }
 }
 
-/* For (700 to 959px) */
-@media (min-width: 768px) and (max-width: 959px) {
-    .whole-card {
-        width: 60%;
-    }
-
-    .left-card {
-        width: 100% !important;
-
-        .left-card-inner-div {
-            width: 90% !important;
-            max-width: 90% !important;
-            padding: 24px;
+@media (min-width: 1024px) {
+    .signin-card {
+        &__left {
+            min-width: 480px;
         }
-    }
-}
-
-/* For tablets (768px to 1023px) */
-@media (min-width: 960px) and (max-width: 1023px) {
-    .whole-card-without-image {
-        width: 55%;
-    }
-
-    .left-card {
-        width: 50% !important;
-
-        .left-card-inner-div {
-            width: 99% !important;
-            max-width: 99% !important;
-            padding: 20px;
-        }
-    }
-
-    .left-card-without-image {
-        width: 100% !important;
-    }
-}
-
-/* For small laptops (1024px to 1279px) */
-@media (min-width: 1024px) and (max-width: 1249px) {
-    .whole-card {
-        width: 98%;
-        max-height: 93vh !important;
-    }
-
-    .whole-card-without-image {
-        width: 47% !important;
-    }
-
-    .left-card {
-        width: 47% !important;
-
-        .left-card-inner-div {
-            padding-top: 16px;
-            width: 90% !important;
-            max-width: 90% !important;
-        }
-    }
-
-    .left-card-without-image {
-        width: 100% !important;
-    }
-}
-
-/* For small laptops (1024px to 1279px) */
-@media (min-width: 1250px) and (max-width: 1499px) {
-    .whole-card {
-        width: 85%;
-        max-height: 93vh !important;
-    }
-
-    .whole-card-without-image {
-        width: 42% !important;
-    }
-
-    .left-card {
-        width: 42% !important;
-
-        .left-card-inner-div {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 24px;
-        }
-    }
-
-    .left-card-without-image {
-        width: 100% !important;
-    }
-}
-
-/* For desktops (1280px and above) */
-@media (min-width: 1500px) {
-    .main-div {
-        padding: 1rem !important;
-    }
-
-    .whole-card {
-        width: 75%;
-        height: 800px;
-        max-height: 94.5vh !important;
-    }
-
-    .whole-card-without-image {
-        width: 33% !important;
-    }
-
-    .left-card {
-        width: 40% !important;
-
-        .left-card-inner-div {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding-top: 20px;
-            padding-left: 20px;
-            padding-bottom: 10px;
-            padding-right: 20px;
-        }
-    }
-
-    .left-card-without-image {
-        width: 100% !important;
     }
 }

@@ -1,9 +1,4 @@
-import moment from "moment";
-import { debounce } from "lodash";
-import { interval, Subject, Subscription, takeUntil } from "rxjs";
-
 import { CommonModule, NgIf } from "@angular/common";
-
 import {
     ChangeDetectorRef,
     Component,
@@ -14,12 +9,10 @@ import {
     OnInit,
     Output,
     SimpleChanges,
-    ViewChild,
     ViewEncapsulation,
 } from "@angular/core";
-
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -28,27 +21,31 @@ import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { ActivatedRoute } from "@angular/router";
-
 import { fuseAnimations } from "@fuse/animations";
-
 import { TranslocoModule } from "@ngneat/transloco";
+import { debounce } from "lodash";
+import moment from "moment";
+import { interval, Subject, Subscription, takeUntil } from "rxjs";
 
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { OneTimePasswordInputComponent } from "app/core/components";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { KYCService } from "../../kyc.service";
-
-import { AppRegistration, Project, ProjectFlow } from "../../project";
+import { AppRegistration } from "../../project";
 import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
 
 @Component({
     animations: fuseAnimations,
     encapsulation: ViewEncapsulation.None,
-    selector: "auth-sign-up-verification",
+    selector: "sign-up-verification",
     standalone: true,
     styleUrls: ["../../sign-in/sign-in.scss"],
     templateUrl: "./sign-up-verification.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
+        FormsModule,
         MatButtonModule,
         MatChipsModule,
         MatFormFieldModule,
@@ -57,20 +54,18 @@ import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
         MatProgressSpinnerModule,
         MatSelectModule,
         NgIf,
+        OneTimePasswordInputComponent,
         ReactiveFormsModule,
         TranslocoModule,
     ],
 })
-export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDestroy {
+export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy {
     private countdownSubscription: Subscription;
     private unsubscriber$: Subject<void> = new Subject<void>();
 
     private _validatingPhone: boolean;
     private _validatingEmail: boolean;
-
-    @ViewChild("otpNgForm") otpNgForm: NgForm;
-    @ViewChild("emailNgForm") updateEmailNgForm: NgForm;
-    @ViewChild("phoneNgForm") updatePhoneNgForm: NgForm;
+    private _validatingOTP: boolean;
 
     @Input("appRegistration") appRegistration: AppRegistration;
     @Input("project") project: Project;
@@ -132,7 +127,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         this._initForms();
 
         if (changes.project?.currentValue) {
-            // Update the KYCService with the current project data
             this._KYCService.setProjectData(this.project, this.projectFlow);
 
             const steps = this.projectFlow.onboardingSettings.steps;
@@ -157,15 +151,22 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
             return;
         }
 
+        this.showError = false;
         this._validatingEmail = true;
 
         this._KYCService.confirmEmailValidation(this.appRegistration.email, this.otpForm.value.otp).subscribe({
             next: (response) => {
+                this.otpForm.reset();
                 this.appRegistration.emailValidation = response.data;
+
+                this._validatingEmail = false;
+                this._validatingOTP = false;
+
+                this._initValidations();
             },
             error: (exception) => {
                 this.otpForm.enable();
-                this.otpNgForm.resetForm();
+                this.otpForm.setErrors({ invalidOTP: true });
 
                 this.showError = true;
                 this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
@@ -174,11 +175,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
                 this.sendingOTP = false;
                 this.update = false;
                 this._validatingEmail = false;
-            },
-            complete: () => {
-                this._validatingEmail = false;
-
-                this._initValidations();
+                this._validatingOTP = false;
             },
         });
     }
@@ -190,32 +187,37 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
             return;
         }
 
+        this.showError = false;
         this._validatingPhone = true;
 
         this._KYCService.confirmPhoneValidation(this.currentValidation.countryCode, this.currentValidation.phone, this.otpForm.value.otp).subscribe({
             next: (response) => {
+                this.otpForm.reset();
+                this.otpForm.setErrors({ invalidOTP: true });
                 this.appRegistration.phoneValidation = response.data;
+
+                this._validatingPhone = false;
+                this._validatingOTP = false;
+
+                this._initValidations();
             },
             error: () => {
                 this.otpForm.enable();
-                this.otpNgForm.resetForm();
+                this.otpForm.reset();
 
                 this.loading = false;
                 this.sendingOTP = false;
                 this.update = false;
                 this._validatingPhone = false;
-            },
-            complete: () => {
-                this._validatingPhone = false;
-
-                this._initValidations();
+                this._validatingOTP = false;
             },
         });
     }
 
     private _confirmValidation(): void {
-        if (this.sendingOTP || this.loading) return;
+        if (this.sendingOTP || this.loading || this._validatingOTP) return;
 
+        this._validatingOTP = true;
         this.otpForm?.disable();
 
         if (this.currentValidation.email) {
@@ -238,11 +240,12 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
             this._syncAppRegistration("signUpForm", "ONGOING");
         }
 
+        this.otpForm?.reset();
         this.otpForm?.enable();
     }
 
     private _initEmailValidation(): void {
-        if (this.sendingOTP) return;
+        if (this.sendingOTP || this._validatingEmail) return;
 
         if (!this.projectFlow.onboardingSettings.signUpForm.email || this.projectFlow.onboardingSettings.signUpForm.emailGateway === "none") return;
 
@@ -257,7 +260,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
         if (this.emailOtp) {
             this.checkSixDigits();
-
             this.emailOtp = "";
 
             return;
@@ -306,14 +308,16 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         try {
             const emailFields = { email: [this.appRegistration?.email || "", [Validators.email, Validators.required]] };
             const otpFields = { otp: [this.emailOtp, [Validators.required]] };
-            const phoneFields = {};
-
-            phoneFields["countryCode"] = [this.location?.countryCode || "+1", [Validators.required]];
-            phoneFields["phone"] = [this.appRegistration?.phone || "", [Validators.minLength(4), Validators.maxLength(15), Validators.required]];
+            const phoneFields = {
+                countryCode: [this.location?.countryCode || "+1", [Validators.required]],
+                phone: [this.appRegistration?.phone || "", [Validators.minLength(4), Validators.maxLength(15), Validators.required]],
+            };
 
             this.emailForm = this._formBuilder.group(emailFields);
             this.otpForm = this._formBuilder.group(otpFields);
             this.phoneForm = this._formBuilder.group(phoneFields);
+
+            this._subscribeToOtpChanges();
         } catch (exception) {
             console.error({ exception });
         }
@@ -323,7 +327,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
      * init phone validation
      */
     private _initPhoneValidation(phoneGateway?: string): boolean {
-        if (this.sendingOTP || this._validatingEmail) return;
+        if (this.sendingOTP || this._validatingEmail || this._validatingPhone) return;
 
         if (!this.projectFlow.onboardingSettings.signUpForm.phone || this.projectFlow.onboardingSettings.signUpForm.phoneGateway === "none") return;
 
@@ -361,9 +365,9 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
                     this.otpForm?.enable();
                 },
                 error: (exception) => {
-                    console.log(`🚀 ~ AuthSignUpVerificationComponent ~ _initPhoneValidation ~ exception:`, exception);
                     if (exception?.error?.code === "PaymentRequired") {
                         this._smartEnrollService.insufficientCreditsTrigger();
+
                         return;
                     }
 
@@ -395,7 +399,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
 
     private _initValidations(): void {
         this.otpForm?.disable();
-        this.otpNgForm?.resetForm();
+        this.otpForm?.reset();
 
         this.loading = false;
         this.sendingOTP = false;
@@ -412,10 +416,12 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
         this._completeAppRegistration();
     }
 
-    private _syncAppRegistration(step: string, status: string) {
-        const promise = this._KYCService.syncAppRegistration(step, status);
+    private _subscribeToOtpChanges(): void {
+        this.otpForm.get("otp")?.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(this.checkSixDigits.bind(this));
+    }
 
-        promise.subscribe({
+    private _syncAppRegistration(step: string, status: string) {
+        this._KYCService.syncAppRegistration(step, status).subscribe({
             next: (response) => {
                 this.currentValidation = null;
                 this.syncResponse = response.data;
@@ -425,8 +431,6 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
                 this.changeStep.next("complete");
             },
         });
-
-        return promise;
     }
 
     private _startCountdown() {
@@ -473,7 +477,7 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     }
 
     canResendOTP(): Boolean {
-        return this.remainingTime === "Expired" && (this.currentValidation.email || this.selectedPhoneGateway !== "both");
+        return this.remainingTime === "Expired" && (this.currentValidation.email || this.selectedPhoneGateway !== "both") && !this.update;
     }
 
     canUpdateEmailOrPhone(): Boolean {
@@ -481,7 +485,8 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     }
 
     checkSixDigits(): void {
-        const isValid = Boolean(`${this.otpForm.value.otp}`.length === 6);
+        const otpValue = this.otpForm.get("otp")?.value || "";
+        const isValid = Boolean(otpValue.length === 6);
 
         if (!isValid) return;
 
@@ -521,10 +526,11 @@ export class AuthSignUpVerificationComponent implements OnInit, OnChanges, OnDes
     removeSpacesFromPhone() {
         const phoneFormControl = this.phoneForm.get("phone");
 
-        if (phoneFormControl.value) {
-            const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
-            phoneFormControl.patchValue(cleanedPhone);
-        }
+        if (!phoneFormControl.value) return;
+
+        const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
+
+        phoneFormControl.patchValue(cleanedPhone);
     }
 
     resendOTP(): void {

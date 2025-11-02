@@ -80,6 +80,27 @@
                             ],
                             "outputHashing": "all"
                         },
+                        "testing": {
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "3mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "75kb",
+                                    "maximumError": "90kb"
+                                }
+                            ],
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.testing.ts"
+                                }
+                            ],
+                            "outputHashing": "all"
+                        },
                         "development": {
                             "buildOptimizer": false,
                             "optimization": false,
@@ -96,6 +117,9 @@
                     "configurations": {
                         "production": {
                             "browserTarget": "fuse:build:production"
+                        },
+                        "testing": {
+                            "browserTarget": "fuse:build:testing"
                         },
                         "development": {
                             "browserTarget": "fuse:build:development"

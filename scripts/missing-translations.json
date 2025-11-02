@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "totalLanguages": 0,
+        "totalMissingKeys": 0,
+        "languageNames": {
+            "br": "Portuguese (Brazil)",
+            "es": "Spanish",
+            "fr": "French",
+            "it": "Italian",
+            "ru": "Russian",
+            "cn": "Chinese (Simplified)",
+            "kr": "Korean",
+            "in": "Hindi (India)",
+            "ph": "Filipino (Philippines)"
+        }
+    },
+    "missingTranslations": {}
+}

@@ -1,30 +1,23 @@
-import { NgIf } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import {
-    FormsModule,
-    NgForm,
-    ReactiveFormsModule,
-    UntypedFormBuilder,
-    UntypedFormGroup,
-    Validators,
-} from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIf } from "@angular/common";
+import { Component, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
+import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 
-import { fuseAnimations } from '@fuse/animations';
-import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
+import { fuseAnimations } from "@fuse/animations";
+import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 
-import { AuthService } from 'app/core/auth/auth.service';
-import { UserService } from 'app/core/user/user.service';
+import { AuthService } from "app/core/auth/auth.service";
+import { UserService } from "app/core/user/user.service";
 
 @Component({
-    selector: 'auth-unlock-session',
-    templateUrl: './unlock-session.component.html',
+    selector: "auth-unlock-session",
+    templateUrl: "./unlock-session.component.html",
     encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
     standalone: true,
@@ -42,13 +35,13 @@ import { UserService } from 'app/core/user/user.service';
     ],
 })
 export class AuthUnlockSessionComponent implements OnInit {
-    @ViewChild('unlockSessionNgForm') unlockSessionNgForm: NgForm;
+    @ViewChild("unlockSessionNgForm") unlockSessionNgForm: NgForm;
 
     private _email: string;
 
     alert: { type: FuseAlertType; message: string } = {
-        type: 'success',
-        message: '',
+        type: "success",
+        message: "",
     };
 
     name: string;
@@ -84,7 +77,7 @@ export class AuthUnlockSessionComponent implements OnInit {
                     disabled: true,
                 },
             ],
-            password: ['', Validators.required],
+            password: ["", Validators.required],
         });
     }
 
@@ -103,8 +96,8 @@ export class AuthUnlockSessionComponent implements OnInit {
 
         this._authService
             .unlockSession({
-                email: this._email ?? '',
-                password: this.unlockSessionForm.get('password').value,
+                email: this._email ?? "",
+                password: this.unlockSessionForm.get("password").value,
             })
             .subscribe({
                 next: () => {
@@ -112,10 +105,7 @@ export class AuthUnlockSessionComponent implements OnInit {
                     // The '/signed-in-redirect' is a dummy url to catch the request and redirect the user
                     // to the correct page after a successful sign in. This way, that url can be set via
                     // routing file and we don't have to touch here.
-                    const redirectURL =
-                        this._activatedRoute.snapshot.queryParamMap.get(
-                            'redirectURL'
-                        ) || '/signed-in-redirect';
+                    const redirectURL = this._activatedRoute.snapshot.queryParamMap.get("redirectURL") || "/signed-in-redirect";
 
                     // Navigate to the redirect url
                     this._router.navigateByUrl(redirectURL);
@@ -134,8 +124,8 @@ export class AuthUnlockSessionComponent implements OnInit {
 
                     // Set the alert
                     this.alert = {
-                        type: 'error',
-                        message: 'Invalid password',
+                        type: "error",
+                        message: "Invalid password",
                     };
 
                     // Show the alert

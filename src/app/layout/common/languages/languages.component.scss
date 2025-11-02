@@ -9,7 +9,7 @@
     }
 
     &__icon-container {
-        background-color: #1E293B;
+        background-color: #1e293b;
         height: 24px;
         width: 24px;
     }
@@ -22,7 +22,7 @@
     }
 
     &__arrow {
-        color: #1E293B;
+        color: #1e293b;
         transform: rotate3d(0);
         transition: transform cubic-bezier(0.39, 0.575, 0.565, 1) 0.3s;
         height: 12px !important;
@@ -57,7 +57,7 @@
         border: 1px solid #ccc;
 
         &--active {
-            background-color: #1E293B;
+            background-color: #1e293b;
             border: none;
         }
     }

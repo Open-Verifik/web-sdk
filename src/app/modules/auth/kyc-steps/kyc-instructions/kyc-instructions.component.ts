@@ -13,83 +13,86 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 
 @Component({
-	selector: "kyc-instructions",
-	templateUrl: "./kyc-instructions.component.html",
-	styleUrls: ["./kyc-instructions.component.scss"],
-	encapsulation: ViewEncapsulation.None,
-	animations: fuseAnimations,
-	standalone: true,
-	imports: [
-		FlexLayoutModule,
-		TranslocoModule,
-		CommonModule,
-		MatCheckboxModule,
-		MatButtonModule,
-		MatFormFieldModule,
-		MatInputModule,
-		FormsModule,
-		ReactiveFormsModule,
-		MatSelectModule,
-	],
+    selector: "kyc-instructions",
+    templateUrl: "./kyc-instructions.component.html",
+    styleUrls: ["./kyc-instructions.component.scss"],
+    encapsulation: ViewEncapsulation.None,
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
+        FlexLayoutModule,
+        TranslocoModule,
+        CommonModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatSelectModule,
+    ],
 })
 export class KycInstructionsComponent implements OnInit, OnDestroy {
-	appRegistration: any;
-	project: Project;
-	projectFlow: ProjectFlow;
-	navigation: any;
-	steps: any;
-	acceptanceForm: FormGroup;
-	loading: boolean;
+    appRegistration: any;
+    project: Project;
+    projectFlow: ProjectFlow;
+    navigation: any;
+    steps: any;
+    acceptanceForm: FormGroup;
+    loading: boolean;
 
-	constructor(private _KYCService: KYCService, private _formBuilder: FormBuilder) {
-		this.appRegistration = this._KYCService.appRegistration;
+    constructor(
+        private _KYCService: KYCService,
+        private _formBuilder: FormBuilder
+    ) {
+        this.appRegistration = this._KYCService.appRegistration;
 
-		this.project = this._KYCService.currentProject;
+        this.project = this._KYCService.currentProject;
 
-		this.projectFlow = this._KYCService.currentProjectFlow;
+        this.projectFlow = this._KYCService.currentProjectFlow;
 
-		this.navigation = this._KYCService.getNavigation();
+        this.navigation = this._KYCService.getNavigation();
 
-		this.steps = [];
+        this.steps = [];
 
-		this.loading = true;
-	}
+        this.loading = true;
+    }
 
-	ngOnInit(): void {
-		this.defineStepsAndInstrutions();
+    ngOnInit(): void {
+        this.defineStepsAndInstrutions();
 
-		this.acceptanceForm = this._formBuilder.group({
-			legalAgreement: [false],
-		});
+        this.acceptanceForm = this._formBuilder.group({
+            legalAgreement: [false],
+        });
 
-		setTimeout(() => {
-			this.loading = false;
-		}, 1000);
-	}
+        setTimeout(() => {
+            this.loading = false;
+        }, 1000);
+    }
 
-	defineStepsAndInstrutions(): void {
-		if (this.appRegistration.status === "COMPLETED") {
-			this._KYCService.navigateTo("end");
+    defineStepsAndInstrutions(): void {
+        if (this.appRegistration.status === "COMPLETED") {
+            this._KYCService.navigateTo("end");
 
-			return;
-		}
+            return;
+        }
 
-		if (this.appRegistration.person && this.appRegistration.biometricValidation) {
-			this._KYCService.navigateTo("documentLivenessReview");
-		} else if (this.appRegistration.documentValidation && this.navigation.map.document) {
-			this._KYCService.navigateTo("documentReview");
-		}
-	}
+        if (this.appRegistration.person && this.appRegistration.biometricValidation) {
+            this._KYCService.navigateTo("documentLivenessReview");
+        } else if (this.appRegistration.documentValidation && this.navigation.map.document) {
+            this._KYCService.navigateTo("documentReview");
+        }
+    }
 
-	ngOnDestroy(): void {}
+    ngOnDestroy(): void {}
 
-	startKYC(): void {
-		this._KYCService.navigateTo(this.navigation.displayableSteps[0].code);
-	}
+    startKYC(): void {
+        this._KYCService.navigateTo(this.navigation.displayableSteps[0].code);
+    }
 
-	invalidForm(): boolean {
-		if (!this.project.termsAndConditionsUrl && !this.project.privacyUrl) return false;
+    invalidForm(): boolean {
+        if (!this.project.termsAndConditionsUrl && !this.project.privacyUrl) return false;
 
-		return !Boolean(this.acceptanceForm.value.legalAgreement);
-	}
+        return !Boolean(this.acceptanceForm.value.legalAgreement);
+    }
 }

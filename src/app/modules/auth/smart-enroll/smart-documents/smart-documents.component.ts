@@ -1,103 +1,89 @@
-import { catchError, forkJoin, map, of, Subject, takeUntil } from "rxjs";
-
 import { CommonModule, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatListModule } from "@angular/material/list";
-import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
-
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
+import QRCode from "qrcode";
+import { Subject, takeUntil } from "rxjs";
 
-import { environment } from "environments/environment";
-import { AppRegistration, CriminalValidation, DocumentValidation, FaceVerification, ImageScan, Project, ProjectFlow } from "../../project";
-
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { VerifikRadioGroupComponent } from "app/core/components/verifik-radio-group/verifik-radio-group.component";
+import { VerifikRadioItemComponent } from "app/core/components/verifik-radio-item/verifik-radio-item.component";
+import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { CountryOption, CountryService } from "app/core/services/country.service";
+import { CoreValidators } from "app/core/validators/validators";
 import { DemoService } from "app/modules/demo/demo.service";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
-import { SmartStepperComponent } from "../smart-enroll-stepper/smart-stepper.component";
+import { PasswordlessService } from "../../passwordless.service";
+import { AppRegistration, DocumentValidation, ImageScan } from "../../project";
 import { DocumentCategory, EnrollDocumentMethod, EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
+import { SmartScannerDemoComponent } from "../smart-scanner/smart-scanner-demo.component";
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
 
-type CombinedValidationResponse = {
-    criminalValidation: CriminalValidationResponse;
-    compareValidation: CompareFaceVerificationResponse;
-    nameValidation: NameValidationResponse;
-};
-
-type CompareFaceVerificationResponse = {
-    data: FaceVerification;
-    error: any;
-    reason: any;
-    status: "fulfilled" | "rejected" | "NA";
-};
-
-type CriminalValidationResponse = {
-    data: CriminalValidation;
-    error: any;
-    reason: any;
-    status: "fulfilled" | "rejected" | "NA";
-};
-
-type NameValidationResponse = {
-    data: DocumentValidation;
-    error: any;
-    reason: any;
-    status: "fulfilled" | "rejected" | "NA";
-};
-
 @Component({
-    selector: "smart-documents",
-    templateUrl: "./smart-documents.component.html",
-    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
     animations: fuseAnimations,
+    selector: "smart-documents",
     standalone: true,
+    styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
+    templateUrl: "./smart-documents.component.html",
     imports: [
         CommonModule,
         FlexLayoutModule,
+        FormsModule,
         MatButtonModule,
         MatCardModule,
+        MatDividerModule,
         MatIconModule,
         MatInputModule,
         MatListModule,
-        MatRadioModule,
         MatSelectModule,
         NgIf,
         ReactiveFormsModule,
         SmartErrorDisplayComponent,
         SmartScannerComponent,
+        SmartScannerDemoComponent,
         SmartScannerMobileComponent,
-        SmartStepperComponent,
         SmartUploadComponent,
         TranslocoModule,
+        VerifikMediaDisplayComponent,
+        VerifikRadioGroupComponent,
+        VerifikRadioItemComponent,
     ],
 })
-export class SmartDocumentsComponent implements OnDestroy {
+export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
     private _unsubscriber$ = new Subject<void>();
 
     appRegistration: AppRegistration;
     countries: CountryOption[];
     demoData: any;
+    demoModeChoice: "own" | "demo" | "" = "";
     enrollSettings: EnrollSettings;
     errorContent: { message: string };
     errorResult: boolean;
     faceIdCard: string;
     formSubmitted: boolean = false;
+    isVerifikProject: boolean = false;
     methodSelectionForm: FormGroup;
     project: Project;
     projectFlow: ProjectFlow;
     successfulUploadSubject: Subject<void> = new Subject<void>();
+    useDemoData: boolean = false;
 
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
@@ -105,14 +91,16 @@ export class SmartDocumentsComponent implements OnDestroy {
         private _demoService: DemoService,
         private _formBuilder: FormBuilder,
         private _KYCService: KYCService,
+        private _passwordlessService: PasswordlessService,
         private _smartEnrollService: SmartEnrollService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
-        this.project = this._KYCService.currentProject;
-        this.projectFlow = this._KYCService.currentProjectFlow;
+        this.project = this._passwordlessService.currentProject;
+        this.projectFlow = this._passwordlessService.currentProjectFlow;
+        this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
-        this.countries = this._countryService.findAllowedCountryOptions(this.project.allowedCountries);
+        this.countries = this.projectFlow ? this._countryService.findAllowedCountryOptions(this.projectFlow.allowedCountries()) : [];
 
         this._initForm();
 
@@ -120,10 +108,17 @@ export class SmartDocumentsComponent implements OnDestroy {
         this.errorContent = { message: "" };
 
         this.demoData = this._demoService.getDemoData();
+        this.demoModeChoice = this._demoService.demoModeChoice as "own" | "demo" | "";
+
+        this.onDemoModeSelected(this.demoModeChoice);
 
         this._smartEnrollService.enrollSettings$.pipe(takeUntil(this._unsubscriber$)).subscribe({
             next: (enrollSettings) => this._onEnrollSettingsChange(enrollSettings),
         });
+    }
+
+    ngAfterViewInit(): void {
+        this._prepareQrCode();
     }
 
     ngOnDestroy(): void {
@@ -139,23 +134,26 @@ export class SmartDocumentsComponent implements OnDestroy {
         this._KYCService.createDocumentValidation(body).subscribe({
             next: (response) => {
                 this.appRegistration.documentValidation = response.data.documentValidation as DocumentValidation;
+                this.appRegistration.informationValidation =
+                    response.data.appRegistration?.informationValidation || this.appRegistration.informationValidation;
+
                 this._smartEnrollService.setDocumentMethodFromInputMethod(this.appRegistration?.documentValidation?.inputMethod);
 
-                if (body.backImage) {
-                    this.successfulUploadSubject.next();
-
-                    return;
-                }
-
-                this._sendDocumentValidationAndNameValidation();
+                this.successfulUploadSubject.next();
             },
             error: (error) => this._handleError(error),
         });
     }
 
-    private _handleError(exception: any): void {
-        console.error("error", exception);
+    private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+        try {
+            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
+    private _handleError(exception: any): void {
         if (exception?.error?.code === "PaymentRequired") {
             this._smartEnrollService.insufficientCreditsTrigger();
 
@@ -179,70 +177,176 @@ export class SmartDocumentsComponent implements OnDestroy {
 
     private _initForm() {
         this.methodSelectionForm = this._formBuilder.group({
-            country: ["", Validators.required],
-            documentCategory: ["", Validators.required],
-            documentMethod: ["", Validators.required],
+            country: [{ value: "", disabled: false }, [Validators.required]],
+            documentCategory: [{ value: "", disabled: true }, [Validators.required]],
+            documentMethod: ["", [Validators.required]],
+            promptTemplate: [{ value: null, disabled: true }, [CoreValidators.requiredIfVersion3(this.projectFlow.version)]],
         });
 
-        const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
-
-        let country = "";
-        let documentMethod = "";
-        let documentCategory = "";
-
-        if (this.enrollSettings.country) {
-            country = this.enrollSettings.country;
-        }
-
-        if (this.enrollSettings.documentMethod) {
-            documentMethod = this.enrollSettings.documentMethod;
-        } else {
-            const documentMethods = Object.keys(onboardSettingsDocument).filter((key) =>
-                ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key)
-            );
-
-            if (documentMethods.length === 1) {
-                switch (documentMethods[0]) {
-                    case "uploadDocumentAllowed":
-                        documentMethod = "upload";
-                        break;
-                    case "scanDocumentAllowed":
-                        documentMethod = "scan";
-                        break;
-                }
-            }
-        }
-
-        if (this.enrollSettings.documentCategory) {
-            documentCategory = this.enrollSettings.documentCategory;
-        } else {
-            const documentCategorys = Object.keys(onboardSettingsDocument).filter((key) =>
-                ["useLicense", "usePassport", "useGovernmentID", "useTaxInformation"].includes(key)
-            );
-
-            if (documentCategorys.length === 1) {
-                switch (documentCategorys[0]) {
-                    case "useLicense":
-                        documentCategory = "driver-license";
-                        break;
-                    case "usePassport":
-                        documentCategory = "passport";
-                        break;
-                    case "useGovernmentID":
-                        documentCategory = "id";
-                        break;
-                }
-            }
-        }
-
-        this.methodSelectionForm.patchValue({
-            country,
-            documentMethod,
-            documentCategory,
-        });
+        this._initializeFormValues();
+        this._setFormSubscriptions();
 
         this._changeDetectorRef.markForCheck();
     }
+
+    private _initializeFormValues(): void {
+        const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
+
+        // Step 1: Set documentMethod
+        const documentMethod = this._getDocumentMethod(onboardSettingsDocument);
+
+        this.methodSelectionForm.patchValue({ documentMethod });
+        this._handleDocumentMethodChange(documentMethod);
+
+        const country = this._getCountry();
+
+        this.methodSelectionForm.patchValue({ country });
+        this._handleCountryChange(country);
+
+        // Step 2: Set documentCategory (only if country is set)
+        if (!country) return;
+
+        const documentCategory = this._getDocumentCategory(onboardSettingsDocument);
+
+        this.methodSelectionForm.patchValue({ documentCategory });
+        this._handleDocumentCategoryChange(documentCategory);
+
+        // Step 3: Set promptTemplate (only if documentCategory is set)
+        if (!documentCategory) return;
+
+        const promptTemplate = this._getPromptTemplate();
+
+        this.methodSelectionForm.patchValue({ promptTemplate });
+    }
+
+    private _getDocumentMethod(onboardSettingsDocument: any): string {
+        if (this.enrollSettings.documentMethod) return this.enrollSettings.documentMethod;
+
+        const documentMethods = Object.keys(onboardSettingsDocument).filter((key) => ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key));
+
+        if (documentMethods.length === 1) {
+            switch (documentMethods[0]) {
+                case "uploadDocumentAllowed":
+                    return "upload";
+                case "scanDocumentAllowed":
+                    return "scan";
+            }
+        }
+
+        return "";
+    }
+
+    private _getCountry(): string {
+        if (this.countries.length === 1) return this.enrollSettings.country || this.countries[0].country || "";
+
+        return this.enrollSettings.country || "";
+    }
+
+    private _getDocumentCategory(onboardSettingsDocument: any): string {
+        if (this.enrollSettings.documentCategory) {
+            return this.enrollSettings.documentCategory;
+        }
+
+        const documentCategories = Object.keys(onboardSettingsDocument).filter((key) =>
+            ["useLicense", "usePassport", "useGovernmentID"].includes(key)
+        );
+
+        if (documentCategories.length === 1) {
+            switch (documentCategories[0]) {
+                case "useLicense":
+                    return "driver-license";
+                case "usePassport":
+                    return "passport";
+                case "useGovernmentID":
+                    return "id";
+            }
+        }
+
+        return "";
+    }
+
+    private _getPromptTemplate(): PromptTemplate | null {
+        return this.enrollSettings.promptTemplate || null;
+    }
+
+    private _prepareQrCode(): void {
+        const canvas = this.qrCodeCanvas.nativeElement;
+
+        this._generateQRCode(canvas, window.location.href);
+    }
+
+    private _setFormSubscriptions() {
+        this.methodSelectionForm.get("documentMethod")?.valueChanges.pipe(takeUntil(this._unsubscriber$)).subscribe(this._handleDocumentMethodChange);
+
+        this.methodSelectionForm.get("country")?.valueChanges.pipe(takeUntil(this._unsubscriber$)).subscribe(this._handleCountryChange);
+
+        this.methodSelectionForm
+            .get("documentCategory")
+            ?.valueChanges.pipe(takeUntil(this._unsubscriber$))
+            .subscribe(this._handleDocumentCategoryChange);
+    }
+
+    private _handleDocumentMethodChange = (documentMethodValue: string): void => {
+        const countryControl = this.methodSelectionForm.get("country");
+
+        if (!documentMethodValue) {
+            countryControl?.disable();
+
+            return;
+        }
+
+        countryControl?.enable();
+    };
+
+    private _handleCountryChange = (countryValue: string): void => {
+        const documentMethodControl = this.methodSelectionForm.get("documentMethod");
+        const countryControl = this.methodSelectionForm.get("country");
+        const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
+
+        if (!countryValue) {
+            documentCategoryControl?.disable();
+
+            return;
+        }
+
+        if (documentMethodControl?.value && countryControl?.value) {
+            documentCategoryControl?.enable();
+        }
+
+        if (!this.projectFlow?.documentCategories) {
+            console.warn("ProjectFlow or documentCategories method not available");
+            return;
+        }
+
+        const documentCategories = this.projectFlow.documentCategories(countryValue);
+
+        if (documentCategories && documentCategories.length === 1) documentCategoryControl?.setValue(documentCategories[0]);
+        else documentCategoryControl?.setValue("");
+    };
+
+    private _handleDocumentCategoryChange = (documentCategoryValue: string): void => {
+        const documentMethodControl = this.methodSelectionForm.get("documentMethod");
+        const countryControl = this.methodSelectionForm.get("country");
+        const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
+        const promptTemplateControl = this.methodSelectionForm.get("promptTemplate");
+
+        promptTemplateControl?.setValue(null);
+
+        if (!documentCategoryValue) {
+            promptTemplateControl?.disable();
+
+            return;
+        }
+
+        if (documentMethodControl?.value && countryControl?.value && documentCategoryControl?.value) {
+            promptTemplateControl?.enable();
+        }
+
+        const promptTemplates = this.getPromptTemplates(this.methodSelectionForm.get("country")?.value, documentCategoryValue);
+
+        if (promptTemplates && promptTemplates.length === 1) promptTemplateControl?.setValue(promptTemplates[0]);
+        else promptTemplateControl?.setValue(null);
+    };
 
     private _onEnrollSettingsChange(settings: EnrollSettings) {
         if (!this.methodSelectionForm || !settings.documentMethod) this.formSubmitted = false;
@@ -260,138 +364,44 @@ export class SmartDocumentsComponent implements OnDestroy {
         }
     }
 
-    private _sendDocumentValidationAndNameValidation(): void {
-        if (!this.appRegistration.documentValidation._id) {
-            this.successfulUploadSubject.next();
+    comparePromptTemplates(option: PromptTemplate, value: PromptTemplate): boolean {
+        if (!option || !value) return false;
 
-            return;
+        return option._id === value._id;
+    }
+
+    trackByPromptTemplate(index: number, item: PromptTemplate): any {
+        return item?._id || index;
+    }
+
+    trackByCountry(index: number, item: CountryOption): any {
+        return item?.country || index;
+    }
+
+    getPromptTemplates(country: string, documentCategory: string): PromptTemplate[] {
+        if (!this.projectFlow || !country || !documentCategory) {
+            return [];
         }
 
-        const settings = this.projectFlow.onboardingSettings.document;
-        const observables$ = {
-            criminalValidation: null,
-            nameValidation: null,
-            compareValidation: null,
-        };
+        try {
+            const templates = this.projectFlow.promptTemplates(country, documentCategory);
+            return templates ? templates.filter((template) => template != null) : [];
+        } catch (error) {
+            console.warn("Error getting prompt templates:", error);
+            return [];
+        }
+    }
 
-        if (settings.verifyNames) {
-            const payload = {
-                _id: this.appRegistration.documentValidation._id,
-                force: true,
-            };
-
-            const observable$ = this._KYCService.updateDocumentValidationNameValidation(payload).pipe(
-                map((result) => ({
-                    status: "fulfilled",
-                    data: result.data,
-                })),
-                catchError((error) => of({ status: "rejected", reason: error }))
+    disableSubmitButton(): boolean {
+        if (this.project.demoMode) {
+            return (
+                this.demoModeChoice === "" ||
+                (this.demoModeChoice === "demo" && !this.methodSelectionForm.get("documentMethod")?.value) ||
+                (this.demoModeChoice === "own" && !this.methodSelectionForm.valid)
             );
-
-            observables$.nameValidation = observable$;
-        } else {
-            observables$.nameValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
         }
 
-        if (settings.verifyCriminalHistory) {
-            const payload = {
-                _id:
-                    typeof this.appRegistration.informationValidation === "string"
-                        ? this.appRegistration.informationValidation
-                        : this.appRegistration.informationValidation._id,
-                force: environment.production,
-            };
-
-            const observable$ = this._KYCService.updateInformationValidationWithCriminalRecords(payload).pipe(
-                map((result) => ({
-                    status: "fulfilled",
-                    data: result.data,
-                })),
-                catchError((error) => of({ status: "rejected", reason: error }))
-            );
-
-            observables$.criminalValidation = observable$;
-        } else {
-            observables$.criminalValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
-        }
-
-        if (this.appRegistration.biometricValidation) {
-            const observable$ = this._KYCService.compareFaces().pipe(
-                map((result) => ({ status: "fulfilled", data: result.data })),
-                catchError((error) => of({ status: "rejected", reason: error }))
-            );
-
-            observables$.compareValidation = observable$;
-        } else {
-            observables$.compareValidation = Promise.resolve({
-                status: "NA",
-                data: {},
-            });
-        }
-
-        forkJoin(observables$).subscribe({
-            next: (results: CombinedValidationResponse) => {
-                if (results.criminalValidation?.status === "rejected") {
-                    if (results.criminalValidation?.error?.code === "PaymentRequired") {
-                        this._smartEnrollService.insufficientCreditsTrigger();
-                        return;
-                    }
-
-                    console.error("criminalValidation rejected:", {
-                        criminalValidation: results.criminalValidation?.data,
-                    });
-                }
-
-                if (results.nameValidation?.status === "fulfilled") {
-                    if (!results.nameValidation?.data?.infoValidationSupported) {
-                        this.appRegistration.documentValidation.infoValidationSupported = results.nameValidation?.data?.infoValidationSupported;
-                        this.appRegistration.documentValidation.infoValidationSupportedReason =
-                            results.nameValidation?.data?.infoValidationSupportedReason;
-
-                        return;
-                    }
-
-                    this.appRegistration.documentValidation.namesMatch = results.nameValidation.data.namesMatch;
-                    this.appRegistration.documentValidation.fullNameMatchPercentage = results.nameValidation.data.fullNameMatchPercentage;
-                    this.appRegistration.documentValidation.firstNameMatchPercentage = results.nameValidation.data.firstNameMatchPercentage;
-                    this.appRegistration.documentValidation.lastNameMatchPercentage = results.nameValidation.data.lastNameMatchPercentage;
-                } else if (results.nameValidation?.status === "rejected") {
-                    if (results.nameValidation?.error?.code === "PaymentRequired") {
-                        this._smartEnrollService.insufficientCreditsTrigger();
-
-                        return;
-                    }
-
-                    console.error("nameValidation rejected:", {
-                        nameValidation: results.nameValidation?.reason,
-                    });
-                }
-
-                if (results.compareValidation?.status === "fulfilled") {
-                    this.appRegistration.compareFaceVerification = results.compareValidation.data;
-                } else if (results.compareValidation?.status === "rejected") {
-                    if (results.compareValidation?.error?.code === "PaymentRequired") {
-                        this._smartEnrollService.insufficientCreditsTrigger();
-
-                        return;
-                    }
-
-                    console.error("compareValidation rejected:", {
-                        compareValidation: results.compareValidation?.reason,
-                    });
-                }
-            },
-            error: (error) => this._handleError(error),
-            complete: () => {
-                this.successfulUploadSubject.next();
-            },
-        });
+        return !this.methodSelectionForm.valid;
     }
 
     getBackgroundGradient() {
@@ -409,6 +419,7 @@ export class SmartDocumentsComponent implements OnDestroy {
             force: imageScan.force,
             image: undefined,
             inputMethod: imageScan.inputMethod,
+            promptTemplate: this.enrollSettings.promptTemplate,
         };
 
         if (imageScan.front) {
@@ -421,21 +432,53 @@ export class SmartDocumentsComponent implements OnDestroy {
         this._createDocumentValidation(body);
     }
 
+    onGoBackToMethodSelection(): void {
+        this.formSubmitted = false;
+    }
+
+    onSkipStep() {
+        if (this.projectFlow.onboardingSettings.steps.document === "mandatory") return;
+
+        if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
+            this._smartEnrollService.setSkippedDocument(true);
+            this._smartEnrollService.skipToStep("biometric");
+        } else {
+            this._smartEnrollService.setSkippedBiometric(true);
+            this._smartEnrollService.skipToStep("result");
+        }
+    }
+
     retry() {
         this.errorResult = false;
         this.errorContent = { message: "" };
     }
 
+    onDemoModeSelected(choice: "own" | "demo" | ""): void {
+        this.demoModeChoice = choice;
+        this.useDemoData = choice === "demo";
+
+        if (this.useDemoData) {
+            this.methodSelectionForm.get("documentMethod")?.setValue("");
+            this.methodSelectionForm.get("documentCategory")?.setValue("");
+            this.methodSelectionForm.get("country")?.setValue("");
+            this.methodSelectionForm.get("promptTemplate")?.setValue(null);
+        }
+
+        this._demoService.setDemoModeChoice(choice);
+    }
+
     submitMethodSelectionForm() {
-        if (!this.methodSelectionForm.valid) return;
+        if (this.disableSubmitButton()) return;
 
         this.enrollSettings.documentMethod = this.methodSelectionForm.value.documentMethod;
         this.enrollSettings.documentCategory = this.methodSelectionForm.value.documentCategory;
         this.enrollSettings.country = this.methodSelectionForm.value.country;
+        this.enrollSettings.promptTemplate = this.methodSelectionForm.value.promptTemplate;
 
         this.updateDocumentMethod(this.methodSelectionForm.value.documentMethod);
         this.updateDocumentCategory(this.methodSelectionForm.value.documentCategory);
         this.updateCountry(this.methodSelectionForm.value.country);
+        this.updatePromptTemplate(this.methodSelectionForm.value.promptTemplate);
 
         this.formSubmitted = true;
     }
@@ -451,5 +494,9 @@ export class SmartDocumentsComponent implements OnDestroy {
 
     updateCountry(country: keyof CountryOption) {
         this._smartEnrollService.setCountry(country);
+    }
+
+    updatePromptTemplate(promptTemplate: PromptTemplate) {
+        this._smartEnrollService.setPromptTemplate(promptTemplate);
     }
 }

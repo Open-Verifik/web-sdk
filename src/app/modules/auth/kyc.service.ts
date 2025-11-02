@@ -1,10 +1,12 @@
-import { Injectable } from "@angular/core";
-import { environment } from "environments/environment";
 import { HttpClient } from "@angular/common/http";
-import { HttpWrapperService } from "../demo/http-wrapper.service";
+import { Injectable } from "@angular/core";
 import { TranslocoService } from "@ngneat/transloco";
 import { Observable, tap } from "rxjs";
-import { Project, ProjectFlow, ProjectModel } from "./project";
+
+import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { Project } from "app/core/classes/project.class";
+import { environment } from "environments/environment";
+import { HttpWrapperService } from "../demo/http-wrapper.service";
 
 @Injectable({
     providedIn: "root",
@@ -18,19 +20,44 @@ export class KYCService {
 
     constructor(private _httpWrapper: HttpWrapperService, private _translocoService: TranslocoService, private _http: HttpClient) {}
 
-    /**
-     * Set the current project and project flow
-     * This should be called when the component receives project data
-     */
     setProjectData(project: Project, projectFlow: ProjectFlow): void {
         this.currentProject = project;
         this.currentProjectFlow = projectFlow;
     }
 
-    /**
-     * Validate that project and projectFlow are properly set
-     * @throws Error if project data is not available
-     */
+    get roles(): Array<{ label: string; code: string }> {
+        return [
+            {
+                label: "signup.roles.founder",
+                code: "founder",
+            },
+            {
+                label: "signup.roles.high_management",
+                code: "high_management",
+            },
+            {
+                label: "signup.roles.manager",
+                code: "manager",
+            },
+            {
+                label: "signup.roles.developer",
+                code: "developer",
+            },
+            {
+                label: "signup.roles.compliance",
+                code: "compliance",
+            },
+            {
+                label: "signup.roles.marketing",
+                code: "marketing",
+            },
+            {
+                label: "signup.roles.ciso",
+                code: "ciso",
+            },
+        ];
+    }
+
     private _validateProjectData(): void {
         if (!this.currentProject || !this.currentProjectFlow) {
             throw new Error("Project or ProjectFlow is not set. Please ensure project data is properly initialized.");
@@ -49,7 +76,6 @@ export class KYCService {
         let stepsCount = 1;
 
         const displayableSteps = [];
-
         const map = {};
 
         const steps = this.currentProjectFlow.onboardingSettings.steps;
@@ -86,12 +112,6 @@ export class KYCService {
 
             if (map["document"]) {
                 stepsCount++;
-
-                // displayableSteps.push({
-                // 	code: "documentLivenessReview",
-                // 	status: steps.liveness,
-                // 	hidden: true,
-                // });
 
                 map["documentLivenessReview"] = steps.liveness;
             }
@@ -153,7 +173,7 @@ export class KYCService {
             tap((response: any) => {
                 this.appRegistration = response.data;
 
-                this.currentProject = new ProjectModel({
+                this.currentProject = new Project({
                     ...this.appRegistration.project,
                     type: "onboarding",
                 });
@@ -279,15 +299,6 @@ export class KYCService {
         return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/app-registration`, data);
     }
 
-    // const authToken: string = localStorage.getItem("accessToken");
-    // let headers: any = {
-    // 	timeout: 20,
-    // };
-
-    // if (authToken) {
-    // 	headers["Authorization"] = `Bearer ${authToken}`;
-    // }
-    // return this._http.put(`${this.baseUrl}/v2/information-validations/${data._id}/background-check`, {}, headers);
     updateInformationValidationWithCriminalRecords(data: any): Observable<any> {
         return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/information-validations/${data._id}/background-check`, data);
     }
@@ -296,7 +307,6 @@ export class KYCService {
         return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`, data);
     }
 
-    /////////////////////// identity images /////////////////////////
     getIdentityImages(data: any): Observable<any> {
         return this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/identity-images`, data);
     }
