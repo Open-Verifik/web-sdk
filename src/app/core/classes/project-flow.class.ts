@@ -52,10 +52,10 @@ export class ProjectFlow {
         this.createdAt = data.createdAt;
         this.project = data.project;
         this.status = data.status;
+        this.target = this._determineTarget(data);
         this.type = data.type;
         this.updatedAt = data.updatedAt;
         this.version = data.version || 2; // Default to V2 - V3 will have the version set
-        this.target = this._determineTarget(data);
 
         if (!this.version || this.version < 3) {
             this._migrateFromV2(data as LegacyProjectFlow);
@@ -116,7 +116,9 @@ export class ProjectFlow {
             signUpForm: {
                 email: signUpForm?.email || false,
                 emailGateway: signUpForm?.emailGateway || "none",
-                fullName: signUpForm?.fullName || false,
+                fullName: signUpForm?.fullNameStyle === "together",
+                firstName: signUpForm?.fullNameStyle === "separate",
+                lastName: signUpForm?.fullNameStyle === "separate",
                 phone: signUpForm?.phone || false,
                 phoneGateway: signUpForm?.phoneGateway || "sms",
                 showPrivacyNotice: signUpForm?.showPrivacyNotice || false,
@@ -227,7 +229,7 @@ export class ProjectFlow {
             email: v2SignUpForm.email || false,
             emailGateway: v2SignUpForm.emailGateway || "none",
             fullName: v2SignUpForm.fullName || false,
-            fullNameStyle: "together",
+            fullNameStyle: v2SignUpForm.firstName && v2SignUpForm.lastName ? "separate" : "together",
             phone: v2SignUpForm.phone || false,
             phoneGateway: v2SignUpForm.phoneGateway || "sms",
             showPrivacyNotice: v2SignUpForm.showPrivacyNotice || false,

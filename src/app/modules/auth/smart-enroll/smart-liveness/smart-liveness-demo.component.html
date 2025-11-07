@@ -114,32 +114,34 @@
                         </p>
                     </div>
 
-                    <button
-                        (click)="captureImage()"
-                        [disabled]="capturing || uploading"
-                        [style.background-color]="project.branding.buttonColor"
-                        [style.color]="project.branding.buttonTextColor"
-                        class="min-h-14 h-14 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
-                        mat-flat-button
-                    >
-                        <div class="flex flex-row justify-center items-center gap-4">
-                            <mat-icon *ngIf="!capturing && !uploading">camera_alt</mat-icon>
-                            <mat-spinner *ngIf="capturing" diameter="20"></mat-spinner>
-                            <span *ngIf="!capturing && !uploading">{{ t("smart_enroll.liveness.capture") }}</span>
-                            <span *ngIf="capturing">{{ t("smart_enroll.demo_mode.capturing") }}</span>
-                            <span *ngIf="uploading">{{ t("smart_enroll.demo_mode.uploading") }}</span>
-                        </div>
-                    </button>
+                    <div class="w-full flex flex-row justify-center items-center gap-4">
+                        <button
+                            (click)="skipStep.emit()"
+                            *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'mandatory'"
+                            class="h-14 min-h-14 rounded-lg"
+                            color="primary"
+                            mat-stroked-button
+                        >
+                            {{ t("skip") }}
+                        </button>
 
-                    <button
-                        (click)="skipStep.emit()"
-                        *ngIf="projectFlow.onboardingSettings.steps.liveness !== 'mandatory'"
-                        class="h-14 min-h-14 rounded-lg"
-                        color="primary"
-                        mat-stroked-button
-                    >
-                        {{ t("skip") }}
-                    </button>
+                        <button
+                            (click)="captureImage()"
+                            [disabled]="capturing || uploading"
+                            [style.background-color]="project.branding.buttonColor"
+                            [style.color]="project.branding.buttonTextColor"
+                            class="min-h-14 h-14 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+                            mat-flat-button
+                        >
+                            <div class="flex flex-row justify-center items-center gap-4">
+                                <mat-icon *ngIf="!capturing && !uploading">camera_alt</mat-icon>
+                                <mat-spinner *ngIf="capturing" diameter="20"></mat-spinner>
+                                <span *ngIf="!capturing && !uploading">{{ t("smart_enroll.liveness.capture") }}</span>
+                                <span *ngIf="capturing">{{ t("smart_enroll.demo_mode.capturing") }}</span>
+                                <span *ngIf="uploading">{{ t("smart_enroll.demo_mode.uploading") }}</span>
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

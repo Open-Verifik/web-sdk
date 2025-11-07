@@ -16,6 +16,16 @@
     "search": "Search",
     "skip": "Skip step",
     "upload": "Upload",
+    "biometrics_instructions": {
+        "title": "Biometrics Validation",
+        "subtitle": "Validate your identity with biometric validations",
+        "step_1": "Look directly into the camera",
+        "step_2": "Follow instructions to position your face",
+        "step_3": "Hold steady until the image is captured",
+        "go_back": "Go Back",
+        "skip": "Skip",
+        "continue": "Continue"
+    },
     "header": {
         "partner": "Partner with us",
         "talk": "Talk to sales",

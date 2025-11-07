@@ -16,6 +16,16 @@
     "search": "搜索",
     "skip": "跳过步骤",
     "upload": "上传",
+    "biometrics_instructions": {
+        "title": "生物识别验证",
+        "subtitle": "使用生物识别验证您的身份",
+        "step_1": "直接看向摄像头",
+        "step_2": "按照说明调整面部位置",
+        "step_3": "保持静止直到图像被捕获",
+        "go_back": "返回",
+        "skip": "跳过",
+        "continue": "继续"
+    },
     "header": {
         "partner": "与我们合作",
         "talk": "销售对话",

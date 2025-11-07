@@ -40,7 +40,7 @@
         <ng-container *ngIf="signUpFormSettings?.fullName">
             <div class="w-full flex flex-col">
                 <!-- Full Name Field -->
-                <mat-form-field appearance="outline" class="w-full" *ngIf="fields.fullName && !fields.firstName">
+                <mat-form-field appearance="outline" class="w-full" *ngIf="fields.fullName">
                     <mat-label>{{ t("signup.fullName") }}</mat-label>
 
                     <input
@@ -60,8 +60,8 @@
                 </mat-form-field>
 
                 <!-- First Name and Last Name Fields -->
-                <div class="w-full flex flex-col sm:flex-row gap-2" *ngIf="!fields.fullName && fields.firstName">
-                    <mat-form-field appearance="outline" class="flex-1" *ngIf="fields.firstName">
+                <div class="w-full flex flex-col sm:flex-row gap-2" *ngIf="!fields.fullName">
+                    <mat-form-field appearance="outline" class="flex-1">
                         <mat-label>{{ t("signup.firstName") }}</mat-label>
 
                         <input
@@ -80,7 +80,7 @@
                         </mat-error>
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" class="flex-1" *ngIf="fields.lastName">
+                    <mat-form-field appearance="outline" class="flex-1">
                         <mat-label>{{ t("signup.lastName") }}</mat-label>
 
                         <input

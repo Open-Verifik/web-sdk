@@ -15,6 +15,16 @@
     "scan": "Scansiona",
     "skip": "Salta passaggio",
     "upload": "Carica",
+    "biometrics_instructions": {
+        "title": "Validazione Biometrica",
+        "subtitle": "Convalida la tua identità con validazioni biometriche",
+        "step_1": "Guarda direttamente nella fotocamera",
+        "step_2": "Segui le istruzioni per posizionare il viso",
+        "step_3": "Rimani fermo fino a quando l'immagine viene catturata",
+        "go_back": "Torna indietro",
+        "skip": "Salta",
+        "continue": "Continua"
+    },
     "header": {
         "partner": "Diventa nostro partner",
         "talk": "Parla con le vendite",

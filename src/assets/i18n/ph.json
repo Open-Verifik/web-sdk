@@ -15,6 +15,16 @@
     "scan": "I-scan",
     "skip": "Laktawan ang hakbang",
     "upload": "Mag-upload",
+    "biometrics_instructions": {
+        "title": "Beripikasyon ng Biometrics",
+        "subtitle": "Patunayan ang iyong pagkakakilanlan gamit ang biometric na beripikasyon",
+        "step_1": "Tumingin nang diretso sa kamera",
+        "step_2": "Sundin ang mga tagubilin para ihanay ang iyong mukha",
+        "step_3": "Manatiling hindi gumagalaw hanggang makuha ang imahe",
+        "go_back": "Bumalik",
+        "skip": "Laktawan",
+        "continue": "Magpatuloy"
+    },
     "header": {
         "partner": "Maging kasosyo sa amin",
         "talk": "Makipag-usap sa benta",

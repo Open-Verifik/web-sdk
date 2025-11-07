@@ -101,8 +101,10 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     ) {
         this.countryCodes = this._countryService.countryCodes;
         this.filteredCountryCodes = this.countryCodes;
+
         this.countries = this._countryService.countries;
         this.filteredCountries = this.countries;
+
         this.fields = {};
         this.roles = this._kycService.roles;
 

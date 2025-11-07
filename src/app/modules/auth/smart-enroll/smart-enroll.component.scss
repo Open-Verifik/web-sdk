@@ -391,6 +391,12 @@ smart-scanner-corrections {
     left: 0;
 }
 
+// Dynamic brand primary background utility
+.bg-brand-primary {
+    background-color: var(--custom-verifik-primary-500) !important;
+    color: var(--custom-verifik-primary-contrast-500, #ffffff) !important;
+}
+
 .results {
     &__avatar-container {
         position: relative;

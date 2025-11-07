@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule } from "@ngneat/transloco";
 import { Subject } from "rxjs";
@@ -17,7 +18,7 @@ import { SmartLivenessDemoComponent } from "../smart-liveness/smart-liveness-dem
 
 @Component({
     animations: fuseAnimations,
-    imports: [CommonModule, SmartLivenessComponent, SmartLivenessDemoComponent, SmartErrorDisplayComponent, TranslocoModule],
+    imports: [CommonModule, MatButtonModule, SmartLivenessComponent, SmartLivenessDemoComponent, SmartErrorDisplayComponent, TranslocoModule],
     selector: "smart-biometrics",
     standalone: true,
     styleUrls: ["../smart-enroll.component.scss"],
@@ -27,6 +28,7 @@ export class SmartBiometricsComponent implements OnDestroy {
     @ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 
     appRegistration: AppRegistration;
+    confirmedInstructions: boolean = false;
     demoData: any;
     demoModeChoice: "own" | "demo" | "" = "";
     enrollSettings: EnrollSettings;
@@ -153,5 +155,13 @@ export class SmartBiometricsComponent implements OnDestroy {
 
         this._smartEnrollService.setSkippedBiometric(true);
         this._smartEnrollService.skipToStep("result");
+    }
+
+    confirmInstructions() {
+        this.confirmedInstructions = true;
+    }
+
+    goBack() {
+        this._smartEnrollService.goToPreviousStep();
     }
 }
