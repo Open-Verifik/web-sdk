@@ -22,7 +22,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { ActivatedRoute } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { debounce } from "lodash";
 import moment from "moment";
 import { interval, Subject, Subscription, takeUntil } from "rxjs";
@@ -34,6 +34,7 @@ import { CountriesService } from "app/modules/demo/countries.service";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration } from "../../project";
 import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
+import { ApiErrorService } from "app/core/services/api-error.service";
 
 @Component({
     animations: fuseAnimations,
@@ -99,11 +100,13 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 
     constructor(
         private _activatedRoute: ActivatedRoute,
+        private _apiErrorService: ApiErrorService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countries: CountriesService,
         private _formBuilder: UntypedFormBuilder,
         private _KYCService: KYCService,
-        private _smartEnrollService: SmartEnrollService
+        private _smartEnrollService: SmartEnrollService,
+        private _translocoService: TranslocoService
     ) {
         this.countries = this._countries.countryCodes;
         this.emailOtp = this._activatedRoute.snapshot.queryParams?.otp;
@@ -282,7 +285,10 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
                 }
 
                 this.showError = true;
-                this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
+
+                const normalizedError = this._apiErrorService.normalize(exception);
+                this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
+
                 this.loading = false;
                 this.sendingOTP = false;
 
@@ -372,7 +378,9 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
                     }
 
                     this.showError = true;
-                    this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
+
+                    const normalizedError = this._apiErrorService.normalize(exception);
+                    this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
 
                     this.loading = false;
                     this.sendingOTP = false;
@@ -574,7 +582,8 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
                 },
                 error: (exception) => {
                     this.showError = true;
-                    this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
+                    const normalizedError = this._apiErrorService.normalize(exception);
+                    this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
 
                     this.emailForm?.enable();
                 },
@@ -608,7 +617,8 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
                 },
                 error: (exception) => {
                     this.showError = true;
-                    this.errorContent = this._smartEnrollService.errorTranslation(`errors.${exception?.error?.message}`);
+                    const normalizedError = this._apiErrorService.normalize(exception);
+                    this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
 
                     this.phoneForm?.enable();
                 },

@@ -10,7 +10,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatListModule } from "@angular/material/list";
 import { MatSelectModule } from "@angular/material/select";
 import { fuseAnimations } from "@fuse/animations";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import QRCode from "qrcode";
 import { Subject, takeUntil } from "rxjs";
 
@@ -32,6 +32,7 @@ import { SmartScannerDemoComponent } from "../smart-scanner/smart-scanner-demo.c
 import { SmartScannerMobileComponent } from "../smart-scanner/smart-scanner-mobile.component";
 import { SmartScannerComponent } from "../smart-scanner/smart-scanner.component";
 import { SmartUploadComponent } from "../smart-upload/smart-upload.component";
+import { ApiErrorService } from "app/core/services/api-error.service";
 
 @Component({
     animations: fuseAnimations,
@@ -86,13 +87,15 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     useDemoData: boolean = false;
 
     constructor(
+        private _apiErrorService: ApiErrorService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countryService: CountryService,
         private _demoService: DemoService,
         private _formBuilder: FormBuilder,
         private _KYCService: KYCService,
         private _passwordlessService: PasswordlessService,
-        private _smartEnrollService: SmartEnrollService
+        private _smartEnrollService: SmartEnrollService,
+        private _translocoService: TranslocoService
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -164,15 +167,8 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
         this.errorResult = true;
 
-        if (exception?.error?.details?.error) {
-            this.errorContent = { message: exception?.error?.details?.error || "failed_to_read" };
-        } else {
-            this.errorContent = { message: exception?.error?.message || "" };
-
-            const split = this.errorContent.message.split("@");
-
-            this.errorContent.message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(split[0]) ? split[0] : "failed_to_read";
-        }
+        const normalizedError = this._apiErrorService.normalize(exception);
+        this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
     }
 
     private _initForm() {

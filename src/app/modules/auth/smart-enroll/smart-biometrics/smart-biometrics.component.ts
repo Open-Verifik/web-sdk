@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { fuseAnimations } from "@fuse/animations";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { Subject } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
@@ -15,6 +15,7 @@ import { EnrollSettings, SmartEnrollService } from "../smart-enroll.service";
 import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-display.component";
 import { SmartLivenessComponent } from "../smart-liveness/smart-liveness.component";
 import { SmartLivenessDemoComponent } from "../smart-liveness/smart-liveness-demo.component";
+import { ApiErrorService } from "app/core/services/api-error.service";
 
 @Component({
     animations: fuseAnimations,
@@ -42,10 +43,12 @@ export class SmartBiometricsComponent implements OnDestroy {
     useDemoData: boolean = false;
 
     constructor(
+        private _apiErrorService: ApiErrorService,
         private _demoService: DemoService,
         private _KYCService: KYCService,
+        private _passwordlessService: PasswordlessService,
         private _smartEnrollService: SmartEnrollService,
-        private _passwordlessService: PasswordlessService
+        private _translocoService: TranslocoService
     ) {
         this.enrollSettings = this._smartEnrollService.enrollSettings;
 
@@ -110,9 +113,11 @@ export class SmartBiometricsComponent implements OnDestroy {
         }
 
         this._smartEnrollService.subtractAttempt("biometric");
-        this.errorContent = { message: exception?.error?.message || "" };
 
-        const str = this.errorContent.message.split("@");
+        const rawMessage = exception?.error?.message || "";
+
+        // Handle liveness_failed with score before normalization
+        const str = rawMessage.split("@");
 
         if (str.length > 1) {
             this._smartEnrollService.setLivenessScore(parseFloat(str[1]) || 0);
@@ -121,7 +126,19 @@ export class SmartBiometricsComponent implements OnDestroy {
             return;
         }
 
+        // Handle person_already_set - allow proceed if biometricValidation exists
+        const colonToken = rawMessage.match(/^\d{3}:\s*(.+)$/)?.[1];
+
+        if (colonToken === "person_already_set" && this.appRegistration.biometricValidation) {
+            this._smartEnrollService.goToNextStep();
+
+            return;
+        }
+
+        const normalizedError = this._apiErrorService.normalize(exception);
+
         this.errorResult = true;
+        this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
         this.errorContent.message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(str[0]) ? str[0] : "liveness_failed";
     }
 

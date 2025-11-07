@@ -36,7 +36,7 @@
     </div>
 
     <!-- Form Section -->
-    <form [formGroup]="signUpForm" *ngIf="project" class="w-full flex flex-col gap-y-4" id="access-verifik-form" name="signup-form" autocomplete="on">
+    <form [formGroup]="signUpForm" *ngIf="project" autocomplete="on" class="w-full flex flex-col gap-y-4" id="access-verifik-form" name="signup-form">
         <ng-container *ngIf="signUpFormSettings?.fullName">
             <div class="w-full flex flex-col">
                 <!-- Full Name Field -->
