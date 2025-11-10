@@ -188,31 +188,42 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
     private _initializeFormValues(): void {
         const onboardSettingsDocument = this.projectFlow.onboardingSettings.document;
 
-        // Step 1: Set documentMethod
+        // Step 1: Set documentMethod (always enabled)
         const documentMethod = this._getDocumentMethod(onboardSettingsDocument);
+        this.methodSelectionForm.patchValue({ documentMethod }, { emitEvent: false });
 
-        this.methodSelectionForm.patchValue({ documentMethod });
-        this._handleDocumentMethodChange(documentMethod);
+        // Step 2: Set country (only if documentMethod is set)
+        if (!documentMethod) {
+            this.methodSelectionForm.patchValue({ country: "" }, { emitEvent: false });
+            this.methodSelectionForm.get("country")?.disable({ emitEvent: false });
+            return;
+        }
 
         const country = this._getCountry();
+        this.methodSelectionForm.patchValue({ country }, { emitEvent: false });
+        this.methodSelectionForm.get("country")?.enable({ emitEvent: false });
 
-        this.methodSelectionForm.patchValue({ country });
-        this._handleCountryChange(country);
-
-        // Step 2: Set documentCategory (only if country is set)
-        if (!country) return;
+        // Step 3: Set documentCategory (only if documentMethod AND country are set)
+        if (!country) {
+            this.methodSelectionForm.patchValue({ documentCategory: "" }, { emitEvent: false });
+            this.methodSelectionForm.get("documentCategory")?.disable({ emitEvent: false });
+            return;
+        }
 
         const documentCategory = this._getDocumentCategory(onboardSettingsDocument);
+        this.methodSelectionForm.patchValue({ documentCategory }, { emitEvent: false });
+        this.methodSelectionForm.get("documentCategory")?.enable({ emitEvent: false });
 
-        this.methodSelectionForm.patchValue({ documentCategory });
-        this._handleDocumentCategoryChange(documentCategory);
-
-        // Step 3: Set promptTemplate (only if documentCategory is set)
-        if (!documentCategory) return;
+        // Step 4: Set promptTemplate (only if documentMethod, country, AND documentCategory are set)
+        if (!documentCategory) {
+            this.methodSelectionForm.patchValue({ promptTemplate: null }, { emitEvent: false });
+            this.methodSelectionForm.get("promptTemplate")?.disable({ emitEvent: false });
+            return;
+        }
 
         const promptTemplate = this._getPromptTemplate();
-
-        this.methodSelectionForm.patchValue({ promptTemplate });
+        this.methodSelectionForm.patchValue({ promptTemplate }, { emitEvent: false });
+        this.methodSelectionForm.get("promptTemplate")?.enable({ emitEvent: false });
     }
 
     private _getDocumentMethod(onboardSettingsDocument: any): string {
@@ -284,64 +295,106 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
     private _handleDocumentMethodChange = (documentMethodValue: string): void => {
         const countryControl = this.methodSelectionForm.get("country");
+        const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
+        const promptTemplateControl = this.methodSelectionForm.get("promptTemplate");
 
+        // If no method selected, clear and disable all subsequent fields
         if (!documentMethodValue) {
-            countryControl?.disable();
+            countryControl?.setValue("", { emitEvent: false });
+            countryControl?.disable({ emitEvent: false });
+
+            documentCategoryControl?.setValue("", { emitEvent: false });
+            documentCategoryControl?.disable({ emitEvent: false });
+
+            promptTemplateControl?.setValue(null, { emitEvent: false });
+            promptTemplateControl?.disable({ emitEvent: false });
 
             return;
         }
 
-        countryControl?.enable();
+        // If method is selected, enable country (next field)
+        countryControl?.enable({ emitEvent: false });
+
+        // Clear and disable fields 3 and 4 until country is selected
+        if (!countryControl?.value) {
+            documentCategoryControl?.setValue("", { emitEvent: false });
+            documentCategoryControl?.disable({ emitEvent: false });
+
+            promptTemplateControl?.setValue(null, { emitEvent: false });
+            promptTemplateControl?.disable({ emitEvent: false });
+        }
     };
 
     private _handleCountryChange = (countryValue: string): void => {
         const documentMethodControl = this.methodSelectionForm.get("documentMethod");
-        const countryControl = this.methodSelectionForm.get("country");
         const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
+        const promptTemplateControl = this.methodSelectionForm.get("promptTemplate");
 
+        // If no country selected, clear and disable subsequent fields
         if (!countryValue) {
-            documentCategoryControl?.disable();
+            documentCategoryControl?.setValue("", { emitEvent: false });
+            documentCategoryControl?.disable({ emitEvent: false });
+
+            promptTemplateControl?.setValue(null, { emitEvent: false });
+            promptTemplateControl?.disable({ emitEvent: false });
 
             return;
         }
 
-        if (documentMethodControl?.value && countryControl?.value) {
-            documentCategoryControl?.enable();
+        // Only enable documentCategory if documentMethod is also selected
+        if (documentMethodControl?.value) {
+            documentCategoryControl?.enable({ emitEvent: false });
+
+            // Update available categories based on country
+            if (!this.projectFlow?.documentCategories) {
+                console.warn("ProjectFlow or documentCategories method not available");
+                return;
+            }
+
+            const documentCategories = this.projectFlow.documentCategories(countryValue);
+
+            // Auto-select if only one option available
+            if (documentCategories && documentCategories.length === 1) {
+                documentCategoryControl?.setValue(documentCategories[0], { emitEvent: true });
+            } else {
+                // Clear the selection if multiple options or none
+                documentCategoryControl?.setValue("", { emitEvent: false });
+            }
         }
 
-        if (!this.projectFlow?.documentCategories) {
-            console.warn("ProjectFlow or documentCategories method not available");
-            return;
+        // Clear and disable promptTemplate until documentCategory is selected
+        if (!documentCategoryControl?.value) {
+            promptTemplateControl?.setValue(null, { emitEvent: false });
+            promptTemplateControl?.disable({ emitEvent: false });
         }
-
-        const documentCategories = this.projectFlow.documentCategories(countryValue);
-
-        if (documentCategories && documentCategories.length === 1) documentCategoryControl?.setValue(documentCategories[0]);
-        else documentCategoryControl?.setValue("");
     };
 
     private _handleDocumentCategoryChange = (documentCategoryValue: string): void => {
         const documentMethodControl = this.methodSelectionForm.get("documentMethod");
         const countryControl = this.methodSelectionForm.get("country");
-        const documentCategoryControl = this.methodSelectionForm.get("documentCategory");
         const promptTemplateControl = this.methodSelectionForm.get("promptTemplate");
 
-        promptTemplateControl?.setValue(null);
-
+        // If no category selected, clear and disable promptTemplate
         if (!documentCategoryValue) {
-            promptTemplateControl?.disable();
+            promptTemplateControl?.setValue(null, { emitEvent: false });
+            promptTemplateControl?.disable({ emitEvent: false });
 
             return;
         }
 
-        if (documentMethodControl?.value && countryControl?.value && documentCategoryControl?.value) {
-            promptTemplateControl?.enable();
+        // Only enable promptTemplate if documentMethod, country, AND documentCategory are all selected
+        if (documentMethodControl?.value && countryControl?.value) {
+            promptTemplateControl?.enable({ emitEvent: false });
+
+            // Auto-select if only one prompt template available
+            const promptTemplates = this.getPromptTemplates(countryControl.value, documentCategoryValue);
+
+            if (promptTemplates && promptTemplates.length === 1) {
+                promptTemplateControl?.setValue(promptTemplates[0], { emitEvent: false });
+            } else {
+                promptTemplateControl?.setValue(null, { emitEvent: false });
+            }
         }
-
-        const promptTemplates = this.getPromptTemplates(this.methodSelectionForm.get("country")?.value, documentCategoryValue);
-
-        if (promptTemplates && promptTemplates.length === 1) promptTemplateControl?.setValue(promptTemplates[0]);
-        else promptTemplateControl?.setValue(null);
     };
 
     private _onEnrollSettingsChange(settings: EnrollSettings) {
