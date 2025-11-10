@@ -18,239 +18,252 @@ import { AppRegistration, Face } from "../../project";
 import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll.service";
 
 @Component({
-    animations: fuseAnimations,
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatDividerModule,
-        NgIf,
-        TranslocoModule,
-        VerifikMediaDisplayComponent,
-    ],
-    selector: "smart-results",
-    standalone: true,
-    styleUrls: ["../smart-enroll.component.scss"],
-    templateUrl: "./smart-results.component.html",
+	animations: fuseAnimations,
+	encapsulation: ViewEncapsulation.None,
+	imports: [
+		CommonModule,
+		MatButtonModule,
+		MatIconModule,
+		MatProgressSpinnerModule,
+		MatDividerModule,
+		NgIf,
+		TranslocoModule,
+		VerifikMediaDisplayComponent,
+	],
+	selector: "smart-results",
+	standalone: true,
+	styleUrls: ["../smart-enroll.component.scss"],
+	templateUrl: "./smart-results.component.html",
 })
 export class SmartResultsComponent implements OnInit, AfterViewInit {
-    @ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
-    appRegistration: AppRegistration;
-    biometricSkipped: boolean = false;
-    comparisonFailed: boolean;
-    comparisonScore: number;
-    documentSkipped: boolean = false;
-    enrollSettings: EnrollSettings;
-    enrollStore: EnrollStore;
-    errorContent: { message: string };
-    errorResult: boolean = false;
-    face: Face;
-    fetchingToken: boolean;
-    identityLoading: boolean = false;
-    livenessFailed: boolean;
-    livenessScore: number;
-    isVerifikProject: boolean = false;
-    loadingQRCode: boolean = false;
-    project: Project;
-    projectFlow: ProjectFlow;
-    showQrCode: boolean = false;
+	appRegistration: AppRegistration;
+	biometricSkipped: boolean = false;
+	comparisonFailed: boolean;
+	comparisonScore: number;
+	documentSkipped: boolean = false;
+	enrollSettings: EnrollSettings;
+	enrollStore: EnrollStore;
+	errorContent: { message: string };
+	errorResult: boolean = false;
+	face: Face;
+	fetchingToken: boolean;
+	identityLoading: boolean = false;
+	livenessFailed: boolean;
+	livenessScore: number;
+	isVerifikProject: boolean = false;
+	loadingQRCode: boolean = false;
+	project: Project;
+	projectFlow: ProjectFlow;
+	showQrCode: boolean = false;
 
-    constructor(
-        private _smartEnrollService: SmartEnrollService,
-        private _KYCService: KYCService,
-        private _authService: AuthService,
-        private _passwordlessService: PasswordlessService
-    ) {
-        this.appRegistration = this._KYCService.appRegistration;
-        this.enrollSettings = this._smartEnrollService.enrollSettings;
-        this.enrollStore = this._smartEnrollService.store;
-        this.project = this._passwordlessService.currentProject;
-        this.projectFlow = this._passwordlessService.currentProjectFlow;
-        this.isVerifikProject = this._passwordlessService.isVerifikProject;
+	constructor(
+		private _smartEnrollService: SmartEnrollService,
+		private _KYCService: KYCService,
+		private _authService: AuthService,
+		private _passwordlessService: PasswordlessService
+	) {
+		this.appRegistration = this._KYCService.appRegistration;
+		this.enrollSettings = this._smartEnrollService.enrollSettings;
+		this.enrollStore = this._smartEnrollService.store;
+		this.project = this._passwordlessService.currentProject;
+		this.projectFlow = this._passwordlessService.currentProjectFlow;
+		this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
-        this.errorResult = false;
-    }
+		this.errorResult = false;
+	}
 
-    ngOnInit(): void {
-        this.biometricSkipped = this._smartEnrollService.wasSkippedBiometric();
-        this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
+	ngOnInit(): void {
+		this.biometricSkipped = this._smartEnrollService.wasSkippedBiometric();
+		this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
 
-        this._checkScoreStatus();
-        this._requestIdentityImages();
-    }
+		this._checkScoreStatus();
+		this._requestIdentityImages();
+	}
 
-    ngAfterViewInit(): void {
-        this._prepareQrCode();
-    }
+	ngAfterViewInit(): void {
+		this._prepareQrCode();
+	}
 
-    private _checkScoreStatus() {
-        const compareFaceVerification = this.appRegistration.compareFaceVerification;
+	private _checkScoreStatus() {
+		const compareFaceVerification = this.appRegistration.compareFaceVerification;
 
-        const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
-        const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
+		const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
+		const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
 
-        this.comparisonScore = Math.floor((compareScore || 0) * 100);
-        this.livenessScore = Math.floor((livenessScore || 0) * 100);
+		this.comparisonScore = Math.floor((compareScore || 0) * 100);
+		this.livenessScore = Math.floor((livenessScore || 0) * 100);
 
-        this.comparisonFailed = false;
-        this.errorResult = false;
-        this.livenessFailed = false;
+		this.comparisonFailed = false;
+		this.errorResult = false;
+		this.livenessFailed = false;
 
-        if (!this.documentSkipped && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
-            this.appRegistration.status = "FAILED";
-            this.errorResult = true;
-            this.comparisonFailed = true;
-        }
+		if (!this.documentSkipped && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
+			this.appRegistration.status = "FAILED";
+			this.errorResult = true;
+			this.comparisonFailed = true;
+		}
 
-        if (!this.biometricSkipped && livenessScore < this.enrollStore.biometric.livenessMinScore) {
-            this.appRegistration.status = "FAILED";
-            this.errorResult = true;
-            this.livenessFailed = true;
-        }
+		if (!this.biometricSkipped && livenessScore < this.enrollStore.biometric.livenessMinScore) {
+			this.appRegistration.status = "FAILED";
+			this.errorResult = true;
+			this.livenessFailed = true;
+		}
 
-        if (!this.errorResult) this.appRegistration.status = "COMPLETED";
-    }
+		if (!this.errorResult) this.appRegistration.status = "COMPLETED";
+	}
 
-    private _endAndRedirect() {
-        this.fetchingToken = true;
+	private _endAndRedirect() {
+		this.fetchingToken = true;
 
-        let _response = { token: null };
+		let _response = { token: null };
 
-        this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
-            next: (response) => {
-                _response = response.data;
-            },
-            error: (exception) => {
-                console.error({ exception });
+		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
+			next: (response) => {
+				_response = response.data;
+			},
+			error: (exception) => {
+				console.error({ exception });
 
-                this.errorResult = true;
-                this.fetchingToken = false;
-            },
-            complete: () => {
-                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding", this.project.demoMode);
-                this.fetchingToken = false;
-            },
-        });
-    }
+				this.errorResult = true;
+				this.fetchingToken = false;
+			},
+			complete: () => {
+				this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding", this.project.demoMode);
+				this.fetchingToken = false;
+			},
+		});
+	}
 
-    private _extractFaces(arrayOfImages: Face[]): void {
-        let fallbackFace: Face;
+	private _extractFaces(arrayOfImages: Face[]): void {
+		let fallbackFace: Face;
 
-        for (let index = 0; index < arrayOfImages.length; index++) {
-            const identityImage = arrayOfImages[index];
+		for (let index = 0; index < arrayOfImages.length; index++) {
+			const identityImage = arrayOfImages[index];
 
-            if (identityImage.category !== "face") {
-                fallbackFace = identityImage;
+			if (identityImage.category !== "face") {
+				fallbackFace = identityImage;
 
-                continue;
-            }
+				continue;
+			}
 
-            this._setFace(identityImage);
-        }
+			this._setFace(identityImage);
+		}
 
-        if (!this.face) this._setFace(fallbackFace);
-    }
+		if (!this.face) this._setFace(fallbackFace);
+	}
 
-    private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
-        try {
-            await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
+	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
+		try {
+			await QRCode.toCanvas(canvas, text, { errorCorrectionLevel: "L" });
 
-            this.loadingQRCode = false;
-        } catch (e) {}
-    }
+			this.loadingQRCode = false;
+		} catch (e) {}
+	}
 
-    private _prepareQrCode(): void {
-        const canvas = this.qrCodeCanvas.nativeElement;
+	private _prepareQrCode(): void {
+		if (!this.qrCodeCanvas?.nativeElement) {
+			return;
+		}
 
-        this._generateQRCode(canvas, window.location.href);
-    }
+		const canvas = this.qrCodeCanvas.nativeElement;
 
-    private _requestIdentityImages(): void {
-        if (this.documentSkipped && this.biometricSkipped) {
-            this.identityLoading = false;
-            this.face = null;
+		this._generateQRCode(canvas, window.location.href);
+	}
 
-            return;
-        }
+	private _requestIdentityImages(): void {
+		if (this.documentSkipped && this.biometricSkipped) {
+			this.identityLoading = false;
+			this.face = null;
 
-        this.identityLoading = true;
+			return;
+		}
 
-        this._KYCService.getIdentityImages({}).subscribe({
-            next: (response) => {
-                this._extractFaces(response.data);
-            },
-            error: () => {},
-            complete: () => {},
-        });
-    }
+		this.identityLoading = true;
 
-    private _setFace(identityImage: Face) {
-        this.face = identityImage;
+		this._KYCService.getIdentityImages({}).subscribe({
+			next: (response) => {
+				this._extractFaces(response.data);
+			},
+			error: () => {},
+			complete: () => {},
+		});
+	}
 
-        if (!this.face.base64.includes("data:image")) {
-            this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-        }
+	private _setFace(identityImage: Face) {
+		this.face = identityImage;
 
-        const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
+		if (!this.face.base64.includes("data:image")) {
+			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
+		}
 
-        if (stringArr.length === 3) {
-            this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
-        }
+		const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
 
-        this.identityLoading = false;
-    }
+		if (stringArr.length === 3) {
+			this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
+		}
 
-    private _syncAppRegistration(step: string, status?: string, action?: string) {
-        let _response: any = null;
+		this.identityLoading = false;
+	}
 
-        this._KYCService.syncAppRegistration(step, status).subscribe({
-            next: (response) => {
-                _response = response.data;
-            },
-            error: () => {},
-            complete: () => {
-                if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
+	private _syncAppRegistration(step: string, status?: string, action?: string) {
+		let _response: any = null;
 
-                this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
-            },
-        });
-    }
+		this._KYCService.syncAppRegistration(step, status).subscribe({
+			next: (response) => {
+				_response = response.data;
+			},
+			error: () => {},
+			complete: () => {
+				if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
-    exitApplication(): void {
-        window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
-    }
+				this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
+			},
+		});
+	}
 
-    isLoginToPlatformDisabled() {
-        return this.fetchingToken || this.appRegistration.status === "FAILED" || this.comparisonFailed || this.livenessFailed;
-    }
+	exitApplication(): void {
+		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+	}
 
-    loginToPlatform(): void {
-        if (this.fetchingToken) return;
+	isLoginToPlatformDisabled() {
+		return this.fetchingToken || this.appRegistration.status === "FAILED" || this.comparisonFailed || this.livenessFailed;
+	}
 
-        this._endAndRedirect();
-    }
+	loginToPlatform(): void {
+		if (this.fetchingToken) return;
 
-    logout(): void {
-        localStorage.clear();
+		this._endAndRedirect();
+	}
 
-        window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
-    }
+	logout(): void {
+		localStorage.clear();
 
-    tryAgain(step: "document" | "biometric"): void {
-        if (step === "document") {
-            this._syncAppRegistration("document", "ONGOING");
+		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+	}
 
-            this._smartEnrollService.skipToStep(step);
-            this._smartEnrollService.setDocumentMethod("");
+	toggleQrCode(): void {
+		this.showQrCode = !this.showQrCode;
 
-            return;
-        }
+		if (this.showQrCode) {
+			this.loadingQRCode = true;
+			setTimeout(() => this._prepareQrCode(), 0);
+		}
+	}
 
-        this._syncAppRegistration("liveness", "ONGOING");
+	tryAgain(step: "document" | "biometric"): void {
+		if (step === "document") {
+			this._syncAppRegistration("document", "ONGOING");
 
-        this._smartEnrollService.skipToStep(step);
-    }
+			this._smartEnrollService.skipToStep(step);
+			this._smartEnrollService.setDocumentMethod("");
+
+			return;
+		}
+
+		this._syncAppRegistration("liveness", "ONGOING");
+
+		this._smartEnrollService.skipToStep(step);
+	}
 }
