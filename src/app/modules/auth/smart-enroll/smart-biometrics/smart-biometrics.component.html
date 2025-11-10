@@ -1,25 +1,96 @@
-<div class="min-h-full w-full flex flex-row justify-center items-center" ngClass.gt-sm="px-4 py-4" ngClass.lt-md="p-4">
-    <ng-container *ngIf="!project.demoMode || !useDemoData">
-        <smart-liveness
-            (onImageScan)="onImageScan($event)"
-            (skipStep)="skipStep()"
-            [retry]="retrySubject.asObservable()"
-            [successfulUpload]="successfulUploadSubject.asObservable()"
-            *ngIf="!errorResult"
-        ></smart-liveness>
-    </ng-container>
+<div class="min-h-full w-full flex flex-row justify-center items-center" ngClass.gt-sm="px-4 py-4" ngClass.lt-md="p-4" *transloco="let t">
+	<!-- Instructions Screen -->
+	<div class="flex flex-col w-full max-w-2xl p-8" *ngIf="!confirmedInstructions && !errorResult">
+		<!-- Header with Back Button and Title -->
+		<div class="flex items-start mb-8">
+			<!-- Go Back Icon Button -->
+			<button
+				mat-icon-button
+				(click)="goBack()"
+				class="w-12 h-12 rounded-full border border-gray-300 hover:bg-gray-50 flex items-center justify-center flex-shrink-0 mr-4"
+				[attr.aria-label]="t('biometrics_instructions.go_back')"
+			>
+				<mat-icon svgIcon="mat_solid:arrow_back" class="text-gray-700"></mat-icon>
+			</button>
 
-    <ng-container *ngIf="project.demoMode && useDemoData">
-        <smart-liveness-demo
-            (onImageScan)="onImageScan($event)"
-            (skipStep)="skipStep()"
-            [retry]="retrySubject.asObservable()"
-            [successfulUpload]="successfulUploadSubject.asObservable()"
-            *ngIf="!errorResult"
-        ></smart-liveness-demo>
-    </ng-container>
+			<!-- Title and Subtitle -->
+			<div class="flex flex-col flex-1">
+				<h1 class="text-3xl font-semibold text-gray-900 mb-2 text-center">
+					{{ t("biometrics_instructions.title") }}
+				</h1>
 
-    <div class="flex justify-center items-center" *ngIf="errorResult">
-        <smart-error-display (onClearError)="retry()" [errorContent]="errorContent" class="flex relative z-50" source="face"></smart-error-display>
-    </div>
+				<p class="text-lg text-gray-600 text-center">
+					{{ t("biometrics_instructions.subtitle") }}
+				</p>
+			</div>
+		</div>
+
+		<!-- Instructions Steps -->
+		<div class="flex flex-col justify-center items-center space-y-4 mb-8">
+			<div class="flex items-center space-x-4 w-full max-w-100">
+				<div class="flex-shrink-0 w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center font-semibold">1</div>
+				<p class="text-gray-700 pt-1 flex-1 text-center">
+					{{ t("biometrics_instructions.step_1") }}
+				</p>
+			</div>
+
+			<div class="flex items-center space-x-4 w-full max-w-100">
+				<div class="flex-shrink-0 w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center font-semibold">2</div>
+				<p class="text-gray-700 pt-1 flex-1 text-center">
+					{{ t("biometrics_instructions.step_2") }}
+				</p>
+			</div>
+
+			<div class="flex items-center space-x-4 w-full max-w-100">
+				<div class="flex-shrink-0 w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center font-semibold">3</div>
+				<p class="text-gray-700 pt-1 flex-1 text-center">
+					{{ t("biometrics_instructions.step_3") }}
+				</p>
+			</div>
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="flex flex-col items-center gap-4 mt-4">
+			<!-- Continue Button -->
+			<button mat-flat-button (click)="confirmInstructions()" class="w-full h-14 min-h-14 rounded-lg bg-brand-primary">
+				{{ t("biometrics_instructions.continue") }}
+			</button>
+
+			<!-- Skip Link -->
+			<button
+				type="button"
+				(click)="skipStep()"
+				class="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2 transition-colors"
+				*ngIf="projectFlow.onboardingSettings.steps.liveness === 'optional'"
+			>
+				{{ t("biometrics_instructions.skip") }}
+			</button>
+		</div>
+	</div>
+
+	<!-- Biometric Capture Components (shown after instructions confirmed) -->
+	<ng-container *ngIf="confirmedInstructions && !errorResult">
+		<ng-container *ngIf="!project.demoMode || !useDemoData">
+			<smart-liveness
+				(onImageScan)="onImageScan($event)"
+				(skipStep)="skipStep()"
+				[retry]="retrySubject.asObservable()"
+				[successfulUpload]="successfulUploadSubject.asObservable()"
+			></smart-liveness>
+		</ng-container>
+
+		<ng-container *ngIf="project.demoMode && useDemoData">
+			<smart-liveness-demo
+				(onImageScan)="onImageScan($event)"
+				(skipStep)="skipStep()"
+				[retry]="retrySubject.asObservable()"
+				[successfulUpload]="successfulUploadSubject.asObservable()"
+			></smart-liveness-demo>
+		</ng-container>
+	</ng-container>
+
+	<!-- Error Display -->
+	<div class="flex justify-center items-center" *ngIf="errorResult">
+		<smart-error-display (onClearError)="retry()" [errorContent]="errorContent" class="flex relative z-50" source="face"></smart-error-display>
+	</div>
 </div>

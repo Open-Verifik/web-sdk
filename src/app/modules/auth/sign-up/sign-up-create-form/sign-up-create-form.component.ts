@@ -1,4 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AbstractControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
@@ -14,13 +15,14 @@ import { MatSelectModule } from "@angular/material/select";
 import { Router, RouterLink } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertType } from "@fuse/components/alert";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { SmartEnrollProjectFlow } from "app/core/models/smart-enroll-project.model";
+import { ApiErrorService, NormalizedApiError } from "app/core/services/api-error.service";
 import { CountryCodeOption, CountryOption, CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../../kyc.service";
@@ -90,6 +92,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
     token: string;
 
     constructor(
+        private _apiErrorService: ApiErrorService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _countryService: CountryService,
         private _demoService: DemoService,
@@ -97,12 +100,15 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
         private _kycService: KYCService,
         private _passwordlessService: PasswordlessService,
         private _router: Router,
-        private _smartEnrollService: SmartEnrollService
+        private _smartEnrollService: SmartEnrollService,
+        private _translocoService: TranslocoService
     ) {
         this.countryCodes = this._countryService.countryCodes;
         this.filteredCountryCodes = this.countryCodes;
+
         this.countries = this._countryService.countries;
         this.filteredCountries = this.countries;
+
         this.fields = {};
         this.roles = this._kycService.roles;
 
@@ -454,31 +460,38 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
                     this.appRegistration = v?.data?.appRegistration;
                     this.appRegistration.token = v?.data?.token;
-                },
-                error: (exception) => {
-                    this.saving = false;
-
-                    this.signUpForm.enable();
-                    this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
-
-                    setTimeout(() => {
-                        this.showError = true;
-                        this.alert = {
-                            type: "error",
-                            message:
-                                exception.error?.message === "phone, email, projectFlow must be unique"
-                                    ? this._smartEnrollService.errorTranslation("errors.phone_or_email_is_not_unique")
-                                    : this._smartEnrollService.errorTranslation(`errors.${exception.error?.message}`),
-                        };
-                    });
-                },
-                complete: () => {
-                    this.saving = false;
 
                     this._router.navigate(["/sign-up", this.project._id], {
                         queryParams: { token: this.appRegistration.token },
                         queryParamsHandling: "merge",
                     });
+                },
+                error: (exception) => {
+                    this.saving = false;
+
+                    if (exception?.error?.code === "PaymentRequired") {
+                        this._smartEnrollService.insufficientCreditsTrigger();
+                        return;
+                    }
+
+                    this.signUpForm.enable();
+                    this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
+
+                    const normalized: NormalizedApiError = this._apiErrorService.normalize(exception as HttpErrorResponse);
+
+                    setTimeout(() => {
+                        this.showError = true;
+
+                        this.alert = {
+                            message: this._translocoService.translate(normalized.userMessageKey),
+                            type: "error",
+                        };
+
+                        setTimeout(() => {
+                            this.showError = false;
+                            this.alert = null;
+                        }, 5000);
+                    }, 0);
                 },
             });
     }
