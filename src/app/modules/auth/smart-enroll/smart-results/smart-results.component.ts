@@ -83,7 +83,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		this._prepareQrCode();
+		// QR code is generated on-demand when user clicks to show it
 	}
 
 	private _checkScoreStatus() {
@@ -163,9 +163,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 	}
 
 	private _prepareQrCode(): void {
-		if (!this.qrCodeCanvas?.nativeElement) {
-			return;
-		}
+		if (!this.qrCodeCanvas?.nativeElement) return;
 
 		const canvas = this.qrCodeCanvas.nativeElement;
 
@@ -248,7 +246,14 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 
 		if (this.showQrCode) {
 			this.loadingQRCode = true;
-			setTimeout(() => this._prepareQrCode(), 0);
+			// Wait for view to update before generating QR code
+			setTimeout(() => {
+				if (this.qrCodeCanvas?.nativeElement) {
+					this._prepareQrCode();
+				} else {
+					this.loadingQRCode = false;
+				}
+			}, 100);
 		}
 	}
 
