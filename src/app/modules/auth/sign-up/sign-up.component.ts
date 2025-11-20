@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser, NgIf } from "@angular/common";
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, SimpleChanges, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -31,7 +31,7 @@ import { VerifikMediaDisplayComponent } from "../../../shared/components/verifik
     encapsulation: ViewEncapsulation.None,
     selector: "sign-up",
     standalone: true,
-    styleUrls: ["../sign-in/sign-in.scss", "sign-up.component.scss"],
+    styleUrls: ["../sign-in/sign-in.component.scss", "sign-up.component.scss"],
     templateUrl: "./sign-up.component.html",
     imports: [
         CommonModule,
@@ -121,6 +121,13 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.unsubscriber$.next();
         this.unsubscriber$.complete();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        console.log(`🚀 ~ AuthSignUpComponent ~ ngOnChanges ~ changes:`, changes);
+        if (changes["isVerifikProject"]) {
+            this.isVerifikProject = changes["isVerifikProject"].currentValue;
+        }
     }
 
     private _initializeSubscriptions(): void {

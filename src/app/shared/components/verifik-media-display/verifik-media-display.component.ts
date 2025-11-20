@@ -64,6 +64,10 @@ import { MatIconModule } from "@angular/material/icon";
                     background-color: var(--custom-verifik-background);
                 }
             }
+
+            .verifik-services-video {
+                background-color: #e2e6ff;
+            }
         `,
     ],
 })
@@ -76,6 +80,7 @@ export class VerifikMediaDisplayComponent implements OnInit, AfterViewInit {
     @ViewChild("videoElement") videoElement!: ElementRef<HTMLVideoElement>;
 
     private readonly _maxRetries = 3;
+
     private _videoLoaded = false;
     private _retryCount = 0;
     private _showFallbackImage = false;

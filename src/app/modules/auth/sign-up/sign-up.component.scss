@@ -20,6 +20,10 @@
     @include ios-input-zoom();
 }
 
+.custom-theme-background {
+    background-color: var(--custom-theme-background-color, var(--custom-verifik-background, #ffffff));
+}
+
 :host ::ng-deep {
     .verifik-cards {
         &--disabled {
@@ -62,19 +66,4 @@
             }
         }
     }
-}
-
-.language-selector {
-    margin: 48px;
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    @media screen and (max-width: 959px) {
-        margin: 8px;
-    }
-}
-
-.verifik-services-video {
-    background-color: #e2e6ff;
 }

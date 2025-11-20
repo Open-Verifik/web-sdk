@@ -407,3 +407,39 @@
         }
     }
 }
+
+.language-selector {
+    margin: 48px;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    @media screen and (max-width: 959px) {
+        margin: 8px;
+    }
+}
+
+.custom-theme-background {
+    background-color: var(--custom-theme-background-color, var(--custom-verifik-background, #ffffff));
+}
+
+.otp-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--custom-theme-background-color, var(--custom-verifik-background, #ffffff));
+    opacity: 0.6;
+    z-index: 10;
+    border-radius: 8px;
+
+    mat-spinner {
+        ::ng-deep circle {
+            stroke: var(--custom-verifik-primary-500, #6366f1);
+        }
+    }
+}
