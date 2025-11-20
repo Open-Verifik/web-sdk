@@ -49,7 +49,7 @@
         }
     }
 
-    // Mobile responsiveness for OTP component
+    /* Mobile responsiveness for OTP component */
     @media (max-width: 640px) {
         :host {
             ::ng-deep {
@@ -149,7 +149,7 @@
     }
 }
 
-// One-time-password-input component styling
+/* One-time-password-input component styling */
 :host {
     ::ng-deep {
         one-time-password-input {
@@ -360,7 +360,7 @@
     }
 }
 
-// Responsive design with Tailwind breakpoints
+/* Responsive design with Tailwind breakpoints */
 @media (max-width: 767px) {
     .signin-card {
         &__left {
