@@ -27,7 +27,7 @@ import { AppService } from "app/core/services/app.service";
 @Component({
     selector: "auth-confirmation-required",
     templateUrl: "./confirmation-required.component.html",
-    styleUrls: ["../sign-in/sign-in.scss"],
+    styleUrls: ["../sign-in/sign-in.component.scss"],
     encapsulation: ViewEncapsulation.None,
     animations: fuseAnimations,
     standalone: true,

@@ -1,9 +1,7 @@
 <ng-container *transloco="let t">
-    <div
-        [style.background-color]="project.branding.backgroundColor"
-        *ngIf="project && signInForm"
-        class="w-full h-screen flex flex-col items-center justify-center"
-    >
+    <div *ngIf="project && signInForm" class="w-full h-screen flex flex-col items-center justify-center custom-theme-background">
+        <languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
+
         <div class="flex overflow-hidden h-screen w-full" *ngIf="!showBiometrics">
             <div
                 [ngClass]="{ 'md:max-w-1/2': project.branding.image }"
@@ -11,6 +9,10 @@
                 class="flex flex-col items-center justify-center w-full p-2"
             >
                 <div class="mx-auto w-full max-w-120">
+                    <div class="w-full flex flex-row items-center justify-start ml-2" ngClass.gt-sm="hidden">
+                        <languages class="language-selector relative" (languageChange)="onLanguageChange($event)"></languages>
+                    </div>
+
                     <div class="flex justify-center mb-8">
                         <img class="w-16 h-16 object-contain" [src]="project.branding.logo" *ngIf="project.branding.logo" />
                     </div>
@@ -113,7 +115,7 @@
                                     </mat-error>
                                 </mat-form-field>
 
-                                <div class="w-full justify-center flex flex-col" *ngIf="emailValidation && emailValidation.diff">
+                                <div class="w-full justify-center flex flex-col relative" *ngIf="emailValidation && emailValidation.diff">
                                     <label class="signin-form__label" for="emailOTP">{{ t("login.otp") }}</label>
 
                                     <one-time-password-input
@@ -123,6 +125,10 @@
                                         class="mt-2"
                                         formControlName="emailOTP"
                                     ></one-time-password-input>
+
+                                    <div class="otp-loading-overlay" *ngIf="loading">
+                                        <mat-spinner [diameter]="80"></mat-spinner>
+                                    </div>
                                 </div>
                             </div>
                         </ng-template>
@@ -176,7 +182,7 @@
                                     </mat-form-field>
                                 </div>
 
-                                <div class="w-full justify-center flex flex-col" *ngIf="phoneValidation && phoneValidation.diff">
+                                <div class="w-full justify-center flex flex-col relative" *ngIf="phoneValidation && phoneValidation.diff">
                                     <label class="signin-form__label" for="phoneOTP">{{ t("login.otp") }}</label>
 
                                     <one-time-password-input
@@ -186,6 +192,10 @@
                                         formControlName="phoneOTP"
                                         class="mt-2"
                                     ></one-time-password-input>
+
+                                    <div class="otp-loading-overlay" *ngIf="loading">
+                                        <mat-spinner [diameter]="80"></mat-spinner>
+                                    </div>
                                 </div>
                             </div>
                         </ng-template>
@@ -257,12 +267,6 @@
                             </button>
                         </div>
                     </form>
-
-                    <div class="flex items-center justify-center gap-2 mt-6 text-sm text-gray-500 signin-card__footer">
-                        <span>Powered by Verifik</span>
-
-                        <languages [colorText]="project.branding.textColor" (languageChange)="onLanguageChange($event)"></languages>
-                    </div>
                 </div>
             </div>
 
@@ -339,12 +343,7 @@
                 </div>
             </div>
 
-            <div
-                class="relative hidden md:flex md:flex-1 items-center justify-center max-w-1/2 overflow-hidden signin-card__image"
-                *ngIf="project.branding.image"
-            >
-                <img [src]="project.branding.image" alt="" class="w-full h-full object-cover" />
-            </div>
+            <verifik-media-display [isVerifikProject]="isVerifikProject" [brandingImage]="project.branding.image"></verifik-media-display>
         </div>
 
         <div *ngIf="showBiometrics" class="w-full">
