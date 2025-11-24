@@ -141,6 +141,7 @@ export class AppService {
         root.style.setProperty("--custom-verifik-warn-contrast", warnPalette.contrast?.DEFAULT || "#FFFFFF");
 
         root.style.setProperty("--custom-verifik-background", branding.backgroundColor || "#FFFFFF");
+        root.style.setProperty("--custom-theme-background-color", branding.backgroundColor || "#FFFFFF");
         root.style.setProperty("--custom-verifik-text-color", branding.textColor || "#181818");
         root.style.setProperty("--custom-verifik-title-color", branding.titleColor || "#181818");
         root.style.setProperty("--custom-verifik-button-color", branding.buttonColor || "#181818");

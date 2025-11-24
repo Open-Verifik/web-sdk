@@ -23,7 +23,6 @@ import { MatSelectModule } from "@angular/material/select";
 import { ActivatedRoute } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { debounce } from "lodash";
 import moment from "moment";
 import { interval, Subject, Subscription, takeUntil } from "rxjs";
 
@@ -41,7 +40,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 	encapsulation: ViewEncapsulation.None,
 	selector: "sign-up-verification",
 	standalone: true,
-	styleUrls: ["../../sign-in/sign-in.scss"],
+	styleUrls: ["../../sign-in/sign-in.component.scss"],
 	templateUrl: "./sign-up-verification.component.html",
 	imports: [
 		CommonModule,
@@ -63,6 +62,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy {
 	private countdownSubscription: Subscription;
 	private unsubscriber$: Subject<void> = new Subject<void>();
+	private _debounceTimer: any;
 
 	private _validatingPhone: boolean;
 	private _validatingEmail: boolean;
@@ -120,6 +120,7 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	ngOnDestroy(): void {
+		clearTimeout(this._debounceTimer);
 		this.countdownSubscription?.unsubscribe();
 
 		this.unsubscriber$.next();
@@ -143,7 +144,10 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		}
 
 		if (changes.appRegistration?.currentValue) {
-			debounce(() => this._initValidations())();
+			clearTimeout(this._debounceTimer);
+			this._debounceTimer = setTimeout(() => {
+				this._initValidations();
+			}, 300);
 		}
 	}
 

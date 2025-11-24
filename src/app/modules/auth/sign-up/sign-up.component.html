@@ -1,8 +1,7 @@
 <div
-    [ngStyle]="{ backgroundColor: project.branding.backgroundColor }"
     @fadeIn
     *ngIf="project && !showKYCApp"
-    class="w-full h-screen flex flex-row justify-start items-start md:justify-center md:items-center"
+    class="w-full h-screen flex flex-row justify-start items-start md:justify-center md:items-center custom-theme-background"
 >
     <languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
 

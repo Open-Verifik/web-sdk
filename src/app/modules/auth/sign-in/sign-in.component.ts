@@ -31,13 +31,14 @@ import { OneTimePasswordInputComponent } from "../../../core/components/one-time
 import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
 import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
 import { PasswordlessService } from "../passwordless.service";
+import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 
 @Component({
     animations: fuseAnimations,
     encapsulation: ViewEncapsulation.None,
     selector: "auth-sign-in",
     standalone: true,
-    styleUrls: ["./sign-in.scss"],
+    styleUrls: ["./sign-in.component.scss"],
     templateUrl: "./sign-in.component.html",
     imports: [
         BiometricsLoginComponent,
@@ -60,6 +61,7 @@ import { PasswordlessService } from "../passwordless.service";
         ReactiveFormsModule,
         RouterLink,
         TranslocoModule,
+        VerifikMediaDisplayComponent,
     ],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
@@ -152,8 +154,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._activatedRoute.params.subscribe((params) => {
             this.requestProject(params.id);
-
-            this.isVerifikProject = Boolean(params.id === environment.verifikProject || params.id === environment.sandboxProject);
         });
 
         this._ensureLanguageSync();
@@ -440,6 +440,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                     if (response.data.message) {
                         this.secondFactorData = response.data;
                         this.secondFactorData.emailOTP = dataForm.emailOTP;
+                        this.loading = false;
 
                         return;
                     }
@@ -450,6 +451,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                     if (response.data?.showFaceLivenessRecommendation) {
                         this.showFaceLivenessRecommendation = true;
+                        this.loading = false;
 
                         return;
                     }
@@ -481,11 +483,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             )
             .subscribe({
                 next: (response) => {
-                    if (!response.data) return;
+                    if (!response.data) {
+                        this.loading = false;
+                        return;
+                    }
 
                     if (response.data.message) {
                         this.secondFactorData = response.data;
                         this.secondFactorData.phoneOTP = dataForm.phoneOTP;
+                        this.loading = false;
 
                         return;
                     }
@@ -497,6 +503,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                     if (response.data?.showFaceLivenessRecommendation) {
                         this.showFaceLivenessRecommendation = true;
+                        this.loading = false;
 
                         return;
                     }
