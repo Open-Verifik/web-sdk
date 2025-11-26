@@ -8,7 +8,6 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import * as faceapi from "@vladmandic/face-api";
-import { debounce, DebouncedFunc } from "lodash";
 import QRCode from "qrcode";
 import { Observable, Subject, takeUntil } from "rxjs";
 
@@ -50,7 +49,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	private unsubscriber$: Subject<void> = new Subject<void>();
 
 	private _checkFaceTimeout: any;
-	private _debouncedWindowResize: DebouncedFunc<() => void>;
+	private _debouncedWindowResize: (() => void) & { cancel: () => void };
 	private _detectionInterval: ReturnType<typeof setInterval>;
 	private _rectCredential: any;
 
@@ -124,7 +123,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		this._resetVariables();
 
-		this._debouncedWindowResize = debounce(() => {
+		this._debouncedWindowResize = this._createDebounce(() => {
 			if (!this.videoElement) return;
 
 			this._stopRecord();
@@ -248,6 +247,28 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	private _isCaptureValid(): boolean {
 		return this.documentIsValid && ((this.side === "front" && this.faceIsValid) || this.side === "back");
+	}
+
+	private _createDebounce<T extends (...args: any[]) => void>(func: T, wait: number): T & { cancel: () => void } {
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+		const debounced = ((...args: Parameters<T>) => {
+			if (timeoutId !== null) {
+				clearTimeout(timeoutId);
+			}
+			timeoutId = setTimeout(() => {
+				func(...args);
+			}, wait);
+		}) as T & { cancel: () => void };
+
+		debounced.cancel = () => {
+			if (timeoutId !== null) {
+				clearTimeout(timeoutId);
+				timeoutId = null;
+			}
+		};
+
+		return debounced;
 	}
 
 	private _resetVariables() {

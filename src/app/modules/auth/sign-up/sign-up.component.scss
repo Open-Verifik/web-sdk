@@ -1,69 +1,126 @@
 @mixin ios-input-zoom {
-    select,
-    textarea,
-    input {
-        font-size: 16px !important;
+	select,
+	textarea,
+	input {
+		font-size: 16px !important;
 
-        &:focus {
-            font-size: 16px !important;
-        }
-    }
+		&:focus {
+			font-size: 16px !important;
+		}
+	}
 }
 
 // Prevents zooming for iOS: >13
 @supports (-webkit-touch-callout: none) {
-    @include ios-input-zoom();
+	@include ios-input-zoom();
 }
 
 // Prevents zooming for iOS: <=13
 @supports (-webkit-overflow-scrolling: touch) {
-    @include ios-input-zoom();
+	@include ios-input-zoom();
 }
 
 .custom-theme-background {
-    background-color: var(--custom-theme-background-color, var(--custom-verifik-background, #ffffff));
+	background-color: var(--custom-theme-background-color, var(--custom-verifik-background, #ffffff));
 }
 
-:host ::ng-deep {
-    .verifik-cards {
-        &--disabled {
-            opacity: 0.5;
-        }
-    }
+:host {
+	// Prevent horizontal overflow on all screen sizes
+	overflow-x: hidden;
+	max-width: 100vw;
+	width: 100%;
+
+	::ng-deep {
+		.verifik-cards {
+			&--disabled {
+				opacity: 0.5;
+			}
+		}
+	}
 }
 
 // Signup component styling with custom branding
 .signup {
-    &__steps {
-        padding: 4px;
-    }
+	&__steps {
+		padding: 4px;
+	}
 
-    &__step {
-        background-color: var(--custom-verifik-primary-200);
-        border-radius: 4px;
-        height: 8px;
-        transition: width 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-        width: 8px;
-        margin-right: 4px;
+	&__step {
+		background-color: var(--custom-verifik-primary-200);
+		border-radius: 4px;
+		height: 8px;
+		transition: width 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+		width: 8px;
+		margin-right: 4px;
 
-        &--wide {
-            background-color: var(--custom-verifik-primary);
-            width: 24px;
-        }
-    }
+		&--wide {
+			background-color: var(--custom-verifik-primary);
+			width: 24px;
+		}
+	}
 
-    &__hint {
-        background-color: var(--custom-verifik-primary-50);
-        width: 100%;
-        padding: 16px;
+	&__hint {
+		background-color: var(--custom-verifik-primary-50);
+		width: 100%;
+		padding: 16px;
 
-        &--red {
-            background-color: var(--custom-verifik-warn-50);
-            color: var(--custom-verifik-warn);
+		&--red {
+			background-color: var(--custom-verifik-warn-50);
+			color: var(--custom-verifik-warn);
 
-            mat-icon {
-                color: var(--custom-verifik-warn);
-            }
-        }
-    }
+			mat-icon {
+				color: var(--custom-verifik-warn);
+			}
+		}
+	}
+}
+
+// Responsive styles for very small mobile devices (< 380px)
+@media (max-width: 380px) {
+	:host {
+		// Ensure no horizontal overflow
+		overflow-x: hidden;
+		max-width: 100vw;
+		width: 100%;
+
+		::ng-deep {
+			// Reduce padding in error cards and modals
+			.sign-in-content {
+				padding: 1rem !important;
+
+				&--small {
+					padding: 1rem !important;
+				}
+			}
+
+			// Scale down text sizes in error messages
+			.text-3xl {
+				font-size: 1.5rem !important;
+				line-height: 1.75rem !important;
+			}
+
+			// Ensure form fields don't overflow
+			mat-form-field {
+				width: 100% !important;
+				max-width: 100% !important;
+			}
+
+			// Reduce min-widths that might cause overflow
+			.verifik-select-search__panel {
+				min-width: 200px !important;
+			}
+
+			.verifik-select-search__container {
+				min-width: 180px !important;
+			}
+		}
+	}
+
+	// Language selector adjustments for very small screens
+	.language-selector {
+		margin: 4px !important;
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
 }
