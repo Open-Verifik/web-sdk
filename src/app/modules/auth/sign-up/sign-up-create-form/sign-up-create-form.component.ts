@@ -445,6 +445,24 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		this.filteredCountries = this.countries;
 	}
 
+	private _handleSignUpError(exception: HttpErrorResponse): void {
+		const normalized: NormalizedApiError = this._apiErrorService.normalize(exception);
+
+		setTimeout(() => {
+			this.showError = true;
+
+			this.alert = {
+				message: this._translocoService.translate(normalized.userMessageKey),
+				type: "error",
+			};
+
+			setTimeout(() => {
+				this.showError = false;
+				this.alert = null;
+			}, 5000);
+		}, 0);
+	}
+
 	signUp(): void {
 		if (!this.project || this.signUpForm.invalid) return null;
 
@@ -458,63 +476,75 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 		this.alert = null;
 		this.showError = false;
+
+		// Get form values BEFORE disabling, as disabled controls don't appear in form.value
+		const formValueBeforeDisable = { ...this.signUpForm.value };
+
+		localStorage.setItem("signUpData", JSON.stringify(formValueBeforeDisable));
+
 		this.signUpForm.disable();
 
-		localStorage.setItem("signUpData", JSON.stringify(this.signUpForm.value));
+		// Use getRawValue() to get all values including disabled controls
+		// Or use the value we captured before disabling
+		const formValue = formValueBeforeDisable;
 
-		Object.keys(this.signUpForm.value).forEach((key) => {
-			if (this.signUpForm.value[key] !== typeof "string") return;
+		// Fix: Correct the typeof check and trim string values
+		Object.keys(formValue).forEach((key) => {
+			if (typeof formValue[key] !== "string") return;
 
-			this.signUpForm.value[key] = this.signUpForm.value[key].trim();
+			formValue[key] = formValue[key].trim();
 		});
 
-		this._passwordlessService
-			.createAppRegistration({
-				project: this.project._id,
-				projectFlow: this.projectFlow._id,
-				language: this.language,
-				location: this.location,
-				...this.signUpForm.value,
-			})
-			.subscribe({
-				next: (v) => {
-					this.saving = false;
+		// Ensure phone is digits only (remove any non-digits that might have been added)
+		if (formValue.phone && typeof formValue.phone === "string") {
+			formValue.phone = formValue.phone.replace(/\D/g, "");
+		}
 
-					this.appRegistration = v?.data?.appRegistration;
-					this.appRegistration.token = v?.data?.token;
+		// Handle fullName -> firstName/lastName conversion if needed
+		// The backend can handle both, but if fullName exists and backend expects separate fields,
+		// we should split it. However, the backend also converts 'name' to 'fullName' if needed.
+		// For now, we'll ensure both firstName and lastName are sent if they exist in the form
+		// Remove empty string values to avoid validation issues
+		const signUpData: any = {
+			project: this.project._id,
+			projectFlow: this.projectFlow._id,
+			language: this.language,
+			location: this.location,
+		};
 
-					this._router.navigate(["/sign-up", this.project._id], {
-						queryParams: { token: this.appRegistration.token },
-						queryParamsHandling: "merge",
-					});
-				},
-				error: (exception) => {
-					this.saving = false;
+		// Copy all form values, but remove undefined/empty strings
+		Object.keys(formValue).forEach((key) => {
+			const value = formValue[key];
+			if (value !== undefined && value !== null && value !== "") {
+				signUpData[key] = value;
+			}
+		});
 
-					if (exception?.error?.code === "PaymentRequired") {
-						this._smartEnrollService.insufficientCreditsTrigger();
-						return;
-					}
+		this._passwordlessService.createAppRegistration(signUpData).subscribe({
+			next: (v) => {
+				this.saving = false;
 
-					this.signUpForm.enable();
-					this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
+				this.appRegistration = v?.data?.appRegistration;
+				this.appRegistration.token = v?.data?.token;
 
-					const normalized: NormalizedApiError = this._apiErrorService.normalize(exception as HttpErrorResponse);
+				this._router.navigate(["/sign-up", this.project._id], {
+					queryParams: { token: this.appRegistration.token },
+					queryParamsHandling: "merge",
+				});
+			},
+			error: (exception) => {
+				this.saving = false;
 
-					setTimeout(() => {
-						this.showError = true;
+				if (exception?.error?.code === "PaymentRequired") {
+					this._smartEnrollService.insufficientCreditsTrigger();
+					return;
+				}
 
-						this.alert = {
-							message: this._translocoService.translate(normalized.userMessageKey),
-							type: "error",
-						};
+				this.signUpForm.enable();
+				this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
 
-						setTimeout(() => {
-							this.showError = false;
-							this.alert = null;
-						}, 5000);
-					}, 0);
-				},
-			});
+				this._handleSignUpError(exception);
+			},
+		});
 	}
 }
