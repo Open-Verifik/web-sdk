@@ -61,6 +61,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	@ViewChild("countryCodeSearchInput") countryCodeSearchInput: ElementRef<HTMLInputElement>;
 	@ViewChild("countrySearchInput") countrySearchInput: ElementRef<HTMLInputElement>;
 
+	@Input("deviceDetails") deviceDetails: any;
 	@Input("location") location: any;
 	@Input("project") project: Project;
 	@Input("projectFlow") projectFlow: ProjectFlow;
@@ -519,6 +520,60 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 				signUpData[key] = value;
 			}
 		});
+
+		// Add device information if available
+		if (this.deviceDetails) {
+			signUpData.deviceInformation = {
+				// Device capabilities
+				touchSupported: this.deviceDetails.touchSupported,
+				maxTouchPoints: this.deviceDetails.maxTouchPoints,
+				hardwareConcurrency: this.deviceDetails.hardwareConcurrency,
+				deviceMemory: this.deviceDetails.deviceMemory,
+				// Device type
+				isMobile: this.deviceDetails.isMobile,
+				isTablet: this.deviceDetails.isTablet,
+				isDesktop: this.deviceDetails.isDesktop,
+				// Operating system
+				operatingSystem: this.deviceDetails.operatingSystem,
+				// Screen information
+				screenResolution: this.deviceDetails.screenResolution,
+				screenAvailableResolution: this.deviceDetails.screenAvailableResolution,
+				colorDepth: this.deviceDetails.colorDepth,
+				pixelDepth: this.deviceDetails.pixelDepth,
+				devicePixelRatio: this.deviceDetails.devicePixelRatio,
+				// Window dimensions
+				innerWidth: this.deviceDetails.innerWidth,
+				innerHeight: this.deviceDetails.innerHeight,
+				outerWidth: this.deviceDetails.outerWidth,
+				outerHeight: this.deviceDetails.outerHeight,
+			};
+
+			signUpData.browserInformation = {
+				// Browser details
+				userAgent: this.deviceDetails.userAgent,
+				browserName: this.deviceDetails.browserName,
+				browserVersion: this.deviceDetails.browserVersion,
+				// Language settings
+				language: this.deviceDetails.language,
+				languages: this.deviceDetails.languages,
+				// Browser capabilities
+				cookiesEnabled: this.deviceDetails.cookiesEnabled,
+				javaEnabled: this.deviceDetails.javaEnabled,
+				onLine: this.deviceDetails.onLine,
+				onlineStatus: this.deviceDetails.onlineStatus,
+				geolocationSupported: this.deviceDetails.geolocationSupported,
+				// Network information
+				connectionEffectiveType: this.deviceDetails.connectionEffectiveType,
+				connectionDownlink: this.deviceDetails.connectionDownlink,
+				connectionRtt: this.deviceDetails.connectionRtt,
+				// User preferences
+				timezoneOffset: this.deviceDetails.timezoneOffset,
+				prefersDarkMode: this.deviceDetails.prefersDarkMode,
+				prefersReducedMotion: this.deviceDetails.prefersReducedMotion,
+				// User-Agent Client Hints (if available)
+				userAgentData: this.deviceDetails.userAgentData,
+			};
+		}
 
 		this._passwordlessService.createAppRegistration(signUpData).subscribe({
 			next: (v) => {
