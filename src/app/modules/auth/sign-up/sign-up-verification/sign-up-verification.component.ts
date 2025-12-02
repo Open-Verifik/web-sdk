@@ -29,6 +29,7 @@ import { interval, Subject, Subscription, takeUntil } from "rxjs";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { OneTimePasswordInputComponent } from "app/core/components/one-time-password-input/one-time-password-input.component";
+import { CountryService } from "app/core/services/country.service";
 import { CountriesService } from "app/modules/demo/countries.service";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration } from "../../project";
@@ -103,6 +104,7 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		private _apiErrorService: ApiErrorService,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _countries: CountriesService,
+		private _countryService: CountryService,
 		private _formBuilder: UntypedFormBuilder,
 		private _KYCService: KYCService,
 		private _smartEnrollService: SmartEnrollService,
@@ -318,9 +320,16 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		try {
 			const emailFields = { email: [this.appRegistration?.email || "", [Validators.email, Validators.required]] };
 			const otpFields = { otp: [this.emailOtp, [Validators.required]] };
+
+			const countryCode = this.appRegistration?.countryCode || this.location?.countryCode || "+1";
+			const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
+
 			const phoneFields = {
-				countryCode: [this.location?.countryCode || "+1", [Validators.required]],
-				phone: [this.appRegistration?.phone || "", [Validators.minLength(4), Validators.maxLength(15), Validators.required]],
+				countryCode: [countryCode, [Validators.required]],
+				phone: [
+					this.appRegistration?.phone || "",
+					[Validators.required, Validators.minLength(phoneLength[0]), Validators.maxLength(phoneLength[1]), Validators.pattern(/^\d+$/)],
+				],
 			};
 
 			this.emailForm = this._formBuilder.group(emailFields);
@@ -328,9 +337,39 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 			this.phoneForm = this._formBuilder.group(phoneFields);
 
 			this._subscribeToOtpChanges();
+			this._subscribeToCountryCodeChanges();
 		} catch (exception) {
 			console.error({ exception });
 		}
+	}
+
+	private _subscribeToCountryCodeChanges(): void {
+		this.phoneForm
+			.get("countryCode")
+			?.valueChanges.pipe(takeUntil(this.unsubscriber$))
+			.subscribe((countryCode) => {
+				if (!countryCode) return;
+
+				this._updatePhoneValidators(countryCode);
+			});
+	}
+
+	private _updatePhoneValidators(countryCode: string): void {
+		if (!this.phoneForm) return;
+
+		const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
+		const phoneControl = this.phoneForm.get("phone");
+
+		if (!phoneControl) return;
+
+		phoneControl.setValidators([
+			Validators.required,
+			Validators.minLength(phoneLength[0]),
+			Validators.maxLength(phoneLength[1]),
+			Validators.pattern(/^\d+$/),
+		]);
+
+		phoneControl.updateValueAndValidity();
 	}
 
 	/**
@@ -493,7 +532,12 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	canUpdateEmailOrPhone(): Boolean {
-		return this.update && !this.loading && !this.emailForm.invalid;
+		if (!this.update || this.loading) return false;
+
+		if (this.currentValidation?.email && this.emailForm?.invalid) return false;
+		if (this.currentValidation?.phone && this.phoneForm?.invalid) return false;
+
+		return true;
 	}
 
 	checkSixDigits(): void {

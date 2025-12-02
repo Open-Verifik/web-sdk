@@ -21,6 +21,7 @@ import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { AppService } from "app/core/services/app.service";
+import { CountryService } from "app/core/services/country.service";
 import { ProjectStorageService } from "app/core/services/project-storage.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { CountriesService } from "app/modules/demo/countries.service";
@@ -119,6 +120,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		private _authService: AuthService,
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _countries: CountriesService,
+		private _countryService: CountryService,
 		private _demoService: DemoService,
 		private _formBuilder: UntypedFormBuilder,
 		private _passwordlessService: PasswordlessService,
@@ -183,6 +185,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this.stopTimer();
 
 		this.sendingOTP = false;
+
+		this._updatePhoneValidators(value);
 	}
 
 	ngOnDestroy(): void {
@@ -363,7 +367,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				break;
 			case "phone":
 				this.groupFields["countryCode"][1] = [Validators.required];
-				this.groupFields["phone"][1] = [Validators.required, Validators.minLength(4), Validators.maxLength(15)];
+				this._setPhoneValidators(this.selectedCountryCode);
 				this.groupFields["phoneOTP"][1] = [Validators.minLength(6), Validators.maxLength(6)];
 
 				break;
@@ -372,6 +376,35 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this.signInForm = this._formBuilder.group(this.groupFields);
 
 		this._initFormListeners();
+	}
+
+	private _setPhoneValidators(countryCode: string): void {
+		const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
+
+		this.groupFields["phone"][1] = [
+			Validators.required,
+			Validators.minLength(phoneLength[0]),
+			Validators.maxLength(phoneLength[1]),
+			Validators.pattern(/^\d+$/),
+		];
+	}
+
+	private _updatePhoneValidators(countryCode: string): void {
+		if (!this.signInForm || this.typeLogin !== "phone") return;
+
+		const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
+		const phoneControl = this.signInForm.get("phone");
+
+		if (!phoneControl) return;
+
+		phoneControl.setValidators([
+			Validators.required,
+			Validators.minLength(phoneLength[0]),
+			Validators.maxLength(phoneLength[1]),
+			Validators.pattern(/^\d+$/),
+		]);
+
+		phoneControl.updateValueAndValidity();
 	}
 
 	selectLogin(event) {
@@ -399,7 +432,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 			const countryCode = this.signInForm.get("countryCode")?.value;
 			const phone = this.signInForm.get("phone")?.value;
 
-			return Boolean(countryCode && phone && phone.length >= 4 && phone.length <= 15);
+			if (!countryCode || !phone) return false;
+
+			const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
+			const phoneNumberLength = phone.length;
+
+			return Boolean(phoneNumberLength >= phoneLength[0] && phoneNumberLength <= phoneLength[1]);
 		}
 
 		return false;
