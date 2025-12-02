@@ -162,12 +162,15 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 
 		this.showError = false;
 		this._validatingEmail = true;
+		this.loading = true;
 
 		this._KYCService.confirmEmailValidation(this.appRegistration.email, this.otpForm.value.otp).subscribe({
 			next: (response) => {
 				this.otpForm.reset();
 				this.appRegistration.emailValidation = response.data;
 
+				this.loading = false;
+				this.sendingOTP = false;
 				this._validatingEmail = false;
 				this._validatingOTP = false;
 
@@ -197,14 +200,19 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		}
 
 		this.showError = false;
+
 		this._validatingPhone = true;
+
+		this.loading = true;
 
 		this._KYCService.confirmPhoneValidation(this.currentValidation.countryCode, this.currentValidation.phone, this.otpForm.value.otp).subscribe({
 			next: (response) => {
 				this.otpForm.reset();
-				this.otpForm.setErrors({ invalidOTP: true });
+
 				this.appRegistration.phoneValidation = response.data;
 
+				this.loading = false;
+				this.sendingOTP = false;
 				this._validatingPhone = false;
 				this._validatingOTP = false;
 
@@ -227,6 +235,7 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		if (this.sendingOTP || this.loading || this._validatingOTP) return;
 
 		this._validatingOTP = true;
+
 		this.otpForm?.disable();
 
 		if (this.currentValidation.email) {
@@ -237,16 +246,23 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	private _completeAppRegistration(): void {
-		const { emailGateway, phoneGateway } = this.projectFlow.onboardingSettings.signUpForm;
+		const { emailGateway, phoneGateway, email, phone } = this.projectFlow.onboardingSettings.signUpForm;
 
 		const emailStatus = this.appRegistration.emailValidation?.status;
 		const phoneStatus = this.appRegistration.phoneValidation?.status;
 
-		if (emailGateway !== "none" && emailStatus !== "validated") return;
-		if (phoneGateway !== "none" && phoneStatus !== "validated") return;
+		if (email && emailGateway !== "none" && emailStatus !== "validated") {
+			return;
+		}
+
+		if (phone && phoneGateway !== "none" && phoneStatus !== "validated") {
+			return;
+		}
 
 		if (this.appRegistration.status === "ONGOING" || this.appRegistration.status === "STARTED") {
 			this._syncAppRegistration("signUpForm", "ONGOING");
+		} else {
+			this.changeStep.next("complete");
 		}
 
 		this.otpForm?.reset();
@@ -460,6 +476,7 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		this.update = false;
 
 		this._initEmailValidation();
+
 		this._initPhoneValidation();
 
 		if (this._validatingEmail || this._validatingPhone) return;
@@ -472,13 +489,18 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	private _syncAppRegistration(step: string, status: string) {
+		this.loading = true;
+
 		this._KYCService.syncAppRegistration(step, status).subscribe({
 			next: (response) => {
 				this.currentValidation = null;
 				this.syncResponse = response.data;
 			},
-			error: () => {},
+			error: () => {
+				this.loading = false;
+			},
 			complete: () => {
+				this.loading = false;
 				this.changeStep.next("complete");
 			},
 		});
