@@ -378,10 +378,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 	onStepChange(step: string): void {
 		this._setStep(step);
-
-		if (step === "complete" && this.token) {
-			this._requestAppRegistration();
-		}
 	}
 
 	showCountryNotAllowed(): boolean {
