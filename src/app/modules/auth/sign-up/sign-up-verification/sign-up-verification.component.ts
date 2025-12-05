@@ -278,6 +278,20 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 
 		this.changeStep.next("verify_email");
 
+		const hasEmail = this.appRegistration.email && String(this.appRegistration.email).trim().length > 0;
+
+		if (!hasEmail) {
+			this.currentValidation = {
+				_id: "new",
+				email: "",
+			};
+
+			this._initForms();
+			this.update = true;
+
+			return;
+		}
+
 		this.currentValidation = {
 			_id: "new",
 			email: this.appRegistration.email,
@@ -306,13 +320,30 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 					return;
 				}
 
+				this.loading = false;
+				this.sendingOTP = false;
+
+				const statusCode = exception?.status || exception?.error?.statusCode || exception?.error?.status;
+				const errorCode = exception?.error?.code || exception?.error?.message;
+
+				if (statusCode === 404 || !hasEmail || errorCode === "NotFound" || errorCode === "EmailNotFound") {
+					this.currentValidation = {
+						_id: "new",
+						email: this.appRegistration.email || "",
+					};
+
+					this._initForms();
+					this.update = true;
+					this.showError = false;
+					this.errorContent = "";
+
+					return;
+				}
+
 				this.showError = true;
 
 				const normalizedError = this._apiErrorService.normalize(exception);
 				this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
-
-				this.loading = false;
-				this.sendingOTP = false;
 
 				this.otpForm?.enable();
 
@@ -396,10 +427,27 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 
 		if (!this.projectFlow.onboardingSettings.signUpForm.phone || this.projectFlow.onboardingSettings.signUpForm.phoneGateway === "none") return;
 
+		if (this.appRegistration.phoneValidation?.status === "validated") return;
+
 		this.selectedPhoneGateway = phoneGateway || this.selectedPhoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway;
 		this.changeStep.next("verify_phone");
 
-		if (this.appRegistration.phoneValidation?.status === "validated") return;
+		const hasPhone = this.appRegistration.phone && String(this.appRegistration.phone).trim().length > 0;
+		const hasCountryCode = this.appRegistration.countryCode && String(this.appRegistration.countryCode).trim().length > 0;
+
+		if (!hasPhone || !hasCountryCode) {
+			this.currentValidation = {
+				_id: "new",
+				countryCode: this.appRegistration.countryCode || this.location?.countryCode || "+1",
+				phone: this.appRegistration.phone || "",
+			};
+
+			this._initForms();
+			this.update = true;
+
+			return;
+		}
+
 		if (this.appRegistration.countryCode === "-1") this.selectedPhoneGateway = "both";
 
 		this.currentValidation = {
@@ -436,13 +484,31 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 						return;
 					}
 
+					this.loading = false;
+					this.sendingOTP = false;
+
+					const statusCode = exception?.status || exception?.error?.statusCode || exception?.error?.status;
+					const errorCode = exception?.error?.code || exception?.error?.message;
+
+					if (statusCode === 404 || !hasPhone || !hasCountryCode || errorCode === "NotFound" || errorCode === "PhoneNotFound") {
+						this.currentValidation = {
+							_id: "new",
+							countryCode: this.appRegistration.countryCode || this.location?.countryCode || "+1",
+							phone: this.appRegistration.phone || "",
+						};
+
+						this._initForms();
+						this.update = true;
+						this.showError = false;
+						this.errorContent = "";
+
+						return;
+					}
+
 					this.showError = true;
 
 					const normalizedError = this._apiErrorService.normalize(exception);
 					this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
-
-					this.loading = false;
-					this.sendingOTP = false;
 
 					this.otpForm?.enable();
 
@@ -644,10 +710,13 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 			.subscribe({
 				next: (response) => {
 					this.update = false;
+					this.showError = false;
+					this.errorContent = "";
 					this.appRegistration.email = response.data.email;
-					this.currentValidation.email = response.data.email;
 
-					this._initValidations();
+					this.currentValidation = null;
+
+					this._initEmailValidation();
 					this._changeDetectorRef.detectChanges();
 				},
 				error: (exception) => {
@@ -664,26 +733,79 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 	}
 
 	updatePhone(): void {
+		if (!this.phoneForm || this.phoneForm.invalid) return;
+
+		const countryCode = this.phoneForm.value.countryCode;
+		const phone = this.phoneForm.value.phone;
+
+		if (!countryCode || !phone) {
+			this.showError = true;
+			this.errorContent = this._translocoService.translate("signup.phone_and_country_code_required");
+
+			return;
+		}
+
 		this.phoneForm?.disable();
 
 		this._KYCService
 			.updateAppRegistration({
 				_id: this.appRegistration._id,
-				countryCode: this.phoneForm.value.countryCode,
-				phone: this.phoneForm.value.phone,
+				countryCode: countryCode,
+				phone: phone,
 				replacePhone: true,
 			})
 			.subscribe({
 				next: (response) => {
+					this.appRegistration.countryCode = response.data.countryCode || countryCode;
+					this.appRegistration.phone = response.data.phone || phone;
+
 					this.update = false;
-					this.appRegistration.countryCode = response.data.countryCode;
-					this.appRegistration.phone = response.data.phone;
+					this.showError = false;
+					this.errorContent = "";
 
-					this.currentValidation.countryCode = response.data.countryCode;
-					this.currentValidation.phone = response.data.phone;
+					const phoneGateway = this.selectedPhoneGateway || this.projectFlow.onboardingSettings.signUpForm.phoneGateway || "sms";
 
-					this._initValidations();
-					this._changeDetectorRef.detectChanges();
+					this.sendingOTP = true;
+					this.loading = true;
+
+					// Create a NEW phoneValidation (via insert endpoint) and link it to appRegistration
+					// If no phoneValidation exists, this creates one; backend automatically links it
+					this._KYCService.sendAppRegistrationPhoneValidation(countryCode, phone, phoneGateway).subscribe({
+						next: (validationResponse) => {
+							this.currentValidation = validationResponse.data;
+
+							this._initForms();
+							this._startCountdown();
+
+							this.otpForm?.enable();
+							this.loading = false;
+							this.sendingOTP = false;
+							this.update = false;
+
+							this._changeDetectorRef.detectChanges();
+						},
+						error: (exception) => {
+							if (exception?.error?.code === "PaymentRequired") {
+								this._smartEnrollService.insufficientCreditsTrigger();
+								return;
+							}
+
+							this.showError = true;
+							const normalizedError = this._apiErrorService.normalize(exception);
+							this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
+
+							this.loading = false;
+							this.sendingOTP = false;
+							this.otpForm?.enable();
+							this._changeDetectorRef.detectChanges();
+						},
+						complete: () => {
+							this.loading = false;
+							this.sendingOTP = false;
+							this.otpForm?.enable();
+							this._changeDetectorRef.detectChanges();
+						},
+					});
 				},
 				error: (exception) => {
 					this.showError = true;
