@@ -1,14 +1,16 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, TemplateRef, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatListModule } from "@angular/material/list";
 import { MatSelectModule } from "@angular/material/select";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import QRCode from "qrcode";
@@ -46,6 +48,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 		FormsModule,
 		MatButtonModule,
 		MatCardModule,
+		MatDialogModule,
 		MatDividerModule,
 		MatIconModule,
 		MatInputModule,
@@ -58,6 +61,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 		SmartScannerDemoComponent,
 		SmartScannerMobileComponent,
 		SmartUploadComponent,
+		MatTooltipModule,
 		TranslocoModule,
 		VerifikMediaDisplayComponent,
 		VerifikRadioGroupComponent,
@@ -83,6 +87,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 	methodSelectionForm: FormGroup;
 	project: Project;
 	projectFlow: ProjectFlow;
+	selectedReferenceDoc: any;
 	successfulUploadSubject: Subject<void> = new Subject<void>();
 	useDemoData: boolean = false;
 
@@ -93,6 +98,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 		private _demoService: DemoService,
 		private _formBuilder: FormBuilder,
 		private _KYCService: KYCService,
+		private _matDialog: MatDialog,
 		private _passwordlessService: PasswordlessService,
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService
@@ -553,5 +559,29 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
 	updatePromptTemplate(promptTemplate: PromptTemplate) {
 		this._smartEnrollService.setPromptTemplate(promptTemplate);
+	}
+
+	getDocumentDisplayName(template: PromptTemplate): string {
+		if (!template) return "";
+
+		if (typeof template.documentType === "object" && template.documentType !== null) {
+			const docType = template.documentType as any;
+			const name = template.name || docType.name || "";
+			const version = docType.version || "current";
+
+			return `${name} (${version})`;
+		}
+
+		return template.name || "Unknown Template";
+	}
+
+	openReferenceDialog(template: PromptTemplate, ref: TemplateRef<any>): void {
+		if (!template || !template.documentType || typeof template.documentType !== "object") return;
+
+		this.selectedReferenceDoc = template.documentType;
+
+		this._matDialog.open(ref, {
+			data: template.documentType,
+		});
 	}
 }

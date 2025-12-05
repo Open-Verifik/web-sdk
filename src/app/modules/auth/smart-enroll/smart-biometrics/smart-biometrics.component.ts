@@ -137,8 +137,9 @@ export class SmartBiometricsComponent implements OnDestroy {
 
 		// Handle person_already_set - allow proceed if biometricValidation exists
 		const colonToken = rawMessage.match(/^\d{3}:\s*(.+)$/)?.[1];
+		const errorCode = colonToken || rawMessage;
 
-		if (colonToken === "person_already_set" && this.appRegistration.biometricValidation) {
+		if (errorCode === "person_already_set" && this.appRegistration.biometricValidation) {
 			this._smartEnrollService.goToNextStep();
 
 			return;
@@ -147,8 +148,9 @@ export class SmartBiometricsComponent implements OnDestroy {
 		const normalizedError = this._apiErrorService.normalize(exception);
 
 		this.errorResult = true;
-		this.errorContent = this._translocoService.translate(normalizedError.userMessageKey);
-		this.errorContent.message = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(str[0]) ? str[0] : "liveness_failed";
+		// Extract error code from message (could be "person_already_set" or "409: person_already_set")
+		const messageCode = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(str[0]) ? str[0] : "liveness_failed";
+		this.errorContent = { message: messageCode };
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {

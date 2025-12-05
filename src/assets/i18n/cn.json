@@ -179,6 +179,7 @@
         "liveness_failed": "活体检测失败",
         "liveness_error_message": "活体检测失败，错误如下：<br><strong>{{error}}</strong><br>您想再试一次吗？",
         "person_linked_to_another_email": "您的生物识别数据已链接到另一个电子邮件。",
+        "person_already_set": "生物识别签名已提交到另一条记录。",
         "face_not_found_title": "未检测到面部",
         "face_not_found_subtitle": "无法检测到您的面部。",
         "loading_stream": "加载摄像头",

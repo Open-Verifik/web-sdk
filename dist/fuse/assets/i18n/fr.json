@@ -178,6 +178,7 @@
         "liveness_failed": "Échec de la détection de vivacité",
         "liveness_error_message": "Le test de vivacité a échoué avec l'erreur suivante :<br><strong>{{error}}</strong><br>Voulez-vous réessayer ?",
         "person_linked_to_another_email": "Vos données biométriques sont liées à un autre e-mail.",
+        "person_already_set": "La signature biométrique a déjà été soumise à un autre enregistrement.",
         "face_not_found_title": "Visage Non Trouvé",
         "face_not_found_subtitle": "Votre visage ne peut pas être détecté.",
         "loading_stream": "Chargement de la caméra",
