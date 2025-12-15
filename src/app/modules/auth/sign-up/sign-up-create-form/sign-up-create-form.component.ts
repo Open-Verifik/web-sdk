@@ -215,7 +215,14 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 			];
 		}
 
-		if (this.signUpFormSettings?.showTermsAndConditions || this.signUpFormSettings?.showPrivacyNotice) {
+		// Show terms section if flags are enabled OR if URLs exist (fallback for v3 compatibility)
+		const shouldShowTerms =
+			this.signUpFormSettings?.showTermsAndConditions ||
+			this.signUpFormSettings?.showPrivacyNotice ||
+			this.project?.termsAndConditionsUrl ||
+			this.project?.privacyUrl;
+
+		if (shouldShowTerms) {
 			this.fields["agreements"] = [false, [Validators.requiredTrue]];
 		}
 

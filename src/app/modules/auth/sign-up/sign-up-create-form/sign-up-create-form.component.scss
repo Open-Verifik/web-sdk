@@ -1,3 +1,45 @@
+// Form container improvements
+:host {
+	display: block;
+	width: 100%;
+}
+
+// Material form field improvements
+::ng-deep {
+	mat-form-field {
+		.mat-mdc-form-field-subscript-wrapper {
+			margin-top: 4px;
+		}
+
+		.mat-mdc-text-field-wrapper {
+			padding-bottom: 0;
+		}
+
+		.mat-mdc-form-field-bottom-align {
+			min-height: 20px;
+		}
+	}
+
+	// Improve form field appearance
+	.mat-mdc-form-field {
+		.mat-mdc-text-field-wrapper {
+			background-color: transparent;
+		}
+
+		.mat-mdc-form-field-input-control {
+			input,
+			textarea {
+				font-size: 15px;
+				line-height: 1.5;
+			}
+		}
+
+		.mat-mdc-form-field-label {
+			font-size: 14px;
+		}
+	}
+}
+
 // Verifik select search styles using BEM
 .verifik-select-search {
 	&__panel {
