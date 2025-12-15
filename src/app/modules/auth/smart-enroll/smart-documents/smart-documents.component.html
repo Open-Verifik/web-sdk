@@ -6,13 +6,14 @@
 	class="w-full flex flex-col justify-start items-center md:flex-row md:justify-center md:items-center"
 >
 	<div @fadeIn class="w-full flex flex-row h-screen overflow-y-auto" *ngIf="project && projectFlow && !formSubmitted">
-		<div class="w-full p-2 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image }">
-			<div class="w-full max-w-2xl flex flex-col items-center m-auto gap-6 py-8">
+		<div class="w-full p-4 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image }">
+			<div class="w-full max-w-md flex flex-col items-center m-auto gap-6 py-8">
 				<div class="w-full flex flex-col items-center gap-6" [class.hidden]="showQrCode">
-					<div class="w-full flex flex-col gap-2 justify-center items-center">
+					<!-- Header Section -->
+					<div class="w-full flex flex-col gap-4 justify-center items-center">
 						<div class="flex flex-row items-center justify-center">
 							<ng-container *ngIf="project?.branding?.logo; else defaultLogo">
-								<img class="max-w-16 max-h-16 object-contain" [src]="project.branding.logo" alt="Logo" />
+								<img class="h-12 w-auto object-contain" [src]="project.branding.logo" alt="Logo" />
 							</ng-container>
 
 							<ng-template #defaultLogo>
@@ -25,68 +26,71 @@
 							</ng-template>
 						</div>
 
-						<h5
-							[style.color]="project?.branding?.titleColor"
-							class="w-full text-3xl font-medium text-center"
-							ngClass.gt-sm="mt-2"
-							ngClass.lt-md="text-2xl"
-						>
-							{{ t("smart_enroll.documents.scan_or_upload_title") }}
-						</h5>
+						<div class="flex flex-col items-center gap-2">
+							<h1
+								[style.color]="project?.branding?.titleColor || '#1a1a1a'"
+								class="text-2xl sm:text-3xl font-semibold text-center"
+							>
+								{{ t("smart_enroll.documents.scan_or_upload_title") }}
+							</h1>
 
-						<p class="smart-documents__subtitle">
-							{{ t("smart_enroll.documents.scan_or_upload_subtitle") }}
-						</p>
+							<p class="text-sm sm:text-base text-center" [style.color]="project?.branding?.textColor || '#6b7280'">
+								{{ t("smart_enroll.documents.scan_or_upload_subtitle") }}
+							</p>
+						</div>
 					</div>
 
-					<div class="flex flex-col sm:flex-row justify-center items-center gap-4 min-w-80">
-						<form
-							(ngSubmit)="submitMethodSelectionForm()"
-							[formGroup]="methodSelectionForm"
-							class="smart-documents__card flex flex-col justify-start items-center rounded-2xl gap-4"
-						>
-							<ng-container *ngIf="project.demoMode">
-								<div class="w-full flex flex-col gap-4 my-4 border rounded-3xl p-6">
-									<div class="w-full flex flex-col gap-2">
-										<h6 [style.color]="project.branding.titleColor" class="w-full text-2xl font-medium text-center">
-											{{ t("smart_enroll.demo_mode.title") }}
-										</h6>
+					<!-- Form -->
+					<form
+						(ngSubmit)="submitMethodSelectionForm()"
+						[formGroup]="methodSelectionForm"
+						class="w-full flex flex-col gap-6"
+					>
+						<!-- Demo Mode Card -->
+						<ng-container *ngIf="project.demoMode">
+							<div class="w-full flex flex-col gap-4 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+								<div class="w-full flex flex-col gap-1">
+									<h3 [style.color]="project.branding.titleColor || '#1e40af'" class="text-lg font-semibold text-center">
+										{{ t("smart_enroll.demo_mode.title") }}
+									</h3>
 
-										<p class="smart-documents__subtitle text-center" [style.color]="project.branding.textColor">
-											{{ t("smart_enroll.demo_mode.document_description") }}
-										</p>
-									</div>
-
-									<verifik-radio-group
-										(ngModelChange)="onDemoModeSelected($event)"
-										[(ngModel)]="demoModeChoice"
-										[ngModelOptions]="{ standalone: true }"
-									>
-										<div class="flex flex-row gap-2 w-full">
-											<verifik-radio-item
-												[label]="t('smart_enroll.demo_mode.use_own')"
-												class="w-full flex flex-col gap-4"
-												value="own"
-												variant="slab"
-											>
-												<mat-icon class="text-gray-800" svgIcon="mat_solid:person"></mat-icon>
-												<span>{{ t("smart_enroll.demo_mode.use_own") }}</span>
-											</verifik-radio-item>
-
-											<verifik-radio-item
-												[label]="t('smart_enroll.demo_mode.use_demo')"
-												class="w-full flex flex-col gap-4"
-												value="demo"
-												variant="slab"
-											>
-												<mat-icon class="text-gray-800" svgIcon="mat_solid:play_circle"></mat-icon>
-												<span>{{ t("smart_enroll.demo_mode.use_demo") }}</span>
-											</verifik-radio-item>
-										</div>
-									</verifik-radio-group>
+									<p class="text-sm text-center" [style.color]="project.branding.textColor || '#64748b'">
+										{{ t("smart_enroll.demo_mode.document_description") }}
+									</p>
 								</div>
-							</ng-container>
 
+								<verifik-radio-group
+									(ngModelChange)="onDemoModeSelected($event)"
+									[(ngModel)]="demoModeChoice"
+									[ngModelOptions]="{ standalone: true }"
+								>
+									<div class="flex flex-row gap-3 w-full">
+										<verifik-radio-item
+											[label]="t('smart_enroll.demo_mode.use_own')"
+											class="flex-1 flex flex-col gap-2"
+											value="own"
+											variant="slab"
+										>
+											<mat-icon class="text-gray-700" svgIcon="mat_solid:person"></mat-icon>
+											<span class="font-medium text-sm">{{ t("smart_enroll.demo_mode.use_own") }}</span>
+										</verifik-radio-item>
+
+										<verifik-radio-item
+											[label]="t('smart_enroll.demo_mode.use_demo')"
+											class="flex-1 flex flex-col gap-2"
+											value="demo"
+											variant="slab"
+										>
+											<mat-icon class="text-gray-700" svgIcon="mat_solid:play_circle"></mat-icon>
+											<span class="font-medium text-sm">{{ t("smart_enroll.demo_mode.use_demo") }}</span>
+										</verifik-radio-item>
+									</div>
+								</verifik-radio-group>
+							</div>
+						</ng-container>
+
+						<!-- Step 1: Verification Method -->
+						<div @fadeIn class="flex flex-col gap-3">
 							<ng-container
 								*ngTemplateOutlet="steps; context: { index: 1, title: 'smart_enroll.documents.verification_method' }"
 							></ng-container>
@@ -112,54 +116,43 @@
 									></verifik-radio-item>
 								</div>
 							</verifik-radio-group>
+						</div>
 
-							<ng-container *ngIf="!project.demoMode || demoModeChoice === 'own'">
+						<ng-container *ngIf="!project.demoMode || demoModeChoice === 'own'">
+							<!-- Step 2: Issuing Country - Show when Step 1 complete -->
+							<div
+								@fadeIn
+								*ngIf="methodSelectionForm.get('documentMethod')?.value"
+								class="flex flex-col gap-3"
+							>
 								<ng-container
-									*ngTemplateOutlet="
-										steps;
-										context: {
-											index: 2,
-											title: 'smart_enroll.documents.issuing_country',
-											opacity: !methodSelectionForm.get('documentMethod')?.value ? '0.5' : '1'
-										}
-									"
+									*ngTemplateOutlet="steps; context: { index: 2, title: 'smart_enroll.documents.issuing_country' }"
 								></ng-container>
 
-								<div class="w-full flex flex-col">
-									<mat-form-field
-										[style.opacity]="!methodSelectionForm.get('documentMethod')?.value ? '0.5' : '1'"
-										appearance="outline"
-										class="country-select w-full"
-									>
-										<mat-label>{{ t("smart_enroll.documents.country") }}</mat-label>
+								<mat-form-field appearance="outline" class="country-select w-full">
+									<mat-label>{{ t("smart_enroll.documents.country") }}</mat-label>
 
-										<mat-select class="country-select__input" formControlName="country" required>
-											<mat-option *ngFor="let country of countries || []; trackBy: trackByCountry" [value]="country?.country">
-												{{ country?.name ? t(country.name) : "Unknown Country" }}
-											</mat-option>
-										</mat-select>
-									</mat-form-field>
+									<mat-select class="country-select__input" formControlName="country" required>
+										<mat-option *ngFor="let country of countries || []; trackBy: trackByCountry" [value]="country?.country">
+											{{ country?.name ? t(country.name) : "Unknown Country" }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
 
-									<ng-container
-										*ngTemplateOutlet="
-											steps;
-											context: {
-												index: 3,
-												title: 'smart_enroll.documents.category',
-												opacity: !methodSelectionForm.get('country')?.value ? '0.5' : '1'
-											}
-										"
-									></ng-container>
-								</div>
+							<!-- Step 3: Category - Show when Step 2 complete -->
+							<div
+								@fadeIn
+								*ngIf="methodSelectionForm.get('country')?.value"
+								class="flex flex-col gap-3"
+							>
+								<ng-container
+									*ngTemplateOutlet="steps; context: { index: 3, title: 'smart_enroll.documents.category' }"
+								></ng-container>
 
-								<verifik-radio-group
-									[style.opacity]="!methodSelectionForm.get('country')?.value ? '0.5' : '1'"
-									formControlName="documentCategory"
-									required
-								>
+								<verifik-radio-group formControlName="documentCategory" required>
 									<div class="flex flex-col gap-2 w-full">
 										<verifik-radio-item
-											[disabled]="!methodSelectionForm.get('country')?.value"
 											[label]="t('smart_enroll.documents.id_card')"
 											*ngIf="
 												projectFlow?.documentGovernmentIDAllowed &&
@@ -172,7 +165,6 @@
 										></verifik-radio-item>
 
 										<verifik-radio-item
-											[disabled]="!methodSelectionForm.get('country')?.value"
 											[label]="t('smart_enroll.documents.passport')"
 											*ngIf="
 												projectFlow?.documentPassportAllowed &&
@@ -197,154 +189,171 @@
 										></verifik-radio-item>
 									</div>
 								</verifik-radio-group>
-
-								<ng-container *ngIf="projectFlow?.version === 3">
-									<ng-container
-										*ngTemplateOutlet="
-											steps;
-											context: {
-												index: 4,
-												opacity: !methodSelectionForm.get('documentCategory')?.value ? '0.5' : '1',
-												title: 'smart_enroll.documents.document_type'
-											}
-										"
-									></ng-container>
-
-									<verifik-radio-group
-										[style.opacity]="!methodSelectionForm.get('documentCategory')?.value ? '0.5' : '1'"
-										formControlName="promptTemplate"
-										class="w-full flex flex-col gap-2"
-									>
-										<verifik-radio-item
-											*ngFor="
-												let template of getPromptTemplates(
-													methodSelectionForm.get('country')?.value,
-													methodSelectionForm.get('documentCategory')?.value
-												);
-												trackBy: trackByPromptTemplate
-											"
-											[value]="template"
-											class="w-full mb-4"
-											variant="slab"
-										>
-											<div class="flex flex-row items-center justify-between w-full p-2">
-												<div class="flex flex-col gap-1">
-													<span class="font-medium text-base">{{ getDocumentDisplayName(template) }}</span>
-													<span class="text-sm text-gray-500" *ngIf="template.description">{{ template.description }}</span>
-												</div>
-
-												<button
-													mat-icon-button
-													*ngIf="template.documentType"
-													(click)="$event.stopPropagation(); openReferenceDialog(template, referenceModal)"
-													matTooltip="View Reference"
-													class="z-10 relative text-gray-500 hover:text-primary"
-													type="button"
-												>
-													<mat-icon>image</mat-icon>
-												</button>
-											</div>
-										</verifik-radio-item>
-									</verifik-radio-group>
-
-									<ng-template #referenceModal>
-										<div class="flex flex-col gap-4 p-4 max-w-3xl max-h-[90vh] overflow-y-auto">
-											<div class="flex justify-between items-start">
-												<h2 class="text-xl font-bold m-0">Reference Images</h2>
-												<button mat-icon-button mat-dialog-close>
-													<mat-icon>close</mat-icon>
-												</button>
-											</div>
-
-											<div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-												<div *ngIf="selectedReferenceDoc?.frontImage" class="flex flex-col gap-2 items-center">
-													<span class="font-semibold text-gray-600">Front</span>
-													<img
-														[src]="selectedReferenceDoc.frontImage"
-														class="max-w-xs object-contain rounded-lg border shadow-sm"
-														alt="Front Reference"
-													/>
-												</div>
-												<div *ngIf="selectedReferenceDoc?.backImage" class="flex flex-col gap-2 items-center">
-													<span class="font-semibold text-gray-600">Back</span>
-													<img
-														[src]="selectedReferenceDoc.backImage"
-														class="max-w-xs object-contain rounded-lg border shadow-sm"
-														alt="Back Reference"
-													/>
-												</div>
-												<div
-													*ngIf="!selectedReferenceDoc?.frontImage && !selectedReferenceDoc?.backImage"
-													class="text-gray-500 italic"
-												>
-													No reference images available.
-												</div>
-											</div>
-										</div>
-									</ng-template>
-								</ng-container>
-							</ng-container>
-
-							<div
-								class="w-full flex flex-row items-center mt-4"
-								[ngClass]="{
-									'justify-between': projectFlow?.onboardingSettings?.steps?.document !== 'mandatory',
-									'justify-end': projectFlow?.onboardingSettings?.steps?.document === 'mandatory'
-								}"
-							>
-								<button
-									(click)="onSkipStep()"
-									*ngIf="projectFlow?.onboardingSettings?.steps?.document !== 'mandatory'"
-									class="min-h-14 h-14 rounded-lg"
-									color="primary"
-									mat-stroked-button
-									type="button"
-								>
-									<span>{{ t("skip") }}</span>
-								</button>
-
-								<button
-									[disabled]="disableSubmitButton()"
-									class="min-h-14 h-14 rounded-lg"
-									color="primary"
-									mat-flat-button
-									type="submit"
-								>
-									{{ t("continue") }}
-								</button>
 							</div>
-						</form>
-					</div>
 
-					<div class="relative flex items-center justify-center my-4 w-full max-w-100">
+							<!-- Step 4: Document Type - Show when Step 3 complete (v3 only) -->
+							<div
+								@fadeIn
+								*ngIf="projectFlow?.version === 3 && methodSelectionForm.get('documentCategory')?.value"
+								class="flex flex-col gap-3"
+							>
+								<ng-container
+									*ngTemplateOutlet="steps; context: { index: 4, title: 'smart_enroll.documents.document_type' }"
+								></ng-container>
+
+								<verifik-radio-group formControlName="promptTemplate" class="w-full flex flex-col gap-2">
+									<verifik-radio-item
+										*ngFor="
+											let template of getPromptTemplates(
+												methodSelectionForm.get('country')?.value,
+												methodSelectionForm.get('documentCategory')?.value
+											);
+											trackBy: trackByPromptTemplate
+										"
+										[value]="template"
+										class="w-full"
+										variant="slab"
+									>
+										<div class="flex flex-row items-center justify-between w-full p-2">
+											<div class="flex flex-col gap-1">
+												<span class="font-medium text-sm">{{ getDocumentDisplayName(template) }}</span>
+												<span class="text-xs text-gray-500" *ngIf="template.description">{{ template.description }}</span>
+											</div>
+
+											<button
+												mat-icon-button
+												*ngIf="template.documentType"
+												(click)="$event.stopPropagation(); openReferenceDialog(template, referenceModal)"
+												matTooltip="View Reference"
+												class="z-10 relative text-gray-500 hover:text-primary"
+												type="button"
+											>
+												<mat-icon>image</mat-icon>
+											</button>
+										</div>
+									</verifik-radio-item>
+								</verifik-radio-group>
+							</div>
+
+							<ng-template #referenceModal>
+								<div class="flex flex-col gap-4 p-4 max-w-3xl max-h-[90vh] overflow-y-auto">
+									<div class="flex justify-between items-start">
+										<h2 class="text-xl font-bold m-0">Reference Images</h2>
+										<button mat-icon-button mat-dialog-close>
+											<mat-icon>close</mat-icon>
+										</button>
+									</div>
+
+									<div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+										<div *ngIf="selectedReferenceDoc?.frontImage" class="flex flex-col gap-2 items-center">
+											<span class="font-semibold text-gray-600">Front</span>
+											<img
+												[src]="selectedReferenceDoc.frontImage"
+												class="max-w-xs object-contain rounded-lg border shadow-sm"
+												alt="Front Reference"
+											/>
+										</div>
+										<div *ngIf="selectedReferenceDoc?.backImage" class="flex flex-col gap-2 items-center">
+											<span class="font-semibold text-gray-600">Back</span>
+											<img
+												[src]="selectedReferenceDoc.backImage"
+												class="max-w-xs object-contain rounded-lg border shadow-sm"
+												alt="Back Reference"
+											/>
+										</div>
+										<div
+											*ngIf="!selectedReferenceDoc?.frontImage && !selectedReferenceDoc?.backImage"
+											class="text-gray-500 italic"
+										>
+											No reference images available.
+										</div>
+									</div>
+								</div>
+							</ng-template>
+						</ng-container>
+
+						<!-- Action Buttons -->
+						<div
+							class="w-full flex flex-row items-center gap-3 mt-6"
+							[ngClass]="{
+								'justify-between': projectFlow?.onboardingSettings?.steps?.document !== 'mandatory',
+								'justify-end': projectFlow?.onboardingSettings?.steps?.document === 'mandatory'
+							}"
+						>
+							<button
+								(click)="onSkipStep()"
+								*ngIf="projectFlow?.onboardingSettings?.steps?.document !== 'mandatory'"
+								class="h-12 px-6 rounded-lg font-medium"
+								color="primary"
+								mat-stroked-button
+								type="button"
+							>
+								<span>{{ t("skip") }}</span>
+							</button>
+
+							<button
+								[disabled]="disableSubmitButton()"
+								class="h-12 px-6 rounded-lg font-medium"
+								color="primary"
+								mat-flat-button
+								type="submit"
+							>
+								{{ t("continue") }}
+							</button>
+						</div>
+					</form>
+
+					<!-- Divider -->
+					<div class="relative flex items-center justify-center w-full my-2">
 						<mat-divider class="w-full"></mat-divider>
 
 						<span
-							class="absolute px-3 text-base font-semibold"
-							[style.background-color]="project?.branding?.backgroundColor"
-							[style.color]="project?.branding?.titleColor"
+							class="absolute px-3 text-sm font-medium"
+							[style.background-color]="project?.branding?.backgroundColor || '#f0f9ff'"
+							[style.color]="project?.branding?.textColor || '#64748b'"
 							>OR</span
 						>
 					</div>
+
+					<!-- Continue on Another Device Button -->
+					<button
+						(click)="showQrCode = !showQrCode"
+						class="w-full h-12 rounded-lg font-medium"
+						color="primary"
+						mat-stroked-button
+						type="button"
+					>
+						<mat-icon class="mr-2" *ngIf="!showQrCode">smartphone</mat-icon>
+						<span *ngIf="!showQrCode">{{ "welcome.continue_on_another" | transloco }}</span>
+						<span *ngIf="showQrCode">{{ "welcome.back_to_form" | transloco }}</span>
+					</button>
 				</div>
 
-				<button (click)="showQrCode = !showQrCode" class="min-h-14 h-14 rounded-lg" color="primary" mat-stroked-button type="button">
-					<mat-icon class="mr-2" *ngIf="!showQrCode">smartphone</mat-icon>
-
-					<span *ngIf="!showQrCode">{{ "welcome.continue_on_another" | transloco }}</span>
-					<span *ngIf="showQrCode">{{ "welcome.back_to_form" | transloco }}</span>
-				</button>
-
-				<div class="mt-2 flex flex-col items-center" [class.hidden]="!showQrCode">
-					<div class="font-bold text-3xl" [style.color]="project.branding.titleColor">
+				<!-- QR Code Section -->
+				<div class="w-full max-w-md mt-4 flex flex-col items-center gap-4" [class.hidden]="!showQrCode">
+					<h3 class="text-xl font-semibold text-center" [style.color]="project.branding.titleColor || '#1a1a1a'">
 						{{ "welcome.other_device_title" | transloco }}
-					</div>
+					</h3>
 
-					<div class="text-center mt-2" [style.color]="project.branding.textColor">{{ "welcome.other_device_subtitle" | transloco }}</div>
+					<p class="text-sm text-center" [style.color]="project.branding.textColor || '#6b7280'">
+						{{ "welcome.other_device_subtitle" | transloco }}
+					</p>
 
 					<div class="w-full flex flex-col items-center">
 						<canvas class="m-8" #qrCodeCanvas height="400" width="400"></canvas>
 					</div>
+
+					<!-- Back Button -->
+					<button
+						(click)="showQrCode = false"
+						class="w-full h-12 rounded-lg font-medium"
+						color="primary"
+						mat-stroked-button
+						type="button"
+					>
+						<mat-icon class="mr-2">arrow_back</mat-icon>
+						<span>{{ "welcome.back_to_form" | transloco }}</span>
+					</button>
 				</div>
 			</div>
 		</div>
@@ -356,18 +365,18 @@
 		></verifik-media-display>
 	</div>
 
-	<ng-template #steps let-index="index" let-title="title" let-opacity="opacity">
-		<div class="self-stretch inline-flex justify-start items-center gap-2" [style.opacity]="opacity || 1">
+	<ng-template #steps let-index="index" let-title="title">
+		<div class="w-full inline-flex justify-start items-center gap-2">
 			<div
-				class="w-6 h-6 rounded-full inline-flex flex-col justify-center items-center gap-2"
-				[style.background-color]="project?.branding?.buttonColor"
+				class="w-6 h-6 rounded-full inline-flex flex-col justify-center items-center shrink-0"
+				[style.background-color]="project?.branding?.buttonColor || '#3f3f46'"
 			>
-				<div class="text-center justify-center text-white text-md font-medium leading-tight">{{ index }}</div>
+				<span class="text-center text-white text-xs font-semibold leading-tight">{{ index }}</span>
 			</div>
 
-			<div class="text-center justify-center text-md font-medium leading-tight" [style.color]="project?.branding?.titleColor">
+			<span class="text-sm font-medium leading-tight" [style.color]="project?.branding?.titleColor || '#1a1a1a'">
 				{{ t(title) }}
-			</div>
+			</span>
 		</div>
 	</ng-template>
 
