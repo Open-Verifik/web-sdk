@@ -576,6 +576,7 @@
 				"back": "Posterior",
 				"upload_frontside": "Subir Lado Frontal",
 				"upload_backside": "Subir Lado Posterior",
+				"or_click_to_browse": "o haz clic para buscar archivos",
 				"find_file": "Encontrar archivo en tu dispositivo",
 				"identification_document_tip": "El archivo debe estar en uno de los siguientes formatos: .jpeg, .png o .jpg",
 				"ocr_details_front_title": "Detalles de OCR del Documento Frontal",

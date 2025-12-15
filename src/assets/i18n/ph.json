@@ -525,6 +525,7 @@
 				"back": "Likod",
 				"upload_frontside": "I-upload ang Unahang Bahagi",
 				"upload_backside": "I-upload ang Likurang Bahagi",
+				"or_click_to_browse": "o mag-click upang mag-browse ng mga file",
 				"find_file": "Hanapin ang file sa iyong device",
 				"identification_document_tip": "Ang file ay dapat nasa alinman sa mga sumusunod na format: .jpeg, .png, o .jpg",
 				"ocr_details_front_title": "OCR Detalye mula sa Unahang Bahagi ng Dokumento",

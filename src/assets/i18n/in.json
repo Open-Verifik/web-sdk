@@ -525,6 +525,7 @@
 				"back": "पीछे",
 				"upload_frontside": "सामने का भाग अपलोड करें",
 				"upload_backside": "पीछे का भाग अपलोड करें",
+				"or_click_to_browse": "या फ़ाइलें ब्राउज़ करने के लिए क्लिक करें",
 				"find_file": "अपने डिवाइस पर फ़ाइल ढूंढें",
 				"identification_document_tip": "फ़ाइल निम्न प्रारूपों में से एक में होनी चाहिए: .jpeg, .png, या .jpg",
 				"ocr_details_front_title": "सामने वाले दस्तावेज़ से ओसीआर विवरण",

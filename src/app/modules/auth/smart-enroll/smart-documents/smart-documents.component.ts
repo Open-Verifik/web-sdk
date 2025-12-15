@@ -410,18 +410,34 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 	};
 
 	private _onEnrollSettingsChange(settings: EnrollSettings) {
-		if (!this.methodSelectionForm || !settings.documentMethod) this.formSubmitted = false;
-
-		if (settings.documentMethod && this.methodSelectionForm?.value.documentMethod !== settings.documentMethod) {
-			this.methodSelectionForm.setValue({ documentMethod: settings.documentMethod });
+		if (!this.methodSelectionForm) {
+			this.formSubmitted = false;
+			return;
 		}
 
-		if (settings.documentCategory && this.methodSelectionForm?.value.documentCategory !== settings.documentCategory) {
-			this.methodSelectionForm.setValue({ documentCategory: settings.documentCategory });
+		const { documentMethod, documentCategory, country } = settings;
+		const currentDocumentMethod = this.methodSelectionForm.get("documentMethod")?.value;
+
+		// Only reset formSubmitted if documentMethod is being cleared
+		// Don't reset if we're already in the upload flow (formSubmitted = true)
+		if (!documentMethod && currentDocumentMethod) {
+			this.formSubmitted = false;
 		}
 
-		if (settings.country && this.methodSelectionForm?.value.country !== settings.country) {
-			this.methodSelectionForm.setValue({ country: settings.country });
+		if (documentMethod && currentDocumentMethod !== documentMethod) {
+			this.methodSelectionForm.patchValue({ documentMethod }, { emitEvent: false });
+			// Only reset formSubmitted when documentMethod actually changes to a different value
+			if (currentDocumentMethod) {
+				this.formSubmitted = false;
+			}
+		}
+
+		if (country && this.methodSelectionForm.get("country")?.value !== country) {
+			this.methodSelectionForm.patchValue({ country }, { emitEvent: false });
+		}
+
+		if (documentCategory && this.methodSelectionForm.get("documentCategory")?.value !== documentCategory) {
+			this.methodSelectionForm.patchValue({ documentCategory }, { emitEvent: false });
 		}
 	}
 

@@ -17,6 +17,7 @@ import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-d
 import { SmartLivenessComponent } from "../smart-liveness/smart-liveness.component";
 import { SmartLivenessDemoComponent } from "../smart-liveness/smart-liveness-demo.component";
 import { ApiErrorService } from "app/core/services/api-error.service";
+import { NeuralFaceComponent } from "./neural-face/neural-face.component";
 
 @Component({
 	animations: fuseAnimations,
@@ -28,6 +29,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 		SmartLivenessDemoComponent,
 		SmartErrorDisplayComponent,
 		TranslocoModule,
+		NeuralFaceComponent,
 	],
 	selector: "smart-biometrics",
 	standalone: true,

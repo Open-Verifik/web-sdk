@@ -577,6 +577,7 @@
 				"template_id": "Template ID",
 				"upload_backside": "Upload Back Side",
 				"upload_frontside": "Upload Front Side",
+				"or_click_to_browse": "or click to browse files",
 				"steps": {
 					"1": "Upload a file in .jpeg, .png, or .jpg formats.",
 					"2": "Confirm the upload was successful.",

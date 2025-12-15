@@ -525,6 +525,7 @@
 				"back": "Retro",
 				"upload_frontside": "Carica il Lato Frontale",
 				"upload_backside": "Carica il Lato Posteriore",
+				"or_click_to_browse": "o clicca per sfogliare i file",
 				"find_file": "Trova il file sul tuo dispositivo",
 				"identification_document_tip": "Il file deve essere in uno dei seguenti formati: .jpeg, .png o .jpg",
 				"ocr_details_front_title": "Dettagli OCR del Documento Frontale",

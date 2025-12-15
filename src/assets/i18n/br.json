@@ -528,6 +528,7 @@
 				"back": "Verso",
 				"upload_frontside": "Carregar Frente",
 				"upload_backside": "Carregar Verso",
+				"or_click_to_browse": "ou clique para navegar nos arquivos",
 				"find_file": "Encontrar arquivo no seu dispositivo",
 				"identification_document_tip": "O arquivo deve estar em um dos seguintes formatos: .jpeg, .png ou .jpg",
 				"ocr_details_front_title": "Detalhes de OCR do Documento Frente",

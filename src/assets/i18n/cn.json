@@ -528,6 +528,7 @@
 				"back": "背面",
 				"upload_frontside": "上传正面",
 				"upload_backside": "上传背面",
+				"or_click_to_browse": "或点击浏览文件",
 				"find_file": "在您的设备上找到文件",
 				"identification_document_tip": "文件格式必须是以下之一：.jpeg, .png, .jpg",
 				"ocr_details_front_title": "正面文件的 OCR 详情",

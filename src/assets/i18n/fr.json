@@ -525,6 +525,7 @@
 				"back": "Arrière",
 				"upload_frontside": "Téléverser le Côté Avant",
 				"upload_backside": "Téléverser le Côté Arrière",
+				"or_click_to_browse": "ou cliquez pour parcourir les fichiers",
 				"find_file": "Trouver un fichier sur votre appareil",
 				"identification_document_tip": "Le fichier doit être dans l'un des formats suivants : .jpeg, .png ou .jpg",
 				"ocr_details_front_title": "Détails OCR du Document Avant",

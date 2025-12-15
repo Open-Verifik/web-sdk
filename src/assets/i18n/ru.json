@@ -525,6 +525,7 @@
 				"back": "Зад",
 				"upload_frontside": "Загрузить переднюю сторону",
 				"upload_backside": "Загрузить заднюю сторону",
+				"or_click_to_browse": "или нажмите, чтобы выбрать файлы",
 				"find_file": "Найти файл на вашем устройстве",
 				"identification_document_tip": "Файл должен быть в одном из следующих форматов: .jpeg, .png, или .jpg",
 				"ocr_details_front_title": "OCR Детали из Передней Стороны Документа",

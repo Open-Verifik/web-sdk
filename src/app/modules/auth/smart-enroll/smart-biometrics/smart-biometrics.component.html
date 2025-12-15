@@ -1,66 +1,83 @@
 <div class="min-h-full w-full flex flex-row justify-center items-center" ngClass.gt-sm="px-4 py-4" ngClass.lt-md="p-4" *transloco="let t">
-	<!-- Instructions Screen -->
-	<div class="flex flex-col w-full max-w-2xl p-8" *ngIf="!confirmedInstructions && !errorResult">
-		<!-- Header with Back Button and Title -->
-		<div class="flex items-start mb-8">
-			<!-- Go Back Icon Button -->
+	<!-- Instructions Screen (Refreshed Design) -->
+	<div
+		class="flex flex-col w-full max-w-[440px] bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+		*ngIf="!confirmedInstructions && !errorResult"
+	>
+		<!-- Header Section -->
+		<div class="flex flex-col items-center pt-8 pb-4 relative">
+			<!-- Close/Back Button (Subtle top-left) -->
 			<button
 				mat-icon-button
 				(click)="goBack()"
-				class="w-12 h-12 rounded-full border border-gray-300 hover:bg-gray-50 flex items-center justify-center flex-shrink-0 mr-4"
+				class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors"
 				[attr.aria-label]="t('biometrics_instructions.go_back')"
 			>
-				<mat-icon svgIcon="mat_solid:arrow_back" class="text-gray-700"></mat-icon>
+				<mat-icon svgIcon="mat_solid:arrow_back" class="icon-size-5"></mat-icon>
 			</button>
 
-			<!-- Title and Subtitle -->
-			<div class="flex flex-col flex-1">
-				<h1 class="text-3xl font-semibold text-gray-900 mb-2 text-center">
-					{{ t("biometrics_instructions.title") }}
-				</h1>
-
-				<p class="text-lg text-gray-600 text-center">
-					{{ t("biometrics_instructions.subtitle") }}
-				</p>
+			<!-- 3D Animation -->
+			<div
+				class="w-36 h-36 rounded-full bg-brand-primary/5 flex items-center justify-center mb-6 text-brand-primary ring-1 ring-brand-primary/10 overflow-hidden relative"
+			>
+				<neural-face class="absolute inset-0 w-full h-full" [color]="'#6366f1'"></neural-face>
 			</div>
+
+			<!-- Title -->
+			<h1 class="text-2xl font-bold text-gray-900 text-center px-8 mb-2 leading-tight tracking-tight">
+				{{ t("biometrics_instructions.title") }}
+			</h1>
+
+			<!-- Subtitle -->
+			<p class="text-[15px] text-gray-500 text-center px-10 leading-relaxed max-w-sm mx-auto">
+				{{ t("biometrics_instructions.subtitle") }}
+			</p>
 		</div>
 
-		<!-- Instructions Steps -->
-		<div class="flex flex-col justify-center items-center space-y-4 mb-8">
-			<div class="flex items-center space-x-4 w-full max-w-100">
-				<div class="flex-shrink-0 w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center font-semibold">1</div>
-				<p class="text-gray-700 pt-1 flex-1 text-center">
-					{{ t("biometrics_instructions.step_1") }}
-				</p>
+		<!-- Steps Section -->
+		<div class="px-8 py-6 space-y-5">
+			<div class="flex items-start group">
+				<div
+					class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center text-sm font-bold mt-0.5 ring-1 ring-brand-primary/20 group-hover:bg-brand-primary group-hover:text-white transition-colors duration-300"
+				>
+					1
+				</div>
+				<p class="ml-4 text-[15px] text-gray-600 leading-6 font-medium">{{ t("biometrics_instructions.step_1") }}</p>
 			</div>
 
-			<div class="flex items-center space-x-4 w-full max-w-100">
-				<div class="flex-shrink-0 w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center font-semibold">2</div>
-				<p class="text-gray-700 pt-1 flex-1 text-center">
-					{{ t("biometrics_instructions.step_2") }}
-				</p>
+			<div class="flex items-start group">
+				<div
+					class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center text-sm font-bold mt-0.5 ring-1 ring-brand-primary/20 group-hover:bg-brand-primary group-hover:text-white transition-colors duration-300"
+				>
+					2
+				</div>
+				<p class="ml-4 text-[15px] text-gray-600 leading-6 font-medium">{{ t("biometrics_instructions.step_2") }}</p>
 			</div>
 
-			<div class="flex items-center space-x-4 w-full max-w-100">
-				<div class="flex-shrink-0 w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center font-semibold">3</div>
-				<p class="text-gray-700 pt-1 flex-1 text-center">
-					{{ t("biometrics_instructions.step_3") }}
-				</p>
+			<div class="flex items-start group">
+				<div
+					class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center text-sm font-bold mt-0.5 ring-1 ring-brand-primary/20 group-hover:bg-brand-primary group-hover:text-white transition-colors duration-300"
+				>
+					3
+				</div>
+				<p class="ml-4 text-[15px] text-gray-600 leading-6 font-medium">{{ t("biometrics_instructions.step_3") }}</p>
 			</div>
 		</div>
 
 		<!-- Action Buttons -->
-		<div class="flex flex-col items-center gap-4 mt-4">
-			<!-- Continue Button -->
-			<button mat-flat-button (click)="confirmInstructions()" class="w-full h-14 min-h-14 rounded-lg bg-brand-primary">
+		<div class="px-8 pb-8 pt-2 flex flex-col gap-3">
+			<button
+				mat-flat-button
+				(click)="confirmInstructions()"
+				class="w-full h-12 rounded-xl bg-brand-primary text-white font-medium text-[15px] shadow-lg shadow-brand-primary/20 transition-all duration-300 transform hover:-translate-y-0.5"
+			>
 				{{ t("biometrics_instructions.continue") }}
 			</button>
 
-			<!-- Skip Link -->
 			<button
 				type="button"
 				(click)="skipStep()"
-				class="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2 transition-colors"
+				class="w-full h-10 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-colors"
 				*ngIf="projectFlow.onboardingSettings.steps.liveness === 'optional'"
 			>
 				{{ t("biometrics_instructions.skip") }}

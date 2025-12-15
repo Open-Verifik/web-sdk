@@ -525,6 +525,7 @@
 				"back": "뒷면",
 				"upload_frontside": "앞면 업로드",
 				"upload_backside": "뒷면 업로드",
+				"or_click_to_browse": "또는 클릭하여 파일 찾아보기",
 				"find_file": "기기에서 파일 찾기",
 				"identification_document_tip": "파일 형식은 .jpeg, .png 또는 .jpg 중 하나여야 합니다.",
 				"ocr_details_front_title": "앞면 문서의 OCR 세부정보",
