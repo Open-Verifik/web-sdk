@@ -590,7 +590,10 @@
 			"name_validation_success": "Nomes validados com sucesso",
 			"name_validation_failed": "Falha na validação de nomes",
 			"background_check_complete": "Verificação de antecedentes completa",
-			"biometric_comparison_complete": "Comparação biométrica completa"
+			"biometric_comparison_complete": "Comparação biométrica completa",
+			"zero_knowledge_proof_title": "Prova de Conhecimento Zero",
+			"creating_zero_knowledge_proof": "Criando prova de conhecimento zero",
+			"zero_knowledge_proof_complete": "Prova de conhecimento zero criada com sucesso"
 		},
 		"image_captured": "Imagem Capturada!",
 		"demo_mode": {

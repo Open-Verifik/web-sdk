@@ -1,0 +1,9 @@
+{
+	"smart_enroll": {
+		"documents": {
+			"zero_knowledge_proof_title": "Prueba de Conocimiento Cero",
+			"creating_zero_knowledge_proof": "Creando prueba de conocimiento cero",
+			"zero_knowledge_proof_complete": "Prueba de conocimiento cero creada exitosamente"
+		}
+	}
+}

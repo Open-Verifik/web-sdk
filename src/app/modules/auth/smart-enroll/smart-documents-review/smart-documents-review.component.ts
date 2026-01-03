@@ -245,6 +245,16 @@ export class SmartDocumentsReviewComponent {
 		if (results.nameValidation?.status === "fulfilled") {
 			this.appRegistration.documentValidation = results.nameValidation.data;
 			this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
+
+			// Debug: Log the validation state
+			console.log("[DEBUG] Name validation completed:", {
+				namesMatch: this.appRegistration.documentValidation?.namesMatch,
+				infoValidationSupported: this.appRegistration.documentValidation?.infoValidationSupported,
+				imageValidated: this.appRegistration.documentValidation?.imageValidated,
+				canContinue: this.canContinue(),
+				isDocumentValidAndComplete: this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration),
+				validationsInProgress: this.validationsInProgress,
+			});
 		} else if (results.nameValidation?.status === "rejected") {
 			if (results.nameValidation?.error?.code === "PaymentRequired") {
 				this._smartEnrollService.insufficientCreditsTrigger();
@@ -270,6 +280,9 @@ export class SmartDocumentsReviewComponent {
 				compareValidation: results.compareValidation?.reason,
 			});
 		}
+
+		// Re-evaluate errors after validations complete
+		this._setErrors();
 	}
 
 	private _sendDocumentValidationAndNameValidation(): void {
@@ -403,7 +416,26 @@ export class SmartDocumentsReviewComponent {
 	}
 
 	canContinue(): boolean {
-		return this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration) && !this.validationsInProgress;
+		const isValid = this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration);
+		const notInProgress = !this.validationsInProgress;
+		const result = isValid && notInProgress;
+
+		// Debug logging when button should be enabled but isn't
+		if (!result) {
+			console.log("[DEBUG] canContinue check:", {
+				isValid,
+				notInProgress,
+				result,
+				namesMatch: this.appRegistration?.documentValidation?.namesMatch,
+				infoValidationSupported: this.appRegistration?.documentValidation?.infoValidationSupported,
+				verifyNames: this.projectFlow?.onboardingSettings?.document?.verifyNames,
+				loading: this.loading,
+				requiresBackSide: this.appRegistration?.documentValidation?.requiresBackSide,
+				backUrl: this.appRegistration?.documentValidation?.backUrl,
+			});
+		}
+
+		return result;
 	}
 
 	shouldShowValidationSection(): boolean {

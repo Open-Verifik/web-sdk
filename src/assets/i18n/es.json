@@ -609,7 +609,10 @@
 					"3": "Sujeta el documento firmemente dentro del marco rectangular.",
 					"4": "Confirma que el resultado coincida con tus datos."
 				}
-			}
+			},
+			"zero_knowledge_proof_title": "Prueba de Conocimiento Cero",
+			"creating_zero_knowledge_proof": "Creando prueba de conocimiento cero",
+			"zero_knowledge_proof_complete": "Prueba de conocimiento cero creada exitosamente"
 		}
 	},
 	"welcome": {

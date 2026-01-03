@@ -609,7 +609,10 @@
 			"name_validation_success": "Names validated successfully",
 			"name_validation_failed": "Name validation failed",
 			"background_check_complete": "Background check complete",
-			"biometric_comparison_complete": "Biometric comparison complete"
+			"biometric_comparison_complete": "Biometric comparison complete",
+			"zero_knowledge_proof_title": "Zero Knowledge Proof",
+			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
+			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully"
 		}
 	},
 	"welcome": {

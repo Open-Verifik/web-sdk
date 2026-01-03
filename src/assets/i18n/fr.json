@@ -589,7 +589,10 @@
 			"name_validation_success": "Noms validés avec succès",
 			"name_validation_failed": "Échec de la validation du nom",
 			"background_check_complete": "Vérification des antécédents terminée",
-			"biometric_comparison_complete": "Comparaison biométrique terminée"
+			"biometric_comparison_complete": "Comparaison biométrique terminée",
+			"zero_knowledge_proof_title": "Preuve à Divulgation Nulle",
+			"creating_zero_knowledge_proof": "Création de la preuve à divulgation nulle",
+			"zero_knowledge_proof_complete": "Preuve à divulgation nulle créée avec succès"
 		},
 		"image_captured": "Image capturée !",
 		"demo_mode": {

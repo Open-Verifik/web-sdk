@@ -13,7 +13,8 @@
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
 		"check-translations": "node scripts/check-translations.js",
-		"apply-translations": "node scripts/apply-translations.js"
+		"apply-translations": "node scripts/apply-translations.js",
+		"translations:merge": "node scripts/merge-translations.js merge"
 	},
 	"dependencies": {
 		"@angular/animations": "16.0.3",

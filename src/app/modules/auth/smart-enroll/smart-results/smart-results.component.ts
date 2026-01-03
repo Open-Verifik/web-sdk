@@ -54,6 +54,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 	livenessScore: number;
 	isVerifikProject: boolean = false;
 	loadingQRCode: boolean = false;
+	loadingAppRegistrationZKP: boolean = false;
 	project: Project;
 	projectFlow: ProjectFlow;
 	showQrCode: boolean = false;
@@ -111,7 +112,13 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 			this.livenessFailed = true;
 		}
 
-		if (!this.errorResult) this.appRegistration.status = "COMPLETED";
+		if (!this.errorResult) {
+			this.appRegistration.status = "COMPLETED";
+			// Create ZKP if both validations passed and ZKP is enabled
+			if (this.zeroKnowledgeProofEnabled && !this.comparisonFailed && !this.livenessFailed) {
+				this._createAppRegistrationZKP();
+			}
+		}
 	}
 
 	private _endAndRedirect() {
@@ -203,6 +210,45 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 		}
 
 		this.identityLoading = false;
+	}
+
+	get zeroKnowledgeProofEnabled(): boolean {
+		if (!this.projectFlow) return false;
+
+		// For v3, check the liveness property directly
+		if (this.projectFlow.version >= 3) {
+			const liveness = this.projectFlow.liveness as any;
+			return liveness?.kycType === "zero_knowledge";
+		}
+
+		// For v2, check onboardingSettings
+		const onboardingSettings = this.projectFlow.onboardingSettings as any;
+		return onboardingSettings?.livenessSettings?.kycType === "zero_knowledge";
+	}
+
+	private _createAppRegistrationZKP(): void {
+		// Only create if not already created and face is available
+		if (this.loadingAppRegistrationZKP || this.appRegistration.zelfKey || !this.face?.base64) return;
+
+		this.loadingAppRegistrationZKP = true;
+
+		// Get face base64 (remove data URL prefix if present)
+		const faceBase64 = this.face.base64.replace(/^data:image\/\w+;base64,/, "");
+
+		this._KYCService.createAppRegistrationZkProof(faceBase64).subscribe({
+			next: (response: any) => {
+				if (response?.data?.zelfKey) {
+					// Update appRegistration with zelfKey
+					this.appRegistration.zelfKey = response.data.zelfKey;
+				}
+			},
+			error: (error) => {
+				console.error("Error creating appRegistration ZKP:", error);
+			},
+			complete: () => {
+				this.loadingAppRegistrationZKP = false;
+			},
+		});
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {
