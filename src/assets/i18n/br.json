@@ -588,7 +588,7 @@
 			"running_background_check": "Executando verificação de antecedentes",
 			"comparing_biometrics": "Comparando biometria com o documento",
 			"name_validation_success": "Nomes validados com sucesso",
-			"name_validation_failed": "Falha na validação de nomes",
+			"name_validation_failed": "Os nomes na fonte governamental não correspondem. Verifique se o documento é legítimo e se o nome corresponde exatamente.",
 			"background_check_complete": "Verificação de antecedentes completa",
 			"biometric_comparison_complete": "Comparação biométrica completa",
 			"zero_knowledge_proof_title": "Prova de Conhecimento Zero",

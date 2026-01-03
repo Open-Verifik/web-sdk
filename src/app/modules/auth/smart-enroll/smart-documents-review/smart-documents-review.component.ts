@@ -115,8 +115,23 @@ export class SmartDocumentsReviewComponent {
 			return;
 		}
 
+		// If validation is already complete (on page reload), set loading states to false
+		// This ensures _setErrors() can properly evaluate the validation state
+		const docValidation = this.appRegistration.documentValidation;
+		if (docValidation?.imageValidated) {
+			this.loading.nameValidation = false;
+		}
+		if (this.appRegistration?.informationValidation?.criminalData) {
+			this.loading.criminalValidation = false;
+		}
+		if (this.appRegistration?.compareFaceVerification) {
+			this.loading.compareValidation = false;
+		}
+
 		this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
+
 		this._setErrors();
+
 		this._sendDocumentValidationAndNameValidation();
 	}
 
@@ -236,35 +251,17 @@ export class SmartDocumentsReviewComponent {
 				this._smartEnrollService.insufficientCreditsTrigger();
 				return;
 			}
-
-			console.error("criminalValidation rejected:", {
-				criminalValidation: results.criminalValidation?.data,
-			});
 		}
 
 		if (results.nameValidation?.status === "fulfilled") {
 			this.appRegistration.documentValidation = results.nameValidation.data;
 			this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
-
-			// Debug: Log the validation state
-			console.log("[DEBUG] Name validation completed:", {
-				namesMatch: this.appRegistration.documentValidation?.namesMatch,
-				infoValidationSupported: this.appRegistration.documentValidation?.infoValidationSupported,
-				imageValidated: this.appRegistration.documentValidation?.imageValidated,
-				canContinue: this.canContinue(),
-				isDocumentValidAndComplete: this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration),
-				validationsInProgress: this.validationsInProgress,
-			});
 		} else if (results.nameValidation?.status === "rejected") {
 			if (results.nameValidation?.error?.code === "PaymentRequired") {
 				this._smartEnrollService.insufficientCreditsTrigger();
 
 				return;
 			}
-
-			console.error("nameValidation rejected:", {
-				nameValidation: results.nameValidation?.reason,
-			});
 		}
 
 		if (results.compareValidation?.status === "fulfilled") {
@@ -275,13 +272,8 @@ export class SmartDocumentsReviewComponent {
 
 				return;
 			}
-
-			console.error("compareValidation rejected:", {
-				compareValidation: results.compareValidation?.reason,
-			});
 		}
 
-		// Re-evaluate errors after validations complete
 		this._setErrors();
 	}
 
@@ -392,7 +384,12 @@ export class SmartDocumentsReviewComponent {
 			this.errors.requiresBack = true;
 		}
 
-		if (this.verifyNamesEnabled && !this.loading.nameValidation) {
+		if (
+			this.verifyNamesEnabled &&
+			!this.loading.nameValidation &&
+			docValidation?.infoValidationSupported &&
+			docValidation?.namesMatch === false
+		) {
 			this.errors.namesDoNotMatch = true;
 		}
 
@@ -419,21 +416,6 @@ export class SmartDocumentsReviewComponent {
 		const isValid = this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration);
 		const notInProgress = !this.validationsInProgress;
 		const result = isValid && notInProgress;
-
-		// Debug logging when button should be enabled but isn't
-		if (!result) {
-			console.log("[DEBUG] canContinue check:", {
-				isValid,
-				notInProgress,
-				result,
-				namesMatch: this.appRegistration?.documentValidation?.namesMatch,
-				infoValidationSupported: this.appRegistration?.documentValidation?.infoValidationSupported,
-				verifyNames: this.projectFlow?.onboardingSettings?.document?.verifyNames,
-				loading: this.loading,
-				requiresBackSide: this.appRegistration?.documentValidation?.requiresBackSide,
-				backUrl: this.appRegistration?.documentValidation?.backUrl,
-			});
-		}
 
 		return result;
 	}

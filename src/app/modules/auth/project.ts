@@ -1,836 +1,837 @@
 export interface ProjectFlow {
-    _id: string;
-    client: any;
-    project: any;
-    userFeatures: Array<any>;
-    type: string;
-    status: string;
-    version: Number;
-    redirectUrl?: string;
-    webhookUrl?: string;
-    identityUrl?: string;
-    allowedCountries: Array<any>;
-    faceLivenessAuthy: boolean;
-    webAuthN: boolean;
-    documentValidation: boolean;
-    appQRCode: boolean;
-    systemForm?: any;
-    loginSettings?: {
-        steps?: any;
-        email: boolean;
-        emailAuthy: boolean;
-        phone: boolean;
-        phoneAuthy: boolean;
-        phoneGateway?: string;
-        faceLiveness: boolean;
-        searchMode: string;
-        searchMinScore: string;
-        showFaceLivenessRecommendation: boolean;
-    };
-    onboardingSettings?: {
-        steps?: {
-            signUpForm?: string;
-            basicInformation?: string;
-            document?: string;
-            liveness?: string;
-            form?: string;
-        };
-        signUpForm?: {
-            fullName?: boolean;
-            firstName?: boolean;
-            lastName?: boolean;
-            email?: boolean;
-            emailGateway?: string;
-            phone?: boolean;
-            phoneGateway?: string;
-            legalDocument?: boolean;
-            legalDocumentValidation?: string;
-            showTermsAndConditions?: boolean;
-            showPrivacyNotice?: boolean;
-            extraFields?: any;
-        };
-        basicInformation?: {
-            fullName?: boolean;
-            age?: boolean;
-            gender?: boolean;
-            address?: boolean;
-            postalCode?: boolean;
-            dateOfBirth?: boolean;
-            legalDocument?: boolean;
-        };
-        document: {
-            compareMinScore?: number;
-            includeGovernmentVerification?: boolean;
-            includeOCR?: boolean;
-            maxAttempts?: number;
-            useBasicLiveness?: boolean;
-            useGovernmentID?: boolean;
-            useLicense?: boolean;
-            usePassport?: boolean;
-            useProLiveness?: boolean;
-            useTaxInformation?: boolean;
-            scanDocumentAllowed?: boolean;
-            uploadDocumentAllowed?: boolean;
-            validationMethod?: string;
-            verifyCriminalHistory?: boolean;
-            verifyNames?: boolean;
-        };
-        liveness: {
-            livenessMinScore?: number;
-            maxAttempts?: number;
-            searchMode?: string;
-            searchMinScore?: number;
-        };
-        form?: any;
-        requiresSignature?: boolean;
-    };
+	_id: string;
+	client: any;
+	project: any;
+	userFeatures: Array<any>;
+	type: string;
+	status: string;
+	version: Number;
+	redirectUrl?: string;
+	webhookUrl?: string;
+	identityUrl?: string;
+	allowedCountries: Array<any>;
+	faceLivenessAuthy: boolean;
+	webAuthN: boolean;
+	documentValidation: boolean;
+	appQRCode: boolean;
+	systemForm?: any;
+	loginSettings?: {
+		steps?: any;
+		email: boolean;
+		emailAuthy: boolean;
+		phone: boolean;
+		phoneAuthy: boolean;
+		phoneGateway?: string;
+		faceLiveness: boolean;
+		searchMode: string;
+		searchMinScore: string;
+		showFaceLivenessRecommendation: boolean;
+	};
+	onboardingSettings?: {
+		steps?: {
+			signUpForm?: string;
+			basicInformation?: string;
+			document?: string;
+			liveness?: string;
+			form?: string;
+		};
+		signUpForm?: {
+			fullName?: boolean;
+			firstName?: boolean;
+			lastName?: boolean;
+			email?: boolean;
+			emailGateway?: string;
+			phone?: boolean;
+			phoneGateway?: string;
+			legalDocument?: boolean;
+			legalDocumentValidation?: string;
+			showTermsAndConditions?: boolean;
+			showPrivacyNotice?: boolean;
+			extraFields?: any;
+		};
+		basicInformation?: {
+			fullName?: boolean;
+			age?: boolean;
+			gender?: boolean;
+			address?: boolean;
+			postalCode?: boolean;
+			dateOfBirth?: boolean;
+			legalDocument?: boolean;
+		};
+		document: {
+			compareMinScore?: number;
+			includeGovernmentVerification?: boolean;
+			includeOCR?: boolean;
+			maxAttempts?: number;
+			useBasicLiveness?: boolean;
+			useGovernmentID?: boolean;
+			useLicense?: boolean;
+			usePassport?: boolean;
+			useProLiveness?: boolean;
+			useTaxInformation?: boolean;
+			scanDocumentAllowed?: boolean;
+			uploadDocumentAllowed?: boolean;
+			validationMethod?: string;
+			verifyCriminalHistory?: boolean;
+			verifyNames?: boolean;
+		};
+		liveness: {
+			livenessMinScore?: number;
+			maxAttempts?: number;
+			searchMode?: string;
+			searchMinScore?: number;
+		};
+		form?: any;
+		requiresSignature?: boolean;
+	};
 }
 
 export interface Project {
-    _id: string;
-    client: any;
-    type: string;
-    name: string;
-    identifier?: string;
-    contactEmail?: string;
-    privacyUrl?: string;
-    termsAndConditionsUrl?: string;
-    status: string;
-    dataProtection?: {
-        name?: string;
-        email?: string;
-        address?: string;
-        address2?: string;
-        city?: string;
-        province?: string;
-        postalCode?: string;
-        country?: string;
-    };
-    branding?: {
-        bgColor?: string;
-        buttonTxtColor?: string;
-        buttonColor?: string;
-        txtColor?: string;
-        titleColor?: string;
-        logo?: string;
-        rightImage?: string;
-        rightImagePosition?: string;
-        rightBackgroundColor?: string;
-    };
+	_id: string;
+	client: any;
+	type: string;
+	name: string;
+	identifier?: string;
+	contactEmail?: string;
+	privacyUrl?: string;
+	termsAndConditionsUrl?: string;
+	status: string;
+	dataProtection?: {
+		name?: string;
+		email?: string;
+		address?: string;
+		address2?: string;
+		city?: string;
+		province?: string;
+		postalCode?: string;
+		country?: string;
+	};
+	branding?: {
+		bgColor?: string;
+		buttonTxtColor?: string;
+		buttonColor?: string;
+		txtColor?: string;
+		titleColor?: string;
+		logo?: string;
+		rightImage?: string;
+		rightImagePosition?: string;
+		rightBackgroundColor?: string;
+	};
 
-    allowedCountries?: Array<string>;
-    emailEnabled?: boolean;
-    phoneEnabled?: boolean;
-    emailAuthyEnabled?: boolean;
-    phoneAuthyEnabled?: boolean;
-    faceLivenessEnabled: boolean;
-    faceLivenessAuthyEnabled: boolean;
-    currentProjectFlow?: ProjectFlow;
-    usesWhiteList: boolean;
-    whiteListLength: number;
-    currentStep: number;
-    lastStep: number;
+	allowedCountries?: Array<string>;
+	emailEnabled?: boolean;
+	phoneEnabled?: boolean;
+	emailAuthyEnabled?: boolean;
+	phoneAuthyEnabled?: boolean;
+	faceLivenessEnabled: boolean;
+	faceLivenessAuthyEnabled: boolean;
+	currentProjectFlow?: ProjectFlow;
+	usesWhiteList: boolean;
+	whiteListLength: number;
+	currentStep: number;
+	lastStep: number;
 }
 export interface Whitelist {
-    name: string;
-    email?: string;
-    phone?: number;
-    countryCode?: number;
+	name: string;
+	email?: string;
+	phone?: number;
+	countryCode?: number;
 }
 
 export interface AppLogin {
-    _id: string;
-    data: string;
-    status: any;
-    type: any;
-    date: any;
+	_id: string;
+	data: string;
+	status: any;
+	type: any;
+	date: any;
 }
 
 export interface ProjectFlowForm {
-    _id: string;
-    project: string;
-    projectFlow: string;
-    client: string;
-    title: string;
-    formFields?: ProjectFlowFormField[];
-    version: Number;
+	_id: string;
+	project: string;
+	projectFlow: string;
+	client: string;
+	title: string;
+	formFields?: ProjectFlowFormField[];
+	version: Number;
 }
 
 export interface ProjectFlowFormField {
-    _id: string;
-    client: string;
-    staff: string;
-    form: string;
-    container: string;
-    label: string;
-    type: string;
-    charactersLimit: number;
-    placeHolder: string;
+	_id: string;
+	client: string;
+	staff: string;
+	form: string;
+	container: string;
+	label: string;
+	type: string;
+	charactersLimit: number;
+	placeHolder: string;
 }
 
 export class AppLoginModel implements AppLogin {
-    _id: string;
-    data: string;
-    status: any;
-    type: any;
-    date: any;
-    constructor(data: any = {}) {
-        this._id = data._id;
-        this.data = data.phoneValidation ? data.phoneValidation.phone : data.emailValidation ? data.emailValidation.email : data.biometricValidation;
-        this.status = data.phoneValidation
-            ? data.phoneValidation.status
-            : data.emailValidation
-            ? data.emailValidation.status
-            : data.biometricValidation.status;
-        this.type = data.type;
-        this.date = data.updatedAt;
-    }
+	_id: string;
+	data: string;
+	status: any;
+	type: any;
+	date: any;
+	constructor(data: any = {}) {
+		this._id = data._id;
+		this.data = data.phoneValidation ? data.phoneValidation.phone : data.emailValidation ? data.emailValidation.email : data.biometricValidation;
+		this.status = data.phoneValidation
+			? data.phoneValidation.status
+			: data.emailValidation
+			? data.emailValidation.status
+			: data.biometricValidation.status;
+		this.type = data.type;
+		this.date = data.updatedAt;
+	}
 }
 
 export class WhitelistModel implements Whitelist {
-    name: string;
-    email?: string;
-    phone?: number;
-    countryCode?: number;
+	name: string;
+	email?: string;
+	phone?: number;
+	countryCode?: number;
 
-    constructor(data: any = {}) {
-        this.name = data.name || null;
-        this.email = data.email || null;
-        this.phone = data.phone || null;
-        this.countryCode = data.countryCode || null;
-    }
+	constructor(data: any = {}) {
+		this.name = data.name || null;
+		this.email = data.email || null;
+		this.phone = data.phone || null;
+		this.countryCode = data.countryCode || null;
+	}
 }
 export class ProjectModel implements Project {
-    _id: string;
-    client: any;
-    type: string;
-    name: string;
-    identifier?: string;
-    contactEmail?: string;
-    privacyUrl?: string;
-    termsAndConditionsUrl?: string;
-    status: string;
-    dataProtection?: {
-        name?: string;
-        email?: string;
-        address?: string;
-        address2?: string;
-        city?: string;
-        province?: string;
-        postalCode?: string;
-        country?: string;
-    };
-    branding?: {
-        bgColor?: string;
-        buttonTextColor?: string;
-        txtColor?: string;
-        titleColor?: string;
-        logo?: string;
-        rightImage?: string;
-        rightImagePosition?: string;
-        rightBackgroundColor?: string;
-    };
-    projectFlows?: ProjectFlowModel[];
-    allowedCountries?: Array<string>;
-    emailEnabled?: boolean;
-    phoneEnabled?: boolean;
-    emailAuthyEnabled?: boolean;
-    phoneAuthyEnabled?: boolean;
-    currentProjectFlow?: ProjectFlowModel;
-    whiteList?: any;
-    faceLivenessEnabled: boolean;
-    faceLivenessAuthyEnabled: boolean;
-    usesWhiteList: boolean;
-    whiteListLength: number;
-    currentStep: number;
-    lastStep: number;
+	_id: string;
+	client: any;
+	type: string;
+	name: string;
+	identifier?: string;
+	contactEmail?: string;
+	privacyUrl?: string;
+	termsAndConditionsUrl?: string;
+	status: string;
+	dataProtection?: {
+		name?: string;
+		email?: string;
+		address?: string;
+		address2?: string;
+		city?: string;
+		province?: string;
+		postalCode?: string;
+		country?: string;
+	};
+	branding?: {
+		bgColor?: string;
+		buttonTextColor?: string;
+		txtColor?: string;
+		titleColor?: string;
+		logo?: string;
+		rightImage?: string;
+		rightImagePosition?: string;
+		rightBackgroundColor?: string;
+	};
+	projectFlows?: ProjectFlowModel[];
+	allowedCountries?: Array<string>;
+	emailEnabled?: boolean;
+	phoneEnabled?: boolean;
+	emailAuthyEnabled?: boolean;
+	phoneAuthyEnabled?: boolean;
+	currentProjectFlow?: ProjectFlowModel;
+	whiteList?: any;
+	faceLivenessEnabled: boolean;
+	faceLivenessAuthyEnabled: boolean;
+	usesWhiteList: boolean;
+	whiteListLength: number;
+	currentStep: number;
+	lastStep: number;
 
-    constructor(data: any = {}) {
-        this._id = data._id || "new";
-        this.client = data.client;
-        this.type = data.type;
-        this.name = data.name;
-        this.identifier = data.identifier;
-        this.contactEmail = data.contactEmail;
-        this.privacyUrl = data.privacyUrl;
-        this.termsAndConditionsUrl = data.termsAndConditionsUrl;
-        this.status = data.status;
-        this.dataProtection = data.dataProtection || {
-            name: "",
-        };
-        this.branding = data.branding || {
-            bgColor: "#01236D",
-            buttonTextColor: "#B2BDD3",
-            txtColor: "#8091B6",
-            titleColor: "#FFFFFF",
-            logo: "",
-            rightImage: "https://cdn.verifik.co/assets/auth/authb.svg",
-            rightImagePosition: "end end",
-            rightBackgroundColor: "white",
-        }; // add default branding stuff
-        this.projectFlows = data.projectFlows;
-        this.allowedCountries = data.allowedCountries || [];
-        this.emailEnabled = false;
-        this.phoneEnabled = false;
-        this.emailAuthyEnabled = false;
-        this.phoneAuthyEnabled = false;
-        this.faceLivenessEnabled = false;
-        this.faceLivenessAuthyEnabled = false;
-        this.usesWhiteList = false;
+	constructor(data: any = {}) {
+		this._id = data._id || "new";
+		this.client = data.client;
+		this.type = data.type;
+		this.name = data.name;
+		this.identifier = data.identifier;
+		this.contactEmail = data.contactEmail;
+		this.privacyUrl = data.privacyUrl;
+		this.termsAndConditionsUrl = data.termsAndConditionsUrl;
+		this.status = data.status;
+		this.dataProtection = data.dataProtection || {
+			name: "",
+		};
+		this.branding = data.branding || {
+			bgColor: "#01236D",
+			buttonTextColor: "#B2BDD3",
+			txtColor: "#8091B6",
+			titleColor: "#FFFFFF",
+			logo: "",
+			rightImage: "https://cdn.verifik.co/assets/auth/authb.svg",
+			rightImagePosition: "end end",
+			rightBackgroundColor: "white",
+		}; // add default branding stuff
+		this.projectFlows = data.projectFlows;
+		this.allowedCountries = data.allowedCountries || [];
+		this.emailEnabled = false;
+		this.phoneEnabled = false;
+		this.emailAuthyEnabled = false;
+		this.phoneAuthyEnabled = false;
+		this.faceLivenessEnabled = false;
+		this.faceLivenessAuthyEnabled = false;
+		this.usesWhiteList = false;
 
-        this.whiteListLength = 0;
-        this.currentStep = data.currentStep;
-        this.lastStep = data.lastStep;
+		this.whiteListLength = 0;
+		this.currentStep = data.currentStep;
+		this.lastStep = data.lastStep;
 
-        if (Array.isArray(data.projectFlows) && data.projectFlows.length) {
-            for (let index = 0; index < this.projectFlows.length; index++) {
-                const projectFlow = this.projectFlows[index];
+		if (Array.isArray(data.projectFlows) && data.projectFlows.length) {
+			for (let index = 0; index < this.projectFlows.length; index++) {
+				const projectFlow = this.projectFlows[index];
 
-                if (["paused", "draft"].includes(projectFlow.status)) continue;
+				if (["paused", "draft"].includes(projectFlow.status)) continue;
 
-                if (projectFlow.status === "active" && projectFlow.type === this.type) {
-                    this.currentProjectFlow = new ProjectFlowModel(projectFlow);
+				if (projectFlow.status === "active" && projectFlow.type === this.type) {
+					this.currentProjectFlow = new ProjectFlowModel(projectFlow);
 
-                    break;
-                }
+					break;
+				}
 
-                if (projectFlow.type === this.type) {
-                    this.currentProjectFlow = new ProjectFlowModel(projectFlow);
-                }
-            }
-        }
+				if (projectFlow.type === this.type) {
+					this.currentProjectFlow = new ProjectFlowModel(projectFlow);
+				}
+			}
+		}
 
-        if (this.currentProjectFlow?.faceLivenessAuthy) this.faceLivenessAuthyEnabled = true;
-    }
+		if (this.currentProjectFlow?.faceLivenessAuthy) this.faceLivenessAuthyEnabled = true;
+	}
 }
 
 export class ProjectFlowModel implements ProjectFlow {
-    _id: string;
-    client: any;
-    project: any;
-    userFeatures: any[];
-    type: string;
-    status: string;
-    version: number;
-    redirectUrl?: string;
-    webhookUrl?: string;
-    identityUrl?: string;
-    allowedCountries: any[];
-    faceLivenessAuthy: boolean;
-    webAuthN: boolean;
-    documentValidation: boolean;
-    appQRCode: boolean;
-    systemForm?: any;
-    loginSettings?: {
-        steps?: any;
-        email: boolean;
-        emailAuthy: boolean;
-        phone: boolean;
-        phoneAuthy: boolean;
-        phoneGateway?: string;
-        faceLiveness: boolean;
-        searchMode: string;
-        searchMinScore: string;
-        showFaceLivenessRecommendation: boolean;
-    };
-    onboardingSettings?: {
-        steps?: {
-            signUpForm?: string;
-            basicInformation?: string;
-            document?: string;
-            liveness?: string;
-            form?: string;
-        };
-        signUpForm?: {
-            fullName?: boolean;
-            firstName?: boolean;
-            lastName?: boolean;
-            email?: boolean;
-            emailGateway?: string;
-            phone?: boolean;
-            phoneGateway?: string;
-            legalDocument?: boolean;
-            legalDocumentValidation?: string;
-            showTermsAndConditions?: boolean;
-            showPrivacyNotice?: boolean;
-            extraFields?: any;
-        };
-        basicInformation?: {
-            fullName?: boolean;
-            age?: boolean;
-            gender?: boolean;
-            address?: boolean;
-            postalCode?: boolean;
-            dateOfBirth?: boolean;
-            legalDocument?: boolean;
-        };
-        document: {
-            includeOCR?: boolean;
-            useBasicLiveness?: boolean;
-            useProLiveness?: boolean;
-            includeGovernmentVerification?: boolean;
-            useGovernmentID?: boolean;
-            usePassport?: boolean;
-            useLicense?: boolean;
-            verifyNames?: boolean;
-            verifyCriminalHistory?: boolean;
-            compareMinScore?: number;
-        };
-        liveness: {
-            livenessMinScore?: number;
-            searchMode?: string;
-            searchMinScore?: number;
-        };
-        form?: any;
-        requiresSignature?: boolean;
-    };
+	_id: string;
+	client: any;
+	project: any;
+	userFeatures: any[];
+	type: string;
+	status: string;
+	version: number;
+	redirectUrl?: string;
+	webhookUrl?: string;
+	identityUrl?: string;
+	allowedCountries: any[];
+	faceLivenessAuthy: boolean;
+	webAuthN: boolean;
+	documentValidation: boolean;
+	appQRCode: boolean;
+	systemForm?: any;
+	loginSettings?: {
+		steps?: any;
+		email: boolean;
+		emailAuthy: boolean;
+		phone: boolean;
+		phoneAuthy: boolean;
+		phoneGateway?: string;
+		faceLiveness: boolean;
+		searchMode: string;
+		searchMinScore: string;
+		showFaceLivenessRecommendation: boolean;
+	};
+	onboardingSettings?: {
+		steps?: {
+			signUpForm?: string;
+			basicInformation?: string;
+			document?: string;
+			liveness?: string;
+			form?: string;
+		};
+		signUpForm?: {
+			fullName?: boolean;
+			firstName?: boolean;
+			lastName?: boolean;
+			email?: boolean;
+			emailGateway?: string;
+			phone?: boolean;
+			phoneGateway?: string;
+			legalDocument?: boolean;
+			legalDocumentValidation?: string;
+			showTermsAndConditions?: boolean;
+			showPrivacyNotice?: boolean;
+			extraFields?: any;
+		};
+		basicInformation?: {
+			fullName?: boolean;
+			age?: boolean;
+			gender?: boolean;
+			address?: boolean;
+			postalCode?: boolean;
+			dateOfBirth?: boolean;
+			legalDocument?: boolean;
+		};
+		document: {
+			includeOCR?: boolean;
+			useBasicLiveness?: boolean;
+			useProLiveness?: boolean;
+			includeGovernmentVerification?: boolean;
+			useGovernmentID?: boolean;
+			usePassport?: boolean;
+			useLicense?: boolean;
+			verifyNames?: boolean;
+			verifyCriminalHistory?: boolean;
+			compareMinScore?: number;
+		};
+		liveness: {
+			livenessMinScore?: number;
+			searchMode?: string;
+			searchMinScore?: number;
+		};
+		form?: any;
+		requiresSignature?: boolean;
+	};
 
-    constructor(data: any = {}) {
-        this._id = data._id;
-        this.client = data.client;
-        this.project = data.project;
-        this.userFeatures = data.userFeatures;
-        this.type = data.type;
-        this.status = data.status;
-        this.version = data.version;
-        this.redirectUrl = data.redirectUrl;
-        this.webhookUrl = data.webhookUrl;
-        this.identityUrl = data.identityUrl;
-        this.allowedCountries = data.allowedCountries || [];
+	constructor(data: any = {}) {
+		this._id = data._id;
+		this.client = data.client;
+		this.project = data.project;
+		this.userFeatures = data.userFeatures;
+		this.type = data.type;
+		this.status = data.status;
+		this.version = data.version;
+		this.redirectUrl = data.redirectUrl;
+		this.webhookUrl = data.webhookUrl;
+		this.identityUrl = data.identityUrl;
+		this.allowedCountries = data.allowedCountries || [];
 
-        this.faceLivenessAuthy = data.faceLivenessAuthy;
-        this.webAuthN = data.webAuthN;
-        this.documentValidation = data.documentValidation;
-        this.appQRCode = data.appQRCode;
-        this.loginSettings = data.loginSettings;
-        this.systemForm = data.systemForm;
+		this.faceLivenessAuthy = data.faceLivenessAuthy;
+		this.webAuthN = data.webAuthN;
+		this.documentValidation = data.documentValidation;
+		this.appQRCode = data.appQRCode;
+		this.loginSettings = data.loginSettings;
+		this.systemForm = data.systemForm;
 
-        this.onboardingSettings = data.onboardingSettings || {
-            basicInformation: {
-                fullName: false,
-                age: false,
-                gender: false,
-                address: false,
-                postalCode: false,
-            },
-        };
+		this.onboardingSettings = data.onboardingSettings || {
+			basicInformation: {
+				fullName: false,
+				age: false,
+				gender: false,
+				address: false,
+				postalCode: false,
+			},
+		};
 
-        if (this.onboardingSettings && !this.onboardingSettings.basicInformation) {
-            this.onboardingSettings.basicInformation = {
-                fullName: false,
-                age: false,
-                gender: false,
-                address: false,
-                postalCode: false,
-            };
-        }
+		if (this.onboardingSettings && !this.onboardingSettings.basicInformation) {
+			this.onboardingSettings.basicInformation = {
+				fullName: false,
+				age: false,
+				gender: false,
+				address: false,
+				postalCode: false,
+			};
+		}
 
-        if (this.onboardingSettings && !this.onboardingSettings.signUpForm) {
-            this.onboardingSettings.signUpForm = {
-                fullName: false,
-                email: false,
-                emailGateway: "none",
-                phone: false,
-                phoneGateway: "none",
-                legalDocument: false,
-                legalDocumentValidation: "none",
-                showTermsAndConditions: false,
-                showPrivacyNotice: false,
-            };
-        }
-    }
+		if (this.onboardingSettings && !this.onboardingSettings.signUpForm) {
+			this.onboardingSettings.signUpForm = {
+				fullName: false,
+				email: false,
+				emailGateway: "none",
+				phone: false,
+				phoneGateway: "none",
+				legalDocument: false,
+				legalDocumentValidation: "none",
+				showTermsAndConditions: false,
+				showPrivacyNotice: false,
+			};
+		}
+	}
 }
 
 export class ProjectFlowFormFieldModel implements ProjectFlowFormField {
-    _id: string;
-    client: string;
-    staff: string;
-    form: string;
-    label: string;
-    container: string;
-    type: string;
-    charactersLimit: number;
-    placeHolder: string;
+	_id: string;
+	client: string;
+	staff: string;
+	form: string;
+	label: string;
+	container: string;
+	type: string;
+	charactersLimit: number;
+	placeHolder: string;
 
-    constructor(data: any = {}) {
-        this._id = data._id || (Math.random() + 1).toString(36).substring(5);
-        this.client = data.client;
-        this.staff = data.staff;
-        this.form = data.form;
-        this.label = data.label;
-        this.container = data.container;
-        this.type = data.type;
-        this.charactersLimit = data.charactersLimit;
-        this.placeHolder = data.placeHolder;
-    }
+	constructor(data: any = {}) {
+		this._id = data._id || (Math.random() + 1).toString(36).substring(5);
+		this.client = data.client;
+		this.staff = data.staff;
+		this.form = data.form;
+		this.label = data.label;
+		this.container = data.container;
+		this.type = data.type;
+		this.charactersLimit = data.charactersLimit;
+		this.placeHolder = data.placeHolder;
+	}
 }
 
 export class ProjectFlowFormModel implements ProjectFlowForm {
-    _id: string;
-    project: string;
-    projectFlow: string;
-    client: string;
-    title: string;
-    formFields?: ProjectFlowFormField[];
-    version: Number;
+	_id: string;
+	project: string;
+	projectFlow: string;
+	client: string;
+	title: string;
+	formFields?: ProjectFlowFormField[];
+	version: Number;
 
-    constructor(data: any = {}) {
-        this._id = data._id;
-        this.client = data.client;
-        this.project = data.project;
-        this.projectFlow = data.projectFlow;
-        this.title = data.title;
-        this.version = data.version;
-        this.formFields = [];
+	constructor(data: any = {}) {
+		this._id = data._id;
+		this.client = data.client;
+		this.project = data.project;
+		this.projectFlow = data.projectFlow;
+		this.title = data.title;
+		this.version = data.version;
+		this.formFields = [];
 
-        if (data.formFields) {
-            for (let index = 0; index < data.formFields.length; index++) {
-                const formField = data.formFields[index];
+		if (data.formFields) {
+			for (let index = 0; index < data.formFields.length; index++) {
+				const formField = data.formFields[index];
 
-                if (!formField._id) {
-                    continue;
-                }
+				if (!formField._id) {
+					continue;
+				}
 
-                this.formFields.push(new ProjectFlowFormFieldModel(formField));
-            }
-        }
-    }
+				this.formFields.push(new ProjectFlowFormFieldModel(formField));
+			}
+		}
+	}
 }
 
 export interface AppRegistration {
-    _id: string;
-    biometricValidation?: BiometricValidation;
-    client: string;
-    compareFaceVerification?: FaceVerification;
-    countryCode: string;
-    cryptoValidation: any;
-    currentStep: string;
-    documentFace?: Face;
-    documentValidation?: DocumentValidation;
-    email: string;
-    emailValidation: any;
-    failedBiometricValidations?: Array<any>;
-    failedDocumentValidations?: Array<any>;
-    forceUpload?: boolean;
-    formSubmittion: any;
-    informationValidation?: InformationValidation;
-    MATiD: any;
-    person?: any;
-    phone: string;
-    phoneValidation: any;
-    project: any;
-    projectFlow: any;
-    signature: any;
-    status: string;
-    face: Face;
-    token?: string;
+	_id: string;
+	biometricValidation?: BiometricValidation;
+	client: string;
+	compareFaceVerification?: FaceVerification;
+	countryCode: string;
+	cryptoValidation: any;
+	currentStep: string;
+	documentFace?: Face;
+	documentValidation?: DocumentValidation;
+	email: string;
+	emailValidation: any;
+	failedBiometricValidations?: Array<any>;
+	failedDocumentValidations?: Array<any>;
+	forceUpload?: boolean;
+	formSubmittion: any;
+	informationValidation?: InformationValidation;
+	MATiD: any;
+	person?: any;
+	phone: string;
+	phoneValidation: any;
+	project: any;
+	projectFlow: any;
+	signature: any;
+	status: string;
+	face: Face;
+	token?: string;
+	zelfKey?: any;
 }
 
 export interface Face {
-    _id?: string;
-    appRegistration?: string;
-    base64?: string;
-    category?: string;
-    client?: string;
-    createdAt?: string;
-    expirationStartedAt?: string;
-    person?: string;
-    project?: string;
-    projectFlow?: string;
-    status?: string;
-    updatedAt?: string;
+	_id?: string;
+	appRegistration?: string;
+	base64?: string;
+	category?: string;
+	client?: string;
+	createdAt?: string;
+	expirationStartedAt?: string;
+	person?: string;
+	project?: string;
+	projectFlow?: string;
+	status?: string;
+	updatedAt?: string;
 }
 
 export interface FaceVerification {
-    client: string;
-    type: "compare" | "compareLive";
-    search_mode: "FAST" | "ACCURATE";
-    os: string;
-    liveness_min_score: number;
-    gallery: string;
-    probe: string;
-    result: any;
-    comparedAt: string;
-    status: "success" | "failed";
+	client: string;
+	type: "compare" | "compareLive";
+	search_mode: "FAST" | "ACCURATE";
+	os: string;
+	liveness_min_score: number;
+	gallery: string;
+	probe: string;
+	result: any;
+	comparedAt: string;
+	status: "success" | "failed";
 }
 
 export interface InformationValidation {
-    _id: string;
-    address: string;
-    age: string;
-    appRegistration: string;
-    city: string;
-    client: string;
-    country: string;
-    criminalData?: any;
-    dateOfBirth: string;
-    documentNumber: string;
-    documentType: string;
-    extraParams: any;
-    firstName: string;
-    gender: string;
-    lastName: string;
-    name?: string;
-    notes: string;
-    postalCode: string;
-    project: string;
-    projectFlow: string;
-    status: string;
-    type: string;
-    validationMethod: string;
+	_id: string;
+	address: string;
+	age: string;
+	appRegistration: string;
+	city: string;
+	client: string;
+	country: string;
+	criminalData?: any;
+	dateOfBirth: string;
+	documentNumber: string;
+	documentType: string;
+	extraParams: any;
+	firstName: string;
+	gender: string;
+	lastName: string;
+	name?: string;
+	notes: string;
+	postalCode: string;
+	project: string;
+	projectFlow: string;
+	status: string;
+	type: string;
+	validationMethod: string;
 }
 
 export class InformationValidationModel implements InformationValidation {
-    _id: string;
-    address: string;
-    age: string;
-    appRegistration: string;
-    city: string;
-    client: string;
-    country: string;
-    criminalData?: any;
-    dateOfBirth: string;
-    documentNumber: string;
-    documentType: string;
-    extraParams: any;
-    firstName: string;
-    gender: string;
-    lastName: string;
-    name?: string;
-    notes: string;
-    postalCode: string;
-    project: string;
-    projectFlow: string;
-    status: string;
-    type: string;
-    validationMethod: string;
+	_id: string;
+	address: string;
+	age: string;
+	appRegistration: string;
+	city: string;
+	client: string;
+	country: string;
+	criminalData?: any;
+	dateOfBirth: string;
+	documentNumber: string;
+	documentType: string;
+	extraParams: any;
+	firstName: string;
+	gender: string;
+	lastName: string;
+	name?: string;
+	notes: string;
+	postalCode: string;
+	project: string;
+	projectFlow: string;
+	status: string;
+	type: string;
+	validationMethod: string;
 
-    constructor(data: any = {}) {
-        if (!data && !data._id) {
-            return;
-        }
+	constructor(data: any = {}) {
+		if (!data && !data._id) {
+			return;
+		}
 
-        this._id = data._id;
-        this.address = data.address;
-        this.age = data.age;
-        this.appRegistration = data.appRegistration;
-        this.city = data.city;
-        this.client = data.client;
-        this.country = data.country;
-        this.criminalData = data.criminalData;
-        this.dateOfBirth = data.dateOfBirth;
-        this.documentNumber = data.documentNumber;
-        this.documentType = data.documentType;
-        this.extraParams = data.extraParams;
-        this.firstName = data.firstName;
-        this.gender = data.gender;
-        this.lastName = data.lastName;
-        this.name = data.name;
-        this.notes = data.notes;
-        this.postalCode = data.postalCode;
-        this.project = data.project;
-        this.projectFlow = data.projectFlow;
-        this.status = data.status;
-        this.type = data.type;
-        this.validationMethod = data.validationMethod;
-    }
+		this._id = data._id;
+		this.address = data.address;
+		this.age = data.age;
+		this.appRegistration = data.appRegistration;
+		this.city = data.city;
+		this.client = data.client;
+		this.country = data.country;
+		this.criminalData = data.criminalData;
+		this.dateOfBirth = data.dateOfBirth;
+		this.documentNumber = data.documentNumber;
+		this.documentType = data.documentType;
+		this.extraParams = data.extraParams;
+		this.firstName = data.firstName;
+		this.gender = data.gender;
+		this.lastName = data.lastName;
+		this.name = data.name;
+		this.notes = data.notes;
+		this.postalCode = data.postalCode;
+		this.project = data.project;
+		this.projectFlow = data.projectFlow;
+		this.status = data.status;
+		this.type = data.type;
+		this.validationMethod = data.validationMethod;
+	}
 }
 
 export class AppRegistrationModel implements AppRegistration {
-    _id: string;
-    client: string;
-    project: any;
-    projectFlow: any;
-    status: string;
-    email: string;
-    phone: string;
-    countryCode: string;
-    currentStep: string;
-    MATiD: any;
-    face: Face;
-    informationValidation: InformationValidation | null;
-    InformationValidation: InformationValidation;
-    emailValidation: any;
-    phoneValidation: any;
-    biometricValidation: BiometricValidation;
-    documentValidation: DocumentValidation;
-    cryptoValidation: any;
-    formSubmittion: any;
-    signature: any;
+	_id: string;
+	client: string;
+	project: any;
+	projectFlow: any;
+	status: string;
+	email: string;
+	phone: string;
+	countryCode: string;
+	currentStep: string;
+	MATiD: any;
+	face: Face;
+	informationValidation: InformationValidation | null;
+	InformationValidation: InformationValidation;
+	emailValidation: any;
+	phoneValidation: any;
+	biometricValidation: BiometricValidation;
+	documentValidation: DocumentValidation;
+	cryptoValidation: any;
+	formSubmittion: any;
+	signature: any;
 
-    constructor(data: any) {
-        this._id = data._id;
-        this.client = data.client;
-        this.project = data.project;
-        this.projectFlow = data.projectFlow;
-        this.status = data.status;
-        this.email = data.email;
-        this.phone = data.phone;
-        this.countryCode = data.countryCode;
-        this.currentStep = data.currentStep;
-        this.MATiD = data.MATiD;
-        this.informationValidation = data.informationValidation;
-        this.InformationValidation =
-            data.informationValidation && data.informationValidation._id ? new InformationValidationModel(data.informationValidation) : null;
-        this.emailValidation = data.emailValidation;
-        this.phoneValidation = data.phoneValidation;
-        this.documentValidation = data.documentValidation;
-        this.biometricValidation = data.biometricValidation;
-        this.cryptoValidation = data.cryptoValidation;
-        this.formSubmittion = data.formSubmittion;
-        this.signature = data.signature;
-    }
+	constructor(data: any) {
+		this._id = data._id;
+		this.client = data.client;
+		this.project = data.project;
+		this.projectFlow = data.projectFlow;
+		this.status = data.status;
+		this.email = data.email;
+		this.phone = data.phone;
+		this.countryCode = data.countryCode;
+		this.currentStep = data.currentStep;
+		this.MATiD = data.MATiD;
+		this.informationValidation = data.informationValidation;
+		this.InformationValidation =
+			data.informationValidation && data.informationValidation._id ? new InformationValidationModel(data.informationValidation) : null;
+		this.emailValidation = data.emailValidation;
+		this.phoneValidation = data.phoneValidation;
+		this.documentValidation = data.documentValidation;
+		this.biometricValidation = data.biometricValidation;
+		this.cryptoValidation = data.cryptoValidation;
+		this.formSubmittion = data.formSubmittion;
+		this.signature = data.signature;
+	}
 }
 
 export interface DocumentScan {
-    documentType: DocumentType;
-    pro: any;
-    prompt: Prompt;
-    studio: Studio;
+	documentType: DocumentType;
+	pro: any;
+	prompt: Prompt;
+	studio: Studio;
 }
 
 export interface DocumentType {
-    age: number;
-    category: string;
-    country: string;
-    documentType: string;
-    gender: string;
-    nationality: string;
-    ocrRaw: string;
-    prompt: string;
+	age: number;
+	category: string;
+	country: string;
+	documentType: string;
+	gender: string;
+	nationality: string;
+	ocrRaw: string;
+	prompt: string;
 }
 
 export interface Prompt {
-    __v: number;
-    _id: string;
-    age: string;
-    client: any;
-    country: string;
-    createdAt: string;
-    documentCategory: string;
-    documentNumber: string;
-    documentType: string;
-    firstNameMatchPercentage: number;
-    fullNameMatchPercentage: number;
-    gender: string;
-    imageValidated: boolean;
-    inputMethod: string;
-    lastNameMatchPercentage: number;
-    namesMatch: boolean;
-    nationality: string;
-    OCRExtraction: OCRExtraction;
-    scoreValidated: boolean;
-    status: string;
-    type: string;
-    updatedAt: string;
-    url: string;
-    validationMethod: string;
+	__v: number;
+	_id: string;
+	age: string;
+	client: any;
+	country: string;
+	createdAt: string;
+	documentCategory: string;
+	documentNumber: string;
+	documentType: string;
+	firstNameMatchPercentage: number;
+	fullNameMatchPercentage: number;
+	gender: string;
+	imageValidated: boolean;
+	inputMethod: string;
+	lastNameMatchPercentage: number;
+	namesMatch: boolean;
+	nationality: string;
+	OCRExtraction: OCRExtraction;
+	scoreValidated: boolean;
+	status: string;
+	type: string;
+	updatedAt: string;
+	url: string;
+	validationMethod: string;
 }
 
 export interface OCRExtraction {
-    additionalNotes?: string;
-    address?: string;
-    age?: number;
-    code?: string;
-    country?: string;
-    dateOfBirth?: string;
-    dateOfIssue?: string;
-    documentNumber?: string;
-    documentType?: string;
-    emergencyContact?: string;
-    expirationDate?: string;
-    eyeColor?: string;
-    firstName?: string;
-    fullName?: string;
-    gender?: string;
-    height?: string;
-    issuingAuthority?: string;
-    issuingCountry?: string;
-    lastName?: string;
-    nationality?: string;
-    organDonor?: string;
-    personalNo?: string;
-    photo?: string;
-    signature?: string;
-    state?: string;
+	additionalNotes?: string;
+	address?: string;
+	age?: number;
+	code?: string;
+	country?: string;
+	dateOfBirth?: string;
+	dateOfIssue?: string;
+	documentNumber?: string;
+	documentType?: string;
+	emergencyContact?: string;
+	expirationDate?: string;
+	eyeColor?: string;
+	firstName?: string;
+	fullName?: string;
+	gender?: string;
+	height?: string;
+	issuingAuthority?: string;
+	issuingCountry?: string;
+	lastName?: string;
+	nationality?: string;
+	organDonor?: string;
+	personalNo?: string;
+	photo?: string;
+	signature?: string;
+	state?: string;
 }
 
 export interface Studio {
-    _id: string;
-    documentType: string;
-    error: boolean;
-    message: string;
+	_id: string;
+	documentType: string;
+	error: boolean;
+	message: string;
 }
 
 export interface DocumentValidation {
-    _id: string;
-    backUrl?: string;
-    createdAt: string;
-    deleted: boolean;
-    documentCategory: "ID" | "Passport" | "IDv2" | "ForeignerID" | "DriverLicense" | "Unknown";
-    documentNumber: string;
-    documentType: string;
-    firstNameMatchPercentage?: number;
-    fullNameMatchPercentage?: number;
-    imageValidated: boolean;
-    inputMethod: "" | "CAMERA" | "FILE_UPLOAD" | "NOT_SET";
-    infoValidationSupported: boolean;
-    infoValidationSupportedReason?: string;
-    lastNameMatchPercentage?: number;
-    MATiD: string;
-    namesMatch: boolean;
-    OCRExtraction: any;
-    requires2FA: boolean;
-    requiresBackSide: boolean;
-    scoreValidated: boolean;
-    status: string;
-    type: string;
-    updatedAt: string;
-    url?: string;
-    validationMethod: string;
+	_id: string;
+	backUrl?: string;
+	createdAt: string;
+	deleted: boolean;
+	documentCategory: "ID" | "Passport" | "IDv2" | "ForeignerID" | "DriverLicense" | "Unknown";
+	documentNumber: string;
+	documentType: string;
+	firstNameMatchPercentage?: number;
+	fullNameMatchPercentage?: number;
+	imageValidated: boolean;
+	inputMethod: "" | "CAMERA" | "FILE_UPLOAD" | "NOT_SET";
+	infoValidationSupported: boolean;
+	infoValidationSupportedReason?: string;
+	lastNameMatchPercentage?: number;
+	MATiD: string;
+	namesMatch: boolean;
+	OCRExtraction: any;
+	requires2FA: boolean;
+	requiresBackSide: boolean;
+	scoreValidated: boolean;
+	status: string;
+	type: string;
+	updatedAt: string;
+	url?: string;
+	validationMethod: string;
 }
 
 export interface BiometricValidation {
-    _id: string;
-    client: string;
-    createdAt: string;
-    livenessScore: number;
-    livenessSession: string;
-    project: Project;
-    projectFlow: ProjectFlow;
-    requires2FA: boolean;
-    status: string;
-    type: string;
-    updatedAt: string;
-    url: string;
+	_id: string;
+	client: string;
+	createdAt: string;
+	livenessScore: number;
+	livenessSession: string;
+	project: Project;
+	projectFlow: ProjectFlow;
+	requires2FA: boolean;
+	status: string;
+	type: string;
+	updatedAt: string;
+	url: string;
 }
 
 export type ImageScan = {
-    base64Image: string;
-    face?: string;
-    force?: boolean;
-    front?: boolean;
-    rawImage?: string;
-    inputMethod: "CAMERA" | "FILE_UPLOAD";
-    source?: "document" | "face";
+	base64Image: string;
+	face?: string;
+	force?: boolean;
+	front?: boolean;
+	rawImage?: string;
+	inputMethod: "CAMERA" | "FILE_UPLOAD";
+	source?: "document" | "face";
 };
 
 export type CriminalValidation = {
-    world_api_interpol: {
-        cards: [];
-        person: {
-            firstName: string;
-            lastName: string;
-            fullName: string;
-        };
-        totalCards: number;
-    };
-    world_api_dea: {
-        foundInDEA: boolean;
-    };
-    world_api_europol: {
-        foundInEuropol: boolean;
-    };
-    requestedAt: string;
-    foundKeys: [];
+	world_api_interpol: {
+		cards: [];
+		person: {
+			firstName: string;
+			lastName: string;
+			fullName: string;
+		};
+		totalCards: number;
+	};
+	world_api_dea: {
+		foundInDEA: boolean;
+	};
+	world_api_europol: {
+		foundInEuropol: boolean;
+	};
+	requestedAt: string;
+	foundKeys: [];
 };
