@@ -613,7 +613,8 @@
 			"scanner_info": "Esta demo mostra como a digitalização de documentos funcionaria com uma câmera real",
 			"capture_successful": "Captura bem-sucedida",
 			"document_processed_successfully": "Documento processado com sucesso"
-		}
+		},
+		"zkp_face_proof_created": "Sua Prova de Conhecimento Zero Facial foi criada com sucesso"
 	},
 	"welcome": {
 		"title": "Bem-vindo ao {{projectName}}",

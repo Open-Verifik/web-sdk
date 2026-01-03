@@ -23,6 +23,7 @@ type CombinedValidationResponse = {
 	criminalValidation: CriminalValidationResponse;
 	compareValidation: CompareFaceVerificationResponse;
 	nameValidation: NameValidationResponse;
+	zkProofValidation: ZkProofValidationResponse;
 };
 
 type CompareFaceVerificationResponse = {
@@ -40,6 +41,13 @@ type CriminalValidationResponse = {
 };
 
 type NameValidationResponse = {
+	data: DocumentValidation;
+	error: any;
+	reason: any;
+	status: "fulfilled" | "rejected" | "NA";
+};
+
+type ZkProofValidationResponse = {
 	data: DocumentValidation;
 	error: any;
 	reason: any;
@@ -95,6 +103,7 @@ export class SmartDocumentsReviewComponent {
 		compareValidation: true,
 		criminalValidation: true,
 		nameValidation: true,
+		zkProofValidation: true,
 	};
 
 	constructor(
@@ -127,6 +136,9 @@ export class SmartDocumentsReviewComponent {
 		if (this.appRegistration?.compareFaceVerification) {
 			this.loading.compareValidation = false;
 		}
+		if (docValidation?.zelfKey) {
+			this.loading.zkProofValidation = false;
+		}
 
 		this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
 
@@ -149,6 +161,14 @@ export class SmartDocumentsReviewComponent {
 
 	get verifyCriminalHistoryEnabled(): boolean {
 		return Boolean(this.projectFlow?.onboardingSettings?.document?.verifyCriminalHistory);
+	}
+
+	get zeroKnowledgeProofEnabled(): boolean {
+		if (!this.projectFlow) return false;
+		// Handle both Mongoose documents and plain objects
+		const projectFlowObj = (this.projectFlow as any).toObject ? (this.projectFlow as any).toObject() : this.projectFlow;
+		const liveness = projectFlowObj?.liveness || {};
+		return liveness?.kycType === "zero_knowledge";
 	}
 
 	private _cleanOCR(OCRExtraction: any) {
@@ -233,6 +253,7 @@ export class SmartDocumentsReviewComponent {
 		this.loading.compareValidation = false;
 		this.loading.criminalValidation = false;
 		this.loading.nameValidation = false;
+		this.loading.zkProofValidation = false;
 
 		if (exception?.error?.code === "PaymentRequired") {
 			this._smartEnrollService.insufficientCreditsTrigger();
@@ -274,6 +295,16 @@ export class SmartDocumentsReviewComponent {
 			}
 		}
 
+		if (results.zkProofValidation?.status === "fulfilled") {
+			this.appRegistration.documentValidation = results.zkProofValidation.data;
+		} else if (results.zkProofValidation?.status === "rejected") {
+			if (results.zkProofValidation?.error?.code === "PaymentRequired") {
+				this._smartEnrollService.insufficientCreditsTrigger();
+
+				return;
+			}
+		}
+
 		this._setErrors();
 	}
 
@@ -288,6 +319,7 @@ export class SmartDocumentsReviewComponent {
 			this.verifyNamesEnabled ? "nameValidation" : null,
 			this.verifyCriminalHistoryEnabled && !this.appRegistration?.informationValidation?.criminalData ? "criminalValidation" : null,
 			this.appRegistration.biometricValidation ? "compareValidation" : null,
+			this.zeroKnowledgeProofEnabled && !this.appRegistration.documentValidation?.zelfKey ? "zkProofValidation" : null,
 		].filter(Boolean);
 
 		const checkAllCompleted = () => {
@@ -351,6 +383,27 @@ export class SmartDocumentsReviewComponent {
 			);
 		} else {
 			this.loading.compareValidation = false;
+		}
+
+		// Zero Knowledge Proof Validation
+		if (this.zeroKnowledgeProofEnabled && !this.appRegistration.documentValidation?.zelfKey) {
+			const documentFace = this.appRegistration.documentFace?.base64;
+			if (documentFace) {
+				// Remove data URL prefix if present
+				const faceBase64 = documentFace.replace(/^data:image\/\w+;base64,/, "");
+				this._executeValidationRequest(
+					"zkProofValidation",
+					() => this._KYCService.createZkProof(faceBase64),
+					validationResults,
+					validationErrors,
+					completedValidations,
+					checkAllCompleted
+				);
+			} else {
+				this.loading.zkProofValidation = false;
+			}
+		} else {
+			this.loading.zkProofValidation = false;
 		}
 
 		if (totalValidations.length === 0) {
@@ -425,6 +478,7 @@ export class SmartDocumentsReviewComponent {
 			!this.hasErrors &&
 			(this.verifyNamesEnabled ||
 				this.verifyCriminalHistoryEnabled ||
+				this.zeroKnowledgeProofEnabled ||
 				Boolean(this.appRegistration?.biometricValidation && this.appRegistration?.documentValidation))
 		);
 	}

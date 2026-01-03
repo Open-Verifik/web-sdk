@@ -767,6 +767,7 @@ export interface DocumentValidation {
 	_id: string;
 	backUrl?: string;
 	createdAt: string;
+	zelfKey?: any;
 	deleted: boolean;
 	documentCategory: "ID" | "Passport" | "IDv2" | "ForeignerID" | "DriverLicense" | "Unknown";
 	documentNumber: string;

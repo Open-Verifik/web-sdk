@@ -4,6 +4,7 @@
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",
 			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
 			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully"
-		}
+		},
+		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	}
 }

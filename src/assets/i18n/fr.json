@@ -612,7 +612,8 @@
 			"scanner_info": "Cette démo montre comment la numérisation de documents fonctionnerait avec une vraie caméra",
 			"capture_successful": "[TO TRANSLATE] Capture successful",
 			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
-		}
+		},
+		"zkp_face_proof_created": "Votre Preuve à Divulgation Nulle Faciale a été créée avec succès"
 	},
 	"welcome": {
 		"title": "Bienvenue chez {{projectName}}",

@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
@@ -35,7 +35,7 @@ import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll
 	styleUrls: ["../smart-enroll.component.scss"],
 	templateUrl: "./smart-results.component.html",
 })
-export class SmartResultsComponent implements OnInit, AfterViewInit {
+export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
 	appRegistration: AppRegistration;
@@ -58,6 +58,9 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 	project: Project;
 	projectFlow: ProjectFlow;
 	showQrCode: boolean = false;
+	showZKPQRCode: boolean = false;
+	private zkpRotationInterval: any;
+	private isHoveringAvatar: boolean = false;
 
 	constructor(
 		private _smartEnrollService: SmartEnrollService,
@@ -81,10 +84,22 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 
 		this._checkScoreStatus();
 		this._requestIdentityImages();
+
+		// Start rotation if ZKP already exists (e.g., on page reload)
+		if (this.appRegistration?.zelfKey?.zelfQR) {
+			// Use setTimeout to ensure component is fully initialized
+			setTimeout(() => {
+				this._startZKPQRCodeRotation();
+			}, 100);
+		}
 	}
 
 	ngAfterViewInit(): void {
 		// QR code is generated on-demand when user clicks to show it
+	}
+
+	ngOnDestroy(): void {
+		this._stopZKPQRCodeRotation();
 	}
 
 	private _checkScoreStatus() {
@@ -114,7 +129,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 
 		if (!this.errorResult) {
 			this.appRegistration.status = "COMPLETED";
-			// Create ZKP if both validations passed and ZKP is enabled
+
 			if (this.zeroKnowledgeProofEnabled && !this.comparisonFailed && !this.livenessFailed) {
 				this._createAppRegistrationZKP();
 			}
@@ -131,8 +146,6 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 				_response = response.data;
 			},
 			error: (exception) => {
-				console.error({ exception });
-
 				this.errorResult = true;
 				this.fetchingToken = false;
 			},
@@ -190,6 +203,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 		this._KYCService.getIdentityImages({}).subscribe({
 			next: (response) => {
 				this._extractFaces(response.data);
+				this._tryCreateZKPAfterFaceLoaded();
 			},
 			error: () => {},
 			complete: () => {},
@@ -212,23 +226,55 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 		this.identityLoading = false;
 	}
 
+	private _tryCreateZKPAfterFaceLoaded(): void {
+		// Only create ZKP if:
+		// 1. Face is available
+		// 2. ZKP is enabled
+		// 3. Validations passed (no errors)
+		// 4. ZKP doesn't already exist
+		if (
+			this.face?.base64 &&
+			this.zeroKnowledgeProofEnabled &&
+			!this.comparisonFailed &&
+			!this.livenessFailed &&
+			!this.errorResult &&
+			!this.appRegistration.zelfKey
+		) {
+			this._createAppRegistrationZKP();
+		}
+	}
+
 	get zeroKnowledgeProofEnabled(): boolean {
-		if (!this.projectFlow) return false;
+		if (!this.projectFlow) {
+			return false;
+		}
 
 		// For v3, check the liveness property directly
 		if (this.projectFlow.version >= 3) {
 			const liveness = this.projectFlow.liveness as any;
-			return liveness?.kycType === "zero_knowledge";
+			const isEnabled = liveness?.kycType === "zero_knowledge";
+			return isEnabled;
 		}
 
 		// For v2, check onboardingSettings
 		const onboardingSettings = this.projectFlow.onboardingSettings as any;
-		return onboardingSettings?.livenessSettings?.kycType === "zero_knowledge";
+		const isEnabled = onboardingSettings?.livenessSettings?.kycType === "zero_knowledge";
+		return isEnabled;
 	}
 
 	private _createAppRegistrationZKP(): void {
 		// Only create if not already created and face is available
-		if (this.loadingAppRegistrationZKP || this.appRegistration.zelfKey || !this.face?.base64) return;
+		if (this.loadingAppRegistrationZKP) {
+			return;
+		}
+
+		if (this.appRegistration.zelfKey) {
+			return;
+		}
+
+		if (!this.face?.base64) {
+			return;
+		}
 
 		this.loadingAppRegistrationZKP = true;
 
@@ -238,17 +284,93 @@ export class SmartResultsComponent implements OnInit, AfterViewInit {
 		this._KYCService.createAppRegistrationZkProof(faceBase64).subscribe({
 			next: (response: any) => {
 				if (response?.data?.zelfKey) {
-					// Update appRegistration with zelfKey
+					// Update appRegistration with zelfKey from response
+					// The backend saves it to the database, so we update our local copy
 					this.appRegistration.zelfKey = response.data.zelfKey;
+
+					// Also update the appRegistration in KYCService so it persists
+					this._KYCService.appRegistration.zelfKey = response.data.zelfKey;
+
+					// Restart rotation if QR code is now available
+					this._startZKPQRCodeRotation();
 				}
 			},
 			error: (error) => {
-				console.error("Error creating appRegistration ZKP:", error);
+				console.error("[ZKP] Error creating appRegistration ZKP:", error);
 			},
 			complete: () => {
 				this.loadingAppRegistrationZKP = false;
 			},
 		});
+	}
+
+	private _startZKPQRCodeRotation(): void {
+		// Only start rotation if ZKP is enabled and QR code is available
+		if (!this.zeroKnowledgeProofEnabled) {
+			return;
+		}
+
+		if (!this.appRegistration?.zelfKey?.zelfQR) {
+			return;
+		}
+
+		// Clear any existing interval
+		this._stopZKPQRCodeRotation();
+
+		// Start rotation every 5 seconds
+		this.zkpRotationInterval = setInterval(() => {
+			if (!this.isHoveringAvatar) {
+				this.showZKPQRCode = !this.showZKPQRCode;
+			}
+		}, 5000);
+	}
+
+	private _stopZKPQRCodeRotation(): void {
+		if (this.zkpRotationInterval) {
+			clearInterval(this.zkpRotationInterval);
+			this.zkpRotationInterval = null;
+		}
+	}
+
+	onAvatarHover(isHovering: boolean): void {
+		this.isHoveringAvatar = isHovering;
+		// Pause rotation while hovering
+		if (isHovering) {
+			this._stopZKPQRCodeRotation();
+		} else {
+			this._startZKPQRCodeRotation();
+		}
+	}
+
+	onAvatarClick(): void {
+		if (this.zeroKnowledgeProofEnabled && this.appRegistration?.zelfKey?.zelfQR) {
+			this.showZKPQRCode = !this.showZKPQRCode;
+			// Reset rotation timer
+			this._stopZKPQRCodeRotation();
+			this._startZKPQRCodeRotation();
+		}
+	}
+
+	get zkpQRCodeUrl(): string | null {
+		const hasZelfKey = !!this.appRegistration?.zelfKey;
+		const hasZelfQR = !!this.appRegistration?.zelfKey?.zelfQR;
+
+		if (!this.appRegistration?.zelfKey?.zelfQR) {
+			return null;
+		}
+
+		// zelfQR might be a base64 string or a URL
+		const qr = this.appRegistration.zelfKey.zelfQR;
+		let result: string;
+
+		if (qr.startsWith("data:") || qr.startsWith("http")) {
+			result = qr;
+		} else {
+			// If it's just base64, add the data URL prefix
+			result = `data:image/png;base64,${qr}`;
+		}
+
+		return result;
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {
