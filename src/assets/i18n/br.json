@@ -317,7 +317,18 @@
 		"verifik_button": "Ativar Bônus Biométrico",
 		"verifik_content": "Eleve a segurança de sua conta para o próximo nível! Registre seus dados biométricos agora e desfrute de um acesso ultra seguro e sem complicações. Experimente a conveniência da segurança de ponta com um toque de recompensa.",
 		"verifik_dismiss": "Não agora, obrigado",
-		"verifik_title": "Desbloqueie $10 em Créditos com Seus Dados Biométricos!"
+		"verifik_title": "Desbloqueie $10 em Créditos com Seus Dados Biométricos!",
+		"passkey_prompt": {
+			"title": "Proteja sua conta",
+			"description": "Ative PassKeys (FaceID / TouchID) para acesso mais rápido e sem senha na próxima vez.",
+			"confirm": "Ativar PassKeys",
+			"cancel": "Talvez depois"
+		},
+		"passkey_success": {
+			"title": "PassKeys Ativadas!",
+			"description": "Sua conta agora está protegida com autenticação biométrica. Na próxima vez, você poderá fazer login instantaneamente com sua impressão digital ou rosto.",
+			"continue": "Continuar"
+		}
 	},
 	"signup": {
 		"addressLine1": "Linha de endereço 1",

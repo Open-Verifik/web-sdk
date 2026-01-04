@@ -15,8 +15,10 @@ import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
+import { PasskeyZelfService } from "app/core/services/passkey-zelf.service";
+import { BiometricSecurityService } from "app/core/services/biometric-security.service";
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
@@ -31,7 +33,10 @@ import { OneTimePasswordInputComponent } from "../../../core/components/one-time
 import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
 import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
 import { PasswordlessService } from "../passwordless.service";
+import { PasskeyPromptComponent } from "../passkey-prompt/passkey-prompt.component";
+import { PasskeySuccessComponent } from "../passkey-success/passkey-success.component";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
+import { AuthUtils } from "app/core/auth/auth.utils";
 
 @Component({
 	animations: fuseAnimations,
@@ -41,6 +46,8 @@ import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-medi
 	styleUrls: ["./sign-in.component.scss"],
 	templateUrl: "./sign-in.component.html",
 	imports: [
+		PasskeyPromptComponent,
+		PasskeySuccessComponent,
 		BiometricsLoginComponent,
 		BiometricsLoginIosComponent,
 		CommonModule,
@@ -95,6 +102,239 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	smsSent: boolean;
 	typeLogin: string;
 
+	// Passkey State
+	isPasskeyLoading: boolean = false;
+	passkeyAvailable: boolean = false;
+	showPasskeyPrompt: boolean = false;
+	showPasskeySuccess: boolean = false;
+	private _passkeyPromptResolver: (value: boolean) => void;
+
+	// --- Passkey Logic ---
+
+	onPasskeyPromptChoice(choice: boolean) {
+		console.log("[Passkey Modal] User choice:", choice);
+		this.showPasskeyPrompt = false;
+		if (this._passkeyPromptResolver) {
+			this._passkeyPromptResolver(choice);
+			this._passkeyPromptResolver = null;
+		}
+	}
+
+	onPasskeySuccessContinue(): void {
+		this.showPasskeySuccess = false;
+		this.successLogin(this.appLoginToken);
+	}
+
+	private async _offerPasskeyRegistration(token: string, identifier: string): Promise<boolean> {
+		console.log("[Passkeys] Checking availability", {
+			allowPasskeys: this.projectFlow?.loginSettings?.allowPasskeys,
+			settings: this.projectFlow?.loginSettings,
+		});
+
+		if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
+
+		const isSupported = await this._biometricSecurityService.isPasskeySupported();
+
+		console.log("[Passkeys] Passkey Supported:", isSupported);
+
+		if (!isSupported) return false;
+
+		// Show custom modal and wait for response
+		const accepted = await new Promise<boolean>((resolve) => {
+			this._passkeyPromptResolver = resolve;
+			this.showPasskeyPrompt = true;
+			this._changeDetectorRef.detectChanges(); // Ensure UI updates
+		});
+
+		if (accepted) {
+			await this._registerPasskey(token, identifier);
+			return true;
+		}
+
+		return false;
+	}
+
+	private async _registerPasskey(token: string, username: string) {
+		this.loading = true;
+
+		try {
+			const { credentialId } = await this._registerBiometric(username);
+
+			const { secretToEncrypt, tokenForRequest, isToken } = await this._preparePasskeySecret(token);
+
+			const payloadString = await this._encryptPasskeySecret(username, secretToEncrypt, isToken);
+
+			await this._uploadPasskeyToZelf(username, credentialId, payloadString, tokenForRequest);
+
+			this._handlePasskeySuccess();
+		} catch (error) {
+			console.error("Passkey Registration Failed", error);
+		}
+
+		this.loading = false;
+	}
+
+	private async _registerBiometric(username: string): Promise<{ credentialId: string }> {
+		const userId = new TextEncoder().encode(username);
+		return this._biometricSecurityService.registerPasskey(username, userId);
+	}
+
+	private async _preparePasskeySecret(token: string): Promise<{ secretToEncrypt: string; tokenForRequest: string; isToken: boolean }> {
+		if (this.project?._id === environment.verifikProject) {
+			return this._prepareVerifikSecret(token);
+		}
+
+		return this._prepareAppSecret(token);
+	}
+
+	private async _prepareVerifikSecret(token: string): Promise<{ secretToEncrypt: string; tokenForRequest: string; isToken: boolean }> {
+		let tokenForRequest = token;
+		try {
+			// We must set the current token first so the refresh request is authenticated
+			localStorage.setItem("accessToken", token);
+			const refreshResponse: any = await firstValueFrom(this._authService.projectLogin(24, token));
+
+			if (refreshResponse && refreshResponse.data && refreshResponse.data.accessToken) {
+				tokenForRequest = refreshResponse.data.accessToken;
+				// Update valid token in local storage
+				localStorage.setItem("accessToken", tokenForRequest);
+				this.appLoginToken = tokenForRequest;
+			}
+		} catch (e) {
+			console.warn("[Passkey Registration] Failed to refresh token for long-lived passkey", e);
+		}
+
+		return { secretToEncrypt: tokenForRequest, tokenForRequest, isToken: true };
+	}
+
+	private async _prepareAppSecret(token: string): Promise<{ secretToEncrypt: string; tokenForRequest: string; isToken: boolean }> {
+		// Generate random password
+		const password = AuthUtils.generateRandomPassword(32);
+
+		// Register with backend (hashed)
+		console.log({ token });
+		await firstValueFrom(this._authService.registerAppPasskey(password, token));
+
+		return { secretToEncrypt: password, tokenForRequest: token, isToken: false };
+	}
+
+	private async _encryptPasskeySecret(username: string, secret: string, isToken: boolean): Promise<string> {
+		const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(username);
+		const { ciphertext, iv } = await this._biometricSecurityService.encryptData(encryptionKey, secret);
+
+		if (isToken) {
+			return JSON.stringify({ iv, ciphertext, tokenExp: this._getTokenExpiration(secret) });
+		}
+		return JSON.stringify({ iv, ciphertext, type: "password" });
+	}
+
+	private async _uploadPasskeyToZelf(username: string, credentialId: string, payloadString: string, tokenForRequest: string) {
+		const identifier = `${username.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
+
+		// Store token in localStorage so HttpWrapperService can add Authorization header (ensure it's the valid one)
+		localStorage.setItem("accessToken", tokenForRequest);
+
+		await this._passkeyZelfService.createPasskey({
+			publicData: {
+				identifier,
+				project: this.project?._id,
+				category: `${this.project?._id}_passKeys`,
+				credentialId,
+				expiresAt: this._getTokenExpiration(tokenForRequest),
+				email: this.typeLogin === "email" ? username : undefined,
+				phone: this.typeLogin === "phone" ? username : undefined,
+			},
+			identifier,
+			payload: payloadString, // Encrypted Token or Password
+		} as any);
+	}
+
+	private _handlePasskeySuccess() {
+		// Show success modal
+		this.showPasskeySuccess = true;
+		this.loading = false;
+		this._changeDetectorRef.markForCheck(); // Ensure UI updates
+	}
+
+	private async _checkAndLoginWithPasskey(identifier: string): Promise<boolean> {
+		if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
+
+		try {
+			// 1. Check if Passkey exists
+			const rawIdentifier = identifier;
+			const constructedIdentifier = `${rawIdentifier.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
+
+			let query: any = {
+				identifier: constructedIdentifier,
+			};
+
+			const response = await this._passkeyZelfService.listPasskeys(query);
+
+			if (response && response.data && response.data.length > 0) {
+				// Filter by current Project
+				const currentProjectId = this.project?._id;
+				const matchingPasskey = response.data.find((f: any) => f.publicData?.category === `${currentProjectId}_passKeys`);
+
+				if (matchingPasskey) {
+					// 2. Passkey Found!
+					this.passkeyAvailable = true;
+					this.loading = true;
+
+					const credentialId = matchingPasskey.publicData?.credentialId;
+					const allowCredentials = credentialId ? [credentialId] : [];
+
+					// 3. Authenticate with Passkey (biometric verification)
+					await this._biometricSecurityService.authenticatePasskey(allowCredentials);
+
+					// 4. Derive encryption key from identifier
+					const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(identifier);
+
+					// Fetch Encrypted Blob
+					const fileUrl = matchingPasskey.url;
+					const encryptedFile = await fetch(fileUrl).then((res) => res.json());
+
+					// Handle structure (whether directly in file or nested)
+					const payloadString = encryptedFile.encryptedToken || encryptedFile;
+					const { iv, ciphertext } = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString;
+
+					const tokenOrPassword = await this._biometricSecurityService.decryptData(encryptionKey, ciphertext, iv);
+
+					let finalToken: string;
+
+					if (this.project?._id === environment.verifikProject) {
+						// For Verifik Project, the decrypted data IS the token
+						finalToken = tokenOrPassword;
+					} else {
+						// For other projects, it is the password. Login to get token.
+						const loginResponse = await firstValueFrom(this._authService.loginAppPasskey(this.project?._id, identifier, tokenOrPassword));
+						if (loginResponse && loginResponse.data && loginResponse.data.token) {
+							finalToken = loginResponse.data.token;
+						} else {
+							throw new Error("Failed to login with passkey password");
+						}
+					}
+
+					// 4. Success
+					this.successLogin(finalToken);
+					return true;
+				}
+			}
+		} catch (e) {
+			console.error("Passkey Check Failed", e);
+			this.loading = false;
+		}
+		return false;
+	}
+
+	private _getTokenExpiration(token: string): number {
+		try {
+			const payload = JSON.parse(atob(token.split(".")[1]));
+			return payload.exp || 0;
+		} catch (e) {
+			return 0;
+		}
+	}
+
 	alert: { type: FuseAlertType; message: string } = {
 		type: "success",
 		message: "",
@@ -126,7 +366,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		private _passwordlessService: PasswordlessService,
 		private _projectStorageService: ProjectStorageService,
 		private _splashScreenService: FuseSplashScreenService,
-		private _translocoService: TranslocoService
+		private _translocoService: TranslocoService,
+		private _passkeyZelfService: PasskeyZelfService,
+		private _biometricSecurityService: BiometricSecurityService
 	) {
 		this.setLanguage();
 
@@ -486,16 +728,19 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 					localStorage.setItem("defaultEmail", dataForm.email);
 
-					if (response.data?.showFaceLivenessRecommendation) {
-						this.showFaceLivenessRecommendation = true;
+					// Passkey Offer Hook
+					this._offerPasskeyRegistration(response.data.token, dataForm.email).then((accepted) => {
+						if (accepted) return; // Registration flow took over
+
+						if (response.data?.showFaceLivenessRecommendation) {
+							this.showFaceLivenessRecommendation = true;
+							this.loading = false;
+							return;
+						}
+
 						this.loading = false;
-
-						return;
-					}
-
-					this.loading = false;
-
-					return this.successLogin(response.data.token);
+						return this.successLogin(response.data.token);
+					});
 				},
 				error: (err) => {
 					console.error({
@@ -546,6 +791,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					}
 
 					this.loading = false;
+
+					// Passkey Offer Hook for Phone
+					this._offerPasskeyRegistration(response.data.token, `${dataForm.countryCode}${dataForm.phone}`).then((accepted) => {
+						if (accepted) return;
+						return this.successLogin(response.data.token);
+					});
 				},
 				error: (err) => {
 					this.errorLogin(err.error.message);
@@ -595,8 +846,14 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		}, 10000);
 	}
 
-	sendOTP(event, gateway): void {
+	async sendOTP(event, gateway): Promise<void> {
 		event.preventDefault();
+
+		// Passkey Check
+		const idToCheck =
+			this.typeLogin === "email" ? this.signInForm.value.email : `${this.signInForm.value.countryCode}${this.signInForm.value.phone}`;
+
+		if (await this._checkAndLoginWithPasskey(idToCheck)) return;
 
 		this.sendingOTP = true;
 

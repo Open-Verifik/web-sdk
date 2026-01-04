@@ -1,0 +1,41 @@
+<div class="fixed inset-0 z-[999] flex items-center justify-center px-4" *transloco="let t">
+	<!-- Backdrop with blur -->
+	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" (click)="onCancel()"></div>
+
+	<!-- Modal Card -->
+	<div
+		class="relative w-full max-w-sm transform overflow-hidden rounded-3xl bg-white dark:bg-gray-800 p-8 text-left shadow-2xl transition-all sm:my-8 animate-fade-in-up"
+	>
+		<!-- Icon Badge -->
+		<div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30 mb-6">
+			<mat-icon class="text-blue-600 dark:text-blue-400 !w-8 !h-8 text-[32px]" svgIcon="fingerprint"></mat-icon>
+		</div>
+
+		<!-- Content -->
+		<div class="text-center">
+			<h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-gray-100 mb-3" id="modal-title">
+				{{ t("add_biometrics.passkey_prompt.title") }}
+			</h3>
+			<div class="mt-2">
+				<p class="text-base text-gray-500 dark:text-gray-400">
+					{{ t("add_biometrics.passkey_prompt.description") }}
+				</p>
+			</div>
+		</div>
+
+		<!-- Actions -->
+		<div class="mt-8 flex flex-col gap-3 sm:gap-4">
+			<button
+				mat-flat-button
+				[color]="'primary'"
+				class="w-full !rounded-xl !h-12 !text-lg font-medium shadow-md shadow-blue-500/20"
+				(click)="onConfirm()"
+			>
+				{{ t("add_biometrics.passkey_prompt.confirm") }}
+			</button>
+			<button mat-button class="w-full !rounded-xl !h-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" (click)="onCancel()">
+				{{ t("add_biometrics.passkey_prompt.cancel") }}
+			</button>
+		</div>
+	</div>
+</div>

@@ -1,5 +1,7 @@
 <ng-container *transloco="let t">
 	<div *ngIf="project && signInForm" class="w-full h-screen flex flex-col items-center justify-center custom-theme-background">
+		<auth-passkey-prompt *ngIf="showPasskeyPrompt" (choice)="onPasskeyPromptChoice($event)"></auth-passkey-prompt>
+<auth-passkey-success *ngIf="showPasskeySuccess" (continue)="onPasskeySuccessContinue()"></auth-passkey-success>
 		<languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
 
 		<div class="flex overflow-hidden h-screen w-full" *ngIf="!showBiometrics">

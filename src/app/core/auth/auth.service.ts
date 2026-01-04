@@ -8,133 +8,172 @@ import { ProjectFlow } from "../classes/project-flow.class";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
-    private _authenticated: boolean = false;
+	private _authenticated: boolean = false;
 
-    constructor(private _httpClient: HttpClient, private _userService: UserService) {}
+	constructor(private _httpClient: HttpClient, private _userService: UserService) {}
 
-    set accessToken(token: string) {
-        localStorage.setItem("accessToken", token);
-    }
+	set accessToken(token: string) {
+		localStorage.setItem("accessToken", token);
+	}
 
-    get accessToken(): string {
-        return localStorage.getItem("accessToken") ?? "";
-    }
+	get accessToken(): string {
+		return localStorage.getItem("accessToken") ?? "";
+	}
 
-    get baseAppUrl(): string {
-        const origin = window.location.origin;
+	get baseAppUrl(): string {
+		const origin = window.location.origin;
 
-        if (origin.includes("staging-access.verifik.co")) {
-            return `${environment.stagingUrl}`;
-        } else if (origin.includes("testing-access.verifik.co")) {
-            return `${environment.sandboxUrl}`;
-        } else {
-            return `${environment.appUrl}`;
-        }
-    }
+		if (origin.includes("staging-access.verifik.co")) {
+			return `${environment.stagingUrl}`;
+		} else if (origin.includes("testing-access.verifik.co")) {
+			return `${environment.sandboxUrl}`;
+		} else {
+			return `${environment.appUrl}`;
+		}
+	}
 
-    handleRedirect(
-        projectFlow: ProjectFlow,
-        projectId: string,
-        token: string,
-        type: "login" | "onboarding" = "login",
-        demoMode: boolean = false
-    ): void {
-        if (demoMode) {
-            const redirectUrl = `${this.baseAppUrl}/smart-enroll-preview`;
+	handleRedirect(
+		projectFlow: ProjectFlow,
+		projectId: string,
+		token: string,
+		type: "login" | "onboarding" = "login",
+		demoMode: boolean = false
+	): void {
+		if (demoMode) {
+			const redirectUrl = `${this.baseAppUrl}/smart-enroll-preview`;
 
-            window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+			window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
 
-            return;
-        }
+			return;
+		}
 
-        let redirectUrl = projectFlow.integrations.redirectUrl;
+		let redirectUrl = projectFlow.integrations.redirectUrl;
 
-        const verifikProject =
-            window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
-                ? environment.sandboxProject
-                : environment.verifikProject;
+		const verifikProject =
+			window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
+				? environment.sandboxProject
+				: environment.verifikProject;
 
-        if (projectId !== verifikProject) {
-            redirectUrl = projectFlow.integrations.redirectUrl;
+		if (projectId !== verifikProject) {
+			redirectUrl = projectFlow.integrations.redirectUrl;
 
-            window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+			window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
 
-            return;
-        }
+			return;
+		}
 
-        redirectUrl = `${this.baseAppUrl}/sign-in`;
+		redirectUrl = `${this.baseAppUrl}/sign-in`;
 
-        window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
-    }
+		window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+	}
 
-    forgotPassword(email: string): Observable<any> {
-        return this._httpClient.post("api/auth/forgot-password", email);
-    }
+	forgotPassword(email: string): Observable<any> {
+		return this._httpClient.post("api/auth/forgot-password", email);
+	}
 
-    resetPassword(password: string): Observable<any> {
-        return this._httpClient.post("api/auth/reset-password", password);
-    }
+	resetPassword(password: string): Observable<any> {
+		return this._httpClient.post("api/auth/reset-password", password);
+	}
 
-    signIn(credentials: { email: string; password: string }): Observable<any> {
-        if (this._authenticated) return throwError("User is already logged in.");
+	signIn(credentials: { email: string; password: string }): Observable<any> {
+		if (this._authenticated) return throwError("User is already logged in.");
 
-        return this._httpClient.post("api/auth/sign-in", credentials).pipe(
-            switchMap((response: any) => {
-                this.accessToken = response.accessToken;
+		return this._httpClient.post("api/auth/sign-in", credentials).pipe(
+			switchMap((response: any) => {
+				this.accessToken = response.accessToken;
 
-                this._authenticated = true;
-                this._userService.user = response.user;
+				this._authenticated = true;
+				this._userService.user = response.user;
 
-                return of(response);
-            })
-        );
-    }
+				return of(response);
+			})
+		);
+	}
 
-    signInUsingToken(): Observable<any> {
-        return this._httpClient
-            .post("api/auth/sign-in-with-token", {
-                accessToken: this.accessToken,
-            })
-            .pipe(
-                catchError(() => of(false)),
-                switchMap((response: any) => {
-                    if (response.accessToken) this.accessToken = response.accessToken;
+	signInUsingToken(): Observable<any> {
+		return this._httpClient
+			.post("api/auth/sign-in-with-token", {
+				accessToken: this.accessToken,
+			})
+			.pipe(
+				catchError(() => of(false)),
+				switchMap((response: any) => {
+					if (response.accessToken) this.accessToken = response.accessToken;
 
-                    this._authenticated = true;
+					this._authenticated = true;
 
-                    this._userService.user = response.user;
+					this._userService.user = response.user;
 
-                    return of(true);
-                })
-            );
-    }
+					return of(true);
+				})
+			);
+	}
 
-    signOut(): Observable<any> {
-        localStorage.removeItem("accessToken");
+	signOut(): Observable<any> {
+		localStorage.removeItem("accessToken");
 
-        this._authenticated = false;
+		this._authenticated = false;
 
-        return of(true);
-    }
+		return of(true);
+	}
 
-    signUp(user: { name: string; email: string; password: string; company: string }): Observable<any> {
-        return this._httpClient.post("api/auth/sign-up", user);
-    }
+	signUp(user: { name: string; email: string; password: string; company: string }): Observable<any> {
+		return this._httpClient.post("api/auth/sign-up", user);
+	}
 
-    unlockSession(credentials: { email: string; password: string }): Observable<any> {
-        return this._httpClient.post("api/auth/unlock-session", credentials);
-    }
+	unlockSession(credentials: { email: string; password: string }): Observable<any> {
+		return this._httpClient.post("api/auth/unlock-session", credentials);
+	}
 
-    /**
-     * Check the authentication status
-     */
-    check(): Observable<boolean> {
-        if (this._authenticated) return of(true);
+	/**
+	 * Check the authentication status
+	 */
+	check(): Observable<boolean> {
+		if (this._authenticated) return of(true);
 
-        if (!this.accessToken) return of(false);
+		if (!this.accessToken) return of(false);
 
-        if (AuthUtils.isTokenExpired(this.accessToken)) return of(false);
+		if (AuthUtils.isTokenExpired(this.accessToken)) return of(false);
 
-        return this.signInUsingToken();
-    }
+		return this.signInUsingToken();
+	}
+
+	projectLogin(expiresIn: number, jwt: string): Observable<any> {
+		return this._httpClient.post(
+			`${environment.apiUrl}/v2/auth/project-login`,
+			{
+				expiresIn,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${jwt}`,
+				},
+			}
+		);
+	}
+
+	registerAppPasskey(password: string, jwt: string): Observable<any> {
+		return this._httpClient.post(
+			`${environment.apiUrl}/v2/app-registrations/register-passkey`,
+			{
+				password,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${jwt}`,
+				},
+			}
+		);
+	}
+
+	loginAppPasskey(projectId: string, identifier: string, password: string): Observable<any> {
+		const isEmail = identifier.includes("@");
+
+		return this._httpClient.post(`${environment.apiUrl}/v2/app-registrations/login-passkey`, {
+			password,
+			email: isEmail ? identifier : undefined,
+			phone: !isEmail ? identifier : undefined,
+			projectId: projectId, // Backend might expect this in body if not in token?
+		});
+	}
 }

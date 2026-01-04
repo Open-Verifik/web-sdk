@@ -104,6 +104,7 @@ export interface LoginSettings {
 	searchMode?: "FAST" | "ACCURATE";
 	showFaceLivenessRecommendation?: boolean;
 	steps: any[];
+	allowPasskeys?: boolean;
 }
 
 export interface LinkSettings {

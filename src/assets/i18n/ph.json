@@ -316,7 +316,18 @@
 		"verifik_button": "I-activate ang Biometric Bonus",
 		"verifik_content": "Iangat ang seguridad ng iyong account sa susunod na antas! Irehistro ang iyong biometric data ngayon at tamasahin ang tuloy-tuloy at napaka-ligtas na access. Maranasan ang kaginhawaan ng makabagong seguridad na may gantimpala.",
 		"verifik_dismiss": "Hindi muna, salamat",
-		"verifik_title": "I-unlock ang $10 na Credits gamit ang Iyong Biometrics!"
+		"verifik_title": "I-unlock ang $10 na Credits gamit ang Iyong Biometrics!",
+		"passkey_prompt": {
+			"title": "Protektahan ang iyong account",
+			"description": "I-enable ang PassKeys (FaceID / TouchID) para sa mas mabilis, walang password na access sa susunod.",
+			"confirm": "I-enable ang PassKeys",
+			"cancel": "Mamaya na lang"
+		},
+		"passkey_success": {
+			"title": "PassKeys Na-enable!",
+			"description": "Ang iyong account ay protektado na ngayon gamit ang biometric authentication. Sa susunod ay maaari kang mag-login kaagad gamit ang iyong fingerprint o mukha.",
+			"continue": "Magpatuloy"
+		}
 	},
 	"signup": {
 		"addressLine1": "Linya ng address 1",

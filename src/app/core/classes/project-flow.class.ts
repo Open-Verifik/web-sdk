@@ -258,6 +258,7 @@ export class ProjectFlow {
 			searchMode: v2Login.searchMode || "FAST",
 			showFaceLivenessRecommendation: v2Login.showFaceLivenessRecommendation || false,
 			steps: v2Login.steps || [],
+			allowPasskeys: v2Login.allowPasskeys || false,
 		};
 	}
 

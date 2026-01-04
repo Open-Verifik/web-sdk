@@ -317,7 +317,18 @@
 		"verifik_button": "激活生物识别奖金",
 		"verifik_content": "将您的账户安全提升到新的层次！立即注册您的生物识别数据，享受无缝的超级安全访问。体验尖端安全的便利和奖励扭转。",
 		"verifik_dismiss": "现在不，谢谢",
-		"verifik_title": "通过您的生物识别解锁10美元的积分！"
+		"verifik_title": "通过您的生物识别解锁10美元的积分！",
+		"passkey_prompt": {
+			"title": "保护您的账户",
+			"description": "启用 PassKeys(FaceID / TouchID)以便下次更快速、无需密码的访问。",
+			"confirm": "启用 PassKeys",
+			"cancel": "稍后再说"
+		},
+		"passkey_success": {
+			"title": "PassKeys 已启用！",
+			"description": "您的账户现在已通过生物识别认证得到保护。下次您可以使用指纹或面部即时登录。",
+			"continue": "继续"
+		}
 	},
 	"signup": {
 		"addressLine1": "地址行1",

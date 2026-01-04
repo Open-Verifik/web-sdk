@@ -316,7 +316,18 @@
 		"verifik_button": "Activer le bonus biométrique",
 		"verifik_content": "Élevez la sécurité de votre compte au niveau supérieur ! Enregistrez vos données biométriques maintenant et profitez d'un accès fluide et ultra-sécurisé. Découvrez la commodité d'une sécurité de pointe avec une récompense à la clé.",
 		"verifik_dismiss": "Pas maintenant, merci",
-		"verifik_title": "Débloquez 10 $ de crédits avec votre biométrie !"
+		"verifik_title": "Débloquez 10 $ de crédits avec votre biométrie !",
+		"passkey_prompt": {
+			"title": "Sécurisez votre compte",
+			"description": "Activez les PassKeys (FaceID / TouchID) pour un accès plus rapide et sans mot de passe la prochaine fois.",
+			"confirm": "Activer les PassKeys",
+			"cancel": "Peut-être plus tard"
+		},
+		"passkey_success": {
+			"title": "PassKeys Activées !",
+			"description": "Votre compte est maintenant sécurisé avec l'authentification biométrique. La prochaine fois, vous pourrez vous connecter instantanément avec votre empreinte digitale ou votre visage.",
+			"continue": "Continuer"
+		}
 	},
 	"signup": {
 		"addressLine1": "Ligne d'adresse 1",
