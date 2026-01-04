@@ -316,7 +316,18 @@
 		"verifik_button": "Activer le bonus biométrique",
 		"verifik_content": "Élevez la sécurité de votre compte au niveau supérieur ! Enregistrez vos données biométriques maintenant et profitez d'un accès fluide et ultra-sécurisé. Découvrez la commodité d'une sécurité de pointe avec une récompense à la clé.",
 		"verifik_dismiss": "Pas maintenant, merci",
-		"verifik_title": "Débloquez 10 $ de crédits avec votre biométrie !"
+		"verifik_title": "Débloquez 10 $ de crédits avec votre biométrie !",
+		"passkey_prompt": {
+			"title": "Sécurisez votre compte",
+			"description": "Activez les PassKeys (FaceID / TouchID) pour un accès plus rapide et sans mot de passe la prochaine fois.",
+			"confirm": "Activer les PassKeys",
+			"cancel": "Peut-être plus tard"
+		},
+		"passkey_success": {
+			"title": "PassKeys Activées !",
+			"description": "Votre compte est maintenant sécurisé avec l'authentification biométrique. La prochaine fois, vous pourrez vous connecter instantanément avec votre empreinte digitale ou votre visage.",
+			"continue": "Continuer"
+		}
 	},
 	"signup": {
 		"addressLine1": "Ligne d'adresse 1",
@@ -587,9 +598,12 @@
 			"running_background_check": "Vérification des antécédents en cours",
 			"comparing_biometrics": "Comparaison de la biométrie avec le document",
 			"name_validation_success": "Noms validés avec succès",
-			"name_validation_failed": "Échec de la validation du nom",
+			"name_validation_failed": "Les noms dans la source gouvernementale ne correspondent pas. Veuillez vérifier que votre document est légitime et que le nom correspond exactement.",
 			"background_check_complete": "Vérification des antécédents terminée",
-			"biometric_comparison_complete": "Comparaison biométrique terminée"
+			"biometric_comparison_complete": "Comparaison biométrique terminée",
+			"zero_knowledge_proof_title": "Preuve à Divulgation Nulle",
+			"creating_zero_knowledge_proof": "Création de la preuve à divulgation nulle",
+			"zero_knowledge_proof_complete": "Preuve à divulgation nulle créée avec succès"
 		},
 		"image_captured": "Image capturée !",
 		"demo_mode": {
@@ -609,7 +623,8 @@
 			"scanner_info": "Cette démo montre comment la numérisation de documents fonctionnerait avec une vraie caméra",
 			"capture_successful": "[TO TRANSLATE] Capture successful",
 			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
-		}
+		},
+		"zkp_face_proof_created": "Votre Preuve à Divulgation Nulle Faciale a été créée avec succès"
 	},
 	"welcome": {
 		"title": "Bienvenue chez {{projectName}}",

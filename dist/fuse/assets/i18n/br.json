@@ -317,7 +317,18 @@
 		"verifik_button": "Ativar Bônus Biométrico",
 		"verifik_content": "Eleve a segurança de sua conta para o próximo nível! Registre seus dados biométricos agora e desfrute de um acesso ultra seguro e sem complicações. Experimente a conveniência da segurança de ponta com um toque de recompensa.",
 		"verifik_dismiss": "Não agora, obrigado",
-		"verifik_title": "Desbloqueie $10 em Créditos com Seus Dados Biométricos!"
+		"verifik_title": "Desbloqueie $10 em Créditos com Seus Dados Biométricos!",
+		"passkey_prompt": {
+			"title": "Proteja sua conta",
+			"description": "Ative PassKeys (FaceID / TouchID) para acesso mais rápido e sem senha na próxima vez.",
+			"confirm": "Ativar PassKeys",
+			"cancel": "Talvez depois"
+		},
+		"passkey_success": {
+			"title": "PassKeys Ativadas!",
+			"description": "Sua conta agora está protegida com autenticação biométrica. Na próxima vez, você poderá fazer login instantaneamente com sua impressão digital ou rosto.",
+			"continue": "Continuar"
+		}
 	},
 	"signup": {
 		"addressLine1": "Linha de endereço 1",
@@ -588,9 +599,12 @@
 			"running_background_check": "Executando verificação de antecedentes",
 			"comparing_biometrics": "Comparando biometria com o documento",
 			"name_validation_success": "Nomes validados com sucesso",
-			"name_validation_failed": "Falha na validação de nomes",
+			"name_validation_failed": "Os nomes na fonte governamental não correspondem. Verifique se o documento é legítimo e se o nome corresponde exatamente.",
 			"background_check_complete": "Verificação de antecedentes completa",
-			"biometric_comparison_complete": "Comparação biométrica completa"
+			"biometric_comparison_complete": "Comparação biométrica completa",
+			"zero_knowledge_proof_title": "Prova de Conhecimento Zero",
+			"creating_zero_knowledge_proof": "Criando prova de conhecimento zero",
+			"zero_knowledge_proof_complete": "Prova de conhecimento zero criada com sucesso"
 		},
 		"image_captured": "Imagem Capturada!",
 		"demo_mode": {
@@ -610,7 +624,8 @@
 			"scanner_info": "Esta demo mostra como a digitalização de documentos funcionaria com uma câmera real",
 			"capture_successful": "Captura bem-sucedida",
 			"document_processed_successfully": "Documento processado com sucesso"
-		}
+		},
+		"zkp_face_proof_created": "Sua Prova de Conhecimento Zero Facial foi criada com sucesso"
 	},
 	"welcome": {
 		"title": "Bem-vindo ao {{projectName}}",

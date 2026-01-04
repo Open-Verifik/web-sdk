@@ -316,7 +316,18 @@
 		"verifik_button": "Attiva Bonus Biometrico",
 		"verifik_content": "Porta la sicurezza del tuo account al livello successivo! Registra ora i tuoi dati biometrici e goditi un accesso fluido e ultra-sicuro. Sperimenta la comodità della sicurezza all'avanguardia con una ricompensa.",
 		"verifik_dismiss": "Non ora, grazie",
-		"verifik_title": "Sblocca 10$ in crediti con la tua biometria!"
+		"verifik_title": "Sblocca 10$ in crediti con la tua biometria!",
+		"passkey_prompt": {
+			"title": "Proteggi il tuo account",
+			"description": "Abilita PassKeys (FaceID / TouchID) per un accesso più rapido e senza password la prossima volta.",
+			"confirm": "Abilita PassKeys",
+			"cancel": "Forse più tardi"
+		},
+		"passkey_success": {
+			"title": "PassKeys Abilitate!",
+			"description": "Il tuo account è ora protetto con l'autenticazione biometrica. La prossima volta potrai accedere istantaneamente con la tua impronta digitale o il tuo volto.",
+			"continue": "Continua"
+		}
 	},
 	"signup": {
 		"addressLine1": "Riga indirizzo 1",
