@@ -180,7 +180,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	private async _preparePasskeySecret(token: string): Promise<{ secretToEncrypt: string; tokenForRequest: string; isToken: boolean }> {
-		if (this.project?._id === environment.verifikProject) {
+		if (this.project?._id === environment.verifikProject || this.project?._id === environment.sandboxProject) {
 			return this._prepareVerifikSecret(token);
 		}
 
