@@ -319,10 +319,14 @@ export class KYCService {
 		return this._httpWrapper.sendRequest("delete", `${this.baseUrl}/v2/biometric-validations/${this.appRegistration.biometricValidation._id}`);
 	}
 
-	createZkProof(faceBase64: string): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/document-validations/zk-proof`, {
-			faceBase64,
-		});
+	createZkProof(faceBase64?: string): Observable<any> {
+		const body: any = {};
+
+		if (faceBase64) {
+			body.faceBase64 = faceBase64;
+		}
+
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/document-validations/zk-proof`, body);
 	}
 
 	createAppRegistrationZkProof(faceBase64: string): Observable<any> {

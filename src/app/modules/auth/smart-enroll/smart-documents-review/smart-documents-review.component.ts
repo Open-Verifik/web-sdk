@@ -127,6 +127,7 @@ export class SmartDocumentsReviewComponent {
 		// If validation is already complete (on page reload), set loading states to false
 		// This ensures _setErrors() can properly evaluate the validation state
 		const docValidation = this.appRegistration.documentValidation;
+
 		if (docValidation?.imageValidated) {
 			this.loading.nameValidation = false;
 		}
@@ -296,7 +297,10 @@ export class SmartDocumentsReviewComponent {
 		}
 
 		if (results.zkProofValidation?.status === "fulfilled") {
-			this.appRegistration.documentValidation = results.zkProofValidation.data;
+			// Only assign zelfKey, don't replace the entire documentValidation
+			if (results.zkProofValidation.data?.zelfKey) {
+				this.appRegistration.documentValidation.zelfKey = results.zkProofValidation.data.zelfKey;
+			}
 		} else if (results.zkProofValidation?.status === "rejected") {
 			if (results.zkProofValidation?.error?.code === "PaymentRequired") {
 				this._smartEnrollService.insufficientCreditsTrigger();
@@ -386,22 +390,20 @@ export class SmartDocumentsReviewComponent {
 		}
 
 		// Zero Knowledge Proof Validation
+		// Backend will extract face from document if not provided, so we can always attempt ZKP
 		if (this.zeroKnowledgeProofEnabled && !this.appRegistration.documentValidation?.zelfKey) {
+			// Optionally pass faceBase64 if available, but backend will extract if not provided
 			const documentFace = this.appRegistration.documentFace?.base64;
-			if (documentFace) {
-				// Remove data URL prefix if present
-				const faceBase64 = documentFace.replace(/^data:image\/\w+;base64,/, "");
-				this._executeValidationRequest(
-					"zkProofValidation",
-					() => this._KYCService.createZkProof(faceBase64),
-					validationResults,
-					validationErrors,
-					completedValidations,
-					checkAllCompleted
-				);
-			} else {
-				this.loading.zkProofValidation = false;
-			}
+			const faceBase64 = documentFace ? documentFace.replace(/^data:image\/\w+;base64,/, "") : undefined;
+
+			this._executeValidationRequest(
+				"zkProofValidation",
+				() => this._KYCService.createZkProof(faceBase64),
+				validationResults,
+				validationErrors,
+				completedValidations,
+				checkAllCompleted
+			);
 		} else {
 			this.loading.zkProofValidation = false;
 		}
