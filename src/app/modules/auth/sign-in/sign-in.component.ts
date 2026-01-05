@@ -301,7 +301,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
 					let finalToken: string;
 
-					if (this.project?._id === environment.verifikProject) {
+					if (this.project?._id === environment.verifikProject || this.project?._id === environment.sandboxProject) {
 						// For Verifik Project, the decrypted data IS the token
 						finalToken = tokenOrPassword;
 					} else {
