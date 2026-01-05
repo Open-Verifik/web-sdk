@@ -604,7 +604,10 @@
 			"biometric_comparison_complete": "Comparação biométrica completa",
 			"zero_knowledge_proof_title": "Prova de Conhecimento Zero",
 			"creating_zero_knowledge_proof": "Criando prova de conhecimento zero",
-			"zero_knowledge_proof_complete": "Prova de conhecimento zero criada com sucesso"
+			"zero_knowledge_proof_complete": "Prova de conhecimento zero criada com sucesso",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "Imagem Capturada!",
 		"demo_mode": {

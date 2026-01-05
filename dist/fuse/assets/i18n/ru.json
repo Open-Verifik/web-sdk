@@ -600,7 +600,13 @@
 			"name_validation_success": "Имена успешно проверены",
 			"name_validation_failed": "Проверка имени не удалась",
 			"background_check_complete": "Проверка судимости завершена",
-			"biometric_comparison_complete": "Биометрическое сравнение завершено"
+			"biometric_comparison_complete": "Биометрическое сравнение завершено",
+			"zero_knowledge_proof_title": "Zero Knowledge Proof",
+			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
+			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "Изображение захвачено!",
 		"demo_mode": {
@@ -620,7 +626,8 @@
 			"scanner_info": "Эта демо показывает, как сканирование документов работало бы с настоящей камерой",
 			"capture_successful": "[TO TRANSLATE] Capture successful",
 			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
-		}
+		},
+		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
 	"welcome": {
 		"title": "Добро пожаловать в {{projectName}}",

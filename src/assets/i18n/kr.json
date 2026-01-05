@@ -600,7 +600,13 @@
 			"name_validation_success": "이름이 성공적으로 검증되었습니다",
 			"name_validation_failed": "이름 검증에 실패했습니다",
 			"background_check_complete": "범죄 경력 조회 완료",
-			"biometric_comparison_complete": "생체 인식 비교 완료"
+			"biometric_comparison_complete": "생체 인식 비교 완료",
+			"zero_knowledge_proof_title": "Zero Knowledge Proof",
+			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
+			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "이미지가 캡처되었습니다!",
 		"demo_mode": {
@@ -620,7 +626,8 @@
 			"scanner_info": "이 데모는 실제 카메라로 문서 스캔이 어떻게 작동할지 보여줍니다",
 			"capture_successful": "[TO TRANSLATE] Capture successful",
 			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
-		}
+		},
+		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
 	"welcome": {
 		"title": "{{projectName}}에 오신 것을 환영합니다",

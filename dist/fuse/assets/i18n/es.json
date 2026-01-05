@@ -623,7 +623,10 @@
 			},
 			"zero_knowledge_proof_title": "Prueba de Conocimiento Cero",
 			"creating_zero_knowledge_proof": "Creando prueba de conocimiento cero",
-			"zero_knowledge_proof_complete": "Prueba de conocimiento cero creada exitosamente"
+			"zero_knowledge_proof_complete": "Prueba de conocimiento cero creada exitosamente",
+			"document_criminal_validation_title": "Verificación de Antecedentes del Documento",
+			"running_document_background_check": "Ejecutando verificación de antecedentes del documento...",
+			"document_background_check_complete": "Verificación de antecedentes del documento completa"
 		},
 		"zkp_face_proof_created": "Tu Prueba de Conocimiento Cero Facial fue creada exitosamente"
 	},

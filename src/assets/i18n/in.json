@@ -600,7 +600,13 @@
 			"name_validation_success": "नाम सफलतापूर्वक सत्यापित",
 			"name_validation_failed": "नाम सत्यापन असफल",
 			"background_check_complete": "पृष्ठभूमि जांच पूर्ण",
-			"biometric_comparison_complete": "बायोमेट्रिक तुलना पूर्ण"
+			"biometric_comparison_complete": "बायोमेट्रिक तुलना पूर्ण",
+			"zero_knowledge_proof_title": "Zero Knowledge Proof",
+			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
+			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "छवि कैप्चर की गई!",
 		"demo_mode": {
@@ -620,7 +626,8 @@
 			"scanner_info": "यह डेमो दिखाता है कि वास्तविक कैमरे के साथ दस्तावेज़ स्कैनिंग कैसे काम करेगी",
 			"capture_successful": "[TO TRANSLATE] Capture successful",
 			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
-		}
+		},
+		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
 	"welcome": {
 		"title": "{{projectName}} में आपका स्वागत है",

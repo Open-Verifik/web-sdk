@@ -603,7 +603,10 @@
 			"biometric_comparison_complete": "Comparaison biométrique terminée",
 			"zero_knowledge_proof_title": "Preuve à Divulgation Nulle",
 			"creating_zero_knowledge_proof": "Création de la preuve à divulgation nulle",
-			"zero_knowledge_proof_complete": "Preuve à divulgation nulle créée avec succès"
+			"zero_knowledge_proof_complete": "Preuve à divulgation nulle créée avec succès",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "Image capturée !",
 		"demo_mode": {

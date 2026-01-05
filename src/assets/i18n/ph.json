@@ -600,7 +600,13 @@
 			"name_validation_success": "Matagumpay na napatunayan ang mga pangalan",
 			"name_validation_failed": "Hindi napatunayan ang pangalan",
 			"background_check_complete": "Tapos na ang pagsusuri ng kasaysayan",
-			"biometric_comparison_complete": "Tapos na ang paghahambing ng biometric"
+			"biometric_comparison_complete": "Tapos na ang paghahambing ng biometric",
+			"zero_knowledge_proof_title": "Zero Knowledge Proof",
+			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
+			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "Nakuha na ang Larawan!",
 		"demo_mode": {
@@ -620,7 +626,8 @@
 			"scanner_info": "Ang demo na ito ay nagpapakita kung paano gagana ang document scanning gamit ang tunay na camera",
 			"capture_successful": "[TO TRANSLATE] Capture successful",
 			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
-		}
+		},
+		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
 	"welcome": {
 		"title": "Maligayang pagdating sa {{projectName}}",

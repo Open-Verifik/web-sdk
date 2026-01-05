@@ -24,6 +24,7 @@ type CombinedValidationResponse = {
 	compareValidation: CompareFaceVerificationResponse;
 	nameValidation: NameValidationResponse;
 	zkProofValidation: ZkProofValidationResponse;
+	documentCriminalValidation: DocumentCriminalValidationResponse;
 };
 
 type CompareFaceVerificationResponse = {
@@ -48,6 +49,13 @@ type NameValidationResponse = {
 };
 
 type ZkProofValidationResponse = {
+	data: DocumentValidation;
+	error: any;
+	reason: any;
+	status: "fulfilled" | "rejected" | "NA";
+};
+
+type DocumentCriminalValidationResponse = {
 	data: DocumentValidation;
 	error: any;
 	reason: any;
@@ -104,6 +112,7 @@ export class SmartDocumentsReviewComponent {
 		criminalValidation: true,
 		nameValidation: true,
 		zkProofValidation: true,
+		documentCriminalValidation: true,
 	};
 
 	constructor(
@@ -139,6 +148,9 @@ export class SmartDocumentsReviewComponent {
 		}
 		if (docValidation?.zelfKey) {
 			this.loading.zkProofValidation = false;
+		}
+		if (docValidation?.criminalData) {
+			this.loading.documentCriminalValidation = false;
 		}
 
 		this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
@@ -255,6 +267,7 @@ export class SmartDocumentsReviewComponent {
 		this.loading.criminalValidation = false;
 		this.loading.nameValidation = false;
 		this.loading.zkProofValidation = false;
+		this.loading.documentCriminalValidation = false;
 
 		if (exception?.error?.code === "PaymentRequired") {
 			this._smartEnrollService.insufficientCreditsTrigger();
@@ -301,8 +314,20 @@ export class SmartDocumentsReviewComponent {
 			if (results.zkProofValidation.data?.zelfKey) {
 				this.appRegistration.documentValidation.zelfKey = results.zkProofValidation.data.zelfKey;
 			}
-		} else if (results.zkProofValidation?.status === "rejected") {
 			if (results.zkProofValidation?.error?.code === "PaymentRequired") {
+				this._smartEnrollService.insufficientCreditsTrigger();
+
+				return;
+			}
+		}
+
+		if (results.documentCriminalValidation?.status === "fulfilled") {
+			// Merge the crimnalData into the existing documentValidation
+			if (results.documentCriminalValidation.data?.criminalData) {
+				this.appRegistration.documentValidation.criminalData = results.documentCriminalValidation.data.criminalData;
+			}
+		} else if (results.documentCriminalValidation?.status === "rejected") {
+			if (results.documentCriminalValidation?.error?.code === "PaymentRequired") {
 				this._smartEnrollService.insufficientCreditsTrigger();
 
 				return;
@@ -324,6 +349,7 @@ export class SmartDocumentsReviewComponent {
 			this.verifyCriminalHistoryEnabled && !this.appRegistration?.informationValidation?.criminalData ? "criminalValidation" : null,
 			this.appRegistration.biometricValidation ? "compareValidation" : null,
 			this.zeroKnowledgeProofEnabled && !this.appRegistration.documentValidation?.zelfKey ? "zkProofValidation" : null,
+			this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData ? "documentCriminalValidation" : null,
 		].filter(Boolean);
 
 		const checkAllCompleted = () => {
@@ -369,10 +395,28 @@ export class SmartDocumentsReviewComponent {
 				validationResults,
 				validationErrors,
 				completedValidations,
-				checkAllCompleted
+				() => {
+					// Chain document criminal validation after information validation
+					if (this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData) {
+						this._executeValidationRequest(
+							"documentCriminalValidation",
+							() =>
+								this._KYCService.updateDocumentValidationWithCriminalRecords({
+									_id: this.appRegistration.documentValidation._id,
+									force: environment.production,
+								}),
+							validationResults,
+							validationErrors,
+							completedValidations,
+							checkAllCompleted
+						);
+					}
+					checkAllCompleted();
+				}
 			);
 		} else {
 			this.loading.criminalValidation = false;
+			this.loading.documentCriminalValidation = false;
 		}
 
 		// Face Comparison Validation

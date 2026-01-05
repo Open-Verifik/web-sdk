@@ -601,7 +601,13 @@
 			"name_validation_success": "姓名验证成功",
 			"name_validation_failed": "姓名验证失败",
 			"background_check_complete": "背景调查完成",
-			"biometric_comparison_complete": "生物识别比较完成"
+			"biometric_comparison_complete": "生物识别比较完成",
+			"zero_knowledge_proof_title": "Zero Knowledge Proof",
+			"creating_zero_knowledge_proof": "Creating zero knowledge proof",
+			"zero_knowledge_proof_complete": "Zero knowledge proof created successfully",
+			"document_criminal_validation_title": "Document Background Check",
+			"running_document_background_check": "Running document background check...",
+			"document_background_check_complete": "Document background check complete"
 		},
 		"image_captured": "图像已捕获！",
 		"demo_mode": {
@@ -621,7 +627,8 @@
 			"scanner_info": "此演示展示了文档扫描在真实摄像头下的工作原理",
 			"capture_successful": "捕获成功",
 			"document_processed_successfully": "文档处理成功"
-		}
+		},
+		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
 	"welcome": {
 		"title": "欢迎来到{{projectName}}",

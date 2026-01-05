@@ -790,6 +790,7 @@ export interface DocumentValidation {
 	updatedAt: string;
 	url?: string;
 	validationMethod: string;
+	criminalData?: any;
 }
 
 export interface BiometricValidation {

@@ -130,7 +130,9 @@
 								class="validation-item flex items-center gap-4 p-4 transition-all duration-200"
 								*ngIf="verifyCriminalHistoryEnabled"
 								[class.border-b]="
-									zeroKnowledgeProofEnabled || (appRegistration?.biometricValidation && appRegistration?.documentValidation)
+									verifyCriminalHistoryEnabled ||
+									zeroKnowledgeProofEnabled ||
+									(appRegistration?.biometricValidation && appRegistration?.documentValidation)
 								"
 								[style.border-color]="project?.branding?.borderColor || '#E5E7EB'"
 							>
@@ -160,6 +162,48 @@
 										<span *ngIf="loading.criminalValidation">{{ t("smart_enroll.documents.running_background_check") }}</span>
 										<span *ngIf="!loading.criminalValidation" class="text-green-600">
 											{{ t("smart_enroll.documents.background_check_complete") }}
+										</span>
+									</p>
+								</div>
+							</div>
+
+							<!-- Document Criminal Validation -->
+							<div
+								class="validation-item flex items-center gap-4 p-4 transition-all duration-200"
+								*ngIf="verifyCriminalHistoryEnabled"
+								[class.border-b]="
+									zeroKnowledgeProofEnabled || (appRegistration?.biometricValidation && appRegistration?.documentValidation)
+								"
+								[style.border-color]="project?.branding?.borderColor || '#E5E7EB'"
+							>
+								<div class="validation-icon flex-shrink-0 relative">
+									<div
+										class="w-10 h-10 rounded-full flex items-center justify-center"
+										[class.animate-pulse]="loading.documentCriminalValidation"
+										[style.background-color]="
+											loading.documentCriminalValidation ? project?.branding?.buttonColor + '20' || '#3B82F620' : '#10B98120'
+										"
+									>
+										<mat-spinner
+											*ngIf="loading.documentCriminalValidation"
+											diameter="24"
+											strokeWidth="3"
+											[style.color]="project?.branding?.buttonColor || '#3B82F6'"
+										>
+										</mat-spinner>
+										<mat-icon *ngIf="!loading.documentCriminalValidation" class="text-green-600 text-xl"> check_circle </mat-icon>
+									</div>
+								</div>
+								<div class="validation-content flex-grow">
+									<h5 class="font-medium text-lg mb-1" [style.color]="project?.branding?.titleColor || '#111827'">
+										{{ t("smart_enroll.documents.document_criminal_validation_title") }}
+									</h5>
+									<p class="text-base" [style.color]="project?.branding?.txtColor || '#6B7280'">
+										<span *ngIf="loading.documentCriminalValidation">{{
+											t("smart_enroll.documents.running_document_background_check")
+										}}</span>
+										<span *ngIf="!loading.documentCriminalValidation" class="text-green-600">
+											{{ t("smart_enroll.documents.document_background_check_complete") }}
 										</span>
 									</p>
 								</div>
