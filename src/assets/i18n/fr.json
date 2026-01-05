@@ -182,7 +182,8 @@
 		"face_not_found_title": "Visage Non Trouvé",
 		"face_not_found_subtitle": "Votre visage ne peut pas être détecté.",
 		"loading_stream": "Chargement de la caméra",
-		"review_liveness": "L'image est-elle claire, centrée et sans flou ? Si vous êtes satisfait du résultat, téléchargez l'image pour le traitement."
+		"perfect": "Parfait !",
+		"processing": "Traitement..."
 	},
 	"results": {
 		"selfie": "Selfie",
@@ -494,7 +495,9 @@
 				"yaw-left": "Tournez légèrement le visage vers la gauche",
 				"yaw-right": "Tournez légèrement le visage vers la droite"
 			},
-			"capture": "Capturer"
+			"capture": "Capturer",
+			"perfect": "Parfait !",
+			"processing": "Traitement..."
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Votre visage n'a pas été correctement enregistré",

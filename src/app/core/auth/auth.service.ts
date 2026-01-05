@@ -27,6 +27,8 @@ export class AuthService {
 			return `${environment.stagingUrl}`;
 		} else if (origin.includes("testing-access.verifik.co")) {
 			return `${environment.sandboxUrl}`;
+		} else if (origin.includes("localhost")) {
+			return origin;
 		} else {
 			return `${environment.appUrl}`;
 		}
@@ -50,7 +52,9 @@ export class AuthService {
 		let redirectUrl = projectFlow.integrations.redirectUrl;
 
 		const verifikProject =
-			window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
+			window.location.hostname.includes("localhost") ||
+			window.location.hostname.includes("access.app") ||
+			window.location.hostname.includes("staging-access.verifik.co")
 				? environment.sandboxProject
 				: environment.verifikProject;
 
@@ -62,9 +66,9 @@ export class AuthService {
 			return;
 		}
 
-		redirectUrl = `${this.baseAppUrl}/sign-in`;
+		redirectUrl = `${this.baseAppUrl}`;
 
-		window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+		window.location.href = `${redirectUrl}/sign-in?type=${type}&token=${token}`;
 	}
 
 	forgotPassword(email: string): Observable<any> {

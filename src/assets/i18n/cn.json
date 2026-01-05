@@ -183,7 +183,9 @@
 		"face_not_found_title": "未检测到面部",
 		"face_not_found_subtitle": "无法检测到您的面部。",
 		"loading_stream": "加载摄像头",
-		"review_liveness": "图像是否清晰、居中且无模糊？如果您对结果满意，请上传图像进行处理。"
+		"review_liveness": "图像是否清晰、居中且无模糊？如果您对结果满意，请上传图像进行处理。",
+		"perfect": "完美!",
+		"processing": "处理中..."
 	},
 	"results": {
 		"selfie": "自拍",
@@ -495,7 +497,9 @@
 				"yaw-left": "稍微向左转头",
 				"yaw-right": "稍微向右转头"
 			},
-			"capture": "捕获"
+			"capture": "捕获",
+			"perfect": "完美!",
+			"processing": "处理中..."
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "您的面部注册不正确",

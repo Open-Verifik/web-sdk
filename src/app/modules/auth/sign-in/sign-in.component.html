@@ -1,7 +1,7 @@
 <ng-container *transloco="let t">
 	<div *ngIf="project && signInForm" class="w-full h-screen flex flex-col items-center justify-center custom-theme-background">
 		<auth-passkey-prompt *ngIf="showPasskeyPrompt" (choice)="onPasskeyPromptChoice($event)"></auth-passkey-prompt>
-<auth-passkey-success *ngIf="showPasskeySuccess" (continue)="onPasskeySuccessContinue()"></auth-passkey-success>
+		<auth-passkey-success *ngIf="showPasskeySuccess" (continue)="onPasskeySuccessContinue()"></auth-passkey-success>
 		<languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
 
 		<div class="flex overflow-hidden h-screen w-full" *ngIf="!showBiometrics">
@@ -268,7 +268,7 @@
 						<!-- Divider -->
 						<div
 							class="flex items-center gap-4 my-6 signin-form__divider"
-							*ngIf="projectFlow.loginSettings.faceLiveness && (projectFlow.loginSettings.phone || projectFlow.loginSettings.email)"
+							*ngIf="shouldShowBiometricsButton && (projectFlow.loginSettings.phone || projectFlow.loginSettings.email)"
 						>
 							<div class="flex-1 border-t border-gray-200"></div>
 
@@ -280,7 +280,7 @@
 						</div>
 
 						<!-- Biometrics Button -->
-						<div class="flex w-full" *ngIf="projectFlow.loginSettings.faceLiveness">
+						<div class="flex w-full" *ngIf="shouldShowBiometricsButton">
 							<button
 								(click)="showBiometricsLogin()"
 								class="flex-1 signin-form__biometrics-button signin-form__biometrics-button--modern h-12 min-h-12 rounded-xl font-medium text-base border-2 transition-all duration-200"
@@ -370,12 +370,6 @@
 			</div>
 
 			<verifik-media-display [isVerifikProject]="isVerifikProject" [brandingImage]="project.branding.image"></verifik-media-display>
-		</div>
-
-		<div *ngIf="showBiometrics" class="w-full">
-			<app-biometrics-login-ios *ngIf="demoData.OS === 'IOS'" class="w-full h-full mb-6"></app-biometrics-login-ios>
-
-			<app-biometrics-login *ngIf="demoData.OS !== 'IOS'" class="w-full h-full mb-6"></app-biometrics-login>
 		</div>
 
 		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="locationError"></div>

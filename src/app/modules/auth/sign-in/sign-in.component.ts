@@ -3,11 +3,13 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, V
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormGroup, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSelectModule } from "@angular/material/select";
 import { MatTabsModule } from "@angular/material/tabs";
 import { ActivatedRoute, RouterLink } from "@angular/router";
@@ -30,11 +32,11 @@ import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 import { OneTimePasswordInputComponent } from "../../../core/components/one-time-password-input/one-time-password-input.component";
-import { BiometricsLoginIosComponent } from "../biometrics-login-ios/biometrics-login-ios.component";
-import { BiometricsLoginComponent } from "../biometrics-login/biometrics-login.component";
+
 import { PasswordlessService } from "../passwordless.service";
 import { PasskeyPromptComponent } from "../passkey-prompt/passkey-prompt.component";
 import { PasskeySuccessComponent } from "../passkey-success/passkey-success.component";
+import { ZkAuthLoginComponent } from "../zk-auth-login/zk-auth-login.component";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { AuthUtils } from "app/core/auth/auth.utils";
 
@@ -48,8 +50,6 @@ import { AuthUtils } from "app/core/auth/auth.utils";
 	imports: [
 		PasskeyPromptComponent,
 		PasskeySuccessComponent,
-		BiometricsLoginComponent,
-		BiometricsLoginIosComponent,
 		CommonModule,
 		FlexLayoutModule,
 		FormsModule,
@@ -69,6 +69,8 @@ import { AuthUtils } from "app/core/auth/auth.utils";
 		RouterLink,
 		TranslocoModule,
 		VerifikMediaDisplayComponent,
+		MatTooltipModule,
+		ZkAuthLoginComponent,
 	],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
@@ -107,7 +109,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	passkeyAvailable: boolean = false;
 	showPasskeyPrompt: boolean = false;
 	showPasskeySuccess: boolean = false;
+	// ZK Auth
+	offerZkLogin: boolean = false;
+	hasZkOnboarding: boolean = false;
+	zkAuthRecord: any; // Store IPFS URL for ZK Auth
 	private _passkeyPromptResolver: (value: boolean) => void;
+	private _debounceTimer: any;
 
 	// --- Passkey Logic ---
 
@@ -256,6 +263,49 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this._changeDetectorRef.markForCheck(); // Ensure UI updates
 	}
 
+	private _checkZkAuthAvailability(loginValue: string) {
+		if (!this.hasZkOnboarding) return;
+
+		this.offerZkLogin = false;
+
+		clearTimeout(this._debounceTimer);
+
+		this._debounceTimer = setTimeout(async () => {
+			if (!loginValue) return;
+
+			try {
+				let query: any = { category: "" }; // Empty category to search by email/phone only without category filter
+
+				if (this.typeLogin === "email") {
+					query.email = loginValue;
+				} else {
+					query.phone = loginValue;
+				}
+
+				const response = await this._passkeyZelfService.listPasskeys(query);
+
+				if (response && response.data && response.data.length > 0) {
+					// Filter by category "appRegistration"
+					const hasAppRegistration = response.data.some((item) => item.publicData?.type === "appRegistration");
+
+					if (hasAppRegistration) {
+						this.offerZkLogin = true;
+
+						// Find the app registration item to get its IPFS URL
+						const appRegItem = response.data.find((item) => item.publicData?.type === "appRegistration");
+						if (appRegItem) {
+							this.zkAuthRecord = appRegItem;
+						}
+
+						this._changeDetectorRef.markForCheck();
+					}
+				}
+			} catch (e) {
+				console.error("Failed to check ZkAuth availability", e);
+			}
+		}, 500);
+	}
+
 	private async _checkAndLoginWithPasskey(identifier: string): Promise<boolean> {
 		if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
 
@@ -368,7 +418,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		private _splashScreenService: FuseSplashScreenService,
 		private _translocoService: TranslocoService,
 		private _passkeyZelfService: PasskeyZelfService,
-		private _biometricSecurityService: BiometricSecurityService
+		private _biometricSecurityService: BiometricSecurityService,
+		private _matDialog: MatDialog
 	) {
 		this.setLanguage();
 
@@ -429,6 +480,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 		this.sendingOTP = false;
 
 		this._updatePhoneValidators(value);
+
+		const phone = this.signInForm.get("phone")?.value;
+		if (phone) this._checkZkAuthAvailability(`${value}${phone}`);
 	}
 
 	ngOnDestroy(): void {
@@ -508,7 +562,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				for (let index = 0; index < v.data.projectFlows.length; index++) {
 					const projectFlow = v.data.projectFlows[index];
 
-					if (projectFlow.type === "onboarding") this.kycProjectFlow = new ProjectFlow(projectFlow);
+					if (projectFlow.type === "onboarding") {
+						this.kycProjectFlow = new ProjectFlow(projectFlow);
+						if (projectFlow.liveness?.kycType === "zero_knowledge") {
+							this.hasZkOnboarding = true;
+						}
+					}
 				}
 			},
 			error: (e) => {
@@ -540,8 +599,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 			const type = queryParams.type;
 
 			if (type === "liveness") {
-				this.showBiometricsLogin();
-
+				// We don't want to trigger ZK modal immediately on 'liveness' query param
+				// unless we have specific info, for now let's just show biometrics or handle differently
+				if (!this.offerZkLogin) {
+					this.showBiometrics = true;
+				}
 				return;
 			}
 
@@ -580,6 +642,23 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				if (!value || value.length !== 6 || this.typeLogin !== "phone") return;
 
 				setTimeout(() => this.signIn());
+			});
+
+		this.signInForm
+			.get("email")
+			?.valueChanges.pipe(takeUntil(this.unsubscriber$))
+			.subscribe((value) => {
+				if (this.typeLogin === "email") this._checkZkAuthAvailability(value);
+			});
+
+		this.signInForm
+			.get("phone")
+			?.valueChanges.pipe(takeUntil(this.unsubscriber$))
+			.subscribe((value) => {
+				if (this.typeLogin === "phone") {
+					const countryCode = this.signInForm.get("countryCode")?.value;
+					if (countryCode && value) this._checkZkAuthAvailability(`${countryCode}${value}`);
+				}
 			});
 	}
 
@@ -688,6 +767,16 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	private isValidEmail(email: string): boolean {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		return emailRegex.test(email);
+	}
+
+	get shouldShowBiometricsButton(): boolean {
+		if (!this.projectFlow?.loginSettings?.faceLiveness) return false;
+
+		if (this.hasZkOnboarding) {
+			return this.offerZkLogin;
+		}
+
+		return true;
 	}
 
 	canUseBiometrics(): boolean {
@@ -960,9 +1049,29 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 	}
 
 	showBiometricsLogin(): void {
-		if (this.appLoginToken) localStorage.setItem("accessToken", this.appLoginToken);
+		if (this.offerZkLogin) {
+			// Open ZK Auth Modal
+			const dialogRef = this._matDialog.open(ZkAuthLoginComponent, {
+				panelClass: "custom-dialog-container",
+				width: "900px",
+				height: "700px",
+				maxWidth: "95vw",
+				maxHeight: "95vh",
+				data: {
+					project: this.project,
+					projectFlow: this.projectFlow,
+					record: this.zkAuthRecord,
+				},
+			});
 
-		this.showBiometrics = true;
+			dialogRef.afterClosed().subscribe((result) => {
+				if (result && result.success && result.token) {
+					this.successLogin(result.token);
+				}
+			});
+
+			return;
+		}
 	}
 
 	continueRedirection(): void {

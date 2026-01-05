@@ -182,7 +182,9 @@
 		"face_not_found_title": "Hindi Natagpuan ang Mukha",
 		"face_not_found_subtitle": "Hindi ma-detect ang iyong mukha.",
 		"loading_stream": "Naglo-load ng Camera",
-		"review_liveness": "Walang blur ba ang larawan at nasa gitna ng frame? Kung nasisiyahan ka sa resulta, i-upload ang larawan para sa pagproseso."
+		"review_liveness": "Walang blur ba ang larawan at nasa gitna ng frame? Kung nasisiyahan ka sa resulta, i-upload ang larawan para sa pagproseso.",
+		"perfect": "Perpekto!",
+		"processing": "Pinoproseso..."
 	},
 	"results": {
 		"selfie": "Selfie",
@@ -494,7 +496,9 @@
 				"yaw-left": "Bahagyang iharap ang mukha pakaliwa",
 				"yaw-right": "Bahagyang iharap ang mukha pakanan"
 			},
-			"capture": "Kunin"
+			"capture": "Kunin",
+			"perfect": "Perpekto!",
+			"processing": "Pinoproseso..."
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong mukha",

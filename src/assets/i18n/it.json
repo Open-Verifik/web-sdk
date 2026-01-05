@@ -182,7 +182,9 @@
 		"face_not_found_title": "Volto Non Trovato",
 		"face_not_found_subtitle": "Il tuo volto non può essere rilevato.",
 		"loading_stream": "Caricamento della Fotocamera",
-		"review_liveness": "L'immagine è libera da sfocature e centrato nel frame? Se sei soddisfatto del risultato, carica l'immagine per il processamento."
+		"review_liveness": "L'immagine è libera da sfocature e centrato nel frame? Se sei soddisfatto del risultato, carica l'immagine per il processamento.",
+		"perfect": "Perfetto!",
+		"processing": "Elaborazione..."
 	},
 	"results": {
 		"selfie": "Selfie",
@@ -494,7 +496,9 @@
 				"yaw-left": "Gira leggermente il viso a sinistra",
 				"yaw-right": "Gira leggermente il viso a destra"
 			},
-			"capture": "Cattura"
+			"capture": "Cattura",
+			"perfect": "Perfetto!",
+			"processing": "Elaborazione..."
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Il tuo volto non è stato registrato correttamente",

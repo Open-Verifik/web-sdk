@@ -182,7 +182,9 @@
 		"face_not_found_title": "얼굴을 찾을 수 없음",
 		"face_not_found_subtitle": "얼굴을 감지할 수 없습니다.",
 		"loading_stream": "카메라 로딩 중",
-		"review_liveness": "이미지가 흐릿하지 않고 프레임 중앙에 있습니까? 결과에 만족하시면 처리를 위해 이미지를 업로드하세요."
+		"review_liveness": "이미지가 흐릿하지 않고 프레임 중앙에 있습니까? 결과에 만족하시면 처리를 위해 이미지를 업로드하세요。",
+		"perfect": "완벽합니다!",
+		"processing": "처리 중..."
 	},
 	"results": {
 		"selfie": "셀피",
@@ -494,7 +496,9 @@
 				"yaw-left": "얼굴을 약간 왼쪽으로 돌리세요",
 				"yaw-right": "얼굴을 약간 오른쪽으로 돌리세요"
 			},
-			"capture": "캡처"
+			"capture": "캡처",
+			"perfect": "완벽합니다!",
+			"processing": "처리 중..."
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "얼굴이 정확하게 등록되지 않았습니다",

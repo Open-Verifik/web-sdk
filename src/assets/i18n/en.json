@@ -183,7 +183,9 @@
 		"face_not_found_title": "Face not Found",
 		"face_not_found_subtitle": "Your face cannot be detected.",
 		"review_liveness": "Is the image free of blurring and center frame? If you are happy with the result, upload the image for processing.",
-		"loading_stream": "Loading Camera"
+		"loading_stream": "Loading Camera",
+		"perfect": "Perfect!",
+		"processing": "Processing..."
 	},
 	"results": {
 		"selfie": "Selfie",
@@ -496,7 +498,9 @@
 				"yaw-left": "Slightly turn face to the left",
 				"yaw-right": "Slightly turn face to the right"
 			},
-			"capture": "Capture"
+			"capture": "Capture",
+			"perfect": "Perfect!",
+			"processing": "Processing..."
 		},
 		"demo_mode": {
 			"capture_successful": "Capture successful",

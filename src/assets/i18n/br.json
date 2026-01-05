@@ -183,7 +183,9 @@
 		"face_not_found_title": "Rosto Não Encontrado",
 		"face_not_found_subtitle": "Seu rosto não pode ser detectado.",
 		"loading_stream": "Carregando Câmera",
-		"review_liveness": "A imagem está livre de borrão e centralizada no quadro? Se você está satisfeito com o resultado, envie a imagem para processamento."
+		"review_liveness": "A imagem está livre de borrão e centralizada no quadro? Se você está satisfeito com o resultado, envie a imagem para processamento.",
+		"perfect": "Perfeito!",
+		"processing": "Processando..."
 	},
 	"results": {
 		"selfie": "Selfie",
@@ -495,7 +497,9 @@
 				"yaw-left": "Vire o rosto ligeiramente para a esquerda",
 				"yaw-right": "Vire o rosto ligeiramente para a direita"
 			},
-			"capture": "Capturar"
+			"capture": "Capturar",
+			"perfect": "Perfeito!",
+			"processing": "Processando..."
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Seu rosto não foi registrado corretamente",

@@ -29,8 +29,14 @@ export class PasskeyZelfService {
 	 * List Passkeys (Check Existence)
 	 * Maps to GET /v2/zelf-key/list?category=passKeys
 	 */
-	async listPasskeys(filters: { identifier?: string; email?: string; phone?: string } = {}): Promise<any> {
-		const params: any = { category: "passKeys" };
+	async listPasskeys(filters: { identifier?: string; email?: string; phone?: string; category?: string } = {}): Promise<any> {
+		const params: any = {};
+
+		if (filters.category !== undefined) {
+			if (filters.category) params.category = filters.category;
+		} else {
+			params.category = "passKeys";
+		}
 
 		if (filters.identifier) params.identifier = filters.identifier;
 		if (filters.email) params.email = filters.email;

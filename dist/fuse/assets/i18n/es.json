@@ -183,7 +183,9 @@
 		"face_not_found_title": "Rostro No Encontrado",
 		"face_not_found_subtitle": "No se puede detectar tu rostro.",
 		"review_liveness": "¿La imagen está libre de desenfoque y centrada en el marco? Si estás satisfecho con el resultado, sube la imagen para su procesamiento.",
-		"loading_stream": "Cargando Cámara"
+		"loading_stream": "Cargando Cámara",
+		"perfect": "¡Perfecto!",
+		"processing": "Procesando..."
 	},
 	"results": {
 		"selfie": "Selfie",
@@ -496,7 +498,9 @@
 				"yaw-left": "Gira la cara ligeramente hacia la izquierda",
 				"yaw-right": "Gira la cara ligeramente hacia la derecha"
 			},
-			"capture": "Capturar"
+			"capture": "Capturar",
+			"perfect": "¡Perfecto!",
+			"processing": "Procesando..."
 		},
 		"demo_mode": {
 			"title": "Este proyecto está en modo demo",
