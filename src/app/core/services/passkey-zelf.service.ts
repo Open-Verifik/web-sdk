@@ -28,8 +28,13 @@ export class PasskeyZelfService {
 	/**
 	 * List Passkeys (Check Existence)
 	 * Maps to GET /v2/zelf-key/list?category=passKeys
+	 * @param filters - Filter criteria for passkeys
+	 * @param fetchEncryptedContent - If true, fetches the encrypted content from IPFS URLs
 	 */
-	async listPasskeys(filters: { identifier?: string; email?: string; phone?: string; category?: string } = {}): Promise<any> {
+	async listPasskeys(
+		filters: { identifier?: string; email?: string; phone?: string; category?: string } = {},
+		fetchEncryptedContent: boolean = false
+	): Promise<any> {
 		const params: any = {};
 
 		if (filters.category !== undefined) {
@@ -42,7 +47,34 @@ export class PasskeyZelfService {
 		if (filters.email) params.email = filters.email;
 		if (filters.phone) params.phone = filters.phone;
 
-		return firstValueFrom(this._httpWrapper.sendRequest("get", `${this._apiUrl}/public/list`, params));
+		const response = await firstValueFrom(this._httpWrapper.sendRequest("get", `${this._apiUrl}/public/list`, params));
+
+		// If requested, fetch encrypted content from IPFS for each passkey
+		if (fetchEncryptedContent && response?.data && Array.isArray(response.data)) {
+			console.log("[PasskeyZelfService] Fetching encrypted content from IPFS for", response.data.length, "passkeys");
+
+			for (const passkey of response.data) {
+				if (passkey.url) {
+					try {
+						const encryptedFile = await fetch(passkey.url).then((res) => res.json());
+						const payloadString = encryptedFile.encryptedToken || encryptedFile;
+						const encryptedContent = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString;
+
+						// Add the encrypted content to the passkey object
+						passkey.encryptedContent = encryptedContent;
+						console.log("[PasskeyZelfService] Fetched encrypted content for passkey:", passkey.publicData?.identifier);
+					} catch (error) {
+						console.error(
+							"[PasskeyZelfService] Failed to fetch encrypted content from IPFS for passkey:",
+							passkey.publicData?.identifier,
+							error
+						);
+					}
+				}
+			}
+		}
+
+		return response;
 	}
 
 	/**

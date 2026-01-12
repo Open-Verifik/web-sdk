@@ -27,8 +27,6 @@ export class AuthService {
 			return `${environment.stagingUrl}`;
 		} else if (origin.includes("testing-access.verifik.co")) {
 			return `${environment.sandboxUrl}`;
-		} else if (origin.includes("localhost")) {
-			return origin;
 		} else {
 			return `${environment.appUrl}`;
 		}

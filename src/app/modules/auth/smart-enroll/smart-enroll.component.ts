@@ -109,14 +109,20 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 
 		if (steps.document !== "skip") {
 			this.steps.push("document", "document-review");
+			// Clear skippedDocument flag if document step is not skipped
+			this._smartEnrollService.setSkippedDocument(false);
 		} else {
-			this._smartEnrollService.setSkippedDocument(!this.appRegistration.documentValidation);
+			// Only set skippedDocument to true if the step is actually configured to skip
+			this._smartEnrollService.setSkippedDocument(true);
 		}
 
 		if (steps.liveness !== "skip") {
 			this.steps.push("biometric");
+			// Clear skippedBiometric flag if liveness step is not skipped
+			this._smartEnrollService.setSkippedBiometric(false);
 		} else {
-			this._smartEnrollService.setSkippedBiometric(!this.appRegistration.biometricValidation);
+			// Only set skippedBiometric to true if the step is actually configured to skip
+			this._smartEnrollService.setSkippedBiometric(true);
 		}
 
 		this.steps.push("result");
@@ -173,23 +179,29 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 	}
 
 	setCurrentStepBasedOnAppRegistrationProgress(): void {
+		const steps = this.projectFlow.onboardingSettings.steps;
+		const documentStepSkipped = steps.document === "skip";
+		const documentWasSkipped = this._smartEnrollService.wasSkippedDocument();
+
 		let enrollStep: EnrollStep = "document";
 
 		if (
 			this.appRegistration.status === "COMPLETED" ||
 			this.appRegistration.status === "FAILED" ||
 			((this._smartEnrollService.wasSkippedBiometric() || this.appRegistration.biometricValidation) &&
-				(this._smartEnrollService.wasSkippedDocument() ||
-					this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration)))
+				(documentWasSkipped || this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration)))
 		) {
 			// We will update the status of the app regsistration in the `smart-enroll-results` component
 			enrollStep = "result";
 		} else if (
+			// Only skip to biometric if document step is actually configured to skip OR
+			// if document validation is complete and user is already on liveness step
+			documentStepSkipped ||
+			documentWasSkipped ||
 			(this.appRegistration.documentValidation &&
 				this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration) &&
 				this.appRegistration.currentStep === "liveness" &&
-				!this.appRegistration.biometricValidation) ||
-			this._smartEnrollService.wasSkippedDocument()
+				!this.appRegistration.biometricValidation)
 		) {
 			// If they have already passed the document validation, we will just move them to the biometric step
 			this._syncAppRegistration("liveness", "ONGOING");
@@ -201,6 +213,7 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 
 			enrollStep = "document-review";
 		}
+		// Otherwise, start with document step (default)
 
 		this._smartEnrollService.setCurrentStep(enrollStep);
 	}

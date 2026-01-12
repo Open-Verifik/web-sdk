@@ -318,7 +318,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 				identifier: constructedIdentifier,
 			};
 
-			const response = await this._passkeyZelfService.listPasskeys(query);
+			const response = await this._passkeyZelfService.listPasskeys(query, true);
 
 			if (response && response.data && response.data.length > 0) {
 				// Filter by current Project
@@ -339,13 +339,27 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 					// 4. Derive encryption key from identifier
 					const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(identifier);
 
-					// Fetch Encrypted Blob
-					const fileUrl = matchingPasskey.url;
-					const encryptedFile = await fetch(fileUrl).then((res) => res.json());
+					// 5. Get the encrypted content (already fetched from IPFS by listPasskeys)
+					let iv: string, ciphertext: string;
 
-					// Handle structure (whether directly in file or nested)
-					const payloadString = encryptedFile.encryptedToken || encryptedFile;
-					const { iv, ciphertext } = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString;
+					if (matchingPasskey.encryptedContent) {
+						// Use the already-fetched content from IPFS
+						({ iv, ciphertext } = matchingPasskey.encryptedContent);
+						console.log("[Passkey Login] Using encryption key content already fetched from IPFS");
+					} else {
+						// Fallback: Fetch from IPFS if not already loaded
+						const fileUrl = matchingPasskey.url;
+						console.log("[Passkey Login] Fetching encryption key from IPFS:", fileUrl);
+						const encryptedFile = await fetch(fileUrl).then((res) => res.json());
+
+						// Handle structure (whether directly in file or nested)
+						const payloadString = encryptedFile.encryptedToken || encryptedFile;
+						({ iv, ciphertext } = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString);
+
+						// Store for future use
+						matchingPasskey.encryptedContent = { iv, ciphertext };
+						console.log("[Passkey Login] Encryption key content fetched from IPFS and stored in passkey record");
+					}
 
 					const tokenOrPassword = await this._biometricSecurityService.decryptData(encryptionKey, ciphertext, iv);
 
@@ -364,7 +378,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 						}
 					}
 
-					// 4. Success
+					// 7. Success - the passkey now includes the encrypted content from IPFS
 					this.successLogin(finalToken);
 					return true;
 				}
