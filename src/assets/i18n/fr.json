@@ -440,6 +440,34 @@
 		"remaining_time": "Renvoyer le code de vérification dans :"
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "Vérifiez Votre Identité",
+			"subtitle": "Complétez les étapes suivantes pour vérifier votre identité avec {{projectName}}",
+			"document_title": "Vérification du Document",
+			"document_description": "Numérisez ou téléchargez une pièce d'identité officielle pour vérifier votre identité",
+			"liveness_title": "Vérification Biométrique",
+			"liveness_description": "Effectuez un scan facial rapide pour confirmer que vous êtes une personne réelle",
+			"mandatory": "Requis",
+			"optional": "Optionnel",
+			"start_button": "Commencer la Vérification",
+			"skip_verification": "Ignorer la vérification pour l'instant",
+			"agreement_prefix": "En continuant, vous acceptez nos",
+			"no_steps_required": "Aucune étape de vérification requise",
+			"skip_modal": {
+				"title": "Ignorer la Vérification d'Identité?",
+				"description": "Vous êtes sur le point d'ignorer le processus de vérification d'identité. Vous pourrez toujours le compléter plus tard si nécessaire.",
+				"redirect_to": "Vous serez redirigé vers",
+				"confirm_skip": "Oui, ignorer la vérification",
+				"go_back": "Retourner à la vérification",
+				"processing": "Traitement...",
+				"please_wait": "Veuillez patienter pendant que nous finalisons votre inscription",
+				"success_title": "Inscription Terminée",
+				"redirecting": "Redirection en cours...",
+				"error_title": "Une erreur s'est produite",
+				"error_description": "Nous n'avons pas pu traiter votre demande. Veuillez réessayer.",
+				"try_again": "Réessayer"
+			}
+		},
 		"biometric_register": "Enregistrement biométrique",
 		"camera_constraints_description": "La caméra que vous essayez d'utiliser semble être de trop basse résolution pour effectuer l'étape actuelle de l'intégration. Nous vous recommandons d'essayer une autre caméra ou de continuer l'intégration sur un autre appareil. La résolution minimale acceptable est de 854x480.",
 		"camera_constraints": "Votre caméra ne répond pas aux normes recommandées",

@@ -39,7 +39,17 @@ export class AuthService {
 		type: "login" | "onboarding" = "login",
 		demoMode: boolean = false
 	): void {
-		if (demoMode) {
+		const verifikProject =
+			window.location.hostname.includes("localhost") ||
+			window.location.hostname.includes("access.app") ||
+			window.location.hostname.includes("staging-access.verifik.co")
+				? environment.sandboxProject
+				: environment.verifikProject;
+
+		// Only redirect to smart-enroll-preview if demoMode is true AND it's not a main project
+		const isMainProject = projectId === verifikProject || projectId === environment.verifikProject || projectId === environment.sandboxProject;
+
+		if (demoMode && !isMainProject) {
 			const redirectUrl = `${this.baseAppUrl}/smart-enroll-preview`;
 
 			window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
@@ -48,13 +58,6 @@ export class AuthService {
 		}
 
 		let redirectUrl = projectFlow.integrations.redirectUrl;
-
-		const verifikProject =
-			window.location.hostname.includes("localhost") ||
-			window.location.hostname.includes("access.app") ||
-			window.location.hostname.includes("staging-access.verifik.co")
-				? environment.sandboxProject
-				: environment.verifikProject;
 
 		if (projectId !== verifikProject) {
 			redirectUrl = projectFlow.integrations.redirectUrl;

@@ -18,6 +18,7 @@ import { SmartBiometricsComponent } from "./smart-biometrics/smart-biometrics.co
 import { SmartDocumentsReviewComponent } from "./smart-documents-review/smart-documents-review.component";
 import { SmartDocumentsComponent } from "./smart-documents/smart-documents.component";
 import { EnrollDocumentMethod, EnrollSettings, EnrollStep, SmartEnrollService } from "./smart-enroll.service";
+import { SmartInstructionsComponent } from "./smart-instructions/smart-instructions.component";
 import { SmartResultsComponent } from "./smart-results/smart-results.component";
 
 @Component({
@@ -38,6 +39,7 @@ import { SmartResultsComponent } from "./smart-results/smart-results.component";
 		SmartBiometricsComponent,
 		SmartDocumentsComponent,
 		SmartDocumentsReviewComponent,
+		SmartInstructionsComponent,
 		SmartResultsComponent,
 		TranslocoModule,
 	],
@@ -106,6 +108,9 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 		const steps = this.projectFlow.onboardingSettings.steps;
 
 		this.steps = [];
+
+		// Always add instructions as the first step
+		this.steps.push("instructions");
 
 		if (steps.document !== "skip") {
 			this.steps.push("document", "document-review");
@@ -183,11 +188,18 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 		const documentStepSkipped = steps.document === "skip";
 		const documentWasSkipped = this._smartEnrollService.wasSkippedDocument();
 
-		let enrollStep: EnrollStep = "document";
+		let enrollStep: EnrollStep = "instructions";
+
+		// Check if user has already started the process (has any validation data)
+		const hasStartedProcess =
+			this.appRegistration.documentValidation ||
+			this.appRegistration.biometricValidation ||
+			this.appRegistration.currentStep !== "signUpForm";
 
 		if (
 			this.appRegistration.status === "COMPLETED" ||
 			this.appRegistration.status === "FAILED" ||
+			this.appRegistration.status === "COMPLETED_WITHOUT_KYC" ||
 			((this._smartEnrollService.wasSkippedBiometric() || this.appRegistration.biometricValidation) &&
 				(documentWasSkipped || this._smartEnrollService.isDocumentValidAndComplete(this.projectFlow, this.appRegistration)))
 		) {
@@ -212,9 +224,24 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 			this._syncAppRegistration("document", "ONGOING");
 
 			enrollStep = "document-review";
+		} else if (hasStartedProcess) {
+			// User has started but not completed document validation, go to document step
+			enrollStep = "document";
 		}
-		// Otherwise, start with document step (default)
+		// Otherwise, start with instructions step (default)
 
 		this._smartEnrollService.setCurrentStep(enrollStep);
+	}
+
+	onInstructionsStart(): void {
+		const steps = this.projectFlow.onboardingSettings.steps;
+
+		if (steps.document !== "skip") {
+			this._smartEnrollService.setCurrentStep("document");
+		} else if (steps.liveness !== "skip") {
+			this._smartEnrollService.setCurrentStep("biometric");
+		} else {
+			this._smartEnrollService.setCurrentStep("result");
+		}
 	}
 }

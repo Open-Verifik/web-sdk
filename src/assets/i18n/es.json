@@ -442,6 +442,34 @@
 		"remaining_time": "Reenviar el código de verificación en: "
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "Verifica Tu Identidad",
+			"subtitle": "Completa los siguientes pasos para verificar tu identidad con {{projectName}}",
+			"document_title": "Verificación de Documento",
+			"document_description": "Escanea o sube un documento de identidad oficial para verificar tu identidad",
+			"liveness_title": "Verificación Biométrica",
+			"liveness_description": "Completa un escaneo facial rápido para confirmar que eres una persona real",
+			"mandatory": "Requerido",
+			"optional": "Opcional",
+			"start_button": "Iniciar Verificación",
+			"skip_verification": "Omitir verificación por ahora",
+			"agreement_prefix": "Al continuar, aceptas nuestros",
+			"no_steps_required": "No se requieren pasos de verificación",
+			"skip_modal": {
+				"title": "¿Omitir Verificación de Identidad?",
+				"description": "Estás a punto de omitir el proceso de verificación de identidad. Siempre podrás completarlo más tarde si es necesario.",
+				"redirect_to": "Serás redirigido a",
+				"confirm_skip": "Sí, omitir verificación",
+				"go_back": "Volver a la verificación",
+				"processing": "Procesando...",
+				"please_wait": "Por favor espera mientras completamos tu registro",
+				"success_title": "Registro Completado",
+				"redirecting": "Redirigiéndote ahora...",
+				"error_title": "Algo salió mal",
+				"error_description": "No pudimos completar tu solicitud. Por favor intenta de nuevo.",
+				"try_again": "Intentar de nuevo"
+			}
+		},
 		"biometric_register": "Registro Biométrico",
 		"camera_constraints_description": "La cámara que estás intentando usar parece tener una resolución demasiado baja para realizar el paso actual del proceso de incorporación. Te recomendamos intentar con otra cámara o continuar el proceso en otro dispositivo. La resolución mínima aceptable es 854x480.",
 		"camera_constraints": "Tu cámara no cumple con los estándares recomendados",

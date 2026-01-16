@@ -441,6 +441,34 @@
 		"remaining_time": "Rinvia il codice di verifica in: "
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "Verifica la Tua Identità",
+			"subtitle": "Completa i seguenti passaggi per verificare la tua identità con {{projectName}}",
+			"document_title": "Verifica del Documento",
+			"document_description": "Scansiona o carica un documento di identità ufficiale per verificare la tua identità",
+			"liveness_title": "Verifica Biometrica",
+			"liveness_description": "Completa una rapida scansione facciale per confermare che sei una persona reale",
+			"mandatory": "Obbligatorio",
+			"optional": "Opzionale",
+			"start_button": "Inizia Verifica",
+			"skip_verification": "Salta la verifica per ora",
+			"agreement_prefix": "Continuando, accetti i nostri",
+			"no_steps_required": "Nessun passaggio di verifica richiesto",
+			"skip_modal": {
+				"title": "Saltare la Verifica dell'Identità?",
+				"description": "Stai per saltare il processo di verifica dell'identità. Potrai sempre completarlo in seguito se necessario.",
+				"redirect_to": "Sarai reindirizzato a",
+				"confirm_skip": "Sì, salta la verifica",
+				"go_back": "Torna alla verifica",
+				"processing": "Elaborazione...",
+				"please_wait": "Attendere mentre completiamo la registrazione",
+				"success_title": "Registrazione Completata",
+				"redirecting": "Reindirizzamento in corso...",
+				"error_title": "Qualcosa è andato storto",
+				"error_description": "Non siamo riusciti a completare la tua richiesta. Riprova.",
+				"try_again": "Riprova"
+			}
+		},
 		"biometric_register": "Registrazione biometrica",
 		"camera_constraints_description": "La fotocamera che stai tentando di utilizzare sembra avere una risoluzione troppo bassa per eseguire l'attuale fase di onboarding. Ti consigliamo di provare un'altra fotocamera o di continuare l'onboarding su un altro dispositivo. La risoluzione minima accettabile è 854x480.",
 		"camera_constraints": "La tua fotocamera non soddisfa gli standard raccomandati",

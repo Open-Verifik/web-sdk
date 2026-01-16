@@ -442,6 +442,34 @@
 		"remaining_time": "Resend the verifcation code in: "
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "Verify Your Identity",
+			"subtitle": "Complete the following steps to verify your identity for {{projectName}}",
+			"document_title": "Document Verification",
+			"document_description": "Scan or upload a valid government-issued ID to verify your identity",
+			"liveness_title": "Biometric Verification",
+			"liveness_description": "Complete a quick face scan to confirm you are a real person",
+			"mandatory": "Required",
+			"optional": "Optional",
+			"start_button": "Start Verification",
+			"skip_verification": "Skip verification for now",
+			"agreement_prefix": "By continuing, you agree to our",
+			"no_steps_required": "No verification steps required",
+			"skip_modal": {
+				"title": "Skip Identity Verification?",
+				"description": "You're about to skip the identity verification process. You can always complete it later if required.",
+				"redirect_to": "You will be redirected to",
+				"confirm_skip": "Yes, skip verification",
+				"go_back": "Go back to verification",
+				"processing": "Processing...",
+				"please_wait": "Please wait while we complete your registration",
+				"success_title": "Registration Complete",
+				"redirecting": "Redirecting you now...",
+				"error_title": "Something went wrong",
+				"error_description": "We couldn't complete your request. Please try again.",
+				"try_again": "Try again"
+			}
+		},
 		"biometric_register": "Biometric Register",
 		"camera_constraints_description": "The camera you are trying to use appears to be too low resolution to perform the current step of onboarding. We would recommend you try another camera, or continue onboarding on another device. The lowest acceptable resolution is 854x480.",
 		"camera_constraints": "Your camera does not meet the recommended standards",

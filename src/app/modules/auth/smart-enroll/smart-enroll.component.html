@@ -5,6 +5,13 @@
     class="app min-h-screen flex flex-col items-center justify-center"
 >
     <main #appContent class="app__content min-h-screen w-full flex flex-col items-center justify-center flex-grow md:flex-grow-0">
+        <smart-instructions
+            @fadeIn
+            *ngIf="currentStep === 'instructions'"
+            (onStart)="onInstructionsStart()"
+            class="app__page"
+        ></smart-instructions>
+
         <smart-documents @fadeIn *ngIf="currentStep === 'document'" class="app__page"></smart-documents>
 
         <smart-documents-review @fadeIn *ngIf="currentStep === 'document-review'" class="app__page"></smart-documents-review>

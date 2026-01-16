@@ -441,6 +441,34 @@
 		"remaining_time": "Muling ipadala ang verification code sa loob ng: "
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "Patunayan ang Iyong Pagkakakilanlan",
+			"subtitle": "Kumpletuhin ang mga sumusunod na hakbang upang patunayan ang iyong pagkakakilanlan para sa {{projectName}}",
+			"document_title": "Pagpapatunay ng Dokumento",
+			"document_description": "I-scan o i-upload ang isang wastong ID na inisyu ng gobyerno upang patunayan ang iyong pagkakakilanlan",
+			"liveness_title": "Pagpapatunay ng Biometric",
+			"liveness_description": "Kumpletuhin ang isang mabilis na face scan upang kumpirmahin na ikaw ay isang tunay na tao",
+			"mandatory": "Kinakailangan",
+			"optional": "Opsyonal",
+			"start_button": "Simulan ang Pagpapatunay",
+			"skip_verification": "Laktawan ang pagpapatunay sa ngayon",
+			"agreement_prefix": "Sa pagpapatuloy, sumasang-ayon ka sa aming",
+			"no_steps_required": "Walang kinakailangang hakbang sa pagpapatunay",
+			"skip_modal": {
+				"title": "Laktawan ang Pagpapatunay ng Pagkakakilanlan?",
+				"description": "Malapit mo nang laktawan ang proseso ng pagpapatunay ng pagkakakilanlan. Maaari mo itong kumpletuhin sa ibang pagkakataon kung kinakailangan.",
+				"redirect_to": "Ikaw ay iri-redirect sa",
+				"confirm_skip": "Oo, laktawan ang pagpapatunay",
+				"go_back": "Bumalik sa pagpapatunay",
+				"processing": "Pinoproseso...",
+				"please_wait": "Mangyaring maghintay habang kinukumpleto namin ang iyong rehistro",
+				"success_title": "Kumpleto ang Rehistro",
+				"redirecting": "Nagre-redirect ngayon...",
+				"error_title": "May naging problema",
+				"error_description": "Hindi namin makumpleto ang iyong kahilingan. Mangyaring subukan muli.",
+				"try_again": "Subukan muli"
+			}
+		},
 		"biometric_register": "Rehistro ng Biometric",
 		"camera_constraints_description": "Ang kamera na sinusubukan mong gamitin ay mukhang masyadong mababa ang resolusyon para magawa ang kasalukuyang hakbang ng onboarding. Inirerekumenda naming subukan mo ang ibang kamera o ipagpatuloy ang onboarding sa ibang device. Ang pinakamababang katanggap-tanggap na resolusyon ay 854x480.",
 		"camera_constraints": "Ang iyong kamera ay hindi tumutugma sa inirerekomendang pamantayan",

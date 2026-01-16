@@ -133,7 +133,7 @@ export interface EnrollStore {
     };
 }
 
-export type EnrollStep = "" | "document" | "document-review" | "biometric" | "result";
+export type EnrollStep = "" | "instructions" | "document" | "document-review" | "biometric" | "result";
 export type EnrollDocumentMethod = "" | "scan" | "upload";
 
 @Injectable({

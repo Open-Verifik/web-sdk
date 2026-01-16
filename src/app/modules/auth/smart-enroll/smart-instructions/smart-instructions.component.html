@@ -1,0 +1,312 @@
+<div class="w-full flex flex-row h-screen" *transloco="let t">
+	<div class="w-full flex flex-col items-center p-4 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:max-w-1/2': project.branding.image }">
+		<!-- Main Card Container -->
+		<div class="w-full max-w-[480px] bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden my-auto">
+			<!-- Header with Logo -->
+			<div class="flex flex-col items-center pt-10 pb-6 px-8 bg-gradient-to-b from-gray-50/80 to-white">
+				<!-- Project Logo -->
+				<div class="mb-6">
+					<ng-container *ngIf="project?.branding?.logo; else defaultLogo">
+						<img class="h-16 w-auto object-contain" [src]="project.branding.logo" alt="Logo" />
+					</ng-container>
+
+					<ng-template #defaultLogo>
+						<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+							<mat-icon class="text-white !w-8 !h-8" svgIcon="heroicons_outline:shield-check"></mat-icon>
+						</div>
+					</ng-template>
+				</div>
+
+				<!-- Title -->
+				<h1 class="text-2xl font-bold text-gray-900 text-center mb-2">
+					{{ t("smart_enroll.instructions.title") }}
+				</h1>
+
+				<p class="text-sm text-gray-500 text-center max-w-sm">
+					{{ t("smart_enroll.instructions.subtitle", { projectName: project.name }) }}
+				</p>
+			</div>
+
+			<!-- Steps List -->
+			<div class="px-8 pb-6">
+				<div class="space-y-3">
+					<ng-container *ngFor="let step of steps; let i = index">
+						<div
+							class="smart-instructions__step group flex items-start gap-4 p-4 rounded-2xl border-2 transition-all duration-200"
+							[ngClass]="{
+								'border-gray-100 bg-gray-50/50 hover:border-gray-200 hover:bg-gray-50': step.status === 'optional',
+								'border-blue-100 bg-blue-50/50 hover:border-blue-200': step.status === 'mandatory'
+							}"
+						>
+							<!-- Step Number / Icon -->
+							<div
+								class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-colors"
+								[ngClass]="{
+									'bg-blue-500 text-white': step.status === 'mandatory',
+									'bg-gray-200 text-gray-600 group-hover:bg-gray-300': step.status === 'optional'
+								}"
+							>
+								<mat-icon class="!w-6 !h-6" [svgIcon]="step.icon"></mat-icon>
+							</div>
+
+							<!-- Step Content -->
+							<div class="flex-1 min-w-0">
+								<div class="flex items-center gap-2 mb-1">
+									<h3 class="font-semibold text-gray-900 text-[15px]">
+										{{ t(step.titleKey) }}
+									</h3>
+
+									<!-- Status Badge -->
+									<span
+										class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium uppercase tracking-wide"
+										[ngClass]="{
+											'bg-blue-100 text-blue-700': step.status === 'mandatory',
+											'bg-gray-100 text-gray-500': step.status === 'optional'
+										}"
+									>
+										{{ t("smart_enroll.instructions." + step.status) }}
+									</span>
+								</div>
+
+								<p class="text-sm text-gray-500 leading-relaxed">
+									{{ t(step.descriptionKey) }}
+								</p>
+							</div>
+						</div>
+					</ng-container>
+
+					<!-- Empty state when no steps -->
+					<div *ngIf="steps.length === 0" class="text-center py-8">
+						<mat-icon class="!w-12 !h-12 text-gray-300 mb-3" svgIcon="heroicons_outline:check-circle"></mat-icon>
+						<p class="text-gray-500">{{ t("smart_enroll.instructions.no_steps_required") }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Terms & Privacy Notice -->
+			<div class="px-8 pb-6" *ngIf="hasTermsOrPrivacy">
+				<p class="text-xs text-gray-400 text-center leading-relaxed">
+					{{ t("smart_enroll.instructions.agreement_prefix") }}
+					<a
+						*ngIf="project.termsAndConditionsUrl"
+						[href]="project.termsAndConditionsUrl"
+						target="_blank"
+						class="text-blue-500 hover:text-blue-600 hover:underline"
+					>
+						{{ t("signup.terms") }}
+					</a>
+					<span *ngIf="project.termsAndConditionsUrl && project.privacyUrl"> {{ t("signup.and") }} </span>
+					<a
+						*ngIf="project.privacyUrl"
+						[href]="project.privacyUrl"
+						target="_blank"
+						class="text-blue-500 hover:text-blue-600 hover:underline"
+					>
+						{{ t("signup.privacyPolicy") }}
+					</a>
+				</p>
+			</div>
+
+			<!-- Action Buttons -->
+			<div class="px-8 pb-8 space-y-3">
+				<!-- Primary CTA -->
+				<button
+					(click)="startVerification()"
+					class="w-full h-14 rounded-xl font-semibold text-[15px] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+					[style.background-color]="project.branding.buttonColor || '#2563eb'"
+					[style.color]="project.branding.buttonTextColor || '#ffffff'"
+					mat-flat-button
+					type="button"
+				>
+					<div class="flex items-center justify-center gap-2">
+						<span>{{ t("smart_enroll.instructions.start_button") }}</span>
+						<mat-icon class="!w-5 !h-5">arrow_forward</mat-icon>
+					</div>
+				</button>
+
+				<!-- Skip All Button (only if both steps are optional) -->
+				<button
+					(click)="openSkipModal()"
+					*ngIf="canSkipAll"
+					class="w-full h-12 rounded-xl font-medium text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all duration-200"
+					mat-button
+					type="button"
+				>
+					{{ t("smart_enroll.instructions.skip_verification") }}
+				</button>
+			</div>
+		</div>
+
+		<!-- Footer -->
+		<div class="mt-6 text-center">
+			<p class="text-xs text-gray-400">
+				{{ t("powered_by_verifik") }}
+			</p>
+		</div>
+	</div>
+
+	<verifik-media-display
+		[isVerifikProject]="isVerifikProject"
+		[brandingImage]="project.branding.image"
+		additionalClasses="w-1/2 hidden md:block"
+	></verifik-media-display>
+
+	<!-- Skip Verification Modal Overlay -->
+	<div
+		*ngIf="showSkipModal"
+		class="fixed inset-0 z-50 flex items-center justify-center p-4"
+		@fadeIn
+	>
+		<!-- Backdrop -->
+		<div
+			class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+			(click)="closeSkipModal()"
+		></div>
+
+		<!-- Modal Content -->
+		<div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden" @fadeIn>
+			<!-- Confirm State -->
+			<ng-container *ngIf="skipModalState === 'confirm'">
+				<div class="p-8">
+					<!-- Icon -->
+					<div class="w-16 h-16 mx-auto mb-6 rounded-full bg-amber-50 flex items-center justify-center">
+						<mat-icon class="!w-8 !h-8 text-amber-500" svgIcon="heroicons_outline:exclamation-triangle"></mat-icon>
+					</div>
+
+					<!-- Title -->
+					<h2 class="text-xl font-bold text-gray-900 text-center mb-2">
+						{{ t("smart_enroll.instructions.skip_modal.title") }}
+					</h2>
+
+					<!-- Description -->
+					<p class="text-sm text-gray-500 text-center mb-6">
+						{{ t("smart_enroll.instructions.skip_modal.description") }}
+					</p>
+
+					<!-- Redirect URL Preview -->
+					<div class="bg-gray-50 rounded-xl p-4 mb-6">
+						<p class="text-xs text-gray-400 mb-1">{{ t("smart_enroll.instructions.skip_modal.redirect_to") }}</p>
+						<div class="flex items-center gap-2">
+							<mat-icon class="!w-4 !h-4 text-gray-400">link</mat-icon>
+							<span class="text-sm font-medium text-gray-700 truncate">{{ displayRedirectUrl }}</span>
+						</div>
+					</div>
+
+					<!-- Buttons -->
+					<div class="flex flex-col gap-3">
+						<button
+							(click)="confirmSkipVerification()"
+							class="w-full h-12 rounded-xl font-semibold text-[15px] bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+							mat-flat-button
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.skip_modal.confirm_skip") }}
+						</button>
+
+						<button
+							(click)="closeSkipModal()"
+							class="w-full h-12 rounded-xl font-medium text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+							mat-button
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.skip_modal.go_back") }}
+						</button>
+					</div>
+				</div>
+			</ng-container>
+
+			<!-- Loading State -->
+			<ng-container *ngIf="skipModalState === 'loading'">
+				<div class="p-8">
+					<!-- Spinner -->
+					<div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+						<mat-progress-spinner
+							mode="indeterminate"
+							diameter="48"
+							[style.--mdc-circular-progress-active-indicator-color]="project.branding.buttonColor || '#2563eb'"
+						></mat-progress-spinner>
+					</div>
+
+					<!-- Title -->
+					<h2 class="text-xl font-bold text-gray-900 text-center mb-2">
+						{{ t("smart_enroll.instructions.skip_modal.processing") }}
+					</h2>
+
+					<!-- Description -->
+					<p class="text-sm text-gray-500 text-center">
+						{{ t("smart_enroll.instructions.skip_modal.please_wait") }}
+					</p>
+				</div>
+			</ng-container>
+
+			<!-- Success State -->
+			<ng-container *ngIf="skipModalState === 'success'">
+				<div class="p-8">
+					<!-- Icon -->
+					<div class="w-16 h-16 mx-auto mb-6 rounded-full bg-green-50 flex items-center justify-center">
+						<mat-icon class="!w-8 !h-8 text-green-500" svgIcon="heroicons_outline:check-circle"></mat-icon>
+					</div>
+
+					<!-- Title -->
+					<h2 class="text-xl font-bold text-gray-900 text-center mb-2">
+						{{ t("smart_enroll.instructions.skip_modal.success_title") }}
+					</h2>
+
+					<!-- Description -->
+					<p class="text-sm text-gray-500 text-center mb-4">
+						{{ t("smart_enroll.instructions.skip_modal.redirecting") }}
+					</p>
+
+					<!-- Redirect URL -->
+					<div class="bg-gray-50 rounded-xl p-4">
+						<div class="flex items-center justify-center gap-2">
+							<mat-progress-spinner mode="indeterminate" diameter="16"></mat-progress-spinner>
+							<span class="text-sm font-medium text-gray-600">{{ displayRedirectUrl }}</span>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+
+			<!-- Error State -->
+			<ng-container *ngIf="skipModalState === 'error'">
+				<div class="p-8">
+					<!-- Icon -->
+					<div class="w-16 h-16 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
+						<mat-icon class="!w-8 !h-8 text-red-500" svgIcon="heroicons_outline:x-circle"></mat-icon>
+					</div>
+
+					<!-- Title -->
+					<h2 class="text-xl font-bold text-gray-900 text-center mb-2">
+						{{ t("smart_enroll.instructions.skip_modal.error_title") }}
+					</h2>
+
+					<!-- Description -->
+					<p class="text-sm text-gray-500 text-center mb-6">
+						{{ errorMessage || t("smart_enroll.instructions.skip_modal.error_description") }}
+					</p>
+
+					<!-- Buttons -->
+					<div class="flex flex-col gap-3">
+						<button
+							(click)="retrySkip()"
+							class="w-full h-12 rounded-xl font-semibold text-[15px] bg-gray-900 text-white hover:bg-black transition-colors"
+							mat-flat-button
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.skip_modal.try_again") }}
+						</button>
+
+						<button
+							(click)="closeSkipModal()"
+							class="w-full h-12 rounded-xl font-medium text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+							mat-button
+							type="button"
+						>
+							{{ t("cancel") }}
+						</button>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+</div>

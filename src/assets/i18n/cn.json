@@ -442,6 +442,34 @@
 		"remaining_time": "在以下时间内重新发送验证码："
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "验证您的身份",
+			"subtitle": "完成以下步骤以验证您在 {{projectName}} 的身份",
+			"document_title": "文件验证",
+			"document_description": "扫描或上传有效的政府颁发的身份证件以验证您的身份",
+			"liveness_title": "生物识别验证",
+			"liveness_description": "完成快速面部扫描以确认您是真实的人",
+			"mandatory": "必需",
+			"optional": "可选",
+			"start_button": "开始验证",
+			"skip_verification": "暂时跳过验证",
+			"agreement_prefix": "继续即表示您同意我们的",
+			"no_steps_required": "无需验证步骤",
+			"skip_modal": {
+				"title": "跳过身份验证？",
+				"description": "您即将跳过身份验证过程。如果需要，您可以随时完成它。",
+				"redirect_to": "您将被重定向到",
+				"confirm_skip": "是的，跳过验证",
+				"go_back": "返回验证",
+				"processing": "处理中...",
+				"please_wait": "请稍候，我们正在完成您的注册",
+				"success_title": "注册完成",
+				"redirecting": "正在重定向...",
+				"error_title": "出了点问题",
+				"error_description": "我们无法完成您的请求。请重试。",
+				"try_again": "重试"
+			}
+		},
 		"biometric_register": "生物识别注册",
 		"camera_constraints_description": "您尝试使用的相机分辨率太低，无法完成当前的注册步骤。我们建议您尝试使用其他相机，或在其他设备上继续注册。最低可接受的分辨率为854x480。",
 		"camera_constraints": "您的相机不符合推荐标准",

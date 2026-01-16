@@ -442,6 +442,34 @@
 		"remaining_time": "Reenviar o código de verificação em: "
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "Verifique Sua Identidade",
+			"subtitle": "Complete as seguintes etapas para verificar sua identidade com {{projectName}}",
+			"document_title": "Verificação de Documento",
+			"document_description": "Escaneie ou envie um documento de identidade oficial para verificar sua identidade",
+			"liveness_title": "Verificação Biométrica",
+			"liveness_description": "Complete uma varredura facial rápida para confirmar que você é uma pessoa real",
+			"mandatory": "Obrigatório",
+			"optional": "Opcional",
+			"start_button": "Iniciar Verificação",
+			"skip_verification": "Pular verificação por enquanto",
+			"agreement_prefix": "Ao continuar, você concorda com nossos",
+			"no_steps_required": "Nenhuma etapa de verificação necessária",
+			"skip_modal": {
+				"title": "Pular Verificação de Identidade?",
+				"description": "Você está prestes a pular o processo de verificação de identidade. Você sempre poderá completá-lo mais tarde, se necessário.",
+				"redirect_to": "Você será redirecionado para",
+				"confirm_skip": "Sim, pular verificação",
+				"go_back": "Voltar para a verificação",
+				"processing": "Processando...",
+				"please_wait": "Por favor, aguarde enquanto finalizamos seu registro",
+				"success_title": "Registro Concluído",
+				"redirecting": "Redirecionando agora...",
+				"error_title": "Algo deu errado",
+				"error_description": "Não conseguimos concluir sua solicitação. Por favor, tente novamente.",
+				"try_again": "Tentar novamente"
+			}
+		},
 		"biometric_register": "Registro Biométrico",
 		"camera_constraints_description": "A câmera que você está tentando usar parece ter uma resolução muito baixa para realizar a etapa atual do processo de integração. Recomendamos que você tente outra câmera ou continue o processo em outro dispositivo. A resolução mínima aceitável é 854x480.",
 		"camera_constraints": "Sua câmera não atende aos padrões recomendados",

@@ -441,6 +441,34 @@
 		"remaining_time": "인증 코드를 다시 보내는 시간: "
 	},
 	"smart_enroll": {
+		"instructions": {
+			"title": "신원 확인",
+			"subtitle": "{{projectName}}에 대한 신원을 확인하려면 다음 단계를 완료하세요",
+			"document_title": "문서 확인",
+			"document_description": "신원을 확인하기 위해 유효한 정부 발급 신분증을 스캔하거나 업로드하세요",
+			"liveness_title": "생체 인증",
+			"liveness_description": "실제 사람임을 확인하기 위해 빠른 얼굴 스캔을 완료하세요",
+			"mandatory": "필수",
+			"optional": "선택 사항",
+			"start_button": "확인 시작",
+			"skip_verification": "지금은 확인 건너뛰기",
+			"agreement_prefix": "계속하면 다음에 동의하는 것입니다",
+			"no_steps_required": "확인 단계가 필요하지 않습니다",
+			"skip_modal": {
+				"title": "신원 확인을 건너뛰시겠습니까?",
+				"description": "신원 확인 프로세스를 건너뛰려고 합니다. 필요하면 나중에 언제든지 완료할 수 있습니다.",
+				"redirect_to": "다음으로 리디렉션됩니다",
+				"confirm_skip": "예, 확인 건너뛰기",
+				"go_back": "확인으로 돌아가기",
+				"processing": "처리 중...",
+				"please_wait": "등록을 완료하는 동안 기다려 주세요",
+				"success_title": "등록 완료",
+				"redirecting": "지금 리디렉션 중...",
+				"error_title": "문제가 발생했습니다",
+				"error_description": "요청을 완료할 수 없습니다. 다시 시도해 주세요.",
+				"try_again": "다시 시도"
+			}
+		},
 		"biometric_register": "생체 정보 등록",
 		"camera_constraints_description": "현재 사용하려는 카메라의 해상도가 낮아 현재 온보딩 단계를 진행할 수 없습니다. 다른 카메라를 사용하거나 다른 기기에서 온보딩을 계속 진행할 것을 권장합니다. 최소 허용 해상도는 854x480입니다.",
 		"camera_constraints": "카메라가 권장 기준을 충족하지 않습니다",

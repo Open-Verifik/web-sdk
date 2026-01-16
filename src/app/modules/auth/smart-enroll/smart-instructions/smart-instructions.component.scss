@@ -1,0 +1,19 @@
+.smart-instructions {
+	&__step {
+		position: relative;
+
+		&::before {
+			content: "";
+			position: absolute;
+			left: 32px;
+			top: 100%;
+			width: 2px;
+			height: 12px;
+			background-color: transparent;
+		}
+
+		&:not(:last-child)::before {
+			background-color: #e5e7eb;
+		}
+	}
+}
