@@ -3,10 +3,18 @@
 <div
 	[ngClass]="{ 'h-full': formSubmitted && methodSelectionForm.get('method')?.value === 'scan' }"
 	*transloco="let t"
-	class="w-full flex flex-col justify-start items-center md:flex-row md:justify-center md:items-center"
+	class="w-full flex flex-col justify-start items-center md:flex-row md:justify-center md:items-center relative"
 >
+	<!-- Desktop Language Selector -->
+	<languages class="language-selector" (languageChange)="onLanguageChange($event)"></languages>
+	
 	<div @fadeIn class="w-full flex flex-row h-screen overflow-y-auto" *ngIf="project && projectFlow && !formSubmitted">
 		<div class="w-full p-4 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image }">
+			<!-- Mobile Language Selector -->
+			<div class="w-full flex flex-row items-center justify-start ml-1 sm:ml-2 max-w-full overflow-x-hidden mb-4" ngClass.gt-sm="hidden">
+				<languages class="language-selector relative" (languageChange)="onLanguageChange($event)"></languages>
+			</div>
+			
 			<div class="w-full max-w-[600px] flex flex-col items-center m-auto gap-6 py-8">
 				<!-- Main Card Container -->
 				<div class="w-full bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" [class.hidden]="showQrCode">

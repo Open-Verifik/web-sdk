@@ -1,5 +1,5 @@
-import { CommonModule, NgIf } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, TemplateRef, ViewChild } from "@angular/core";
+import { CommonModule, isPlatformBrowser, NgIf } from "@angular/common";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, PLATFORM_ID, TemplateRef, ViewChild } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -16,6 +16,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import QRCode from "qrcode";
 import { Subject, takeUntil } from "rxjs";
 
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { VerifikRadioGroupComponent } from "app/core/components/verifik-radio-group/verifik-radio-group.component";
@@ -46,6 +47,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 		CommonModule,
 		FlexLayoutModule,
 		FormsModule,
+		LanguagesComponent,
 		MatButtonModule,
 		MatCardModule,
 		MatDialogModule,
@@ -68,7 +70,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 		VerifikRadioItemComponent,
 	],
 })
-export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
+export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
@@ -84,12 +86,25 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 	faceIdCard: string;
 	formSubmitted: boolean = false;
 	isVerifikProject: boolean = false;
+	language: string;
 	methodSelectionForm: FormGroup;
 	project: Project;
 	projectFlow: ProjectFlow;
 	selectedReferenceDoc: any;
 	successfulUploadSubject: Subject<void> = new Subject<void>();
 	useDemoData: boolean = false;
+	flagCodes = {
+		en: "us",
+		es: "es",
+		br: "br",
+		fr: "fr",
+		it: "it",
+		ru: "ru",
+		kr: "kr",
+		in: "in",
+		cn: "cn",
+		ph: "ph",
+	};
 
 	constructor(
 		private _apiErrorService: ApiErrorService,
@@ -101,7 +116,8 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 		private _matDialog: MatDialog,
 		private _passwordlessService: PasswordlessService,
 		private _smartEnrollService: SmartEnrollService,
-		private _translocoService: TranslocoService
+		private _translocoService: TranslocoService,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -126,6 +142,10 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 		});
 	}
 
+	ngOnInit(): void {
+		this._setLanguage();
+	}
+
 	ngAfterViewInit(): void {
 		this._prepareQrCode();
 	}
@@ -135,6 +155,31 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy {
 
 		this._unsubscriber$.next();
 		this._unsubscriber$.complete();
+	}
+
+	private _setLanguage(): void {
+		if (!isPlatformBrowser(this.platformId)) {
+			this.language = "en";
+			return;
+		}
+
+		const savedLanguage = localStorage.getItem("currentLanguage");
+		if (savedLanguage && this.flagCodes[savedLanguage]) {
+			this.language = savedLanguage;
+			this._translocoService.setActiveLang(savedLanguage);
+		} else {
+			let browserLang = navigator.language;
+			if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
+			this.language = this.flagCodes[browserLang] ? browserLang : "en";
+			localStorage.setItem("currentLanguage", this.language);
+			this._translocoService.setActiveLang(this.language);
+		}
+	}
+
+	onLanguageChange(lang: string): void {
+		if (!this.flagCodes[lang]) return;
+		localStorage.setItem("currentLanguage", lang);
+		this._translocoService.setActiveLang(lang);
 	}
 
 	private _createDocumentValidation(body: any) {
