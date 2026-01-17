@@ -1,5 +1,12 @@
-<div class="w-full flex flex-row h-screen" *transloco="let t">
+<div class="w-full flex flex-row h-screen relative" *transloco="let t">
+	<!-- Desktop Language Selector -->
+	<languages class="language-selector" (languageChange)="onLanguageChange($event)"></languages>
+	
 	<div class="w-full flex flex-col items-center p-4 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:max-w-1/2': project.branding.image }">
+		<!-- Mobile Language Selector -->
+		<!-- <div class="w-full flex flex-row items-center justify-start ml-1 sm:ml-2 max-w-full overflow-x-hidden mb-4" ngClass.gt-sm="hidden">
+			<languages class="language-selector relative" (languageChange)="onLanguageChange($event)"></languages>
+		</div> -->
 		<!-- Main Card Container -->
 		<div class="w-full max-w-[480px] bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden my-auto">
 			<!-- Header with Logo -->

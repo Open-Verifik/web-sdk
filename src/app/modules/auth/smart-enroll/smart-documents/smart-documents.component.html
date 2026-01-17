@@ -7,9 +7,11 @@
 >
 	<div @fadeIn class="w-full flex flex-row h-screen overflow-y-auto" *ngIf="project && projectFlow && !formSubmitted">
 		<div class="w-full p-4 sm:py-8 overflow-y-auto flex flex-col items-center" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image }">
-			<div class="w-full max-w-md flex flex-col items-center m-auto gap-6 py-8">
-				<div class="w-full flex flex-col items-center gap-6" [class.hidden]="showQrCode">
-					<!-- Header Section -->
+			<div class="w-full max-w-[600px] flex flex-col items-center m-auto gap-6 py-8">
+				<!-- Main Card Container -->
+				<div class="w-full bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" [class.hidden]="showQrCode">
+					<div class="w-full flex flex-col items-center gap-6 p-8">
+						<!-- Header Section -->
 					<div class="w-full flex flex-col gap-4 justify-center items-center">
 						<div class="flex flex-row items-center justify-center">
 							<ng-container *ngIf="project?.branding?.logo; else defaultLogo">
@@ -48,13 +50,13 @@
 					>
 						<!-- Demo Mode Card -->
 						<ng-container *ngIf="project.demoMode">
-							<div class="w-full flex flex-col gap-4 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+							<div class="w-full flex flex-col gap-4 p-4 sm:p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
 								<div class="w-full flex flex-col gap-1">
-									<h3 [style.color]="project.branding.titleColor || '#1e40af'" class="text-lg font-semibold text-center">
+									<h3 [style.color]="project.branding.titleColor || '#1e40af'" class="text-base sm:text-lg font-semibold text-center">
 										{{ t("smart_enroll.demo_mode.title") }}
 									</h3>
 
-									<p class="text-sm text-center" [style.color]="project.branding.textColor || '#64748b'">
+									<p class="text-xs sm:text-sm text-center" [style.color]="project.branding.textColor || '#64748b'">
 										{{ t("smart_enroll.demo_mode.document_description") }}
 									</p>
 								</div>
@@ -64,15 +66,15 @@
 									[(ngModel)]="demoModeChoice"
 									[ngModelOptions]="{ standalone: true }"
 								>
-									<div class="flex flex-row gap-3 w-full">
+									<div class="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
 										<verifik-radio-item
 											[label]="t('smart_enroll.demo_mode.use_own')"
 											class="flex-1 flex flex-col gap-2"
 											value="own"
 											variant="slab"
 										>
-											<mat-icon class="text-gray-700" svgIcon="mat_solid:person"></mat-icon>
-											<span class="font-medium text-sm">{{ t("smart_enroll.demo_mode.use_own") }}</span>
+											<mat-icon class="text-gray-700 !w-5 !h-5 sm:!w-6 sm:!h-6" svgIcon="mat_solid:person"></mat-icon>
+											<span class="font-medium text-xs sm:text-sm">{{ t("smart_enroll.demo_mode.use_own") }}</span>
 										</verifik-radio-item>
 
 										<verifik-radio-item
@@ -81,42 +83,42 @@
 											value="demo"
 											variant="slab"
 										>
-											<mat-icon class="text-gray-700" svgIcon="mat_solid:play_circle"></mat-icon>
-											<span class="font-medium text-sm">{{ t("smart_enroll.demo_mode.use_demo") }}</span>
+											<mat-icon class="text-gray-700 !w-5 !h-5 sm:!w-6 sm:!h-6" svgIcon="mat_solid:play_circle"></mat-icon>
+											<span class="font-medium text-xs sm:text-sm">{{ t("smart_enroll.demo_mode.use_demo") }}</span>
 										</verifik-radio-item>
 									</div>
 								</verifik-radio-group>
 							</div>
 						</ng-container>
 
-						<!-- Step 1: Verification Method -->
-						<div @fadeIn class="flex flex-col gap-3">
-							<ng-container
-								*ngTemplateOutlet="steps; context: { index: 1, title: 'smart_enroll.documents.verification_method' }"
-							></ng-container>
+					<!-- Step 1: Verification Method -->
+					<div @fadeIn class="flex flex-col gap-4">
+						<ng-container
+							*ngTemplateOutlet="steps; context: { index: 1, title: 'smart_enroll.documents.verification_method' }"
+						></ng-container>
 
-							<verifik-radio-group formControlName="documentMethod">
-								<div class="flex flex-col gap-2 w-full">
-									<verifik-radio-item
-										[label]="t('smart_enroll.documents.upload_document')"
-										*ngIf="projectFlow?.documentUploadAllowed"
-										class="w-full"
-										icon="mat_outline:file_upload"
-										value="upload"
-										variant="default"
-									></verifik-radio-item>
+						<verifik-radio-group formControlName="documentMethod">
+							<div class="flex flex-col sm:flex-row gap-4 w-full">
+								<verifik-radio-item
+									[label]="t('smart_enroll.documents.upload_document')"
+									*ngIf="projectFlow?.documentUploadAllowed"
+									class="flex-1 smart-documents__method-card"
+									icon="mat_outline:file_upload"
+									value="upload"
+									variant="default"
+								></verifik-radio-item>
 
-									<verifik-radio-item
-										[label]="t('smart_enroll.documents.scan_document')"
-										*ngIf="projectFlow?.documentScanAllowed"
-										class="w-full"
-										icon="mat_outline:camera"
-										value="scan"
-										variant="default"
-									></verifik-radio-item>
-								</div>
-							</verifik-radio-group>
-						</div>
+								<verifik-radio-item
+									[label]="t('smart_enroll.documents.scan_document')"
+									*ngIf="projectFlow?.documentScanAllowed"
+									class="flex-1 smart-documents__method-card"
+									icon="mat_outline:camera"
+									value="scan"
+									variant="default"
+								></verifik-radio-item>
+							</div>
+						</verifik-radio-group>
+					</div>
 
 						<ng-container *ngIf="!project.demoMode || demoModeChoice === 'own'">
 							<!-- Step 2: Issuing Country - Show when Step 1 complete -->
@@ -327,6 +329,7 @@
 						<span *ngIf="!showQrCode">{{ "welcome.continue_on_another" | transloco }}</span>
 						<span *ngIf="showQrCode">{{ "welcome.back_to_form" | transloco }}</span>
 					</button>
+					</div>
 				</div>
 
 				<!-- QR Code Section -->

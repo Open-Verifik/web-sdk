@@ -205,6 +205,160 @@ smart-scanner-corrections {
 		line-height: 21px;
 		white-space: nowrap;
 	}
+
+	&__method-card {
+		transition: all 0.2s ease;
+
+		&:hover {
+			transform: translateY(-2px);
+		}
+
+		::ng-deep {
+			// Mobile: Horizontal, minimalistic layout
+			@media (max-width: 639px) {
+				.verifik-radio-item--default,
+				.verifik-radio-item--default-selected {
+					border-radius: 12px;
+					padding: 12px 16px;
+					border: 1.5px solid #e5e7eb;
+					background-color: #ffffff;
+					transition: all 0.2s ease;
+					min-height: auto;
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: flex-start;
+					text-align: left;
+					position: relative;
+
+					&:hover {
+						border-color: #d1d5db;
+						background-color: #f9fafb;
+					}
+				}
+
+				.verifik-radio-item--default-selected {
+					border-color: #3b82f6;
+					background-color: #eff6ff;
+					box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+				}
+
+				.verifik-radio-item__icon {
+					width: 40px;
+					height: 40px;
+					border-radius: 10px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					background-color: rgba(59, 130, 246, 0.1);
+					margin: 0 12px 0 0;
+					flex-shrink: 0;
+				}
+
+				.verifik-radio-item--default-selected .verifik-radio-item__icon {
+					background-color: rgba(59, 130, 246, 0.2);
+				}
+
+				.verifik-radio-item__label {
+					font-size: 15px;
+					font-weight: 600;
+					color: #1f2937;
+					line-height: 1.4;
+					margin: 0;
+					flex: 1;
+				}
+
+				.verifik-radio-item--default-selected .verifik-radio-item__label {
+					color: #1e40af;
+				}
+
+				.verifik-radio-item__checkmark {
+					position: static;
+					flex-shrink: 0;
+					width: 20px;
+					height: 20px;
+					margin-left: 8px;
+				}
+
+				> div {
+					flex-direction: row !important;
+					width: 100%;
+				}
+			}
+
+			// Desktop: Same horizontal layout, just side by side (handled by flex-row in HTML)
+			@media (min-width: 640px) {
+				.verifik-radio-item--default,
+				.verifik-radio-item--default-selected {
+					border-radius: 12px;
+					padding: 12px 16px;
+					border: 1.5px solid #e5e7eb;
+					background-color: #ffffff;
+					transition: all 0.2s ease;
+					min-height: auto;
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: flex-start;
+					text-align: left;
+					position: relative;
+
+					&:hover {
+						border-color: #d1d5db;
+						background-color: #f9fafb;
+					}
+				}
+
+				.verifik-radio-item--default-selected {
+					border-color: #3b82f6;
+					background-color: #eff6ff;
+					box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+				}
+
+				.verifik-radio-item__icon {
+					width: 40px;
+					height: 40px;
+					border-radius: 10px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					background-color: rgba(59, 130, 246, 0.1);
+					margin: 0 12px 0 0;
+					flex-shrink: 0;
+				}
+
+				.verifik-radio-item--default-selected .verifik-radio-item__icon {
+					background-color: rgba(59, 130, 246, 0.2);
+				}
+
+				.verifik-radio-item__label {
+					font-size: 15px;
+					font-weight: 600;
+					color: #1f2937;
+					line-height: 1.4;
+					margin: 0;
+					flex: 1;
+				}
+
+				.verifik-radio-item--default-selected .verifik-radio-item__label {
+					color: #1e40af;
+				}
+
+				.verifik-radio-item__checkmark {
+					position: static;
+					flex-shrink: 0;
+					width: 20px;
+					height: 20px;
+					margin-left: 8px;
+				}
+
+				> div {
+					flex-direction: row !important;
+					width: 100%;
+				}
+			}
+		}
+	}
 }
 
 .ocr {
@@ -557,5 +711,29 @@ smart-scanner-corrections {
 		&--error {
 			fill: var(--custom-verifik-warn-500, #ef4444);
 		}
+	}
+}
+
+// Language Selector Styles
+.language-selector {
+	margin: 48px;
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	@media screen and (max-width: 959px) {
+		margin: 8px;
+	}
+
+	@media (max-width: 380px) {
+		margin: 4px !important;
+	}
+
+	// Override for mobile language selector (should not be absolutely positioned)
+	&.relative {
+		position: relative;
+		margin: 0;
+		top: auto;
+		right: auto;
 	}
 }

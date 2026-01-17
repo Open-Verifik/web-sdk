@@ -1,12 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Output, ViewEncapsulation } from "@angular/core";
+import { Component, EventEmitter, Inject, OnInit, Output, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
+import { isPlatformBrowser } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
 import { AuthService } from "app/core/auth/auth.service";
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
@@ -27,35 +29,79 @@ type SkipModalState = "confirm" | "loading" | "success" | "error";
 @Component({
 	animations: fuseAnimations,
 	encapsulation: ViewEncapsulation.None,
-	imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslocoModule, VerifikMediaDisplayComponent],
+	imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslocoModule, VerifikMediaDisplayComponent, LanguagesComponent],
 	selector: "smart-instructions",
 	standalone: true,
 	styleUrls: ["../smart-enroll.component.scss", "./smart-instructions.component.scss"],
 	templateUrl: "./smart-instructions.component.html",
 })
-export class SmartInstructionsComponent {
+export class SmartInstructionsComponent implements OnInit {
 	@Output() onStart = new EventEmitter<void>();
 
 	errorMessage: string = "";
 	isVerifikProject: boolean = false;
+	language: string;
 	project: Project;
 	projectFlow: ProjectFlow;
 	showSkipModal: boolean = false;
 	skipModalState: SkipModalState = "confirm";
 	steps: VerificationStep[] = [];
 	year: number = new Date().getFullYear();
+	flagCodes = {
+		en: "us",
+		es: "es",
+		br: "br",
+		fr: "fr",
+		it: "it",
+		ru: "ru",
+		kr: "kr",
+		in: "in",
+		cn: "cn",
+		ph: "ph",
+	};
 
 	constructor(
 		private _authService: AuthService,
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
-		private _smartEnrollService: SmartEnrollService
+		private _smartEnrollService: SmartEnrollService,
+		private _translocoService: TranslocoService,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
 		this.project = this._passwordlessService.currentProject;
 		this.projectFlow = this._passwordlessService.currentProjectFlow;
 		this.isVerifikProject = this._passwordlessService.isVerifikProject;
 
 		this._buildSteps();
+	}
+
+	ngOnInit(): void {
+		this._setLanguage();
+	}
+
+	private _setLanguage(): void {
+		if (!isPlatformBrowser(this.platformId)) {
+			this.language = "en";
+			return;
+		}
+
+		const savedLanguage = localStorage.getItem("currentLanguage");
+		if (savedLanguage && this.flagCodes[savedLanguage]) {
+			this.language = savedLanguage;
+			this._translocoService.setActiveLang(savedLanguage);
+		} else {
+			let browserLang = navigator.language;
+			if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
+			this.language = this.flagCodes[browserLang] ? browserLang : "en";
+			localStorage.setItem("currentLanguage", this.language);
+			this._translocoService.setActiveLang(this.language);
+		}
+	}
+
+	onLanguageChange(lang: string): void {
+		if (!this.flagCodes[lang]) return;
+		localStorage.setItem("currentLanguage", lang);
+		this._translocoService.setActiveLang(lang);
 	}
 
 	private _buildSteps(): void {

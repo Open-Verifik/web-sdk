@@ -1,5 +1,6 @@
-<div class="w-full flex flex-row h-screen" *transloco="let t">
-	<div class="w-full flex flex-col items-center p-4 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:max-w-1/2': project.branding.image }">
+<ng-container *transloco="let t">
+<div class="w-full flex flex-row h-screen" *ngIf="project">
+	<div class="w-full flex flex-col items-center p-4 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image || isVerifikProject }">
 		<!-- Privy-Style Card Container -->
 		<div class="w-full max-w-[440px] bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden my-auto">
 			<ng-container *ngIf="!showQrCode">
@@ -260,3 +261,4 @@
 		additionalClasses="w-1/2 hidden md:block"
 	></verifik-media-display>
 </div>
+</ng-container>
