@@ -364,40 +364,84 @@ export class SmartDocumentsReviewComponent {
 
 		// Name Validation
 		if (this.verifyNamesEnabled && !this.appRegistration.documentValidation?.imageValidated) {
-			this._executeValidationRequest(
-				"nameValidation",
-				() =>
-					this._KYCService.updateDocumentValidationNameValidation({
-						_id: this.appRegistration.documentValidation._id,
-						force: true,
-					}),
-				validationResults,
-				validationErrors,
-				completedValidations,
-				checkAllCompleted
-			);
+			// Check if documentValidation exists before accessing _id
+			if (this.appRegistration.documentValidation?._id) {
+				this._executeValidationRequest(
+					"nameValidation",
+					() =>
+						this._KYCService.updateDocumentValidationNameValidation({
+							_id: this.appRegistration.documentValidation._id,
+							force: true,
+						}),
+					validationResults,
+					validationErrors,
+					completedValidations,
+					checkAllCompleted
+				);
+			} else {
+				this.loading.nameValidation = false;
+				completedValidations.add("nameValidation");
+				checkAllCompleted();
+			}
 		} else {
 			this.loading.nameValidation = false;
 		}
 
 		// Criminal Validation
 		if (this.verifyCriminalHistoryEnabled && !this.appRegistration?.informationValidation?.criminalData) {
-			this._executeValidationRequest(
-				"criminalValidation",
-				() =>
-					this._KYCService.updateInformationValidationWithCriminalRecords({
-						_id:
-							typeof this.appRegistration.informationValidation === "string"
-								? this.appRegistration.informationValidation
-								: this.appRegistration.informationValidation._id,
-						force: environment.production,
-					}),
-				validationResults,
-				validationErrors,
-				completedValidations,
-				() => {
-					// Chain document criminal validation after information validation
-					if (this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData) {
+			// Check if informationValidation exists and has an _id before proceeding
+			const informationValidationId =
+				!this.appRegistration.informationValidation
+					? null
+					: typeof this.appRegistration.informationValidation === "string"
+						? this.appRegistration.informationValidation
+						: this.appRegistration.informationValidation?._id;
+
+			if (informationValidationId) {
+				this._executeValidationRequest(
+					"criminalValidation",
+					() =>
+						this._KYCService.updateInformationValidationWithCriminalRecords({
+							_id: informationValidationId,
+							force: environment.production,
+						}),
+					validationResults,
+					validationErrors,
+					completedValidations,
+					() => {
+						// Chain document criminal validation after information validation
+						if (this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData) {
+							// Check if documentValidation exists before accessing _id
+							if (this.appRegistration.documentValidation?._id) {
+								this._executeValidationRequest(
+									"documentCriminalValidation",
+									() =>
+										this._KYCService.updateDocumentValidationWithCriminalRecords({
+											_id: this.appRegistration.documentValidation._id,
+											force: environment.production,
+										}),
+									validationResults,
+									validationErrors,
+									completedValidations,
+									checkAllCompleted
+								);
+							} else {
+								this.loading.documentCriminalValidation = false;
+								completedValidations.add("documentCriminalValidation");
+								checkAllCompleted();
+							}
+						} else {
+							checkAllCompleted();
+						}
+					}
+				);
+			} else {
+				// If informationValidation doesn't exist, skip criminal validation
+				this.loading.criminalValidation = false;
+				completedValidations.add("criminalValidation");
+				// Still check for document criminal validation
+				if (this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData) {
+					if (this.appRegistration.documentValidation?._id) {
 						this._executeValidationRequest(
 							"documentCriminalValidation",
 							() =>
@@ -410,10 +454,17 @@ export class SmartDocumentsReviewComponent {
 							completedValidations,
 							checkAllCompleted
 						);
+					} else {
+						this.loading.documentCriminalValidation = false;
+						completedValidations.add("documentCriminalValidation");
+						checkAllCompleted();
 					}
+				} else {
+					this.loading.documentCriminalValidation = false;
+					completedValidations.add("documentCriminalValidation");
 					checkAllCompleted();
 				}
-			);
+			}
 		} else {
 			this.loading.criminalValidation = false;
 			this.loading.documentCriminalValidation = false;
