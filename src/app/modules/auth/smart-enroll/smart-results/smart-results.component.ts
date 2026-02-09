@@ -130,6 +130,11 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.livenessFailed = true;
 		}
 
+		if (this.documentSkipped && this.biometricSkipped) {
+			this.appRegistration.status = "COMPLETED_WITHOUT_KYC";
+			return;
+		}
+
 		if (!this.errorResult) {
 			this.appRegistration.status = "COMPLETED";
 
@@ -263,6 +268,10 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		const onboardingSettings = this.projectFlow.onboardingSettings as any;
 		const isEnabled = onboardingSettings?.livenessSettings?.kycType === "zero_knowledge";
 		return isEnabled;
+	}
+
+	get showProjectLogoInHeader(): boolean {
+		return this.documentSkipped && this.biometricSkipped;
 	}
 
 	private _createAppRegistrationZKP(): void {

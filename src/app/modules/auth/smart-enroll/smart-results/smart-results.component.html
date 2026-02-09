@@ -7,15 +7,37 @@
 		<!-- Privy-Style Card Container -->
 		<div class="w-full max-w-[440px] bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden my-auto">
 			<ng-container *ngIf="!showQrCode">
-				<!-- Header Section with Avatar -->
+				<!-- Header Section with Avatar or Logo -->
 				<div class="flex flex-col items-center pt-10 pb-6 px-8">
-					<!-- Avatar with Status Badge -->
+					<!-- Project Logo (when both document and biometric skipped) -->
+					<div class="relative mb-6" *ngIf="showProjectLogoInHeader">
+						<div class="w-32 h-32 rounded-full ring-4 ring-gray-100 flex items-center justify-center overflow-hidden bg-white">
+							<ng-container *ngIf="project?.branding?.logo; else defaultResultsLogo">
+								<img class="h-16 w-auto object-contain" [src]="project.branding.logo" alt="Logo" />
+							</ng-container>
+							<ng-template #defaultResultsLogo>
+								<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+									<mat-icon class="text-white !w-8 !h-8" svgIcon="heroicons_outline:shield-check"></mat-icon>
+								</div>
+							</ng-template>
+						</div>
+						<!-- Status Badge -->
+						<div
+							class="absolute -bottom-2 -right-2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+							[ngClass]="!errorResult ? 'bg-green-500' : 'bg-red-500'"
+						>
+							<mat-icon class="text-white icon-size-6" *ngIf="!errorResult">check</mat-icon>
+							<mat-icon class="text-white icon-size-6" *ngIf="errorResult">close</mat-icon>
+						</div>
+					</div>
+
+					<!-- Avatar with Status Badge (ZKP) -->
 					<div
 						class="relative mb-6 cursor-pointer transition-transform duration-300 hover:scale-105"
 						(mouseenter)="onAvatarHover(true)"
 						(mouseleave)="onAvatarHover(false)"
 						(click)="onAvatarClick()"
-						*ngIf="zeroKnowledgeProofEnabled && zkpQRCodeUrl"
+						*ngIf="(zeroKnowledgeProofEnabled && zkpQRCodeUrl) && !showProjectLogoInHeader"
 					>
 						<!-- Avatar/QR Code Container with Flip Animation -->
 						<div class="relative w-32 h-32" style="perspective: 1000px">
@@ -61,7 +83,7 @@
 					</div>
 
 					<!-- Fallback Avatar (when ZKP is not enabled or QR code not available) -->
-					<div class="relative mb-6" *ngIf="!zeroKnowledgeProofEnabled || !zkpQRCodeUrl">
+					<div class="relative mb-6" *ngIf="(!zeroKnowledgeProofEnabled || !zkpQRCodeUrl) && !showProjectLogoInHeader">
 						<img
 							[src]="face?.base64 || 'https://placehold.co/148x148'"
 							*ngIf="face && !identityLoading"
