@@ -44,7 +44,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 	demoData: any;
 	demoModeChoice: "own" | "demo" | "" = "";
 	enrollSettings: EnrollSettings;
-	errorContent: { message: string };
+	errorContent: { message: string; livenessScore?: number; livenessMinScore?: number };
 	errorResult: boolean;
 	faceIdCard: string;
 	project: Project;
@@ -126,33 +126,78 @@ export class SmartBiometricsComponent implements OnDestroy {
 		this._smartEnrollService.subtractAttempt("biometric");
 
 		const rawMessage = exception?.error?.message || "";
+		const err = exception?.error as Record<string, unknown> | null | undefined;
 
-		// Handle liveness_failed with score before normalization
+		// Handle liveness_failed with score: show error screen (do not go to result step)
 		const str = rawMessage.split("@");
+		const isLivenessFailedWithScore = str.length > 1 && String(str[0]).includes("liveness_failed");
 
-		if (str.length > 1) {
-			this._smartEnrollService.setLivenessScore(parseFloat(str[1]) || 0);
-			this._smartEnrollService.goToNextStep();
+		if (isLivenessFailedWithScore) {
+			const parsedScore = parseFloat(str[1]) || 0;
+			this._smartEnrollService.setLivenessScore(parsedScore);
 
+			const remainingFromApi = err?.remainingAttempts;
+			if (remainingFromApi != null && typeof this._smartEnrollService.store.biometric.limit === "number") {
+				this._smartEnrollService.setAttempts("biometric", Number(remainingFromApi), this._smartEnrollService.store.biometric.limit);
+			}
+
+			this.errorResult = true;
+			const livenessMinScore = this._smartEnrollService.store.biometric.livenessMinScore ?? (err?.minimumScore != null ? Number(err.minimumScore) : null);
+			const livenessScoreFromApi = err?.livenessScore;
+			const livenessScore = livenessScoreFromApi != null ? Number(livenessScoreFromApi) : parsedScore;
+			this.errorContent = {
+				message: "liveness_failed",
+				livenessScore: Number.isFinite(livenessScore) ? livenessScore : parsedScore,
+				livenessMinScore: livenessMinScore != null ? Number(livenessMinScore) : null,
+			};
 			return;
 		}
+
+		// Extract error code from "400:message" or "409:message" format
+		const colonMatch = rawMessage.match(/^\d{3}:(.+)$/);
+		const errorCode = colonMatch ? colonMatch[1].trim() : rawMessage;
 
 		// Handle person_already_set - allow proceed if biometricValidation exists
-		const colonToken = rawMessage.match(/^\d{3}:\s*(.+)$/)?.[1];
-		const errorCode = colonToken || rawMessage;
-
 		if (errorCode === "person_already_set" && this.appRegistration.biometricValidation) {
 			this._smartEnrollService.goToNextStep();
-
 			return;
 		}
 
-		const normalizedError = this._apiErrorService.normalize(exception);
+		this._apiErrorService.normalize(exception);
 
+		// Map common error messages to translation keys
+		const messageCode = this._mapErrorToTranslationKey(errorCode);
 		this.errorResult = true;
-		// Extract error code from message (could be "person_already_set" or "409: person_already_set")
-		const messageCode = new RegExp(/^[a-z]+(?:_{0,2}[a-z]+)*$/).test(str[0]) ? str[0] : "liveness_failed";
 		this.errorContent = { message: messageCode };
+	}
+
+	private _mapErrorToTranslationKey(errorMessage: string): string {
+		// Map readable error messages to snake_case translation keys
+		const errorMappings: Record<string, string> = {
+			"The face is not in the center": "face_not_centered",
+			"face_not_in_center": "face_not_centered",
+			"The face rotation angle is too large": "face_rotation_too_large",
+			"face_rotation_angle_too_large": "face_rotation_too_large",
+			"No face detected": "no_face_detected",
+			"Multiple faces detected": "multiple_faces_detected",
+			"Face too far": "face_too_far",
+			"Face too close": "face_too_close",
+			"Poor lighting": "poor_lighting",
+			"Face not visible": "face_not_visible",
+		};
+
+		// Check if we have a direct mapping
+		if (errorMappings[errorMessage]) {
+			return errorMappings[errorMessage];
+		}
+
+		// If already a valid snake_case key, use it
+		if (/^[a-z]+(?:_[a-z]+)*$/.test(errorMessage)) {
+			return errorMessage;
+		}
+
+		// Default fallback
+		return "liveness_failed";
 	}
 
 	private _syncAppRegistration(step: string, status?: string, action?: string) {

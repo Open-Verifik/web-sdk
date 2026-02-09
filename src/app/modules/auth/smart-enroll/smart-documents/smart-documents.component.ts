@@ -132,6 +132,12 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit
 		this.errorResult = this._smartEnrollService.store.document.remaining === 0;
 		this.errorContent = { message: "" };
 
+		// If front side is already uploaded, skip selection screen and go directly to upload component
+		const frontAlreadyUploaded = !!this.appRegistration?.documentValidation?.url;
+		if (frontAlreadyUploaded && this.enrollSettings.documentMethod) {
+			this.formSubmitted = true;
+		}
+
 		this.demoData = this._demoService.getDemoData();
 		this.demoModeChoice = this._demoService.demoModeChoice as "own" | "demo" | "";
 

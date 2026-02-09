@@ -1,5 +1,8 @@
 <ng-container *transloco="let t">
-<div class="w-full flex flex-row h-screen" *ngIf="project">
+<div class="w-full flex flex-row h-screen relative" *ngIf="project">
+	<!-- Language Selector (top right) -->
+	<languages class="language-selector" (languageChange)="onLanguageChange($event)"></languages>
+
 	<div class="w-full flex flex-col items-center p-4 sm:py-8 overflow-y-auto" [ngClass]="{ 'md:max-w-1/2': project?.branding?.image || isVerifikProject }">
 		<!-- Privy-Style Card Container -->
 		<div class="w-full max-w-[440px] bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden my-auto">
@@ -180,6 +183,17 @@
 
 			<!-- Action Buttons Section -->
 			<div class="px-8 pb-8 space-y-3">
+				<!-- Gentle reminder when out of attempts (no retry/continue buttons) -->
+				<div
+					*ngIf="errorResult && (enrollStore.document.remaining <= 0 || enrollStore.biometric.remaining <= 0) && !showQrCode"
+					class="flex items-start gap-3 p-4 rounded-xl bg-gray-50 border border-gray-100"
+				>
+					<mat-icon class="flex-shrink-0 text-gray-500 icon-size-5 mt-0.5" svgIcon="heroicons_outline:information-circle"></mat-icon>
+					<p class="text-sm text-gray-600 leading-relaxed">
+						{{ t("smart_enroll.out_of_attempts_reminder") }}
+					</p>
+				</div>
+
 				<!-- Error State Retry Buttons -->
 				<ng-container *ngIf="errorResult && enrollStore.document.remaining > 0 && enrollStore.biometric.remaining > 0 && !showQrCode">
 					<button

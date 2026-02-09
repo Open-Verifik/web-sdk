@@ -1,52 +1,126 @@
-<div class="inline-flex flex-col justify-center items-center gap-8" *transloco="let t">
-    <div class="w-96 flex flex-col justify-start items-center gap-4">
-        <svg width="56" height="57" viewBox="0 0 56 57" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M10.4296 48.3424H45.5696C49.163 48.3424 51.403 44.4457 49.6063 41.3424L32.0363 10.9857C30.2396 7.88237 25.7596 7.88237 23.963 10.9857L6.39297 41.3424C4.5963 44.4457 6.8363 48.3424 10.4296 48.3424ZM27.9996 32.009C26.7163 32.009 25.6663 30.959 25.6663 29.6757V25.009C25.6663 23.7257 26.7163 22.6757 27.9996 22.6757C29.283 22.6757 30.333 23.7257 30.333 25.009V29.6757C30.333 30.959 29.283 32.009 27.9996 32.009ZM30.333 41.3424H25.6663V36.6757H30.333V41.3424Z"
-                fill="#EC3A4F"
-            />
-        </svg>
+<ng-container *transloco="let t">
+	<!-- Privy-Style Error Card -->
+	<div class="smart-error-display w-full max-w-[520px] bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+		<!-- Header Section -->
+		<div class="flex flex-col items-center pt-10 pb-6 px-8">
+			<!-- Error Icon with Status Badge -->
+			<div class="relative mb-6">
+				<!-- Icon Circle -->
+				<div
+					class="w-24 h-24 rounded-full flex items-center justify-center"
+					[class]="attemptsRemaining ? 'bg-amber-50 ring-4 ring-amber-100' : 'bg-red-50 ring-4 ring-red-100'"
+				>
+					<mat-icon
+						class="smart-error-display__icon"
+						[class]="attemptsRemaining ? 'text-amber-500' : 'text-red-500'"
+						[svgIcon]="attemptsRemaining ? 'heroicons_outline:exclamation-triangle' : 'heroicons_outline:x-circle'"
+					></mat-icon>
+				</div>
 
-        <div class="smart-error-display__title w-full text-center justify-start text-2xl font-semibold leading-loose" *ngIf="!attemptsRemaining">
-            {{ t("no_more_attempts_title") }}
-        </div>
+				<!-- Status Badge -->
+				<div
+					class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center shadow-lg"
+					[class]="attemptsRemaining ? 'bg-amber-500' : 'bg-red-500'"
+				>
+					<mat-icon class="text-white icon-size-4">{{ attemptsRemaining ? "refresh" : "close" }}</mat-icon>
+				</div>
+			</div>
 
-        <ng-container *ngIf="errorContent.message && t(translationKey) !== translationKey; else defaultTranslation">
-            <div class="w-full text-center justify-center text-base font-medium leading-tight">
-                {{ t(translationKey) }}
-            </div>
-        </ng-container>
+			<!-- Title: when no attempts left, show specific error first if we have one -->
+			<h1 class="text-2xl font-bold text-gray-900 text-center mb-2 leading-tight tracking-tight">
+				<ng-container *ngIf="!attemptsRemaining">
+					<span *ngIf="errorContent?.message">{{ t(translationKey) }}</span>
+					<span *ngIf="!errorContent?.message">{{ t("no_more_attempts_title") }}</span>
+				</ng-container>
+				<span *ngIf="attemptsRemaining && errorContent?.message && t(translationKey) !== translationKey">
+					{{ t(translationKey) }}
+				</span>
+				<span *ngIf="attemptsRemaining && (!errorContent?.message || t(translationKey) === translationKey)">
+					{{ t("errors.something_went_wrong") }}
+				</span>
+			</h1>
 
-        <ng-template #defaultTranslation>
-            <div class="w-full text-center justify-center text-base font-medium leading-tight">
-                {{ t("errors.something_went_wrong") }}
-            </div>
-        </ng-template>
+			<!-- No attempts: show "No more attempts" line after the specific error -->
+			<p
+				class="text-lg font-semibold text-gray-800 text-center mb-2"
+				*ngIf="!attemptsRemaining && errorContent?.message"
+			>
+				{{ t("no_more_attempts_title") }}
+			</p>
 
-        <div class="w-full text-center justify-center text-base font-medium leading-tight" *ngIf="!attemptsRemaining">
-            {{ t("no_more_attempts_description", { recordName: currentStep === "document" ? "document" : "biometric" }) }}
-        </div>
-    </div>
+			<!-- Subtitle / Description -->
+			<p class="text-[15px] text-gray-500 text-center leading-relaxed max-w-sm" *ngIf="!attemptsRemaining">
+				{{ t("no_more_attempts_description", { recordName: currentStep === "document" ? "document" : "biometric" }) }}
+			</p>
+		</div>
 
-    <div class="smart-error-display__attempts px-4 py-2 rounded-3xl inline-flex justify-center items-center gap-2.5" *ngIf="attemptsRemaining">
-        <div class="smart-error-display__attempts-text text-center justify-center text-base font-medium leading-tight">
-            {{ t("smart_enroll.remaining_attempts", { attempts: attemptsRemaining }) }}
-        </div>
-    </div>
+		<!-- Info Section -->
+		<div class="px-8 pb-6 space-y-3" *ngIf="attemptsRemaining">
+			<!-- Liveness Score Card -->
+			<div class="flex items-center gap-4 p-4 rounded-xl bg-amber-50/50 border border-amber-100" *ngIf="showLivenessScoreLine">
+				<div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+					<mat-icon class="text-amber-600 icon-size-5" svgIcon="heroicons_outline:chart-bar"></mat-icon>
+				</div>
+				<div class="flex-1 min-w-0">
+					<p class="text-sm font-medium text-amber-900">
+						{{ t("smart_enroll.liveness.score_required", { score: livenessScorePercent, min: livenessMinScorePercent }) }}
+					</p>
+				</div>
+			</div>
 
-    <div class="flex flex-row items-center gap-6">
-        <button (click)="exitApplication()" mat-flat-button *ngIf="!attemptsRemaining" color="primary" class="min-h-14 h-14 rounded-lg">
-            {{ t("log_out") }}
-        </button>
+			<!-- Remaining Attempts Card -->
+			<div class="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+				<div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+					<mat-icon class="text-gray-600 icon-size-5" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+				</div>
+				<div class="flex-1 min-w-0">
+					<p class="text-sm font-medium text-gray-700">
+						{{ t("smart_enroll.remaining_attempts", { attempts: attemptsRemaining }) }}
+					</p>
+				</div>
+			</div>
+		</div>
 
-        <ng-container *ngIf="attemptsRemaining">
-            <button (click)="exitApplication()" mat-stroked-button color="primary" class="min-h-14 h-14 rounded-lg">
-                {{ t("log_out") }}
-            </button>
+		<!-- Action Buttons -->
+		<div class="px-8 pb-8 space-y-3">
+			<!-- No attempts remaining: Single logout button -->
+			<ng-container *ngIf="!attemptsRemaining">
+				<button
+					(click)="exitApplication()"
+					class="w-full h-12 rounded-xl bg-gray-900 text-white font-medium text-[15px] hover:bg-black transition-all duration-200 shadow-lg shadow-gray-900/20"
+					mat-flat-button
+					type="button"
+				>
+					<div class="flex items-center justify-center gap-2">
+						<mat-icon class="icon-size-5">logout</mat-icon>
+						<span>{{ t("log_out") }}</span>
+					</div>
+				</button>
+			</ng-container>
 
-            <button (click)="tryAgain()" mat-flat-button color="primary" class="min-h-14 h-14 rounded-lg">
-                {{ t("id_scanning.retry") }}
-            </button>
-        </ng-container>
-    </div>
-</div>
+			<!-- Has attempts: Primary retry + secondary logout -->
+			<ng-container *ngIf="attemptsRemaining">
+				<button
+					(click)="tryAgain()"
+					class="w-full h-12 rounded-xl bg-brand-primary text-white font-medium text-[15px] shadow-lg shadow-brand-primary/20 transition-all duration-200 transform hover:-translate-y-0.5"
+					mat-flat-button
+					type="button"
+				>
+					<div class="flex items-center justify-center gap-2">
+						<mat-icon class="icon-size-5">refresh</mat-icon>
+						<span>{{ t("id_scanning.retry") }}</span>
+					</div>
+				</button>
+
+				<button
+					(click)="exitApplication()"
+					class="w-full h-10 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-colors"
+					mat-button
+					type="button"
+				>
+					{{ t("log_out") }}
+				</button>
+			</ng-container>
+		</div>
+	</div>
+</ng-container>

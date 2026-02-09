@@ -5,12 +5,13 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import QRCode from "qrcode";
 
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
@@ -29,6 +30,7 @@ import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll
 		NgIf,
 		TranslocoModule,
 		VerifikMediaDisplayComponent,
+		LanguagesComponent,
 	],
 	selector: "smart-results",
 	standalone: true,
@@ -66,7 +68,8 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		private _smartEnrollService: SmartEnrollService,
 		private _KYCService: KYCService,
 		private _authService: AuthService,
-		private _passwordlessService: PasswordlessService
+		private _passwordlessService: PasswordlessService,
+		private _translocoService: TranslocoService
 	) {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -407,6 +410,11 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		localStorage.clear();
 
 		window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
+	}
+
+	onLanguageChange(lang: string): void {
+		localStorage.setItem("currentLanguage", lang);
+		this._translocoService.setActiveLang(lang);
 	}
 
 	toggleQrCode(): void {

@@ -176,6 +176,14 @@
 		"get_closer": "Подойдите ближе",
 		"get_closer_subtitle": "Пожалуйста, подойдите немного ближе для лучшего распознавания лица.",
 		"liveness_failed": "Проверка на живое присутствие не пройдена",
+		"face_not_centered": "Лицо не по центру",
+		"face_rotation_too_large": "Угол поворота лица слишком большой",
+		"no_face_detected": "Лицо не обнаружено",
+		"multiple_faces_detected": "Обнаружено несколько лиц",
+		"face_too_far": "Лицо слишком далеко от камеры",
+		"face_too_close": "Лицо слишком близко к камере",
+		"poor_lighting": "Плохое освещение",
+		"face_not_visible": "Лицо нечётко видно",
 		"liveness_error_message": "Проверка на живое присутствие завершилась с ошибкой:<br><strong>{{error}}</strong><br>Хотите попробовать снова?",
 		"person_linked_to_another_email": "Ваши биометрические данные связаны с другим электронным адресом.",
 		"person_already_set": "Биометрическая подпись уже отправлена в другую запись.",
@@ -490,12 +498,14 @@
 		"minimum_comparison": "Минимальная оценка сравнения составляет {{min}}%",
 		"minimum_liveness": "Минимальная оценка живучести составляет {{min}}%",
 		"negative_outcome": "Отрицательный исход",
+		"out_of_attempts_reminder": "Вы исчерпали все попытки, поэтому возможность повторить или продолжить отсюда больше недоступна. Вы можете использовать другое устройство ниже, если хотите начать заново.",
 		"preparing_camera": "Подготовка камеры...",
 		"remaining_attempts": "Оставшиеся попытки: {{attempts}}",
 		"requires_back": "Этот документ требует сканирования обратной стороны. Продолжайте сканировать обратную сторону этого документа.",
 		"successful_outcome": "Успешный исход",
 		"terms_and_cond": "условия и положения",
 		"liveness": {
+			"score_required": "Ваша оценка живости составила {{score}}%. Минимально требуемая — {{min}}%.",
 			"instructions": {
 				"before_continuing": "Перед продолжением:",
 				"look_down_and_left": "Поверните лицо вниз и немного влево",
@@ -531,8 +541,28 @@
 		"failed": {
 			"liveness_registered_incorrectly": "Ваше лицо было неправильно зарегистрировано",
 			"liveness": "Ваше биометрическое изображение получило слишком низкую оценку.",
-			"document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
+			"document_comparison_failed": "Сравнение вашего лица и документа набрало слишком мало баллов"
 		},
+		"validating": "Проверка ваших данных...",
+		"still_validating": "Проверка продолжается, подождите немного...",
+		"almost_there": "Почти готово, проверка {{validation}}...",
+		"taking_longer": "Это занимает больше времени, чем обычно...",
+		"validation_timeout_manual_review": "Проверка занимает слишком много времени. Мы отправили на ручную проверку. Вы получите уведомление по завершении.",
+		"name_mismatch_manual_review": "Имена не совпадают полностью. Мы отправили на ручную проверку. Вы можете продолжить регистрацию и получите уведомление по завершении проверки.",
+		"manual_verification_required": "Требуется ручная проверка",
+		"retry_validation": "Повторить проверку",
+		"name_verification": "проверка имени",
+		"background_check": "проверка по базам",
+		"document_background_check": "проверка документа по базам",
+		"face_comparison": "сравнение лица",
+		"zero_knowledge_proof": "доказательство с нулевым разглашением",
+		"name_verification_mismatch_title": "Обнаружено несовпадение имени",
+		"name_verification_mismatch_description": "Имена в вашем документе не совпадают с официальными записями. Возможны различия в формате, отчествах или вводе данных.",
+		"full_name_match": "Совпадение полного имени",
+		"first_name_match": "Совпадение имени",
+		"last_name_match": "Совпадение фамилии",
+		"proceed_with_manual_verification_prompt": "Вы можете продолжить, запросив ручную проверку. Администратор рассмотрит ваше дело и уведомит о решении.",
+		"proceed_with_manual_verification": "Продолжить с ручной проверкой",
 		"step_titles": {
 			"id": "ID",
 			"id_scanning": "Сканирование ID",
@@ -578,8 +608,8 @@
 				"platform": "Платформа",
 				"extracted_information": "Извлеченная информация",
 				"process_information": "Информация о процессе",
-				"title": "[TO TRANSLATE] Upload Document",
-				"subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
+				"title": "Загрузить документ",
+				"subtitle": "Соберите изображение(я) вашего документа и загрузите ниже"
 			},
 			"scan_document_title": "Сканировать документ",
 			"scan": {
@@ -656,8 +686,8 @@
 			"capturing": "Захват...",
 			"uploading": "Загрузка...",
 			"scanner_info": "Эта демо показывает, как сканирование документов работало бы с настоящей камерой",
-			"capture_successful": "[TO TRANSLATE] Capture successful",
-			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
+			"capture_successful": "Захват выполнен успешно",
+			"document_processed_successfully": "Документ успешно обработан"
 		},
 		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
@@ -883,5 +913,5 @@
 		"zambia": "Zambia",
 		"zimbabwe": "Zimbabwe"
 	},
-	"search": "[TO TRANSLATE] Search"
+	"search": "Поиск"
 }

@@ -84,6 +84,16 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this.projectFlow = this._passwordlessService.currentProjectFlow;
 
         this.promptTemplate = this._smartEnrollService.enrollSettings.promptTemplate;
+
+        // If front side is already uploaded and back is required but missing, start with back side
+        const docValidation = this.appRegistration?.documentValidation;
+        const frontExists = !!docValidation?.url;
+        const backRequired = this.promptTemplate?.requiresBackSide || docValidation?.requiresBackSide;
+        const backMissing = !docValidation?.backUrl;
+
+        if (frontExists && backRequired && backMissing) {
+            this.side = "back";
+        }
     }
 
     ngOnInit(): void {

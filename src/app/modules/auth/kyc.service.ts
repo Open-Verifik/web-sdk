@@ -311,6 +311,15 @@ export class KYCService {
 		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`, data);
 	}
 
+	setDocumentValidationManualVerification(data: {
+		_id: string;
+		reason: string;
+		timeoutType: string;
+		elapsedTime: number;
+	}): Observable<any> {
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/manual-verification`, data);
+	}
+
 	getIdentityImages(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/identity-images`, data);
 	}

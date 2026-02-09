@@ -295,6 +295,18 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.errorFace = {};
 		this.faceIsValid = false;
 
+		// If front side is already uploaded and back is required but missing, start with back side
+		const docValidation = this.appRegistration?.documentValidation;
+		const frontExists = !!docValidation?.url;
+		const backRequired = this.requiresBack;
+		const backMissing = !docValidation?.backUrl;
+
+		if (frontExists && backRequired && backMissing) {
+			this.side = "back";
+		} else {
+			this.side = "front";
+		}
+
 		const IDEAL_A = 1920;
 		const IDEAL_B = 1080;
 

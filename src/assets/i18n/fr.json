@@ -176,6 +176,14 @@
 		"get_closer": "Rapprochez-vous",
 		"get_closer_subtitle": "Veuillez vous rapprocher un peu pour une meilleure reconnaissance faciale.",
 		"liveness_failed": "Échec de la détection de vivacité",
+		"face_not_centered": "Le visage n'est pas centré",
+		"face_rotation_too_large": "L'angle de rotation du visage est trop important",
+		"no_face_detected": "Aucun visage détecté",
+		"multiple_faces_detected": "Plusieurs visages détectés",
+		"face_too_far": "Le visage est trop loin de la caméra",
+		"face_too_close": "Le visage est trop proche de la caméra",
+		"poor_lighting": "Mauvaises conditions d'éclairage",
+		"face_not_visible": "Le visage n'est pas clairement visible",
 		"liveness_error_message": "Le test de vivacité a échoué avec l'erreur suivante :<br><strong>{{error}}</strong><br>Voulez-vous réessayer ?",
 		"person_linked_to_another_email": "Vos données biométriques sont liées à un autre e-mail.",
 		"person_already_set": "La signature biométrique a déjà été soumise à un autre enregistrement.",
@@ -489,12 +497,14 @@
 		"minimum_comparison": "Le score minimum de comparaison est de {{min}}%",
 		"minimum_liveness": "Le score minimum de vivacité est de {{min}}%",
 		"negative_outcome": "Résultat négatif",
+		"out_of_attempts_reminder": "Vous n'avez plus d'essais, donc l'option de réessayer ou de continuer depuis ici n'est plus disponible. Vous pouvez utiliser un autre appareil ci-dessous pour recommencer.",
 		"preparing_camera": "Préparation de la caméra...",
 		"remaining_attempts": "Tentatives restantes : {{attempts}}",
 		"requires_back": "Ce document nécessite une numérisation du verso. Continuez à numériser le côté inverse de ce document.",
 		"successful_outcome": "Résultat positif",
 		"terms_and_cond": "conditions générales",
 		"liveness": {
+			"score_required": "Votre score de vivacité était de {{score}}%. Le minimum requis est {{min}}%.",
 			"instructions": {
 				"before_continuing": "Avant de continuer :",
 				"look_down_and_left": "Tournez le visage vers le bas et légèrement à gauche",
@@ -530,8 +540,28 @@
 		"failed": {
 			"liveness_registered_incorrectly": "Votre visage n'a pas été correctement enregistré",
 			"liveness": "Votre image biométrique a obtenu un score trop bas.",
-			"document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
+			"document_comparison_failed": "La comparaison de votre visage et de votre pièce d'identité a obtenu un score trop faible"
 		},
+		"validating": "Validation de vos informations...",
+		"still_validating": "Toujours en cours de validation, cela peut prendre un moment...",
+		"almost_there": "Presque terminé, validation de {{validation}}...",
+		"taking_longer": "Cela prend plus de temps que d'habitude...",
+		"validation_timeout_manual_review": "La validation prend trop de temps. Nous l'avons marqué pour révision manuelle. Vous serez notifié une fois la révision terminée.",
+		"name_mismatch_manual_review": "Les noms ne correspondent pas parfaitement. Nous l'avons marqué pour révision manuelle. Vous pouvez continuer l'inscription et vous serez notifié une fois la révision terminée.",
+		"manual_verification_required": "Vérification Manuelle Requise",
+		"retry_validation": "Réessayer la Validation",
+		"name_verification": "vérification du nom",
+		"background_check": "vérification des antécédents",
+		"document_background_check": "vérification des antécédents du document",
+		"face_comparison": "comparaison faciale",
+		"zero_knowledge_proof": "preuve à divulgation nulle de connaissance",
+		"name_verification_mismatch_title": "Problème de Vérification du Nom Détecté",
+		"name_verification_mismatch_description": "Les noms sur votre document ne correspondent pas exactement aux dossiers officiels. Cela pourrait être dû au formatage, aux deuxièmes prénoms ou aux différences de saisie de données.",
+		"full_name_match": "Correspondance du Nom Complet",
+		"first_name_match": "Correspondance du Prénom",
+		"last_name_match": "Correspondance du Nom de Famille",
+		"proceed_with_manual_verification_prompt": "Vous pouvez continuer en demandant une vérification manuelle. Un administrateur examinera votre cas et vous serez notifié de la décision.",
+		"proceed_with_manual_verification": "Continuer avec la Vérification Manuelle",
 		"step_titles": {
 			"id": "ID",
 			"id_scanning": "Numérisation d'ID",
@@ -577,8 +607,8 @@
 				"platform": "Plateforme",
 				"extracted_information": "Informations Extraites",
 				"process_information": "Informations sur le Processus",
-				"title": "[TO TRANSLATE] Upload Document",
-				"subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
+				"title": "Télécharger le document",
+				"subtitle": "Collectez l'(les) image(s) de votre document et téléchargez ci-dessous"
 			},
 			"scan_document_title": "Scanner le document",
 			"scan": {
@@ -655,8 +685,8 @@
 			"capturing": "Capture en cours...",
 			"uploading": "Téléchargement...",
 			"scanner_info": "Cette démo montre comment la numérisation de documents fonctionnerait avec une vraie caméra",
-			"capture_successful": "[TO TRANSLATE] Capture successful",
-			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
+			"capture_successful": "Capture réussie",
+			"document_processed_successfully": "Document traité avec succès"
 		},
 		"zkp_face_proof_created": "Votre Preuve à Divulgation Nulle Faciale a été créée avec succès"
 	},
@@ -882,5 +912,5 @@
 		"zambia": "Zambie",
 		"zimbabwe": "Zimbabwe"
 	},
-	"search": "[TO TRANSLATE] Search"
+	"search": "Rechercher"
 }

@@ -28,6 +28,24 @@
 			</div>
 
 			<mat-card-content class="w-full flex flex-col justify-start items-center gap-6">
+				<!-- Manual Verification Banner -->
+				<div
+					class="w-full rounded-2xl p-4 flex items-start gap-3"
+					*ngIf="showManualVerificationBanner"
+					[style.background-color]="'#FEF3C7'"
+					[style.border]="'1px solid #F59E0B'"
+				>
+					<mat-icon class="text-yellow-600 flex-shrink-0">info</mat-icon>
+					<div class="flex-grow">
+						<h5 class="font-medium text-lg mb-1" style="color: #92400E">
+							{{ t("smart_enroll.manual_verification_required") }}
+						</h5>
+						<p class="text-base" style="color: #78350F">
+							{{ manualVerificationMessage }}
+						</p>
+					</div>
+				</div>
+
 				<div class="ocr__errors rounded-2xl flex flex-col gap-4" *ngIf="showErrors">
 					<p class="text-md" *ngIf="errors.mandatory">{{ t("errors.document.mandatory") }}</p>
 					<p class="text-md" *ngIf="errors.incomplete">{{ t("errors.document.incomplete") }}</p>
@@ -114,7 +132,9 @@
 										{{ t("smart_enroll.documents.name_validation_title") }}
 									</h5>
 									<p class="text-base" [style.color]="project?.branding?.txtColor || '#6B7280'">
-										<span *ngIf="loading.nameValidation">{{ t("smart_enroll.documents.validating_names") }}</span>
+										<span *ngIf="loading.nameValidation">
+											{{ validationMessages['nameValidation'] || t("smart_enroll.documents.validating_names") }}
+										</span>
 										<span *ngIf="!loading.nameValidation && !errors.namesDoNotMatch" class="text-green-600">
 											{{ t("smart_enroll.documents.name_validation_success") }}
 										</span>
@@ -122,6 +142,17 @@
 											{{ t("smart_enroll.documents.name_validation_failed") }}
 										</span>
 									</p>
+									<button
+										*ngIf="hasValidationError('nameValidation') && !loading.nameValidation"
+										(click)="retryValidation('nameValidation')"
+										class="mt-2 px-3 py-1 text-sm rounded-md"
+										[style.background-color]="project?.branding?.buttonColor || '#3B82F6'"
+										style="color: white"
+										[disabled]="retryingValidations['nameValidation']"
+									>
+										<mat-icon class="text-sm mr-1" style="vertical-align: middle; font-size: 16px">refresh</mat-icon>
+										{{ t("smart_enroll.retry_validation") }}
+									</button>
 								</div>
 							</div>
 
@@ -159,7 +190,9 @@
 										{{ t("smart_enroll.documents.criminal_validation_title") }}
 									</h5>
 									<p class="text-base" [style.color]="project?.branding?.txtColor || '#6B7280'">
-										<span *ngIf="loading.criminalValidation">{{ t("smart_enroll.documents.running_background_check") }}</span>
+										<span *ngIf="loading.criminalValidation">
+											{{ validationMessages['criminalValidation'] || t("smart_enroll.documents.running_background_check") }}
+										</span>
 										<span *ngIf="!loading.criminalValidation" class="text-green-600">
 											{{ t("smart_enroll.documents.background_check_complete") }}
 										</span>
@@ -199,9 +232,9 @@
 										{{ t("smart_enroll.documents.document_criminal_validation_title") }}
 									</h5>
 									<p class="text-base" [style.color]="project?.branding?.txtColor || '#6B7280'">
-										<span *ngIf="loading.documentCriminalValidation">{{
-											t("smart_enroll.documents.running_document_background_check")
-										}}</span>
+										<span *ngIf="loading.documentCriminalValidation">
+											{{ validationMessages['documentCriminalValidation'] || t("smart_enroll.documents.running_document_background_check") }}
+										</span>
 										<span *ngIf="!loading.documentCriminalValidation" class="text-green-600">
 											{{ t("smart_enroll.documents.document_background_check_complete") }}
 										</span>
@@ -239,7 +272,9 @@
 										{{ t("smart_enroll.documents.zero_knowledge_proof_title") }}
 									</h5>
 									<p class="text-base" [style.color]="project?.branding?.txtColor || '#6B7280'">
-										<span *ngIf="loading.zkProofValidation">{{ t("smart_enroll.documents.creating_zero_knowledge_proof") }}</span>
+										<span *ngIf="loading.zkProofValidation">
+											{{ validationMessages['zkProofValidation'] || t("smart_enroll.documents.creating_zero_knowledge_proof") }}
+										</span>
 										<span *ngIf="!loading.zkProofValidation" class="text-green-600">
 											{{ t("smart_enroll.documents.zero_knowledge_proof_complete") }}
 										</span>
@@ -275,7 +310,9 @@
 										{{ t("smart_enroll.documents.biometric_validation_title") }}
 									</h5>
 									<p class="text-base" [style.color]="project?.branding?.txtColor || '#6B7280'">
-										<span *ngIf="loading.compareValidation">{{ t("smart_enroll.documents.comparing_biometrics") }}</span>
+										<span *ngIf="loading.compareValidation">
+											{{ validationMessages['compareValidation'] || t("smart_enroll.documents.comparing_biometrics") }}
+										</span>
 										<span *ngIf="!loading.compareValidation" class="text-green-600">
 											{{ t("smart_enroll.documents.biometric_comparison_complete") }}
 										</span>
@@ -288,6 +325,114 @@
 			</mat-card-content>
 
 			<div class="flex-grow"></div>
+
+			<!-- Name Mismatch - Manual Verification Option -->
+			<div class="w-full mb-4" *ngIf="hasNameMismatch() && !showManualVerificationBanner">
+				<div
+					class="rounded-xl border shadow-sm p-4"
+					[style.background-color]="project?.branding?.bgColor || '#FFFFFF'"
+					[style.border-color]="project?.branding?.borderColor || '#E5E7EB'"
+				>
+					<div class="flex items-start gap-3">
+						<div
+							class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+							[style.background-color]="(project?.branding?.buttonColor || '#3B82F6') + '18'"
+						>
+							<mat-icon [style.color]="project?.branding?.buttonColor || '#3B82F6'">info</mat-icon>
+						</div>
+						<div class="flex-grow min-w-0">
+							<h5 class="font-semibold text-lg mb-2" [style.color]="project?.branding?.titleColor">
+								{{ t("smart_enroll.name_verification_mismatch_title") }}
+							</h5>
+							<p class="text-sm mb-3" [style.color]="project?.branding?.txtColor || '#6B7280'">
+								{{ t("smart_enroll.name_verification_mismatch_description") }}
+							</p>
+
+							<!-- Name Match Percentages -->
+							<div
+								class="mb-3 p-3 rounded-lg border"
+								style="background-color: #F9FAFB"
+								[style.border-color]="project?.branding?.borderColor || '#E5E7EB'"
+							>
+								<div class="text-sm" [style.color]="project?.branding?.txtColor || '#374151'">
+									<div class="flex justify-between mb-1.5">
+										<span>{{ t("smart_enroll.full_name_match") }}</span>
+										<span class="font-medium">{{ appRegistration?.documentValidation?.fullNameMatchPercentage ?? 0 }}%</span>
+									</div>
+									<div class="flex justify-between mb-1.5">
+										<span>{{ t("smart_enroll.first_name_match") }}</span>
+										<span class="font-medium">{{ appRegistration?.documentValidation?.firstNameMatchPercentage ?? 0 }}%</span>
+									</div>
+									<div class="flex justify-between">
+										<span>{{ t("smart_enroll.last_name_match") }}</span>
+										<span class="font-medium">{{ appRegistration?.documentValidation?.lastNameMatchPercentage ?? 0 }}%</span>
+									</div>
+								</div>
+							</div>
+
+							<p class="text-sm mb-4" [style.color]="project?.branding?.txtColor || '#6B7280'">
+								{{ t("smart_enroll.proceed_with_manual_verification_prompt") }}
+							</p>
+
+							<button
+								(click)="proceedWithManualVerification()"
+								class="w-full min-h-12 rounded-lg font-medium"
+								[style.background-color]="project?.branding?.buttonColor || '#3B82F6'"
+								style="color: white; border: none"
+								[disabled]="loading.nameValidation"
+							>
+								<mat-spinner *ngIf="loading.nameValidation" diameter="20" style="display: inline-block; margin-right: 8px; vertical-align: middle"></mat-spinner>
+								{{ t("smart_enroll.proceed_with_manual_verification") }}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Debug Information Panel (development only; opt-in via toggle) -->
+			<div class="w-full mb-4" *ngIf="isDevelopmentMode && showDebugInfo">
+				<div class="rounded-lg p-4" style="background-color: #FEF3C7; border: 1px solid #F59E0B">
+					<div class="flex items-center justify-between mb-2">
+						<h5 class="font-medium text-lg" style="color: #92400E">
+							🔍 Debug Info - Why Continue is Disabled
+						</h5>
+						<button
+							(click)="toggleDebugInfo()"
+							class="px-2 py-1 text-sm rounded"
+							style="background-color: #F59E0B; color: white"
+						>
+							{{ showDebugInfo ? "Hide Details" : "Show Details" }}
+						</button>
+					</div>
+
+					<div class="text-sm" style="color: #78350F">
+						<div class="mb-2">
+							<strong>Blocking Reasons:</strong>
+							<ul class="list-disc ml-5 mt-1">
+								<li *ngFor="let reason of getContinueBlockingReasons()">{{ reason }}</li>
+								<li *ngIf="getContinueBlockingReasons().length === 0" class="text-green-600">
+									✅ No blocking reasons - Continue should be enabled
+								</li>
+							</ul>
+						</div>
+
+						<div *ngIf="showDebugInfo" class="mt-4 p-3 rounded" style="background-color: white; font-family: monospace">
+							<pre class="text-xs overflow-auto">{{ getDebugInfo() | json }}</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Development-only: link to open debug panel -->
+			<div class="w-full mb-2" *ngIf="isDevelopmentMode && !showDebugInfo">
+				<button
+					type="button"
+					(click)="toggleDebugInfo()"
+					class="text-xs text-gray-500 hover:text-gray-700 underline"
+				>
+					Show debug info
+				</button>
+			</div>
 
 			<mat-card-actions fxLayout="row" fxLayoutAlign="center center" class="w-full gap-4">
 				<button (click)="onPreviousStep()" class="min-h-14 h-14 rounded-lg w-full" color="primary" mat-stroked-button>

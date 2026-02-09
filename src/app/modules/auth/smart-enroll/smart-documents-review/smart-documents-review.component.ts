@@ -7,7 +7,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { catchError, map, of } from "rxjs";
+import { catchError, map, of, timeout, TimeoutError } from "rxjs";
 
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
@@ -115,6 +115,17 @@ export class SmartDocumentsReviewComponent {
 		documentCriminalValidation: true,
 	};
 
+	validationStartTimes: { [key: string]: number } = {};
+	validationMessages: { [key: string]: string } = {};
+	validationMessageIntervals: { [key: string]: ReturnType<typeof setTimeout>[] } = {};
+	validationErrors: { [key: string]: any } = {};
+	showManualVerificationBanner: boolean = false;
+	manualVerificationMessage: string = "";
+	retryingValidations: { [key: string]: boolean } = {};
+
+	private readonly VALIDATION_TIMEOUT = 60000; // 60 seconds
+	private readonly PROGRESS_MESSAGE_INTERVALS = [15000, 30000, 45000]; // 15s, 30s, 45s
+
 	constructor(
 		private _authService: AuthService,
 		private _KYCService: KYCService,
@@ -216,7 +227,7 @@ export class SmartDocumentsReviewComponent {
 	}
 
 	private _executeValidationRequest(
-		validationType: keyof typeof this.loading,
+		validationType: string,
 		serviceCall: () => any,
 		validationResults: Partial<CombinedValidationResponse>,
 		validationErrors: any[],
@@ -224,27 +235,45 @@ export class SmartDocumentsReviewComponent {
 		checkAllCompleted: () => void
 	): void {
 		this.loading[validationType] = true;
+		this.validationStartTimes[validationType] = Date.now();
+
+		// Start progressive feedback messages
+		this._startProgressiveFeedback(validationType);
 
 		serviceCall()
 			.pipe(
+				timeout(this.VALIDATION_TIMEOUT),
 				map((result: any) => ({
 					status: "fulfilled" as const,
 					data: result.data,
 					error: null,
 					reason: null,
 				})),
-				catchError((error: any) =>
-					of({
+				catchError((error: any) => {
+					// Handle timeout specifically
+					if (error instanceof TimeoutError) {
+						return this._handleValidationTimeout(validationType).pipe(
+							map(() => ({
+								status: "rejected" as const,
+								data: null,
+								error: { message: "validation_timeout" },
+								reason: "timeout",
+							}))
+						);
+					}
+
+					return of({
 						status: "rejected" as const,
 						data: null,
 						error: error,
 						reason: error,
-					})
-				)
+					});
+				})
 			)
 			.subscribe({
 				next: (result: any) => {
 					this.loading[validationType] = false;
+					this._clearProgressiveFeedback(validationType);
 
 					(validationResults as Partial<CombinedValidationResponse>)[validationType] = result;
 					completedValidations.add(validationType as string);
@@ -253,13 +282,198 @@ export class SmartDocumentsReviewComponent {
 				},
 				error: (error: any) => {
 					this.loading[validationType] = false;
+					this._clearProgressiveFeedback(validationType);
 
 					validationErrors.push(error);
+					this.validationErrors[validationType] = error;
 					completedValidations.add(validationType as string);
 
 					checkAllCompleted();
 				},
 			});
+	}
+
+	private _handleValidationTimeout(validationType: string): any {
+		const elapsedTime = Date.now() - this.validationStartTimes[validationType];
+
+		// Show manual verification banner
+		this.showManualVerificationBanner = true;
+		this.manualVerificationMessage = this._translocoService.translate("smart_enroll.validation_timeout_manual_review");
+
+		// Call manual verification endpoint if we have a document validation ID
+		if (this.appRegistration.documentValidation?._id) {
+			return this._KYCService.setDocumentValidationManualVerification({
+				_id: this.appRegistration.documentValidation._id,
+				reason: "validation_timeout",
+				timeoutType: validationType,
+				elapsedTime,
+			});
+		}
+
+		return of(null);
+	}
+
+	private _startProgressiveFeedback(validationType: string): void {
+		// Clear any existing messages and intervals
+		this._clearProgressiveFeedback(validationType);
+
+		// Set initial message
+		this.validationMessages[validationType] = this._translocoService.translate("smart_enroll.validating");
+
+		// Store intervals for cleanup
+		this.validationMessageIntervals[validationType] = [];
+
+		// Schedule progressive messages
+		this.PROGRESS_MESSAGE_INTERVALS.forEach((interval, index) => {
+			const timeoutId = setTimeout(() => {
+				if (this.loading[validationType]) {
+					if (index === 0) {
+						// 15s
+						this.validationMessages[validationType] = this._translocoService.translate("smart_enroll.still_validating");
+					} else if (index === 1) {
+						// 30s
+						this.validationMessages[validationType] = this._translocoService.translate("smart_enroll.almost_there", {
+							validation: this._getValidationDisplayName(validationType),
+						});
+					} else if (index === 2) {
+						// 45s
+						this.validationMessages[validationType] = this._translocoService.translate("smart_enroll.taking_longer");
+					}
+				}
+			}, interval);
+
+			this.validationMessageIntervals[validationType].push(timeoutId);
+		});
+	}
+
+	private _clearProgressiveFeedback(validationType: string): void {
+		// Clear all scheduled intervals
+		if (this.validationMessageIntervals[validationType]) {
+			this.validationMessageIntervals[validationType].forEach(clearTimeout);
+			delete this.validationMessageIntervals[validationType];
+		}
+
+		delete this.validationMessages[validationType];
+		delete this.validationStartTimes[validationType];
+	}
+
+	private _getValidationDisplayName(validationType: string): string {
+		const displayNames: { [key: string]: string } = {
+			nameValidation: this._translocoService.translate("smart_enroll.name_verification"),
+			criminalValidation: this._translocoService.translate("smart_enroll.background_check"),
+			documentCriminalValidation: this._translocoService.translate("smart_enroll.document_background_check"),
+			compareValidation: this._translocoService.translate("smart_enroll.face_comparison"),
+			zkProofValidation: this._translocoService.translate("smart_enroll.zero_knowledge_proof"),
+		};
+
+		return displayNames[validationType] || validationType;
+	}
+
+	retryValidation(validationType: string): void {
+		// Clear previous error
+		delete this.validationErrors[validationType];
+		this.retryingValidations[validationType] = true;
+
+		// Trigger the validation again based on type
+		const completedValidations = new Set<string>();
+		const validationResults: Partial<CombinedValidationResponse> = {};
+		const validationErrors: any[] = [];
+
+		const checkAllCompleted = () => {
+			this.retryingValidations[validationType] = false;
+			if (validationErrors.length > 0) {
+				this.validationErrors[validationType] = validationErrors[0];
+			}
+		};
+
+		switch (validationType) {
+			case "nameValidation":
+				if (this.appRegistration.documentValidation?._id) {
+					this._executeValidationRequest(
+						"nameValidation",
+						() =>
+							this._KYCService.updateDocumentValidationNameValidation({
+								_id: this.appRegistration.documentValidation._id,
+								force: true,
+							}),
+						validationResults,
+						validationErrors,
+						completedValidations,
+						checkAllCompleted
+					);
+				}
+				break;
+
+			case "criminalValidation":
+				const informationValidationId =
+					!this.appRegistration.informationValidation
+						? null
+						: typeof this.appRegistration.informationValidation === "string"
+							? this.appRegistration.informationValidation
+							: this.appRegistration.informationValidation?._id;
+
+				if (informationValidationId) {
+					this._executeValidationRequest(
+						"criminalValidation",
+						() =>
+							this._KYCService.updateInformationValidationWithCriminalRecords({
+								_id: informationValidationId,
+								force: true,
+							}),
+						validationResults,
+						validationErrors,
+						completedValidations,
+						checkAllCompleted
+					);
+				}
+				break;
+
+			case "documentCriminalValidation":
+				if (this.appRegistration.documentValidation?._id) {
+					this._executeValidationRequest(
+						"documentCriminalValidation",
+						() =>
+							this._KYCService.updateDocumentValidationWithCriminalRecords({
+								_id: this.appRegistration.documentValidation._id,
+								force: true,
+							}),
+						validationResults,
+						validationErrors,
+						completedValidations,
+						checkAllCompleted
+					);
+				}
+				break;
+
+			case "compareValidation":
+				this._executeValidationRequest(
+					"compareValidation",
+					() => this._KYCService.compareFaces(),
+					validationResults,
+					validationErrors,
+					completedValidations,
+					checkAllCompleted
+				);
+				break;
+
+			case "zkProofValidation":
+				const documentFace = this.appRegistration.documentFace?.base64;
+				const faceBase64 = documentFace ? documentFace.replace(/^data:image\/\w+;base64,/, "") : undefined;
+
+				this._executeValidationRequest(
+					"zkProofValidation",
+					() => this._KYCService.createZkProof(faceBase64),
+					validationResults,
+					validationErrors,
+					completedValidations,
+					checkAllCompleted
+				);
+				break;
+		}
+	}
+
+	hasValidationError(validationType: string): boolean {
+		return !!this.validationErrors[validationType];
 	}
 
 	private _handleError(exception: any): void {
@@ -567,7 +781,138 @@ export class SmartDocumentsReviewComponent {
 		const notInProgress = !this.validationsInProgress;
 		const result = isValid && notInProgress;
 
+		// Debug logging (only in development)
+		if (!result && !environment.production) {
+			const reasons = this.getContinueBlockingReasons();
+			console.log("❌ Continue button disabled. Blocking reasons:", reasons);
+		}
+
 		return result;
+	}
+
+	getContinueBlockingReasons(): string[] {
+		const reasons: string[] = [];
+		const docValidation = this.appRegistration?.documentValidation;
+
+		// Check validation in progress
+		if (this.validationsInProgress) {
+			const inProgressValidations = Object.entries(this.loading)
+				.filter(([key, value]) => value === true)
+				.map(([key]) => key);
+			reasons.push(`Validations still in progress: ${inProgressValidations.join(", ")}`);
+		}
+
+		// Check document validation conditions (from isDocumentValidAndComplete)
+		if (!docValidation && this.projectFlow.onboardingSettings.steps.document === "mandatory") {
+			reasons.push("Document validation is mandatory but not present");
+		}
+
+		if (!docValidation && !this._smartEnrollService.wasSkippedDocument()) {
+			reasons.push("Document validation not present and not skipped");
+		}
+
+		if (docValidation?.requiresBackSide && !docValidation?.backUrl) {
+			reasons.push("Document requires back side but backUrl is missing");
+		}
+
+		if (
+			this.projectFlow.onboardingSettings.document.verifyNames &&
+			docValidation?.infoValidationSupported &&
+			!docValidation?.namesMatch
+		) {
+			reasons.push("Name verification enabled and names do not match");
+		}
+
+		return reasons;
+	}
+
+	/** True when not in production; used to hide debug UI in production. */
+	get isDevelopmentMode(): boolean {
+		return !environment.production;
+	}
+
+	showDebugInfo: boolean = false;
+
+	toggleDebugInfo(): void {
+		this.showDebugInfo = !this.showDebugInfo;
+	}
+
+	getDebugInfo(): any {
+		const docValidation = this.appRegistration?.documentValidation;
+		return {
+			canContinue: this.canContinue(),
+			blockingReasons: this.getContinueBlockingReasons(),
+			validationsInProgress: this.validationsInProgress,
+			loadingStates: this.loading,
+			documentValidation: {
+				exists: !!docValidation,
+				requiresBackSide: docValidation?.requiresBackSide,
+				hasBackUrl: !!docValidation?.backUrl,
+				imageValidated: docValidation?.imageValidated,
+				namesMatch: docValidation?.namesMatch,
+				infoValidationSupported: docValidation?.infoValidationSupported,
+				nameMatchPercentages: {
+					fullName: docValidation?.fullNameMatchPercentage || 0,
+					firstName: docValidation?.firstNameMatchPercentage || 0,
+					lastName: docValidation?.lastNameMatchPercentage || 0,
+				},
+			},
+			projectFlow: {
+				documentStep: this.projectFlow.onboardingSettings.steps.document,
+				verifyNames: this.projectFlow.onboardingSettings.document.verifyNames,
+			},
+		};
+	}
+
+	proceedWithManualVerification(): void {
+		if (!this.appRegistration?.documentValidation?._id) return;
+
+		// Show loading state
+		this.loading.nameValidation = true;
+
+		this._KYCService.setDocumentValidationManualVerification({
+			_id: this.appRegistration.documentValidation._id,
+			reason: "name_mismatch",
+			timeoutType: "nameValidation",
+			elapsedTime: 0,
+		}).subscribe({
+			next: (response) => {
+				// Update local state
+				if (response?.data) {
+					this.appRegistration.documentValidation.status = response.data.status;
+				}
+
+				// Show manual verification banner
+				this.showManualVerificationBanner = true;
+				this.manualVerificationMessage = this._translocoService.translate(
+					"smart_enroll.name_mismatch_manual_review"
+				);
+
+				// Clear the name match error so user can continue
+				delete this.errors.namesDoNotMatch;
+				this.showErrors = Object.keys(this.errors).length > 0;
+
+				this.loading.nameValidation = false;
+
+				// Allow user to continue
+				this._smartEnrollService.goToNextStep();
+			},
+			error: (error) => {
+				if (!environment.production) {
+					console.error("Failed to set manual verification:", error);
+				}
+				this.loading.nameValidation = false;
+			},
+		});
+	}
+
+	hasNameMismatch(): boolean {
+		return (
+			this.projectFlow.onboardingSettings.document.verifyNames &&
+			this.appRegistration?.documentValidation?.infoValidationSupported &&
+			!this.appRegistration?.documentValidation?.namesMatch &&
+			!this.loading.nameValidation
+		);
 	}
 
 	shouldShowValidationSection(): boolean {
@@ -599,6 +944,17 @@ export class SmartDocumentsReviewComponent {
 	}
 
 	onPreviousStep(): void {
-		this._smartEnrollService.goToPreviousStep();
+		// If document requires back side and back is not uploaded yet,
+		// navigate back to document upload step instead of going to previous step
+		const docValidation = this.appRegistration?.documentValidation;
+		const requiresBackAndMissing = docValidation?.requiresBackSide && !docValidation?.backUrl;
+
+		if (requiresBackAndMissing) {
+			// Go back to document step to upload the back side
+			this._smartEnrollService.skipToStep("document");
+		} else {
+			// Normal previous step navigation
+			this._smartEnrollService.goToPreviousStep();
+		}
 	}
 }

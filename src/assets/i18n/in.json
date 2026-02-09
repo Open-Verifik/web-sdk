@@ -176,6 +176,14 @@
 		"get_closer": "थोड़ा और पास आएं",
 		"get_closer_subtitle": "कृपया बेहतर चेहरे की पहचान के लिए थोड़ा और पास आएं।",
 		"liveness_failed": "लाइवनेस डिटेक्शन असफल हुआ",
+		"face_not_centered": "चेहरा केंद्र में नहीं है",
+		"face_rotation_too_large": "चेहरे का घुमाव कोण बहुत बड़ा है",
+		"no_face_detected": "कोई चेहरा नहीं मिला",
+		"multiple_faces_detected": "एक से अधिक चेहरे मिले",
+		"face_too_far": "चेहरा कैमरे से बहुत दूर है",
+		"face_too_close": "चेहरा कैमरे से बहुत पास है",
+		"poor_lighting": "खराब रोशनी की स्थिति",
+		"face_not_visible": "चेहरा स्पष्ट नहीं दिख रहा है",
 		"liveness_error_message": "लाइवनेस चेक निम्नलिखित त्रुटि के साथ असफल हुआ:<br><strong>{{error}}</strong><br>क्या आप पुनः प्रयास करना चाहेंगे?",
 		"person_linked_to_another_email": "आपकी बायोमेट्रिक डेटा किसी अन्य ईमेल से जुड़ी हुई है।",
 		"person_already_set": "बायोमेट्रिक हस्ताक्षर पहले से ही किसी अन्य रिकॉर्ड में सबमिट किया जा चुका है।",
@@ -490,12 +498,14 @@
 		"minimum_comparison": "न्यूनतम तुलना स्कोर {{min}}%",
 		"minimum_liveness": "न्यूनतम जीवंतता स्कोर {{min}}%",
 		"negative_outcome": "नकारात्मक परिणाम",
+		"out_of_attempts_reminder": "आपके प्रयास समाप्त हो गए हैं, इसलिए यहाँ से पुनः प्रयास करने या जारी रखने का विकल्प अब उपलब्ध नहीं है। आप नीचे दूसरे डिवाइस का उपयोग कर सकते हैं यदि आप फिर से शुरू करना चाहते हैं।",
 		"preparing_camera": "कैमरा तैयार करना...",
 		"remaining_attempts": "शेष प्रयास: {{attempts}}",
 		"requires_back": "इस दस्तावेज़ के पिछले हिस्से को स्कैन करने की आवश्यकता है। कृपया इस दस्तावेज़ के उलट हिस्से को स्कैन करना जारी रखें।",
 		"successful_outcome": "सफल परिणाम",
 		"terms_and_cond": "नियम और शर्तें",
 		"liveness": {
+			"score_required": "आपका लाइवनेस स्कोर {{score}}% था। न्यूनतम आवश्यक {{min}}% है।",
 			"instructions": {
 				"before_continuing": "जारी रखने से पहले:",
 				"look_down_and_left": "चेहरा नीचे और बाईं ओर थोड़ा मोड़ें",
@@ -531,8 +541,28 @@
 		"failed": {
 			"liveness_registered_incorrectly": "आपका चेहरा सही ढंग से पंजीकृत नहीं किया गया",
 			"liveness": "आपकी बायोमेट्रिक छवि का स्कोर बहुत कम था।",
-			"document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
+			"document_comparison_failed": "आपके चेहरे और आईडी की तुलना का स्कोर बहुत कम था"
 		},
+		"validating": "आपकी जानकारी सत्यापित की जा रही है...",
+		"still_validating": "अभी भी सत्यापित हो रहा है, कृपया प्रतीक्षा करें...",
+		"almost_there": "लगभग हो गया, {{validation}} सत्यापित हो रहा है...",
+		"taking_longer": "यह सामान्य से अधिक समय ले रहा है...",
+		"validation_timeout_manual_review": "सत्यापन में बहुत समय लग रहा है। हमने इसे मैनुअल समीक्षा के लिए चिह्नित कर दिया है। समीक्षा पूर्ण होने पर आपको सूचित किया जाएगा।",
+		"name_mismatch_manual_review": "नाम पूरी तरह से मेल नहीं खाते। हमने इसे मैनुअल समीक्षा के लिए चिह्नित कर दिया है। आप पंजीकरण जारी रख सकते हैं और समीक्षा पूर्ण होने पर सूचित किए जाएंगे।",
+		"manual_verification_required": "मैनुअल सत्यापन आवश्यक",
+		"retry_validation": "सत्यापन पुनः प्रयास करें",
+		"name_verification": "नाम सत्यापन",
+		"background_check": "पृष्ठभूमि जांच",
+		"document_background_check": "दस्तावेज़ पृष्ठभूमि जांच",
+		"face_comparison": "चेहरा तुलना",
+		"zero_knowledge_proof": "जीरो नॉलेज प्रूफ",
+		"name_verification_mismatch_title": "नाम सत्यापन समस्या का पता चला",
+		"name_verification_mismatch_description": "आपके दस्तावेज़ पर नाम आधिकारिक रिकॉर्ड से बिल्कुल मेल नहीं खाते। यह फॉर्मैटिंग, मध्य नाम या डेटा प्रविष्टि अंतर के कारण हो सकता है।",
+		"full_name_match": "पूर्ण नाम मिलान",
+		"first_name_match": "पहला नाम मिलान",
+		"last_name_match": "उपनाम मिलान",
+		"proceed_with_manual_verification_prompt": "आप मैनुअल सत्यापन का अनुरोध करके आगे बढ़ सकते हैं। एक व्यवस्थापक आपके मामले की समीक्षा करेगा और आपको निर्णय की सूचना दी जाएगी।",
+		"proceed_with_manual_verification": "मैनुअल सत्यापन के साथ आगे बढ़ें",
 		"step_titles": {
 			"id": "आईडी",
 			"id_scanning": "आईडी स्कैनिंग",
@@ -578,8 +608,8 @@
 				"platform": "प्लेटफ़ॉर्म",
 				"extracted_information": "निकाली गई जानकारी",
 				"process_information": "प्रक्रिया की जानकारी",
-				"title": "[TO TRANSLATE] Upload Document",
-				"subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
+				"title": "दस्तावेज़ अपलोड करें",
+				"subtitle": "अपने दस्तावेज़ की छवि(ओं) को एकत्रित करें और नीचे अपलोड करें"
 			},
 			"scan_document_title": "दस्तावेज़ स्कैन करें",
 			"scan": {
@@ -656,8 +686,8 @@
 			"capturing": "कैप्चर हो रहा है...",
 			"uploading": "अपलोड हो रहा है...",
 			"scanner_info": "यह डेमो दिखाता है कि वास्तविक कैमरे के साथ दस्तावेज़ स्कैनिंग कैसे काम करेगी",
-			"capture_successful": "[TO TRANSLATE] Capture successful",
-			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
+			"capture_successful": "कैप्चर सफल",
+			"document_processed_successfully": "दस्तावेज़ सफलतापूर्वक संसाधित हो गया"
 		},
 		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
@@ -883,5 +913,5 @@
 		"zambia": "ज़ाम्बिया",
 		"zimbabwe": "ज़िम्बाब्वे"
 	},
-	"search": "[TO TRANSLATE] Search"
+	"search": "खोज"
 }

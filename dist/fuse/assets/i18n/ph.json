@@ -176,6 +176,14 @@
 		"get_closer": "Lumapit pa",
 		"get_closer_subtitle": "Pakilapit pa nang kaunti para sa mas mahusay na pagkilala ng mukha.",
 		"liveness_failed": "Nabigo ang liveness detection",
+		"face_not_centered": "Ang mukha ay wala sa gitna",
+		"face_rotation_too_large": "Ang anggulo ng pag-ikot ng mukha ay masyadong malaki",
+		"no_face_detected": "Walang mukha na nakita",
+		"multiple_faces_detected": "Maraming mukha ang nakita",
+		"face_too_far": "Ang mukha ay masyadong malayo sa camera",
+		"face_too_close": "Ang mukha ay masyadong malapit sa camera",
+		"poor_lighting": "Mahinang kondisyon ng ilaw",
+		"face_not_visible": "Hindi malinaw na nakikita ang mukha",
 		"liveness_error_message": "Ang liveness check ay nabigo dahil sa sumusunod na error:<br><strong>{{error}}</strong><br>Gusto mo bang subukan ulit?",
 		"person_linked_to_another_email": "Ang iyong biometrics ay konektado sa ibang email.",
 		"person_already_set": "Ang biometric signature ay naisumite na sa ibang rekord.",
@@ -490,12 +498,14 @@
 		"minimum_comparison": "Ang pinakamababang iskor ng paghahambing ay {{min}}%",
 		"minimum_liveness": "Ang pinakamababang iskor ng buhay ay {{min}}%",
 		"negative_outcome": "Negatibong Resulta",
+		"out_of_attempts_reminder": "Naubos na ang iyong mga pagtatangka, kaya wala nang opsyon na subukan muli o magpatuloy mula rito. Maaari kang gumamit ng ibang device sa ibaba kung gusto mong magsimula ulit.",
 		"preparing_camera": "Pinaghahandaan ang camera...",
 		"remaining_attempts": "Natitirang mga Pagtatangka: {{attempts}}",
 		"requires_back": "Kinakailangan ng dokumentong ito ang pag-scan ng likod na bahagi. Magpatuloy sa pag-scan ng likurang bahagi ng dokumentong ito.",
 		"successful_outcome": "Matagumpay na Resulta",
 		"terms_and_cond": "mga tuntunin at kondisyon",
 		"liveness": {
+			"score_required": "Ang iyong liveness score ay {{score}}%. Ang minimum na kinakailangan ay {{min}}%.",
 			"instructions": {
 				"before_continuing": "Bago magpatuloy:",
 				"look_down_and_left": "Iharap ang mukha pababa at bahagyang pakaliwa",
@@ -531,8 +541,28 @@
 		"failed": {
 			"liveness_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong mukha",
 			"liveness": "Mababa ang iskor ng iyong imahe ng biometric.",
-			"document_comparison_failed": "[TO TRANSLATE] A comparison of your face and ID scored too low"
+			"document_comparison_failed": "Napakababa ng score ng paghahambing ng iyong mukha at ID"
 		},
+		"validating": "Sinusuri ang iyong impormasyon...",
+		"still_validating": "Sinusuri pa, sandali lang...",
+		"almost_there": "Malapit na, sinusuri ang {{validation}}...",
+		"taking_longer": "Mas tumatagal ito kaysa karaniwan...",
+		"validation_timeout_manual_review": "Masyadong tumatagal ang pagsusuri. Minarkahan namin ito para sa manual na pagsusuri. Maaabisuhan ka kapag tapos na ang pagsusuri.",
+		"name_mismatch_manual_review": "Hindi eksaktong magkatugma ang mga pangalan. Minarkahan namin ito para sa manual na pagsusuri. Maaari kang magpatuloy sa rehistrasyon at maaabisuhan ka kapag tapos na ang pagsusuri.",
+		"manual_verification_required": "Kailangan ang Manual na Pagsusuri",
+		"retry_validation": "Subukang Muli ang Pagsusuri",
+		"name_verification": "pagsusuri ng pangalan",
+		"background_check": "pagsusuri ng background",
+		"document_background_check": "pagsusuri ng background ng dokumento",
+		"face_comparison": "paghahambing ng mukha",
+		"zero_knowledge_proof": "zero knowledge proof",
+		"name_verification_mismatch_title": "Nadetect ang Isyu sa Pagsusuri ng Pangalan",
+		"name_verification_mismatch_description": "Ang mga pangalan sa iyong dokumento ay hindi eksaktong tumutugma sa opisyal na mga talaan. Maaaring dahil sa format, gitnang pangalan, o mga pagkakaiba sa pag-input ng data.",
+		"full_name_match": "Pagtutugma ng Buong Pangalan",
+		"first_name_match": "Pagtutugma ng Pangalan",
+		"last_name_match": "Pagtutugma ng Apelyido",
+		"proceed_with_manual_verification_prompt": "Maaari kang magpatuloy sa pamamagitan ng pag-request ng manual na pagsusuri. Susuriin ng isang admin ang iyong kaso at maaabisuhan ka ng desisyon.",
+		"proceed_with_manual_verification": "Magpatuloy sa Manual na Pagsusuri",
 		"step_titles": {
 			"id": "ID",
 			"id_scanning": "Pag-scan ng ID",
@@ -578,8 +608,8 @@
 				"platform": "Platforma",
 				"extracted_information": "Na-extract na Impormasyon",
 				"process_information": "Impormasyon sa Proseso",
-				"title": "[TO TRANSLATE] Upload Document",
-				"subtitle": "[TO TRANSLATE] Collect image(s) of your document and upload below"
+				"title": "Mag-upload ng Dokumento",
+				"subtitle": "Mangolekta ng (mga) larawan ng iyong dokumento at i-upload sa ibaba"
 			},
 			"scan_document_title": "I-scan ang dokumento",
 			"scan": {
@@ -656,8 +686,8 @@
 			"capturing": "Kinukuha...",
 			"uploading": "Nag-upload...",
 			"scanner_info": "Ang demo na ito ay nagpapakita kung paano gagana ang document scanning gamit ang tunay na camera",
-			"capture_successful": "[TO TRANSLATE] Capture successful",
-			"document_processed_successfully": "[TO TRANSLATE] Document processed successfully"
+			"capture_successful": "Matagumpay ang pag-capture",
+			"document_processed_successfully": "Matagumpay na na-proseso ang dokumento"
 		},
 		"zkp_face_proof_created": "Your Zero Knowledge Face Proof created successfully"
 	},
@@ -883,5 +913,5 @@
 		"zambia": "Zambia",
 		"zimbabwe": "Zimbabwe"
 	},
-	"search": "[TO TRANSLATE] Search"
+	"search": "Maghanap"
 }
