@@ -29,8 +29,10 @@ export class SmartErrorDisplayComponent implements OnDestroy {
         livenessMinScore?: number;
     };
     @Input("source") source: "face" | "document";
+    @Input("cameraQualityHint") cameraQualityHint: boolean = false;
 
     @Output("onClearError") onClearError: EventEmitter<void> = new EventEmitter();
+    @Output("onSwitchToMobile") onSwitchToMobile: EventEmitter<void> = new EventEmitter();
 
     private smartEnrollSettings$ = new Subscription();
 
@@ -115,5 +117,9 @@ export class SmartErrorDisplayComponent implements OnDestroy {
 
     tryAgain(): void {
         this.onClearError.next();
+    }
+
+    switchToMobile(): void {
+        this.onSwitchToMobile.next();
     }
 }

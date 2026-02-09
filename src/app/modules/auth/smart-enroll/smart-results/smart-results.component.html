@@ -120,70 +120,98 @@
 					<div class="space-y-3">
 						<!-- Document Check -->
 						<div
-							class="flex items-center gap-4 p-4 rounded-xl transition-colors"
-							[ngClass]="appRegistration.documentValidation && !comparisonFailed ? 'bg-green-50' : 'bg-red-50'"
+							class="flex flex-col gap-3 p-4 rounded-xl transition-colors"
+							[ngClass]="documentSkipped ? 'bg-gray-50/50 border border-gray-100' : (appRegistration.documentValidation && !comparisonFailed ? 'bg-green-50' : 'bg-red-50')"
 							*ngIf="projectFlow.onboardingSettings.steps.document !== 'skip'"
 						>
-							<div
-								class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
-								[ngClass]="appRegistration.documentValidation && !comparisonFailed ? 'bg-green-500' : 'bg-red-500'"
-							>
-								<mat-icon class="text-white icon-size-4" *ngIf="appRegistration.documentValidation && !comparisonFailed"
-									>check</mat-icon
+							<div class="flex items-center gap-4">
+								<div
+									class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
+									[ngClass]="documentSkipped ? 'bg-gray-400' : (appRegistration.documentValidation && !comparisonFailed ? 'bg-green-500' : 'bg-red-500')"
 								>
-								<mat-icon class="text-white icon-size-4" *ngIf="!appRegistration.documentValidation || comparisonFailed"
-									>close</mat-icon
-								>
-							</div>
+									<mat-icon class="text-white icon-size-4" *ngIf="documentSkipped" svgIcon="heroicons_outline:clock"></mat-icon>
+									<mat-icon class="text-white icon-size-4" *ngIf="!documentSkipped && appRegistration.documentValidation && !comparisonFailed">check</mat-icon>
+									<mat-icon class="text-white icon-size-4" *ngIf="!documentSkipped && (!appRegistration.documentValidation || comparisonFailed)">close</mat-icon>
+								</div>
 
-							<span
-								class="text-[15px] font-medium flex-1"
-								[ngClass]="appRegistration.documentValidation && !comparisonFailed ? 'text-green-900' : 'text-red-900'"
-							>
-								<span *ngIf="appRegistration.documentValidation && !comparisonFailed">
-									{{ t("smart_enroll.id_was_registered") }}
+								<span
+									class="text-[15px] font-medium flex-1"
+									[ngClass]="documentSkipped ? 'text-gray-700' : (appRegistration.documentValidation && !comparisonFailed ? 'text-green-900' : 'text-red-900')"
+								>
+									<span *ngIf="documentSkipped">
+										{{ t("smart_enroll.you_skipped_document") }}
+									</span>
+									<span *ngIf="!documentSkipped && appRegistration.documentValidation && !comparisonFailed">
+										{{ t("smart_enroll.id_was_registered") }}
+									</span>
+									<span *ngIf="!documentSkipped && appRegistration.documentValidation && comparisonFailed">
+										{{ t("smart_enroll.failed.document_comparison_failed") }}
+									</span>
+									<span *ngIf="!documentSkipped && !appRegistration.documentValidation">
+										{{ t("smart_enroll.id_was_not_registered") }}
+									</span>
 								</span>
-								<span *ngIf="appRegistration.documentValidation && comparisonFailed">
-									{{ t("smart_enroll.failed.document_comparison_failed") }}
-								</span>
-								<span *ngIf="!appRegistration.documentValidation">
-									{{ t("smart_enroll.id_was_not_registered") }}
-								</span>
-							</span>
+							</div>
+							<!-- Skipped: note + action to complete document -->
+							<ng-container *ngIf="documentSkipped && !errorResult">
+								<p class="text-sm text-gray-600 pl-10 leading-relaxed">{{ t("smart_enroll.completed_without_document_note") }}</p>
+								<button
+									(click)="goBackToStep('document')"
+									class="self-start ml-10 h-10 px-4 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+									mat-button
+									type="button"
+								>
+									{{ t("smart_enroll.complete_document_verification") }}
+								</button>
+							</ng-container>
 						</div>
 
 						<!-- Biometric Check -->
 						<div
-							class="flex items-center gap-4 p-4 rounded-xl transition-colors"
-							[ngClass]="appRegistration.biometricValidation && !livenessFailed ? 'bg-green-50' : 'bg-red-50'"
+							class="flex flex-col gap-3 p-4 rounded-xl transition-colors"
+							[ngClass]="biometricSkipped ? 'bg-gray-50/50 border border-gray-100' : (appRegistration.biometricValidation && !livenessFailed ? 'bg-green-50' : 'bg-red-50')"
 							*ngIf="projectFlow.onboardingSettings.steps.liveness !== 'skip'"
 						>
-							<div
-								class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
-								[ngClass]="appRegistration.biometricValidation && !livenessFailed ? 'bg-green-500' : 'bg-red-500'"
-							>
-								<mat-icon class="text-white icon-size-4" *ngIf="appRegistration.biometricValidation && !livenessFailed"
-									>check</mat-icon
+							<div class="flex items-center gap-4">
+								<div
+									class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
+									[ngClass]="biometricSkipped ? 'bg-gray-400' : (appRegistration.biometricValidation && !livenessFailed ? 'bg-green-500' : 'bg-red-500')"
 								>
-								<mat-icon class="text-white icon-size-4" *ngIf="!appRegistration.biometricValidation || livenessFailed"
-									>close</mat-icon
-								>
-							</div>
+									<mat-icon class="text-white icon-size-4" *ngIf="biometricSkipped" svgIcon="heroicons_outline:clock"></mat-icon>
+									<mat-icon class="text-white icon-size-4" *ngIf="!biometricSkipped && appRegistration.biometricValidation && !livenessFailed">check</mat-icon>
+									<mat-icon class="text-white icon-size-4" *ngIf="!biometricSkipped && (!appRegistration.biometricValidation || livenessFailed)">close</mat-icon>
+								</div>
 
-							<span
-								class="text-[15px] font-medium flex-1"
-								[ngClass]="appRegistration.biometricValidation && !livenessFailed ? 'text-green-900' : 'text-red-900'"
-							>
-								<span *ngIf="appRegistration.biometricValidation && !livenessFailed">
-									{{ t("smart_enroll.face_was_registered") }}
+								<span
+									class="text-[15px] font-medium flex-1"
+									[ngClass]="biometricSkipped ? 'text-gray-700' : (appRegistration.biometricValidation && !livenessFailed ? 'text-green-900' : 'text-red-900')"
+								>
+									<span *ngIf="biometricSkipped">
+										{{ t("smart_enroll.you_skipped_face") }}
+									</span>
+									<span *ngIf="!biometricSkipped && appRegistration.biometricValidation && !livenessFailed">
+										{{ t("smart_enroll.face_was_registered") }}
+									</span>
+									<span *ngIf="!biometricSkipped && appRegistration.biometricValidation && livenessFailed">
+										{{ t("smart_enroll.failed.liveness_registered_incorrectly") }}
+									</span>
+									<span *ngIf="!biometricSkipped && !appRegistration.biometricValidation">
+										{{ t("smart_enroll.face_was_not_registered") }}
+									</span>
 								</span>
-								<span *ngIf="appRegistration.biometricValidation && livenessFailed">
-									{{ t("smart_enroll.failed.liveness_registered_incorrectly") }}
-								</span>
-								<span *ngIf="!appRegistration.biometricValidation">
-									{{ t("smart_enroll.face_was_not_registered") }}
-								</span>
-							</span>
+							</div>
+							<!-- Skipped: note + action to complete face verification -->
+							<ng-container *ngIf="biometricSkipped && !errorResult">
+								<p class="text-sm text-gray-600 pl-10 leading-relaxed">{{ t("smart_enroll.completed_without_face_note") }}</p>
+								<button
+									(click)="goBackToStep('biometric')"
+									class="self-start ml-10 h-10 px-4 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+									mat-button
+									type="button"
+								>
+									{{ t("smart_enroll.complete_face_verification") }}
+								</button>
+							</ng-container>
 						</div>
 
 						<!-- Zero Knowledge Proof Check -->

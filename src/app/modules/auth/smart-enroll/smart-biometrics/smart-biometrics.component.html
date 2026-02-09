@@ -91,6 +91,7 @@
 			<smart-liveness
 				(onImageScan)="onImageScan($event)"
 				(skipStep)="skipStep()"
+				(onCameraQualityLow)="onCameraQualityLow()"
 				[retry]="retrySubject.asObservable()"
 				[successfulUpload]="successfulUploadSubject.asObservable()"
 			></smart-liveness>
@@ -108,6 +109,69 @@
 
 	<!-- Error Display -->
 	<div class="flex justify-center items-center" *ngIf="errorResult">
-		<smart-error-display (onClearError)="retry()" [errorContent]="errorContent" class="flex relative z-50" source="face"></smart-error-display>
+		<smart-error-display
+			(onClearError)="retry()"
+			(onSwitchToMobile)="openMobileQRModal()"
+			[cameraQualityHint]="cameraQualityLow"
+			[errorContent]="errorContent"
+			class="flex relative z-50"
+			source="face"
+		></smart-error-display>
+	</div>
+
+	<!-- Mobile QR Modal (for switching to mobile from error screen) -->
+	<div
+		*ngIf="showMobileQRModal"
+		class="fixed inset-0 z-50 flex items-center justify-center p-4"
+		@fadeIn
+	>
+		<!-- Backdrop -->
+		<div
+			class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+			(click)="closeMobileQRModal()"
+		></div>
+
+		<!-- Modal Content -->
+		<div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden" @fadeIn>
+			<div class="p-8">
+				<!-- Icon -->
+				<div class="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-50 flex items-center justify-center">
+					<mat-icon class="!w-8 !h-8 text-blue-500" svgIcon="heroicons_outline:device-phone-mobile"></mat-icon>
+				</div>
+
+				<!-- Title -->
+				<h2 class="text-xl font-bold text-gray-900 text-center mb-2">
+					{{ t("smart_enroll.camera_quality_modal.qr_title") }}
+				</h2>
+
+				<!-- Description -->
+				<p class="text-sm text-gray-500 text-center mb-6">
+					{{ t("smart_enroll.camera_quality_modal.qr_description") }}
+				</p>
+
+				<!-- QR Code -->
+				<div class="flex justify-center items-center mb-6">
+					<div class="bg-white p-4 rounded-xl shadow-inner border border-gray-100">
+						<mat-progress-spinner
+							*ngIf="loadingQRCode"
+							mode="indeterminate"
+							diameter="48"
+						></mat-progress-spinner>
+						<canvas #qrCodeCanvas [class.hidden]="loadingQRCode"></canvas>
+					</div>
+				</div>
+
+				<!-- Close Button -->
+				<button
+					(click)="closeMobileQRModal()"
+					class="w-full h-12 rounded-xl font-medium text-sm text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+					mat-button
+					type="button"
+				>
+					<mat-icon class="!w-5 !h-5">close</mat-icon>
+					{{ t("close") }}
+				</button>
+			</div>
+		</div>
 	</div>
 </div>

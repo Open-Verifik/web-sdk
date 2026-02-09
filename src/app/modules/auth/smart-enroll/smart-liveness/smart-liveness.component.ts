@@ -20,10 +20,12 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import * as faceapi from "@vladmandic/face-api";
+import QRCode from "qrcode";
 import { Observable, Subject, takeUntil } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { environment } from "environments/environment";
 import { MediaStreamService } from "app/media-stream.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../../kyc.service";
@@ -122,9 +124,11 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     @ViewChild("videoElement") public videoElement: ElementRef<HTMLVideoElement>;
     @ViewChild("videoCanvas") public videoCanvas: ElementRef<HTMLCanvasElement>;
     @ViewChild("viewportContainer") public viewportContainer: ElementRef<HTMLElement>;
+    @ViewChild("qrCodeCanvas") public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
     @Output("onImageScan") onImageScan: EventEmitter<ImageScan> = new EventEmitter<ImageScan>();
     @Output("skipStep") skipStep: EventEmitter<void> = new EventEmitter<void>();
+    @Output("onCameraQualityLow") onCameraQualityLow: EventEmitter<void> = new EventEmitter<void>();
 
     @Input() retry: Observable<void>;
     @Input() successfulUpload: Observable<void>;
@@ -156,6 +160,13 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
     video: VideoStatus = { height: 0, width: 0 };
     viewport: VideoStatus = { height: 0, width: 0 };
     videoOptions: any = {};
+
+    // Camera quality modal state
+    showCameraQualityModal: boolean = false;
+    cameraQualityModalState: "warning" | "qr" = "warning";
+    detectedResolution: { width: number; height: number } | null = null;
+    loadingQRCode: boolean = false;
+    pendingResolution: Resolution | null = null;
 
     constructor(
         private _changeDetectionRef: ChangeDetectorRef,
@@ -617,14 +628,37 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         const { height: videoHeight, width: videoWidth } = resolution;
 
         this.camera.quality = this._checkQuality(videoHeight, videoWidth);
+        this.detectedResolution = { width: videoWidth, height: videoHeight };
 
-        if (!this.camera.quality) return;
+        // QA: force camera quality modal for testing (see environment.forceCameraQualityModal)
+        if (environment.forceCameraQualityModal) {
+            this.camera.quality = false;
+        }
+
+        if (!this.camera.quality) {
+            // Store resolution for later use and show warning modal
+            this.pendingResolution = resolution;
+            this.showCameraQualityModal = true;
+            this.cameraQualityModalState = "warning";
+            this.onCameraQualityLow.emit();
+            this._changeDetectionRef.detectChanges();
+            return;
+        }
+
+        this._setupCameraWithResolution(resolution);
+    }
+
+    /**
+     * Sets up the camera with the given resolution and starts capturing.
+     */
+    private _setupCameraWithResolution(resolution: Resolution): void {
+        const { height: videoHeight, width: videoWidth } = resolution;
 
         this._setAngleThresholds();
 
         this.videoOptions = {
-            aspectRatio: { exact: this.resolution.aspectRatio },
-            deviceId: this.resolution.deviceId,
+            aspectRatio: { exact: resolution.aspectRatio },
+            deviceId: resolution.deviceId,
             facingMode: "user",
             zoom: { ideal: 0 },
             height: { exact: videoHeight },
@@ -632,6 +666,74 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         };
 
         this._startCamera();
+    }
+
+    /**
+     * Closes the camera quality modal and continues with liveness detection anyway.
+     */
+    continueWithLowQuality(): void {
+        this.showCameraQualityModal = false;
+        this.cameraQualityModalState = "warning";
+
+        if (this.pendingResolution) {
+            this._setupCameraWithResolution(this.pendingResolution);
+            this.pendingResolution = null;
+        }
+
+        this._changeDetectionRef.detectChanges();
+    }
+
+    /**
+     * Switches to QR code view for mobile handoff.
+     */
+    showMobileQRCode(): void {
+        this.cameraQualityModalState = "qr";
+        this.loadingQRCode = true;
+        this._changeDetectionRef.detectChanges();
+
+        // Wait for ViewChild to be available
+        setTimeout(() => {
+            if (this.qrCodeCanvas) {
+                this._generateQRCode(this.qrCodeCanvas.nativeElement, window.location.href);
+            }
+        }, 100);
+    }
+
+    /**
+     * Goes back from QR view to warning view.
+     */
+    backToWarning(): void {
+        this.cameraQualityModalState = "warning";
+        this._changeDetectionRef.detectChanges();
+    }
+
+    /**
+     * Closes the modal without continuing.
+     */
+    closeCameraQualityModal(): void {
+        this.showCameraQualityModal = false;
+        this.cameraQualityModalState = "warning";
+        this.pendingResolution = null;
+        this._changeDetectionRef.detectChanges();
+    }
+
+    /**
+     * Generates a QR code on the given canvas.
+     */
+    private async _generateQRCode(canvas: HTMLCanvasElement, text: string): Promise<void> {
+        try {
+            await QRCode.toCanvas(canvas, text, { 
+                errorCorrectionLevel: "L",
+                width: 200,
+                margin: 2
+            });
+            this.loadingQRCode = false;
+            this._changeDetectionRef.detectChanges();
+        } catch (e) {
+            console.error("Failed to generate QR code:", e);
+            this.loadingQRCode = false;
+            this._changeDetectionRef.detectChanges();
+        }
     }
 
     onCameraError(): void {

@@ -2,8 +2,10 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, OnDestroy, ViewChild } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import QRCode from "qrcode";
 import { Subject } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
@@ -25,6 +27,7 @@ import { NeuralFaceComponent } from "./neural-face/neural-face.component";
 		CommonModule,
 		MatButtonModule,
 		MatIconModule,
+		MatProgressSpinnerModule,
 		SmartLivenessComponent,
 		SmartLivenessDemoComponent,
 		SmartErrorDisplayComponent,
@@ -38,8 +41,12 @@ import { NeuralFaceComponent } from "./neural-face/neural-face.component";
 })
 export class SmartBiometricsComponent implements OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("qrCodeCanvas") qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+
+	loadingQRCode: boolean = false;
 
 	appRegistration: AppRegistration;
+	cameraQualityLow: boolean = false;
 	confirmedInstructions: boolean = false;
 	demoData: any;
 	demoModeChoice: "own" | "demo" | "" = "";
@@ -50,6 +57,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 	project: Project;
 	projectFlow: ProjectFlow;
 	retrySubject: Subject<void> = new Subject<void>();
+	showMobileQRModal: boolean = false;
 	successfulUploadSubject: Subject<void> = new Subject<void>();
 	useDemoData: boolean = false;
 
@@ -178,6 +186,8 @@ export class SmartBiometricsComponent implements OnDestroy {
 			"face_not_in_center": "face_not_centered",
 			"The face rotation angle is too large": "face_rotation_too_large",
 			"face_rotation_angle_too_large": "face_rotation_too_large",
+			"The face is occluded": "face_occluded",
+			"face_is_occluded": "face_occluded",
 			"No face detected": "no_face_detected",
 			"Multiple faces detected": "multiple_faces_detected",
 			"Face too far": "face_too_far",
@@ -238,5 +248,50 @@ export class SmartBiometricsComponent implements OnDestroy {
 
 	goBack() {
 		this._smartEnrollService.goToPreviousStep();
+	}
+
+	/**
+	 * Called when camera quality is detected as low.
+	 */
+	onCameraQualityLow(): void {
+		this.cameraQualityLow = true;
+	}
+
+	/**
+	 * Opens the mobile QR modal for switching to mobile.
+	 */
+	openMobileQRModal(): void {
+		this.showMobileQRModal = true;
+		this.loadingQRCode = true;
+
+		setTimeout(() => {
+			if (this.qrCodeCanvas) {
+				this._generateQRCode(this.qrCodeCanvas.nativeElement, window.location.href);
+			}
+		}, 100);
+	}
+
+	/**
+	 * Closes the mobile QR modal.
+	 */
+	closeMobileQRModal(): void {
+		this.showMobileQRModal = false;
+	}
+
+	/**
+	 * Generates a QR code on the given canvas.
+	 */
+	private async _generateQRCode(canvas: HTMLCanvasElement, text: string): Promise<void> {
+		try {
+			await QRCode.toCanvas(canvas, text, {
+				errorCorrectionLevel: "L",
+				width: 200,
+				margin: 2,
+			});
+			this.loadingQRCode = false;
+		} catch (e) {
+			console.error("Failed to generate QR code:", e);
+			this.loadingQRCode = false;
+		}
 	}
 }

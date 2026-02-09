@@ -69,7 +69,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		private _KYCService: KYCService,
 		private _authService: AuthService,
 		private _passwordlessService: PasswordlessService,
-		private _translocoService: TranslocoService
+		private _translocoService: TranslocoService,
 	) {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -86,6 +86,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
 
 		this._checkScoreStatus();
+
 		this._requestIdentityImages();
 
 		// Start rotation if ZKP already exists (e.g., on page reload)
@@ -455,5 +456,22 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		this._syncAppRegistration("liveness", "ONGOING");
 
 		this._smartEnrollService.skipToStep(step);
+	}
+
+	/**
+	 * Navigate back to document or biometric step so the user can complete a skipped verification.
+	 */
+	goBackToStep(step: "document" | "biometric"): void {
+		if (step === "document") {
+			this._smartEnrollService.setSkippedDocument(false);
+			this._syncAppRegistration("document", "ONGOING");
+			this._smartEnrollService.skipToStep("document");
+			this._smartEnrollService.setDocumentMethod("");
+			return;
+		}
+
+		this._smartEnrollService.setSkippedBiometric(false);
+		this._syncAppRegistration("liveness", "ONGOING");
+		this._smartEnrollService.skipToStep("biometric");
 	}
 }

@@ -64,7 +64,7 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _smartEnrollService: SmartEnrollService,
 		private _KYCService: KYCService,
-		private _passwordlessService: PasswordlessService
+		private _passwordlessService: PasswordlessService,
 	) {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -74,7 +74,7 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 		this._smartEnrollService.enrollSettings$
 			.pipe(
 				distinctUntilChanged((prev, curr) => prev.currentStep === curr.currentStep && prev.documentMethod === curr.documentMethod),
-				takeUntil(this._unsubscriber$)
+				takeUntil(this._unsubscriber$),
 			)
 			.subscribe({
 				next: (enrollSettings) => {
@@ -192,9 +192,7 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 
 		// Check if user has already started the process (has any validation data)
 		const hasStartedProcess =
-			this.appRegistration.documentValidation ||
-			this.appRegistration.biometricValidation ||
-			this.appRegistration.currentStep !== "signUpForm";
+			this.appRegistration.documentValidation || this.appRegistration.biometricValidation || this.appRegistration.currentStep !== "signUpForm";
 
 		if (
 			this.appRegistration.status === "COMPLETED" ||

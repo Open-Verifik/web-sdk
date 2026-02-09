@@ -567,8 +567,10 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit
 	onSkipStep() {
 		if (this.projectFlow.onboardingSettings.steps.document === "mandatory") return;
 
+		// Always record that the user skipped the document step (e.g. when re-entering from "Complete document verification").
+		this._smartEnrollService.setSkippedDocument(true);
+
 		if (this.projectFlow.onboardingSettings.steps.liveness !== "skip" && !this._smartEnrollService.wasSkippedBiometric()) {
-			this._smartEnrollService.setSkippedDocument(true);
 			this._smartEnrollService.skipToStep("biometric");
 		} else {
 			this._smartEnrollService.setSkippedBiometric(true);
