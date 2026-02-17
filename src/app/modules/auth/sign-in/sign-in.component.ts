@@ -888,18 +888,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                     localStorage.setItem("defaultCountryCode", dataForm.countryCode);
                     localStorage.setItem("defaultPhone", dataForm.phone);
 
-                    if (response.data?.showFaceLivenessRecommendation) {
-                        this.showFaceLivenessRecommendation = true;
-                        this.loading = false;
-
-                        return;
-                    }
-
-                    this.loading = false;
+                    this.showFaceLivenessRecommendation = false;
 
                     // Passkey Offer Hook for Phone
                     this._offerPasskeyRegistration(response.data.token, `${dataForm.countryCode}${dataForm.phone}`).then((accepted) => {
                         if (accepted) return;
+
+                        this.loading = false;
                         return this.successLogin(response.data.token);
                     });
                 },
