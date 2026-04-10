@@ -45,9 +45,9 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
             (keydown)="onKeyDown($event)"
             (paste)="onPaste($event)"
             [id]="inputId"
-            [value]="value"
             #hiddenInput
-            class="sr-only"
+            autocomplete="one-time-code"
+            class="otp-hidden-input"
             inputmode="numeric"
             maxlength="6"
             pattern="[0-9]*"
@@ -93,6 +93,10 @@ export class OneTimePasswordInputComponent implements ControlValueAccessor, OnIn
         this.value = value || "";
         this._previousValue = this.value;
         this.updateDigits();
+        queueMicrotask(() => {
+            this.syncHiddenInputFromModel();
+            this.scheduleCaretToEnd();
+        });
     }
 
     registerOnChange(fn: (value: string) => void): void {
@@ -143,6 +147,7 @@ export class OneTimePasswordInputComponent implements ControlValueAccessor, OnIn
         }
 
         this._previousValue = this.value;
+        this.scheduleCaretToEnd();
     }
 
     onKeyDown(event: KeyboardEvent): void {
@@ -164,6 +169,8 @@ export class OneTimePasswordInputComponent implements ControlValueAccessor, OnIn
                 }
 
                 this._previousValue = this.value;
+                this.syncHiddenInputFromModel();
+                this.scheduleCaretToEnd();
             }
 
             return;
@@ -213,6 +220,8 @@ export class OneTimePasswordInputComponent implements ControlValueAccessor, OnIn
         this._previousValue = this.value;
 
         this.currentIndex = Math.min(this.value.length, this.length - 1);
+        this.syncHiddenInputFromModel();
+        this.scheduleCaretToEnd();
     }
 
     onFocus(): void {
@@ -248,12 +257,38 @@ export class OneTimePasswordInputComponent implements ControlValueAccessor, OnIn
             this.updateDigits();
 
             this._previousValue = this.value;
+            this.syncHiddenInputFromModel();
         }
 
         if (!this.hiddenInput) return;
 
-        this.hiddenInput.nativeElement.focus();
-        this.hiddenInput.nativeElement.setSelectionRange(index, index);
+        const el = this.hiddenInput.nativeElement as HTMLInputElement;
+        el.focus();
+        requestAnimationFrame(() => {
+            if (typeof el.setSelectionRange === "function") {
+                el.setSelectionRange(index, index);
+            }
+        });
+    }
+
+    private syncHiddenInputFromModel(): void {
+        const el = this.hiddenInput?.nativeElement as HTMLInputElement | undefined;
+        if (!el || this.isDisabled) return;
+        if (el.value !== this.value) {
+            el.value = this.value;
+        }
+    }
+
+    /**
+     * iOS Safari resets selection when the value binding fights the DOM; keep caret at end after input.
+     */
+    private scheduleCaretToEnd(): void {
+        const el = this.hiddenInput?.nativeElement as HTMLInputElement | undefined;
+        if (!el || this.isDisabled || typeof el.setSelectionRange !== "function") return;
+        const len = this.value.length;
+        requestAnimationFrame(() => {
+            el.setSelectionRange(len, len);
+        });
     }
 
     private updateDigits(): void {
