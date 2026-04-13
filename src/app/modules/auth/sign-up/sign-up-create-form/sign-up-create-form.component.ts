@@ -247,7 +247,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 						break;
 					case "address":
 						this.fields["addressLine1"] = [demoData.addressLine1, [Validators.required]];
-						this.fields["addressLine2"] = [demoData.addressLine2, [Validators.required]];
+						this.fields["addressLine2"] = [demoData.addressLine2, []];
 						this.fields["city"] = [demoData.city, [Validators.required]];
 						this.fields["state"] = [demoData.state, [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÖØ-öø-ÿ\s.'-]{2,40}$/)]];
 
