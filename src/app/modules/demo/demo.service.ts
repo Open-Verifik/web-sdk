@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import * as faceapi from "@vladmandic/face-api";
 import { BehaviorSubject, Observable } from "rxjs";
 
+import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { environment } from "environments/environment";
 import { DocumentValidation } from "./document-validation";
 import { HttpWrapperService } from "./http-wrapper.service";
@@ -975,7 +976,7 @@ export class DemoService {
             city: environment.production ? "" : "New York",
             company: environment.production ? "" : `company ${randomNumber}`,
             country: environment.production ? "" : "United States",
-            countryCode: environment.production ? "+1" : "+1",
+            countryCode: DEFAULT_PHONE_COUNTRY_CODE,
             dateOfBirth: environment.production ? null : new Date(1990, 0, 1),
             email: environment.production ? "" : `${this.sampleFirstNames?.[r2]?.toLowerCase() || "user"}_${randomNumber}@verifik.co`,
             firstName: environment.production ? "" : this.sampleFirstNames?.[r2] || "User",

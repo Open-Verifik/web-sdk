@@ -19,6 +19,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 
+import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { SmartEnrollProjectFlow } from "app/core/models/smart-enroll-project.model";
@@ -204,9 +205,12 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		}
 
 		if (this.signUpFormSettings?.phone) {
-			this.fields["countryCode"] = [this.location?.countryCode || demoData.countryCode, Validators.required];
+			const resolvedCountryCode =
+				this.signUpFormSettings?.countryCode || this.location?.countryCode || demoData.countryCode || DEFAULT_PHONE_COUNTRY_CODE;
 
-			const countryCode = this.location?.countryCode || demoData.countryCode;
+			this.fields["countryCode"] = [resolvedCountryCode, Validators.required];
+
+			const countryCode = resolvedCountryCode;
 			const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
 
 			this.fields["phone"] = [
@@ -603,7 +607,12 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 				}
 
 				this.signUpForm.enable();
-				this.signUpForm.reset({ countryCode: this.location?.countryCode || "+1" });
+				this.signUpForm.reset({
+					countryCode:
+						this.signUpFormSettings?.countryCode ||
+						this.location?.countryCode ||
+						DEFAULT_PHONE_COUNTRY_CODE,
+				});
 
 				this._handleSignUpError(exception);
 			},

@@ -26,6 +26,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import moment from "moment";
 import { interval, Subject, Subscription, takeUntil } from "rxjs";
 
+import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { OneTimePasswordInputComponent } from "app/core/components/one-time-password-input/one-time-password-input.component";
@@ -368,7 +369,11 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 			const emailFields = { email: [this.appRegistration?.email || "", [Validators.email, Validators.required]] };
 			const otpFields = { otp: [this.emailOtp, [Validators.required]] };
 
-			const countryCode = this.appRegistration?.countryCode || this.location?.countryCode || "+1";
+			const countryCode =
+				this.appRegistration?.countryCode ||
+				this.projectFlow?.signUpForm?.countryCode ||
+				this.location?.countryCode ||
+				DEFAULT_PHONE_COUNTRY_CODE;
 			const phoneLength = this._countryService.getPhoneLengthForCountryCode(countryCode);
 
 			const phoneFields = {
@@ -438,7 +443,11 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		if (!hasPhone || !hasCountryCode) {
 			this.currentValidation = {
 				_id: "new",
-				countryCode: this.appRegistration.countryCode || this.location?.countryCode || "+1",
+				countryCode:
+					this.appRegistration.countryCode ||
+					this.projectFlow?.signUpForm?.countryCode ||
+					this.location?.countryCode ||
+					DEFAULT_PHONE_COUNTRY_CODE,
 				phone: this.appRegistration.phone || "",
 			};
 
@@ -493,7 +502,11 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 					if (statusCode === 404 || !hasPhone || !hasCountryCode || errorCode === "NotFound" || errorCode === "PhoneNotFound") {
 						this.currentValidation = {
 							_id: "new",
-							countryCode: this.appRegistration.countryCode || this.location?.countryCode || "+1",
+							countryCode:
+								this.appRegistration.countryCode ||
+								this.projectFlow?.signUpForm?.countryCode ||
+								this.location?.countryCode ||
+								DEFAULT_PHONE_COUNTRY_CODE,
 							phone: this.appRegistration.phone || "",
 						};
 

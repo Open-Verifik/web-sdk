@@ -13,6 +13,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSelectModule } from "@angular/material/select";
 import { MatTabsModule } from "@angular/material/tabs";
 import { ActivatedRoute, RouterLink } from "@angular/router";
+import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen";
@@ -684,7 +685,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     setFieldRequiredInForm() {
-        this.selectedCountryCode = localStorage.getItem("defaultCountryCode") || this.location?.countryCode || "+1";
+        this.selectedCountryCode =
+            localStorage.getItem("defaultCountryCode") || this.location?.countryCode || DEFAULT_PHONE_COUNTRY_CODE;
 
         this.groupFields = {
             email: [localStorage.getItem("defaultEmail") || ""],

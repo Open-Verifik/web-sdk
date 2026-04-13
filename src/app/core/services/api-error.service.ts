@@ -201,6 +201,12 @@ export class ApiErrorService {
             if (msgToken === "insufficient_credits") return "errors.insufficient_credits";
             if (msgToken === "collection_not_set") return "errors.collection_not_set";
             if (msgToken === "person_already_set") return "errors.person_already_set";
+
+            // Backend often sends a semantic token in message (e.g. invalid_email) with a generic code (NotFound).
+            // Prefer translating the message token before falling back to errors.<code>.
+            if (/^[a-z][a-z0-9_]+$/.test(msgToken)) {
+                return `errors.${msgToken}`;
+            }
         }
 
         // Priority 2: explicit backend code
@@ -224,7 +230,10 @@ export class ApiErrorService {
             if (c === "PreconditionFailed" && /only.*base64|base64.*only/i.test(ctx.message)) return "errors.only_images_in_base64";
             if (c === "PreconditionFailed" && /compress.*image|image.*compress/i.test(ctx.message)) return "errors.could_not_compress_image";
 
-            return `errors.${c.replace(/\W+/g, "_").toLowerCase()}`;
+            const codeSlug = c.replace(/\W+/g, "_").toLowerCase();
+            if (codeSlug === "notfound") return "errors.not_found";
+
+            return `errors.${codeSlug}`;
         }
 
         // Priority 3: status-based fallbacks
