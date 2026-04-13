@@ -65,13 +65,11 @@ export class ProjectFlow {
 	}
 
 	get documentScanAllowed(): boolean {
-		const documents = this.documents as PersonalDocuments;
-		return documents?.verificationMethods?.includes("scan") || true;
+		return this._isDocumentVerificationMethodAllowed("scan");
 	}
 
 	get documentUploadAllowed(): boolean {
-		const documents = this.documents as PersonalDocuments;
-		return documents?.verificationMethods?.includes("upload") || true;
+		return this._isDocumentVerificationMethodAllowed("upload");
 	}
 
 	get isBusiness(): boolean {
@@ -99,8 +97,8 @@ export class ProjectFlow {
 			document: {
 				compareMinScore: 0.8,
 				maxAttempts: documents?.attemptLimit || 3,
-				scanDocumentAllowed: documents?.verificationMethods?.includes("scan") || true,
-				uploadDocumentAllowed: documents?.verificationMethods?.includes("upload") || true,
+				scanDocumentAllowed: this.documentScanAllowed,
+				uploadDocumentAllowed: this.documentUploadAllowed,
 				useGovernmentID: this._hasDocumentType("government_id"),
 				useLicense: this._hasDocumentType("license"),
 				usePassport: this._hasDocumentType("passport"),
@@ -153,8 +151,8 @@ export class ProjectFlow {
 					.filter((config) => config.documentCategory === category && config.active)
 					.reduce(
 						(acc, config) => acc.concat(config.documentTemplates.map((template) => template.promptTemplate as PromptTemplate)),
-						[] as PromptTemplate[]
-					)
+						[] as PromptTemplate[],
+					),
 			);
 		}, [] as PromptTemplate[]);
 	}
@@ -181,8 +179,17 @@ export class ProjectFlow {
 		return documents.documentTypes.some(
 			(docType) =>
 				(this.version === 3 && country ? docType.country === country : true) &&
-				docType.configurations.some((config) => config.documentCategory === category && config.active)
+				docType.configurations.some((config) => config.documentCategory === category && config.active),
 		);
+	}
+
+	private _isDocumentVerificationMethodAllowed(method: "scan" | "upload"): boolean {
+		const documents = this.documents as PersonalDocuments;
+		const methods = documents?.verificationMethods;
+
+		if (!methods?.length) return true;
+
+		return methods.includes(method);
 	}
 
 	private _migrateFromV2(data: LegacyProjectFlow): void {

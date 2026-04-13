@@ -292,7 +292,9 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit
 	private _getDocumentMethod(onboardSettingsDocument: any): string {
 		if (this.enrollSettings.documentMethod) return this.enrollSettings.documentMethod;
 
-		const documentMethods = Object.keys(onboardSettingsDocument).filter((key) => ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key));
+		const documentMethods = Object.keys(onboardSettingsDocument).filter(
+			(key) => ["uploadDocumentAllowed", "scanDocumentAllowed"].includes(key) && onboardSettingsDocument[key],
+		);
 
 		if (documentMethods.length === 1) {
 			switch (documentMethods[0]) {

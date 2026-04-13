@@ -1,10 +1,11 @@
 node_modules
 .env
 app/node_modules
+
+# macOS
 .DS_Store
-/**/.DS_Store
-**/.DS_Store
-**/**/.DS_Store
+._.DS_Store
+
 toRemove
 .angular
 /src/environments/environment.ts
