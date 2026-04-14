@@ -681,6 +681,7 @@
 			"comparing_biometrics": "생체 인식을 문서와 비교하는 중",
 			"name_validation_success": "이름이 성공적으로 검증되었습니다",
 			"name_validation_failed": "이름 검증에 실패했습니다",
+			"name_validation_error": "이름 검증을 완료할 수 없습니다. 다시 시도해 주세요.",
 			"background_check_complete": "범죄 경력 조회 완료",
 			"biometric_comparison_complete": "생체 인식 비교 완료",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",

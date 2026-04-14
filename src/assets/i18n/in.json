@@ -681,6 +681,7 @@
 			"comparing_biometrics": "दस्तावेज़ के साथ बायोमेट्रिक की तुलना",
 			"name_validation_success": "नाम सफलतापूर्वक सत्यापित",
 			"name_validation_failed": "नाम सत्यापन असफल",
+			"name_validation_error": "नाम सत्यापन पूरा नहीं हो सका। कृपया पुनः प्रयास करें।",
 			"background_check_complete": "पृष्ठभूमि जांच पूर्ण",
 			"biometric_comparison_complete": "बायोमेट्रिक तुलना पूर्ण",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",

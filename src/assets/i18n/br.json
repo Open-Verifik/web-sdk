@@ -682,6 +682,7 @@
 			"comparing_biometrics": "Comparando biometria com o documento",
 			"name_validation_success": "Nomes validados com sucesso",
 			"name_validation_failed": "Os nomes na fonte governamental não correspondem. Verifique se o documento é legítimo e se o nome corresponde exatamente.",
+			"name_validation_error": "A validação de nomes não pôde ser concluída. Por favor, tente novamente.",
 			"background_check_complete": "Verificação de antecedentes completa",
 			"biometric_comparison_complete": "Comparação biométrica completa",
 			"zero_knowledge_proof_title": "Prova de Conhecimento Zero",

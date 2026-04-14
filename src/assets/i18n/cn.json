@@ -682,6 +682,7 @@
 			"comparing_biometrics": "将生物识别与文档进行比较",
 			"name_validation_success": "姓名验证成功",
 			"name_validation_failed": "姓名验证失败",
+			"name_validation_error": "姓名验证无法完成，请重试。",
 			"background_check_complete": "背景调查完成",
 			"biometric_comparison_complete": "生物识别比较完成",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",

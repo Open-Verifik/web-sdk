@@ -107,9 +107,9 @@
 										[style.background-color]="
 											loading.nameValidation
 												? project?.branding?.buttonColor + '20' || '#3B82F620'
-												: !errors.namesDoNotMatch
-												? '#10B98120'
-												: '#EF444420'
+												: errors.namesDoNotMatch || hasValidationError('nameValidation')
+												? '#EF444420'
+												: '#10B98120'
 										"
 									>
 										<mat-spinner
@@ -119,11 +119,14 @@
 											[style.color]="project?.branding?.buttonColor || '#3B82F6'"
 										>
 										</mat-spinner>
-										<mat-icon *ngIf="!loading.nameValidation && !errors.namesDoNotMatch" class="text-green-600 text-xl">
+										<mat-icon *ngIf="!loading.nameValidation && !errors.namesDoNotMatch && !hasValidationError('nameValidation')" class="text-green-600 text-xl">
 											check_circle
 										</mat-icon>
 										<mat-icon *ngIf="!loading.nameValidation && errors.namesDoNotMatch" class="text-red-500 text-xl">
 											cancel
+										</mat-icon>
+										<mat-icon *ngIf="!loading.nameValidation && !errors.namesDoNotMatch && hasValidationError('nameValidation')" class="text-amber-500 text-xl">
+											warning
 										</mat-icon>
 									</div>
 								</div>
@@ -135,11 +138,14 @@
 										<span *ngIf="loading.nameValidation">
 											{{ validationMessages['nameValidation'] || t("smart_enroll.documents.validating_names") }}
 										</span>
-										<span *ngIf="!loading.nameValidation && !errors.namesDoNotMatch" class="text-green-600">
+										<span *ngIf="!loading.nameValidation && !errors.namesDoNotMatch && !hasValidationError('nameValidation')" class="text-green-600">
 											{{ t("smart_enroll.documents.name_validation_success") }}
 										</span>
 										<span *ngIf="!loading.nameValidation && errors.namesDoNotMatch" class="text-red-500">
 											{{ t("smart_enroll.documents.name_validation_failed") }}
+										</span>
+										<span *ngIf="!loading.nameValidation && !errors.namesDoNotMatch && hasValidationError('nameValidation')" class="text-amber-500">
+											{{ t("smart_enroll.documents.name_validation_error") }}
 										</span>
 									</p>
 									<button

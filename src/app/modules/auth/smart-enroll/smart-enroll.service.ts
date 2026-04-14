@@ -378,7 +378,7 @@ export class SmartEnrollService {
         if (!docValidation && projectFlow.onboardingSettings.steps.document === "mandatory") return false;
         if (!docValidation && !this.wasSkippedDocument()) return false;
         if (docValidation?.requiresBackSide && !docValidation?.backUrl) return false;
-        if (projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && !docValidation?.namesMatch) return false;
+        if (projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && docValidation?.imageValidated && !docValidation?.namesMatch) return false;
 
         return true;
     }

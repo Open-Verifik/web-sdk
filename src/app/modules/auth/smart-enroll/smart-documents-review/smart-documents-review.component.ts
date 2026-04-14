@@ -505,11 +505,29 @@ export class SmartDocumentsReviewComponent {
 		if (results.nameValidation?.status === "fulfilled") {
 			this.appRegistration.documentValidation = results.nameValidation.data;
 			this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
+
+			if (!environment.production) {
+				const dv = this.appRegistration.documentValidation;
+				console.log("[nameValidation] fulfilled →", {
+					imageValidated: dv?.imageValidated,
+					namesMatch: dv?.namesMatch,
+					fullNameMatchPercentage: dv?.fullNameMatchPercentage,
+					firstNameMatchPercentage: dv?.firstNameMatchPercentage,
+					lastNameMatchPercentage: dv?.lastNameMatchPercentage,
+					infoValidationSupported: dv?.infoValidationSupported,
+				});
+			}
 		} else if (results.nameValidation?.status === "rejected") {
 			if (results.nameValidation?.error?.code === "PaymentRequired") {
 				this._smartEnrollService.insufficientCreditsTrigger();
 
 				return;
+			}
+
+			this.validationErrors["nameValidation"] = results.nameValidation.error;
+
+			if (!environment.production) {
+				console.warn("[nameValidation] rejected →", results.nameValidation.error);
 			}
 		}
 
@@ -752,6 +770,7 @@ export class SmartDocumentsReviewComponent {
 			this.verifyNamesEnabled &&
 			!this.loading.nameValidation &&
 			docValidation?.infoValidationSupported &&
+			docValidation?.imageValidated &&
 			docValidation?.namesMatch === false
 		) {
 			this.errors.namesDoNotMatch = true;
@@ -815,12 +834,12 @@ export class SmartDocumentsReviewComponent {
 			reasons.push("Document requires back side but backUrl is missing");
 		}
 
-		if (
-			this.projectFlow.onboardingSettings.document.verifyNames &&
-			docValidation?.infoValidationSupported &&
-			!docValidation?.namesMatch
-		) {
-			reasons.push("Name verification enabled and names do not match");
+		if (this.projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported) {
+			if (docValidation?.imageValidated && !docValidation?.namesMatch) {
+				reasons.push("Name verification completed and names do not match");
+			} else if (!docValidation?.imageValidated && this.validationErrors["nameValidation"]) {
+				reasons.push("Name validation failed (API error) — retry or proceed with manual review");
+			}
 		}
 
 		return reasons;
@@ -844,6 +863,7 @@ export class SmartDocumentsReviewComponent {
 			blockingReasons: this.getContinueBlockingReasons(),
 			validationsInProgress: this.validationsInProgress,
 			loadingStates: this.loading,
+			validationErrors: Object.keys(this.validationErrors),
 			documentValidation: {
 				exists: !!docValidation,
 				requiresBackSide: docValidation?.requiresBackSide,
@@ -910,6 +930,7 @@ export class SmartDocumentsReviewComponent {
 		return (
 			this.projectFlow.onboardingSettings.document.verifyNames &&
 			this.appRegistration?.documentValidation?.infoValidationSupported &&
+			this.appRegistration?.documentValidation?.imageValidated &&
 			!this.appRegistration?.documentValidation?.namesMatch &&
 			!this.loading.nameValidation
 		);
