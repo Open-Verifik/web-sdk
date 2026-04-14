@@ -681,6 +681,7 @@
 			"comparing_biometrics": "Inihahambing ang biometric sa dokumento",
 			"name_validation_success": "Matagumpay na napatunayan ang mga pangalan",
 			"name_validation_failed": "Hindi napatunayan ang pangalan",
+			"name_validation_error": "Hindi makumpleto ang pagpapatunay ng pangalan. Pakisubukang muli.",
 			"background_check_complete": "Tapos na ang pagsusuri ng kasaysayan",
 			"biometric_comparison_complete": "Tapos na ang paghahambing ng biometric",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",

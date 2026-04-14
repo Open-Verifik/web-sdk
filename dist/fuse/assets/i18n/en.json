@@ -701,6 +701,7 @@
 			"comparing_biometrics": "Comparing biometrics to document",
 			"name_validation_success": "Names validated successfully",
 			"name_validation_failed": "Names in government source don't match. Please verify your document is legitimate and the name matches exactly.",
+			"name_validation_error": "Name validation could not be completed. Please retry.",
 			"background_check_complete": "Background check complete",
 			"biometric_comparison_complete": "Biometric comparison complete",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",

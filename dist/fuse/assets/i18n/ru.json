@@ -681,6 +681,7 @@
 			"comparing_biometrics": "Сравнение биометрии с документом",
 			"name_validation_success": "Имена успешно проверены",
 			"name_validation_failed": "Проверка имени не удалась",
+			"name_validation_error": "Проверка имени не завершена. Повторите попытку.",
 			"background_check_complete": "Проверка судимости завершена",
 			"biometric_comparison_complete": "Биометрическое сравнение завершено",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",

@@ -681,6 +681,7 @@
 			"comparing_biometrics": "Confronto della biometria con il documento",
 			"name_validation_success": "Nomi validati con successo",
 			"name_validation_failed": "Validazione del nome fallita",
+			"name_validation_error": "La validazione dei nomi non è stata completata. Riprova.",
 			"background_check_complete": "Controllo dei precedenti completato",
 			"biometric_comparison_complete": "Confronto biometrico completato",
 			"zero_knowledge_proof_title": "Zero Knowledge Proof",
