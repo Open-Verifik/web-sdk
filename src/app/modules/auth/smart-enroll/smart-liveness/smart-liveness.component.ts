@@ -5,6 +5,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    HostBinding,
     Input,
     OnDestroy,
     OnInit,
@@ -132,6 +133,9 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
 
     @Input() retry: Observable<void>;
     @Input() successfulUpload: Observable<void>;
+
+    /** Pushes the liveness grid below a fixed dev toolbar (e.g. Smart Biometrics file-upload strip). */
+    @Input() @HostBinding("style.padding-top.px") hostPaddingTopPx = 0;
 
     private _detectionInterval: ReturnType<typeof setInterval>;
     private _unsubscriber$: Subject<void> = new Subject<void>();

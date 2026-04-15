@@ -1,8 +1,7 @@
 :host {
     position: fixed;
     inset: 0;
-    // Ensure proper stacking and prevent overflow
-    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
@@ -21,15 +20,18 @@
 }
 
 .camera {
-    // Use viewport units but reserve space for indicators that extend beyond camera bounds
-    height: min(calc(90vw), calc(90vh - 150px), 800px);
-    width: min(calc(90vw), calc(90vh - 150px), 800px);
+    height: min(90vw, calc(100dvh - 150px), 800px);
+    width: min(90vw, calc(100dvh - 150px), 800px);
     max-height: 800px;
     max-width: 800px;
 
-    // Ensure minimum size for usability while leaving room for indicators
-    min-height: 260px;
-    min-width: 260px;
+    min-height: 200px;
+    min-width: 200px;
+
+    @media (max-height: 560px) {
+        min-height: 160px;
+        min-width: 160px;
+    }
 
     &__loader {
         background-color: rgba(30, 41, 59, 0.5);

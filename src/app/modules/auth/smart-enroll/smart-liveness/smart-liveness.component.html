@@ -15,12 +15,12 @@
 	></smart-camera-resolution-detection>
 
 	<div class="absolute inset-0">
-		<div class="grid grid-rows-10 h-full min-h-0">
-			<div class="row-span-1 flex flex-row justify-center items-center">
+		<div class="grid h-full min-h-0" style="grid-template-rows: auto minmax(0, 1fr) auto">
+			<div class="flex flex-row justify-center items-center py-2">
 				<h4 class="text-2xl font-medium">{{ t("smart_enroll.biometric_register") }}</h4>
 			</div>
 
-			<div class="row-span-8 flex flex-row justify-center items-center min-h-0 relative px-4 py-4">
+			<div class="flex flex-row justify-center items-center min-h-0 relative px-4 py-2">
 				<div class="camera rounded-full flex flex-row justify-center items-center relative">
 					<div class="border-8 h-full w-full rounded-full z-10" [style.border-color]="project.branding.buttonColor">
 						<div class="absolute inset-5 rounded-full overflow-hidden">
@@ -117,12 +117,12 @@
 				</div>
 			</div>
 
-			<div class="row-span-1 flex flex-row justify-center items-center z-20 min-h-0 p-2">
+			<div class="flex flex-row justify-center items-center z-20 min-h-0 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
 				<button
 					(click)="skipStep.emit()"
 					mat-stroked-button
 					color="primary"
-					class="h-14 min-h-14 rounded-lg"
+					class="h-12 min-h-12 rounded-lg"
 					*ngIf="projectFlow.onboardingSettings.steps.liveness !== 'mandatory'"
 				>
 					{{ t("skip") }}
@@ -132,7 +132,7 @@
 	</div>
 
 	<!-- Camera Quality Warning Modal -->
-	<div *ngIf="showCameraQualityModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @fadeIn>
+	<div *ngIf="showCameraQualityModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4" @fadeIn>
 		<!-- Backdrop (not clickable - user must choose Continue anyway or Switch to mobile) -->
 		<div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-default" role="presentation"></div>
 

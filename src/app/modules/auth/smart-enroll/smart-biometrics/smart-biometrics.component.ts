@@ -19,7 +19,24 @@ import { SmartErrorDisplayComponent } from "../smart-error-display/smart-error-d
 import { SmartLivenessComponent } from "../smart-liveness/smart-liveness.component";
 import { SmartLivenessDemoComponent } from "../smart-liveness/smart-liveness-demo.component";
 import { ApiErrorService } from "app/core/services/api-error.service";
+import { environment } from "environments/environment";
 import { NeuralFaceComponent } from "./neural-face/neural-face.component";
+
+const DEV_FACE_FILE_MAX_BYTES = 6 * 1024 * 1024;
+
+/** Top inset for `smart-liveness` when the fixed dev toolbar is shown (keep in sync with bar height). */
+const DEV_BIOMETRICS_HOST_PADDING_TOP_PX = 132;
+
+/** English-only copy for the dev-only upload strip (not in locale files; production hides this UI). */
+const DEV_BIOMETRICS_COPY = {
+	chooseFile: "Choose face image",
+	fileHint: "JPEG or PNG, max 6 MB. Same API payload as camera capture.",
+	title: "Developer mode (local only)",
+	uploadImage: "Upload image (dev)",
+	useCamera: "Use camera",
+	warning:
+		"For local testing only. Uploading a still image skips live capture and may not reflect real liveness behavior. Do not use for production or security decisions.",
+} as const;
 
 @Component({
 	animations: fuseAnimations,
@@ -43,6 +60,9 @@ export class SmartBiometricsComponent implements OnDestroy {
 	@ViewChild("faceCardCanvas", { static: true }) faceCardCanvas: ElementRef<HTMLCanvasElement>;
 	@ViewChild("qrCodeCanvas") qrCodeCanvas: ElementRef<HTMLCanvasElement>;
 
+	/** Non-production only: from `environment.allowDevFaceFileUpload`. */
+	readonly allowDevFaceFileUpload: boolean = environment.allowDevFaceFileUpload === true;
+
 	loadingQRCode: boolean = false;
 
 	appRegistration: AppRegistration;
@@ -60,6 +80,12 @@ export class SmartBiometricsComponent implements OnDestroy {
 	showMobileQRModal: boolean = false;
 	successfulUploadSubject: Subject<void> = new Subject<void>();
 	useDemoData: boolean = false;
+	/** Dev-only input mode when `allowDevFaceFileUpload` is true. */
+	devBiometricInputMode: "camera" | "upload" = "camera";
+
+	readonly devBiometricsCopy = DEV_BIOMETRICS_COPY;
+
+	readonly devBiometricsHostPaddingTopPx = DEV_BIOMETRICS_HOST_PADDING_TOP_PX;
 
 	constructor(
 		private _apiErrorService: ApiErrorService,
@@ -226,6 +252,52 @@ export class SmartBiometricsComponent implements OnDestroy {
 		};
 
 		this._createBiometricValidation(body);
+	}
+
+	/**
+	 * Dev-only: reads a selected image file and submits the same payload shape as live capture.
+	 */
+	onDevFaceFileSelected(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) {
+			return;
+		}
+
+		if (!file.type.startsWith("image/")) {
+			console.warn("[dev face upload] File must be an image.");
+			input.value = "";
+			return;
+		}
+
+		if (file.size > DEV_FACE_FILE_MAX_BYTES) {
+			console.warn("[dev face upload] File too large (max 6 MB).");
+			input.value = "";
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			const dataUrl = String(reader.result ?? "");
+			const commaIdx = dataUrl.indexOf(",");
+			const base64 = commaIdx >= 0 ? dataUrl.slice(commaIdx + 1) : dataUrl;
+
+			this.onImageScan({
+				base64Image: base64,
+				face: base64,
+				force: !!this.appRegistration.biometricValidation,
+				front: true,
+				inputMethod: "FILE_UPLOAD",
+				rawImage: dataUrl,
+				source: "face",
+			});
+			input.value = "";
+		};
+		reader.onerror = () => {
+			console.warn("[dev face upload] Failed to read file.");
+			input.value = "";
+		};
+		reader.readAsDataURL(file);
 	}
 
 	retry() {

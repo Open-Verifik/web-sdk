@@ -10,4 +10,5 @@ export const environment = {
     sandboxProject: "6266193db77ccc8111730c90",
     /** Set to true to test camera quality modal in QA. */
     forceCameraQualityModal: false,
+    allowDevFaceFileUpload: false,
 };

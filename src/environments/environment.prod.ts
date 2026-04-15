@@ -9,4 +9,5 @@ export const environment = {
     sandboxUrl: "https://staging.verifik.co",
     sandboxProject: "6266193db77ccc8111730c90",
     forceCameraQualityModal: false,
+    allowDevFaceFileUpload: false,
 };

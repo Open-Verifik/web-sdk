@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     standalone: true,
     styleUrls: ["./one-time-password-input.component.scss"],
     template: `
-        <div class="otp-input-container inline-flex justify-between items-start gap-4 relative w-full">
+        <div class="otp-input-container flex justify-between items-start gap-1.5 sm:gap-3 relative w-full">
             <div
                 (click)="focusInput(i)"
                 [class.otp-digit--active]="i === currentIndex && isFocused"
@@ -17,11 +17,11 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
                 [class.otp-digit--enabled]="!isDisabled"
                 [class.otp-digit--error]="hasError"
                 *ngFor="let digit of digits; let i = index"
-                class="otp-digit sm:w-14 w-10 sm:p-4 p-2 rounded-md border-2 flex justify-center items-center"
+                class="otp-digit flex-1 min-w-0 sm:p-3 p-2 rounded-md border-2 flex justify-center items-center"
             >
                 <div class="inline-flex flex-col justify-center items-start relative">
                     <div
-                        class="otp-digit-text justify-start text-3xl font-semibold leading-tight"
+                        class="otp-digit-text justify-start text-2xl sm:text-3xl font-semibold leading-tight"
                         [class.opacity-0]="!digit"
                         [class.otp-digit-text--disabled]="isDisabled"
                     >
