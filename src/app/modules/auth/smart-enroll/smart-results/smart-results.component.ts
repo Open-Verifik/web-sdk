@@ -9,6 +9,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import QRCode from "qrcode";
 
 import { AuthService } from "app/core/auth/auth.service";
+import { clearSignUpFlowPersistedSession } from "app/core/services/app-registration-session.storage";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
@@ -159,6 +160,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.fetchingToken = false;
 			},
 			complete: () => {
+				clearSignUpFlowPersistedSession(this.project._id);
 				this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding", this.project.demoMode);
 				this.fetchingToken = false;
 			},

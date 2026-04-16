@@ -16,6 +16,13 @@ import { environment } from "environments/environment";
 import { ProjectFlow } from "../../../core/classes/project-flow.class";
 import { Project } from "../../../core/classes/project.class";
 import { AppService } from "../../../core/services/app.service";
+import {
+	clearAccessTokenIfAppRegistrationSession,
+	clearSignUpAppRegistrationToken,
+	readSignUpAppRegistrationToken,
+	saveSignUpAppRegistrationToken,
+	isUsableAppRegistrationSessionToken,
+} from "../../../core/services/app-registration-session.storage";
 import { ProjectStorageService } from "../../../core/services/project-storage.service";
 import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
@@ -100,7 +107,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._splashScreenService.show();
 		this._passwordlessService.flow = "onboarding";
 
-		this._setToken();
 		this._setLanguage();
 
 		this.deviceDetails = this._appService.getDeviceDetails();
@@ -141,15 +147,52 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.unsubscriber$))
 			.pipe(map((results) => ({ id: results[0].id, token: results[1].token })))
 			.subscribe((results) => {
-				this._setToken(results?.token);
+				const projectId = results?.id;
+				const rawQueryToken = results?.token;
+				const queryToken =
+					typeof rawQueryToken === "string" ? rawQueryToken : Array.isArray(rawQueryToken) ? rawQueryToken[0] : undefined;
 
-				if (!results?.token) this._smartEnrollService.unsetLocalStorage();
+				let effectiveToken: string | null = null;
 
-				if (this.projectFlow) {
-					this._requestAppRegistration();
-				} else {
-					this._requestProject(results.id);
+				if (queryToken?.trim()) {
+					if (isUsableAppRegistrationSessionToken(queryToken)) {
+						effectiveToken = queryToken.trim();
+						saveSignUpAppRegistrationToken(projectId, effectiveToken);
+					} else {
+						clearSignUpAppRegistrationToken(projectId);
+						clearAccessTokenIfAppRegistrationSession();
+					}
 				}
+
+				if (!effectiveToken) {
+					const stored = readSignUpAppRegistrationToken(projectId);
+
+					if (stored) {
+						effectiveToken = stored;
+
+						void this._router.navigate(["/sign-up", projectId], {
+							queryParams: { token: stored },
+							queryParamsHandling: "merge",
+							replaceUrl: true,
+						});
+					}
+				}
+
+				if (!effectiveToken) {
+					clearSignUpAppRegistrationToken(projectId);
+					clearAccessTokenIfAppRegistrationSession();
+					this.token = null;
+					this._smartEnrollService.unsetLocalStorage();
+				} else {
+					this._setToken(effectiveToken);
+				}
+
+				if (this.project?._id === projectId && this.projectFlow) {
+					this._requestAppRegistration();
+					return;
+				}
+
+				this._requestProject(projectId);
 			});
 
 		this._demoService.geoLocation$.pipe(takeUntil(this.unsubscriber$)).subscribe({
@@ -223,6 +266,10 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					this._checkVerification();
 				},
 				error: () => {
+					clearSignUpAppRegistrationToken(this.project._id);
+					clearAccessTokenIfAppRegistrationSession();
+					this._smartEnrollService.unsetLocalStorage();
+					this.token = null;
 					this._router.navigate(["/sign-up", this.project._id], { replaceUrl: true });
 					this._splashScreenService.hide();
 				},
@@ -351,8 +398,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	private _setToken(token?: string): void {
 		if (!token) {
 			this.token = null;
-
-			localStorage.removeItem("accessToken");
+			clearAccessTokenIfAppRegistrationSession();
 
 			return;
 		}

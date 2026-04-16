@@ -5,6 +5,7 @@ import { TranslocoService } from "@ngneat/transloco";
 import { Observable, tap } from "rxjs";
 import { Project } from "app/core/classes/project.class";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { saveSignUpAppRegistrationToken } from "app/core/services/app-registration-session.storage";
 
 @Injectable({
 	providedIn: "root",
@@ -145,7 +146,16 @@ export class PasswordlessService {
 	}
 
 	createAppRegistration(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations`, data);
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations`, data).pipe(
+			tap((response) => {
+				const token = response?.data?.token;
+				const projectId = data?.project ?? this.currentProject?._id;
+
+				if (token && projectId) {
+					saveSignUpAppRegistrationToken(projectId, token);
+				}
+			})
+		);
 	}
 
 	zkLogin(data: { record: any; faceBase64: string; projectId: string }): Observable<any> {

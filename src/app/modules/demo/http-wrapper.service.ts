@@ -1,6 +1,9 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, retry, finalize } from "rxjs";
+import { onHttpForbiddenClearAppRegistrationSession } from "app/core/services/app-registration-session.storage";
+import { Observable, retry, finalize, catchError, throwError } from "rxjs";
+
+import { SmartEnrollService } from "../auth/smart-enroll/smart-enroll.service";
 
 @Injectable({
     providedIn: "root",
@@ -12,7 +15,10 @@ export class HttpWrapperService {
         return !!this.tail.length;
     }
 
-    constructor(private _http: HttpClient) {}
+    constructor(
+        private _http: HttpClient,
+        private _smartEnrollService: SmartEnrollService
+    ) {}
     /**
      * send request
      * @param method - to determinate which function we will be using
@@ -73,6 +79,13 @@ export class HttpWrapperService {
         this.tail.push(a);
         return a.pipe(
             retry(0),
+            catchError((error) => {
+                if (error instanceof HttpErrorResponse && error.status === 403) {
+                    onHttpForbiddenClearAppRegistrationSession(() => this._smartEnrollService.unsetLocalStorage());
+                }
+
+                return throwError(() => error);
+            }),
             finalize(() => {
                 const index = this.tail.indexOf(a);
                 this.tail.splice(index, 1);

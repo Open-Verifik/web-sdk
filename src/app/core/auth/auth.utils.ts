@@ -41,6 +41,33 @@ export class AuthUtils {
 	}
 
 	/**
+	 * JWT expiry check supporting standard `exp` and custom `expiresAt` (unix seconds, ms, or "YYYY-MM-DD HH:mm:ss").
+	 */
+	static isJwtExpired(token: string, offsetSeconds: number = 0): boolean {
+		if (!token || token === "") {
+			return true;
+		}
+
+		try {
+			const decoded = this._decodeToken(token);
+
+			if (decoded.hasOwnProperty("exp") && decoded.exp != null) {
+				return this.isTokenExpired(token, offsetSeconds);
+			}
+
+			const date = this._getExpiresAtClaimDate(decoded);
+
+			if (date === null) {
+				return true;
+			}
+
+			return !(date.valueOf() > Date.now() + offsetSeconds * 1000);
+		} catch {
+			return true;
+		}
+	}
+
+	/**
 	 * Decode token
 	 *
 	 * @param token
@@ -190,5 +217,41 @@ export class AuthUtils {
 		date.setUTCSeconds(decodedToken.exp);
 
 		return date;
+	}
+
+	/**
+	 * Parse backend `expiresAt` (string datetime, unix seconds, or milliseconds).
+	 */
+	private static _getExpiresAtClaimDate(decoded: Record<string, unknown>): Date | null {
+		const v = decoded?.expiresAt;
+
+		if (v == null) {
+			return null;
+		}
+
+		if (typeof v === "number") {
+			return new Date(v > 1e12 ? v : v * 1000);
+		}
+
+		if (typeof v === "string") {
+			const trimmed = v.trim();
+
+			if (!trimmed) {
+				return null;
+			}
+
+			const asNum = Number(trimmed);
+
+			if (!Number.isNaN(asNum) && trimmed === String(asNum)) {
+				return new Date(asNum > 1e12 ? asNum : asNum * 1000);
+			}
+
+			const normalized = trimmed.includes("T") ? trimmed : trimmed.replace(" ", "T");
+			const parsed = new Date(normalized);
+
+			return Number.isNaN(parsed.getTime()) ? null : parsed;
+		}
+
+		return null;
 	}
 }
