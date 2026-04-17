@@ -95,7 +95,14 @@ export class ProjectFlow {
 				postalCode: false,
 			},
 			document: {
-				compareMinScore: 0.8,
+				// Mirror backend resolveCompareMinScoreFromProjectFlow:
+				// v3 reads liveness.compareMinScore first, then onboardingSettings.document.compareMinScore.
+				// Default 0.85 matches the Mongoose schema default in
+				// Repositories/ProjectFlows/models/project-flow.smart-enroll-kyc.model.js.
+				compareMinScore:
+					liveness?.compareMinScore ??
+					(documents as any)?.compareMinScore ??
+					0.85,
 				maxAttempts: documents?.attemptLimit || 3,
 				scanDocumentAllowed: this.documentScanAllowed,
 				uploadDocumentAllowed: this.documentUploadAllowed,
@@ -247,6 +254,7 @@ export class ProjectFlow {
 	private _migrateLivenessSettings(v2Liveness: any): PersonalLiveness | BusinessLiveness {
 		return {
 			attemptLimit: v2Liveness.maxAttempts || 3,
+			compareMinScore: v2Liveness.compareMinScore,
 			minScore: v2Liveness.livenessMinScore || 0.65,
 			searchMinScore: v2Liveness.searchMinScore || 0.8,
 			searchMode: v2Liveness.searchMode || "FAST",
@@ -272,6 +280,7 @@ export class ProjectFlow {
 	private _migrateDocuments(v2Document: any): PersonalDocuments | BusinessDocuments {
 		return {
 			attemptLimit: v2Document.maxAttempts || 3,
+			compareMinScore: v2Document.compareMinScore,
 			criminalHistoryVerification: v2Document.verifyCriminalHistory || false,
 			documentTypes: this._migrateDocumentTypes(v2Document),
 			informationVerification: v2Document.verifyNames || false,

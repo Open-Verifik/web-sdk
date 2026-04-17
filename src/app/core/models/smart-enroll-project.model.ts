@@ -170,6 +170,7 @@ export interface DocumentSettings {
 }
 
 export interface LivenessSettings {
+	compareMinScore?: number;
 	kycType?: "traditional" | "zero_knowledge";
 	livenessMinScore?: number;
 	maxAttempts?: number;
@@ -225,6 +226,7 @@ export interface PersonalIntegrations {
 
 export interface PersonalLiveness {
 	attemptLimit: number;
+	compareMinScore?: number;
 	kycType?: "traditional" | "zero_knowledge";
 	minScore?: number;
 	searchMinScore?: number;
@@ -345,6 +347,7 @@ export interface BusinessIntegrations {
 
 export interface BusinessLiveness {
 	attemptLimit: number;
+	compareMinScore?: number;
 	kycType?: "traditional" | "zero_knowledge";
 	minScore?: number;
 	searchMinScore?: number;

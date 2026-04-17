@@ -64,6 +64,17 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	showZKPQRCode: boolean = false;
 	private zkpRotationInterval: any;
 	private isHoveringAvatar: boolean = false;
+	private endAndRedirectInFlight: boolean = false;
+
+	/**
+	 * Returns true when the appRegistration has already reached a finalized status.
+	 * In that case we must not issue further sync() calls that would regress the record
+	 * server-side or emit stale sync_* webhooks.
+	 */
+	private get _isTerminalStatus(): boolean {
+		const status = this.appRegistration?.status;
+		return status === "COMPLETED" || status === "COMPLETED_WITHOUT_KYC" || status === "FAILED";
+	}
 
 	constructor(
 		private _smartEnrollService: SmartEnrollService,
@@ -109,9 +120,10 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	private _checkScoreStatus() {
 		const compareFaceVerification = this.appRegistration.compareFaceVerification;
+		const biometricValidation = this.appRegistration.biometricValidation;
 
 		const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
-		const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
+		const livenessScore = this.enrollStore.biometric.livenessScore || biometricValidation?.livenessScore || 0;
 
 		this.comparisonScore = Math.floor((compareScore || 0) * 100);
 		this.livenessScore = Math.floor((livenessScore || 0) * 100);
@@ -120,16 +132,45 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.errorResult = false;
 		this.livenessFailed = false;
 
-		if (!this.documentSkipped && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
-			this.comparisonFailed = true;
+		// Trust the backend's verdict over local recomputation. The backend stores
+		// `compareFaceVerification.result.passed` (boolean) and `compare_min_score`
+		// after running the actual compare against the configured project flow
+		// threshold. Recomputing here with `enrollStore.biometric.compareMinScore`
+		// would drift if the FE adapter ever returns a different default than the
+		// backend used (which was the source of the "Resultado negativo" bug).
+		if (!this.documentSkipped && compareFaceVerification) {
+			const backendPassed = compareFaceVerification?.result?.passed;
+
+			if (backendPassed === false) {
+				this.appRegistration.status = "FAILED";
+				this.errorResult = true;
+				this.comparisonFailed = true;
+			} else if (backendPassed === undefined || backendPassed === null) {
+				// Legacy records pre-`enrichCompareResult` have no `passed` flag —
+				// fall back to local threshold check.
+				if (compareScore < this.enrollStore.biometric.compareMinScore) {
+					this.appRegistration.status = "FAILED";
+					this.errorResult = true;
+					this.comparisonFailed = true;
+				}
+			}
 		}
 
-		if (!this.biometricSkipped && livenessScore < this.enrollStore.biometric.livenessMinScore) {
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
-			this.livenessFailed = true;
+		if (!this.biometricSkipped) {
+			const backendLivenessStatus = biometricValidation?.status;
+
+			if (backendLivenessStatus === "failed") {
+				this.appRegistration.status = "FAILED";
+				this.errorResult = true;
+				this.livenessFailed = true;
+			} else if (backendLivenessStatus !== "validated") {
+				// No explicit BE verdict → fall back to local threshold check.
+				if (livenessScore < this.enrollStore.biometric.livenessMinScore) {
+					this.appRegistration.status = "FAILED";
+					this.errorResult = true;
+					this.livenessFailed = true;
+				}
+			}
 		}
 
 		if (this.documentSkipped && this.biometricSkipped) {
@@ -147,6 +188,11 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _endAndRedirect() {
+		// Prevent concurrent / duplicate end calls from firing two sync("end", ...) requests
+		// which previously raced with tryAgain/goBack regressions.
+		if (this.endAndRedirectInFlight || this.fetchingToken) return;
+
+		this.endAndRedirectInFlight = true;
 		this.fetchingToken = true;
 
 		let _response = { token: null };
@@ -158,6 +204,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 			error: (exception) => {
 				this.errorResult = true;
 				this.fetchingToken = false;
+				this.endAndRedirectInFlight = false;
 			},
 			complete: () => {
 				clearSignUpFlowPersistedSession(this.project._id);
@@ -446,6 +493,13 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	tryAgain(step: "document" | "biometric"): void {
+		// tryAgain is intended for the error state only. If the registration is already
+		// terminal (COMPLETED / COMPLETED_WITHOUT_KYC cleanly finalized), do NOT issue a
+		// sync("...", "ONGOING") that would regress the record server-side and trigger a
+		// stale sync_* webhook.
+		if (!this.errorResult) return;
+		if (this._isTerminalStatus && this.appRegistration?.status !== "FAILED") return;
+
 		if (step === "document") {
 			this._syncAppRegistration("document", "ONGOING");
 
@@ -464,6 +518,9 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	 * Navigate back to document or biometric step so the user can complete a skipped verification.
 	 */
 	goBackToStep(step: "document" | "biometric"): void {
+		// Never regress a finalized registration back to ONGOING from the results screen.
+		if (this._isTerminalStatus) return;
+
 		if (step === "document") {
 			this._smartEnrollService.setSkippedDocument(false);
 			this._syncAppRegistration("document", "ONGOING");
