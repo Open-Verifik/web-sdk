@@ -69,6 +69,14 @@ export class AuthService {
 
 		redirectUrl = `${this.baseAppUrl}`;
 
+		const bridgeUrl =
+			typeof environment.smartAgentBridgeUrl === "string" ? environment.smartAgentBridgeUrl.trim() : "";
+
+		if (bridgeUrl) {
+			window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
+			return;
+		}
+
 		window.location.href = `${redirectUrl}/sign-in?type=${type}&token=${token}`;
 	}
 

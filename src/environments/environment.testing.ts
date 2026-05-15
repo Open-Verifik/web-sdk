@@ -11,4 +11,5 @@ export const environment = {
     /** Set to true to test camera quality modal in QA. */
     forceCameraQualityModal: false,
     allowDevFaceFileUpload: false,
+    smartAgentBridgeUrl: "",
 };
