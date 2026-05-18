@@ -510,30 +510,25 @@
 					<label for="agreements" class="text-sm text-gray-600 leading-relaxed cursor-pointer flex-1">
 						<span>{{ t("signup.agreement1") }} </span>
 						<a
-							[href]="project.termsAndConditionsUrl"
+							[href]="legalTermsAndConditionsUrl"
 							[style.color]="project.branding.buttonColor || '#6366f1'"
-							*ngIf="signUpFormSettings?.showTermsAndConditions && project?.termsAndConditionsUrl"
+							*ngIf="shouldShowTermsLink"
 							class="font-medium hover:underline"
 							target="_blank"
+							rel="noopener noreferrer"
 						>
 							{{ t("signup.terms") }}
 						</a>
-						<span
-							*ngIf="
-								signUpFormSettings?.showTermsAndConditions &&
-								signUpFormSettings?.showPrivacyNotice &&
-								project?.termsAndConditionsUrl &&
-								project?.privacyUrl
-							"
-						>
+						<span *ngIf="shouldShowTermsLink && shouldShowPrivacyLink">
 							{{ t("signup.and") }}
 						</span>
 						<a
-							[href]="project.privacyUrl"
+							[href]="legalPrivacyUrl"
 							[style.color]="project.branding.buttonColor || '#6366f1'"
-							*ngIf="signUpFormSettings?.showPrivacyNotice && project?.privacyUrl"
+							*ngIf="shouldShowPrivacyLink"
 							class="font-medium hover:underline"
 							target="_blank"
+							rel="noopener noreferrer"
 						>
 							{{ t("signup.privacyPolicy") }}
 						</a>

@@ -153,6 +153,28 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		);
 	}
 
+	/** Canonical Verifik legal docs (locale-aware). */
+	get legalPrivacyUrl(): string {
+		return this._translocoService.getActiveLang() === "es"
+			? "https://docs.verifik.co/verifik-es/legal/politica-privacidad/"
+			: "https://docs.verifik.co/legal/privacy-policy/";
+	}
+
+	/** Canonical Verifik legal docs (locale-aware). */
+	get legalTermsAndConditionsUrl(): string {
+		return this._translocoService.getActiveLang() === "es"
+			? "https://docs.verifik.co/verifik-es/terminos-y-condiciones/"
+			: "https://docs.verifik.co/legal/terms-and-conditions/";
+	}
+
+	get shouldShowPrivacyLink(): boolean {
+		return Boolean(this.signUpFormSettings?.showPrivacyNotice || this.project?.privacyUrl);
+	}
+
+	get shouldShowTermsLink(): boolean {
+		return Boolean(this.signUpFormSettings?.showTermsAndConditions || this.project?.termsAndConditionsUrl);
+	}
+
 	static _dateOfBirthValidator = (control: AbstractControl) => {
 		if (!control.value) return null;
 
