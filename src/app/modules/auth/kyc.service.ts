@@ -328,6 +328,14 @@ export class KYCService {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/face-recognition/compare/app-registration`, {});
 	}
 
+	submitKycApprovalRequest(): Observable<any> {
+		return this._httpWrapper.sendRequest(
+			"post",
+			`${this.baseUrl}/v2/app-registrations/${this.appRegistration._id}/submit-kyc-approval`,
+			{},
+		);
+	}
+
 	restartKYC(): Observable<any> {
 		return this._httpWrapper.sendRequest("delete", `${this.baseUrl}/v2/biometric-validations/${this.appRegistration.biometricValidation._id}`);
 	}

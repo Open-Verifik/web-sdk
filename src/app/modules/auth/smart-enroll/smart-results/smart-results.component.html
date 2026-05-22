@@ -37,7 +37,7 @@
 						(mouseenter)="onAvatarHover(true)"
 						(mouseleave)="onAvatarHover(false)"
 						(click)="onAvatarClick()"
-						*ngIf="(zeroKnowledgeProofEnabled && zkpQRCodeUrl) && !showProjectLogoInHeader"
+						*ngIf="(zeroKnowledgeProofEnabled && zkpQRCodeUrl) && !showProjectLogoInHeader && !showComparePreview"
 					>
 						<!-- Avatar/QR Code Container with Flip Animation -->
 						<div class="relative w-32 h-32" style="perspective: 1000px">
@@ -83,7 +83,7 @@
 					</div>
 
 					<!-- Fallback Avatar (when ZKP is not enabled or QR code not available) -->
-					<div class="relative mb-6" *ngIf="(!zeroKnowledgeProofEnabled || !zkpQRCodeUrl) && !showProjectLogoInHeader">
+					<div class="relative mb-6" *ngIf="(!zeroKnowledgeProofEnabled || !zkpQRCodeUrl) && !showProjectLogoInHeader && !showComparePreview">
 						<img
 							[src]="face?.base64 || 'https://placehold.co/148x148'"
 							*ngIf="face && !identityLoading"
@@ -111,8 +111,96 @@
 					<!-- Title -->
 					<h1 class="text-2xl font-bold text-gray-900 text-center mb-2">
 						<span *ngIf="!errorResult">{{ t("smart_enroll.successful_outcome") }}</span>
-						<span *ngIf="errorResult">{{ t("smart_enroll.negative_outcome") }}</span>
+						<span *ngIf="errorResult && showComparePreview">{{ t("smart_enroll.compare_preview_title") }}</span>
+						<span *ngIf="errorResult && !showComparePreview">{{ t("smart_enroll.negative_outcome") }}</span>
 					</h1>
+
+					<!-- Compare failure: document face vs selfie -->
+					<div class="w-full mb-6 mt-4" *ngIf="showComparePreview">
+						<p class="text-sm text-gray-600 text-center leading-relaxed mb-5 px-2">
+							{{ t("smart_enroll.compare_preview_subtitle") }}
+						</p>
+
+						<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 sm:gap-3">
+							<!-- ID photo -->
+							<div class="flex-1 flex flex-col items-center gap-2 min-w-0">
+								<span class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+									{{ t("smart_enroll.id_photo_label") }}
+								</span>
+								<div class="relative">
+									<img
+										[src]="documentFaceSrc"
+										*ngIf="documentFaceSrc && !identityLoading"
+										class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-4 ring-red-200"
+										alt=""
+									/>
+									<div
+										class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-100 ring-4 ring-red-200 flex items-center justify-center"
+										*ngIf="!documentFaceSrc && !identityLoading"
+									>
+										<mat-icon svgIcon="heroicons_outline:identification" class="w-10 h-10 text-gray-300"></mat-icon>
+									</div>
+									<div
+										class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-100 ring-4 ring-red-200 flex items-center justify-center"
+										*ngIf="identityLoading"
+									>
+										<mat-progress-spinner diameter="28" mode="indeterminate"></mat-progress-spinner>
+									</div>
+								</div>
+								<p class="text-xs text-gray-500 text-center leading-snug px-1">
+									{{ t("smart_enroll.id_photo_retry_hint") }}
+								</p>
+							</div>
+
+							<!-- Score divider -->
+							<div class="flex flex-row sm:flex-col items-center justify-center gap-1 shrink-0 py-1 sm:py-0">
+								<div class="hidden sm:block w-px h-8 bg-red-200"></div>
+								<div
+									class="flex flex-col items-center justify-center w-14 h-14 rounded-full bg-red-50 ring-2 ring-red-200"
+								>
+									<span class="text-sm font-bold text-red-600 leading-none">{{ comparisonScore }}%</span>
+									<mat-icon class="text-red-500 icon-size-4 mt-0.5">close</mat-icon>
+								</div>
+								<div class="hidden sm:block w-px h-8 bg-red-200"></div>
+								<span class="sm:hidden text-red-400 font-bold text-lg px-1">≠</span>
+							</div>
+
+							<!-- Selfie -->
+							<div class="flex-1 flex flex-col items-center gap-2 min-w-0">
+								<span class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+									{{ t("smart_enroll.selfie_label") }}
+								</span>
+								<div class="relative">
+									<img
+										[src]="selfieSrc"
+										*ngIf="selfieSrc && !identityLoading"
+										class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-4 ring-red-200"
+										alt=""
+									/>
+									<div
+										class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-100 ring-4 ring-red-200 flex items-center justify-center"
+										*ngIf="!selfieSrc && !identityLoading"
+									>
+										<mat-icon svgIcon="heroicons_solid:user-circle" class="w-10 h-10 text-gray-300"></mat-icon>
+									</div>
+									<div
+										class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-100 ring-4 ring-red-200 flex items-center justify-center"
+										*ngIf="identityLoading"
+									>
+										<mat-progress-spinner diameter="28" mode="indeterminate"></mat-progress-spinner>
+									</div>
+								</div>
+								<p class="text-xs text-gray-500 text-center leading-snug px-1">
+									{{ t("smart_enroll.selfie_retry_hint") }}
+								</p>
+							</div>
+						</div>
+
+						<p class="text-sm text-red-700 text-center font-medium mt-4">
+							{{ t("smart_enroll.compare_score_line", { score: comparisonScore, min: compareMinScorePercent }) }}
+						</p>
+					</div>
+
 				</div>
 
 				<!-- Checklist Section -->

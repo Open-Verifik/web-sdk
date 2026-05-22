@@ -51,6 +51,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	errorContent: { message: string };
 	errorResult: boolean = false;
 	face: Face;
+	documentFace: Face | null = null;
 	fetchingToken: boolean;
 	identityLoading: boolean = false;
 	livenessFailed: boolean;
@@ -64,6 +65,8 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	showZKPQRCode: boolean = false;
 	private zkpRotationInterval: any;
 	private isHoveringAvatar: boolean = false;
+	private kycApprovalSubmitInFlight: boolean = false;
+	private kycApprovalSubmitted: boolean = false;
 	private endAndRedirectInFlight: boolean = false;
 
 	/**
@@ -98,6 +101,8 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.documentSkipped = this._smartEnrollService.wasSkippedDocument();
 
 		this._checkScoreStatus();
+
+		this._maybeSubmitKycApprovalRequest();
 
 		this._requestIdentityImages();
 
@@ -187,6 +192,34 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		}
 	}
 
+	private _maybeSubmitKycApprovalRequest(): void {
+		if (!this.isVerifikProject || !this.errorResult || this.kycApprovalSubmitted || this.kycApprovalSubmitInFlight) {
+			return;
+		}
+
+		if (!this.comparisonFailed && !this.livenessFailed) {
+			return;
+		}
+
+		this.kycApprovalSubmitInFlight = true;
+
+		this._KYCService.syncAppRegistration("end", "FAILED").subscribe({
+			error: () => {},
+		});
+
+		this._KYCService.submitKycApprovalRequest().subscribe({
+			next: () => {
+				this.kycApprovalSubmitted = true;
+			},
+			error: () => {
+				this.kycApprovalSubmitInFlight = false;
+			},
+			complete: () => {
+				this.kycApprovalSubmitInFlight = false;
+			},
+		});
+	}
+
 	private _endAndRedirect() {
 		// Prevent concurrent / duplicate end calls from firing two sync("end", ...) requests
 		// which previously raced with tryAgain/goBack regressions.
@@ -215,21 +248,53 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _extractFaces(arrayOfImages: Face[]): void {
-		let fallbackFace: Face;
-
 		for (let index = 0; index < arrayOfImages.length; index++) {
 			const identityImage = arrayOfImages[index];
 
-			if (identityImage.category !== "face") {
-				fallbackFace = identityImage;
-
+			if (identityImage.category === "documentFace") {
+				this.documentFace = identityImage;
 				continue;
 			}
 
-			this._setFace(identityImage);
+			if (identityImage.category === "face") {
+				this.face = identityImage;
+			}
 		}
 
-		if (!this.face) this._setFace(fallbackFace);
+		if (this.face?.base64) {
+			this.face.base64 = this._normalizeFaceBase64(this.face.base64);
+		}
+
+		if (this.documentFace?.base64) {
+			this.documentFace.base64 = this._normalizeFaceBase64(this.documentFace.base64);
+		}
+
+		if (!this.documentFace?.base64 && this.appRegistration.documentFace?.base64) {
+			this.documentFace = {
+				...this.appRegistration.documentFace,
+				base64: this._normalizeFaceBase64(this.appRegistration.documentFace.base64),
+			};
+		}
+
+		this.identityLoading = false;
+	}
+
+	private _normalizeFaceBase64(base64?: string): string {
+		if (!base64) return "";
+
+		let normalized = base64;
+
+		if (!normalized.includes("data:image")) {
+			normalized = `data:image/jpeg;base64,${normalized}`;
+		}
+
+		const parts = normalized.split("data:image/jpeg;base64,");
+
+		if (parts.length === 3) {
+			normalized = normalized.replace("data:image/jpeg;base64,", "");
+		}
+
+		return normalized;
 	}
 
 	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
@@ -263,24 +328,16 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 				this._extractFaces(response.data);
 				this._tryCreateZKPAfterFaceLoaded();
 			},
-			error: () => {},
+			error: () => {
+				this.identityLoading = false;
+			},
 			complete: () => {},
 		});
 	}
 
 	private _setFace(identityImage: Face) {
 		this.face = identityImage;
-
-		if (!this.face.base64.includes("data:image")) {
-			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-		}
-
-		const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
-
-		if (stringArr.length === 3) {
-			this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
-		}
-
+		this.face.base64 = this._normalizeFaceBase64(identityImage.base64);
 		this.identityLoading = false;
 	}
 
@@ -322,6 +379,24 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	get showProjectLogoInHeader(): boolean {
 		return this.documentSkipped && this.biometricSkipped;
+	}
+
+	get showComparePreview(): boolean {
+		return Boolean(this.errorResult && this.comparisonFailed && !this.documentSkipped && !this.biometricSkipped);
+	}
+
+	get documentFaceSrc(): string | null {
+		return this.documentFace?.base64 || null;
+	}
+
+	get selfieSrc(): string | null {
+		return this.face?.base64 || null;
+	}
+
+	get compareMinScorePercent(): number {
+		const minScore = this.enrollStore.biometric.compareMinScore ?? 0;
+
+		return minScore <= 1 ? Math.floor(minScore * 100) : Math.floor(minScore);
 	}
 
 	private _createAppRegistrationZKP(): void {
