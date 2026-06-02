@@ -308,27 +308,16 @@
             </div>
 
             <form class="mt-8" [formGroup]="phoneForm" #phoneNgForm="ngForm">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                    <mat-form-field class="w-full mr-2">
-                        <mat-label [style.color]="project.branding.textColor"> {{ "login.country_code" | transloco }}</mat-label>
-                        <mat-select *ngIf="countries" class="mr-1.5" [formControl]="phoneForm.get('countryCode')" matPrefix>
-                            <mat-select-trigger>
-                                <span class="flex items-center">
-                                    <span class="sm:mx-0.5 font-medium text-default">{{ phoneForm.get("countryCode").value }}</span>
-                                </span>
-                            </mat-select-trigger>
-                            <ng-container *ngFor="let country of countries">
-                                <mat-option [value]="country.code">
-                                    <span class="flex items-center">
-                                        <span class="ml-2">{{ country.name }}</span>
-                                        <span class="ml-2 font-medium">{{ country.code }}</span>
-                                    </span>
-                                </mat-option>
-                            </ng-container>
-                        </mat-select>
-                    </mat-form-field>
+                <div class="flex flex-row gap-2 items-start" fxLayout="row" fxLayoutAlign="start center">
+                    <app-country-code-select
+                        class="flex-shrink-0"
+                        [control]="phoneForm.get('countryCode')"
+                        [required]="true"
+                        fieldClass="w-32 sm:w-36"
+                        label="login.country_code"
+                    />
 
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full flex-1">
                         <mat-label [style.color]="project.branding.textColor">{{ "login.phone" | transloco }}</mat-label>
                         <input id="phone" matInput [formControlName]="'phone'" />
                         <mat-error *ngIf="phoneForm.get('phone').hasError('required')">

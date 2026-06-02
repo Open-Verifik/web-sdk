@@ -26,10 +26,10 @@ import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { AppService } from "app/core/services/app.service";
+import { CountryCodeSelectComponent } from "app/core/components/country-code-select/country-code-select.component";
 import { CountryService } from "app/core/services/country.service";
 import { ProjectStorageService } from "app/core/services/project-storage.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { CountriesService } from "app/modules/demo/countries.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 import { OneTimePasswordInputComponent } from "../../../core/components/one-time-password-input/one-time-password-input.component";
@@ -49,6 +49,7 @@ import { AuthUtils } from "app/core/auth/auth.utils";
     styleUrls: ["./sign-in.component.scss"],
     templateUrl: "./sign-in.component.html",
     imports: [
+        CountryCodeSelectComponent,
         PasskeyPromptComponent,
         PasskeySuccessComponent,
         CommonModule,
@@ -80,7 +81,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     activeSendOtp: boolean;
     appLoginToken: string;
     biometricsReady: boolean;
-    countries: Array<any>;
     demoData: any;
     deviceDetails: any;
     emailSent: boolean;
@@ -424,7 +424,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         private _appService: AppService,
         private _authService: AuthService,
         private _changeDetectorRef: ChangeDetectorRef,
-        private _countries: CountriesService,
         private _countryService: CountryService,
         private _demoService: DemoService,
         private _formBuilder: UntypedFormBuilder,
@@ -440,7 +439,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this._passwordlessService.flow = "login";
 
-        this.countries = this._countries.countryCodes;
         this.emailValidation = null;
         this.phoneValidation = null;
         this.showBiometrics = false;
@@ -473,7 +471,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                 this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 
-                this.location.countryCode = this._countries.findCountryCode(this.location.country);
+                this.location.countryCode = this._countryService.findCountryCodeByName(this.location.country);
                 this.location.os = this.deviceDetails?.platform;
                 this.location.type = "browser";
 

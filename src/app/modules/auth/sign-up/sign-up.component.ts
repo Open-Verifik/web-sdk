@@ -10,7 +10,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { combineLatest, map, Subject, takeUntil } from "rxjs";
 
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { CountriesService } from "app/modules/demo/countries.service";
+import { CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 import { ProjectFlow } from "../../../core/classes/project-flow.class";
@@ -93,7 +93,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _activatedRoute: ActivatedRoute,
 		private _appService: AppService,
 		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService,
+		private _countryService: CountryService,
 		private _demoService: DemoService,
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
@@ -208,7 +208,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 				this.location.os = this.deviceDetails?.platform;
 				this.location.type = "browser";
-				this.location.countryCode = this._countries.findCountryCode(this.location.country);
+				this.location.countryCode = this._countryService.findCountryCodeByName(this.location.country);
 			},
 			error(err) {
 				this.locationError = err;

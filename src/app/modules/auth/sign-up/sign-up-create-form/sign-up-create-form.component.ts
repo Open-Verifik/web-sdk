@@ -24,7 +24,8 @@ import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { SmartEnrollProjectFlow } from "app/core/models/smart-enroll-project.model";
 import { ApiErrorService, NormalizedApiError } from "app/core/services/api-error.service";
-import { CountryCodeOption, CountryOption, CountryService } from "app/core/services/country.service";
+import { CountryCodeSelectComponent } from "app/core/components/country-code-select/country-code-select.component";
+import { CountryOption, CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
@@ -41,6 +42,7 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 	styleUrls: ["./sign-up-create-form.component.scss"],
 	templateUrl: "./sign-up-create-form.component.html",
 	imports: [
+		CountryCodeSelectComponent,
 		CommonModule,
 		FlexLayoutModule,
 		MatButtonModule,
@@ -59,7 +61,6 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 	],
 })
 export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
-	@ViewChild("countryCodeSearchInput") countryCodeSearchInput: ElementRef<HTMLInputElement>;
 	@ViewChild("countrySearchInput") countrySearchInput: ElementRef<HTMLInputElement>;
 
 	@Input("deviceDetails") deviceDetails: any;
@@ -76,10 +77,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 	appRegistration: AppRegistration;
 	countries: CountryOption[];
-	countryCodes: CountryCodeOption[];
-	filteredCountryCodes: CountryCodeOption[];
 	filteredCountries: CountryOption[];
-	countryCodeSearchTerm: string = "";
 	countrySearchTerm: string = "";
 	demoData: any;
 	fields: any;
@@ -105,9 +103,6 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService
 	) {
-		this.countryCodes = this._countryService.countryCodes;
-		this.filteredCountryCodes = this.countryCodes;
-
 		this.countries = this._countryService.countries;
 		this.filteredCountries = this.countries;
 
@@ -371,62 +366,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		this._changeDetectorRef.detectChanges();
 	}
 
-	trackByCountryCode(_index: number, country: any): string {
-		return country?.code;
-	}
-
 	trackByCountry(_index: number, country: any): string {
 		return country?.country;
-	}
-
-	onCountryCodeSearchChange(searchTerm: string): void {
-		this.countryCodeSearchTerm = searchTerm;
-		this.filterCountryCodes();
-	}
-
-	clearCountryCodeSearch(event?: Event): void {
-		if (event) {
-			event.preventDefault();
-			event.stopPropagation();
-		}
-		this.countryCodeSearchTerm = "";
-		this.filteredCountryCodes = this.countryCodes;
-		this._changeDetectorRef.detectChanges();
-
-		// Refocus the search input after clearing
-		setTimeout(() => {
-			if (this.countryCodeSearchInput?.nativeElement) {
-				this.countryCodeSearchInput.nativeElement.focus();
-			}
-		}, 0);
-	}
-
-	private filterCountryCodes(): void {
-		if (!this.countryCodeSearchTerm.trim()) {
-			this.filteredCountryCodes = this.countryCodes;
-		} else {
-			const searchTerm = this.countryCodeSearchTerm.toLowerCase().trim();
-			this.filteredCountryCodes = this.countryCodes.filter(
-				(country) => country.code.toLowerCase().includes(searchTerm) || country.name.toLowerCase().includes(searchTerm)
-			);
-		}
-	}
-
-	onCountryCodeSelectOpened(): void {
-		this.countryCodeSearchTerm = "";
-		this.filteredCountryCodes = this.countryCodes;
-		// Focus the search input after the select panel opens
-		setTimeout(() => {
-			if (this.countryCodeSearchInput?.nativeElement) {
-				this.countryCodeSearchInput.nativeElement.focus();
-			}
-		}, 100);
-	}
-
-	onCountryCodeSelectClosed(): void {
-		this.countryCodeSearchTerm = "";
-		this.filteredCountryCodes = this.countryCodes;
-		this.onCountryCodeChange();
 	}
 
 	// Country search methods

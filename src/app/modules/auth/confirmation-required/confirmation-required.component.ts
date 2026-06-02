@@ -19,7 +19,8 @@ import { MatSelectModule } from "@angular/material/select";
 import { FuseAlertComponent } from "@fuse/components/alert";
 import { Subscription, interval } from "rxjs";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { CountriesService } from "app/modules/demo/countries.service";
+import { CountryCodeSelectComponent } from "app/core/components/country-code-select/country-code-select.component";
+import { CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { AuthService } from "app/core/auth/auth.service";
 import { AppService } from "app/core/services/app.service";
@@ -45,6 +46,7 @@ import { AppService } from "app/core/services/app.service";
 		MatProgressSpinnerModule,
 		TranslocoModule,
 		CommonModule,
+		CountryCodeSelectComponent,
 		MatSelectModule,
 		LanguagesComponent,
 	],
@@ -73,7 +75,6 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 	private countdownSubscription: Subscription;
 	token: string;
 	showSkipDoingKYC: boolean;
-	countries: Array<any>;
 	location: any;
 	deviceDetails: any;
 	endstep: boolean;
@@ -101,15 +102,13 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		private _changeDetectorRef: ChangeDetectorRef,
 		private _router: Router,
 		private _formBuilder: UntypedFormBuilder,
-		private _countries: CountriesService,
+		private _countryService: CountryService,
 		private _demoService: DemoService,
 		private _authService: AuthService,
 		private _translocoService: TranslocoService,
 		private _appService: AppService
 	) {
 		this._splashScreenService.show();
-
-		this.countries = this._countries.countryCodes;
 
 		this.deviceDetails = this._appService.getDeviceDetails();
 	}
@@ -132,7 +131,7 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 				this.location.os = this.deviceDetails?.platform;
 				this.location.type = "desktop";
 
-				this.location.countryCode = this._countries.findCountryCode(this.location.country);
+				this.location.countryCode = this._countryService.findCountryCodeByName(this.location.country);
 			},
 			error: (exception) => {},
 			complete: () => {},

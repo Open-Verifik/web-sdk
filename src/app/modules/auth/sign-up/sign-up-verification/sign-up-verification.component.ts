@@ -30,8 +30,8 @@ import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { OneTimePasswordInputComponent } from "app/core/components/one-time-password-input/one-time-password-input.component";
+import { CountryCodeSelectComponent } from "app/core/components/country-code-select/country-code-select.component";
 import { CountryService } from "app/core/services/country.service";
-import { CountriesService } from "app/modules/demo/countries.service";
 import { KYCService } from "../../kyc.service";
 import { AppRegistration } from "../../project";
 import { SmartEnrollService } from "../../smart-enroll/smart-enroll.service";
@@ -54,6 +54,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 		MatIconModule,
 		MatInputModule,
 		MatProgressSpinnerModule,
+		CountryCodeSelectComponent,
 		MatSelectModule,
 		NgIf,
 		OneTimePasswordInputComponent,
@@ -76,7 +77,6 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 
 	@Output("changeStep") readonly changeStep: EventEmitter<string> = new EventEmitter<string>();
 
-	countries: Array<any>;
 	currentValidation: any;
 	deviceDetails: any;
 	emailOtp: string = "";
@@ -104,14 +104,12 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		private _activatedRoute: ActivatedRoute,
 		private _apiErrorService: ApiErrorService,
 		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService,
 		private _countryService: CountryService,
 		private _formBuilder: UntypedFormBuilder,
 		private _KYCService: KYCService,
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService
 	) {
-		this.countries = this._countries.countryCodes;
 		this.emailOtp = this._activatedRoute.snapshot.queryParams?.otp;
 	}
 
@@ -660,6 +658,12 @@ export class SignUpVerificationComponent implements OnInit, OnChanges, OnDestroy
 		const input = event.target as HTMLInputElement;
 
 		input.value = input.value.replace(/[^0-9]/g, "");
+	}
+
+	onCountryCodeChangeFromSelect(countryCode: string): void {
+		if (!countryCode) return;
+
+		this._updatePhoneValidators(countryCode);
 	}
 
 	preventInputFocus(event: InputEvent): void {

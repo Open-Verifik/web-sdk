@@ -154,23 +154,17 @@
 
 						<ng-template #phoneTabContent>
 							<div class="signin-form__tab-content">
-								<div class="flex gap-2" *ngIf="groupFields.phone">
-									<mat-form-field appearance="outline" class="w-24 signin-form__field">
-										<mat-label class="signin-form__label" for="countryCode">{{ t("login.code") }}</mat-label>
-
-										<mat-select
-											id="countryCode"
-											(ngModelChange)="onCountryCodeChange($event)"
-											[readOnly]="smsSent && !activeSendOtp"
-											*ngIf="countries"
-											formControlName="countryCode"
-											required
-										>
-											<mat-option [value]="country.code" *ngFor="let country of countries; trackBy: trackByFn">
-												{{ country.code }}
-											</mat-option>
-										</mat-select>
-									</mat-form-field>
+								<div class="flex gap-2" *ngIf="groupFields.phone && signInForm">
+									<app-country-code-select
+										class="flex-shrink-0"
+										[control]="signInForm.get('countryCode')"
+										[readOnly]="smsSent && !activeSendOtp"
+										[required]="true"
+										(selectionChange)="onCountryCodeChange($event)"
+										fieldClass="w-32 sm:w-36 signin-form__field"
+										label="login.code"
+										selectId="countryCode"
+									/>
 
 									<mat-form-field appearance="outline" class="flex-1 signin-form__field">
 										<mat-label class="signin-form__label" for="phone">{{ t("login.phone") }}</mat-label>

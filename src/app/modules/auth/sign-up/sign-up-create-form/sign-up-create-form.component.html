@@ -158,66 +158,16 @@
 				</mat-form-field>
 
 				<!-- Phone Field -->
-				<div class="w-full flex flex-row gap-1 sm:gap-2 max-w-full" *ngIf="fields.phone">
-					<mat-form-field appearance="outline" class="w-20 sm:w-28 flex-shrink-0">
-						<mat-label>{{ t("signup.code") }}</mat-label>
-
-						<mat-select
-							(click)="preventInputFocus($event)"
-							(closed)="onCountryCodeSelectClosed()"
-							(openedChange)="onCountryCodeSelectOpened()"
-							(selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
-							[formControl]="signUpForm.get('countryCode') || null"
-							*ngIf="countryCodes"
-							autocomplete="country-code"
-							disableRipple
-							name="countryCode"
-							panelClass="verifik-select-search__panel"
-							required
-						>
-							<!-- Search input -->
-							<mat-option
-								(click)="$event.preventDefault(); $event.stopPropagation()"
-								(mousedown)="$event.preventDefault(); $event.stopPropagation()"
-								(mouseup)="$event.preventDefault(); $event.stopPropagation()"
-								class="verifik-select-search__option"
-							>
-								<div class="verifik-select-search__container">
-									<input
-										(click)="$event.stopPropagation()"
-										(input)="onCountryCodeSearchChange($event.target.value)"
-										(keydown)="$event.stopPropagation()"
-										(mousedown)="$event.stopPropagation()"
-										(mouseup)="$event.stopPropagation()"
-										[placeholder]="t('search') + '...'"
-										[value]="countryCodeSearchTerm"
-										#countryCodeSearchInput
-										class="verifik-select-search__input"
-										type="text"
-									/>
-
-									<button
-										(click)="clearCountryCodeSearch($event)"
-										(keydown)="$event.stopPropagation()"
-										(mousedown)="$event.stopPropagation()"
-										(mouseup)="$event.stopPropagation()"
-										*ngIf="countryCodeSearchTerm"
-										aria-label="Clear search"
-										class="verifik-select-search__clear"
-										mat-icon-button
-										type="button"
-									>
-										<mat-icon>close</mat-icon>
-									</button>
-								</div>
-							</mat-option>
-
-							<!-- Country code options -->
-							<mat-option *ngFor="let country of filteredCountryCodes; trackBy: trackByCountryCode" [value]="country.code">
-								{{ country.code }}
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
+				<div class="w-full flex flex-row gap-1 sm:gap-2 max-w-full" *ngIf="fields.phone && signUpForm">
+					<app-country-code-select
+						class="flex-shrink-0"
+						[control]="signUpForm.get('countryCode')"
+						[required]="true"
+						(selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
+						fieldClass="w-20 sm:w-28"
+						label="signup.code"
+						selectId="countryCode"
+					/>
 
 					<mat-form-field appearance="outline" class="flex-1">
 						<mat-label>{{ t("login.phone") }}</mat-label>

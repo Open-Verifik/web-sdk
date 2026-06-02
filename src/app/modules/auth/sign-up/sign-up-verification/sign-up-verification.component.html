@@ -255,22 +255,15 @@
 					</div>
 
 					<form [formGroup]="phoneForm" class="w-full flex flex-col gap-4">
-						<div class="w-full flex flex-row gap-3">
-							<mat-form-field appearance="outline" class="w-28">
-								<mat-label>{{ t("signup.code") }}</mat-label>
-
-								<mat-select
-									(click)="preventInputFocus($event)"
-									(selectionChange)="removeSpacesFromPhone()"
-									[formControl]="phoneForm.get('countryCode')"
-									*ngIf="countries"
-									required
-								>
-									<mat-option *ngFor="let country of countries" [value]="country.code">
-										{{ country.code }}
-									</mat-option>
-								</mat-select>
-							</mat-form-field>
+						<div class="w-full flex flex-row gap-3" *ngIf="phoneForm">
+							<app-country-code-select
+								class="flex-shrink-0"
+								[control]="phoneForm.get('countryCode')"
+								[required]="true"
+								(selectionChange)="removeSpacesFromPhone(); onCountryCodeChangeFromSelect($event)"
+								fieldClass="w-32 sm:w-36"
+								label="signup.code"
+							/>
 
 							<mat-form-field appearance="outline" class="flex-1">
 								<mat-label>{{ t("login.phone") }}</mat-label>
