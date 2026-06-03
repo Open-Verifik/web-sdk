@@ -59,17 +59,22 @@ export class AuthService {
 
 		let redirectUrl = projectFlow.integrations.redirectUrl;
 
+		const bridgeUrl = this._resolveSmartAgentBridgeUrl();
+		const integrationsRedirect = (projectFlow.integrations?.redirectUrl ?? "").trim();
+
 		if (projectId !== verifikProject) {
-			redirectUrl = projectFlow.integrations.redirectUrl;
+			if (bridgeUrl && this._shouldUseSmartAgentBridge(integrationsRedirect)) {
+				window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
+				return;
+			}
 
-			window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
-
-			return;
+			if (integrationsRedirect) {
+				window.location.href = `${integrationsRedirect}?type=${type}&token=${token}`;
+				return;
+			}
 		}
 
 		redirectUrl = `${this.baseAppUrl}`;
-
-		const bridgeUrl = this._resolveSmartAgentBridgeUrl();
 
 		if (bridgeUrl) {
 			window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
@@ -190,16 +195,16 @@ export class AuthService {
 	}
 
 	private _resolveSmartAgentBridgeUrl(): string {
-		const fromEnv =
-			typeof environment.smartAgentBridgeUrl === "string" ? environment.smartAgentBridgeUrl.trim() : "";
-
-		if (fromEnv) return fromEnv;
-
 		const hostname = window.location.hostname;
 
 		if (hostname.includes("staging-access.verifik.co") || hostname.includes("testing-access.verifik.co")) {
 			return "https://staging.verifik.co/bridge";
 		}
+
+		const fromEnv =
+			typeof environment.smartAgentBridgeUrl === "string" ? environment.smartAgentBridgeUrl.trim() : "";
+
+		if (fromEnv) return fromEnv;
 
 		if (hostname.includes("access.verifik.co") || hostname.includes("access.app")) {
 			return "https://ai.verifik.co/bridge";
@@ -210,5 +215,20 @@ export class AuthService {
 		}
 
 		return "";
+	}
+
+	/** Legacy Smart Access handoff pointed at client-panel /sign-in; use Smart-Agent /bridge instead. */
+	private _shouldUseSmartAgentBridge(integrationsRedirect: string): boolean {
+		if (!integrationsRedirect) return false;
+
+		try {
+			const url = new URL(integrationsRedirect);
+			const path = url.pathname.replace(/\/+$/, "") || "/";
+			const isVerifikPanelHost = /^(staging\.verifik\.co|testing\.verifik\.co|app\.verifik\.co)$/i.test(url.hostname);
+
+			return isVerifikPanelHost && path === "/sign-in";
+		} catch {
+			return /\/sign-in\/?(\?.*)?$/i.test(integrationsRedirect);
+		}
 	}
 }
