@@ -620,6 +620,14 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 return;
             }
 
+            const handoffToken = queryParams.token;
+
+            if ((type === "login" || type === "onboarding") && handoffToken) {
+                const redirectType = type === "onboarding" ? "onboarding" : "login";
+                this._authService.handleRedirect(this.projectFlow, this.project._id, handoffToken, redirectType);
+                return;
+            }
+
             const email = queryParams.email;
             const emailOTP = queryParams.otp;
 

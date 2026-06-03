@@ -1,0 +1,10 @@
+{
+	"smart_enroll": {
+		"documents": {
+			"zero_knowledge_proof_title": "Preuve à Divulgation Nulle",
+			"creating_zero_knowledge_proof": "Création de la preuve à divulgation nulle",
+			"zero_knowledge_proof_complete": "Preuve à divulgation nulle créée avec succès"
+		},
+		"zkp_face_proof_created": "Votre Preuve à Divulgation Nulle Faciale a été créée avec succès"
+	}
+}

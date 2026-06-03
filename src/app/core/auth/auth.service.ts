@@ -69,8 +69,7 @@ export class AuthService {
 
 		redirectUrl = `${this.baseAppUrl}`;
 
-		const bridgeUrl =
-			typeof environment.smartAgentBridgeUrl === "string" ? environment.smartAgentBridgeUrl.trim() : "";
+		const bridgeUrl = this._resolveSmartAgentBridgeUrl();
 
 		if (bridgeUrl) {
 			window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
@@ -188,5 +187,28 @@ export class AuthService {
 			phone: !isEmail ? identifier : undefined,
 			projectId: projectId, // Backend might expect this in body if not in token?
 		});
+	}
+
+	private _resolveSmartAgentBridgeUrl(): string {
+		const fromEnv =
+			typeof environment.smartAgentBridgeUrl === "string" ? environment.smartAgentBridgeUrl.trim() : "";
+
+		if (fromEnv) return fromEnv;
+
+		const hostname = window.location.hostname;
+
+		if (hostname.includes("staging-access.verifik.co") || hostname.includes("testing-access.verifik.co")) {
+			return "https://staging.verifik.co/bridge";
+		}
+
+		if (hostname.includes("access.verifik.co") || hostname.includes("access.app")) {
+			return "https://ai.verifik.co/bridge";
+		}
+
+		if (hostname === "localhost" || hostname === "127.0.0.1") {
+			return "http://localhost:4201/bridge";
+		}
+
+		return "";
 	}
 }
