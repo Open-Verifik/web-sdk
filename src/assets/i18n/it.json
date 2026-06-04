@@ -316,6 +316,17 @@
 		"title_1": "Benvenuto",
 		"title_2": "Accedi",
 		"use_biometrics_button": "Verifica facciale",
+		"change_contact": "Modifica",
+		"media_highlight_title": "Verificato in pochi secondi",
+		"media_highlight_subtitle": "Verifica dell'identità di livello bancario, affidabile in tutte le Americhe.",
+		"otp_step_title": "Inserisci il codice a 6 cifre",
+		"otp_sent_to": "Codice inviato a {{target}}",
+		"passkey_cta": "Accedi con una passkey",
+		"passkey_helper": "Usa Face ID / Touch ID — nessun codice da digitare",
+		"passkey_not_found": "Nessuna passkey trovata per questo account",
+		"passkey_login_failed": "Non siamo riusciti a completare l'accesso con passkey. Riprova o usa un codice.",
+		"passkey_what": "Le passkey ti permettono di accedere con la tua impronta o il tuo volto invece di una password.",
+		"secured_by": "Protetto da Verifik",
 		"user_not_found": "Utente non trovato"
 	},
 	"add_biometrics": {
@@ -332,6 +343,9 @@
 			"title": "Proteggi il tuo account",
 			"description": "Abilita PassKeys (FaceID / TouchID) per un accesso più rapido e senza password la prossima volta.",
 			"confirm": "Abilita PassKeys",
+			"benefit_1": "Accedi all'istante, senza attendere codici",
+			"benefit_2": "Resistente al phishing e più sicuro",
+			"benefit_3": "Nessuna password da ricordare",
 			"cancel": "Forse più tardi"
 		},
 		"passkey_success": {

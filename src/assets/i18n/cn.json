@@ -317,6 +317,17 @@
 		"title_1": "欢迎",
 		"title_2": "登录",
 		"use_biometrics_button": "人脸验证",
+		"change_contact": "更改",
+		"media_highlight_title": "几秒内完成验证",
+		"media_highlight_subtitle": "银行级身份验证，受到整个美洲的信赖。",
+		"otp_step_title": "输入6位验证码",
+		"otp_sent_to": "验证码已发送至 {{target}}",
+		"passkey_cta": "使用通行密钥登录",
+		"passkey_helper": "使用 Face ID / Touch ID — 无需输入验证码",
+		"passkey_not_found": "未找到此账户的通行密钥",
+		"passkey_login_failed": "无法完成通行密钥登录。请重试或使用验证码。",
+		"passkey_what": "通行密钥让您使用指纹或面部登录，而无需密码。",
+		"secured_by": "由 Verifik 保护",
 		"user_not_found": "未找到用户"
 	},
 	"add_biometrics": {
@@ -333,6 +344,9 @@
 			"title": "保护您的账户",
 			"description": "启用 PassKeys(FaceID / TouchID)以便下次更快速、无需密码的访问。",
 			"confirm": "启用 PassKeys",
+			"benefit_1": "即时登录 — 无需等待验证码",
+			"benefit_2": "抗钓鱼且更安全",
+			"benefit_3": "无需记住密码",
 			"cancel": "稍后再说"
 		},
 		"passkey_success": {

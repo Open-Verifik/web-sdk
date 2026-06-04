@@ -316,6 +316,17 @@
 		"title_1": "환영합니다",
 		"title_2": "로그인",
 		"use_biometrics_button": "얼굴 인증",
+		"change_contact": "변경",
+		"media_highlight_title": "몇 초 만에 인증",
+		"media_highlight_subtitle": "아메리카 전역에서 신뢰받는 은행 수준의 신원 인증.",
+		"otp_step_title": "6자리 코드를 입력하세요",
+		"otp_sent_to": "{{target}}(으)로 코드가 전송되었습니다",
+		"passkey_cta": "패스키로 로그인",
+		"passkey_helper": "Face ID / Touch ID 사용 — 입력할 코드 없음",
+		"passkey_not_found": "이 계정에 대한 패스키를 찾을 수 없습니다",
+		"passkey_login_failed": "패스키 로그인을 완료하지 못했습니다. 다시 시도하거나 코드를 사용하세요.",
+		"passkey_what": "패스키를 사용하면 비밀번호 대신 지문이나 얼굴로 로그인할 수 있습니다.",
+		"secured_by": "Verifik 보안 적용",
 		"user_not_found": "사용자를 찾을 수 없습니다"
 	},
 	"add_biometrics": {
@@ -332,6 +343,9 @@
 			"title": "계정 보안",
 			"description": "다음번에 더 빠르고 비밀번호 없는 액세스를 위해 PassKeys(FaceID / TouchID)를 활성화하세요.",
 			"confirm": "PassKeys 활성화",
+			"benefit_1": "코드를 기다릴 필요 없이 즉시 로그인",
+			"benefit_2": "피싱에 강하고 더 안전합니다",
+			"benefit_3": "기억할 비밀번호가 없습니다",
 			"cancel": "나중에"
 		},
 		"passkey_success": {

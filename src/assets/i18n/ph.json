@@ -316,6 +316,17 @@
 		"title_1": "Maligayang pagdating",
 		"title_2": "Mag-sign in",
 		"use_biometrics_button": "Pag-verify ng mukha",
+		"change_contact": "Palitan",
+		"media_highlight_title": "Na-verify sa ilang segundo",
+		"media_highlight_subtitle": "Bank-grade na pag-verify ng pagkakakilanlan, pinagkakatiwalaan sa buong Amerika.",
+		"otp_step_title": "Ilagay ang 6-digit na code",
+		"otp_sent_to": "Ipinadala ang code sa {{target}}",
+		"passkey_cta": "Mag-sign in gamit ang passkey",
+		"passkey_helper": "Gamitin ang Face ID / Touch ID — walang code na ita-type",
+		"passkey_not_found": "Walang nakitang passkey para sa account na ito",
+		"passkey_login_failed": "Hindi namin nakumpleto ang pag-sign in gamit ang passkey. Subukan ulit o gumamit ng code.",
+		"passkey_what": "Pinapayagan ka ng passkeys na mag-sign in gamit ang iyong fingerprint o mukha sa halip na password.",
+		"secured_by": "Pinangangalagaan ng Verifik",
 		"user_not_found": "Hindi natagpuan ang user"
 	},
 	"add_biometrics": {
@@ -332,6 +343,9 @@
 			"title": "Protektahan ang iyong account",
 			"description": "I-enable ang PassKeys (FaceID / TouchID) para sa mas mabilis, walang password na access sa susunod.",
 			"confirm": "I-enable ang PassKeys",
+			"benefit_1": "Mag-sign in agad — hindi na maghihintay ng code",
+			"benefit_2": "Phishing-resistant at mas secure",
+			"benefit_3": "Walang password na tatandaan",
 			"cancel": "Mamaya na lang"
 		},
 		"passkey_success": {

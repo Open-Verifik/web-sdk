@@ -108,6 +108,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     // Passkey State
     isPasskeyLoading: boolean = false;
     passkeyAvailable: boolean = false;
+    passkeyExistsForContact: boolean = false;
+    lastPasskeyAttemptFound: boolean = false;
     showPasskeyPrompt: boolean = false;
     showPasskeySuccess: boolean = false;
     // ZK Auth
@@ -116,6 +118,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     zkAuthRecord: any; // Store IPFS URL for ZK Auth
     private _passkeyPromptResolver: (value: boolean) => void;
     private _debounceTimer: any;
+    private _passkeyDebounceTimer: any;
 
     // --- Passkey Logic ---
 
@@ -310,85 +313,107 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     private async _checkAndLoginWithPasskey(identifier: string): Promise<boolean> {
         if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
 
+        this.lastPasskeyAttemptFound = false;
+
+        // 1. Find every passkey registered for this identifier within the current project
+        let matches: any[] = [];
+
         try {
-            // 1. Check if Passkey exists
-            const rawIdentifier = identifier;
-            const constructedIdentifier = `${rawIdentifier.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
+            const constructedIdentifier = `${identifier.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
 
-            let query: any = {
-                identifier: constructedIdentifier,
-            };
+            const response = await this._passkeyZelfService.listPasskeys({ identifier: constructedIdentifier }, true);
 
-            const response = await this._passkeyZelfService.listPasskeys(query, true);
+            const currentProjectId = this.project?._id;
 
-            if (response && response.data && response.data.length > 0) {
-                // Filter by current Project
-                const currentProjectId = this.project?._id;
-                const matchingPasskey = response.data.find((f: any) => f.publicData?.category === `${currentProjectId}_passKeys`);
+            matches = (response?.data || []).filter((f: any) => f.publicData?.category === `${currentProjectId}_passKeys`);
+        } catch (e) {
+            console.error("[Passkey Login] Failed to list passkeys", e);
+            return false;
+        }
 
-                if (matchingPasskey) {
-                    // 2. Passkey Found!
-                    this.passkeyAvailable = true;
-                    this.loading = true;
+        if (!matches.length) return false;
 
-                    const credentialId = matchingPasskey.publicData?.credentialId;
-                    const allowCredentials = credentialId ? [credentialId] : [];
+        // A passkey exists for this account; any failure from here is an auth/decrypt error, not "not found".
+        this.lastPasskeyAttemptFound = true;
 
-                    // 3. Authenticate with Passkey (biometric verification)
-                    await this._biometricSecurityService.authenticatePasskey(allowCredentials);
+        try {
+            this.passkeyAvailable = true;
+            this.loading = true;
+            this._changeDetectorRef.markForCheck();
 
-                    // 4. Derive encryption key from identifier
-                    const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(identifier);
+            // 2. Offer every registered credential so the authenticator can use whichever lives on this device
+            const allowCredentials = matches.map((m) => m.publicData?.credentialId).filter((id: any): id is string => Boolean(id));
 
-                    // 5. Get the encrypted content (already fetched from IPFS by listPasskeys)
-                    let iv: string, ciphertext: string;
+            const { credentialId: usedCredentialId } = await this._biometricSecurityService.authenticatePasskey(allowCredentials);
 
-                    if (matchingPasskey.encryptedContent) {
-                        // Use the already-fetched content from IPFS
-                        ({ iv, ciphertext } = matchingPasskey.encryptedContent);
-                        console.log("[Passkey Login] Using encryption key content already fetched from IPFS");
-                    } else {
-                        // Fallback: Fetch from IPFS if not already loaded
-                        const fileUrl = matchingPasskey.url;
-                        console.log("[Passkey Login] Fetching encryption key from IPFS:", fileUrl);
-                        const encryptedFile = await fetch(fileUrl).then((res) => res.json());
+            // 3. Prefer the record tied to the credential actually used, then fall back to the rest
+            const ordered = [
+                ...matches.filter((m) => m.publicData?.credentialId === usedCredentialId),
+                ...matches.filter((m) => m.publicData?.credentialId !== usedCredentialId),
+            ];
 
-                        // Handle structure (whether directly in file or nested)
-                        const payloadString = encryptedFile.encryptedToken || encryptedFile;
-                        ({ iv, ciphertext } = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString);
+            // 4. Decrypt with the identifier-derived key (key is not credential-bound)
+            const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(identifier);
 
-                        // Store for future use
-                        matchingPasskey.encryptedContent = { iv, ciphertext };
-                        console.log("[Passkey Login] Encryption key content fetched from IPFS and stored in passkey record");
-                    }
+            const tokenOrPassword = await this._decryptFirstAvailablePasskey(ordered, encryptionKey);
 
-                    const tokenOrPassword = await this._biometricSecurityService.decryptData(encryptionKey, ciphertext, iv);
+            if (tokenOrPassword === null) {
+                throw new Error("Unable to decrypt any passkey record for this account");
+            }
 
-                    let finalToken: string;
+            let finalToken: string;
 
-                    if (this.project?._id === environment.verifikProject || this.project?._id === environment.sandboxProject) {
-                        // For Verifik Project, the decrypted data IS the token
-                        finalToken = tokenOrPassword;
-                    } else {
-                        // For other projects, it is the password. Login to get token.
-                        const loginResponse = await firstValueFrom(this._authService.loginAppPasskey(this.project?._id, identifier, tokenOrPassword));
-                        if (loginResponse && loginResponse.data && loginResponse.data.token) {
-                            finalToken = loginResponse.data.token;
-                        } else {
-                            throw new Error("Failed to login with passkey password");
-                        }
-                    }
+            if (this.project?._id === environment.verifikProject || this.project?._id === environment.sandboxProject) {
+                // For Verifik Project, the decrypted data IS the token
+                finalToken = tokenOrPassword;
+            } else {
+                // For other projects, it is the password. Login to get token.
+                const loginResponse = await firstValueFrom(this._authService.loginAppPasskey(this.project?._id, identifier, tokenOrPassword));
 
-                    // 7. Success - the passkey now includes the encrypted content from IPFS
-                    this.successLogin(finalToken);
-                    return true;
+                if (loginResponse && loginResponse.data && loginResponse.data.token) {
+                    finalToken = loginResponse.data.token;
+                } else {
+                    throw new Error("Failed to login with passkey password");
                 }
             }
+
+            this.successLogin(finalToken);
+            return true;
         } catch (e) {
-            console.error("Passkey Check Failed", e);
+            console.error("[Passkey Login] Authentication failed", e);
             this.loading = false;
+            this._changeDetectorRef.markForCheck();
+            return false;
         }
-        return false;
+    }
+
+    /**
+     * Tries to decrypt each candidate passkey record in order, returning the first success.
+     * Returns null when none can be decrypted.
+     */
+    private async _decryptFirstAvailablePasskey(passkeys: any[], encryptionKey: CryptoKey): Promise<string | null> {
+        for (const passkey of passkeys) {
+            try {
+                let iv: string, ciphertext: string;
+
+                if (passkey.encryptedContent) {
+                    ({ iv, ciphertext } = passkey.encryptedContent);
+                } else {
+                    const encryptedFile = await fetch(passkey.url).then((res) => res.json());
+                    const payloadString = encryptedFile.encryptedToken || encryptedFile;
+                    ({ iv, ciphertext } = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString);
+                    passkey.encryptedContent = { iv, ciphertext };
+                }
+
+                if (!iv || !ciphertext) continue;
+
+                return await this._biometricSecurityService.decryptData(encryptionKey, ciphertext, iv);
+            } catch (e) {
+                console.warn("[Passkey Login] Could not decrypt a passkey record, trying the next one", e);
+            }
+        }
+
+        return null;
     }
 
     private _getTokenExpiration(token: string): number {
@@ -495,7 +520,12 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this._updatePhoneValidators(value);
 
         const phone = this.signInForm.get("phone")?.value;
-        if (phone) this._checkZkAuthAvailability(`${value}${phone}`);
+        if (phone) {
+            this._checkZkAuthAvailability(`${value}${phone}`);
+            this._checkPasskeyAvailability(this._isPhoneComplete(value, phone) ? `${value}${phone}` : "");
+        } else {
+            this._checkPasskeyAvailability("");
+        }
     }
 
     ngOnDestroy(): void {
@@ -669,18 +699,71 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             .get("email")
             ?.valueChanges.pipe(takeUntil(this.unsubscriber$))
             .subscribe((value) => {
-                if (this.typeLogin === "email") this._checkZkAuthAvailability(value);
+                if (this.typeLogin !== "email") return;
+
+                this._checkZkAuthAvailability(value);
+                this._checkPasskeyAvailability(this.isValidEmail(value) ? value : "");
             });
 
         this.signInForm
             .get("phone")
             ?.valueChanges.pipe(takeUntil(this.unsubscriber$))
             .subscribe((value) => {
-                if (this.typeLogin === "phone") {
-                    const countryCode = this.signInForm.get("countryCode")?.value;
-                    if (countryCode && value) this._checkZkAuthAvailability(`${countryCode}${value}`);
+                if (this.typeLogin !== "phone") return;
+
+                const countryCode = this.signInForm.get("countryCode")?.value;
+
+                if (countryCode && value) {
+                    this._checkZkAuthAvailability(`${countryCode}${value}`);
+                    this._checkPasskeyAvailability(this._isPhoneComplete(countryCode, value) ? `${countryCode}${value}` : "");
+                } else {
+                    this._checkPasskeyAvailability("");
                 }
             });
+    }
+
+    /**
+     * Whether the entered phone matches the expected length for the selected country code.
+     */
+    private _isPhoneComplete(countryCode: string, phone: string): boolean {
+        if (!countryCode || !phone) return false;
+
+        const [min, max] = this._countryService.getPhoneLengthForCountryCode(countryCode);
+
+        return phone.length >= min && phone.length <= max;
+    }
+
+    /**
+     * Debounced lookup that flags whether a passkey already exists for the given identifier,
+     * so the passkey CTA only appears when it can actually be used.
+     */
+    private _checkPasskeyAvailability(identifier: string): void {
+        clearTimeout(this._passkeyDebounceTimer);
+
+        this.passkeyExistsForContact = false;
+
+        if (!this.canOfferPasskey || !identifier) {
+            this._changeDetectorRef.markForCheck();
+            return;
+        }
+
+        this._passkeyDebounceTimer = setTimeout(async () => {
+            try {
+                const constructedIdentifier = `${identifier.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
+
+                const response = await this._passkeyZelfService.listPasskeys({ identifier: constructedIdentifier });
+
+                const currentProjectId = this.project?._id;
+
+                const matching = response?.data?.find((f: any) => f.publicData?.category === `${currentProjectId}_passKeys`);
+
+                this.passkeyExistsForContact = Boolean(matching);
+
+                this._changeDetectorRef.markForCheck();
+            } catch (e) {
+                console.error("Failed to check passkey availability", e);
+            }
+        }, 500);
     }
 
     buttonSendOtp() {
@@ -753,6 +836,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     selectLogin(event) {
         this.groupFields = {};
         this.typeLogin = event.index ? "phone" : "email";
+
+        this.passkeyExistsForContact = false;
 
         this.setFieldRequiredInForm();
         this.buttonSendOtp();
@@ -1101,5 +1186,139 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     createAccount(): void {
         window.location.href = `${environment.kycUrl}/kyc/project/${this.project._id}`;
+    }
+
+    /**
+     * Whether the project flow exposes passkey login, used to render the dedicated passkey CTA.
+     */
+    get canOfferPasskey(): boolean {
+        return Boolean(this.projectFlow?.loginSettings?.allowPasskeys);
+    }
+
+    /**
+     * Only surface the passkey CTA once a passkey has been confirmed for the entered contact.
+     */
+    get showPasskeyButton(): boolean {
+        return this.canOfferPasskey && this.passkeyExistsForContact;
+    }
+
+    /**
+     * Explicit passkey sign-in entry point for the redesigned UI. Reuses the existing passkey
+     * detection/login flow without introducing new crypto or network logic.
+     */
+    async signInWithPasskey(): Promise<void> {
+        if (this.loading || !this.canOfferPasskey) return;
+
+        const identifier =
+            this.typeLogin === "email"
+                ? this.signInForm.value.email
+                : `${this.signInForm.value.countryCode || ""}${this.signInForm.value.phone || ""}`;
+
+        if (!identifier) {
+            this.errorLogin(this.typeLogin === "email" ? "required_email" : "required_phone");
+            return;
+        }
+
+        this.loading = true;
+        this._changeDetectorRef.markForCheck();
+
+        const loggedIn = await this._checkAndLoginWithPasskey(identifier);
+
+        if (!loggedIn) {
+            this.loading = false;
+            this.errorLogin(this.lastPasskeyAttemptFound ? "passkey_login_failed" : "passkey_not_found");
+            this._changeDetectorRef.markForCheck();
+        }
+    }
+
+    /**
+     * Masked representation of the destination the OTP was sent to (privacy-friendly).
+     */
+    get maskedDestination(): string {
+        if (this.typeLogin === "email") {
+            return this._maskEmail(this.signInForm?.value?.email || "");
+        }
+
+        const countryCode = this.signInForm?.value?.countryCode || "";
+        const phone = `${this.signInForm?.value?.phone || ""}`;
+
+        if (!phone) return "";
+
+        const tail = phone.slice(-4);
+        const masked = phone.length > 4 ? `${"•".repeat(Math.max(phone.length - 4, 0))}${tail}` : tail;
+
+        return `${countryCode} ${masked}`.trim();
+    }
+
+    private _maskEmail(email: string): string {
+        if (!email || !email.includes("@")) return email;
+
+        const [localPart, domain] = email.split("@");
+        const visible = localPart.slice(0, 1);
+        const maskedLocal = localPart.length > 1 ? `${visible}${"•".repeat(Math.min(localPart.length - 1, 4))}` : visible;
+
+        return `${maskedLocal}@${domain}`;
+    }
+
+    /**
+     * Resets the OTP step so the user can edit their email/phone again.
+     */
+    changeContact(): void {
+        this.stopTimer();
+
+        this.passkeyExistsForContact = false;
+
+        if (this.typeLogin === "email") {
+            this.emailValidation = null;
+            this.emailSent = false;
+            this.signInForm.get("email")?.enable();
+            this.signInForm.get("emailOTP")?.reset();
+        } else {
+            this.phoneValidation = null;
+            this.smsSent = false;
+            this.signInForm.get("phone")?.enable();
+            this.signInForm.get("countryCode")?.enable();
+            this.signInForm.get("phoneOTP")?.reset();
+        }
+
+        this.buttonSendOtp();
+        this._changeDetectorRef.markForCheck();
+    }
+
+    /**
+     * Resolves whether the redesigned surface should render in dark mode. Prefers the branding
+     * background luminance when provided, otherwise falls back to the OS color scheme.
+     */
+    get isDark(): boolean {
+        const background = this.project?.branding?.backgroundColor;
+
+        if (background) {
+            return this._isColorDark(background);
+        }
+
+        if (!isPlatformBrowser(this.platformId) || typeof window === "undefined" || !window.matchMedia) {
+            return false;
+        }
+
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+
+    private _isColorDark(color: string): boolean {
+        const hex = color.replace("#", "").trim();
+
+        if (hex.length !== 3 && hex.length !== 6) return false;
+
+        const normalized = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+
+        const r = parseInt(normalized.substring(0, 2), 16);
+        const g = parseInt(normalized.substring(2, 4), 16);
+        const b = parseInt(normalized.substring(4, 6), 16);
+
+        if ([r, g, b].some((v) => Number.isNaN(v))) return false;
+
+        // Perceived luminance (ITU-R BT.601)
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+        return luminance < 0.5;
     }
 }

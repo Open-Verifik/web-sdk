@@ -13,13 +13,49 @@
 	}
 }
 
+.signin-card__title {
+	font-weight: 700;
+	letter-spacing: -0.025em;
+	line-height: 1.2;
+}
+
+.signin-card__trust {
+	color: #94a3b8;
+
+	&-icon.mat-icon {
+		font-size: 14px;
+		width: 14px;
+		height: 14px;
+		line-height: 14px;
+	}
+}
+
 // Modern Tab Styling
 .signin-tabs {
+	&__track {
+		background-color: #f1f5f9;
+		border: 1px solid rgba(226, 232, 240, 0.8);
+	}
+
 	.signin-tab {
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+		color: #64748b;
+		background-color: transparent;
+		box-shadow: none;
+
+		.signin-tab__icon.mat-icon {
+			font-size: 18px;
+			width: 18px;
+			height: 18px;
+			line-height: 18px;
+		}
+
+		&:hover:not(.active) {
+			color: #475569;
+		}
 
 		&.active {
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			background-color: #ffffff;
+			box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
 		}
 	}
 }
@@ -413,17 +449,6 @@
 
 /* Responsive design with Tailwind breakpoints */
 @media (max-width: 767px) {
-	.signin-card {
-		&__left {
-			min-width: auto;
-			padding: 1rem;
-		}
-
-		&__content {
-			padding: 0 0.5rem;
-		}
-	}
-
 	.signin-form {
 		&__actions {
 			margin-top: 1.5rem;
@@ -443,27 +468,12 @@
 	}
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-	.signin-card {
-		&__left {
-			min-width: 400px;
-		}
-	}
-}
-
-@media (min-width: 1024px) {
-	.signin-card {
-		&__left {
-			min-width: 480px;
-		}
-	}
-}
-
 .language-selector {
 	margin: 48px;
 	position: absolute;
 	top: 0;
 	right: 0;
+	z-index: 20;
 
 	@media screen and (max-width: 959px) {
 		margin: 8px;
@@ -472,22 +482,17 @@
 	@media (max-width: 380px) {
 		margin: 4px !important;
 	}
+
+	&.relative {
+		position: relative;
+		top: auto;
+		right: auto;
+		margin: 0;
+	}
 }
 
 .custom-theme-background {
 	background-color: var(--custom-theme-background-color, var(--custom-verifik-background, #ffffff));
-}
-
-.signin-card {
-	&__title {
-		font-weight: 700;
-		letter-spacing: -0.025em;
-		line-height: 1.2;
-	}
-
-	&__signup-link {
-		font-size: 0.9375rem;
-	}
 }
 
 .signin-alert {
@@ -513,5 +518,204 @@
 		::ng-deep circle {
 			stroke: var(--custom-verifik-primary-500, #6366f1);
 		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Buttons, passkey, OTP header, divider
+// ---------------------------------------------------------------------------
+
+.signin-form {
+	&__button-icon.mat-icon,
+	.signin-tab__icon.mat-icon {
+		font-size: 18px;
+		width: 18px;
+		height: 18px;
+		line-height: 18px;
+		margin: 0;
+	}
+
+	// Center icon + label cleanly inside Material buttons
+	&__button-content {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	&__divider {
+		color: #94a3b8;
+	}
+
+	&__divider-line {
+		border-color: #e2e8f0;
+	}
+}
+
+// Normalize the Material button label so projected content fills and centers
+.signin-form__button.mat-mdc-button-base,
+.signin-form__biometrics-button.mat-mdc-button-base {
+	.mdc-button__label {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+
+	// Muted, non-distracting disabled state (kept on brand hue via inline style)
+	&:disabled,
+	&.mat-mdc-button-disabled {
+		opacity: 0.4;
+		filter: saturate(0.65);
+		box-shadow: none !important;
+		transform: none !important;
+	}
+}
+
+// First-class passkey button
+.signin-passkey-button {
+	background-color: #0f172a;
+	color: #ffffff;
+	border: 1px solid #0f172a;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+	cursor: pointer;
+
+	&__content {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	&__icon.mat-icon {
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
+		line-height: 20px;
+		margin: 0;
+	}
+
+	&:hover:not(:disabled) {
+		background-color: #1e293b;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 18px -8px rgba(15, 23, 42, 0.5);
+	}
+
+	&:active:not(:disabled) {
+		transform: translateY(0);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+}
+
+.signin-passkey-helper {
+	color: #64748b;
+
+	&__icon.mat-icon {
+		font-size: 15px;
+		width: 15px;
+		height: 15px;
+		line-height: 15px;
+		color: #10b981;
+	}
+
+	&__info.mat-icon {
+		font-size: 15px;
+		width: 15px;
+		height: 15px;
+		line-height: 15px;
+		color: #94a3b8;
+		cursor: help;
+		transition: color 0.15s ease;
+
+		&:hover {
+			color: #64748b;
+		}
+	}
+}
+
+.signin-otp {
+	&__change {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Dark mode (class-based: root .dark from isDark)
+// ---------------------------------------------------------------------------
+
+.custom-theme-background.dark {
+	.signin-tabs__track {
+		background-color: rgba(31, 41, 55, 0.7);
+		border-color: rgba(55, 65, 81, 0.8);
+	}
+
+	.signin-tab {
+		color: #94a3b8;
+
+		&:hover:not(.active) {
+			color: #cbd5e1;
+		}
+
+		&.active {
+			background-color: #0b0f1a;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+		}
+	}
+
+	.signin-form__divider-line {
+		border-color: #1f2937;
+	}
+
+	.signin-form__label {
+		color: #94a3b8;
+	}
+
+	.signin-passkey-button {
+		background-color: #ffffff;
+		color: #0b0f1a;
+		border-color: #ffffff;
+
+		&:hover:not(:disabled) {
+			background-color: #e2e8f0;
+		}
+	}
+
+	.signin-passkey-helper {
+		color: #94a3b8;
+	}
+
+	.signin-card__trust {
+		color: #64748b;
+	}
+
+	.signin-panel__left {
+		background-color: var(--custom-theme-background-color, #0b0f1a);
+	}
+
+	::ng-deep one-time-password-input {
+		.otp-digit {
+			background-color: rgba(17, 24, 39, 0.6);
+			border-color: #374151;
+		}
+
+		.otp-digit-text {
+			color: #e5e7eb;
+		}
+	}
+
+	.otp-loading-overlay {
+		background-color: rgba(11, 15, 26, 0.7);
 	}
 }

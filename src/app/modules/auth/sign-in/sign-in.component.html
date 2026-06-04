@@ -1,7 +1,9 @@
 <ng-container *transloco="let t">
-	<div *ngIf="project && signInForm" class="w-full h-screen flex flex-col items-center justify-center custom-theme-background">
-		<auth-passkey-prompt *ngIf="showPasskeyPrompt" (choice)="onPasskeyPromptChoice($event)"></auth-passkey-prompt>
-		<auth-passkey-success *ngIf="showPasskeySuccess" (continue)="onPasskeySuccessContinue()"></auth-passkey-success>
+	<div
+		*ngIf="project && signInForm"
+		[class.dark]="isDark"
+		class="w-full h-screen flex flex-col items-center justify-center custom-theme-background"
+	>
 		<languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
 
 		<div class="flex overflow-hidden h-screen w-full" *ngIf="!showBiometrics">
@@ -18,8 +20,8 @@
 					</div>
 
 					<!-- Logo -->
-					<div class="flex justify-center mb-10">
-						<img class="w-12 h-12 object-contain" [src]="project.branding.logo" *ngIf="project.branding.logo" />
+					<div class="flex justify-center mb-10" *ngIf="project.branding.logo">
+						<img class="w-12 h-12 object-contain" [src]="project.branding.logo" />
 					</div>
 
 					<!-- Title -->
@@ -27,7 +29,7 @@
 						[style.color]="project.branding.titleColor || '#0f172a'"
 						class="mb-3 text-4xl md:text-5xl font-semibold leading-tight text-center signin-card__title"
 					>
-						{{ t("login.title_1") }} <br />
+						{{ t("login.title_1") }}<br />
 						{{ t("login.title_2") }}
 					</div>
 
@@ -40,7 +42,7 @@
 						<span>{{ t("login.no_account") }}</span>
 
 						<a
-							class="font-medium hover:underline cursor-pointer transition-colors"
+							class="font-semibold hover:underline cursor-pointer transition-colors"
 							[style.color]="project.branding.buttonColor || '#6366f1'"
 							[routerLink]="['/sign-up', project._id]"
 						>
@@ -55,7 +57,7 @@
 						[showIcon]="false"
 						[type]="alert.type"
 						*ngIf="showAlert"
-						class="mb-6 signin-alert"
+						class="mb-6 signin-alert block"
 					>
 						{{ t(alert.message) }}
 					</fuse-alert>
@@ -63,28 +65,26 @@
 					<!-- Form -->
 					<form class="w-full signin-form" [formGroup]="signInForm">
 						<!-- Modern Tab Navigation -->
-						<div *ngIf="projectFlow.loginSettings.email && projectFlow.loginSettings.phone" class="signin-tabs mb-8">
-							<div class="flex gap-2 p-1 bg-gray-100 rounded-xl">
+						<div *ngIf="projectFlow.loginSettings.email && projectFlow.loginSettings.phone" class="signin-tabs mb-7">
+							<div class="signin-tabs__track flex gap-1 p-1 rounded-xl">
 								<button
 									type="button"
 									(click)="selectLogin({ index: 0 })"
 									[class.active]="typeLogin == 'email'"
-									class="signin-tab flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200"
-									[style.color]="typeLogin == 'email' ? project.branding.buttonColor || '#6366f1' : '#64748b'"
-									[style.background-color]="typeLogin == 'email' ? '#ffffff' : 'transparent'"
-									[style.box-shadow]="typeLogin == 'email' ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'"
+									class="signin-tab flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200"
+									[style.color]="typeLogin == 'email' ? project.branding.buttonColor || '#6366f1' : null"
 								>
+									<mat-icon class="signin-tab__icon">mail_outline</mat-icon>
 									{{ t("login.email") }}
 								</button>
 								<button
 									type="button"
 									(click)="selectLogin({ index: 1 })"
 									[class.active]="typeLogin == 'phone'"
-									class="signin-tab flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200"
-									[style.color]="typeLogin == 'phone' ? project.branding.buttonColor || '#6366f1' : '#64748b'"
-									[style.background-color]="typeLogin == 'phone' ? '#ffffff' : 'transparent'"
-									[style.box-shadow]="typeLogin == 'phone' ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'"
+									class="signin-tab flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200"
+									[style.color]="typeLogin == 'phone' ? project.branding.buttonColor || '#6366f1' : null"
 								>
+									<mat-icon class="signin-tab__icon">smartphone</mat-icon>
 									{{ t("login.phone") }}
 								</button>
 							</div>
@@ -113,7 +113,7 @@
 
 						<ng-template #emailTabContent>
 							<div class="signin-form__tab-content">
-								<mat-form-field appearance="outline" class="w-full signin-form__field">
+								<mat-form-field appearance="outline" class="w-full signin-form__field" *ngIf="!(emailValidation && emailValidation.diff)">
 									<mat-label class="signin-form__label" for="email">{{ t("login.email") }}</mat-label>
 
 									<input
@@ -134,19 +134,21 @@
 									</mat-error>
 								</mat-form-field>
 
-								<div class="w-full justify-center flex flex-col relative" *ngIf="emailValidation && emailValidation.diff">
-									<label class="signin-form__label" for="emailOTP">{{ t("login.otp") }}</label>
+								<div class="w-full flex flex-col relative signin-otp" *ngIf="emailValidation && emailValidation.diff">
+									<ng-container
+										*ngTemplateOutlet="otpHeader; context: { gateway: t('login.email') | lowercase }"
+									></ng-container>
 
 									<one-time-password-input
 										[hasError]="signInForm.get('emailOTP').invalid && signInForm.get('emailOTP').touched"
 										[inputId]="'emailOTP'"
 										[projectBranding]="project.branding"
-										class="mt-2"
+										class="mt-1"
 										formControlName="emailOTP"
 									></one-time-password-input>
 
 									<div class="otp-loading-overlay" *ngIf="loading">
-										<mat-spinner [diameter]="80"></mat-spinner>
+										<mat-spinner [diameter]="48"></mat-spinner>
 									</div>
 								</div>
 							</div>
@@ -154,7 +156,7 @@
 
 						<ng-template #phoneTabContent>
 							<div class="signin-form__tab-content">
-								<div class="flex gap-2" *ngIf="groupFields.phone && signInForm">
+								<div class="flex gap-2" *ngIf="groupFields.phone && signInForm && !(phoneValidation && phoneValidation.diff)">
 									<app-country-code-select
 										class="flex-shrink-0"
 										[control]="signInForm.get('countryCode')"
@@ -195,21 +197,45 @@
 									</mat-form-field>
 								</div>
 
-								<div class="w-full justify-center flex flex-col relative" *ngIf="phoneValidation && phoneValidation.diff">
-									<label class="signin-form__label" for="phoneOTP">{{ t("login.otp") }}</label>
+								<div class="w-full flex flex-col relative signin-otp" *ngIf="phoneValidation && phoneValidation.diff">
+									<ng-container
+										*ngTemplateOutlet="otpHeader; context: { gateway: t('login.phone') | lowercase }"
+									></ng-container>
 
 									<one-time-password-input
 										[hasError]="signInForm.get('phoneOTP').invalid && signInForm.get('phoneOTP').touched"
 										[inputId]="'phoneOTP'"
 										[projectBranding]="project.branding"
 										formControlName="phoneOTP"
-										class="mt-2"
+										class="mt-1"
 									></one-time-password-input>
 
 									<div class="otp-loading-overlay" *ngIf="loading">
-										<mat-spinner [diameter]="80"></mat-spinner>
+										<mat-spinner [diameter]="48"></mat-spinner>
 									</div>
 								</div>
+							</div>
+						</ng-template>
+
+						<!-- Shared OTP step header -->
+						<ng-template #otpHeader let-gateway="gateway">
+							<div class="signin-otp__header flex items-start justify-between gap-3 mb-3">
+								<div class="min-w-0">
+									<div class="signin-otp__title text-base font-semibold" [style.color]="project.branding.titleColor || '#0f172a'">
+										{{ t("login.otp_step_title") }}
+									</div>
+									<div class="signin-otp__subtitle text-sm mt-0.5 truncate" [style.color]="project.branding.textColor || '#64748b'">
+										{{ t("login.otp_sent_to", { target: maskedDestination }) }}
+									</div>
+								</div>
+								<button
+									type="button"
+									(click)="changeContact()"
+									class="signin-otp__change shrink-0 text-sm font-semibold hover:underline"
+									[style.color]="project.branding.buttonColor || '#6366f1'"
+								>
+									{{ t("login.change_contact") }}
+								</button>
 							</div>
 						</ng-template>
 
@@ -221,13 +247,16 @@
 									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
 									*ngIf="projectFlow.loginSettings.phoneGateway === 'sms' || projectFlow.loginSettings.phoneGateway === 'both'"
-									class="signin-form__button signin-form__button--modern h-12 min-h-12 rounded-xl font-medium text-base shadow-sm hover:shadow-md transition-all duration-200"
+									class="signin-form__button signin-form__button--modern h-12 min-h-12 w-full rounded-xl font-semibold text-base"
 									[style.background-color]="project.branding.buttonColor || '#6366f1'"
 									[style.color]="project.branding.buttonTextColor || '#ffffff'"
 									mat-flat-button
 								>
-									<span *ngIf="activeSendOtp">SMS</span>
-									<span *ngIf="smsSent && !activeSendOtp">SMS ({{ phoneValidation.diff }}) s</span>
+									<span class="signin-form__button-content">
+										<mat-icon class="signin-form__button-icon">sms</mat-icon>
+										<span *ngIf="activeSendOtp">SMS</span>
+										<span *ngIf="smsSent && !activeSendOtp">SMS · {{ phoneValidation.diff }}s</span>
+									</span>
 								</button>
 
 								<button
@@ -235,13 +264,16 @@
 									[class.col-span-2]="projectFlow.loginSettings.phoneGateway !== 'both'"
 									[disabled]="!canSendOTP()"
 									*ngIf="projectFlow.loginSettings.phoneGateway === 'whatsapp' || projectFlow.loginSettings.phoneGateway === 'both'"
-									class="signin-form__button signin-form__button--modern h-12 min-h-12 rounded-xl font-medium text-base shadow-sm hover:shadow-md transition-all duration-200"
+									class="signin-form__button signin-form__button--modern h-12 min-h-12 w-full rounded-xl font-semibold text-base"
 									[style.background-color]="project.branding.buttonColor || '#6366f1'"
 									[style.color]="project.branding.buttonTextColor || '#ffffff'"
 									mat-flat-button
 								>
-									<span *ngIf="activeSendOtp">WhatsApp</span>
-									<span *ngIf="smsSent && !activeSendOtp">WhatsApp ({{ phoneValidation.diff }}) s</span>
+									<span class="signin-form__button-content">
+										<mat-icon class="signin-form__button-icon">chat</mat-icon>
+										<span *ngIf="activeSendOtp">WhatsApp</span>
+										<span *ngIf="smsSent && !activeSendOtp">WhatsApp · {{ phoneValidation.diff }}s</span>
+									</span>
 								</button>
 							</div>
 
@@ -249,42 +281,80 @@
 								(click)="sendOTP($event)"
 								[disabled]="!canSendOTP()"
 								*ngIf="typeLogin === 'email'"
-								class="w-full signin-form__button signin-form__button--modern h-12 min-h-12 rounded-xl font-medium text-base shadow-sm hover:shadow-md transition-all duration-200"
+								class="w-full signin-form__button signin-form__button--modern h-12 min-h-12 rounded-xl font-semibold text-base"
 								[style.background-color]="project.branding.buttonColor || '#6366f1'"
 								[style.color]="project.branding.buttonTextColor || '#ffffff'"
 								mat-flat-button
 							>
-								<span *ngIf="activeSendOtp">{{ t("login.send_email") }}</span>
-								<span *ngIf="emailSent && !activeSendOtp">{{ t("login.send_email") }} ({{ emailValidation.diff }}) s</span>
+								<span class="signin-form__button-content">
+									<mat-icon class="signin-form__button-icon">mail_outline</mat-icon>
+									<span *ngIf="activeSendOtp">{{ t("login.send_email") }}</span>
+									<span *ngIf="emailSent && !activeSendOtp">{{ t("login.send_email") }} · {{ emailValidation.diff }}s</span>
+								</span>
 							</button>
 						</div>
 
 						<!-- Divider -->
 						<div
 							class="flex items-center gap-4 my-6 signin-form__divider"
-							*ngIf="shouldShowBiometricsButton && (projectFlow.loginSettings.phone || projectFlow.loginSettings.email)"
+							*ngIf="(showPasskeyButton || shouldShowBiometricsButton) && (projectFlow.loginSettings.phone || projectFlow.loginSettings.email)"
 						>
-							<div class="flex-1 border-t border-gray-200"></div>
+							<div class="flex-1 border-t signin-form__divider-line"></div>
 
-							<div class="px-4 text-sm font-medium" [style.color]="project.branding.textColor || '#94a3b8'">
+							<div class="text-sm font-medium" [style.color]="project.branding.textColor || '#94a3b8'">
 								{{ t("login.or_continue") }}
 							</div>
 
-							<div class="flex-1 border-t border-gray-200"></div>
+							<div class="flex-1 border-t signin-form__divider-line"></div>
 						</div>
 
-						<!-- Biometrics Button -->
-						<div class="flex w-full" *ngIf="shouldShowBiometricsButton">
+						<!-- Passkey Sign-in (first-class) -->
+						<div class="flex flex-col w-full" *ngIf="showPasskeyButton">
+							<button
+								(click)="signInWithPasskey()"
+								[disabled]="loading"
+								class="signin-passkey-button w-full h-12 min-h-12 rounded-xl font-semibold text-base transition-all duration-200"
+								type="button"
+							>
+								<span class="signin-passkey-button__content">
+									<mat-icon class="signin-passkey-button__icon" svgIcon="fingerprint"></mat-icon>
+									<span>{{ t("login.passkey_cta") }}</span>
+								</span>
+							</button>
+
+							<div class="flex items-center justify-center gap-1.5 mt-2.5 signin-passkey-helper">
+								<mat-icon class="signin-passkey-helper__icon">verified_user</mat-icon>
+								<span class="text-xs">{{ t("login.passkey_helper") }}</span>
+								<mat-icon
+									class="signin-passkey-helper__info"
+									[matTooltip]="t('login.passkey_what')"
+									matTooltipPosition="above"
+									>help_outline</mat-icon
+								>
+							</div>
+						</div>
+
+						<!-- Biometrics / Face verification (secondary) -->
+						<div class="flex w-full" [class.mt-3]="showPasskeyButton" *ngIf="shouldShowBiometricsButton">
 							<button
 								(click)="showBiometricsLogin()"
-								class="flex-1 signin-form__biometrics-button signin-form__biometrics-button--modern h-12 min-h-12 rounded-xl font-medium text-base border-2 transition-all duration-200"
+								class="flex-1 signin-form__biometrics-button signin-form__biometrics-button--modern h-12 min-h-12 rounded-xl font-semibold text-base border-2 transition-all duration-200"
 								[style.border-color]="project.branding.buttonColor || '#6366f1'"
 								[style.color]="project.branding.buttonColor || '#6366f1'"
 								mat-stroked-button
 								type="button"
 							>
-								{{ t("login.use_biometrics_button") }}
+								<span class="signin-form__button-content">
+									<mat-icon class="signin-form__button-icon">face</mat-icon>
+									<span>{{ t("login.use_biometrics_button") }}</span>
+								</span>
 							</button>
+						</div>
+
+						<!-- Trust footer -->
+						<div class="signin-card__trust flex items-center justify-center gap-1.5 mt-8">
+							<mat-icon class="signin-card__trust-icon">lock</mat-icon>
+							<span class="text-xs font-medium">{{ t("login.secured_by") }}</span>
 						</div>
 					</form>
 				</div>
@@ -363,9 +433,19 @@
 				</div>
 			</div>
 
-			<verifik-media-display [isVerifikProject]="isVerifikProject" [brandingImage]="project.branding.image"></verifik-media-display>
+			<verifik-media-display
+				[isVerifikProject]="isVerifikProject"
+				[brandingImage]="project.branding.image"
+				[showHighlight]="!isVerifikProject && !!project.branding.image"
+				[highlightTitle]="t('login.media_highlight_title')"
+				[highlightSubtitle]="t('login.media_highlight_subtitle')"
+			></verifik-media-display>
 		</div>
 
 		<div class="flex rounded-2xl shadow bg-card overflow-hidden sign-in-content" *ngIf="locationError"></div>
+
+		<!-- Overlays last in DOM so they always paint above the sign-in card and media panel -->
+		<auth-passkey-prompt *ngIf="showPasskeyPrompt" (choice)="onPasskeyPromptChoice($event)"></auth-passkey-prompt>
+		<auth-passkey-success *ngIf="showPasskeySuccess" (continue)="onPasskeySuccessContinue()"></auth-passkey-success>
 	</div>
 </ng-container>

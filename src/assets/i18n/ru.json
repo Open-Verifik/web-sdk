@@ -316,6 +316,17 @@
 		"title_1": "Добро пожаловать",
 		"title_2": "Войти",
 		"use_biometrics_button": "Проверка по лицу",
+		"change_contact": "Изменить",
+		"media_highlight_title": "Проверка за секунды",
+		"media_highlight_subtitle": "Проверка личности банковского уровня, которой доверяют по всей Америке.",
+		"otp_step_title": "Введите 6-значный код",
+		"otp_sent_to": "Код отправлен на {{target}}",
+		"passkey_cta": "Войти с помощью passkey",
+		"passkey_helper": "Используйте Face ID / Touch ID — без ввода кодов",
+		"passkey_not_found": "Passkey для этого аккаунта не найден",
+		"passkey_login_failed": "Не удалось завершить вход по passkey. Повторите попытку или используйте код.",
+		"passkey_what": "Passkeys позволяют входить с помощью отпечатка пальца или лица вместо пароля.",
+		"secured_by": "Защищено Verifik",
 		"user_not_found": "Пользователь не найден"
 	},
 	"add_biometrics": {
@@ -332,6 +343,9 @@
 			"title": "Защитите свою учетную запись",
 			"description": "Включите PassKeys (FaceID / TouchID) для более быстрого доступа без пароля в следующий раз.",
 			"confirm": "Включить PassKeys",
+			"benefit_1": "Мгновенный вход — без ожидания кодов",
+			"benefit_2": "Защита от фишинга и больше безопасности",
+			"benefit_3": "Не нужно запоминать пароли",
 			"cancel": "Может быть, позже"
 		},
 		"passkey_success": {
