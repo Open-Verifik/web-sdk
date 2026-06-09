@@ -211,11 +211,11 @@
 							</mat-error>
 						</mat-form-field>
 
-						<div class="flex flex-col sm:flex-row gap-3">
+						<div class="flex flex-col gap-3">
 							<button
 								type="button"
 								(click)="setUpdate()"
-								class="flex-1 h-12 rounded-lg font-medium border"
+								class="signup-verification__action-button w-full rounded-lg font-medium border"
 								[style.border-color]="project.branding.buttonColor || '#d1d5db'"
 								[style.color]="project.branding.textColor || '#374151'"
 								mat-stroked-button
@@ -227,12 +227,12 @@
 								type="button"
 								(click)="updateEmail($event)"
 								[disabled]="!canUpdateEmailOrPhone()"
-								class="flex-1 h-12 rounded-lg font-medium"
+								class="signup-verification__action-button w-full rounded-lg font-medium"
 								[style.background-color]="project.branding.buttonColor || '#3f3f46'"
 								[style.color]="project.branding.buttonTextColor || '#ffffff'"
 								mat-flat-button
 							>
-								<span>{{ t("signup.update_email_button") }}</span>
+								<span class="text-center leading-snug">{{ t("signup.update_email_button") }}</span>
 							</button>
 						</div>
 					</form>
@@ -299,11 +299,11 @@
 							</mat-form-field>
 						</div>
 
-						<div class="flex flex-col sm:flex-row gap-3">
+						<div class="flex flex-col gap-3">
 							<button
 								type="button"
 								(click)="setUpdate()"
-								class="flex-1 h-12 rounded-lg font-medium border"
+								class="signup-verification__action-button w-full rounded-lg font-medium border"
 								[style.border-color]="project.branding.buttonColor || '#d1d5db'"
 								[style.color]="project.branding.textColor || '#374151'"
 								mat-stroked-button
@@ -315,12 +315,12 @@
 								type="button"
 								(click)="updatePhone($event)"
 								[disabled]="!canUpdateEmailOrPhone()"
-								class="flex-1 h-12 rounded-lg font-medium"
+								class="signup-verification__action-button w-full rounded-lg font-medium"
 								[style.background-color]="project.branding.buttonColor || '#3f3f46'"
 								[style.color]="project.branding.buttonTextColor || '#ffffff'"
 								mat-flat-button
 							>
-								<span>{{ t("signup.update_phone_button") }}</span>
+								<span class="text-center leading-snug">{{ t("signup.update_phone_button") }}</span>
 							</button>
 						</div>
 					</form>

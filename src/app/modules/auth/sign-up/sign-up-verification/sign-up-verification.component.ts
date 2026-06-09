@@ -42,7 +42,7 @@ import { ApiErrorService } from "app/core/services/api-error.service";
 	encapsulation: ViewEncapsulation.None,
 	selector: "sign-up-verification",
 	standalone: true,
-	styleUrls: ["../../sign-in/sign-in.component.scss"],
+	styleUrls: ["../../sign-in/sign-in.component.scss", "./sign-up-verification.component.scss"],
 	templateUrl: "./sign-up-verification.component.html",
 	imports: [
 		CommonModule,
