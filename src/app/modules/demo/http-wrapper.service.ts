@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { onHttpForbiddenClearAppRegistrationSession } from "app/core/services/app-registration-session.storage";
+import { onHttpForbiddenClearAppRegistrationSession, shouldClearAppRegistrationSessionOnHttpForbidden } from "app/core/services/app-registration-session.storage";
 import { Observable, retry, finalize, catchError, throwError } from "rxjs";
 
 import { SmartEnrollService } from "../auth/smart-enroll/smart-enroll.service";
@@ -80,7 +80,11 @@ export class HttpWrapperService {
         return a.pipe(
             retry(0),
             catchError((error) => {
-                if (error instanceof HttpErrorResponse && error.status === 403) {
+                if (
+                    error instanceof HttpErrorResponse &&
+                    error.status === 403 &&
+                    shouldClearAppRegistrationSessionOnHttpForbidden(error)
+                ) {
                     onHttpForbiddenClearAppRegistrationSession(() => this._smartEnrollService.unsetLocalStorage());
                 }
 

@@ -104,6 +104,32 @@ export const clearAccessTokenIfAppRegistrationSession = (): boolean => {
 /**
  * Clears persisted sign-up session data after HTTP 403; runs enroll localStorage reset when anything was cleared.
  */
+const SESSION_TERMINATING_FORBIDDEN_MESSAGES = new Set(["access_denied", "expired_token", "Access forbidden"]);
+
+/**
+ * Returns true when a 403 response indicates the app-registration session is invalid and should be cleared.
+ * Permission denials (e.g. insufficient_permissions) must not wipe the onboarding token.
+ */
+export const shouldClearAppRegistrationSessionOnHttpForbidden = (error: { error?: unknown } | null | undefined): boolean => {
+	if (!error || typeof error !== "object") {
+		return false;
+	}
+
+	const body = error.error;
+
+	if (!body || typeof body !== "object") {
+		return false;
+	}
+
+	const message = (body as { message?: unknown }).message;
+
+	if (typeof message !== "string" || message === "insufficient_permissions") {
+		return false;
+	}
+
+	return SESSION_TERMINATING_FORBIDDEN_MESSAGES.has(message);
+};
+
 export const onHttpForbiddenClearAppRegistrationSession = (unsetEnrollStorage: () => void): void => {
 	const clearedKeys = clearAllSignUpAppRegistrationTokens();
 	const clearedAccess = clearAccessTokenIfAppRegistrationSession();
