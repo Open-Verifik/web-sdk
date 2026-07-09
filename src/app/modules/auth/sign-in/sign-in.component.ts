@@ -116,17 +116,29 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     /**
      * After OTP success, offer an inline Faster Login enroll step when passkeys are enabled.
+     * Skips the offer when this contact already has a passkey (e.g. user chose OTP instead of Passkey).
      * Returns true when enrollment UI took over (caller should not redirect yet).
      */
-    private async _offerPasskeyRegistration(token: string, identifier: string): Promise<boolean> {
+    private async _offerPasskeyRegistration(token: string, contact: string): Promise<boolean> {
         if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
 
         const isSupported = await this._biometricSecurityService.isPasskeySupported();
 
         if (!isSupported) return false;
 
+        try {
+            const existing = await this._listPasskeysForContact(contact, false);
+
+            if (existing.length > 0) {
+                this.passkeyExistsForContact = true;
+                return false;
+            }
+        } catch (e) {
+            console.warn("[Passkeys] Could not check existing passkeys before enroll offer", e);
+        }
+
         this.appLoginToken = token;
-        this._pendingPasskeyIdentifier = identifier;
+        this._pendingPasskeyIdentifier = contact;
         this.showPasskeyEnrollStep = true;
         this.loading = false;
         this._changeDetectorRef.markForCheck();
