@@ -326,7 +326,11 @@
 		"passkey_login_failed": "Nous n'avons pas pu finaliser la connexion par passkey. Réessayez ou utilisez un code.",
 		"passkey_what": "Les passkeys vous permettent de vous connecter avec votre empreinte ou votre visage au lieu d'un mot de passe.",
 		"secured_by": "Sécurisé par Verifik",
-		"user_not_found": "Utilisateur non trouvé"
+		"user_not_found": "Utilisateur non trouvé",
+		"passkey_enroll_title": "Connexion plus rapide",
+		"passkey_enroll_description": "Configurez une passkey pour vous connecter la prochaine fois avec Face ID, Touch ID ou l'empreinte de votre appareil — sans attendre de codes.",
+		"passkey_enroll_confirm": "Configurer la passkey",
+		"passkey_enroll_skip": "Plus tard"
 	},
 	"add_biometrics": {
 		"button": "Commencer la vérification",

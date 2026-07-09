@@ -328,7 +328,11 @@
 		"passkey_login_failed": "无法完成通行密钥登录。请重试或使用验证码。",
 		"passkey_what": "通行密钥让您使用指纹或面部登录，而无需密码。",
 		"secured_by": "由 Verifik 保护",
-		"user_not_found": "未找到用户"
+		"user_not_found": "未找到用户",
+		"passkey_enroll_title": "更快登录",
+		"passkey_enroll_description": "设置通行密钥，下次可用 Face ID、Touch ID 或设备指纹登录 — 无需等待验证码。",
+		"passkey_enroll_confirm": "设置通行密钥",
+		"passkey_enroll_skip": "稍后再说"
 	},
 	"add_biometrics": {
 		"button": "开始验证",

@@ -207,11 +207,11 @@ export class AuthService {
 		if (fromEnv) return fromEnv;
 
 		if (hostname.includes("access.verifik.co") || hostname.includes("access.app")) {
-			return "https://ai.verifik.co/bridge";
+			return "https://verifik.app/bridge";
 		}
 
 		if (hostname === "localhost" || hostname === "127.0.0.1") {
-			return "http://localhost:4201/bridge";
+			return "https://verifik.app/bridge";
 		}
 
 		return "";

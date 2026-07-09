@@ -327,6 +327,10 @@
 		"passkey_not_found": "No passkey found for this account",
 		"passkey_login_failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
 		"passkey_what": "Passkeys let you sign in with your fingerprint or face instead of a password.",
+		"passkey_enroll_title": "Faster login",
+		"passkey_enroll_description": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
+		"passkey_enroll_confirm": "Setup passkey",
+		"passkey_enroll_skip": "Maybe later",
 		"secured_by": "Secured by Verifik",
 		"user_not_found": "User not found"
 	},

@@ -3,7 +3,6 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, V
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormGroup, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -35,9 +34,7 @@ import { environment } from "environments/environment";
 import { OneTimePasswordInputComponent } from "../../../core/components/one-time-password-input/one-time-password-input.component";
 
 import { PasswordlessService } from "../passwordless.service";
-import { PasskeyPromptComponent } from "../passkey-prompt/passkey-prompt.component";
 import { PasskeySuccessComponent } from "../passkey-success/passkey-success.component";
-import { ZkAuthLoginComponent } from "../zk-auth-login/zk-auth-login.component";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { AuthUtils } from "app/core/auth/auth.utils";
 
@@ -50,7 +47,6 @@ import { AuthUtils } from "app/core/auth/auth.utils";
     templateUrl: "./sign-in.component.html",
     imports: [
         CountryCodeSelectComponent,
-        PasskeyPromptComponent,
         PasskeySuccessComponent,
         CommonModule,
         FlexLayoutModule,
@@ -72,7 +68,6 @@ import { AuthUtils } from "app/core/auth/auth.utils";
         TranslocoModule,
         VerifikMediaDisplayComponent,
         MatTooltipModule,
-        ZkAuthLoginComponent,
     ],
 })
 export class AuthSignInComponent implements OnInit, OnDestroy {
@@ -80,7 +75,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     activeSendOtp: boolean;
     appLoginToken: string;
-    biometricsReady: boolean;
     demoData: any;
     deviceDetails: any;
     emailSent: boolean;
@@ -99,8 +93,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     selectedCountryCode: string;
     sendingOTP: Boolean;
     showAlert: boolean = false;
-    showBiometrics: boolean;
-    showFaceLivenessRecommendation: Boolean;
     signInForm: FormGroup;
     smsSent: boolean;
     typeLogin: string;
@@ -110,63 +102,53 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     passkeyAvailable: boolean = false;
     passkeyExistsForContact: boolean = false;
     lastPasskeyAttemptFound: boolean = false;
-    showPasskeyPrompt: boolean = false;
+    showPasskeyEnrollStep: boolean = false;
     showPasskeySuccess: boolean = false;
-    // ZK Auth
-    offerZkLogin: boolean = false;
-    hasZkOnboarding: boolean = false;
-    zkAuthRecord: any; // Store IPFS URL for ZK Auth
-    private _passkeyPromptResolver: (value: boolean) => void;
-    private _debounceTimer: any;
+    private _pendingPasskeyIdentifier: string = "";
     private _passkeyDebounceTimer: any;
 
     // --- Passkey Logic ---
-
-    onPasskeyPromptChoice(choice: boolean) {
-        console.log("[Passkey Modal] User choice:", choice);
-        this.showPasskeyPrompt = false;
-        if (this._passkeyPromptResolver) {
-            this._passkeyPromptResolver(choice);
-            this._passkeyPromptResolver = null;
-        }
-    }
 
     onPasskeySuccessContinue(): void {
         this.showPasskeySuccess = false;
         this.successLogin(this.appLoginToken);
     }
 
+    /**
+     * After OTP success, offer an inline Faster Login enroll step when passkeys are enabled.
+     * Returns true when enrollment UI took over (caller should not redirect yet).
+     */
     private async _offerPasskeyRegistration(token: string, identifier: string): Promise<boolean> {
-        console.log("[Passkeys] Checking availability", {
-            allowPasskeys: this.projectFlow?.loginSettings?.allowPasskeys,
-            settings: this.projectFlow?.loginSettings,
-        });
-
         if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
 
         const isSupported = await this._biometricSecurityService.isPasskeySupported();
 
-        console.log("[Passkeys] Passkey Supported:", isSupported);
-
         if (!isSupported) return false;
 
-        // Show custom modal and wait for response
-        const accepted = await new Promise<boolean>((resolve) => {
-            this._passkeyPromptResolver = resolve;
-            this.showPasskeyPrompt = true;
-            this._changeDetectorRef.detectChanges(); // Ensure UI updates
-        });
+        this.appLoginToken = token;
+        this._pendingPasskeyIdentifier = identifier;
+        this.showPasskeyEnrollStep = true;
+        this.loading = false;
+        this._changeDetectorRef.markForCheck();
 
-        if (accepted) {
-            await this._registerPasskey(token, identifier);
-            return true;
-        }
+        return true;
+    }
 
-        return false;
+    async setupPasskey(): Promise<void> {
+        if (this.loading || !this.appLoginToken || !this._pendingPasskeyIdentifier) return;
+
+        await this._registerPasskey(this.appLoginToken, this._pendingPasskeyIdentifier);
+    }
+
+    skipPasskey(): void {
+        this.showPasskeyEnrollStep = false;
+        this._pendingPasskeyIdentifier = "";
+        this.successLogin(this.appLoginToken);
     }
 
     private async _registerPasskey(token: string, username: string) {
         this.loading = true;
+        this._changeDetectorRef.markForCheck();
 
         try {
             const { credentialId } = await this._registerBiometric(username);
@@ -180,9 +162,9 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             this._handlePasskeySuccess();
         } catch (error) {
             console.error("Passkey Registration Failed", error);
+            this.loading = false;
+            this._changeDetectorRef.markForCheck();
         }
-
-        this.loading = false;
     }
 
     private async _registerBiometric(username: string): Promise<{ credentialId: string }> {
@@ -203,7 +185,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         try {
             // We must set the current token first so the refresh request is authenticated
             localStorage.setItem("accessToken", token);
-            const refreshResponse: any = await firstValueFrom(this._authService.projectLogin(24, token));
+            const refreshResponse: any = await firstValueFrom(this._authService.projectLogin(12, token));
 
             if (refreshResponse && refreshResponse.data && refreshResponse.data.accessToken) {
                 tokenForRequest = refreshResponse.data.accessToken;
@@ -261,53 +243,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     private _handlePasskeySuccess() {
-        // Show success modal
+        this.showPasskeyEnrollStep = false;
+        this._pendingPasskeyIdentifier = "";
         this.showPasskeySuccess = true;
         this.loading = false;
-        this._changeDetectorRef.markForCheck(); // Ensure UI updates
-    }
-
-    private _checkZkAuthAvailability(loginValue: string) {
-        if (!this.hasZkOnboarding) return;
-
-        this.offerZkLogin = false;
-
-        clearTimeout(this._debounceTimer);
-
-        this._debounceTimer = setTimeout(async () => {
-            if (!loginValue) return;
-
-            try {
-                let query: any = { category: "" }; // Empty category to search by email/phone only without category filter
-
-                if (this.typeLogin === "email") {
-                    query.email = loginValue;
-                } else {
-                    query.phone = loginValue;
-                }
-
-                const response = await this._passkeyZelfService.listPasskeys(query);
-
-                if (response && response.data && response.data.length > 0) {
-                    // Filter by category "appRegistration"
-                    const hasAppRegistration = response.data.some((item) => item.publicData?.type === "appRegistration");
-
-                    if (hasAppRegistration) {
-                        this.offerZkLogin = true;
-
-                        // Find the app registration item to get its IPFS URL
-                        const appRegItem = response.data.find((item) => item.publicData?.type === "appRegistration");
-                        if (appRegItem) {
-                            this.zkAuthRecord = appRegItem;
-                        }
-
-                        this._changeDetectorRef.markForCheck();
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to check ZkAuth availability", e);
-            }
-        }, 500);
+        this._changeDetectorRef.markForCheck();
     }
 
     private async _checkAndLoginWithPasskey(identifier: string): Promise<boolean> {
@@ -458,7 +398,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         private _translocoService: TranslocoService,
         private _passkeyZelfService: PasskeyZelfService,
         private _biometricSecurityService: BiometricSecurityService,
-        private _matDialog: MatDialog,
     ) {
         this.setLanguage();
 
@@ -466,7 +405,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this.emailValidation = null;
         this.phoneValidation = null;
-        this.showBiometrics = false;
 
         this._splashScreenService.show();
 
@@ -480,7 +418,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this.sendingOTP = false;
         this.smsSent = false;
-        this.showFaceLivenessRecommendation = false;
     }
 
     ngOnInit(): void {
@@ -521,7 +458,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         const phone = this.signInForm.get("phone")?.value;
         if (phone) {
-            this._checkZkAuthAvailability(`${value}${phone}`);
             this._checkPasskeyAvailability(this._isPhoneComplete(value, phone) ? `${value}${phone}` : "");
         } else {
             this._checkPasskeyAvailability("");
@@ -607,9 +543,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                     if (projectFlow.type === "onboarding") {
                         this.kycProjectFlow = new ProjectFlow(projectFlow);
-                        if (projectFlow.liveness?.kycType === "zero_knowledge") {
-                            this.hasZkOnboarding = true;
-                        }
                     }
                 }
             },
@@ -640,15 +573,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         this._activatedRoute.queryParams.pipe(takeUntil(this.unsubscriber$)).subscribe((queryParams) => {
             const type = queryParams.type;
-
-            if (type === "liveness") {
-                // We don't want to trigger ZK modal immediately on 'liveness' query param
-                // unless we have specific info, for now let's just show biometrics or handle differently
-                if (!this.offerZkLogin) {
-                    this.showBiometrics = true;
-                }
-                return;
-            }
 
             const handoffToken = queryParams.token;
 
@@ -701,7 +625,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             .subscribe((value) => {
                 if (this.typeLogin !== "email") return;
 
-                this._checkZkAuthAvailability(value);
                 this._checkPasskeyAvailability(this.isValidEmail(value) ? value : "");
             });
 
@@ -714,7 +637,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 const countryCode = this.signInForm.get("countryCode")?.value;
 
                 if (countryCode && value) {
-                    this._checkZkAuthAvailability(`${countryCode}${value}`);
                     this._checkPasskeyAvailability(this._isPhoneComplete(countryCode, value) ? `${countryCode}${value}` : "");
                 } else {
                     this._checkPasskeyAvailability("");
@@ -876,25 +798,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         return emailRegex.test(email);
     }
 
-    get shouldShowBiometricsButton(): boolean {
-        if (!this.projectFlow?.loginSettings?.faceLiveness) return false;
-
-        if (this.hasZkOnboarding) {
-            return this.offerZkLogin;
-        }
-
-        return true;
-    }
-
-    canUseBiometrics(): boolean {
-        const isFormValid =
-            this.typeLogin === "email"
-                ? Boolean(this.signInForm.value.email)
-                : Boolean(this.signInForm.value.countryCode && this.signInForm.value.phone);
-
-        return Boolean(isFormValid);
-    }
-
     isFormValid(): boolean {
         const otpField = this.signInForm.value.phoneOTP || this.signInForm.value.emailOTP;
 
@@ -924,17 +827,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                     localStorage.setItem("defaultEmail", dataForm.email);
 
-                    // Passkey Offer Hook
-                    this._offerPasskeyRegistration(response.data.token, dataForm.email).then((accepted) => {
-                        if (accepted) return; // Registration flow took over
-
-                        this.showFaceLivenessRecommendation = false;
-
-                        // if (response.data?.showFaceLivenessRecommendation) {
-
-                        //     this.loading = false;
-                        //     return;
-                        // }
+                    this._offerPasskeyRegistration(response.data.token, dataForm.email).then((enrollOffered) => {
+                        if (enrollOffered) return;
 
                         this.loading = false;
                         return this.successLogin(response.data.token);
@@ -981,11 +875,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                     localStorage.setItem("defaultCountryCode", dataForm.countryCode);
                     localStorage.setItem("defaultPhone", dataForm.phone);
 
-                    this.showFaceLivenessRecommendation = false;
-
-                    // Passkey Offer Hook for Phone
-                    this._offerPasskeyRegistration(response.data.token, `${dataForm.countryCode}${dataForm.phone}`).then((accepted) => {
-                        if (accepted) return;
+                    this._offerPasskeyRegistration(response.data.token, `${dataForm.countryCode}${dataForm.phone}`).then((enrollOffered) => {
+                        if (enrollOffered) return;
 
                         this.loading = false;
                         return this.successLogin(response.data.token);
@@ -1041,12 +932,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     async sendOTP(event, gateway): Promise<void> {
         event.preventDefault();
-
-        // Passkey Check
-        const idToCheck =
-            this.typeLogin === "email" ? this.signInForm.value.email : `${this.signInForm.value.countryCode}${this.signInForm.value.phone}`;
-
-        if (await this._checkAndLoginWithPasskey(idToCheck)) return;
 
         this.sendingOTP = true;
 
@@ -1150,38 +1035,6 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     stopTimer(): void {
         if (this.emailValidation) this.emailValidation.diff = 0;
         if (this.phoneValidation) this.phoneValidation.diff = 0;
-    }
-
-    showBiometricsLogin(): void {
-        if (this.offerZkLogin) {
-            // Open ZK Auth Modal
-            const dialogRef = this._matDialog.open(ZkAuthLoginComponent, {
-                panelClass: "custom-dialog-container",
-                width: "900px",
-                height: "700px",
-                maxWidth: "95vw",
-                maxHeight: "95vh",
-                data: {
-                    project: this.project,
-                    projectFlow: this.projectFlow,
-                    record: this.zkAuthRecord,
-                },
-            });
-
-            dialogRef.afterClosed().subscribe((result) => {
-                if (result && result.success && result.token) {
-                    this.successLogin(result.token);
-                }
-            });
-
-            return;
-        }
-    }
-
-    continueRedirection(): void {
-        this.sendingOTP = true;
-
-        this.successLogin(this.appLoginToken);
     }
 
     createAccount(): void {

@@ -327,7 +327,11 @@
 		"passkey_login_failed": "Non siamo riusciti a completare l'accesso con passkey. Riprova o usa un codice.",
 		"passkey_what": "Le passkey ti permettono di accedere con la tua impronta o il tuo volto invece di una password.",
 		"secured_by": "Protetto da Verifik",
-		"user_not_found": "Utente non trovato"
+		"user_not_found": "Utente non trovato",
+		"passkey_enroll_title": "Accesso più veloce",
+		"passkey_enroll_description": "Configura una passkey per accedere la prossima volta con Face ID, Touch ID o l'impronta del tuo dispositivo — senza aspettare codici.",
+		"passkey_enroll_confirm": "Configura passkey",
+		"passkey_enroll_skip": "Forse più tardi"
 	},
 	"add_biometrics": {
 		"button": "Inizia la verifica",
