@@ -146,18 +146,26 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this.successLogin(this.appLoginToken);
     }
 
-    private async _registerPasskey(token: string, username: string) {
+    private async _registerPasskey(token: string, contact: string) {
         this.loading = true;
         this._changeDetectorRef.markForCheck();
 
         try {
-            const { credentialId } = await this._registerBiometric(username);
-
             const { secretToEncrypt, tokenForRequest, isToken } = await this._preparePasskeySecret(token);
 
-            const payloadString = await this._encryptPasskeySecret(username, secretToEncrypt, isToken);
+            const clientId =
+                this._resolveClientIdFromToken(tokenForRequest) || this._resolveClientIdFromToken(token);
 
-            await this._uploadPasskeyToZelf(username, credentialId, payloadString, tokenForRequest);
+            if (!clientId) {
+                throw new Error("Unable to resolve client id for passkey registration");
+            }
+
+            const { credentialId } = await this._registerBiometric(contact);
+
+            // Encrypt with client id so the same vault works for email or phone login.
+            const payloadString = await this._encryptPasskeySecret(clientId, secretToEncrypt, isToken);
+
+            await this._uploadPasskeyToZelf(clientId, contact, credentialId, payloadString, tokenForRequest);
 
             this._handlePasskeySuccess();
         } catch (error) {
@@ -211,8 +219,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         return { secretToEncrypt: password, tokenForRequest: token, isToken: false };
     }
 
-    private async _encryptPasskeySecret(username: string, secret: string, isToken: boolean): Promise<string> {
-        const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(username);
+    private async _encryptPasskeySecret(encryptionSubject: string, secret: string, isToken: boolean): Promise<string> {
+        const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(encryptionSubject);
         const { ciphertext, iv } = await this._biometricSecurityService.encryptData(encryptionKey, secret);
 
         if (isToken) {
@@ -221,8 +229,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         return JSON.stringify({ iv, ciphertext, type: "password" });
     }
 
-    private async _uploadPasskeyToZelf(username: string, credentialId: string, payloadString: string, tokenForRequest: string) {
-        const identifier = `${username.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
+    private async _uploadPasskeyToZelf(
+        clientId: string,
+        contact: string,
+        credentialId: string,
+        payloadString: string,
+        tokenForRequest: string
+    ) {
+        const identifier = `${clientId}_passKey`;
+        const isEmail = contact.includes("@");
 
         // Store token in localStorage so HttpWrapperService can add Authorization header (ensure it's the valid one)
         localStorage.setItem("accessToken", tokenForRequest);
@@ -230,12 +245,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         await this._passkeyZelfService.createPasskey({
             publicData: {
                 identifier,
+                clientId,
                 project: this.project?._id,
                 category: `${this.project?._id}_passKeys`,
                 credentialId,
                 expiresAt: this._getTokenExpiration(tokenForRequest),
-                email: this.typeLogin === "email" ? username : undefined,
-                phone: this.typeLogin === "phone" ? username : undefined,
+                email: isEmail ? contact : undefined,
+                phone: !isEmail ? contact : undefined,
             },
             identifier,
             payload: payloadString, // Encrypted Token or Password
@@ -250,22 +266,45 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this._changeDetectorRef.markForCheck();
     }
 
-    private async _checkAndLoginWithPasskey(identifier: string): Promise<boolean> {
+    /**
+     * Resolve the stable client id from a login JWT (`id` on passwordless tokens, `clientId` after project-login).
+     */
+    private _resolveClientIdFromToken(token: string): string {
+        try {
+            const decoded = AuthUtils.decodeToken(token) || {};
+            return `${decoded.clientId || decoded.id || ""}`.trim();
+        } catch {
+            return "";
+        }
+    }
+
+    private async _listPasskeysForContact(contact: string, fetchEncryptedContent = false): Promise<any[]> {
+        const isEmail = contact.includes("@");
+        const response = await this._passkeyZelfService.listPasskeys(
+            isEmail ? { email: contact } : { phone: contact },
+            fetchEncryptedContent
+        );
+
+        const currentProjectId = this.project?._id;
+
+        return (response?.data || []).filter((f: any) => {
+            const type = f.publicData?.type;
+            const category = f.publicData?.category;
+            const isPasskey = type === "passKeys" || `${category || ""}`.endsWith("_passKeys");
+
+            return isPasskey && category === `${currentProjectId}_passKeys`;
+        });
+    }
+
+    private async _checkAndLoginWithPasskey(contact: string): Promise<boolean> {
         if (!this.projectFlow?.loginSettings?.allowPasskeys) return false;
 
         this.lastPasskeyAttemptFound = false;
 
-        // 1. Find every passkey registered for this identifier within the current project
         let matches: any[] = [];
 
         try {
-            const constructedIdentifier = `${identifier.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
-
-            const response = await this._passkeyZelfService.listPasskeys({ identifier: constructedIdentifier }, true);
-
-            const currentProjectId = this.project?._id;
-
-            matches = (response?.data || []).filter((f: any) => f.publicData?.category === `${currentProjectId}_passKeys`);
+            matches = await this._listPasskeysForContact(contact, true);
         } catch (e) {
             console.error("[Passkey Login] Failed to list passkeys", e);
             return false;
@@ -281,19 +320,27 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             this.loading = true;
             this._changeDetectorRef.markForCheck();
 
-            // 2. Offer every registered credential so the authenticator can use whichever lives on this device
+            // Offer every registered credential so the authenticator can use whichever lives on this device
             const allowCredentials = matches.map((m) => m.publicData?.credentialId).filter((id: any): id is string => Boolean(id));
 
             const { credentialId: usedCredentialId } = await this._biometricSecurityService.authenticatePasskey(allowCredentials);
 
-            // 3. Prefer the record tied to the credential actually used, then fall back to the rest
+            // Prefer the record tied to the credential actually used, then fall back to the rest
             const ordered = [
                 ...matches.filter((m) => m.publicData?.credentialId === usedCredentialId),
                 ...matches.filter((m) => m.publicData?.credentialId !== usedCredentialId),
             ];
 
-            // 4. Decrypt with the identifier-derived key (key is not credential-bound)
-            const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(identifier);
+            const clientId =
+                `${ordered[0]?.publicData?.clientId || ""}`.trim() ||
+                `${`${ordered[0]?.publicData?.identifier || ""}`.replace(/_passKey$/, "")}`.trim();
+
+            if (!clientId) {
+                throw new Error("Passkey record is missing client id");
+            }
+
+            // Decrypt with the client-id-derived key (stable across email/phone)
+            const encryptionKey = await this._biometricSecurityService.deriveEncryptionKey(clientId);
 
             const tokenOrPassword = await this._decryptFirstAvailablePasskey(ordered, encryptionKey);
 
@@ -308,7 +355,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 finalToken = tokenOrPassword;
             } else {
                 // For other projects, it is the password. Login to get token.
-                const loginResponse = await firstValueFrom(this._authService.loginAppPasskey(this.project?._id, identifier, tokenOrPassword));
+                const loginResponse = await firstValueFrom(this._authService.loginAppPasskey(this.project?._id, contact, tokenOrPassword));
 
                 if (loginResponse && loginResponse.data && loginResponse.data.token) {
                     finalToken = loginResponse.data.token;
@@ -358,8 +405,15 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     private _getTokenExpiration(token: string): number {
         try {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            return payload.exp || 0;
+            const payload = AuthUtils.decodeToken(token) || {};
+            if (payload.exp) return payload.exp;
+
+            const expiresAt = payload.expiresAt;
+            if (typeof expiresAt === "number") {
+                return expiresAt > 1e12 ? Math.floor(expiresAt / 1000) : expiresAt;
+            }
+
+            return 0;
         } catch (e) {
             return 0;
         }
@@ -656,30 +710,24 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Debounced lookup that flags whether a passkey already exists for the given identifier,
+     * Debounced lookup that flags whether a passkey already exists for the given contact,
      * so the passkey CTA only appears when it can actually be used.
      */
-    private _checkPasskeyAvailability(identifier: string): void {
+    private _checkPasskeyAvailability(contact: string): void {
         clearTimeout(this._passkeyDebounceTimer);
 
         this.passkeyExistsForContact = false;
 
-        if (!this.canOfferPasskey || !identifier) {
+        if (!this.canOfferPasskey || !contact) {
             this._changeDetectorRef.markForCheck();
             return;
         }
 
         this._passkeyDebounceTimer = setTimeout(async () => {
             try {
-                const constructedIdentifier = `${identifier.replace(/[^a-zA-Z0-9]/g, "_")}_passKey`;
+                const matches = await this._listPasskeysForContact(contact, false);
 
-                const response = await this._passkeyZelfService.listPasskeys({ identifier: constructedIdentifier });
-
-                const currentProjectId = this.project?._id;
-
-                const matching = response?.data?.find((f: any) => f.publicData?.category === `${currentProjectId}_passKeys`);
-
-                this.passkeyExistsForContact = Boolean(matching);
+                this.passkeyExistsForContact = matches.length > 0;
 
                 this._changeDetectorRef.markForCheck();
             } catch (e) {
@@ -724,6 +772,25 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         this.signInForm = this._formBuilder.group(this.groupFields);
 
         this._initFormListeners();
+        this._syncPasskeyAvailabilityFromForm();
+    }
+
+    /**
+     * Prefill from localStorage does not emit valueChanges, so run an explicit passkey lookup
+     * for the current contact after the form is built or the login tab changes.
+     */
+    private _syncPasskeyAvailabilityFromForm(): void {
+        if (!this.signInForm) return;
+
+        if (this.typeLogin === "email") {
+            const email = this.signInForm.get("email")?.value;
+            this._checkPasskeyAvailability(this.isValidEmail(email) ? email : "");
+            return;
+        }
+
+        const countryCode = this.signInForm.get("countryCode")?.value;
+        const phone = this.signInForm.get("phone")?.value;
+        this._checkPasskeyAvailability(this._isPhoneComplete(countryCode, phone) ? `${countryCode}${phone}` : "");
     }
 
     private _setPhoneValidators(countryCode: string): void {
