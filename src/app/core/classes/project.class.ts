@@ -13,6 +13,8 @@ export class Project {
     createdAt?: string;
     currentStep: number;
     dataProtection: DataProtection;
+    /** Project default UI / OTP locale when the user has not chosen a language. */
+    defaultLanguage?: string;
     demoMode?: boolean;
     identifier?: string;
     lastStep: number;
@@ -36,6 +38,7 @@ export class Project {
         this.createdAt = data.createdAt;
         this.currentStep = data.currentStep;
         this.dataProtection = data.dataProtection;
+        this.defaultLanguage = (data as ProjectInterface).defaultLanguage || "en";
         this.demoMode = data.demoMode;
         this.identifier = data.identifier;
         this.lastStep = data.lastStep;

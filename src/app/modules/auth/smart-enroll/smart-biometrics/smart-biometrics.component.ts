@@ -24,6 +24,39 @@ import { NeuralFaceComponent } from "./neural-face/neural-face.component";
 
 const DEV_FACE_FILE_MAX_BYTES = 6 * 1024 * 1024;
 
+/**
+ * Recoverable capture problems. The user fixes these by recapturing, so they never consume
+ * an attempt and are shown with corrective guidance rather than a rejection.
+ * Mirrors QUALITY_REASONS in Repositories/OpenCV/modules/liveness-failure.util.js.
+ */
+const LIVENESS_QUALITY_REASONS = new Set([
+	"face_close_to_border",
+	"face_not_centered",
+	"face_occluded",
+	"face_rotation_too_large",
+	"face_too_close",
+	"face_too_far",
+	"multiple_faces_detected",
+	"no_face_detected",
+	"poor_lighting",
+]);
+
+/** Provider error codes to canonical reasons, for API builds that predate `failureReason`. */
+const PROVIDER_REASON_CODES: Record<string, string> = {
+	ERR_LIVENESS_FACE_CLOSE_TO_BORDER: "face_close_to_border",
+	ERR_LIVENESS_FACE_TOO_SMALL: "face_too_far",
+	ERR_MULTIPLE_FACES_DETECTED: "multiple_faces_detected",
+	ERR_NO_FACE_DETECTED: "no_face_detected",
+};
+
+type LivenessFailureKind = "quality" | "score" | "unknown";
+
+interface LivenessFailure {
+	kind: LivenessFailureKind;
+	reason: string;
+	score: number | null;
+}
+
 /** Top inset for `smart-liveness` when the fixed dev toolbar is shown (keep in sync with bar height). */
 const DEV_BIOMETRICS_HOST_PADDING_TOP_PX = 132;
 
@@ -64,6 +97,20 @@ export class SmartBiometricsComponent implements OnDestroy {
 	readonly allowDevFaceFileUpload: boolean = environment.allowDevFaceFileUpload === true;
 
 	loadingQRCode: boolean = false;
+
+	/**
+	 * Capture pitfalls shown before the camera opens, worded for end users rather than as the
+	 * pixel thresholds the engine actually enforces. Each one corresponds to a quality reason in
+	 * `LIVENESS_QUALITY_REASONS` that would otherwise only surface after a wasted attempt.
+	 */
+	readonly captureAvoidKeys: string[] = [
+		"avoid_sunglasses",
+		"avoid_head_cover",
+		"avoid_other_people",
+		"avoid_dim_light",
+		"avoid_tilted_head",
+		"avoid_too_far",
+	];
 
 	appRegistration: AppRegistration;
 	cameraQualityLow: boolean = false;
@@ -132,7 +179,7 @@ export class SmartBiometricsComponent implements OnDestroy {
 
 							this._smartEnrollService.setCompareScore(response.data.compareFaceVerification.result.score);
 						},
-						error: (error) => this._handleError(error),
+						error: (error) => this._handleCompareError(error),
 						complete: () => {
 							this._syncAppRegistration("end", "ONGOING");
 							this.successfulUploadSubject.next();
@@ -151,58 +198,125 @@ export class SmartBiometricsComponent implements OnDestroy {
 		});
 	}
 
+	/**
+	 * Classifies a liveness failure, preferring the API's explicit verdict and falling back to
+	 * parsing the message for API builds that predate `failureKind` / `failureReason`.
+	 */
+	private _resolveFailure(err: Record<string, unknown> | null | undefined, rawMessage: string): LivenessFailure {
+		const reasonFromApi = typeof err?.failureReason === "string" ? err.failureReason : null;
+		const kindFromApi = typeof err?.failureKind === "string" ? (err.failureKind as LivenessFailureKind) : null;
+		const scoreFromApi = err?.livenessScore != null ? Number(err.livenessScore) : null;
+
+		if (kindFromApi && reasonFromApi) {
+			return { kind: kindFromApi, reason: reasonFromApi, score: scoreFromApi };
+		}
+
+		const message = rawMessage.replace(/^\d{3}:/, "").trim();
+		const [head, ...rest] = message.split("@");
+		const detail = rest.join("@").trim();
+
+		if (detail) {
+			const providerReason = PROVIDER_REASON_CODES[detail];
+
+			if (providerReason) return { kind: "quality", reason: providerReason, score: null };
+
+			const parsedScore = Number(detail);
+
+			if (Number.isFinite(parsedScore)) {
+				return { kind: "score", reason: "liveness_failed", score: scoreFromApi ?? parsedScore };
+			}
+
+			if (String(head).includes("liveness_quality")) {
+				return { kind: "quality", reason: "liveness_failed", score: null };
+			}
+
+			return { kind: "unknown", reason: "liveness_failed", score: null };
+		}
+
+		const reason = this._mapErrorToTranslationKey(message);
+
+		return {
+			kind: LIVENESS_QUALITY_REASONS.has(reason) ? "quality" : "unknown",
+			reason,
+			score: null,
+		};
+	}
+
+	/**
+	 * Syncs the attempt counter. The API is authoritative because it excludes recoverable
+	 * capture-quality rejects; the local decrement is only a fallback for older builds.
+	 */
+	private _applyAttemptState(err: Record<string, unknown> | null | undefined, consumesAttempt: boolean): void {
+		const remainingFromApi = err?.remainingAttempts;
+		const limit = this._smartEnrollService.store.biometric.limit;
+
+		if (remainingFromApi != null && typeof limit === "number") {
+			this._smartEnrollService.setAttempts("biometric", Number(remainingFromApi), limit);
+			return;
+		}
+
+		if (consumesAttempt) this._smartEnrollService.subtractAttempt("biometric");
+	}
+
+	/**
+	 * Face compare runs after liveness has already been accepted and stored, so a compare
+	 * failure must not consume a liveness attempt or surface as a liveness rejection.
+	 * The result step and the backend completeness check decide the verdict from there.
+	 */
+	private _handleCompareError(exception: any): void {
+		if (exception?.error?.code === "PaymentRequired") {
+			this._smartEnrollService.insufficientCreditsTrigger();
+			return;
+		}
+
+		this._apiErrorService.normalize(exception);
+
+		this._syncAppRegistration("end", "ONGOING");
+		this.successfulUploadSubject.next();
+		this._smartEnrollService.goToNextStep();
+	}
+
 	private _handleError(exception: any): void {
 		if (exception?.error?.code === "PaymentRequired") {
 			this._smartEnrollService.insufficientCreditsTrigger();
 			return;
 		}
 
-		this._smartEnrollService.subtractAttempt("biometric");
-
-		const rawMessage = exception?.error?.message || "";
 		const err = exception?.error as Record<string, unknown> | null | undefined;
+		const rawMessage = (typeof err?.message === "string" ? err.message : "") || "";
 
-		// Handle liveness_failed with score: show error screen (do not go to result step)
-		const str = rawMessage.split("@");
-		const isLivenessFailedWithScore = str.length > 1 && String(str[0]).includes("liveness_failed");
-
-		if (isLivenessFailedWithScore) {
-			const parsedScore = parseFloat(str[1]) || 0;
-			this._smartEnrollService.setLivenessScore(parsedScore);
-
-			const remainingFromApi = err?.remainingAttempts;
-			if (remainingFromApi != null && typeof this._smartEnrollService.store.biometric.limit === "number") {
-				this._smartEnrollService.setAttempts("biometric", Number(remainingFromApi), this._smartEnrollService.store.biometric.limit);
-			}
-
-			this.errorResult = true;
-			const livenessMinScore = this._smartEnrollService.store.biometric.livenessMinScore ?? (err?.minimumScore != null ? Number(err.minimumScore) : null);
-			const livenessScoreFromApi = err?.livenessScore;
-			const livenessScore = livenessScoreFromApi != null ? Number(livenessScoreFromApi) : parsedScore;
-			this.errorContent = {
-				message: "liveness_failed",
-				livenessScore: Number.isFinite(livenessScore) ? livenessScore : parsedScore,
-				livenessMinScore: livenessMinScore != null ? Number(livenessMinScore) : null,
-			};
-			return;
-		}
-
-		// Extract error code from "400:message" or "409:message" format
-		const colonMatch = rawMessage.match(/^\d{3}:(.+)$/);
-		const errorCode = colonMatch ? colonMatch[1].trim() : rawMessage;
-
-		// Handle person_already_set - allow proceed if biometricValidation exists
-		if (errorCode === "person_already_set" && this.appRegistration.biometricValidation) {
+		// The biometric signature is already stored, so this is not a failed attempt.
+		if (rawMessage.replace(/^\d{3}:/, "").trim() === "person_already_set" && this.appRegistration.biometricValidation) {
 			this._smartEnrollService.goToNextStep();
 			return;
 		}
 
-		this._apiErrorService.normalize(exception);
+		const failure = this._resolveFailure(err, rawMessage);
 
-		// Map common error messages to translation keys
-		const messageCode = this._mapErrorToTranslationKey(errorCode);
+		this._applyAttemptState(err, failure.kind !== "quality");
+
 		this.errorResult = true;
-		this.errorContent = { message: messageCode };
+
+		if (failure.kind !== "score") {
+			if (failure.kind === "unknown") this._apiErrorService.normalize(exception);
+
+			this.errorContent = { message: failure.reason };
+			return;
+		}
+
+		const score = failure.score ?? 0;
+
+		this._smartEnrollService.setLivenessScore(score);
+
+		const configuredMinScore = this._smartEnrollService.store.biometric.livenessMinScore;
+		const minScoreFromApi = err?.minimumScore != null ? Number(err.minimumScore) : null;
+		const livenessMinScore = configuredMinScore ?? minScoreFromApi;
+
+		this.errorContent = {
+			message: failure.reason,
+			livenessScore: score,
+			livenessMinScore: livenessMinScore != null ? Number(livenessMinScore) : null,
+		};
 	}
 
 	private _mapErrorToTranslationKey(errorMessage: string): string {
@@ -218,8 +332,10 @@ export class SmartBiometricsComponent implements OnDestroy {
 			"Multiple faces detected": "multiple_faces_detected",
 			"Face too far": "face_too_far",
 			"Face too close": "face_too_close",
+			"Face is close to the border": "face_close_to_border",
 			"Poor lighting": "poor_lighting",
 			"Face not visible": "face_not_visible",
+			...PROVIDER_REASON_CODES,
 		};
 
 		// Check if we have a direct mapping

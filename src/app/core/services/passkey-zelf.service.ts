@@ -52,30 +52,60 @@ export class PasskeyZelfService {
 
 		// If requested, fetch encrypted content from IPFS for each passkey
 		if (fetchEncryptedContent && response?.data && Array.isArray(response.data)) {
-			console.log("[PasskeyZelfService] Fetching encrypted content from IPFS for", response.data.length, "passkeys");
+			const passkeyRecords = response.data.filter((passkey) => this._isPasskeyRecord(passkey));
+			console.log("[PasskeyZelfService] Fetching encrypted content from IPFS for", passkeyRecords.length, "passkeys");
 
-			for (const passkey of response.data) {
-				if (passkey.url) {
-					try {
-						const encryptedFile = await fetch(passkey.url).then((res) => res.json());
-						const payloadString = encryptedFile.encryptedToken || encryptedFile;
-						const encryptedContent = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString;
+			for (const passkey of passkeyRecords) {
+				if (!passkey.url) {
+					continue;
+				}
 
-						// Add the encrypted content to the passkey object
-						passkey.encryptedContent = encryptedContent;
-						console.log("[PasskeyZelfService] Fetched encrypted content for passkey:", passkey.publicData?.identifier);
-					} catch (error) {
-						console.error(
-							"[PasskeyZelfService] Failed to fetch encrypted content from IPFS for passkey:",
-							passkey.publicData?.identifier,
-							error
-						);
-					}
+				try {
+					passkey.encryptedContent = await this._fetchEncryptedContent(passkey.url);
+					console.log("[PasskeyZelfService] Fetched encrypted content for passkey:", passkey.publicData?.identifier);
+				} catch (error) {
+					console.error(
+						"[PasskeyZelfService] Failed to fetch encrypted content from IPFS for passkey:",
+						passkey.publicData?.identifier,
+						error
+					);
 				}
 			}
 		}
 
 		return response;
+	}
+
+	/**
+	 * Email/phone Pinata lists can include appRegistration (and other) pins whose
+	 * `url` points at a PNG. Only passKeys JSON blobs are decryptable.
+	 */
+	private _isPasskeyRecord(record: { publicData?: Record<string, unknown> }): boolean {
+		const type = `${record.publicData?.type || ""}`;
+		const category = `${record.publicData?.category || ""}`;
+		return type === "passKeys" || category.endsWith("_passKeys");
+	}
+
+	private async _fetchEncryptedContent(url: string): Promise<{ iv?: string; ciphertext?: string }> {
+		const res = await fetch(url);
+		const contentType = `${res.headers.get("content-type") || ""}`.toLowerCase();
+
+		if (contentType.includes("image/")) {
+			throw new Error(`IPFS URL is not JSON (content-type: ${contentType})`);
+		}
+
+		const raw = await res.text();
+		const trimmed = raw.trim();
+
+		// PNG magic byte 0x89 — gateway sometimes omits/misreports content-type.
+		if (!trimmed || trimmed.charCodeAt(0) === 0x89 || trimmed.startsWith("PNG")) {
+			throw new Error("IPFS URL returned an image, not passkey JSON");
+		}
+
+		const encryptedFile = JSON.parse(trimmed);
+		const payloadString = encryptedFile.encryptedToken || encryptedFile;
+
+		return typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString;
 	}
 
 	/**

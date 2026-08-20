@@ -155,6 +155,7 @@ export class ApiErrorService {
             const token = ctx.colonToken;
 
             if (token === "ClientSmartEnrollPlan_not_found") return "errors.client_smart_enroll_plan_not_found";
+            if (token === "onboarding_flow_not_published") return "errors.onboarding_flow_not_published";
             if (token === "insufficient_credits") return "errors.insufficient_credits";
             if (token === "plan_not_found") return "errors.plan_not_found";
             if (token === "not_found") return "errors.not_found";

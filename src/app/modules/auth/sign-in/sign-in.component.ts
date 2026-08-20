@@ -397,11 +397,24 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
                 if (passkey.encryptedContent) {
                     ({ iv, ciphertext } = passkey.encryptedContent);
-                } else {
-                    const encryptedFile = await fetch(passkey.url).then((res) => res.json());
+                } else if (passkey.url) {
+                    const res = await fetch(passkey.url);
+                    const contentType = `${res.headers.get("content-type") || ""}`.toLowerCase();
+                    if (contentType.includes("image/")) {
+                        continue;
+                    }
+
+                    const raw = (await res.text()).trim();
+                    if (!raw || raw.charCodeAt(0) === 0x89 || raw.startsWith("PNG")) {
+                        continue;
+                    }
+
+                    const encryptedFile = JSON.parse(raw);
                     const payloadString = encryptedFile.encryptedToken || encryptedFile;
                     ({ iv, ciphertext } = typeof payloadString === "string" ? JSON.parse(payloadString) : payloadString);
                     passkey.encryptedContent = { iv, ciphertext };
+                } else {
+                    continue;
                 }
 
                 if (!iv || !ciphertext) continue;
@@ -553,11 +566,26 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
         if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
 
+        // Tentative until project loads — may be replaced by project.defaultLanguage.
         this.language = this.flagCodes[browserLang] ? browserLang : "en";
 
-        localStorage.setItem("currentLanguage", this.language);
-
         this._translocoService.setActiveLang(this.language);
+    }
+
+    private _applyDefaultLanguageFromProject(): void {
+        if (!isPlatformBrowser(this.platformId)) return;
+
+        const savedLanguage = localStorage.getItem("currentLanguage");
+        if (savedLanguage && this.flagCodes[savedLanguage]) return;
+
+        const projectLang = this.project?.defaultLanguage;
+        if (projectLang && this.flagCodes[projectLang]) {
+            this.language = projectLang;
+        }
+
+        localStorage.setItem("currentLanguage", this.language);
+        this._translocoService.setActiveLang(this.language);
+        this._changeDetectorRef.markForCheck();
     }
 
     /**
@@ -601,6 +629,8 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                 this.projectFlow = this.project.getLoginProjectFlow();
 
                 if (this.projectFlow) this._projectStorageService.setProjectFlow(this.projectFlow);
+
+                this._applyDefaultLanguageFromProject();
 
                 this._appService.applyDynamicTheming(this.project);
 
