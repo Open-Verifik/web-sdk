@@ -173,13 +173,22 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit
 		if (savedLanguage && this.flagCodes[savedLanguage]) {
 			this.language = savedLanguage;
 			this._translocoService.setActiveLang(savedLanguage);
-		} else {
-			let browserLang = navigator.language;
-			if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
-			this.language = this.flagCodes[browserLang] ? browserLang : "en";
+			return;
+		}
+
+		const projectLang = this.project?.defaultLanguage;
+		if (projectLang && this.flagCodes[projectLang]) {
+			this.language = projectLang;
 			localStorage.setItem("currentLanguage", this.language);
 			this._translocoService.setActiveLang(this.language);
+			return;
 		}
+
+		let browserLang = navigator.language;
+		if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
+		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+		localStorage.setItem("currentLanguage", this.language);
+		this._translocoService.setActiveLang(this.language);
 	}
 
 	onLanguageChange(lang: string): void {

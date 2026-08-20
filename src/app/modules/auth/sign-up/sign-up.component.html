@@ -143,6 +143,36 @@
 		</div>
 	</div>
 
+	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full max-w-full overflow-x-hidden" *ngIf="showFlowNotPublished">
+		<div class="flex overflow-hidden bg-card max-w-full" ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small">
+			<div class="w-full sm:w-auto p-4 sm:p-6 max-w-full" fxLayout="column" ngClass.gt-sm="p-10">
+				<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
+					<mat-icon class="sign-in-content__icon" svgIcon="fa_solid:gears" color="primary"></mat-icon>
+				</div>
+
+				<div class="mt-4 sm:mt-8 text-xl sm:text-2xl md:text-3xl font-medium text-center tracking-tight leading-tight">
+					{{ "errors.onboarding_flow_not_published" | transloco }}
+				</div>
+
+				<div class="items-baseline mt-4 text-center">
+					{{ "errors.onboarding_flow_not_published_description" | transloco }}
+				</div>
+
+				<div class="w-full" fxLayout="row" fxLayoutAlign="center center">
+					<a class="mt-12" href="https://app.verifik.co" target="_self">
+						<button class="fuse-mat-button-large" mat-flat-button color="primary">
+							{{ "continue" | transloco }}
+						</button>
+					</a>
+				</div>
+
+				<div class="w-full text-center mt-10 text-secondary" fxLayout="row" fxLayoutAlign="center center">
+					{{ "powered_by_verifik" | transloco }}
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full max-w-full overflow-x-hidden" *ngIf="showNoProjectError()">
 		<div class="flex overflow-hidden max-w-full">
 			<div class="w-full sm:w-auto p-4 sm:p-6 max-w-full" fxLayout="column" ngClass.gt-sm="p-10">

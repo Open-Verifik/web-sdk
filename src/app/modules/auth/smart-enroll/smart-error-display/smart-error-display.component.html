@@ -56,7 +56,18 @@
 
 		<!-- Info Section -->
 		<div class="px-8 pb-6 space-y-3" *ngIf="attemptsRemaining">
+			<!-- Corrective Guidance Card: what to change before retrying -->
+			<div class="flex items-center gap-4 p-4 rounded-xl bg-emerald-50/50 border border-emerald-100" *ngIf="guidanceText">
+				<div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+					<mat-icon class="text-emerald-600 icon-size-5" svgIcon="heroicons_outline:light-bulb"></mat-icon>
+				</div>
+				<div class="flex-1 min-w-0">
+					<p class="text-sm font-medium text-emerald-900">{{ guidanceText }}</p>
+				</div>
+			</div>
+
 			<!-- Camera Quality Hint Card -->
+
 			<div class="flex items-center gap-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100" *ngIf="cameraQualityHint && source === 'face'">
 				<div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
 					<mat-icon class="text-blue-600 icon-size-5" svgIcon="heroicons_outline:video-camera"></mat-icon>

@@ -27,6 +27,7 @@ export interface Project<T extends SmartEnrollProjectFlow = SmartEnrollProjectFl
 	createdAt?: string;
 	currentStep: number;
 	dataProtection: DataProtection;
+	defaultLanguage?: string;
 	demoMode?: boolean;
 	identifier?: string;
 	lastStep: number;

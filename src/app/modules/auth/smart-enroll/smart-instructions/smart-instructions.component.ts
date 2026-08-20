@@ -40,14 +40,14 @@ export class SmartInstructionsComponent implements OnInit {
 
 	errorMessage: string = "";
 	isVerifikProject: boolean = false;
-	language: string;
+	language: string = "en";
 	project: Project;
 	projectFlow: ProjectFlow;
 	showSkipModal: boolean = false;
 	skipModalState: SkipModalState = "confirm";
 	steps: VerificationStep[] = [];
 	year: number = new Date().getFullYear();
-	flagCodes = {
+	flagCodes: Record<string, string> = {
 		en: "us",
 		es: "es",
 		br: "br",
@@ -89,13 +89,22 @@ export class SmartInstructionsComponent implements OnInit {
 		if (savedLanguage && this.flagCodes[savedLanguage]) {
 			this.language = savedLanguage;
 			this._translocoService.setActiveLang(savedLanguage);
-		} else {
-			let browserLang = navigator.language;
-			if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
-			this.language = this.flagCodes[browserLang] ? browserLang : "en";
+			return;
+		}
+
+		const projectLang = this.project?.defaultLanguage;
+		if (projectLang && this.flagCodes[projectLang]) {
+			this.language = projectLang;
 			localStorage.setItem("currentLanguage", this.language);
 			this._translocoService.setActiveLang(this.language);
+			return;
 		}
+
+		let browserLang = navigator.language;
+		if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
+		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+		localStorage.setItem("currentLanguage", this.language);
+		this._translocoService.setActiveLang(this.language);
 	}
 
 	onLanguageChange(lang: string): void {
@@ -187,7 +196,14 @@ export class SmartInstructionsComponent implements OnInit {
 				this.skipModalState = "success";
 
 				setTimeout(() => {
-					this._authService.handleRedirect(this.projectFlow, this.project._id, response.data.token, "onboarding");
+					const token = response.data?.token;
+					const projectId = this.project._id;
+					if (!token || !projectId) {
+						this.skipModalState = "error";
+						this.errorMessage = "Something went wrong. Please try again.";
+						return;
+					}
+					this._authService.handleRedirect(this.projectFlow, projectId, token, "onboarding");
 				}, 1500);
 			},
 			error: (error) => {

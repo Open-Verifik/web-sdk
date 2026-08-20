@@ -33,6 +33,12 @@ import { SignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-
 import { SignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 import { VerifikMediaDisplayComponent } from "../../../shared/components/verifik-media-display";
 
+/**
+ * Steps the sign-up sync may still overwrite. `"1"` is what the backend writes on creation and
+ * `""` covers a record that reports no step at all.
+ */
+const SIGN_UP_FORM_SYNCABLE_STEPS = ["", "1", "instructions", "signUpForm"];
+
 @Component({
 	animations: fuseAnimations,
 	encapsulation: ViewEncapsulation.None,
@@ -72,6 +78,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	projectFlow: ProjectFlow;
 	sendingOTP: Boolean;
 	showKYCApp: boolean = false;
+	showFlowNotPublished: boolean = false;
 	showUpgradeRequired: boolean = false;
 	steps: Array<string> = ["create"];
 	token: string;
@@ -232,8 +239,31 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		} else if (phoneVerificationEnabled && phoneStatus !== "validated") {
 			this._setStep("verify_phone");
 		} else {
+			this._recordSignUpFormStep();
+
 			this._setStep("complete");
 		}
+	}
+
+	/**
+	 * Records that the sign-up step finished when no OTP was required.
+	 *
+	 * With a gateway set, `sign-up-verification` syncs `signUpForm` after the code is accepted.
+	 * With both gateways off nothing did, so every record in a collect-only flow stayed on the
+	 * creation-time `currentStep` and the funnel read as if nobody had started.
+	 */
+	private _recordSignUpFormStep(): void {
+		if (!this.appRegistration) return;
+
+		// Never rewind a record that already moved on: a returning enrollee resuming at document
+		// or liveness would otherwise have `currentStep` pushed back on every reload.
+		if (!SIGN_UP_FORM_SYNCABLE_STEPS.includes(`${this.appRegistration.currentStep ?? ""}`)) return;
+
+		if (!["STARTED", "ONGOING"].includes(this.appRegistration.status)) return;
+
+		// Failing to record the step must not keep the enrollee out of the KYC app, so the error is
+		// swallowed; `syncAppRegistration` already advances the in-memory record.
+		this._KYCService.syncAppRegistration("signUpForm", "ONGOING").subscribe({ error: () => {} });
 	}
 
 	private _requestAppRegistration(): void {
@@ -292,7 +322,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 				if (this.projectFlow) this._projectStorageService.setProjectFlow(this.projectFlow);
 
+				this._applyDefaultLanguageFromProject();
+
 				this._appService.applyDynamicTheming(this.project);
+
+				if (this.projectFlow && this.projectFlow.status !== "active") {
+					this.showFlowNotPublished = true;
+					this.showUpgradeRequired = false;
+
+					return;
+				}
 
 				if (!response.planCode) {
 					this.showUpgradeRequired = true;
@@ -307,6 +346,12 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			},
 			complete: () => {
 				this._changeDetectorRef.markForCheck();
+
+				if (this.showFlowNotPublished || this.showUpgradeRequired) {
+					this._splashScreenService.hide();
+
+					return;
+				}
 
 				if (this.token) {
 					this._requestAppRegistration();
@@ -331,17 +376,33 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 			this.language = savedLanguage;
 
 			this._translocoService.setActiveLang(savedLanguage);
-		} else {
-			let browserLang = navigator.language;
-
-			if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
-
-			this.language = this.flagCodes[browserLang] ? browserLang : "en";
-
-			localStorage.setItem("currentLanguage", this.language);
-
-			this._translocoService.setActiveLang(this.language);
+			return;
 		}
+
+		let browserLang = navigator.language;
+
+		if (browserLang.includes("-")) browserLang = browserLang.split("-")[0];
+
+		// Tentative until project loads — may be replaced by project.defaultLanguage.
+		this.language = this.flagCodes[browserLang] ? browserLang : "en";
+
+		this._translocoService.setActiveLang(this.language);
+	}
+
+	private _applyDefaultLanguageFromProject(): void {
+		if (!isPlatformBrowser(this.platformId)) return;
+
+		const savedLanguage = localStorage.getItem("currentLanguage");
+		if (savedLanguage && this.flagCodes[savedLanguage]) return;
+
+		const projectLang = this.project?.defaultLanguage;
+		if (projectLang && this.flagCodes[projectLang]) {
+			this.language = projectLang;
+		}
+
+		localStorage.setItem("currentLanguage", this.language);
+		this._translocoService.setActiveLang(this.language);
+		this._changeDetectorRef.markForCheck();
 	}
 
 	onLanguageChange(lang: string): void {
@@ -435,10 +496,16 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	showMainContainer(): boolean {
-		return Boolean(!this.showUpgradeRequired && this.projectFlow?._id && this.project?._id);
+		return Boolean(
+			!this.showUpgradeRequired &&
+				!this.showFlowNotPublished &&
+				this.projectFlow?._id &&
+				this.projectFlow?.status === "active" &&
+				this.project?._id
+		);
 	}
 
 	showNoProjectError(): boolean {
-		return Boolean(!this.projectFlow?._id || !this.project?._id || !this.projectFlow);
+		return Boolean(!this.showFlowNotPublished && (!this.projectFlow?._id || !this.project?._id || !this.projectFlow));
 	}
 }

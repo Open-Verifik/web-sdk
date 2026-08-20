@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnDestroy, Output, ViewEncapsulation } 
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { fuseAnimations } from "@fuse/animations";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { Subscription } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
@@ -49,6 +49,7 @@ export class SmartErrorDisplayComponent implements OnDestroy {
         private _KYCService: KYCService,
         private _smartEnrollService: SmartEnrollService,
         private _passwordlessService: PasswordlessService,
+        private _translocoService: TranslocoService,
     ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
@@ -93,6 +94,20 @@ export class SmartErrorDisplayComponent implements OnDestroy {
 
     get showLivenessScoreLine(): boolean {
         return this.source === "face" && this.livenessScorePercent != null && this.livenessMinScorePercent != null;
+    }
+
+    /**
+     * Corrective instruction for the specific failure, when one is translated.
+     * Recoverable capture problems (no face, several faces, cropped face) carry a
+     * `<reason>_hint` key telling the user what to change before retrying.
+     */
+    get guidanceText(): string | null {
+        if (!this.errorContent?.message) return null;
+
+        const key = `${this.translationKey}_hint`;
+        const translation = this._translocoService.translate(key);
+
+        return translation && translation !== key ? translation : null;
     }
 
     private _syncAppRegistration(step: string, status?: string, action?: string) {
