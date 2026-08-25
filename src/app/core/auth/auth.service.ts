@@ -57,19 +57,17 @@ export class AuthService {
 			return;
 		}
 
-		let redirectUrl = projectFlow.integrations.redirectUrl;
-
 		if (projectId !== verifikProject) {
-			redirectUrl = projectFlow.integrations.redirectUrl;
+			const redirectUrl = projectFlow.integrations.redirectUrl;
 
 			window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
 
 			return;
 		}
 
-		redirectUrl = `${this.baseAppUrl}`;
+		const bridgeUrl = environment.smartAgentBridgeUrl || `${this.baseAppUrl}/bridge`;
 
-		window.location.href = `${redirectUrl}/sign-in?type=${type}&token=${token}`;
+		window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
 	}
 
 	forgotPassword(email: string): Observable<any> {

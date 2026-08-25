@@ -11,4 +11,8 @@ export const environment = {
     /** Set to true to test camera quality modal in QA. */
     forceCameraQualityModal: false,
     allowDevFaceFileUpload: false,
+    /**
+     * Verifik main-project post-login/onboarding redirect (Smart-Agent /bridge).
+     */
+    smartAgentBridgeUrl: "https://testing.verifik.co/bridge",
 };

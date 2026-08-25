@@ -39,22 +39,24 @@ import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll
 	templateUrl: "./smart-results.component.html",
 })
 export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
-	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas: ElementRef<HTMLCanvasElement>;
+	@ViewChild("qrCodeCanvas", { static: false }) public qrCodeCanvas?: ElementRef<HTMLCanvasElement>;
 
 	appRegistration: AppRegistration;
+	biometricIncomplete: boolean = false;
 	biometricSkipped: boolean = false;
-	comparisonFailed: boolean;
-	comparisonScore: number;
+	comparisonFailed: boolean = false;
+	comparisonScore: number = 0;
+	documentIncomplete: boolean = false;
 	documentSkipped: boolean = false;
 	enrollSettings: EnrollSettings;
 	enrollStore: EnrollStore;
-	errorContent: { message: string };
+	errorContent: { message: string } | null = null;
 	errorResult: boolean = false;
-	face: Face;
-	fetchingToken: boolean;
+	face: Face | null = null;
+	fetchingToken: boolean = false;
 	identityLoading: boolean = false;
-	livenessFailed: boolean;
-	livenessScore: number;
+	livenessFailed: boolean = false;
+	livenessScore: number = 0;
 	isVerifikProject: boolean = false;
 	loadingQRCode: boolean = false;
 	loadingAppRegistrationZKP: boolean = false;
@@ -108,31 +110,31 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _checkScoreStatus() {
+		const steps = this.projectFlow?.onboardingSettings?.steps;
 		const compareFaceVerification = this.appRegistration.compareFaceVerification;
-
 		const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
 		const livenessScore = this.enrollStore.biometric.livenessScore || this.appRegistration.biometricValidation?.livenessScore || 0;
 
 		this.comparisonScore = Math.floor((compareScore || 0) * 100);
 		this.livenessScore = Math.floor((livenessScore || 0) * 100);
-
 		this.comparisonFailed = false;
 		this.errorResult = false;
 		this.livenessFailed = false;
+		this.documentIncomplete = this._isOptionalStepIncomplete(
+			steps?.document,
+			!!this.appRegistration.documentValidation,
+			this.documentSkipped
+		);
+		this.biometricIncomplete = this._isOptionalStepIncomplete(
+			steps?.liveness,
+			!!this.appRegistration.biometricValidation,
+			this.biometricSkipped
+		);
 
-		if (!this.documentSkipped && compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
-			this.comparisonFailed = true;
-		}
+		this._applyDocumentScore(steps?.document, compareFaceVerification, compareScore);
+		this._applyLivenessScore(steps?.liveness, livenessScore);
 
-		if (!this.biometricSkipped && livenessScore < this.enrollStore.biometric.livenessMinScore) {
-			this.appRegistration.status = "FAILED";
-			this.errorResult = true;
-			this.livenessFailed = true;
-		}
-
-		if (this.documentSkipped && this.biometricSkipped) {
+		if (this.documentNotDone && this.biometricNotDone) {
 			this.appRegistration.status = "COMPLETED_WITHOUT_KYC";
 			return;
 		}
@@ -143,6 +145,44 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 			if (this.zeroKnowledgeProofEnabled && !this.comparisonFailed && !this.livenessFailed) {
 				this._createAppRegistrationZKP();
 			}
+		}
+	}
+
+	private _isOptionalStepIncomplete(step: string | undefined, hasValidation: boolean, skipped: boolean): boolean {
+		return !skipped && step === "optional" && !hasValidation;
+	}
+
+	private _markFailed(kind: "comparison" | "liveness"): void {
+		this.appRegistration.status = "FAILED";
+		this.errorResult = true;
+
+		if (kind === "comparison") this.comparisonFailed = true;
+		else this.livenessFailed = true;
+	}
+
+	private _applyDocumentScore(documentStep: string | undefined, compareFaceVerification: any, compareScore: number): void {
+		if (this.documentSkipped || this.documentIncomplete) return;
+
+		if (compareFaceVerification && compareScore < this.enrollStore.biometric.compareMinScore) {
+			this._markFailed("comparison");
+			return;
+		}
+
+		if (documentStep === "mandatory" && !this.appRegistration.documentValidation) {
+			this._markFailed("comparison");
+		}
+	}
+
+	private _applyLivenessScore(livenessStep: string | undefined, livenessScore: number): void {
+		if (this.biometricSkipped || this.biometricIncomplete) return;
+
+		if (this.appRegistration.biometricValidation && livenessScore < this.enrollStore.biometric.livenessMinScore) {
+			this._markFailed("liveness");
+			return;
+		}
+
+		if (livenessStep === "mandatory" && !this.appRegistration.biometricValidation) {
+			this._markFailed("liveness");
 		}
 	}
 
@@ -160,15 +200,34 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.fetchingToken = false;
 			},
 			complete: () => {
-				clearSignUpFlowPersistedSession(this.project._id);
-				this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding", this.project.demoMode);
+				const token = _response.token;
+				const projectId = this.project._id;
+
+				if (!token || !projectId) {
+					this.fetchingToken = false;
+					return;
+				}
+
+				clearSignUpFlowPersistedSession(projectId);
+				this._authService.handleRedirect(
+					this.projectFlow,
+					projectId,
+					token,
+					"onboarding",
+					Boolean(this.project.demoMode)
+				);
 				this.fetchingToken = false;
 			},
 		});
 	}
 
 	private _extractFaces(arrayOfImages: Face[]): void {
-		let fallbackFace: Face;
+		if (!arrayOfImages?.length) {
+			this.identityLoading = false;
+			return;
+		}
+
+		let fallbackFace: Face | undefined;
 
 		for (let index = 0; index < arrayOfImages.length; index++) {
 			const identityImage = arrayOfImages[index];
@@ -182,7 +241,8 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 			this._setFace(identityImage);
 		}
 
-		if (!this.face) this._setFace(fallbackFace);
+		if (!this.face && fallbackFace) this._setFace(fallbackFace);
+		else if (!this.face) this.identityLoading = false;
 	}
 
 	private async _generateQRCode(canvas: HTMLCanvasElement, text: string) {
@@ -202,7 +262,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _requestIdentityImages(): void {
-		if (this.documentSkipped && this.biometricSkipped) {
+		if (this.documentNotDone && this.biometricNotDone) {
 			this.identityLoading = false;
 			this.face = null;
 
@@ -222,18 +282,21 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _setFace(identityImage: Face) {
+		const imageBase64 = identityImage?.base64;
+
+		if (!imageBase64) {
+			this.identityLoading = false;
+			return;
+		}
+
+		const normalizedBase64 = imageBase64.includes("data:image")
+			? imageBase64
+			: `data:image/jpeg;base64,${imageBase64}`;
+		const stringArr = normalizedBase64.split("data:image/jpeg;base64,");
+
+		identityImage.base64 =
+			stringArr.length === 3 ? normalizedBase64.replace("data:image/jpeg;base64,", "") : normalizedBase64;
 		this.face = identityImage;
-
-		if (!this.face.base64.includes("data:image")) {
-			this.face["base64"] = `data:image/jpeg;base64,${identityImage.base64}`;
-		}
-
-		const stringArr = this.face["base64"].split("data:image/jpeg;base64,");
-
-		if (stringArr.length === 3) {
-			this.face["base64"] = this.face["base64"].replace("data:image/jpeg;base64,", "");
-		}
-
 		this.identityLoading = false;
 	}
 
@@ -273,8 +336,16 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		return isEnabled;
 	}
 
+	get documentNotDone(): boolean {
+		return this.documentSkipped || this.documentIncomplete;
+	}
+
+	get biometricNotDone(): boolean {
+		return this.biometricSkipped || this.biometricIncomplete;
+	}
+
 	get showProjectLogoInHeader(): boolean {
-		return this.documentSkipped && this.biometricSkipped;
+		return this.documentNotDone && this.biometricNotDone;
 	}
 
 	private _createAppRegistrationZKP(): void {
@@ -388,7 +459,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		return result;
 	}
 
-	private _syncAppRegistration(step: string, status?: string, action?: string) {
+	private _syncAppRegistration(step: string, status: string, action?: string) {
 		let _response: any = null;
 
 		this._KYCService.syncAppRegistration(step, status).subscribe({
@@ -397,9 +468,13 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 			},
 			error: () => {},
 			complete: () => {
+				const token = _response?.token;
+				const projectId = this.project._id;
+
+				if (!token || !projectId) return;
 				if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
-				this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
+				this._authService.handleRedirect(this.projectFlow, projectId, token, "onboarding");
 			},
 		});
 	}
