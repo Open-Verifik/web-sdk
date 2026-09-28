@@ -11,6 +11,7 @@ import { distinctUntilChanged, Subject, takeUntil } from "rxjs";
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { resolveEnrollStepFromBackendContinuation } from "app/core/services/app-registration-step.util";
 import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
 import { AppRegistration } from "../project";
@@ -184,6 +185,25 @@ export class SmartEnrollComponent implements AfterViewInit, OnDestroy {
 	}
 
 	setCurrentStepBasedOnAppRegistrationProgress(): void {
+		const backendEnrollStep = resolveEnrollStepFromBackendContinuation({
+			appRegistration: this.appRegistration,
+			projectFlow: this.projectFlow,
+			sessionToken: localStorage.getItem("accessToken"),
+			isDocumentValidAndComplete: this._smartEnrollService.isDocumentValidAndComplete.bind(this._smartEnrollService),
+		});
+
+		if (backendEnrollStep) {
+			if (backendEnrollStep === "biometric") {
+				this._syncAppRegistration("liveness", "ONGOING");
+			} else if (backendEnrollStep === "document-review" && this.appRegistration.documentValidation) {
+				this._syncAppRegistration("document", "ONGOING");
+			}
+
+			this._smartEnrollService.setCurrentStep(backendEnrollStep);
+
+			return;
+		}
+
 		const steps = this.projectFlow.onboardingSettings.steps;
 		const documentStepSkipped = steps.document === "skip";
 		const documentWasSkipped = this._smartEnrollService.wasSkippedDocument();

@@ -23,6 +23,7 @@ import {
 	saveSignUpAppRegistrationToken,
 	isUsableAppRegistrationSessionToken,
 } from "../../../core/services/app-registration-session.storage";
+import { resolveSignUpUiStep } from "../../../core/services/app-registration-step.util";
 import { ProjectStorageService } from "../../../core/services/project-storage.service";
 import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
@@ -217,23 +218,18 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _checkVerification(): void {
-		const emailStatus = this.appRegistration?.emailValidation?.status;
-		const phoneStatus = this.appRegistration?.phoneValidation?.status;
-
 		const onboardingSettings = this.projectFlow?.onboardingSettings;
 		const signUpForm = onboardingSettings?.signUpForm;
 		const { email, emailGateway, phone, phoneGateway } = signUpForm || {};
 
-		const emailVerificationEnabled = email && emailGateway !== "none";
-		const phoneVerificationEnabled = phone && phoneGateway !== "none";
+		const uiStep = resolveSignUpUiStep({
+			appRegistration: this.appRegistration,
+			sessionToken: this.token,
+			emailVerificationEnabled: Boolean(email && emailGateway !== "none"),
+			phoneVerificationEnabled: Boolean(phone && phoneGateway !== "none"),
+		});
 
-		if (emailVerificationEnabled && emailStatus !== "validated") {
-			this._setStep("verify_email");
-		} else if (phoneVerificationEnabled && phoneStatus !== "validated") {
-			this._setStep("verify_phone");
-		} else {
-			this._setStep("complete");
-		}
+		this._setStep(uiStep);
 	}
 
 	private _requestAppRegistration(): void {
