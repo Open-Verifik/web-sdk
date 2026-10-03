@@ -57,14 +57,12 @@ export class AuthService {
 			return;
 		}
 
-		let redirectUrl = projectFlow.integrations.redirectUrl;
-
-		const bridgeUrl = this._resolveSmartAgentBridgeUrl();
 		const integrationsRedirect = (projectFlow.integrations?.redirectUrl ?? "").trim();
+		const smartAgentBridge = this._resolveSmartAgentBridgeUrl();
 
 		if (projectId !== verifikProject) {
-			if (bridgeUrl && this._shouldUseSmartAgentBridge(integrationsRedirect)) {
-				window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
+			if (smartAgentBridge && this._shouldUseSmartAgentBridge(integrationsRedirect)) {
+				window.location.href = `${smartAgentBridge}?type=${type}&token=${token}`;
 				return;
 			}
 
@@ -74,14 +72,16 @@ export class AuthService {
 			}
 		}
 
-		redirectUrl = `${this.baseAppUrl}`;
+		const bridgeUrl = smartAgentBridge || environment.smartAgentBridgeUrl || `${this.baseAppUrl}/bridge`;
 
 		if (bridgeUrl) {
 			window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
 			return;
 		}
 
-		window.location.href = `${redirectUrl}/sign-in?type=${type}&token=${token}`;
+		if (integrationsRedirect) {
+			window.location.href = `${integrationsRedirect}?type=${type}&token=${token}`;
+		}
 	}
 
 	forgotPassword(email: string): Observable<any> {

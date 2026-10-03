@@ -327,7 +327,11 @@
 		"passkey_login_failed": "Не удалось завершить вход по passkey. Повторите попытку или используйте код.",
 		"passkey_what": "Passkeys позволяют входить с помощью отпечатка пальца или лица вместо пароля.",
 		"secured_by": "Защищено Verifik",
-		"user_not_found": "Пользователь не найден"
+		"user_not_found": "Пользователь не найден",
+		"passkey_enroll_title": "Более быстрый вход",
+		"passkey_enroll_description": "Настройте passkey, чтобы в следующий раз входить с Face ID, Touch ID или отпечатком устройства — без ожидания кодов.",
+		"passkey_enroll_confirm": "Настроить passkey",
+		"passkey_enroll_skip": "Позже"
 	},
 	"add_biometrics": {
 		"button": "Начать верификацию",

@@ -327,7 +327,11 @@
 		"passkey_login_failed": "Hindi namin nakumpleto ang pag-sign in gamit ang passkey. Subukan ulit o gumamit ng code.",
 		"passkey_what": "Pinapayagan ka ng passkeys na mag-sign in gamit ang iyong fingerprint o mukha sa halip na password.",
 		"secured_by": "Pinangangalagaan ng Verifik",
-		"user_not_found": "Hindi natagpuan ang user"
+		"user_not_found": "Hindi natagpuan ang user",
+		"passkey_enroll_title": "Mas mabilis na login",
+		"passkey_enroll_description": "Mag-set up ng passkey para makapag-sign in sa susunod gamit ang Face ID, Touch ID, o fingerprint ng device — walang code na hintayin.",
+		"passkey_enroll_confirm": "I-setup ang passkey",
+		"passkey_enroll_skip": "Mamaya na"
 	},
 	"add_biometrics": {
 		"button": "Simulan ang pag-verify",

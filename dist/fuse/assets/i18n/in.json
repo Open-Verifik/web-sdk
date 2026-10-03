@@ -327,7 +327,11 @@
 		"passkey_login_failed": "हम पासकी साइन-इन पूरा नहीं कर सके। फिर से प्रयास करें या कोड का उपयोग करें।",
 		"passkey_what": "पासकी आपको पासवर्ड के बजाय अपनी उंगली के निशान या चेहरे से साइन इन करने देती है।",
 		"secured_by": "Verifik द्वारा सुरक्षित",
-		"user_not_found": "उपयोगकर्ता नहीं मिला"
+		"user_not_found": "उपयोगकर्ता नहीं मिला",
+		"passkey_enroll_title": "तेज़ लॉगिन",
+		"passkey_enroll_description": "अगली बार Face ID, Touch ID या अपने डिवाइस की फिंगरप्रिंट से साइन इन करने के लिए पासकी सेट करें — कोड का इंतज़ार नहीं।",
+		"passkey_enroll_confirm": "पासकी सेटअप करें",
+		"passkey_enroll_skip": "बाद में"
 	},
 	"add_biometrics": {
 		"button": "सत्यापन प्रारंभ करें",

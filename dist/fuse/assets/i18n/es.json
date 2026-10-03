@@ -327,6 +327,10 @@
 		"passkey_not_found": "No se encontró un passkey para esta cuenta",
 		"passkey_login_failed": "No pudimos completar el inicio de sesión con passkey. Inténtalo de nuevo o usa un código.",
 		"passkey_what": "Los passkeys te permiten iniciar sesión con tu huella o rostro en lugar de una contraseña.",
+		"passkey_enroll_title": "Inicio más rápido",
+		"passkey_enroll_description": "Configura un passkey para iniciar sesión la próxima vez con Face ID, Touch ID o la huella de tu dispositivo — sin esperar códigos.",
+		"passkey_enroll_confirm": "Configurar passkey",
+		"passkey_enroll_skip": "Ahora no",
 		"secured_by": "Protegido por Verifik",
 		"user_not_found": "Usuario no encontrado"
 	},
