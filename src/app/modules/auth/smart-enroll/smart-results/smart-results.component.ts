@@ -191,7 +191,9 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		let _response = { token: null };
 
-		this._KYCService.syncAppRegistration("end", this.appRegistration.status).subscribe({
+		const step = this.appRegistration.status === "COMPLETED_WITHOUT_KYC" ? "skipKYC" : "end";
+
+		this._KYCService.syncAppRegistration(step, this.appRegistration.status).subscribe({
 			next: (response) => {
 				_response = response.data;
 			},

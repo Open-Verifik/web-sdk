@@ -182,7 +182,7 @@ export class SmartInstructionsComponent implements OnInit {
 		this._smartEnrollService.setSkippedDocument(true);
 		this._smartEnrollService.setSkippedBiometric(true);
 
-		this._KYCService.syncAppRegistration("end", "COMPLETED_WITHOUT_KYC").subscribe({
+		this._KYCService.syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC").subscribe({
 			next: (response) => {
 				this.skipModalState = "success";
 
