@@ -4,6 +4,7 @@ import { isPlatformBrowser } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { Router } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
@@ -11,6 +12,7 @@ import { AuthService } from "app/core/auth/auth.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { clearAccessTokenIfAppRegistrationSession, clearSignUpAppRegistrationToken } from "app/core/services/app-registration-session.storage";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
@@ -64,6 +66,7 @@ export class SmartInstructionsComponent implements OnInit {
 		private _authService: AuthService,
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
+		private _router: Router,
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService,
 		@Inject(PLATFORM_ID) private platformId: Object
@@ -158,6 +161,23 @@ export class SmartInstructionsComponent implements OnInit {
 
 	startVerification(): void {
 		this.onStart.emit();
+	}
+
+	startOver(): void {
+		const projectId = this.project?._id;
+
+		if (projectId) clearSignUpAppRegistrationToken(projectId);
+
+		clearAccessTokenIfAppRegistrationSession();
+		this._smartEnrollService.unsetLocalStorage();
+
+		if (!projectId) return;
+
+		void this._router.navigate(["/sign-up", projectId], {
+			queryParams: { token: null },
+			queryParamsHandling: "merge",
+			replaceUrl: true,
+		});
 	}
 
 	openSkipModal(): void {

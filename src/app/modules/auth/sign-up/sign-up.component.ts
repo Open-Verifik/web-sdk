@@ -73,6 +73,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	sendingOTP: Boolean;
 	showKYCApp: boolean = false;
 	showUpgradeRequired: boolean = false;
+	savedSessionToken: string | null = null;
 	steps: Array<string> = ["create"];
 	token: string;
 
@@ -158,30 +159,22 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					if (isUsableAppRegistrationSessionToken(queryToken)) {
 						effectiveToken = queryToken.trim();
 						saveSignUpAppRegistrationToken(projectId, effectiveToken);
+						this.savedSessionToken = null;
 					} else {
 						clearSignUpAppRegistrationToken(projectId);
 						clearAccessTokenIfAppRegistrationSession();
+						this.savedSessionToken = null;
 					}
+				} else {
+					this.savedSessionToken = readSignUpAppRegistrationToken(projectId);
 				}
 
 				if (!effectiveToken) {
-					const stored = readSignUpAppRegistrationToken(projectId);
-
-					if (stored) {
-						effectiveToken = stored;
-
-						void this._router.navigate(["/sign-up", projectId], {
-							queryParams: { token: stored },
-							queryParamsHandling: "merge",
-							replaceUrl: true,
-						});
-					}
-				}
-
-				if (!effectiveToken) {
-					clearSignUpAppRegistrationToken(projectId);
-					clearAccessTokenIfAppRegistrationSession();
 					this.token = null;
+					this.appRegistration = null;
+					this.showKYCApp = false;
+					this._setStep("create");
+					clearAccessTokenIfAppRegistrationSession();
 					this._smartEnrollService.unsetLocalStorage();
 				} else {
 					this._setToken(effectiveToken);
@@ -406,6 +399,41 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.token = token;
 
 		localStorage.setItem("accessToken", token);
+	}
+
+	continueSavedSignUp(): void {
+		const projectId = this.project?._id;
+		const token = this.savedSessionToken;
+
+		if (!projectId || !token) return;
+
+		void this._router.navigate(["/sign-up", projectId], {
+			queryParams: { token },
+			queryParamsHandling: "merge",
+			replaceUrl: true,
+		});
+	}
+
+	startOverSignUp(): void {
+		const projectId = this.project?._id;
+
+		if (projectId) clearSignUpAppRegistrationToken(projectId);
+
+		clearAccessTokenIfAppRegistrationSession();
+		this._smartEnrollService.unsetLocalStorage();
+		this.savedSessionToken = null;
+		this.token = null;
+		this.appRegistration = null;
+		this.showKYCApp = false;
+		this._setStep("create");
+
+		if (!projectId || !this._activatedRoute.snapshot.queryParamMap.has("token")) return;
+
+		void this._router.navigate(["/sign-up", projectId], {
+			queryParams: { token: null },
+			queryParamsHandling: "merge",
+			replaceUrl: true,
+		});
 	}
 
 	countryNotAllowedAccept(): void {

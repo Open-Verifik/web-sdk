@@ -479,6 +479,9 @@
 			"optional": "선택 사항",
 			"start_button": "확인 시작",
 			"skip_verification": "지금은 확인 건너뛰기",
+			"start_over": "처음부터 다시",
+			"saved_session": "진행 중인 인증이 있습니다.",
+			"continue_saved": "계속",
 			"agreement_prefix": "계속하면 다음에 동의하는 것입니다",
 			"no_steps_required": "확인 단계가 필요하지 않습니다",
 			"skip_modal": {

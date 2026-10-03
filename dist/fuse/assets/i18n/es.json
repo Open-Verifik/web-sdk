@@ -480,6 +480,9 @@
 			"optional": "Opcional",
 			"start_button": "Iniciar Verificación",
 			"skip_verification": "Omitir verificación por ahora",
+			"start_over": "Empezar de nuevo",
+			"saved_session": "Tienes una verificación en curso.",
+			"continue_saved": "Continuar",
 			"agreement_prefix": "Al continuar, aceptas nuestros",
 			"no_steps_required": "No se requieren pasos de verificación",
 			"skip_modal": {
