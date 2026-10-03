@@ -115,10 +115,14 @@ export class AuthService {
 			.pipe(
 				catchError(() => of(false)),
 				switchMap((response: any) => {
-					if (response.accessToken) this.accessToken = response.accessToken;
+					const nextToken = typeof response?.accessToken === "string" ? response.accessToken.trim() : "";
 
+					if (!response || !this._isJwtShape(nextToken)) {
+						return of(false);
+					}
+
+					this.accessToken = nextToken;
 					this._authenticated = true;
-
 					this._userService.user = response.user;
 
 					return of(true);
@@ -146,13 +150,18 @@ export class AuthService {
 	 * Check the authentication status
 	 */
 	check(): Observable<boolean> {
+		const token = (this.accessToken ?? "").trim();
+
+		if (this._isDiscardedAccessToken(token) || (token && !this._isJwtShape(token))) {
+			this._clearAccessToken();
+			return of(false);
+		}
+
 		if (this._authenticated) return of(true);
 
-		if (!this.accessToken) return of(false);
+		if (!token || AuthUtils.isJwtExpired(token)) return of(false);
 
-		if (AuthUtils.isTokenExpired(this.accessToken)) return of(false);
-
-		return this.signInUsingToken();
+		return of(false);
 	}
 
 	projectLogin(expiresIn: number, jwt: string): Observable<any> {
@@ -192,6 +201,25 @@ export class AuthService {
 			phone: !isEmail ? identifier : undefined,
 			projectId: projectId, // Backend might expect this in body if not in token?
 		});
+	}
+
+	private _clearAccessToken(): void {
+		localStorage.removeItem("accessToken");
+		this._authenticated = false;
+	}
+
+	private _isDiscardedAccessToken(token: string): boolean {
+		if (!token) return true;
+
+		const normalized = token.trim().toLowerCase();
+
+		return normalized === "null" || normalized === "undefined" || normalized === "token_here";
+	}
+
+	private _isJwtShape(token: string): boolean {
+		const parts = token.split(".");
+
+		return parts.length === 3 && parts.every((part) => part.length > 0);
 	}
 
 	private _resolveSmartAgentBridgeUrl(): string {

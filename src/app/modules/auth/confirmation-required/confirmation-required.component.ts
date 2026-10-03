@@ -117,7 +117,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 		this._activatedRoute.params.subscribe((params) => {
 			this.token = this._router.url.split("?token=")[1];
 
-			localStorage.setItem("accessToken", this.token);
+			if (typeof this.token === "string" && this.token.trim()) {
+				localStorage.setItem("accessToken", this.token);
+			}
 
 			this._requestAppRegistration();
 		});
@@ -470,7 +472,9 @@ export class AuthConfirmationRequiredComponent implements OnInit, OnDestroy {
 
 		if (this.loading) return;
 
-		localStorage.setItem("accessToken", this.token);
+		if (typeof this.token === "string" && this.token.trim()) {
+			localStorage.setItem("accessToken", this.token);
+		}
 
 		this._syncAppRegistration("signUpForm", "ONGOING", "redirect");
 	}
