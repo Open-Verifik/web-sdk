@@ -479,6 +479,9 @@
 			"optional": "वैकल्पिक",
 			"start_button": "सत्यापन शुरू करें",
 			"skip_verification": "अभी के लिए सत्यापन छोड़ें",
+			"start_over": "फिर से शुरू करें",
+			"saved_session": "आपका सत्यापन अधूरा है.",
+			"continue_saved": "जारी रखें",
 			"agreement_prefix": "जारी रखकर, आप हमारी सहमति देते हैं",
 			"no_steps_required": "कोई सत्यापन चरण आवश्यक नहीं",
 			"skip_modal": {

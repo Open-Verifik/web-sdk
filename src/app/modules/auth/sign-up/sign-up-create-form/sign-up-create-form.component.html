@@ -34,6 +34,29 @@
 						{{ t("signup.auth_link") }}
 					</a>
 				</div>
+
+				<div class="flex flex-col items-center gap-1 text-sm text-center" *ngIf="hasSavedSession">
+					<span [style.color]="project.branding.textColor || '#6b7280'">
+						{{ t("smart_enroll.instructions.saved_session") }}
+					</span>
+					<div class="flex items-center gap-3">
+						<button
+							(click)="continueSaved.emit()"
+							class="font-medium hover:underline bg-transparent border-0 p-0 cursor-pointer"
+							[style.color]="project.branding.buttonColor || '#3f3f46'"
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.continue_saved") }}
+						</button>
+						<button
+							(click)="startOver.emit()"
+							class="font-medium hover:underline bg-transparent border-0 p-0 cursor-pointer text-gray-500"
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.start_over") }}
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 

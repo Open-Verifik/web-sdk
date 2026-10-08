@@ -479,6 +479,9 @@
 			"optional": "Opzionale",
 			"start_button": "Inizia Verifica",
 			"skip_verification": "Salta la verifica per ora",
+			"start_over": "Ricomincia",
+			"saved_session": "Hai una verifica in corso.",
+			"continue_saved": "Continua",
 			"agreement_prefix": "Continuando, accetti i nostri",
 			"no_steps_required": "Nessun passaggio di verifica richiesto",
 			"skip_modal": {

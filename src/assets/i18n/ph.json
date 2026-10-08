@@ -479,6 +479,9 @@
 			"optional": "Opsyonal",
 			"start_button": "Simulan ang Pagpapatunay",
 			"skip_verification": "Laktawan ang pagpapatunay sa ngayon",
+			"start_over": "Magsimulang muli",
+			"saved_session": "May kasalukuyan kang beripikasyon.",
+			"continue_saved": "Magpatuloy",
 			"agreement_prefix": "Sa pagpapatuloy, sumasang-ayon ka sa aming",
 			"no_steps_required": "Walang kinakailangang hakbang sa pagpapatunay",
 			"skip_modal": {

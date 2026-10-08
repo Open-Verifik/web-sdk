@@ -22,22 +22,23 @@ export class AuthUtils {
 	 * @param offsetSeconds
 	 */
 	static isTokenExpired(token: string, offsetSeconds?: number): boolean {
-		// Return if there is no token
 		if (!token || token === "") {
 			return true;
 		}
 
-		// Get the expiration date
-		const date = this._getTokenExpirationDate(token);
+		try {
+			const date = this._getTokenExpirationDate(token);
 
-		offsetSeconds = offsetSeconds || 0;
+			offsetSeconds = offsetSeconds || 0;
 
-		if (date === null) {
+			if (date === null) {
+				return true;
+			}
+
+			return !(date.valueOf() > new Date().valueOf() + offsetSeconds * 1000);
+		} catch {
 			return true;
 		}
-
-		// Check if the token is expired
-		return !(date.valueOf() > new Date().valueOf() + offsetSeconds * 1000);
 	}
 
 	/**
@@ -50,6 +51,10 @@ export class AuthUtils {
 
 		try {
 			const decoded = this._decodeToken(token);
+
+			if (!decoded) {
+				return true;
+			}
 
 			if (decoded.hasOwnProperty("exp") && decoded.exp != null) {
 				return this.isTokenExpired(token, offsetSeconds);
@@ -204,11 +209,15 @@ export class AuthUtils {
 	 * @private
 	 */
 	private static _getTokenExpirationDate(token: string): Date | null {
-		// Get the decoded token
-		const decodedToken = this._decodeToken(token);
+		let decodedToken: any = null;
 
-		// Return if the decodedToken doesn't have an 'exp' field
-		if (!decodedToken.hasOwnProperty("exp")) {
+		try {
+			decodedToken = this._decodeToken(token);
+		} catch {
+			return null;
+		}
+
+		if (!decodedToken || !Object.prototype.hasOwnProperty.call(decodedToken, "exp") || decodedToken.exp == null) {
 			return null;
 		}
 
