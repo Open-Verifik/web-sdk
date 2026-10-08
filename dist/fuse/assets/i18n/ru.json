@@ -479,6 +479,9 @@
 			"optional": "Необязательно",
 			"start_button": "Начать Проверку",
 			"skip_verification": "Пропустить проверку сейчас",
+			"start_over": "Начать заново",
+			"saved_session": "У вас есть незавершённая проверка.",
+			"continue_saved": "Продолжить",
 			"agreement_prefix": "Продолжая, вы соглашаетесь с нашими",
 			"no_steps_required": "Шаги проверки не требуются",
 			"skip_modal": {

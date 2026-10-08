@@ -159,6 +159,16 @@
 				>
 					{{ t("smart_enroll.instructions.skip_verification") }}
 				</button>
+
+				<button
+					(click)="startOver()"
+					class="w-full h-10 rounded-xl font-medium text-sm hover:bg-gray-50 transition-all duration-200"
+					[style.color]="project.branding.textColor || '#6b7280'"
+					mat-button
+					type="button"
+				>
+					{{ t("smart_enroll.instructions.start_over") }}
+				</button>
 			</div>
 		</div>
 

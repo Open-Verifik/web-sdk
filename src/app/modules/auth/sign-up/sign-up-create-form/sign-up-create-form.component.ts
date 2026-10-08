@@ -1,6 +1,6 @@
 import { CommonModule, NgIf } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AbstractControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -64,9 +64,12 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	@ViewChild("countrySearchInput") countrySearchInput: ElementRef<HTMLInputElement>;
 
 	@Input("deviceDetails") deviceDetails: any;
+	@Input("hasSavedSession") hasSavedSession: boolean = false;
 	@Input("location") location: any;
 	@Input("project") project: Project;
 	@Input("projectFlow") projectFlow: ProjectFlow;
+	@Output() continueSaved = new EventEmitter<void>();
+	@Output() startOver = new EventEmitter<void>();
 
 	private unsubscriber$: Subject<void> = new Subject<void>();
 
