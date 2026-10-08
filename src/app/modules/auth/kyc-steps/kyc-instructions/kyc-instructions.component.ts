@@ -86,9 +86,9 @@ export class KycInstructionsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {}
 
-    startKYC(): void {
-        this._KYCService.navigateTo(this.navigation.displayableSteps[0].code);
-    }
+	startKYC(): void {
+		this._KYCService.navigateTo(this.navigation.displayableSteps[0].code);
+	}
 
     invalidForm(): boolean {
         if (!this.project.termsAndConditionsUrl && !this.project.privacyUrl) return false;

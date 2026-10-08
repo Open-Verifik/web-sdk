@@ -10,8 +10,5 @@ export const environment = {
     sandboxProject: "6266193db77ccc8111730c90",
     forceCameraQualityModal: false,
     allowDevFaceFileUpload: false,
-    /**
-     * Verifik main-project post-login/onboarding redirect (Smart-Agent /bridge).
-     */
-    smartAgentBridgeUrl: "https://app.verifik.co/bridge",
+    smartAgentBridgeUrl: "https://ai.verifik.co/bridge",
 };

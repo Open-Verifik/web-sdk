@@ -34,6 +34,29 @@
 						{{ t("signup.auth_link") }}
 					</a>
 				</div>
+
+				<div class="flex flex-col items-center gap-1 text-sm text-center" *ngIf="hasSavedSession">
+					<span [style.color]="project.branding.textColor || '#6b7280'">
+						{{ t("smart_enroll.instructions.saved_session") }}
+					</span>
+					<div class="flex items-center gap-3">
+						<button
+							(click)="continueSaved.emit()"
+							class="font-medium hover:underline bg-transparent border-0 p-0 cursor-pointer"
+							[style.color]="project.branding.buttonColor || '#3f3f46'"
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.continue_saved") }}
+						</button>
+						<button
+							(click)="startOver.emit()"
+							class="font-medium hover:underline bg-transparent border-0 p-0 cursor-pointer text-gray-500"
+							type="button"
+						>
+							{{ t("smart_enroll.instructions.start_over") }}
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -158,66 +181,16 @@
 				</mat-form-field>
 
 				<!-- Phone Field -->
-				<div class="w-full flex flex-row gap-1 sm:gap-2 max-w-full" *ngIf="fields.phone">
-					<mat-form-field appearance="outline" class="w-20 sm:w-28 flex-shrink-0">
-						<mat-label>{{ t("signup.code") }}</mat-label>
-
-						<mat-select
-							(click)="preventInputFocus($event)"
-							(closed)="onCountryCodeSelectClosed()"
-							(openedChange)="onCountryCodeSelectOpened()"
-							(selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
-							[formControl]="signUpForm.get('countryCode') || null"
-							*ngIf="countryCodes"
-							autocomplete="country-code"
-							disableRipple
-							name="countryCode"
-							panelClass="verifik-select-search__panel"
-							required
-						>
-							<!-- Search input -->
-							<mat-option
-								(click)="$event.preventDefault(); $event.stopPropagation()"
-								(mousedown)="$event.preventDefault(); $event.stopPropagation()"
-								(mouseup)="$event.preventDefault(); $event.stopPropagation()"
-								class="verifik-select-search__option"
-							>
-								<div class="verifik-select-search__container">
-									<input
-										(click)="$event.stopPropagation()"
-										(input)="onCountryCodeSearchChange($event.target.value)"
-										(keydown)="$event.stopPropagation()"
-										(mousedown)="$event.stopPropagation()"
-										(mouseup)="$event.stopPropagation()"
-										[placeholder]="t('search') + '...'"
-										[value]="countryCodeSearchTerm"
-										#countryCodeSearchInput
-										class="verifik-select-search__input"
-										type="text"
-									/>
-
-									<button
-										(click)="clearCountryCodeSearch($event)"
-										(keydown)="$event.stopPropagation()"
-										(mousedown)="$event.stopPropagation()"
-										(mouseup)="$event.stopPropagation()"
-										*ngIf="countryCodeSearchTerm"
-										aria-label="Clear search"
-										class="verifik-select-search__clear"
-										mat-icon-button
-										type="button"
-									>
-										<mat-icon>close</mat-icon>
-									</button>
-								</div>
-							</mat-option>
-
-							<!-- Country code options -->
-							<mat-option *ngFor="let country of filteredCountryCodes; trackBy: trackByCountryCode" [value]="country.code">
-								{{ country.code }}
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
+				<div class="w-full flex flex-row gap-1 sm:gap-2 max-w-full" *ngIf="fields.phone && signUpForm">
+					<app-country-code-select
+						class="flex-shrink-0"
+						[control]="signUpForm.get('countryCode')"
+						[required]="true"
+						(selectionChange)="removeSpacesFromPhone(); onCountryCodeChange()"
+						fieldClass="w-20 sm:w-28"
+						label="signup.code"
+						selectId="countryCode"
+					/>
 
 					<mat-form-field appearance="outline" class="flex-1">
 						<mat-label>{{ t("login.phone") }}</mat-label>
@@ -510,30 +483,25 @@
 					<label for="agreements" class="text-sm text-gray-600 leading-relaxed cursor-pointer flex-1">
 						<span>{{ t("signup.agreement1") }} </span>
 						<a
-							[href]="project.termsAndConditionsUrl"
+							[href]="legalTermsAndConditionsUrl"
 							[style.color]="project.branding.buttonColor || '#6366f1'"
-							*ngIf="signUpFormSettings?.showTermsAndConditions && project?.termsAndConditionsUrl"
+							*ngIf="shouldShowTermsLink"
 							class="font-medium hover:underline"
 							target="_blank"
+							rel="noopener noreferrer"
 						>
 							{{ t("signup.terms") }}
 						</a>
-						<span
-							*ngIf="
-								signUpFormSettings?.showTermsAndConditions &&
-								signUpFormSettings?.showPrivacyNotice &&
-								project?.termsAndConditionsUrl &&
-								project?.privacyUrl
-							"
-						>
+						<span *ngIf="shouldShowTermsLink && shouldShowPrivacyLink">
 							{{ t("signup.and") }}
 						</span>
 						<a
-							[href]="project.privacyUrl"
+							[href]="legalPrivacyUrl"
 							[style.color]="project.branding.buttonColor || '#6366f1'"
-							*ngIf="signUpFormSettings?.showPrivacyNotice && project?.privacyUrl"
+							*ngIf="shouldShowPrivacyLink"
 							class="font-medium hover:underline"
 							target="_blank"
+							rel="noopener noreferrer"
 						>
 							{{ t("signup.privacyPolicy") }}
 						</a>

@@ -1,8 +1,53 @@
 import { AuthUtils } from "app/core/auth/auth.utils";
+import { OnboardingSteps } from "app/core/models/smart-enroll-project.model";
 
 const KEY_PREFIX = "verifik.signUpAppRegistrationToken.";
 
 const APP_REGISTRATION_ACCESS_TYPES = new Set(["app_registration_initiated", "app_registration_created"]);
+const APP_REGISTRATION_CREATED_ACCESS_TYPE = "app_registration_created";
+const SKIP_KYC_MANDATORY_STEPS = ["basicInformation", "document", "form", "liveness"] as const;
+
+export type AppRegistrationSyncResponse = {
+	accessType?: string;
+	status?: string;
+	token?: string;
+};
+
+/**
+ * Matches verifik-backend skipKYC/canSkipIt.
+ * Optional document/liveness steps do not block skip; only a mandatory step in this list does.
+ */
+export const canSkipKyc = (steps: OnboardingSteps | null | undefined): boolean => {
+	if (!steps) {
+		return false;
+	}
+
+	return !SKIP_KYC_MANDATORY_STEPS.some((step) => steps[step] === "mandatory");
+};
+
+/**
+ * True when a sync response finalized skip KYC (COMPLETED_WITHOUT_KYC or an end-type token).
+ */
+export const isSkipKycCompletedSyncResponse = (data: AppRegistrationSyncResponse | null | undefined): boolean => {
+	if (!data) {
+		return false;
+	}
+
+	if (data.status === "COMPLETED_WITHOUT_KYC" || data.accessType === APP_REGISTRATION_CREATED_ACCESS_TYPE) {
+		return true;
+	}
+
+	if (!data.token?.trim() || !isAppRegistrationSessionJwt(data.token)) {
+		return false;
+	}
+
+	try {
+		const decoded = AuthUtils.decodeToken(data.token);
+		return decoded?.accessType === APP_REGISTRATION_CREATED_ACCESS_TYPE;
+	} catch {
+		return false;
+	}
+};
 
 const storageKey = (projectId: string): string => `${KEY_PREFIX}${projectId}`;
 
@@ -104,6 +149,32 @@ export const clearAccessTokenIfAppRegistrationSession = (): boolean => {
 /**
  * Clears persisted sign-up session data after HTTP 403; runs enroll localStorage reset when anything was cleared.
  */
+const SESSION_TERMINATING_FORBIDDEN_MESSAGES = new Set(["access_denied", "expired_token", "Access forbidden"]);
+
+/**
+ * Returns true when a 403 response indicates the app-registration session is invalid and should be cleared.
+ * Permission denials (e.g. insufficient_permissions) must not wipe the onboarding token.
+ */
+export const shouldClearAppRegistrationSessionOnHttpForbidden = (error: { error?: unknown } | null | undefined): boolean => {
+	if (!error || typeof error !== "object") {
+		return false;
+	}
+
+	const body = error.error;
+
+	if (!body || typeof body !== "object") {
+		return false;
+	}
+
+	const message = (body as { message?: unknown }).message;
+
+	if (typeof message !== "string" || message === "insufficient_permissions") {
+		return false;
+	}
+
+	return SESSION_TERMINATING_FORBIDDEN_MESSAGES.has(message);
+};
+
 export const onHttpForbiddenClearAppRegistrationSession = (unsetEnrollStorage: () => void): void => {
 	const clearedKeys = clearAllSignUpAppRegistrationTokens();
 	const clearedAccess = clearAccessTokenIfAppRegistrationSession();

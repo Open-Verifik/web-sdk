@@ -316,7 +316,22 @@
 		"title_1": "स्वागत है",
 		"title_2": "साइन इन करें",
 		"use_biometrics_button": "चेहरे की पुष्टि",
-		"user_not_found": "उपयोगकर्ता नहीं मिला"
+		"change_contact": "बदलें",
+		"media_highlight_title": "सेकंडों में सत्यापित",
+		"media_highlight_subtitle": "बैंक-स्तरीय पहचान सत्यापन, पूरे अमेरिका में विश्वसनीय।",
+		"otp_step_title": "6 अंकों का कोड दर्ज करें",
+		"otp_sent_to": "{{target}} पर कोड भेजा गया",
+		"passkey_cta": "पासकी से साइन इन करें",
+		"passkey_helper": "Face ID / Touch ID का उपयोग करें — कोई कोड टाइप नहीं करना",
+		"passkey_not_found": "इस खाते के लिए कोई पासकी नहीं मिली",
+		"passkey_login_failed": "हम पासकी साइन-इन पूरा नहीं कर सके। फिर से प्रयास करें या कोड का उपयोग करें।",
+		"passkey_what": "पासकी आपको पासवर्ड के बजाय अपनी उंगली के निशान या चेहरे से साइन इन करने देती है।",
+		"secured_by": "Verifik द्वारा सुरक्षित",
+		"user_not_found": "उपयोगकर्ता नहीं मिला",
+		"passkey_enroll_title": "तेज़ लॉगिन",
+		"passkey_enroll_description": "अगली बार Face ID, Touch ID या अपने डिवाइस की फिंगरप्रिंट से साइन इन करने के लिए पासकी सेट करें — कोड का इंतज़ार नहीं।",
+		"passkey_enroll_confirm": "पासकी सेटअप करें",
+		"passkey_enroll_skip": "बाद में"
 	},
 	"add_biometrics": {
 		"button": "सत्यापन प्रारंभ करें",
@@ -332,6 +347,9 @@
 			"title": "अपने खाते को सुरक्षित करें",
 			"description": "अगली बार तेज़, पासवर्ड-मुक्त पहुंच के लिए PassKeys (FaceID / TouchID) सक्षम करें।",
 			"confirm": "PassKeys सक्षम करें",
+			"benefit_1": "तुरंत साइन इन करें — कोड का इंतजार नहीं",
+			"benefit_2": "फ़िशिंग-प्रतिरोधी और अधिक सुरक्षित",
+			"benefit_3": "याद रखने के लिए कोई पासवर्ड नहीं",
 			"cancel": "शायद बाद में"
 		},
 		"passkey_success": {
@@ -461,6 +479,9 @@
 			"optional": "वैकल्पिक",
 			"start_button": "सत्यापन शुरू करें",
 			"skip_verification": "अभी के लिए सत्यापन छोड़ें",
+			"start_over": "फिर से शुरू करें",
+			"saved_session": "आपका सत्यापन अधूरा है.",
+			"continue_saved": "जारी रखें",
 			"agreement_prefix": "जारी रखकर, आप हमारी सहमति देते हैं",
 			"no_steps_required": "कोई सत्यापन चरण आवश्यक नहीं",
 			"skip_modal": {

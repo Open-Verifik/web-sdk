@@ -211,11 +211,11 @@
 							</mat-error>
 						</mat-form-field>
 
-						<div class="flex flex-col sm:flex-row gap-3">
+						<div class="flex flex-col gap-3">
 							<button
 								type="button"
 								(click)="setUpdate()"
-								class="flex-1 h-12 rounded-lg font-medium border"
+								class="signup-verification__action-button w-full rounded-lg font-medium border"
 								[style.border-color]="project.branding.buttonColor || '#d1d5db'"
 								[style.color]="project.branding.textColor || '#374151'"
 								mat-stroked-button
@@ -227,12 +227,12 @@
 								type="button"
 								(click)="updateEmail($event)"
 								[disabled]="!canUpdateEmailOrPhone()"
-								class="flex-1 h-12 rounded-lg font-medium"
+								class="signup-verification__action-button w-full rounded-lg font-medium"
 								[style.background-color]="project.branding.buttonColor || '#3f3f46'"
 								[style.color]="project.branding.buttonTextColor || '#ffffff'"
 								mat-flat-button
 							>
-								<span>{{ t("signup.update_email_button") }}</span>
+								<span class="text-center leading-snug">{{ t("signup.update_email_button") }}</span>
 							</button>
 						</div>
 					</form>
@@ -255,22 +255,15 @@
 					</div>
 
 					<form [formGroup]="phoneForm" class="w-full flex flex-col gap-4">
-						<div class="w-full flex flex-row gap-3">
-							<mat-form-field appearance="outline" class="w-28">
-								<mat-label>{{ t("signup.code") }}</mat-label>
-
-								<mat-select
-									(click)="preventInputFocus($event)"
-									(selectionChange)="removeSpacesFromPhone()"
-									[formControl]="phoneForm.get('countryCode')"
-									*ngIf="countries"
-									required
-								>
-									<mat-option *ngFor="let country of countries" [value]="country.code">
-										{{ country.code }}
-									</mat-option>
-								</mat-select>
-							</mat-form-field>
+						<div class="w-full flex flex-row gap-3" *ngIf="phoneForm">
+							<app-country-code-select
+								class="flex-shrink-0"
+								[control]="phoneForm.get('countryCode')"
+								[required]="true"
+								(selectionChange)="removeSpacesFromPhone(); onCountryCodeChangeFromSelect($event)"
+								fieldClass="w-32 sm:w-36"
+								label="signup.code"
+							/>
 
 							<mat-form-field appearance="outline" class="flex-1">
 								<mat-label>{{ t("login.phone") }}</mat-label>
@@ -306,11 +299,11 @@
 							</mat-form-field>
 						</div>
 
-						<div class="flex flex-col sm:flex-row gap-3">
+						<div class="flex flex-col gap-3">
 							<button
 								type="button"
 								(click)="setUpdate()"
-								class="flex-1 h-12 rounded-lg font-medium border"
+								class="signup-verification__action-button w-full rounded-lg font-medium border"
 								[style.border-color]="project.branding.buttonColor || '#d1d5db'"
 								[style.color]="project.branding.textColor || '#374151'"
 								mat-stroked-button
@@ -322,12 +315,12 @@
 								type="button"
 								(click)="updatePhone($event)"
 								[disabled]="!canUpdateEmailOrPhone()"
-								class="flex-1 h-12 rounded-lg font-medium"
+								class="signup-verification__action-button w-full rounded-lg font-medium"
 								[style.background-color]="project.branding.buttonColor || '#3f3f46'"
 								[style.color]="project.branding.buttonTextColor || '#ffffff'"
 								mat-flat-button
 							>
-								<span>{{ t("signup.update_phone_button") }}</span>
+								<span class="text-center leading-snug">{{ t("signup.update_phone_button") }}</span>
 							</button>
 						</div>
 					</form>

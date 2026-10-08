@@ -1,0 +1,65 @@
+<mat-form-field appearance="outline" [class]="fieldClass">
+	<mat-label *ngIf="label">{{ label | transloco }}</mat-label>
+
+	<mat-select
+		[id]="selectId"
+		(closed)="onCountryCodeSelectClosed()"
+		(click)="preventInputFocus($event)"
+		(openedChange)="onCountryCodeSelectOpened()"
+		(selectionChange)="onOptionSelected($event.value)"
+		[compareWith]="compareDialCodeWithOptionId"
+		[disabled]="disabled || readOnly"
+		[formControl]="formControl"
+		[required]="required"
+		panelClass="verifik-select-search__panel"
+	>
+		<mat-select-trigger>
+			<span *ngIf="selectedCountry as country" class="country-code-trigger">
+				<span class="country-code-trigger__code">{{ country.code }}</span>
+				<span class="country-code-trigger__name">{{ country.name | transloco }}</span>
+			</span>
+		</mat-select-trigger>
+		<mat-option
+			(click)="$event.preventDefault(); $event.stopPropagation()"
+			(mousedown)="$event.preventDefault(); $event.stopPropagation()"
+			(mouseup)="$event.preventDefault(); $event.stopPropagation()"
+			class="verifik-select-search__option"
+		>
+			<div class="verifik-select-search__container">
+				<input
+					#countryCodeSearchInput
+					(click)="$event.stopPropagation()"
+					(input)="onCountryCodeSearchChange($any($event.target).value)"
+					(keydown)="$event.stopPropagation()"
+					(mousedown)="$event.stopPropagation()"
+					(mouseup)="$event.stopPropagation()"
+					[placeholder]="('search' | transloco) + '...'"
+					[value]="countryCodeSearchTerm"
+					class="verifik-select-search__input"
+					type="text"
+				/>
+
+				<button
+					*ngIf="countryCodeSearchTerm"
+					(click)="clearCountryCodeSearch($event)"
+					(keydown)="$event.stopPropagation()"
+					(mousedown)="$event.stopPropagation()"
+					(mouseup)="$event.stopPropagation()"
+					aria-label="Clear search"
+					class="verifik-select-search__clear"
+					mat-icon-button
+					type="button"
+				>
+					<mat-icon>close</mat-icon>
+				</button>
+			</div>
+		</mat-option>
+
+		<mat-option *ngFor="let country of filteredCountryCodes; trackBy: trackByCountryCode" [value]="getOptionId(country)">
+			<span class="country-code-option">
+				<span class="country-code-option__code">{{ country.code }}</span>
+				<span class="country-code-option__name">{{ country.name | transloco }}</span>
+			</span>
+		</mat-option>
+	</mat-select>
+</mat-form-field>

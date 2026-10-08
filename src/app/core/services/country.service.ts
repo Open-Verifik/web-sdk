@@ -19,6 +19,7 @@ export interface PhoneLengthMapping {
     providedIn: "root",
 })
 export class CountryService {
+    private _cachedCountryCodes: CountryCodeOption[] | null = null;
     private _countryMap = new Map<string, CountryOption>();
     private _countryNameToTranslationKey = new Map<string, string>();
 
@@ -32,29 +33,38 @@ export class CountryService {
     }
 
     get countryCodes(): CountryCodeOption[] {
+        if (!this._cachedCountryCodes) {
+            this._cachedCountryCodes = this._buildCountryCodes();
+        }
+
+        return this._cachedCountryCodes;
+    }
+
+    filterCountryCodeOptions(options: CountryCodeOption[], searchTerm: string): CountryCodeOption[] {
+        if (!searchTerm?.trim()) return options;
+
+        const term = searchTerm.toLowerCase().trim();
+
+        return options.filter(
+            (country) => country.code.toLowerCase().includes(term) || country.name.toLowerCase().includes(term),
+        );
+    }
+
+    private _buildCountryCodes(): CountryCodeOption[] {
         return [
             // North America
             {
                 code: "+1",
-                name: this._countryNameToTranslationKey.get("United States") || "United States",
+                name: "country.united_states",
+            },
+            {
+                code: "+1",
+                name: "country.canada",
             },
             {
                 code: "+52",
                 name: this._countryNameToTranslationKey.get("Mexico") || "Mexico",
             },
-            {
-                code: "+1-787",
-                name: this._countryNameToTranslationKey.get("Puerto Rico") || "Puerto Rico",
-            },
-            {
-                code: "+1-939",
-                name: this._countryNameToTranslationKey.get("Puerto Rico") || "Puerto Rico",
-            },
-            {
-                code: "+1-868",
-                name: this._countryNameToTranslationKey.get("Trinidad and Tobago") || "Trinidad and Tobago",
-            },
-
             // Central America
             {
                 code: "+502",
@@ -415,10 +425,6 @@ export class CountryService {
                 name: this._countryNameToTranslationKey.get("Mongolia") || "Mongolia",
             },
             {
-                code: "+7",
-                name: this._countryNameToTranslationKey.get("Kazakhstan") || "Kazakhstan",
-            },
-            {
                 code: "+998",
                 name: this._countryNameToTranslationKey.get("Uzbekistan") || "Uzbekistan",
             },
@@ -469,6 +475,14 @@ export class CountryService {
             {
                 code: "+670",
                 name: this._countryNameToTranslationKey.get("Timor-Leste") || "Timor-Leste",
+            },
+            {
+                code: "+886",
+                name: this._countryNameToTranslationKey.get("Taiwan") || "Taiwan",
+            },
+            {
+                code: "+852",
+                name: this._countryNameToTranslationKey.get("Hong Kong") || "Hong Kong",
             },
 
             // Africa
@@ -904,6 +918,7 @@ export class CountryService {
             { name: "country.switzerland", code: "ch", country: "Switzerland" },
             { name: "country.syria", code: "sy", country: "Syria" },
             { name: "country.taiwan", code: "tw", country: "Taiwan" },
+            { name: "country.hong_kong", code: "hk", country: "Hong Kong" },
             { name: "country.tajikistan", code: "tj", country: "Tajikistan" },
             { name: "country.tanzania", code: "tz", country: "Tanzania" },
             { name: "country.thailand", code: "th", country: "Thailand" },
@@ -1048,6 +1063,8 @@ export class CountryService {
             "+95": [7, 9], // Myanmar
             "+673": [7, 7], // Brunei
             "+670": [7, 9], // Timor-Leste
+            "+886": [9, 9], // Taiwan
+            "+852": [8, 8], // Hong Kong
 
             // Africa
             "+27": [9, 9], // South Africa
@@ -1139,5 +1156,38 @@ export class CountryService {
 
     getPhoneLengthForCountryCode(countryCode: string): number[] {
         return this.phoneLengthMapping[countryCode] || [5, 15];
+    }
+
+    /**
+     * Resolve E.164 dial prefix from a geo/IP country name (English or localized).
+     */
+    findCountryCodeByName(countryName: string): string | null {
+        if (!countryName) return null;
+
+        const aliases: Record<string, string> = {
+            México: "Mexico",
+            Panamá: "Panama",
+            Perú: "Peru",
+            España: "Spain",
+        };
+
+        const normalized = aliases[countryName] || countryName;
+        const countryOption = this.countries.find((c) => c.country === normalized);
+
+        if (!countryOption) return null;
+
+        for (const dial of this.countryCodes) {
+            const meta = this.countries.find((c) => c.name === dial.name);
+
+            if (meta?.country === normalized) return dial.code;
+        }
+
+        const sharedDialByIso: Record<string, string> = {
+            kz: "+7",
+            pr: "+1",
+            tt: "+1",
+        };
+
+        return sharedDialByIso[countryOption.code] ?? null;
     }
 }

@@ -1,6 +1,6 @@
 import { CommonModule, NgIf } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AbstractControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -24,7 +24,8 @@ import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { SmartEnrollProjectFlow } from "app/core/models/smart-enroll-project.model";
 import { ApiErrorService, NormalizedApiError } from "app/core/services/api-error.service";
-import { CountryCodeOption, CountryOption, CountryService } from "app/core/services/country.service";
+import { CountryCodeSelectComponent } from "app/core/components/country-code-select/country-code-select.component";
+import { CountryOption, CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
@@ -41,6 +42,7 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 	styleUrls: ["./sign-up-create-form.component.scss"],
 	templateUrl: "./sign-up-create-form.component.html",
 	imports: [
+		CountryCodeSelectComponent,
 		CommonModule,
 		FlexLayoutModule,
 		MatButtonModule,
@@ -59,13 +61,15 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 	],
 })
 export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
-	@ViewChild("countryCodeSearchInput") countryCodeSearchInput: ElementRef<HTMLInputElement>;
 	@ViewChild("countrySearchInput") countrySearchInput: ElementRef<HTMLInputElement>;
 
 	@Input("deviceDetails") deviceDetails: any;
+	@Input("hasSavedSession") hasSavedSession: boolean = false;
 	@Input("location") location: any;
 	@Input("project") project: Project;
 	@Input("projectFlow") projectFlow: ProjectFlow;
+	@Output() continueSaved = new EventEmitter<void>();
+	@Output() startOver = new EventEmitter<void>();
 
 	private unsubscriber$: Subject<void> = new Subject<void>();
 
@@ -76,10 +80,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 	appRegistration: AppRegistration;
 	countries: CountryOption[];
-	countryCodes: CountryCodeOption[];
-	filteredCountryCodes: CountryCodeOption[];
 	filteredCountries: CountryOption[];
-	countryCodeSearchTerm: string = "";
 	countrySearchTerm: string = "";
 	demoData: any;
 	fields: any;
@@ -105,9 +106,6 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService
 	) {
-		this.countryCodes = this._countryService.countryCodes;
-		this.filteredCountryCodes = this.countryCodes;
-
 		this.countries = this._countryService.countries;
 		this.filteredCountries = this.countries;
 
@@ -151,6 +149,28 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 			this.saving ||
 			Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements))
 		);
+	}
+
+	/** Canonical Verifik legal docs (locale-aware). */
+	get legalPrivacyUrl(): string {
+		return this._translocoService.getActiveLang() === "es"
+			? "https://docs.verifik.co/verifik-es/legal/politica-privacidad/"
+			: "https://docs.verifik.co/legal/privacy-policy/";
+	}
+
+	/** Canonical Verifik legal docs (locale-aware). */
+	get legalTermsAndConditionsUrl(): string {
+		return this._translocoService.getActiveLang() === "es"
+			? "https://docs.verifik.co/verifik-es/terminos-y-condiciones/"
+			: "https://docs.verifik.co/legal/terms-and-conditions/";
+	}
+
+	get shouldShowPrivacyLink(): boolean {
+		return Boolean(this.signUpFormSettings?.showPrivacyNotice || this.project?.privacyUrl);
+	}
+
+	get shouldShowTermsLink(): boolean {
+		return Boolean(this.signUpFormSettings?.showTermsAndConditions || this.project?.termsAndConditionsUrl);
 	}
 
 	static _dateOfBirthValidator = (control: AbstractControl) => {
@@ -349,62 +369,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		this._changeDetectorRef.detectChanges();
 	}
 
-	trackByCountryCode(_index: number, country: any): string {
-		return country?.code;
-	}
-
 	trackByCountry(_index: number, country: any): string {
 		return country?.country;
-	}
-
-	onCountryCodeSearchChange(searchTerm: string): void {
-		this.countryCodeSearchTerm = searchTerm;
-		this.filterCountryCodes();
-	}
-
-	clearCountryCodeSearch(event?: Event): void {
-		if (event) {
-			event.preventDefault();
-			event.stopPropagation();
-		}
-		this.countryCodeSearchTerm = "";
-		this.filteredCountryCodes = this.countryCodes;
-		this._changeDetectorRef.detectChanges();
-
-		// Refocus the search input after clearing
-		setTimeout(() => {
-			if (this.countryCodeSearchInput?.nativeElement) {
-				this.countryCodeSearchInput.nativeElement.focus();
-			}
-		}, 0);
-	}
-
-	private filterCountryCodes(): void {
-		if (!this.countryCodeSearchTerm.trim()) {
-			this.filteredCountryCodes = this.countryCodes;
-		} else {
-			const searchTerm = this.countryCodeSearchTerm.toLowerCase().trim();
-			this.filteredCountryCodes = this.countryCodes.filter(
-				(country) => country.code.toLowerCase().includes(searchTerm) || country.name.toLowerCase().includes(searchTerm)
-			);
-		}
-	}
-
-	onCountryCodeSelectOpened(): void {
-		this.countryCodeSearchTerm = "";
-		this.filteredCountryCodes = this.countryCodes;
-		// Focus the search input after the select panel opens
-		setTimeout(() => {
-			if (this.countryCodeSearchInput?.nativeElement) {
-				this.countryCodeSearchInput.nativeElement.focus();
-			}
-		}, 100);
-	}
-
-	onCountryCodeSelectClosed(): void {
-		this.countryCodeSearchTerm = "";
-		this.filteredCountryCodes = this.countryCodes;
-		this.onCountryCodeChange();
 	}
 
 	// Country search methods

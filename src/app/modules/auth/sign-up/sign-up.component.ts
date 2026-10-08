@@ -10,7 +10,7 @@ import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { combineLatest, map, Subject, takeUntil } from "rxjs";
 
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
-import { CountriesService } from "app/modules/demo/countries.service";
+import { CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 import { ProjectFlow } from "../../../core/classes/project-flow.class";
@@ -73,6 +73,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	sendingOTP: Boolean;
 	showKYCApp: boolean = false;
 	showUpgradeRequired: boolean = false;
+	savedSessionToken: string | null = null;
 	steps: Array<string> = ["create"];
 	token: string;
 
@@ -93,7 +94,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		private _activatedRoute: ActivatedRoute,
 		private _appService: AppService,
 		private _changeDetectorRef: ChangeDetectorRef,
-		private _countries: CountriesService,
+		private _countryService: CountryService,
 		private _demoService: DemoService,
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
@@ -158,30 +159,22 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					if (isUsableAppRegistrationSessionToken(queryToken)) {
 						effectiveToken = queryToken.trim();
 						saveSignUpAppRegistrationToken(projectId, effectiveToken);
+						this.savedSessionToken = null;
 					} else {
 						clearSignUpAppRegistrationToken(projectId);
 						clearAccessTokenIfAppRegistrationSession();
+						this.savedSessionToken = null;
 					}
+				} else {
+					this.savedSessionToken = readSignUpAppRegistrationToken(projectId);
 				}
 
 				if (!effectiveToken) {
-					const stored = readSignUpAppRegistrationToken(projectId);
-
-					if (stored) {
-						effectiveToken = stored;
-
-						void this._router.navigate(["/sign-up", projectId], {
-							queryParams: { token: stored },
-							queryParamsHandling: "merge",
-							replaceUrl: true,
-						});
-					}
-				}
-
-				if (!effectiveToken) {
-					clearSignUpAppRegistrationToken(projectId);
-					clearAccessTokenIfAppRegistrationSession();
 					this.token = null;
+					this.appRegistration = null;
+					this.showKYCApp = false;
+					this._setStep("create");
+					clearAccessTokenIfAppRegistrationSession();
 					this._smartEnrollService.unsetLocalStorage();
 				} else {
 					this._setToken(effectiveToken);
@@ -208,7 +201,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 				this.location = await this._demoService.extractLocationFromLatLng(response.lat, response.lng);
 				this.location.os = this.deviceDetails?.platform;
 				this.location.type = "browser";
-				this.location.countryCode = this._countries.findCountryCode(this.location.country);
+				this.location.countryCode = this._countryService.findCountryCodeByName(this.location.country);
 			},
 			error(err) {
 				this.locationError = err;
@@ -406,6 +399,41 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this.token = token;
 
 		localStorage.setItem("accessToken", token);
+	}
+
+	continueSavedSignUp(): void {
+		const projectId = this.project?._id;
+		const token = this.savedSessionToken;
+
+		if (!projectId || !token) return;
+
+		void this._router.navigate(["/sign-up", projectId], {
+			queryParams: { token },
+			queryParamsHandling: "merge",
+			replaceUrl: true,
+		});
+	}
+
+	startOverSignUp(): void {
+		const projectId = this.project?._id;
+
+		if (projectId) clearSignUpAppRegistrationToken(projectId);
+
+		clearAccessTokenIfAppRegistrationSession();
+		this._smartEnrollService.unsetLocalStorage();
+		this.savedSessionToken = null;
+		this.token = null;
+		this.appRegistration = null;
+		this.showKYCApp = false;
+		this._setStep("create");
+
+		if (!projectId || !this._activatedRoute.snapshot.queryParamMap.has("token")) return;
+
+		void this._router.navigate(["/sign-up", projectId], {
+			queryParams: { token: null },
+			queryParamsHandling: "merge",
+			replaceUrl: true,
+		});
 	}
 
 	countryNotAllowedAccept(): void {

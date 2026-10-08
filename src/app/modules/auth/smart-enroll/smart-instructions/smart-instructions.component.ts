@@ -4,6 +4,7 @@ import { isPlatformBrowser } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { Router } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
@@ -11,6 +12,12 @@ import { AuthService } from "app/core/auth/auth.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import {
+	canSkipKyc,
+	clearAccessTokenIfAppRegistrationSession,
+	clearSignUpAppRegistrationToken,
+	isSkipKycCompletedSyncResponse,
+} from "app/core/services/app-registration-session.storage";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
@@ -64,6 +71,7 @@ export class SmartInstructionsComponent implements OnInit {
 		private _authService: AuthService,
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
+		private _router: Router,
 		private _smartEnrollService: SmartEnrollService,
 		private _translocoService: TranslocoService,
 		@Inject(PLATFORM_ID) private platformId: Object
@@ -129,12 +137,7 @@ export class SmartInstructionsComponent implements OnInit {
 	}
 
 	get canSkipAll(): boolean {
-		const onboardingSteps = this.projectFlow.onboardingSettings.steps;
-
-		const documentOptional = onboardingSteps.document === "optional" || onboardingSteps.document === "skip";
-		const livenessOptional = onboardingSteps.liveness === "optional" || onboardingSteps.liveness === "skip";
-
-		return documentOptional && livenessOptional;
+		return canSkipKyc(this.projectFlow.onboardingSettings.steps);
 	}
 
 	get hasTermsOrPrivacy(): boolean {
@@ -158,6 +161,23 @@ export class SmartInstructionsComponent implements OnInit {
 
 	startVerification(): void {
 		this.onStart.emit();
+	}
+
+	startOver(): void {
+		const projectId = this.project?._id;
+
+		if (projectId) clearSignUpAppRegistrationToken(projectId);
+
+		clearAccessTokenIfAppRegistrationSession();
+		this._smartEnrollService.unsetLocalStorage();
+
+		if (!projectId) return;
+
+		void this._router.navigate(["/sign-up", projectId], {
+			queryParams: { token: null },
+			queryParamsHandling: "merge",
+			replaceUrl: true,
+		});
 	}
 
 	openSkipModal(): void {
@@ -184,15 +204,31 @@ export class SmartInstructionsComponent implements OnInit {
 
 		this._KYCService.syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC").subscribe({
 			next: (response) => {
+				const data = response?.data;
+
+				if (!isSkipKycCompletedSyncResponse(data) || !data?.token) {
+					this._smartEnrollService.setSkippedDocument(false);
+					this._smartEnrollService.setSkippedBiometric(false);
+					this.skipModalState = "error";
+					this.errorMessage = this._translocoService.translate(
+						data?.token
+							? "smart_enroll.instructions.skip_modal.incomplete_steps"
+							: "smart_enroll.redirect_token_error"
+					);
+					return;
+				}
+
 				this.skipModalState = "success";
 
 				setTimeout(() => {
-					this._authService.handleRedirect(this.projectFlow, this.project._id, response.data.token, "onboarding");
+					this._authService.handleRedirect(this.projectFlow, this.project._id, data.token, "onboarding");
 				}, 1500);
 			},
 			error: (error) => {
+				this._smartEnrollService.setSkippedDocument(false);
+				this._smartEnrollService.setSkippedBiometric(false);
 				this.skipModalState = "error";
-				this.errorMessage = error?.error?.message || "Something went wrong. Please try again.";
+				this.errorMessage = error?.error?.message || this._translocoService.translate("smart_enroll.instructions.skip_modal.error_description");
 			},
 		});
 	}

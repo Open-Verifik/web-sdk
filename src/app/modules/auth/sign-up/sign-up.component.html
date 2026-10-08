@@ -16,9 +16,12 @@
 					<sign-up-create-form
 						@fadeIn
 						[deviceDetails]="deviceDetails"
+						[hasSavedSession]="!!savedSessionToken"
 						[location]="location"
 						[project]="project"
 						[projectFlow]="projectFlow"
+						(continueSaved)="continueSavedSignUp()"
+						(startOver)="startOverSignUp()"
 						*ngIf="currentStep === 'create'"
 						ngClass.lt-md="flex flex-grow flex-col min-h-full"
 					></sign-up-create-form>

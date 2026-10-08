@@ -9,6 +9,7 @@ import { Subscription } from "rxjs";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { KYCService } from "../../kyc.service";
+import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration } from "../../project";
 import { EnrollSettings, EnrollStep, SmartEnrollService } from "../smart-enroll.service";
 
@@ -35,6 +36,7 @@ export class SmartErrorDisplayComponent implements OnDestroy {
     @Output("onSwitchToMobile") onSwitchToMobile: EventEmitter<void> = new EventEmitter();
 
     private smartEnrollSettings$ = new Subscription();
+    private kycApprovalSubmitted = false;
 
     appRegistration: AppRegistration;
     attemptsRemaining: number;
@@ -43,7 +45,11 @@ export class SmartErrorDisplayComponent implements OnDestroy {
     project: Project;
     projectFlow: ProjectFlow;
 
-    constructor(private _KYCService: KYCService, private _smartEnrollService: SmartEnrollService) {
+    constructor(
+        private _KYCService: KYCService,
+        private _smartEnrollService: SmartEnrollService,
+        private _passwordlessService: PasswordlessService,
+    ) {
         this.appRegistration = this._KYCService.appRegistration;
         this.enrollSettings = this._smartEnrollService.enrollSettings;
         this.project = this._KYCService.currentProject;
@@ -101,17 +107,39 @@ export class SmartErrorDisplayComponent implements OnDestroy {
         window.location.href = `${window.location.origin}/sign-up/${this.project._id}`;
     }
 
+    private _maybeSubmitKycApprovalRequest(): void {
+        if (!this._passwordlessService.isVerifikProject || this.kycApprovalSubmitted) {
+            return;
+        }
+
+        this.kycApprovalSubmitted = true;
+
+        this._KYCService.syncAppRegistration("end", "FAILED").subscribe({
+            error: () => {},
+        });
+
+        this._KYCService.submitKycApprovalRequest().subscribe({
+            error: () => {},
+        });
+    }
+
     onSettingsChange(settings: EnrollSettings) {
         this.currentStep = settings.currentStep;
 
         if (this.currentStep === "document") {
             this.attemptsRemaining = this._smartEnrollService.store.document.remaining;
 
-            if (this.attemptsRemaining === 0) this._syncAppRegistration("document", "FAILED");
+            if (this.attemptsRemaining === 0) {
+                this._syncAppRegistration("document", "FAILED");
+                this._maybeSubmitKycApprovalRequest();
+            }
         } else {
             this.attemptsRemaining = this._smartEnrollService.store.biometric.remaining;
 
-            if (this.attemptsRemaining === 0) this._syncAppRegistration("liveness", "FAILED");
+            if (this.attemptsRemaining === 0) {
+                this._syncAppRegistration("liveness", "FAILED");
+                this._maybeSubmitKycApprovalRequest();
+            }
         }
     }
 

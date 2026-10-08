@@ -57,17 +57,31 @@ export class AuthService {
 			return;
 		}
 
+		const integrationsRedirect = (projectFlow.integrations?.redirectUrl ?? "").trim();
+		const smartAgentBridge = this._resolveSmartAgentBridgeUrl();
+
 		if (projectId !== verifikProject) {
-			const redirectUrl = projectFlow.integrations.redirectUrl;
+			if (smartAgentBridge && this._shouldUseSmartAgentBridge(integrationsRedirect)) {
+				window.location.href = `${smartAgentBridge}?type=${type}&token=${token}`;
+				return;
+			}
 
-			window.location.href = `${redirectUrl}?type=${type}&token=${token}`;
+			if (integrationsRedirect) {
+				window.location.href = `${integrationsRedirect}?type=${type}&token=${token}`;
+				return;
+			}
+		}
 
+		const bridgeUrl = smartAgentBridge || environment.smartAgentBridgeUrl || `${this.baseAppUrl}/bridge`;
+
+		if (bridgeUrl) {
+			window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
 			return;
 		}
 
-		const bridgeUrl = environment.smartAgentBridgeUrl || `${this.baseAppUrl}/bridge`;
-
-		window.location.href = `${bridgeUrl}?type=${type}&token=${token}`;
+		if (integrationsRedirect) {
+			window.location.href = `${integrationsRedirect}?type=${type}&token=${token}`;
+		}
 	}
 
 	forgotPassword(email: string): Observable<any> {
@@ -101,10 +115,14 @@ export class AuthService {
 			.pipe(
 				catchError(() => of(false)),
 				switchMap((response: any) => {
-					if (response.accessToken) this.accessToken = response.accessToken;
+					const nextToken = typeof response?.accessToken === "string" ? response.accessToken.trim() : "";
 
+					if (!response || !this._isJwtShape(nextToken)) {
+						return of(false);
+					}
+
+					this.accessToken = nextToken;
 					this._authenticated = true;
-
 					this._userService.user = response.user;
 
 					return of(true);
@@ -132,13 +150,18 @@ export class AuthService {
 	 * Check the authentication status
 	 */
 	check(): Observable<boolean> {
+		const token = (this.accessToken ?? "").trim();
+
+		if (this._isDiscardedAccessToken(token) || (token && !this._isJwtShape(token))) {
+			this._clearAccessToken();
+			return of(false);
+		}
+
 		if (this._authenticated) return of(true);
 
-		if (!this.accessToken) return of(false);
+		if (!token || AuthUtils.isJwtExpired(token)) return of(false);
 
-		if (AuthUtils.isTokenExpired(this.accessToken)) return of(false);
-
-		return this.signInUsingToken();
+		return of(false);
 	}
 
 	projectLogin(expiresIn: number, jwt: string): Observable<any> {
@@ -178,5 +201,62 @@ export class AuthService {
 			phone: !isEmail ? identifier : undefined,
 			projectId: projectId, // Backend might expect this in body if not in token?
 		});
+	}
+
+	private _clearAccessToken(): void {
+		localStorage.removeItem("accessToken");
+		this._authenticated = false;
+	}
+
+	private _isDiscardedAccessToken(token: string): boolean {
+		if (!token) return true;
+
+		const normalized = token.trim().toLowerCase();
+
+		return normalized === "null" || normalized === "undefined" || normalized === "token_here";
+	}
+
+	private _isJwtShape(token: string): boolean {
+		const parts = token.split(".");
+
+		return parts.length === 3 && parts.every((part) => part.length > 0);
+	}
+
+	private _resolveSmartAgentBridgeUrl(): string {
+		const hostname = window.location.hostname;
+
+		if (hostname.includes("staging-access.verifik.co") || hostname.includes("testing-access.verifik.co")) {
+			return "https://staging.verifik.co/bridge";
+		}
+
+		const fromEnv =
+			typeof environment.smartAgentBridgeUrl === "string" ? environment.smartAgentBridgeUrl.trim() : "";
+
+		if (fromEnv) return fromEnv;
+
+		if (hostname.includes("access.verifik.co") || hostname.includes("access.app")) {
+			return "https://verifik.app/bridge";
+		}
+
+		if (hostname === "localhost" || hostname === "127.0.0.1") {
+			return "https://verifik.app/bridge";
+		}
+
+		return "";
+	}
+
+	/** Legacy Smart Access handoff pointed at client-panel /sign-in; use Smart-Agent /bridge instead. */
+	private _shouldUseSmartAgentBridge(integrationsRedirect: string): boolean {
+		if (!integrationsRedirect) return false;
+
+		try {
+			const url = new URL(integrationsRedirect);
+			const path = url.pathname.replace(/\/+$/, "") || "/";
+			const isVerifikPanelHost = /^(staging\.verifik\.co|testing\.verifik\.co|app\.verifik\.co)$/i.test(url.hostname);
+
+			return isVerifikPanelHost && path === "/sign-in";
+		} catch {
+			return /\/sign-in\/?(\?.*)?$/i.test(integrationsRedirect);
+		}
 	}
 }
