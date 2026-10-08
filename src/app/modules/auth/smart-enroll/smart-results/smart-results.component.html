@@ -371,6 +371,14 @@
 					</button>
 				</ng-container>
 
+				<div
+					*ngIf="redirectTokenError"
+					class="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-100"
+				>
+					<mat-icon class="flex-shrink-0 text-red-500 icon-size-5 mt-0.5" svgIcon="heroicons_outline:exclamation-circle"></mat-icon>
+					<p class="text-sm text-red-700 leading-relaxed">{{ redirectTokenError }}</p>
+				</div>
+
 				<!-- Success State Button -->
 				<button
 					(click)="loginToPlatform()"
