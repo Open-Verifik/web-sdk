@@ -790,7 +790,11 @@ export class SmartDocumentsReviewComponent {
 			complete: () => {
 				if (status !== "COMPLETED_WITHOUT_KYC" && action !== "redirect") return;
 
-				this._authService.handleRedirect(this.projectFlow, this.project._id, _response.token, "onboarding");
+				const token = _response?.token;
+
+				if (!token) return;
+
+				this._authService.handleRedirect(this.projectFlow, this.project._id, token, "onboarding");
 			},
 		});
 	}

@@ -497,6 +497,7 @@
 				"redirecting": "Redirigiéndote ahora...",
 				"error_title": "Algo salió mal",
 				"error_description": "No pudimos completar tu solicitud. Por favor intenta de nuevo.",
+				"incomplete_steps": "No pudimos finalizar tu registro. Completa los pasos obligatorios restantes antes de continuar.",
 				"try_again": "Intentar de nuevo"
 			}
 		},
@@ -525,6 +526,7 @@
 		"complete_face_verification": "Completar verificación facial",
 		"liveness_score": "{{percentile}}% puntuación de vida",
 		"login_to_platform": "Inicia sesión en la plataforma",
+		"redirect_token_error": "No pudimos iniciar tu sesión de acceso. Inténtalo de nuevo o contacta a soporte si el problema continúa.",
 		"minimum_comparison": "La puntuación mínima de comparación es {{min}}%",
 		"minimum_liveness": "La puntuación mínima de vida es {{min}}%",
 		"negative_outcome": "Resultado negativo",
