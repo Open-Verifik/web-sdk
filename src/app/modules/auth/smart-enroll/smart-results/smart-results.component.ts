@@ -55,6 +55,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	face: Face | null = null;
 	documentFace: Face | null = null;
 	fetchingToken: boolean = false;
+	redirectTokenError: string | null = null;
 	identityLoading: boolean = false;
 	livenessFailed: boolean = false;
 	livenessScore: number = 0;
@@ -237,6 +238,7 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.endAndRedirectInFlight = true;
 		this.fetchingToken = true;
+		this.redirectTokenError = null;
 
 		let _response = { token: null };
 
@@ -246,10 +248,10 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 			next: (response) => {
 				_response = response.data;
 			},
-			error: (exception) => {
-				this.errorResult = true;
+			error: () => {
 				this.fetchingToken = false;
 				this.endAndRedirectInFlight = false;
+				this.redirectTokenError = this._translocoService.translate("smart_enroll.redirect_token_error");
 			},
 			complete: () => {
 				const token = _response.token;
@@ -257,6 +259,8 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 				if (!token || !projectId) {
 					this.fetchingToken = false;
+					this.endAndRedirectInFlight = false;
+					this.redirectTokenError = this._translocoService.translate("smart_enroll.redirect_token_error");
 					return;
 				}
 

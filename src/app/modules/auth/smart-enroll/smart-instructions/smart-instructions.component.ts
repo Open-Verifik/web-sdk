@@ -12,7 +12,12 @@ import { AuthService } from "app/core/auth/auth.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
-import { clearAccessTokenIfAppRegistrationSession, clearSignUpAppRegistrationToken } from "app/core/services/app-registration-session.storage";
+import {
+	canSkipKyc,
+	clearAccessTokenIfAppRegistrationSession,
+	clearSignUpAppRegistrationToken,
+	isSkipKycCompletedSyncResponse,
+} from "app/core/services/app-registration-session.storage";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
@@ -132,12 +137,7 @@ export class SmartInstructionsComponent implements OnInit {
 	}
 
 	get canSkipAll(): boolean {
-		const onboardingSteps = this.projectFlow.onboardingSettings.steps;
-
-		const documentOptional = onboardingSteps.document === "optional" || onboardingSteps.document === "skip";
-		const livenessOptional = onboardingSteps.liveness === "optional" || onboardingSteps.liveness === "skip";
-
-		return documentOptional && livenessOptional;
+		return canSkipKyc(this.projectFlow.onboardingSettings.steps);
 	}
 
 	get hasTermsOrPrivacy(): boolean {
@@ -204,15 +204,31 @@ export class SmartInstructionsComponent implements OnInit {
 
 		this._KYCService.syncAppRegistration("skipKYC", "COMPLETED_WITHOUT_KYC").subscribe({
 			next: (response) => {
+				const data = response?.data;
+
+				if (!isSkipKycCompletedSyncResponse(data) || !data?.token) {
+					this._smartEnrollService.setSkippedDocument(false);
+					this._smartEnrollService.setSkippedBiometric(false);
+					this.skipModalState = "error";
+					this.errorMessage = this._translocoService.translate(
+						data?.token
+							? "smart_enroll.instructions.skip_modal.incomplete_steps"
+							: "smart_enroll.redirect_token_error"
+					);
+					return;
+				}
+
 				this.skipModalState = "success";
 
 				setTimeout(() => {
-					this._authService.handleRedirect(this.projectFlow, this.project._id, response.data.token, "onboarding");
+					this._authService.handleRedirect(this.projectFlow, this.project._id, data.token, "onboarding");
 				}, 1500);
 			},
 			error: (error) => {
+				this._smartEnrollService.setSkippedDocument(false);
+				this._smartEnrollService.setSkippedBiometric(false);
 				this.skipModalState = "error";
-				this.errorMessage = error?.error?.message || "Something went wrong. Please try again.";
+				this.errorMessage = error?.error?.message || this._translocoService.translate("smart_enroll.instructions.skip_modal.error_description");
 			},
 		});
 	}

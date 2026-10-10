@@ -497,6 +497,7 @@
 				"redirecting": "Redirecting you now...",
 				"error_title": "Something went wrong",
 				"error_description": "We couldn't complete your request. Please try again.",
+				"incomplete_steps": "We could not finish your registration. Please complete the remaining required steps before continuing.",
 				"try_again": "Try again"
 			}
 		},
@@ -525,6 +526,7 @@
 		"image_captured": "Image Captured!",
 		"liveness_score": "{{percentile}}% liveness score",
 		"login_to_platform": "Login to the platform",
+		"redirect_token_error": "We could not start your login session. Please try again or contact support if the problem continues.",
 		"minimum_comparison": "The minimum comparison score is {{min}}%",
 		"minimum_liveness": "The minimum liveness score is {{min}}%",
 		"negative_outcome": "Negative Outcome",
