@@ -543,6 +543,12 @@
 			"try_on_mobile": "Subukan sa mobile"
 		},
 		"requires_back": "Kinakailangan ng dokumentong ito ang pag-scan ng likod na bahagi. Magpatuloy sa pag-scan ng likurang bahagi ng dokumentong ito.",
+		"barcode": {
+			"hold_steady": "Hawakan nang hindi gumagalaw ang likod ng ID para mabasa namin ang barcode.",
+			"readable": "Nabasa ang barcode. Maaari mo nang i-capture ang panig na ito.",
+			"retry": "Hindi namin nabasa ang barcode. Subukan muli ({{attempt}} sa 3).",
+			"continue_without_validation": "Maaari kang magpatuloy. Hindi namin na-validate ang likod ng ID."
+		},
 		"successful_outcome": "Matagumpay na Resulta",
 		"terms_and_cond": "mga tuntunin at kondisyon",
 		"liveness": {

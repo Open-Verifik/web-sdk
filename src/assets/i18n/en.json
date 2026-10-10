@@ -552,6 +552,12 @@
 			"try_on_mobile": "Try on mobile"
 		},
 		"requires_back": "This document requires a scan of the back side. Continue to scan the reverse side of this document.",
+		"barcode": {
+			"hold_steady": "Hold the back of the ID steady so we can read the barcode.",
+			"readable": "Barcode read. You can capture this side.",
+			"retry": "We couldn't read the barcode. Try again ({{attempt}} of 3).",
+			"continue_without_validation": "You can continue. We couldn't validate the back of the ID."
+		},
 		"successful_outcome": "Successful Outcome",
 		"terms_and_cond": "terms and conditions",
 		"liveness": {

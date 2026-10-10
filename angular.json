@@ -39,6 +39,11 @@
 							"src/favicon.ico",
 							"src/assets",
 							{
+								"glob": "zxing_reader.wasm",
+								"input": "node_modules/zxing-wasm/dist/reader",
+								"output": "/assets"
+							},
+							{
 								"glob": "_redirects",
 								"input": "src",
 								"output": "/"

@@ -543,6 +543,12 @@
 			"try_on_mobile": "Prova su mobile"
 		},
 		"requires_back": "Questo documento richiede una scansione del retro. Continua a scansionare il lato opposto di questo documento.",
+		"barcode": {
+			"hold_steady": "Tieni fermo il retro del documento così possiamo leggere il codice a barre.",
+			"readable": "Codice letto. Puoi acquisire questo lato.",
+			"retry": "Non siamo riusciti a leggere il codice a barre. Riprova ({{attempt}} di 3).",
+			"continue_without_validation": "Puoi continuare. Non siamo riusciti a convalidare il retro del documento."
+		},
 		"successful_outcome": "Esito positivo",
 		"terms_and_cond": "termini e condizioni",
 		"liveness": {

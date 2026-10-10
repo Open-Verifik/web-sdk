@@ -552,6 +552,12 @@
 			"try_on_mobile": "Probar en móvil"
 		},
 		"requires_back": "Este documento requiere un escaneo del reverso. Continúa escaneando el lado contrario de este documento.",
+		"barcode": {
+			"hold_steady": "Mantén quieto el reverso de la cédula para que podamos leer el código de barras.",
+			"readable": "Código leído. Ya puedes capturar este lado.",
+			"retry": "No pudimos leer el código de barras. Inténtalo de nuevo ({{attempt}} de 3).",
+			"continue_without_validation": "Puedes continuar. No pudimos validar el reverso del documento."
+		},
 		"successful_outcome": "Resultado exitoso",
 		"terms_and_cond": "términos y condiciones",
 		"liveness": {

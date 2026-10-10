@@ -809,6 +809,7 @@ export interface BiometricValidation {
 }
 
 export type ImageScan = {
+	barcodeReadAttempts?: number;
 	base64Image: string;
 	face?: string;
 	force?: boolean;

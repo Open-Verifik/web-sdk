@@ -22,6 +22,7 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { ErrorFace, IdCard, ResponseData } from "app/modules/demo/models/sdk.models";
 import { environment } from "environments/environment";
 import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, SmartEnrollService } from "../smart-enroll.service";
+import { ColombianBarcodeReadinessService } from "../colombian-barcode-readiness.service";
 import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
 import { PasswordlessService } from "../../passwordless.service";
 
@@ -62,6 +63,8 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
     appRegistration: any;
     aspectRatio: number = 0.75;
+    barcodeHint: string | null = null;
+    barcodeHintParams: { attempt?: number } = {};
     calculating: boolean = false;
     camera: IOSCameraData;
     demoData: any;
@@ -104,6 +107,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
     };
 
     constructor(
+        private _barcodeReadiness: ColombianBarcodeReadinessService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _demoService: DemoService,
         private _KYCService: KYCService,
@@ -335,7 +339,11 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
                     faceDetectPromise = this.side === "front" ? this._detectFace(img) : Promise.resolve();
 
-                    faceDetectPromise.then(() => {
+                    faceDetectPromise.then(async () => {
+                        if (this._shouldCheckBarcode()) {
+                            await this._barcodeReadiness.sampleCanvas(videoCanvas);
+                            this._syncBarcodeHint();
+                        }
                         const documentFrontIsValid = this.source === "document" && this.side === "front" && this.faceIsValid && this.documentIsValid;
                         const documentBackIsValid = this.source === "document" && this.side !== "front" && this.documentIsValid;
 
@@ -646,6 +654,43 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
         this._mediaStreamService.stopAllStreams();
     }
 
+    private _shouldCheckBarcode(): boolean {
+        return this._barcodeReadiness.shouldCheck({
+            documentValidation: this.appRegistration?.documentValidation,
+            promptTemplate: this._smartEnrollService.enrollSettings.promptTemplate,
+            side: this.side,
+        });
+    }
+
+    private _syncBarcodeHint(): void {
+        this.barcodeHint = this._barcodeReadiness.hintKey;
+        this.barcodeHintParams = this._barcodeReadiness.hintParams;
+        this._changeDetectorRef.markForCheck();
+    }
+
+    private async _emitBackScan(rawBase64Image: string, fallbackImage: string): Promise<void> {
+        const decision = await this._barcodeReadiness.evaluateShutter(rawBase64Image);
+
+        this._syncBarcodeHint();
+
+        if (!decision.accept) return;
+
+        this.onImageScan.next({
+            barcodeReadAttempts: decision.attempts,
+            base64Image: decision.image || fallbackImage,
+            force: !!this.appRegistration.documentValidation,
+            front: false,
+            inputMethod: "CAMERA",
+            rawImage: rawBase64Image,
+            source: this.source,
+        });
+
+        this.response.base64Image = decision.image || fallbackImage;
+        this.uploading = true;
+        this._stopRecording();
+        this._changeDetectorRef.markForCheck();
+    }
+
     private _takePicture(rawBase64Image: string) {
         let face: string;
         let faceToUpload: string;
@@ -706,11 +751,17 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
         const base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
 
+        if (this._shouldCheckBarcode()) {
+            void this._emitBackScan(rawBase64Image, base64Image);
+
+            return;
+        }
+
         this.onImageScan.next({
             base64Image,
             face,
-            force: !isFront || !!this.appRegistration.documentValidation,
-            front: isFront,
+            force: !!this.appRegistration.documentValidation,
+            front: false,
             inputMethod: "CAMERA",
             rawImage: rawBase64Image,
             source: this.source,
@@ -811,6 +862,8 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
     goNext(): void {
         if (this.requiresBack && this.side !== "back") {
             this.side = "back";
+            this._barcodeReadiness.reset();
+            this._syncBarcodeHint();
             this.response.base64Image = "";
             this._startRecording();
 

@@ -544,6 +544,12 @@
 			"try_on_mobile": "Tentar no celular"
 		},
 		"requires_back": "Este documento requer uma digitalização do verso. Continue para escanear o lado inverso deste documento.",
+		"barcode": {
+			"hold_steady": "Mantenha o verso do documento parado para lermos o código de barras.",
+			"readable": "Código lido. Você já pode capturar este lado.",
+			"retry": "Não conseguimos ler o código de barras. Tente de novo ({{attempt}} de 3).",
+			"continue_without_validation": "Você pode continuar. Não conseguimos validar o verso do documento."
+		},
 		"successful_outcome": "Resultado bem-sucedido",
 		"terms_and_cond": "termos e condições",
 		"liveness": {

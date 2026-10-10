@@ -542,6 +542,12 @@
 			"try_on_mobile": "Essayer sur mobile"
 		},
 		"requires_back": "Ce document nécessite une numérisation du verso. Continuez à numériser le côté inverse de ce document.",
+		"barcode": {
+			"hold_steady": "Tenez l'envers de la pièce d'identité immobile pour que nous puissions lire le code-barres.",
+			"readable": "Code-barres lu. Vous pouvez capturer ce côté.",
+			"retry": "Nous n'avons pas pu lire le code-barres. Réessayez ({{attempt}} sur 3).",
+			"continue_without_validation": "Vous pouvez continuer. Nous n'avons pas pu valider le verso de la pièce d'identité."
+		},
 		"successful_outcome": "Résultat positif",
 		"terms_and_cond": "conditions générales",
 		"liveness": {

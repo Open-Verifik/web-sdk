@@ -543,6 +543,12 @@
 			"try_on_mobile": "모바일에서 시도"
 		},
 		"requires_back": "이 문서는 뒷면 스캔이 필요합니다. 이 문서의 뒷면을 계속 스캔하세요.",
+		"barcode": {
+			"hold_steady": "바코드를 읽을 수 있도록 신분증 뒷면을 가만히 들고 계세요.",
+			"readable": "바코드를 읽었습니다. 이 면을 촬영할 수 있습니다.",
+			"retry": "바코드를 읽지 못했습니다. 다시 시도해 주세요 ({{attempt}}/3).",
+			"continue_without_validation": "계속 진행할 수 있습니다. 신분증 뒷면을 확인하지 못했습니다."
+		},
 		"successful_outcome": "성공적인 결과",
 		"terms_and_cond": "약관",
 		"liveness": {

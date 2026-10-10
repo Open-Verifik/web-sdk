@@ -544,6 +544,12 @@
 			"try_on_mobile": "在手机上尝试"
 		},
 		"requires_back": "此文件需要扫描背面。请继续扫描此文件的反面。",
+		"barcode": {
+			"hold_steady": "请保持证件背面稳定，以便我们读取条形码。",
+			"readable": "已读取条形码。可以拍摄这一面。",
+			"retry": "未能读取条形码。请重试（{{attempt}}/3）。",
+			"continue_without_validation": "可以继续。我们未能验证证件背面。"
+		},
 		"successful_outcome": "成功结果",
 		"terms_and_cond": "条款和条件",
 		"liveness": {

@@ -139,6 +139,10 @@
 		</button>
 
 		<!-- File Format Tip -->
+		<p *ngIf="side === 'back' && barcodeHint" class="text-sm text-center px-2">
+			{{ t(barcodeHint, barcodeHintParams) }}
+		</p>
+
 		<div class="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg w-full">
 			<mat-icon class="text-gray-400 !w-5 !h-5 !text-lg">info</mat-icon>
 			<p class="text-xs text-gray-500">
