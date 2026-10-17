@@ -37,15 +37,16 @@ export class PasskeyZelfService {
 	): Promise<any> {
 		const params: any = {};
 
-		if (filters.category !== undefined) {
-			if (filters.category) params.category = filters.category;
-		} else {
-			params.category = "passKeys";
-		}
-
 		if (filters.identifier) params.identifier = filters.identifier;
 		if (filters.email) params.email = filters.email;
 		if (filters.phone) params.phone = filters.phone;
+
+		// Contact lookups should not force category=passKeys; identifier/email/phone drive Pinata filters.
+		if (filters.category !== undefined) {
+			if (filters.category) params.category = filters.category;
+		} else if (!filters.identifier && !filters.email && !filters.phone) {
+			params.category = "passKeys";
+		}
 
 		const response = await firstValueFrom(this._httpWrapper.sendRequest("get", `${this._apiUrl}/public/list`, params));
 

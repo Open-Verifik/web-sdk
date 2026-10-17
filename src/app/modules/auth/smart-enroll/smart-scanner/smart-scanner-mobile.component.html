@@ -212,6 +212,12 @@
                         <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
 
                         <p class="mt-4">{{ "smart_enroll.extracting_data" | transloco }}...</p>
+                        <p
+                            *ngIf="barcodeHint === 'smart_enroll.barcode.continue_without_validation'"
+                            class="mt-3 text-center text-sm px-6"
+                        >
+                            {{ barcodeHint | transloco }}
+                        </p>
                     </div>
                 </div>
 
@@ -242,6 +248,10 @@
                                 <path fill="none" d="M0 0h24v24H0z"></path>
                             </svg>
                         </button>
+
+                        <p *ngIf="side === 'back' && barcodeHint" class="text-center text-sm mb-3 px-4">
+                            {{ barcodeHint | transloco: barcodeHintParams }}
+                        </p>
 
                         <div class="smart-scanner__buttons flex flex-row justify-center gap-8" [class.mt-4]="devices.length > 1">
                             <button

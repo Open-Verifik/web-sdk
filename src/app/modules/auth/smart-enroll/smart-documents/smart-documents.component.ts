@@ -541,8 +541,19 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit
 	}
 
 	onImageScan(imageScan: ImageScan): void {
-		const body = {
+		const body: {
+			backImage?: string;
+			barcodeReadAttempts?: number;
+			category: string;
+			country: string;
+			documentFace?: string;
+			force?: boolean;
+			image?: string;
+			inputMethod: ImageScan["inputMethod"];
+			promptTemplate: unknown;
+		} = {
 			backImage: undefined,
+			barcodeReadAttempts: undefined,
 			category: this.enrollSettings.documentCategory,
 			country: this.enrollSettings.country,
 			documentFace: undefined,
@@ -557,6 +568,7 @@ export class SmartDocumentsComponent implements AfterViewInit, OnDestroy, OnInit
 			body.image = `${imageScan.base64Image}`;
 		} else {
 			body.backImage = `${imageScan.base64Image}`;
+			if (imageScan.barcodeReadAttempts) body.barcodeReadAttempts = imageScan.barcodeReadAttempts;
 		}
 
 		this._createDocumentValidation(body);

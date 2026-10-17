@@ -50,7 +50,8 @@
 		"three": "^0.182.0",
 		"tslib": "2.5.2",
 		"webrtc-adapter": "^9.0.1",
-		"zone.js": "0.13.0"
+		"zone.js": "0.13.0",
+		"zxing-wasm": "^3.0.2"
 	},
 	"devDependencies": {
 		"@angular-devkit/build-angular": "^16.2.6",

@@ -19,6 +19,7 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, ImageScan } from "../../project";
+import { ColombianBarcodeReadinessService } from "../colombian-barcode-readiness.service";
 import { SmartEnrollService } from "../smart-enroll.service";
 
 const MAX_FILE_SIZE = 10485760;
@@ -56,6 +57,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     private unsubscriber$: Subject<void> = new Subject<void>();
 
     appRegistration: AppRegistration;
+    barcodeHint: string | null = null;
+    barcodeHintParams: { attempt?: number } = {};
     base64Image: any;
     demoData: any;
     errorContent: any;
@@ -72,6 +75,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
     private readonly DEMO_DOC_IMAGE = "assets/images/ui/template_id_2.png";
 
     constructor(
+        private _barcodeReadiness: ColombianBarcodeReadinessService,
         private _demoService: DemoService,
         private _KYCService: KYCService,
         private _smartEnrollService: SmartEnrollService,
@@ -112,6 +116,14 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         this.unsubscriber$.complete();
     }
 
+    private _shouldCheckBarcode(): boolean {
+        return this._barcodeReadiness.shouldCheck({
+            documentValidation: this.appRegistration?.documentValidation,
+            promptTemplate: this.promptTemplate,
+            side: this.side,
+        });
+    }
+
     get requiresBack(): boolean {
         // In demo mode, we only use front side
         if (this.useDemoData) return false;
@@ -143,6 +155,37 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             }
 
             const isFront = this.side === "front";
+            let barcodeReadAttempts: number | undefined;
+
+            if (!isFront && this._shouldCheckBarcode()) {
+                const decision = await this._barcodeReadiness.evaluateStill(`${this.base64Image}`);
+
+                this.barcodeHint = decision.hintKey;
+                this.barcodeHintParams = { attempt: decision.attempts };
+                barcodeReadAttempts = decision.attempts;
+
+                if (!decision.accept) {
+                    this.file = null;
+                    this.fileProgress = 0;
+                    this.isExtracting = false;
+
+                    return;
+                }
+
+                this.onImageUpload.next({
+                    barcodeReadAttempts,
+                    base64Image: decision.image,
+                    force: true,
+                    front: false,
+                    inputMethod: "FILE_UPLOAD",
+                    rawImage: this.base64Image,
+                    source: "document",
+                });
+                this.isExtracting = true;
+
+                return;
+            }
+
             this.isExtracting = true;
 
             this.onImageUpload.next({
@@ -261,6 +304,8 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
         if (this.requiresBack && this.side !== "back") {
             this.side = "back";
+            this._barcodeReadiness.reset();
+            this.barcodeHint = null;
             this.resetFileUpload();
 
             return;

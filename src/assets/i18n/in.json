@@ -284,6 +284,22 @@
 		},
 		"geolocation": {
 			"country_not_allowed_subtitle": "अनुपालन के कारण हम इस देश से आपके अनुरोध को संसाधित नहीं कर सकते। कृपया सहायता के लिए समर्थन से संपर्क करें।",
+			"country_block_eyebrow": "स्थान जाँच",
+			"country_block_status": "अनुमति नहीं",
+			"country_block_why_title": "नामांकन क्यों रुका",
+			"country_block_why_help": "साइन-अप केवल उन देशों से आगे बढ़ता है जिन्हें यह प्रोजेक्ट अनुमति देता है।",
+			"country_block_identified": "आपका देश नेटवर्क पते से पहचाना गया",
+			"country_block_not_on_list": "वह देश इस प्रोजेक्ट की सूची में नहीं है",
+			"country_block_cannot_continue": "साइन-अप फ़ॉर्म बंद रहता है",
+			"country_block_how_title": "यह कैसे काम करता है",
+			"country_block_how_help": "जाँच नेटवर्क पते का उपयोग करती है। यह GPS नहीं माँगती।",
+			"country_block_flow_lookup": "IP जाँच",
+			"country_block_flow_compared": "देश की तुलना",
+			"country_block_flow_stopped": "नामांकन रुका",
+			"country_block_result_label": "आगे क्या होगा",
+			"country_block_result_title": "इस देश से नामांकन नहीं हो सकता",
+			"country_block_result_body": "{{country}} अनुमति सूची में नहीं है, इसलिए साइन-अप जारी नहीं रह सकता।",
+			"country_block_contact_label": "सवाल हैं? व्यवस्थापक से संपर्क करें"
 			"country_not_allowed": "स्थान सत्यापन आवश्यक है",
 			"enabled_it": "मैंने इसे सक्षम किया",
 			"information_unavailable_subtitle": "आपके वर्तमान ब्राउज़र में स्थान डेटा उपलब्ध नहीं है।",
@@ -543,6 +559,12 @@
 			"try_on_mobile": "मोबाइल पर प्रयास करें"
 		},
 		"requires_back": "इस दस्तावेज़ के पिछले हिस्से को स्कैन करने की आवश्यकता है। कृपया इस दस्तावेज़ के उलट हिस्से को स्कैन करना जारी रखें।",
+		"barcode": {
+			"hold_steady": "बारकोड पढ़ने के लिए पहचान पत्र का पिछला हिस्सा स्थिर रखें।",
+			"readable": "बारकोड पढ़ लिया गया। अब आप इस तरफ की तस्वीर ले सकते हैं।",
+			"retry": "बारकोड नहीं पढ़ा जा सका। फिर कोशिश करें ({{attempt}} / 3)।",
+			"continue_without_validation": "आप जारी रख सकते हैं। हम पहचान पत्र के पिछले हिस्से की पुष्टि नहीं कर सके।"
+		},
 		"successful_outcome": "सफल परिणाम",
 		"terms_and_cond": "नियम और शर्तें",
 		"liveness": {

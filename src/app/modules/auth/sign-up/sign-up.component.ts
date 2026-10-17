@@ -7,7 +7,7 @@ import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseSplashScreenService } from "@fuse/services/splash-screen/splash-screen.service";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
-import { combineLatest, map, Subject, takeUntil } from "rxjs";
+import { combineLatest, map, Subject, takeUntil, timeout } from "rxjs";
 
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { CountryService } from "app/core/services/country.service";
@@ -28,7 +28,8 @@ import { KYCService } from "../kyc.service";
 import { PasswordlessService } from "../passwordless.service";
 import { AppRegistration } from "../project";
 import { SmartEnrollComponent } from "../smart-enroll/smart-enroll.component";
-import { EnrollStep, SmartEnrollService } from "../smart-enroll/smart-enroll.service";
+import { countryRestrictionEnabled, shouldBlockCountry } from "./kyc-country-restriction";
+import { SmartEnrollService } from "../smart-enroll/smart-enroll.service";
 import { SignUpCreateFormComponent } from "./sign-up-create-form/sign-up-create-form.component";
 import { SignUpVerificationComponent } from "./sign-up-verification/sign-up-verification.component";
 import { VerifikMediaDisplayComponent } from "../../../shared/components/verifik-media-display";
@@ -57,25 +58,28 @@ import { VerifikMediaDisplayComponent } from "../../../shared/components/verifik
 })
 export class AuthSignUpComponent implements OnInit, OnDestroy {
 	private unsubscriber$: Subject<void> = new Subject<void>();
+	private _projectLoadFinished = false;
 
-	appRegistration: AppRegistration;
+	appRegistration: AppRegistration | null = null;
 	appUrl: string = environment.appUrl;
-	currentStep: string = "create";
+	countryCheckPending = false;
+	countryNotAllowed = false;
+	detectedCountry = "";
+	currentStep = "";
 	currentStepIndex: number = 0;
-	deviceDetails: any;
-	enrollStep: EnrollStep;
+	deviceDetails: any = null;
 	isVerifikProject: boolean = false;
-	language: string;
-	location: any;
-	locationError: any;
-	project: Project;
-	projectFlow: ProjectFlow;
-	sendingOTP: Boolean;
+	language = "en";
+	location: any = null;
+	locationError: any = null;
+	project: Project | null = null;
+	projectFlow: ProjectFlow | null = null;
+	sendingOTP = false;
 	showKYCApp: boolean = false;
 	showUpgradeRequired: boolean = false;
 	savedSessionToken: string | null = null;
 	steps: Array<string> = ["create"];
-	token: string;
+	token: string | null = null;
 
 	flagCodes = {
 		en: "us",
@@ -111,11 +115,6 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._setLanguage();
 
 		this.deviceDetails = this._appService.getDeviceDetails();
-		this.location = null;
-		this.locationError = null;
-		this.project = null;
-		this.projectFlow = null;
-		this.sendingOTP = false;
 	}
 
 	ngOnInit(): void {
@@ -173,12 +172,13 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 					this.token = null;
 					this.appRegistration = null;
 					this.showKYCApp = false;
-					this._setStep("create");
 					clearAccessTokenIfAppRegistrationSession();
 					this._smartEnrollService.unsetLocalStorage();
 				} else {
 					this._setToken(effectiveToken);
 				}
+
+				if (this.countryNotAllowed || this.countryCheckPending) return;
 
 				if (this.project?._id === projectId && this.projectFlow) {
 					this._requestAppRegistration();
@@ -274,41 +274,85 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 	private _requestProject(projectId: string): void {
 		this._passwordlessService.requestProject(projectId, "onboarding").subscribe({
-			next: (response) => {
-				this.project = new Project({ ...response.data, type: "onboarding" });
-
-				this.isVerifikProject = this._passwordlessService.isVerifikProject;
-
-				this._projectStorageService.setProject(this.project);
-
-				this.projectFlow = this.project.getOnboardingProjectFlow();
-
-				if (this.projectFlow) this._projectStorageService.setProjectFlow(this.projectFlow);
-
-				this._appService.applyDynamicTheming(this.project);
-
-				if (!response.planCode) {
-					this.showUpgradeRequired = true;
-				} else {
-					this._setSteps();
-				}
-			},
+			next: (response) => this._applyProject(response),
 			error: () => {
 				window.location.href = "/sign-up";
 
 				this._splashScreenService.hide();
 			},
-			complete: () => {
-				this._changeDetectorRef.markForCheck();
-
-				if (this.token) {
-					this._requestAppRegistration();
-				} else {
-					this._splashScreenService.hide();
-					this._setStep("create");
-				}
-			},
+			complete: () => this._finishProjectLoad(),
 		});
+	}
+
+	private _applyProject(response: { data: any; planCode?: string }): void {
+		this.project = new Project({ ...response.data, type: "onboarding" });
+		this.isVerifikProject = this._passwordlessService.isVerifikProject;
+		this._projectStorageService.setProject(this.project);
+		this.projectFlow = this.project.getOnboardingProjectFlow();
+
+		if (this.projectFlow) this._projectStorageService.setProjectFlow(this.projectFlow);
+
+		this._appService.applyDynamicTheming(this.project);
+
+		if (!response.planCode) {
+			this.showUpgradeRequired = true;
+
+			return;
+		}
+
+		this._setSteps();
+		this._startCountryCheck();
+	}
+
+	private _startCountryCheck(): void {
+		if (!countryRestrictionEnabled(this.project?.allowedCountries)) return;
+
+		this.countryCheckPending = true;
+
+		this._passwordlessService
+			.requestIpLocation()
+			.pipe(timeout(8000), takeUntil(this.unsubscriber$))
+			.subscribe({
+				next: (response) => {
+					const location = response?.data;
+					this.countryNotAllowed = shouldBlockCountry(this.project?.allowedCountries, location);
+					this.detectedCountry = this.countryNotAllowed ? location?.country?.trim() || "" : "";
+					this._changeDetectorRef.markForCheck();
+				},
+				error: () => this._releaseCountryCheck(),
+				complete: () => this._releaseCountryCheck(),
+			});
+	}
+
+	private _releaseCountryCheck(): void {
+		if (!this.countryCheckPending) return;
+
+		this.countryCheckPending = false;
+		this._finishProjectLoad();
+	}
+
+	private _finishProjectLoad(): void {
+		if (this._projectLoadFinished || this.countryCheckPending) return;
+
+		this._projectLoadFinished = true;
+		this._changeDetectorRef.markForCheck();
+
+		if (this.countryNotAllowed) {
+			this.currentStep = "create";
+			this.currentStepIndex = Math.max(this.steps.indexOf("create"), 0);
+			this._splashScreenService.hide();
+
+			return;
+		}
+
+		if (this.token) {
+			this._requestAppRegistration();
+
+			return;
+		}
+
+		this._splashScreenService.hide();
+		this._setStep("create");
 	}
 
 	private _setLanguage() {
@@ -358,6 +402,8 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	private _setStep(step: string): void {
+		if (this.countryNotAllowed || this.countryCheckPending) return;
+
 		if (step === "complete") {
 			this.showKYCApp = true;
 			this.currentStep = "";
@@ -454,8 +500,21 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 		this._setStep(step);
 	}
 
+	/**
+	 * Administrator shown on the country block. Prefers the data-protection contact from project setup.
+	 */
+	administratorContact(): { name: string; email: string } | null {
+		const protection = this.project?.dataProtection;
+		const email = protection?.email?.trim() || this.project?.contactEmail?.trim() || "";
+		const name = protection?.name?.trim() || "";
+
+		if (!email && !name) return null;
+
+		return { name, email };
+	}
+
 	showCountryNotAllowed(): boolean {
-		return false;
+		return this.countryNotAllowed;
 	}
 
 	showLocationError(): boolean {
@@ -463,7 +522,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	showMainContainer(): boolean {
-		return Boolean(!this.showUpgradeRequired && this.projectFlow?._id && this.project?._id);
+		return Boolean(!this.showUpgradeRequired && this.projectFlow?._id && this.project?._id && !this.countryCheckPending);
 	}
 
 	showNoProjectError(): boolean {
