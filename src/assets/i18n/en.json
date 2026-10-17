@@ -292,7 +292,23 @@
 			"request_timeout_subtitle": "A request for your location data has timed out. Please refresh and try again.",
 			"enabled_it": "I enabled it",
 			"country_not_allowed": "Location verification required",
-			"country_not_allowed_subtitle": "We cannot process your request from this country due to compliance. Please contact support for assistance."
+			"country_not_allowed_subtitle": "We cannot process your request from this country due to compliance. Please contact support for assistance.",
+			"country_block_eyebrow": "Location check",
+			"country_block_status": "Not allowed",
+			"country_block_why_title": "Why enrollment stopped",
+			"country_block_why_help": "Sign-up only continues from countries this project allows.",
+			"country_block_identified": "Your country was identified from the network address",
+			"country_block_not_on_list": "That country is not on this project's list",
+			"country_block_cannot_continue": "The sign-up form stays closed",
+			"country_block_how_title": "How this works",
+			"country_block_how_help": "The check uses the network address. It does not ask for GPS.",
+			"country_block_flow_lookup": "IP lookup",
+			"country_block_flow_compared": "Country compared",
+			"country_block_flow_stopped": "Enrollment stopped",
+			"country_block_result_label": "What happens next",
+			"country_block_result_title": "This country cannot enroll",
+			"country_block_result_body": "{{country}} is not on the allowed list, so sign-up cannot continue.",
+			"country_block_contact_label": "Questions? Contact the administrator"
 		}
 	},
 	"login": {

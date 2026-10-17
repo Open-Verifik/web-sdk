@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 
 import { PromptTemplate } from "app/core/models/prompt-template.model";
+import { PersonalDocuments } from "app/core/models/smart-enroll-project.model";
+import { PasswordlessService } from "app/modules/auth/passwordless.service";
 import { parseDataCode } from "./colombian-pdf417-parser";
 
 const PHYSICAL_CEDULA = new Set(["CC", "CO:1993_CC"]);
@@ -46,6 +48,8 @@ export class ColombianBarcodeReadinessService {
 	private _reader: Promise<BarcodeReader> | null = null;
 	private _streak: string[] = [];
 
+	constructor(private _passwordlessService: PasswordlessService) {}
+
 	reset(): void {
 		this._attempts = 0;
 		this._lastGoodFrame = null;
@@ -57,6 +61,10 @@ export class ColombianBarcodeReadinessService {
 
 	shouldCheck(input: BarcodeCheckInput): boolean {
 		if (input.side !== "back") return false;
+
+		const documents = this._passwordlessService.currentProjectFlow?.documents as PersonalDocuments | undefined;
+
+		if (documents?.colombianBarcodeValidation !== true) return false;
 
 		const candidates = [
 			input.promptTemplate?.documentType,
