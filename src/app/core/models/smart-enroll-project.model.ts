@@ -181,6 +181,7 @@ export interface LivenessSettings {
 export interface OnboardingSettings {
 	basicInformation: BasicInformationSettings;
 	document: DocumentSettings;
+	enrollmentClient?: "legacy" | "v2";
 	form?: string;
 	hiddenLoginOption?: boolean;
 	liveness: LivenessSettings;

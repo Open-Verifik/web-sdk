@@ -33,6 +33,7 @@ export class ProjectFlow {
 	client: string;
 	createdAt?: string;
 	documents?: PersonalDocuments | BusinessDocuments;
+	enrollmentClient?: "legacy" | "v2";
 	integrations: PersonalIntegrations | BusinessIntegrations;
 	liveness: PersonalLiveness | BusinessLiveness;
 	loginSettings?: LoginSettings;
@@ -56,6 +57,7 @@ export class ProjectFlow {
 		this.type = data.type;
 		this.updatedAt = data.updatedAt;
 		this.version = data.version || 2; // Default to V2 - V3 will have the version set
+		this.enrollmentClient = enrollmentClientFrom(data);
 
 		if (!this.version || this.version < 3) {
 			this._migrateFromV2(data as LegacyProjectFlow);
@@ -118,6 +120,7 @@ export class ProjectFlow {
 				searchMinScore: liveness?.searchMinScore || 0.81,
 				searchMode: liveness?.searchMode || "FAST",
 			},
+			enrollmentClient: this.enrollmentClient,
 			signUpForm: {
 				email: signUpForm?.email || false,
 				emailGateway: signUpForm?.emailGateway || "none",
@@ -416,3 +419,11 @@ export class ProjectFlow {
 		}
 	}
 }
+
+const enrollmentClientFrom = (data: object): "legacy" | "v2" | undefined => {
+	const value = (data as { onboardingSettings?: { enrollmentClient?: string } })?.onboardingSettings?.enrollmentClient;
+
+	if (value === "v2" || value === "legacy") return value;
+
+	return undefined;
+};
