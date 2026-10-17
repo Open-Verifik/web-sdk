@@ -5,7 +5,11 @@
 >
 	<languages class="language-selector" ngClass.lt-md="hidden" (languageChange)="onLanguageChange($event)"></languages>
 
-	<div *ngIf="showMainContainer()" class="flex flex-col h-screen max-h-screen overflow-y-auto w-full overflow-x-hidden max-w-full">
+	<div
+		*ngIf="showMainContainer()"
+		class="flex flex-col h-screen max-h-screen overflow-y-auto w-full overflow-x-hidden max-w-full"
+		[attr.inert]="showCountryNotAllowed() ? '' : null"
+	>
 		<div class="m-auto p-2 sm:py-8 max-w-full">
 			<div *ngIf="currentStep !== 'complete'" ngClass.lt-md="flex flex-col flex-grow">
 				<div class="w-full flex flex-row items-center justify-start ml-1 sm:ml-2 max-w-full overflow-x-hidden" ngClass.gt-sm="hidden">
@@ -88,31 +92,110 @@
 		</div>
 	</div>
 
-	<div fxLayout="row" fxLayoutAlign="center end" class="flex w-full max-w-full overflow-x-hidden" *ngIf="showCountryNotAllowed()">
-		<div class="flex overflow-hidden bg-card max-w-full" ngClass.gt-sm="rounded-2xl sign-in-content sign-in-content--small">
-			<div class="w-full sm:w-auto p-4 sm:p-6 max-w-full" fxLayout="column" ngClass.gt-sm="p-10">
-				<div class="w-full" fxLayout="column" fxLayoutAlign="center center">
-					<mat-icon class="sign-in-content__icon" svgIcon="fa_solid:location-pin-lock" color="primary"></mat-icon>
-				</div>
-
-				<div class="mt-4 sm:mt-8 text-xl sm:text-2xl md:text-3xl font-medium text-center tracking-tight leading-tight">
-					{{ "errors.geolocation.country_not_allowed" | transloco }}
-				</div>
-
-				<div class="items-baseline mt-4 text-center">
-					{{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}
-				</div>
-
-				<div class="w-full" fxLayout="row" fxLayoutAlign="center center">
-					<button (click)="countryNotAllowedAccept()" class="fuse-mat-button-large mt-12" mat-flat-button color="primary">
-						{{ "accept" | transloco }}
-					</button>
-				</div>
-
-				<div class="w-full text-center mt-10 text-secondary" fxLayout="row" fxLayoutAlign="center center">
-					{{ "powered_by_verifik" | transloco }}
-				</div>
+	<div
+		class="country-block"
+		*ngIf="showCountryNotAllowed()"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="country-block-title"
+	>
+		<div class="country-block__backdrop" aria-hidden="true"></div>
+		<div class="country-block__dialog">
+		<header class="country-block__hero">
+			<div>
+				<span class="country-block__eyebrow">{{ "errors.geolocation.country_block_eyebrow" | transloco }}</span>
+				<h2 id="country-block-title">{{ "errors.geolocation.country_not_allowed" | transloco }}</h2>
+				<p>{{ "errors.geolocation.country_not_allowed_subtitle" | transloco }}</p>
 			</div>
+			<div class="country-block__choice">
+				<span>{{ "errors.geolocation.country_block_eyebrow" | transloco }}</span>
+				<strong>{{ detectedCountry }}</strong>
+				<em>{{ "errors.geolocation.country_block_status" | transloco }}</em>
+			</div>
+		</header>
+
+		<div class="country-block__decision">
+			<section class="country-block__reason">
+				<div class="country-block__heading">
+					<span>01</span>
+					<div>
+						<h3>{{ "errors.geolocation.country_block_why_title" | transloco }}</h3>
+						<p>{{ "errors.geolocation.country_block_why_help" | transloco }}</p>
+					</div>
+				</div>
+
+				<article class="country-block__card">
+					<span class="country-block__icon">
+						<mat-icon svgIcon="fa_solid:location-pin-lock"></mat-icon>
+					</span>
+					<div class="country-block__card-body">
+						<strong>{{ detectedCountry }}</strong>
+						<ul>
+							<li>
+								<mat-icon svgIcon="heroicons_outline:check-circle"></mat-icon>
+								{{ "errors.geolocation.country_block_identified" | transloco }}
+							</li>
+							<li>
+								<mat-icon svgIcon="heroicons_outline:check-circle"></mat-icon>
+								{{ "errors.geolocation.country_block_not_on_list" | transloco }}
+							</li>
+							<li>
+								<mat-icon svgIcon="heroicons_outline:check-circle"></mat-icon>
+								{{ "errors.geolocation.country_block_cannot_continue" | transloco }}
+							</li>
+						</ul>
+						<button (click)="countryNotAllowedAccept()" class="country-block__accept" mat-flat-button color="primary">
+							{{ "accept" | transloco }}
+						</button>
+					</div>
+				</article>
+			</section>
+
+			<aside class="country-block__explainer">
+				<div class="country-block__heading country-block__heading--light">
+					<span>02</span>
+					<div>
+						<h3>{{ "errors.geolocation.country_block_how_title" | transloco }}</h3>
+						<p>{{ "errors.geolocation.country_block_how_help" | transloco }}</p>
+					</div>
+				</div>
+
+				<div class="country-block__flow">
+					<div>
+						<mat-icon svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+						<span>{{ "errors.geolocation.country_block_flow_lookup" | transloco }}</span>
+					</div>
+					<span class="country-block__line" aria-hidden="true"></span>
+					<div>
+						<mat-icon svgIcon="fa_solid:location-pin-lock"></mat-icon>
+						<span>{{ "errors.geolocation.country_block_flow_compared" | transloco }}</span>
+					</div>
+					<span class="country-block__line" aria-hidden="true"></span>
+					<div class="country-block__flow-stop">
+						<mat-icon svgIcon="heroicons_outline:x-circle"></mat-icon>
+						<span>{{ "errors.geolocation.country_block_flow_stopped" | transloco }}</span>
+					</div>
+				</div>
+
+				<div class="country-block__result">
+					<span>{{ "errors.geolocation.country_block_result_label" | transloco }}</span>
+					<h4>{{ "errors.geolocation.country_block_result_title" | transloco }}</h4>
+					<p>{{ "errors.geolocation.country_block_result_body" | transloco: { country: detectedCountry } }}</p>
+					<div>
+						<mat-icon svgIcon="fa_solid:location-pin-lock"></mat-icon>
+						<span>{{ detectedCountry }}</span>
+					</div>
+				</div>
+			</aside>
+		</div>
+
+		<div class="country-block__contact" *ngIf="administratorContact() as contact">
+			<span>{{ "errors.geolocation.country_block_contact_label" | transloco }}</span>
+			<p>
+				<strong *ngIf="contact.name">{{ contact.name }}</strong>
+				<a *ngIf="contact.email" [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+			</p>
+		</div>
 		</div>
 	</div>
 

@@ -18,6 +18,7 @@ import { AppRegistration, ImageScan } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
 import { Corrections, SmartEnrollService } from "../smart-enroll.service";
+import { ColombianBarcodeReadinessService } from "../colombian-barcode-readiness.service";
 import { PasswordlessService } from "../../passwordless.service";
 
 interface MediaTrackConstraintSetExtended extends MediaTrackConstraintSet {
@@ -57,6 +58,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 	appRegistration: AppRegistration;
 	aspectRatio = 85.6 / 53.98;
+	barcodeHint: string | null = null;
+	barcodeHintParams: { attempt?: number } = {};
 	base64Image: any;
 	calculating: boolean = false;
 	cameraConstraintsInvalid: boolean = false;
@@ -111,6 +114,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	>;
 
 	constructor(
+		private _barcodeReadiness: ColombianBarcodeReadinessService,
 		private _demoService: DemoService,
 		private _KYCService: KYCService,
 		private _passwordlessService: PasswordlessService,
@@ -539,6 +543,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.documentIsValid = true;
 
 		if (this.side === "front") await this._detectFace(video);
+		if (this._shouldCheckBarcode()) await this._sampleBarcode(video);
 	};
 
 	private _stopRecord(): void {
@@ -559,6 +564,8 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	goNext(): void {
 		if (this.requiresBack && this.side !== "back") {
 			this.side = "back";
+			this._barcodeReadiness.reset();
+			this._syncBarcodeHint();
 			this._resetVariables();
 			this._startCamera();
 
@@ -663,6 +670,24 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this._startCamera();
 	}
 
+	private _shouldCheckBarcode(): boolean {
+		return this._barcodeReadiness.shouldCheck({
+			documentValidation: this.appRegistration?.documentValidation,
+			promptTemplate: this._smartEnrollService.enrollSettings.promptTemplate,
+			side: this.side,
+		});
+	}
+
+	private async _sampleBarcode(video: HTMLVideoElement): Promise<void> {
+		await this._barcodeReadiness.sampleVideo(video);
+		this._syncBarcodeHint();
+	}
+
+	private _syncBarcodeHint(): void {
+		this.barcodeHint = this._barcodeReadiness.hintKey;
+		this.barcodeHintParams = this._barcodeReadiness.hintParams;
+	}
+
 	async takePicture() {
 		clearInterval(this._detectionInterval);
 
@@ -707,7 +732,25 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		base64Image = rawBase64Image.replace(/^data:.*;base64,/, "");
 		face = faceToUpload?.replace(/^data:.*;base64,/, "");
 
+		let barcodeReadAttempts: number | undefined;
+
+		if (!isFront && this._shouldCheckBarcode()) {
+			const decision = await this._barcodeReadiness.evaluateShutter(rawBase64Image);
+
+			this._syncBarcodeHint();
+			barcodeReadAttempts = decision.attempts;
+
+			if (!decision.accept) {
+				this._startCamera();
+
+				return;
+			}
+
+			base64Image = decision.image;
+		}
+
 		this.onImageScan.next({
+			barcodeReadAttempts,
 			base64Image,
 			face,
 			force: !isFront || !!this.appRegistration?.documentValidation,

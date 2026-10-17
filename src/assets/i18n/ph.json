@@ -284,6 +284,22 @@
 		},
 		"geolocation": {
 			"country_not_allowed_subtitle": "Hindi namin maproseso ang iyong kahilingan mula sa bansang ito dahil sa pagsunod. Mangyaring makipag-ugnayan sa suporta para sa tulong.",
+			"country_block_eyebrow": "Pagsusuri ng lokasyon",
+			"country_block_status": "Hindi pinapayagan",
+			"country_block_why_title": "Bakit huminto ang pag-enroll",
+			"country_block_why_help": "Magpapatuloy ang pag-sign up mula lang sa mga bansang pinapayagan ng proyektong ito.",
+			"country_block_identified": "Natukoy ang iyong bansa mula sa address ng network",
+			"country_block_not_on_list": "Wala ang bansang iyon sa listahan ng proyektong ito",
+			"country_block_cannot_continue": "Mananatiling sarado ang form ng pag-sign up",
+			"country_block_how_title": "Paano ito gumagana",
+			"country_block_how_help": "Ginagamit ng pagsusuri ang address ng network. Hindi ito humihingi ng GPS.",
+			"country_block_flow_lookup": "Paghahanap ng IP",
+			"country_block_flow_compared": "Inihambing ang bansa",
+			"country_block_flow_stopped": "Huminto ang pag-enroll",
+			"country_block_result_label": "Susunod na mangyayari",
+			"country_block_result_title": "Hindi maaaring mag-enroll ang bansang ito",
+			"country_block_result_body": "Wala ang {{country}} sa pinapayagang listahan, kaya hindi maaaring magpatuloy ang pag-sign up.",
+			"country_block_contact_label": "May tanong? Makipag-ugnayan sa administrator"
 			"country_not_allowed": "Kinakailangan ang pag-verify ng lokasyon",
 			"enabled_it": "Binuksan ko ito",
 			"information_unavailable_subtitle": "Ang iyong datos ng lokasyon ay hindi magagamit sa kasalukuyang browser mo.",
@@ -543,6 +559,12 @@
 			"try_on_mobile": "Subukan sa mobile"
 		},
 		"requires_back": "Kinakailangan ng dokumentong ito ang pag-scan ng likod na bahagi. Magpatuloy sa pag-scan ng likurang bahagi ng dokumentong ito.",
+		"barcode": {
+			"hold_steady": "Hawakan nang hindi gumagalaw ang likod ng ID para mabasa namin ang barcode.",
+			"readable": "Nabasa ang barcode. Maaari mo nang i-capture ang panig na ito.",
+			"retry": "Hindi namin nabasa ang barcode. Subukan muli ({{attempt}} sa 3).",
+			"continue_without_validation": "Maaari kang magpatuloy. Hindi namin na-validate ang likod ng ID."
+		},
 		"successful_outcome": "Matagumpay na Resulta",
 		"terms_and_cond": "mga tuntunin at kondisyon",
 		"liveness": {

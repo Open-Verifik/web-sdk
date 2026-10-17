@@ -137,6 +137,10 @@ export class PasswordlessService {
 		);
 	}
 
+	requestIpLocation(): Observable<any> {
+		return this._httpWrapper.sendRequest("get", `${this.baseUrl}/v2/projects/kyc/ip-location`);
+	}
+
 	validateBiometrics(data: any): Observable<any> {
 		const location = localStorage.getItem("loginLocation");
 
