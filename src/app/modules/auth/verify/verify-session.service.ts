@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
-import { Subject, take, takeUntil } from "rxjs";
+import { catchError, Observable, of, shareReplay, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
@@ -83,6 +83,8 @@ export class VerifySessionService implements OnDestroy {
 	private _key = "";
 	private _livenessFailures = 0;
 	private _location: any = null;
+	private _emailSend$: Observable<unknown> | null = null;
+	private _phoneSend$: Observable<unknown> | null = null;
 	private _redirectTimer: ReturnType<typeof setTimeout> | null = null;
 	private _skippedDocument = false;
 	private _skippedLiveness = false;
@@ -598,7 +600,7 @@ export class VerifySessionService implements OnDestroy {
 		if (!this.settings) return;
 
 		this.busy = true;
-		this._kyc.confirmEmailValidation(this.draft.email, this.draft.otp).subscribe({
+		this._afterSend(this._emailSend$, () => this._kyc.confirmEmailValidation(this.draft.email, this.draft.otp)).subscribe({
 			next: () => {
 				this.busy = false;
 				this.draft.otp = "";
@@ -620,7 +622,9 @@ export class VerifySessionService implements OnDestroy {
 
 	private _confirmPhone(): void {
 		this.busy = true;
-		this._kyc.confirmPhoneValidation(this.draft.countryCode, this.draft.phone, this.draft.otp).subscribe({
+		this._afterSend(this._phoneSend$, () =>
+			this._kyc.confirmPhoneValidation(this.draft.countryCode, this.draft.phone, this.draft.otp)
+		).subscribe({
 			next: () => {
 				this.busy = false;
 				this.draft.otp = "";
@@ -635,15 +639,33 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _sendEmailCode(): void {
-		this._kyc.sendAppRegistationEmailValidation(this.draft.email || this.registration?.email).subscribe({ error: () => undefined });
+		this._emailSend$ = this._rememberSend(this._kyc.sendAppRegistationEmailValidation(this.draft.email || this.registration?.email));
 	}
 
 	private _sendPhoneCode(): void {
 		const gateway = this.draft.phoneGateway === "both" ? "sms" : this.draft.phoneGateway || "sms";
 
-		this._kyc
-			.sendAppRegistrationPhoneValidation(this.draft.countryCode, this.draft.phone || this.registration?.phone, gateway)
-			.subscribe({ error: () => undefined });
+		this._phoneSend$ = this._rememberSend(
+			this._kyc.sendAppRegistrationPhoneValidation(this.draft.countryCode, this.draft.phone || this.registration?.phone, gateway)
+		);
+	}
+
+	private _rememberSend(send$: Observable<unknown>): Observable<unknown> {
+		const remembered = send$.pipe(
+			catchError(() => of(null)),
+			shareReplay(1)
+		);
+
+		remembered.pipe(takeUntil(this._destroy$)).subscribe();
+
+		return remembered;
+	}
+
+	private _afterSend<T>(send$: Observable<unknown> | null, confirm: () => Observable<T>): Observable<T> {
+		return (send$ || of(null)).pipe(
+			take(1),
+			switchMap(() => confirm())
+		);
 	}
 
 	private _syncContact(): void {
