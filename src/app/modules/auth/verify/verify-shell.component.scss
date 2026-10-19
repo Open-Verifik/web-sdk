@@ -785,32 +785,35 @@ a,
 	letter-spacing: 0.04em;
 }
 
-.page.style-d .top {
+.page.style-d .card {
 	position: relative;
-	min-height: 40px;
-	padding-right: 84px;
 }
 
-.page.style-d .top::before,
-.page.style-d .top::after {
+.page.style-d .top {
+	padding-right: 132px;
+}
+
+.page.style-d .card::before,
+.page.style-d .card::after {
 	content: "";
 	position: absolute;
 	width: 28px;
 	height: 10px;
 	border-radius: 3px;
 	pointer-events: none;
+	z-index: 1;
 }
 
-.page.style-d .top::before {
-	right: 8px;
-	top: 6px;
+.page.style-d .card::before {
+	top: 52px;
+	right: 64px;
 	background: #ff4433;
 	transform: rotate(-12deg);
 }
 
-.page.style-d .top::after {
-	right: 44px;
-	top: 20px;
+.page.style-d .card::after {
+	top: 68px;
+	right: 104px;
 	background: #00cc4b;
 	transform: rotate(10deg);
 }
