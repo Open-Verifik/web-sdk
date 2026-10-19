@@ -34,6 +34,7 @@ export class ProjectFlow {
 	createdAt?: string;
 	documents?: PersonalDocuments | BusinessDocuments;
 	enrollmentClient?: "legacy" | "v2";
+	verifyStyle?: "a" | "b" | "c" | "d" | "e" | "f";
 	integrations: PersonalIntegrations | BusinessIntegrations;
 	liveness: PersonalLiveness | BusinessLiveness;
 	loginSettings?: LoginSettings;
@@ -58,6 +59,7 @@ export class ProjectFlow {
 		this.updatedAt = data.updatedAt;
 		this.version = data.version || 2; // Default to V2 - V3 will have the version set
 		this.enrollmentClient = enrollmentClientFrom(data);
+		this.verifyStyle = verifyStyleFrom(data);
 
 		if (!this.version || this.version < 3) {
 			this._migrateFromV2(data as LegacyProjectFlow);
@@ -426,4 +428,14 @@ const enrollmentClientFrom = (data: object): "legacy" | "v2" | undefined => {
 	if (value === "v2" || value === "legacy") return value;
 
 	return undefined;
+};
+
+const VERIFY_STYLE_IDS = ["a", "b", "c", "d", "e", "f"] as const;
+
+const verifyStyleFrom = (data: object): (typeof VERIFY_STYLE_IDS)[number] | undefined => {
+	const value = String((data as { onboardingSettings?: { verifyStyle?: string } })?.onboardingSettings?.verifyStyle || "")
+		.trim()
+		.toLowerCase();
+
+	return (VERIFY_STYLE_IDS as readonly string[]).includes(value) ? (value as (typeof VERIFY_STYLE_IDS)[number]) : undefined;
 };

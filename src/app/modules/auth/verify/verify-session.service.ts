@@ -35,6 +35,7 @@ import {
 	VerifyScreen,
 	VerifySettings,
 } from "./verify-flow";
+import { VerifyStyleId } from "./verify-style";
 
 export type VerifySheet = null | "acceptedIds" | "language" | "otherOptions" | "document" | "camera" | "trouble";
 
@@ -72,6 +73,7 @@ export class VerifySessionService implements OnDestroy {
 	retryTarget: "front" | "selfie" = "front";
 	screen: VerifyScreen = "loading";
 	sheet: VerifySheet = null;
+	previewStyle: VerifyStyleId | null = null;
 	template: PromptTemplate | null = null;
 	readonly changed = new Subject<void>();
 	readonly selfieDone$ = new Subject<void>();
@@ -120,9 +122,14 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	get sessionUrl(): string {
-		const token = this._token ? `?token=${encodeURIComponent(this._token)}` : "";
+		const params = new URLSearchParams();
 
-		return `${window.location.origin}/verify/${this.projectId}${token}`;
+		if (this._token) params.set("token", this._token);
+		if (this.previewStyle) params.set("style", this.previewStyle);
+
+		const query = params.toString();
+
+		return `${window.location.origin}/verify/${this.projectId}${query ? `?${query}` : ""}`;
 	}
 
 	get languages(): Array<{ id: string; label: string }> {

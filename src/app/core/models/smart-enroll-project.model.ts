@@ -182,6 +182,7 @@ export interface OnboardingSettings {
 	basicInformation: BasicInformationSettings;
 	document: DocumentSettings;
 	enrollmentClient?: "legacy" | "v2";
+	verifyStyle?: "a" | "b" | "c" | "d" | "e" | "f";
 	form?: string;
 	hiddenLoginOption?: boolean;
 	liveness: LivenessSettings;

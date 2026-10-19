@@ -12,6 +12,7 @@ import { SmartLivenessComponent } from "app/modules/auth/smart-enroll/smart-live
 import { VerifyCameraComponent } from "./verify-camera.component";
 import { VerifySessionService } from "./verify-session.service";
 import { hasContactBlock, progressIndex, progressSegments } from "./verify-flow";
+import { parseVerifyStyle, resolveVerifyStyle, VERIFY_FONT_HREF, VerifyStyleId } from "./verify-style";
 
 @Component({
 	selector: "verify-shell",
@@ -27,8 +28,10 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	@ViewChild(VerifyCameraComponent) camera?: VerifyCameraComponent;
 
 	boxes = [0, 1, 2, 3, 4, 5];
+	styleId: VerifyStyleId = "a";
 
 	private _destroy$ = new Subject<void>();
+	private _preview: string | null = null;
 	private _qrUrl = "";
 
 	constructor(
@@ -39,11 +42,20 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	) {}
 
 	ngOnInit(): void {
+		this._loadStyleFonts();
 		this.session.compact = window.matchMedia("(max-width: 720px)").matches;
-		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => this._cdr.markForCheck());
+		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => {
+			this._applyStyle();
+			this._cdr.markForCheck();
+		});
 		combineLatest([this._route.paramMap, this._route.queryParamMap])
 			.pipe(takeUntil(this._destroy$))
-			.subscribe(([params, query]) => this.session.open(params.get("projectId") || "", query.get("token") || undefined));
+			.subscribe(([params, query]) => {
+				this._preview = query.get("style");
+				this.session.previewStyle = parseVerifyStyle(this._preview);
+				this._applyStyle();
+				this.session.open(params.get("projectId") || "", query.get("token") || undefined);
+			});
 	}
 
 	ngAfterViewChecked(): void {
@@ -57,22 +69,6 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	ngOnDestroy(): void {
 		this._destroy$.next();
 		this._destroy$.complete();
-	}
-
-	get accent(): string {
-		return this.session.project?.branding?.buttonColor || "#111827";
-	}
-
-	get accentText(): string {
-		return this.session.project?.branding?.buttonTextColor || "#ffffff";
-	}
-
-	get titleColor(): string {
-		return readable(this.session.project?.branding?.titleColor, "#273951");
-	}
-
-	get bodyColor(): string {
-		return readable(this.session.project?.branding?.textColor, "#5c6b80");
 	}
 
 	get segments(): string[] {
@@ -146,6 +142,36 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		this.camera?.shutter();
 	}
 
+	private _applyStyle(): void {
+		const flow = this.session.projectFlow;
+
+		this.styleId = resolveVerifyStyle(this._preview, flow?.verifyStyle, flow?.enrollmentClient);
+	}
+
+	private _loadStyleFonts(): void {
+		if (document.getElementById("verify-style-fonts")) return;
+
+		const preconnect = document.createElement("link");
+
+		preconnect.rel = "preconnect";
+		preconnect.href = "https://fonts.googleapis.com";
+		document.head.appendChild(preconnect);
+
+		const files = document.createElement("link");
+
+		files.rel = "preconnect";
+		files.href = "https://fonts.gstatic.com";
+		files.crossOrigin = "anonymous";
+		document.head.appendChild(files);
+
+		const sheet = document.createElement("link");
+
+		sheet.id = "verify-style-fonts";
+		sheet.rel = "stylesheet";
+		sheet.href = VERIFY_FONT_HREF;
+		document.head.appendChild(sheet);
+	}
+
 	pickFile(): void {
 		this.file?.nativeElement.click();
 	}
@@ -173,14 +199,3 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		reader.readAsDataURL(file);
 	}
 }
-
-const readable = (color: string | undefined, fallback: string): string => {
-	if (!color || !color.startsWith("#") || color.length < 7) return color || fallback;
-
-	const red = parseInt(color.slice(1, 3), 16);
-	const green = parseInt(color.slice(3, 5), 16);
-	const blue = parseInt(color.slice(5, 7), 16);
-	const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-
-	return luminance > 0.82 ? fallback : color;
-};

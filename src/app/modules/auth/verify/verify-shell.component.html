@@ -2,10 +2,8 @@
 	<div
 		class="page"
 		[class.compact]="session.compact"
-		[style.--accent]="accent"
-		[style.--accent-text]="accentText"
-		[style.--title]="titleColor"
-		[style.--body]="bodyColor"
+		[ngClass]="'style-' + styleId"
+		[attr.data-style]="styleId"
 	>
 		<section class="card" [class.dimmed]="session.sheet">
 			<header class="top" *ngIf="session.showHeader">
@@ -23,6 +21,7 @@
 			</div>
 
 			<div class="body" [ngSwitch]="session.screen">
+				<p class="eyebrow" *ngIf="styleId === 'c' || styleId === 'd'">{{ t("verify.eyebrow") }}</p>
 				<div *ngSwitchCase="'loading'" class="center"><div class="spinner"></div></div>
 
 				<div *ngSwitchCase="'upgrade'" class="center">
