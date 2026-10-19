@@ -1,0 +1,316 @@
+<ng-container *transloco="let t">
+	<div
+		class="page"
+		[class.compact]="session.compact"
+		[ngClass]="'style-' + styleId"
+		[attr.data-style]="styleId"
+	>
+		<section class="card" [class.dimmed]="session.sheet">
+			<header class="top" *ngIf="session.showHeader">
+				<button type="button" class="back" (click)="session.back()" [attr.aria-label]="t('verify.back')">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+				</button>
+				<div class="brand">
+					<img *ngIf="session.project?.branding?.logo" [src]="session.project?.branding?.logo" alt="" />
+					<img src="assets/images/logo/logo.svg" alt="Verifik" />
+					<span>{{ session.project?.name }}</span>
+				</div>
+			</header>
+			<div class="progress" *ngIf="session.showHeader">
+				<span *ngFor="let segment of segments; let i = index" [class.filled]="i <= progressAt"></span>
+			</div>
+
+			<div class="body" [ngSwitch]="session.screen">
+				<p class="eyebrow" *ngIf="styleId === 'c' || styleId === 'd'">{{ t("verify.eyebrow") }}</p>
+				<div *ngSwitchCase="'loading'" class="center"><div class="spinner"></div></div>
+
+				<div *ngSwitchCase="'upgrade'" class="center">
+					<h1>{{ t("verify.upgradeTitle") }}</h1>
+					<p>{{ t("verify.upgradeBody") }}</p>
+				</div>
+
+				<div *ngSwitchCase="'countryBlocked'" class="center">
+					<h1>{{ t("verify.countryTitle") }}</h1>
+					<p>{{ t("verify.countryBody", { country: session.detectedCountry }) }}</p>
+					<button type="button" class="primary" *ngIf="session.projectFlow?.integrations?.redirectUrl" (click)="session.leaveBlockedCountry()">
+						{{ t("verify.continueToProject") }}
+					</button>
+				</div>
+
+				<div *ngSwitchCase="'error'" class="center">
+					<h1>{{ t("verify.errorTitle") }}</h1>
+					<p>{{ session.errorKey.startsWith("verify.") ? t(session.errorKey) : session.errorKey || t("verify.errorBody") }}</p>
+					<button type="button" class="primary" (click)="session.back()">{{ t("verify.back") }}</button>
+				</div>
+
+				<form *ngSwitchCase="'name'" class="form" (ngSubmit)="session.continueContact()">
+					<h1>{{ t("verify.nameTitle") }}</h1>
+					<label *ngIf="session.settings?.fullName && !session.settings?.firstName">
+						{{ t("verify.fullName") }}
+						<input [(ngModel)]="session.draft.fullName" name="fullName" autocomplete="name" />
+					</label>
+					<label *ngIf="session.settings?.firstName">
+						{{ t("verify.firstName") }}
+						<input [(ngModel)]="session.draft.firstName" name="firstName" autocomplete="given-name" />
+					</label>
+					<label *ngIf="session.settings?.lastName">
+						{{ t("verify.lastName") }}
+						<input [(ngModel)]="session.draft.lastName" name="lastName" autocomplete="family-name" />
+					</label>
+					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+				</form>
+
+				<form *ngSwitchCase="'email'" class="form" (ngSubmit)="session.continueContact()">
+					<h1>{{ t("verify.emailTitle") }}</h1>
+					<label>
+						{{ t("verify.emailLabel") }}
+						<input [(ngModel)]="session.draft.email" name="email" type="email" autocomplete="email" />
+					</label>
+					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+				</form>
+
+				<form *ngSwitchCase="'phone'" class="form" (ngSubmit)="session.continueContact()">
+					<h1>{{ t("verify.phoneTitle") }}</h1>
+					<div class="phone-row">
+						<select [(ngModel)]="session.draft.countryCode" name="countryCode">
+							<option *ngFor="let dial of dialCodes" [value]="dial.code">{{ dial.code }}</option>
+						</select>
+						<input [(ngModel)]="session.draft.phone" name="phone" inputmode="tel" autocomplete="tel" />
+					</div>
+					<div class="choices" *ngIf="session.settings?.phoneGateway === 'both'">
+						<button type="button" [class.on]="session.draft.phoneGateway === 'sms'" (click)="session.setGateway('sms')">{{ t("verify.sms") }}</button>
+						<button type="button" [class.on]="session.draft.phoneGateway === 'whatsapp'" (click)="session.setGateway('whatsapp')">{{ t("verify.whatsapp") }}</button>
+					</div>
+					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+				</form>
+
+				<form *ngSwitchCase="'agreements'" class="form" (ngSubmit)="session.continueContact()">
+					<h1>{{ t("verify.agreementsTitle") }}</h1>
+					<label class="check">
+						<input type="checkbox" [(ngModel)]="session.draft.agreements" name="agreements" />
+						<span>
+							{{ t("verify.agreeTerms") }}
+							<a *ngIf="session.settings?.showTerms && session.project?.termsAndConditionsUrl" [href]="session.project?.termsAndConditionsUrl" target="_blank" rel="noopener">{{ t("verify.terms") }}</a>
+							<a *ngIf="session.settings?.showPrivacy && session.project?.privacyUrl" [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacy") }}</a>
+						</span>
+					</label>
+					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+				</form>
+
+				<form *ngSwitchCase="'emailCode'" class="form" (ngSubmit)="session.submitCode()">
+					<h1>{{ t("verify.codeTitle") }}</h1>
+					<p>{{ t("verify.codeEmail", { email: session.draft.email || session.registration?.email }) }}</p>
+					<div class="otp" (paste)="onOtpPaste($event)">
+						<input *ngFor="let box of boxes; let i = index" [value]="otpAt(i)" (input)="onOtp($event, i)" inputmode="numeric" maxlength="1" />
+					</div>
+					<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
+					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+				</form>
+
+				<form *ngSwitchCase="'phoneCode'" class="form" (ngSubmit)="session.submitCode()">
+					<h1>{{ t("verify.codeTitle") }}</h1>
+					<p>{{ t("verify.codePhone", { phone: (session.draft.countryCode || '') + ' ' + (session.draft.phone || session.registration?.phone || '') }) }}</p>
+					<div class="otp" (paste)="onOtpPaste($event)">
+						<input *ngFor="let box of boxes; let i = index" [value]="otpAt(i)" (input)="onOtp($event, i)" inputmode="numeric" maxlength="1" />
+					</div>
+					<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
+					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+				</form>
+
+				<div *ngSwitchCase="'consent'" class="center">
+					<p class="merchant">{{ t("verify.worksWith", { project: session.project?.name }) }}</p>
+					<h1>{{ t("verify.consentTitle") }}</h1>
+					<ul class="rows">
+						<li>{{ t("verify.consentRow1") }} <button type="button" class="link inline" (click)="session.openSheet('acceptedIds')">{{ t("verify.photoId") }}</button></li>
+						<li>{{ t("verify.consentRow2", { project: session.project?.name }) }}</li>
+						<li>{{ t("verify.consentRow3") }}</li>
+					</ul>
+					<p class="meta">
+						<a *ngIf="session.project?.privacyUrl" [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacyPolicy") }}</a>
+						<button type="button" class="link inline" (click)="session.openSheet('language')">{{ languageLabel }}</button>
+					</p>
+					<button type="button" class="primary" (click)="session.agree()">{{ t("verify.agree") }}</button>
+					<button type="button" class="secondary" (click)="session.decline()">{{ t("verify.decline") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'decline'" class="center">
+					<div class="icon">!</div>
+					<h1>{{ t("verify.declineTitle") }}</h1>
+					<p>{{ t("verify.declineBody") }}</p>
+					<button type="button" class="primary" (click)="session.backToConsent()">{{ t("verify.backToConsent") }}</button>
+					<button type="button" class="secondary" (click)="session.leaveProject()">{{ t("verify.goBackToProject", { project: session.project?.name }) }}</button>
+				</div>
+
+				<div *ngSwitchCase="'handoff'" class="center">
+					<h1>{{ t("verify.handoffTitle") }}</h1>
+					<p>{{ t("verify.handoffBody") }}</p>
+					<canvas #qr></canvas>
+					<button type="button" class="link" (click)="session.openSheet('otherOptions')">{{ t("verify.otherOptions") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'ready'" class="center">
+					<div class="id-icon" aria-hidden="true"></div>
+					<h1>{{ t("verify.readyTitle") }}</h1>
+					<p>{{ t("verify.readyBody") }}</p>
+					<button type="button" class="primary" (click)="session.imReady()">{{ t("verify.imReady") }}</button>
+					<button type="button" class="link" *ngIf="session.settings?.document === 'optional'" (click)="session.skipDocument()">{{ t("verify.skip") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'front'" class="capture">
+					<h1>{{ t("verify.frontTitle") }}</h1>
+					<div class="modes">
+						<button type="button" [class.on]="session.mode === 'auto'" (click)="session.setMode('auto')">{{ t("verify.auto") }}</button>
+						<button type="button" [class.on]="session.mode === 'manual'" (click)="session.setMode('manual')">{{ t("verify.manual") }}</button>
+					</div>
+					<verify-camera [mode]="session.mode" side="front" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
+						<div class="pill">{{ t("verify.moveId") }}</div>
+					</verify-camera>
+					<p *ngIf="session.mode === 'auto'">{{ t("verify.autoHelp") }}</p>
+					<button type="button" class="shutter" *ngIf="session.mode === 'manual'" (click)="shutter()" [attr.aria-label]="t('verify.manual')"></button>
+					<button type="button" class="link" (click)="session.openSheet('trouble')">{{ t("verify.havingTrouble") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'reviewFront'" class="form">
+					<h1>{{ t("verify.reviewTitle") }}</h1>
+					<img class="preview" [src]="session.pending?.rawImage" alt="" />
+					<p>{{ t("verify.reviewBody") }}</p>
+					<button type="button" class="primary" [disabled]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
+					<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'flip'" class="center">
+					<h1>{{ t("verify.flipTitle") }}</h1>
+					<p>{{ t("verify.flipBody") }}</p>
+					<button type="button" class="primary" (click)="session.readyForBack()">{{ t("verify.imReady") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'back'" class="capture">
+					<h1>{{ t("verify.backTitle") }}</h1>
+					<div class="modes">
+						<button type="button" [class.on]="session.mode === 'auto'" (click)="session.setMode('auto')">{{ t("verify.auto") }}</button>
+						<button type="button" [class.on]="session.mode === 'manual'" (click)="session.setMode('manual')">{{ t("verify.manual") }}</button>
+					</div>
+					<verify-camera [mode]="session.mode" side="back" [checkBarcode]="true" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
+						<div class="pill">{{ t("verify.moveId") }}</div>
+					</verify-camera>
+					<button type="button" class="shutter" *ngIf="session.mode === 'manual'" (click)="shutter()" [attr.aria-label]="t('verify.manual')"></button>
+					<button type="button" class="link" (click)="session.openSheet('trouble')">{{ t("verify.havingTrouble") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'reviewBack'" class="form">
+					<h1>{{ t("verify.reviewBackTitle") }}</h1>
+					<img class="preview" [src]="session.pending?.rawImage" alt="" />
+					<p>{{ t("verify.reviewBody") }}</p>
+					<button type="button" class="primary" [disabled]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
+					<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'selfieIntro'" class="center">
+					<div class="bust" aria-hidden="true"></div>
+					<h1>{{ t("verify.selfieTitle") }}</h1>
+					<p>{{ t("verify.selfieBody") }}</p>
+					<button type="button" class="primary" (click)="session.continueSelfie()">{{ t("verify.continue") }}</button>
+					<button type="button" class="link" *ngIf="session.settings?.liveness === 'optional'" (click)="session.skipLiveness()">{{ t("verify.skip") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'selfie'" class="capture">
+					<h1>{{ t("verify.selfieTitle") }}</h1>
+					<div class="liveness-host">
+						<smart-liveness (onImageScan)="session.onSelfie($event)" (skipStep)="session.skipLiveness()" [successfulUpload]="session.selfieDone$"></smart-liveness>
+					</div>
+				</div>
+
+				<div *ngSwitchCase="'retry'" class="center">
+					<div class="icon">!</div>
+					<h1>{{ t("verify.retryTitle") }}</h1>
+					<p>{{ t("verify.retryBody") }}</p>
+					<button type="button" class="primary" (click)="session.tryAgain()">{{ t("verify.tryAgain") }}</button>
+				</div>
+
+				<div *ngSwitchCase="'submitted'" class="center">
+					<div class="clock" aria-hidden="true"></div>
+					<h1>{{ t("verify.submittedTitle") }}</h1>
+					<p>
+						<button type="button" class="link inline" (click)="session.redirectNow()">
+							{{ t("verify.submittedBody", { project: session.project?.name }) }}
+						</button>
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<div class="sheet" *ngIf="session.sheet">
+			<div *ngIf="session.sheet === 'acceptedIds'">
+				<h2>{{ t("verify.acceptedTitle") }}</h2>
+				<p>{{ t("verify.acceptedBody") }}</p>
+				<ul class="sheet-rows">
+					<li *ngIf="session.settings?.usePassport">{{ t("verify.passport") }}</li>
+					<li *ngIf="session.settings?.useLicense">{{ t("verify.license") }}</li>
+					<li *ngIf="session.settings?.useGovernmentId">{{ t("verify.nationalId") }}</li>
+				</ul>
+			</div>
+			<div *ngIf="session.sheet === 'language'">
+				<h2>{{ t("verify.languageTitle") }}</h2>
+				<ul class="sheet-rows">
+					<li *ngFor="let lang of session.languages">
+						<button type="button" (click)="session.selectLanguage(lang.id)">
+							{{ lang.label }}
+							<span *ngIf="lang.id === session.activeLang">✓</span>
+						</button>
+					</li>
+				</ul>
+			</div>
+			<div *ngIf="session.sheet === 'otherOptions'">
+				<h2>{{ t("verify.otherOptions") }}</h2>
+				<ul class="sheet-rows">
+					<li><button type="button" (click)="session.copyLink()">{{ session.copied ? t("verify.copied") : t("verify.copyLink") }}</button></li>
+					<li><button type="button" (click)="session.continueOnDevice()">{{ t("verify.continueHere") }}</button></li>
+				</ul>
+			</div>
+			<div *ngIf="session.sheet === 'document'">
+				<h2>{{ t("verify.documentTitle") }}</h2>
+				<p>{{ t("verify.documentBody") }}</p>
+				<label>{{ t("verify.country") }}
+					<select [ngModel]="session.country" (ngModelChange)="session.selectCountry($event)">
+						<option value="">—</option>
+						<option *ngFor="let country of session.countries" [value]="country.country">{{ country.country }}</option>
+					</select>
+				</label>
+				<label>{{ t("verify.category") }}
+					<select [ngModel]="session.category" (ngModelChange)="session.selectCategory($event)">
+						<option value="">—</option>
+						<option *ngFor="let category of session.categories" [value]="category">{{ t(categoryLabel(category)) }}</option>
+					</select>
+				</label>
+				<label *ngIf="session.templates.length">{{ t("verify.template") }}
+					<select [ngModel]="session.template" (ngModelChange)="session.selectTemplate($event)">
+						<option [ngValue]="null">—</option>
+						<option *ngFor="let template of session.templates" [ngValue]="template">{{ template.name || template.documentCategory }}</option>
+					</select>
+				</label>
+			</div>
+			<div *ngIf="session.sheet === 'camera'">
+				<h2>{{ t("verify.cameraTitle") }}</h2>
+				<p>{{ t("verify.cameraBody") }}</p>
+				<button type="button" class="primary" (click)="session.grantCamera()">{{ t("verify.grantAccess") }}</button>
+			</div>
+			<div *ngIf="session.sheet === 'trouble'">
+				<h2>{{ t("verify.troubleTitle") }}</h2>
+				<ul class="sheet-rows">
+					<li><button type="button" (click)="session.anotherDevice()">{{ t("verify.anotherDevice") }}</button></li>
+					<li><button type="button" (click)="session.setMode('auto')">{{ t("verify.captureAuto") }}</button></li>
+					<li *ngIf="session.settings?.uploadAllowed"><button type="button" (click)="pickFile()">{{ t("verify.selectFile") }}</button></li>
+				</ul>
+			</div>
+			<button
+				type="button"
+				class="primary"
+				[disabled]="session.sheet === 'document' && (!session.country || !session.category || !session.template)"
+				(click)="session.sheet === 'document' ? session.confirmDocument() : session.closeSheet()"
+			>
+				{{ session.sheet === "document" ? t("verify.continue") : t("verify.back") }}
+			</button>
+		</div>
+		<input #file hidden type="file" accept="image/*" (change)="onFile($event)" />
+	</div>
+</ng-container>
