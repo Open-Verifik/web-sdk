@@ -302,10 +302,31 @@ select {
 
 .liveness-host {
 	position: relative;
-	height: 460px;
+	flex: 1;
+	min-height: 420px;
 	overflow: hidden;
 	border-radius: 16px;
-	background: #111;
+	background: #f3f5f8;
+
+	::ng-deep smart-liveness {
+		position: absolute !important;
+		inset: 0;
+		overflow: hidden;
+		background: #f3f5f8;
+
+		h4.text-2xl {
+			display: none;
+		}
+
+		.camera {
+			width: 260px;
+			height: 260px;
+			min-width: 200px;
+			min-height: 200px;
+			max-width: 260px;
+			max-height: 260px;
+		}
+	}
 }
 
 .check {

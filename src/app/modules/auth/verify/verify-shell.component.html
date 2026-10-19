@@ -217,7 +217,7 @@
 				<div *ngSwitchCase="'selfie'" class="capture">
 					<h1>{{ t("verify.selfieTitle") }}</h1>
 					<div class="liveness-host">
-						<smart-liveness (onImageScan)="session.onSelfie($event)" [successfulUpload]="session.selfieDone$"></smart-liveness>
+						<smart-liveness (onImageScan)="session.onSelfie($event)" (skipStep)="session.skipLiveness()" [successfulUpload]="session.selfieDone$"></smart-liveness>
 					</div>
 				</div>
 
