@@ -220,6 +220,14 @@ select:focus {
 	width: auto;
 }
 
+.meta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+}
+
 .phone-row,
 .choices,
 .modes,
@@ -779,29 +787,32 @@ a,
 
 .page.style-d .top {
 	position: relative;
+	min-height: 40px;
+	padding-right: 84px;
 }
 
 .page.style-d .top::before,
 .page.style-d .top::after {
 	content: "";
 	position: absolute;
-	width: 34px;
-	height: 12px;
+	width: 28px;
+	height: 10px;
 	border-radius: 3px;
+	pointer-events: none;
 }
 
 .page.style-d .top::before {
-	right: 4px;
-	top: -4px;
+	right: 8px;
+	top: 6px;
 	background: #ff4433;
-	transform: rotate(-10deg);
+	transform: rotate(-12deg);
 }
 
 .page.style-d .top::after {
-	right: 24px;
-	bottom: -4px;
+	right: 44px;
+	top: 20px;
 	background: #00cc4b;
-	transform: rotate(8deg);
+	transform: rotate(10deg);
 }
 
 .page.style-e .merchant::before {
