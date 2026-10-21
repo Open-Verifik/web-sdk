@@ -299,7 +299,7 @@
 			"country_block_result_label": "Susunod na mangyayari",
 			"country_block_result_title": "Hindi maaaring mag-enroll ang bansang ito",
 			"country_block_result_body": "Wala ang {{country}} sa pinapayagang listahan, kaya hindi maaaring magpatuloy ang pag-sign up.",
-			"country_block_contact_label": "May tanong? Makipag-ugnayan sa administrator"
+			"country_block_contact_label": "May tanong? Makipag-ugnayan sa administrator",
 			"country_not_allowed": "Kinakailangan ang pag-verify ng lokasyon",
 			"enabled_it": "Binuksan ko ito",
 			"information_unavailable_subtitle": "Ang iyong datos ng lokasyon ay hindi magagamit sa kasalukuyang browser mo.",

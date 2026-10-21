@@ -135,10 +135,6 @@ export class KYCService {
 		return this.navigation;
 	}
 
-	getProject(): Project {
-		return this.currentProject;
-	}
-
 	navigateTo(step: string): void {
 		setTimeout(() => {
 			if (step === "next") {
@@ -181,10 +177,6 @@ export class KYCService {
 				this.currentProjectFlow = this.appRegistration.projectFlow;
 			})
 		);
-	}
-
-	createAppRegistration(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations`, data);
 	}
 
 	sendEmailValidation(email: string): Observable<any> {
@@ -334,10 +326,6 @@ export class KYCService {
 			`${this.baseUrl}/v2/app-registrations/${this.appRegistration._id}/submit-kyc-approval`,
 			{},
 		);
-	}
-
-	restartKYC(): Observable<any> {
-		return this._httpWrapper.sendRequest("delete", `${this.baseUrl}/v2/biometric-validations/${this.appRegistration.biometricValidation._id}`);
 	}
 
 	createZkProof(faceBase64?: string): Observable<any> {

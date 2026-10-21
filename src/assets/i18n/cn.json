@@ -300,7 +300,7 @@
 			"country_block_result_label": "接下来",
 			"country_block_result_title": "此国家/地区无法注册",
 			"country_block_result_body": "{{country}} 不在允许列表中，因此无法继续注册。",
-			"country_block_contact_label": "有疑问？请联系管理员"
+			"country_block_contact_label": "有疑问？请联系管理员",
 			"country_not_allowed": "需要位置验证",
 			"enabled_it": "我已启用",
 			"information_unavailable_subtitle": "当前浏览器无法获取您的位置信息。",

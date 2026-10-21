@@ -107,10 +107,6 @@ export class PasswordlessService {
 		return this.currentProject;
 	}
 
-	biometricsSignIn(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/projects/biometrics/sign-in`, data);
-	}
-
 	createLivenessSession(data: any): Observable<any> {
 		const appLoginToken = localStorage.getItem("accessToken");
 		const location = localStorage.getItem("loginLocation");
@@ -162,7 +158,4 @@ export class PasswordlessService {
 		);
 	}
 
-	zkLogin(data: { record: any; faceBase64: string; projectId: string }): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-login/zk-proof`, data);
-	}
 }

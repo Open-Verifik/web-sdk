@@ -299,7 +299,7 @@
 			"country_block_result_label": "आगे क्या होगा",
 			"country_block_result_title": "इस देश से नामांकन नहीं हो सकता",
 			"country_block_result_body": "{{country}} अनुमति सूची में नहीं है, इसलिए साइन-अप जारी नहीं रह सकता।",
-			"country_block_contact_label": "सवाल हैं? व्यवस्थापक से संपर्क करें"
+			"country_block_contact_label": "सवाल हैं? व्यवस्थापक से संपर्क करें",
 			"country_not_allowed": "स्थान सत्यापन आवश्यक है",
 			"enabled_it": "मैंने इसे सक्षम किया",
 			"information_unavailable_subtitle": "आपके वर्तमान ब्राउज़र में स्थान डेटा उपलब्ध नहीं है।",

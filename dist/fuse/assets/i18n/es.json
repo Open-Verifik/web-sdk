@@ -300,7 +300,7 @@
 			"country_block_result_label": "Qué sigue",
 			"country_block_result_title": "Este país no puede registrarse",
 			"country_block_result_body": "{{country}} no está en la lista permitida, así que el registro no puede continuar.",
-			"country_block_contact_label": "¿Tienes preguntas? Contacta al administrador"
+			"country_block_contact_label": "¿Tienes preguntas? Contacta al administrador",
 			"country_not_allowed": "Se requiere verificación de ubicación",
 			"enabled_it": "Lo activé",
 			"information_unavailable_subtitle": "Los datos de ubicación no están disponibles en su navegador actual.",

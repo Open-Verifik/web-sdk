@@ -14,7 +14,7 @@ const defaultPath =
 
 export const appRoutes: Route[] = [
     { path: "", pathMatch: "full", redirectTo: defaultPath },
-    { path: "signed-in-redirect", pathMatch: "full", redirectTo: "demo" },
+    { path: "signed-in-redirect", pathMatch: "full", redirectTo: defaultPath },
     {
         path: "",
         canActivate: [NoAuthGuard],
