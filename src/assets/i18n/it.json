@@ -299,7 +299,7 @@
 			"country_block_result_label": "Cosa succede ora",
 			"country_block_result_title": "Questo paese non può iscriversi",
 			"country_block_result_body": "{{country}} non è nell'elenco consentito, quindi l'iscrizione non può continuare.",
-			"country_block_contact_label": "Domande? Contatta l'amministratore"
+			"country_block_contact_label": "Domande? Contatta l'amministratore",
 			"country_not_allowed": "Verifica della posizione richiesta",
 			"enabled_it": "L'ho abilitato",
 			"information_unavailable_subtitle": "I dati sulla posizione non sono disponibili con il tuo browser attuale.",

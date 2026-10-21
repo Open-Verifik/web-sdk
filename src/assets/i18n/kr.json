@@ -299,7 +299,7 @@
 			"country_block_result_label": "다음 단계",
 			"country_block_result_title": "이 국가에서는 등록할 수 없습니다",
 			"country_block_result_body": "{{country}}은(는) 허용 목록에 없어 가입을 계속할 수 없습니다.",
-			"country_block_contact_label": "질문이 있으신가요? 관리자에게 문의하세요"
+			"country_block_contact_label": "질문이 있으신가요? 관리자에게 문의하세요",
 			"country_not_allowed": "위치 검증이 필요합니다",
 			"enabled_it": "활성화했습니다",
 			"information_unavailable_subtitle": "현재 브라우저에서 위치 데이터를 사용할 수 없습니다.",

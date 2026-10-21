@@ -298,7 +298,7 @@
 			"country_block_result_label": "Et ensuite",
 			"country_block_result_title": "Ce pays ne peut pas s'inscrire",
 			"country_block_result_body": "{{country}} ne figure pas sur la liste autorisée, donc l'inscription ne peut pas continuer.",
-			"country_block_contact_label": "Des questions ? Contactez l'administrateur"
+			"country_block_contact_label": "Des questions ? Contactez l'administrateur",
 			"country_not_allowed": "Vérification de l'emplacement requise",
 			"enabled_it": "Je l'ai activé",
 			"information_unavailable_subtitle": "Les données de localisation ne sont pas disponibles sur votre navigateur actuel.",

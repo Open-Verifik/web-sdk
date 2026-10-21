@@ -6,7 +6,6 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { environment } from "environments/environment";
 import { DocumentValidation } from "./document-validation";
-import { HttpWrapperService } from "./http-wrapper.service";
 import { Lead, Session } from "./lead";
 
 @Injectable({
@@ -30,7 +29,7 @@ export class DemoService {
     useSsdMobilenetv1: boolean = false;
     webGLSupported: boolean = false;
 
-    constructor(private _httpWrapperService: HttpWrapperService, private breakpointObserver: BreakpointObserver) {
+    constructor(private breakpointObserver: BreakpointObserver) {
         this.apiUrl = environment.apiUrl;
 
         this._initializeDeviceAndModels();
@@ -734,37 +733,6 @@ export class DemoService {
         this.session = new Session(data);
 
         localStorage.setItem("session", JSON.stringify(this.session));
-    }
-
-    requestDocument(documentId: string): Observable<any> {
-        return this._httpWrapperService.sendRequest("get", `${this.apiUrl}/v2/document-validations/demo/${documentId}`);
-    }
-
-    // apis to verifik
-    sendDocument(data: any): Observable<any> {
-        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/ocr/scan-demo`, data);
-    }
-
-    sendSelfie(data: any): Observable<any> {
-        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/liveness/demo`, data);
-    }
-
-    detectFace(data: any): Observable<any> {
-        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/detect/demo`, data);
-    }
-
-    compareDocumentWithSelfie(data): Observable<any> {
-        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/face-recognition/compare/demo`, data);
-    }
-
-    createLead(data): Observable<any> {
-        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/leads`, data);
-    }
-
-    createSession(data): Observable<any> {
-        return this._httpWrapperService.sendRequest("post", `${this.apiUrl}/v2/liveness-sessions`, {
-            ...data,
-        });
     }
 
     cleanVariables(): void {
