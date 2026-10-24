@@ -762,7 +762,7 @@ export class SmartDocumentsReviewComponent {
 			return;
 		}
 
-		if (docValidation?.requiresBackSide && !docValidation?.backUrl) {
+		if (docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage) {
 			this.errors.requiresBack = true;
 		}
 
@@ -834,8 +834,12 @@ export class SmartDocumentsReviewComponent {
 			reasons.push("Document validation not present and not skipped");
 		}
 
-		if (docValidation?.requiresBackSide && !docValidation?.backUrl) {
-			reasons.push("Document requires back side but backUrl is missing");
+		if (docValidation?.isPurged || docValidation?.retention?.purgedAt) {
+			reasons.push("Document storage expired — document re-scan required");
+		}
+
+		if (docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage) {
+			reasons.push("Document requires back side but back side image is missing");
 		}
 
 		if (this.projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported) {
@@ -972,7 +976,7 @@ export class SmartDocumentsReviewComponent {
 		// If document requires back side and back is not uploaded yet,
 		// navigate back to document upload step instead of going to previous step
 		const docValidation = this.appRegistration?.documentValidation;
-		const requiresBackAndMissing = docValidation?.requiresBackSide && !docValidation?.backUrl;
+		const requiresBackAndMissing = docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage;
 
 		if (requiresBackAndMissing) {
 			// Go back to document step to upload the back side

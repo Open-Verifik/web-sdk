@@ -91,9 +91,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
         // If front side is already uploaded and back is required but missing, start with back side
         const docValidation = this.appRegistration?.documentValidation;
-        const frontExists = !!docValidation?.url;
+        const isPurged = Boolean(docValidation?.isPurged || docValidation?.retention?.purgedAt);
+        const frontExists = !isPurged && (!!docValidation?.url || !!docValidation?.hasFrontImage);
         const backRequired = this.promptTemplate?.requiresBackSide || docValidation?.requiresBackSide;
-        const backMissing = !docValidation?.backUrl;
+        const backMissing = backRequired && !docValidation?.backUrl && !docValidation?.hasBackImage;
 
         if (frontExists && backRequired && backMissing) {
             this.side = "back";

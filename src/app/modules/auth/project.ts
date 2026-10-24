@@ -789,6 +789,18 @@ export interface DocumentValidation {
 	type: string;
 	updatedAt: string;
 	url?: string;
+	hasFrontImage?: boolean;
+	hasBackImage?: boolean;
+	isPurged?: boolean;
+	retention?: {
+		mode?: string;
+		purgeAfter?: string | Date;
+		holdUntil?: string | Date;
+		webhookDeliveredAt?: string | Date;
+		purgedAt?: string | Date;
+		purgeReason?: string;
+		purgeAttempts?: number;
+	};
 	validationMethod: string;
 	criminalData?: any;
 }

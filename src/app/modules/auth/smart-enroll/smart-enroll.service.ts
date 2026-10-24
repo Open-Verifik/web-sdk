@@ -375,9 +375,11 @@ export class SmartEnrollService {
 
         const docValidation = appRegistration?.documentValidation;
 
+        if (docValidation?.isPurged || docValidation?.retention?.purgedAt) return false;
+
         if (!docValidation && projectFlow.onboardingSettings.steps.document === "mandatory") return false;
         if (!docValidation && !this.wasSkippedDocument()) return false;
-        if (docValidation?.requiresBackSide && !docValidation?.backUrl) return false;
+        if (docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage) return false;
         if (projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && docValidation?.imageValidated && !docValidation?.namesMatch) return false;
 
         return true;

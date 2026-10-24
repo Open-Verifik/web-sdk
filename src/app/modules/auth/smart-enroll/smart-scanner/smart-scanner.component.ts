@@ -142,7 +142,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
 			this.uploading = false;
-			this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
+			this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl || !!this.appRegistration?.documentValidation?.hasBackImage;
 		});
 
 		this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
@@ -279,7 +279,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.project = this._passwordlessService.currentProject;
 		this.projectFlow = this._passwordlessService.currentProjectFlow;
-		this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
+		this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl || !!this.appRegistration?.documentValidation?.hasBackImage;
 
 		this._rectCredential = {};
 
@@ -301,9 +301,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		// If front side is already uploaded and back is required but missing, start with back side
 		const docValidation = this.appRegistration?.documentValidation;
-		const frontExists = !!docValidation?.url;
+		const isPurged = Boolean(docValidation?.isPurged || docValidation?.retention?.purgedAt);
+		const frontExists = !isPurged && (!!docValidation?.url || !!docValidation?.hasFrontImage);
 		const backRequired = this.requiresBack;
-		const backMissing = !docValidation?.backUrl;
+		const backMissing = backRequired && !docValidation?.backUrl && !docValidation?.hasBackImage;
 
 		if (frontExists && backRequired && backMissing) {
 			this.side = "back";
@@ -570,7 +571,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			this._startCamera();
 
 			return;
-		} else if (this.appRegistration?.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+		} else if (this.appRegistration?.documentValidation && !this.appRegistration?.documentValidation?.isPurged && !this.appRegistration?.documentValidation?.retention?.purgedAt && !this._smartEnrollService.wasSkippedDocument()) {
 			this._smartEnrollService.goToNextStep(); // document-review
 
 			return;

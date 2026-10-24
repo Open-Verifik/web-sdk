@@ -130,7 +130,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
         this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
             this.uploading = false;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl || !!this.appRegistration.documentValidation?.hasBackImage;
         });
 
         this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe(async (isLoaded) => {
@@ -868,7 +868,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
             this._startRecording();
 
             return;
-        } else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+        } else if (this.appRegistration.documentValidation && !this.appRegistration.documentValidation.isPurged && !this.appRegistration.documentValidation.retention?.purgedAt && !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep();
 
             return;
