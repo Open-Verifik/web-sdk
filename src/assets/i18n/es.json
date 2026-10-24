@@ -281,6 +281,7 @@
 			"mandatory": "Subir tu documento es obligatorio para completar el proceso de incorporación.",
 			"names_do_not_match": "La presentación de tu documento fue rechazada. Por favor, verifica que tu documento sea legítimo y que el nombre coincida exactamente.",
 			"requires_back": "El documento que has enviado requiere ambos lados.",
+			"rescan_required": "El almacenamiento del documento venció. Debes escanear el documento de nuevo.",
 			"validation_not_available": "La validación para este documento no está disponible."
 		},
 		"geolocation": {

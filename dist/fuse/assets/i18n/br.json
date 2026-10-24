@@ -281,6 +281,7 @@
 			"mandatory": "O envio do seu documento é necessário para concluir o processo de integração.",
 			"names_do_not_match": "O envio do seu documento foi rejeitado. Verifique se o documento é legítimo e se o nome corresponde exatamente.",
 			"requires_back": "O documento que você enviou requer ambos os lados.",
+			"rescan_required": "O armazenamento do documento expirou. É necessário digitalizar o documento novamente.",
 			"validation_not_available": "A validação deste documento não está disponível."
 		},
 		"geolocation": {

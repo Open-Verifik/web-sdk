@@ -281,6 +281,7 @@
 			"mandatory": "上传您的文档是完成注册流程的必需步骤。",
 			"names_do_not_match": "您的文档提交被拒绝。请验证文档的合法性，并确保姓名完全匹配。",
 			"requires_back": "您提交的文档需要正反两面。",
+			"rescan_required": "文档存储已过期，需要重新扫描文档。",
 			"validation_not_available": "此文档的验证不可用。"
 		},
 		"geolocation": {

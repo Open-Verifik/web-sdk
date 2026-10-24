@@ -281,6 +281,7 @@
 			"mandatory": "Uploading your document is required to complete the onboarding process.",
 			"names_do_not_match": "Submission of your document was rejected. Please verify your document is legitimate and the name matches exactly.",
 			"requires_back": "The document you have submitted requires both sides.",
+			"rescan_required": "Document storage expired — document re-scan required",
 			"validation_not_available": "Validation for this document is unavailable."
 		},
 		"geolocation": {

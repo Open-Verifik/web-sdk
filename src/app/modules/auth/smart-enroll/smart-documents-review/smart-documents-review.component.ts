@@ -17,7 +17,7 @@ import { environment } from "environments/environment";
 import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, DocumentValidation, FaceVerification, InformationValidation } from "../../project";
-import { SmartEnrollService } from "../smart-enroll.service";
+import { DOCUMENT_RESCAN_REQUIRED_I18N_KEY, isBackSideMissing, isDocumentPurged, SmartEnrollService } from "../smart-enroll.service";
 
 type CombinedValidationResponse = {
 	criminalValidation: CriminalValidationResponse;
@@ -83,6 +83,7 @@ type DocumentCriminalValidationResponse = {
 export class SmartDocumentsReviewComponent {
 	appRegistration: AppRegistration;
 	errors: any = {};
+	readonly rescanRequiredKey = DOCUMENT_RESCAN_REQUIRED_I18N_KEY;
 	isVerifikProject: boolean = false;
 	project: Project;
 	projectFlow: ProjectFlow;
@@ -762,7 +763,11 @@ export class SmartDocumentsReviewComponent {
 			return;
 		}
 
-		if (docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage) {
+		if (isDocumentPurged(docValidation)) {
+			this.errors.rescanRequired = true;
+		}
+
+		if (isBackSideMissing(docValidation)) {
 			this.errors.requiresBack = true;
 		}
 
@@ -834,12 +839,12 @@ export class SmartDocumentsReviewComponent {
 			reasons.push("Document validation not present and not skipped");
 		}
 
-		if (docValidation?.isPurged || docValidation?.retention?.purgedAt) {
-			reasons.push("Document storage expired — document re-scan required");
+		if (isDocumentPurged(docValidation)) {
+			reasons.push(this._translocoService.translate(DOCUMENT_RESCAN_REQUIRED_I18N_KEY));
 		}
 
-		if (docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage) {
-			reasons.push("Document requires back side but back side image is missing");
+		if (isBackSideMissing(docValidation)) {
+			reasons.push(this._translocoService.translate("errors.document.requires_back"));
 		}
 
 		if (this.projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported) {
@@ -973,16 +978,12 @@ export class SmartDocumentsReviewComponent {
 	}
 
 	onPreviousStep(): void {
-		// If document requires back side and back is not uploaded yet,
-		// navigate back to document upload step instead of going to previous step
 		const docValidation = this.appRegistration?.documentValidation;
-		const requiresBackAndMissing = docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage;
+		const mustRescan = isDocumentPurged(docValidation) || isBackSideMissing(docValidation);
 
-		if (requiresBackAndMissing) {
-			// Go back to document step to upload the back side
+		if (mustRescan) {
 			this._smartEnrollService.skipToStep("document");
 		} else {
-			// Normal previous step navigation
 			this._smartEnrollService.goToPreviousStep();
 		}
 	}

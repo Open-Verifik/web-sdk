@@ -136,6 +136,130 @@ export interface EnrollStore {
 export type EnrollStep = "" | "instructions" | "document" | "document-review" | "biometric" | "result";
 export type EnrollDocumentMethod = "" | "scan" | "upload";
 
+export type DocumentSide = "front" | "back";
+
+/**
+ * Client copy when a stored document image was removed and must be captured again.
+ * Wording stays source-agnostic: no storage vendor, engine, or provider names.
+ */
+export const DOCUMENT_RESCAN_REQUIRED_I18N_KEY = "errors.document.rescan_required";
+
+/**
+ * Fields the enrollee reload and the scan response use to describe stored images.
+ * `none` and `ephemeral` responses null `url` / `backUrl` even when the image was kept
+ * for the session, so those addresses are not proof that a side is missing.
+ */
+export interface DocumentImageState {
+    backUrl?: string | null;
+    hasBackImage?: boolean | null;
+    hasFrontImage?: boolean | null;
+    isPurged?: boolean | null;
+    requiresBackSide?: boolean | null;
+    retention?: {
+        mode?: string | null;
+        purgedAt?: string | Date | null;
+    } | null;
+    url?: string | null;
+}
+
+const URL_HIDDEN_RETENTION_MODES = new Set(["none", "ephemeral"]);
+
+/**
+ * True when the validation was purged and its images are no longer available.
+ * `isPurged` is the enrollee-view flag. `retention.purgedAt` covers responses that
+ * stamp the purge but omit the flag.
+ */
+export function isDocumentPurged(dv: DocumentImageState | null | undefined): boolean {
+    if (!dv) return false;
+
+    return dv.isPurged === true || hasPurgeStamp(dv.retention?.purgedAt);
+}
+
+/**
+ * Whether `side` is already captured.
+ *
+ * The enrollee flags are authoritative and do not depend on `url` / `backUrl`:
+ * - `true` means the image is stored
+ * - `false` means it is not, so a two-sided document still needs that side
+ * - a purged record has neither side
+ *
+ * When a flag is omitted, a non-empty address still counts (older `store` responses).
+ * When the address is also omitted because retention hides URLs (`none`, `ephemeral`,
+ * or `hasFrontImage` with a stripped front address), the missing flag is treated as
+ * captured. That stops a reload from sending the enrollee back to a side they already
+ * scanned. An explicit `false` still asks for the side.
+ */
+export function hasSide(dv: DocumentImageState | null | undefined, side: DocumentSide): boolean {
+    if (!dv || isDocumentPurged(dv)) return false;
+
+    const flag = side === "front" ? dv.hasFrontImage : dv.hasBackImage;
+
+    if (flag === true) return true;
+    if (flag === false) return false;
+
+    const address = side === "front" ? dv.url : dv.backUrl;
+
+    if (hasImageAddress(address)) return true;
+    if (urlsAreHidden(dv)) return true;
+
+    return false;
+}
+
+/**
+ * The document type needs a reverse image.
+ * A stored back image counts when `requiresBackSide` was not copied onto the record.
+ * An omitted `hasBackImage` does not: hidden URLs must not turn a passport into a two-sided scan.
+ */
+export function documentRequiresBackSide(dv: DocumentImageState | null | undefined, promptRequiresBack?: boolean): boolean {
+    if (promptRequiresBack) return true;
+    if (!dv) return false;
+    if (dv.requiresBackSide) return true;
+    if (dv.hasBackImage === true) return true;
+
+    return hasImageAddress(dv.backUrl);
+}
+
+/**
+ * True when this two-sided document does not yet have its reverse image.
+ * A purged record is a full re-scan, not a back-side-only gap.
+ */
+export function isBackSideMissing(dv: DocumentImageState | null | undefined): boolean {
+    if (!dv?.requiresBackSide || isDocumentPurged(dv)) return false;
+
+    return !hasSide(dv, "back");
+}
+
+/**
+ * Side to open when a scanner or uploader resumes a saved validation.
+ * A purged document and a missing front both start on the front. The back opens
+ * only when the front is already captured and the back is still required.
+ */
+export function resumeDocumentSide(dv: DocumentImageState | null | undefined, backRequired: boolean): DocumentSide {
+    if (!backRequired || isDocumentPurged(dv)) return "front";
+    if (hasSide(dv, "front") && !hasSide(dv, "back")) return "back";
+
+    return "front";
+}
+
+function hasImageAddress(url: string | null | undefined): boolean {
+    return typeof url === "string" && url.trim().length > 0;
+}
+
+function hasPurgeStamp(value: string | Date | null | undefined): boolean {
+    if (value == null) return false;
+    if (typeof value === "string") return value.trim().length > 0;
+
+    return true;
+}
+
+function urlsAreHidden(dv: DocumentImageState): boolean {
+    const mode = (dv.retention?.mode || "").toLowerCase();
+
+    if (URL_HIDDEN_RETENTION_MODES.has(mode)) return true;
+
+    return dv.hasFrontImage === true && !hasImageAddress(dv.url);
+}
+
 @Injectable({
     providedIn: "root",
 })
@@ -370,16 +494,20 @@ export class SmartEnrollService {
         this._insufficientCredits$.next();
     }
 
+    /**
+     * The document step can be left behind. A purged image or a two-sided document
+     * that is still missing its reverse side keeps the enrollee on document review.
+     */
     isDocumentValidAndComplete(projectFlow: ProjectFlow, appRegistration: AppRegistration): boolean {
         if (projectFlow.onboardingSettings?.steps?.document === "skip") return true;
 
         const docValidation = appRegistration?.documentValidation;
 
-        if (docValidation?.isPurged || docValidation?.retention?.purgedAt) return false;
+        if (isDocumentPurged(docValidation)) return false;
 
         if (!docValidation && projectFlow.onboardingSettings.steps.document === "mandatory") return false;
         if (!docValidation && !this.wasSkippedDocument()) return false;
-        if (docValidation?.requiresBackSide && !docValidation?.backUrl && !docValidation?.hasBackImage) return false;
+        if (isBackSideMissing(docValidation)) return false;
         if (projectFlow.onboardingSettings.document.verifyNames && docValidation?.infoValidationSupported && docValidation?.imageValidated && !docValidation?.namesMatch) return false;
 
         return true;
