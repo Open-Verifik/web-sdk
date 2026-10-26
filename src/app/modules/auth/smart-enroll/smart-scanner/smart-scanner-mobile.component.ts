@@ -21,7 +21,7 @@ import { ImageScan } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
 import { ErrorFace, IdCard, ResponseData } from "app/modules/demo/models/sdk.models";
 import { environment } from "environments/environment";
-import { Corrections, IOSCameraData, MediaTrackConstraintSetExtended, SmartEnrollService } from "../smart-enroll.service";
+import { Corrections, documentRequiresBackSide, hasSide, IOSCameraData, isDocumentPurged, MediaTrackConstraintSetExtended, resumeDocumentSide, SmartEnrollService } from "../smart-enroll.service";
 import { ColombianBarcodeReadinessService } from "../colombian-barcode-readiness.service";
 import { Resolution, SmartCameraResolutionDetectionComponent } from "./smart-camera-resolution-detection/smart-camera-resolution-detection.component";
 import { PasswordlessService } from "../../passwordless.service";
@@ -130,7 +130,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
 
         this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
             this.uploading = false;
-            this.requiresBack = this.appRegistration.documentValidation?.requiresBackSide || !!this.appRegistration.documentValidation?.backUrl;
+            this.requiresBack = documentRequiresBackSide(this.appRegistration.documentValidation);
         });
 
         this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe(async (isLoaded) => {
@@ -466,6 +466,8 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
         this._detectionInterval = null;
 
         this._initAppRegistrationData();
+        this.requiresBack = documentRequiresBackSide(this.appRegistration?.documentValidation);
+        this.side = resumeDocumentSide(this.appRegistration?.documentValidation, this.requiresBack);
         this.successPosition = 0;
 
         this.demoData = this._demoService.getDemoData();
@@ -860,7 +862,10 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
-        if (this.requiresBack && this.side !== "back") {
+        const docValidation = this.appRegistration?.documentValidation;
+        const backStillNeeded = this.requiresBack && !hasSide(docValidation, "back");
+
+        if (backStillNeeded && this.side !== "back") {
             this.side = "back";
             this._barcodeReadiness.reset();
             this._syncBarcodeHint();
@@ -868,7 +873,7 @@ export class SmartScannerMobileComponent implements OnInit, OnDestroy {
             this._startRecording();
 
             return;
-        } else if (this.appRegistration.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+        } else if (docValidation && !isDocumentPurged(docValidation) && !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep();
 
             return;

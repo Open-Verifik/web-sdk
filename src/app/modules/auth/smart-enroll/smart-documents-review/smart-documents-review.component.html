@@ -57,6 +57,7 @@
 					<p class="text-sm" *ngIf="errors.mandatory">{{ t("errors.document.mandatory") }}</p>
 					<p class="text-sm" *ngIf="errors.incomplete">{{ t("errors.document.incomplete") }}</p>
 					<p class="text-sm" *ngIf="errors.requiresBack">{{ t("errors.document.requires_back") }}</p>
+					<p class="text-sm" *ngIf="errors.rescanRequired">{{ t(rescanRequiredKey) }}</p>
 					<p class="text-sm" *ngIf="errors.namesDoNotMatch">{{ t("errors.document.names_do_not_match") }}</p>
 					<p class="text-sm" *ngIf="errors.extractionError">{{ errors.extractionError }}</p>
 				</div>

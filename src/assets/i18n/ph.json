@@ -280,6 +280,7 @@
 			"mandatory": "Kinakailangan ang pag-upload ng iyong dokumento upang makumpleto ang proseso ng onboarding.",
 			"names_do_not_match": "Ang isinumiteng dokumento ay tinanggihan. Pakisigurado na ang iyong dokumento ay lehitimo at ang pangalan ay eksaktong tugma.",
 			"requires_back": "Ang dokumentong iyong isinumite ay kailangang may parehong harap at likod.",
+			"rescan_required": "Nag-expire na ang pag-iimbak ng dokumento. Kailangang i-scan muli ang dokumento.",
 			"validation_not_available": "Ang beripikasyon para sa dokumentong ito ay hindi magagamit."
 		},
 		"geolocation": {

@@ -280,6 +280,7 @@
 			"mandatory": "온보딩 프로세스를 완료하려면 문서를 업로드해야 합니다.",
 			"names_do_not_match": "문서 제출이 거부되었습니다. 문서가 정당한지 확인하고 이름이 정확히 일치하는지 확인하세요.",
 			"requires_back": "제출한 문서는 양면이 필요합니다.",
+			"rescan_required": "문서 보관 기간이 만료되었습니다. 문서를 다시 스캔해야 합니다.",
 			"validation_not_available": "이 문서에 대한 검증이 불가능합니다."
 		},
 		"geolocation": {

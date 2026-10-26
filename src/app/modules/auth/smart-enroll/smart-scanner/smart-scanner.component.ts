@@ -17,7 +17,7 @@ import { KYCService } from "app/modules/auth/kyc.service";
 import { AppRegistration, ImageScan } from "app/modules/auth/project";
 import { DemoService } from "app/modules/demo/demo.service";
 import { environment } from "environments/environment";
-import { Corrections, SmartEnrollService } from "../smart-enroll.service";
+import { Corrections, documentRequiresBackSide, hasSide, isDocumentPurged, resumeDocumentSide, SmartEnrollService } from "../smart-enroll.service";
 import { ColombianBarcodeReadinessService } from "../colombian-barcode-readiness.service";
 import { PasswordlessService } from "../../passwordless.service";
 
@@ -142,7 +142,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 
 		this.successfulUpload.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
 			this.uploading = false;
-			this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
+			this.requiresBack = documentRequiresBackSide(this.appRegistration?.documentValidation);
 		});
 
 		this._demoService.faceapi$.pipe(takeUntil(this.unsubscriber$)).subscribe((isLoaded) => {
@@ -279,7 +279,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.appRegistration = this._KYCService.appRegistration;
 		this.project = this._passwordlessService.currentProject;
 		this.projectFlow = this._passwordlessService.currentProjectFlow;
-		this.requiresBack = this.appRegistration?.documentValidation?.requiresBackSide || !!this.appRegistration?.documentValidation?.backUrl;
+		this.requiresBack = documentRequiresBackSide(this.appRegistration?.documentValidation);
 
 		this._rectCredential = {};
 
@@ -299,17 +299,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 		this.errorFace = {};
 		this.faceIsValid = false;
 
-		// If front side is already uploaded and back is required but missing, start with back side
-		const docValidation = this.appRegistration?.documentValidation;
-		const frontExists = !!docValidation?.url;
-		const backRequired = this.requiresBack;
-		const backMissing = !docValidation?.backUrl;
-
-		if (frontExists && backRequired && backMissing) {
-			this.side = "back";
-		} else {
-			this.side = "front";
-		}
+		this.side = resumeDocumentSide(this.appRegistration?.documentValidation, this.requiresBack);
 
 		const IDEAL_A = 1920;
 		const IDEAL_B = 1080;
@@ -562,7 +552,10 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 	}
 
 	goNext(): void {
-		if (this.requiresBack && this.side !== "back") {
+		const docValidation = this.appRegistration?.documentValidation;
+		const backStillNeeded = this.requiresBack && !hasSide(docValidation, "back");
+
+		if (backStillNeeded && this.side !== "back") {
 			this.side = "back";
 			this._barcodeReadiness.reset();
 			this._syncBarcodeHint();
@@ -570,7 +563,7 @@ export class SmartScannerComponent implements OnInit, OnDestroy {
 			this._startCamera();
 
 			return;
-		} else if (this.appRegistration?.documentValidation && !this._smartEnrollService.wasSkippedDocument()) {
+		} else if (docValidation && !isDocumentPurged(docValidation) && !this._smartEnrollService.wasSkippedDocument()) {
 			this._smartEnrollService.goToNextStep(); // document-review
 
 			return;

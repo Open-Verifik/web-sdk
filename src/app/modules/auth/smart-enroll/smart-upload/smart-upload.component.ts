@@ -20,7 +20,7 @@ import { DemoService } from "app/modules/demo/demo.service";
 import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, ImageScan } from "../../project";
 import { ColombianBarcodeReadinessService } from "../colombian-barcode-readiness.service";
-import { SmartEnrollService } from "../smart-enroll.service";
+import { documentRequiresBackSide, hasSide, resumeDocumentSide, SmartEnrollService } from "../smart-enroll.service";
 
 const MAX_FILE_SIZE = 10485760;
 
@@ -89,15 +89,10 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
 
         this.promptTemplate = this._smartEnrollService.enrollSettings.promptTemplate;
 
-        // If front side is already uploaded and back is required but missing, start with back side
         const docValidation = this.appRegistration?.documentValidation;
-        const frontExists = !!docValidation?.url;
-        const backRequired = this.promptTemplate?.requiresBackSide || docValidation?.requiresBackSide;
-        const backMissing = !docValidation?.backUrl;
+        const backRequired = documentRequiresBackSide(docValidation, this.promptTemplate?.requiresBackSide);
 
-        if (frontExists && backRequired && backMissing) {
-            this.side = "back";
-        }
+        this.side = resumeDocumentSide(docValidation, backRequired);
     }
 
     ngOnInit(): void {
@@ -128,7 +123,7 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
         // In demo mode, we only use front side
         if (this.useDemoData) return false;
 
-        return this.promptTemplate?.requiresBackSide || this.appRegistration?.documentValidation?.requiresBackSide || false;
+        return documentRequiresBackSide(this.appRegistration?.documentValidation, this.promptTemplate?.requiresBackSide);
     }
 
     private async _detectFace(image: HTMLImageElement) {
@@ -302,14 +297,17 @@ export class SmartUploadComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.requiresBack && this.side !== "back") {
+        const docValidation = this.appRegistration?.documentValidation;
+        const backStillNeeded = this.requiresBack && !hasSide(docValidation, "back");
+
+        if (backStillNeeded && this.side !== "back") {
             this.side = "back";
             this._barcodeReadiness.reset();
             this.barcodeHint = null;
             this.resetFileUpload();
 
             return;
-        } else if (this.appRegistration?.documentValidation || !this._smartEnrollService.wasSkippedDocument()) {
+        } else if (docValidation || !this._smartEnrollService.wasSkippedDocument()) {
             this._smartEnrollService.goToNextStep(); // document-review
 
             return;

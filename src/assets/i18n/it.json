@@ -280,6 +280,7 @@
 			"mandatory": "Il caricamento del documento è necessario per completare il processo di onboarding.",
 			"names_do_not_match": "L'invio del tuo documento è stato rifiutato. Verifica che il documento sia legittimo e che il nome corrisponda esattamente.",
 			"requires_back": "Il documento che hai inviato richiede entrambi i lati.",
+			"rescan_required": "La conservazione del documento è scaduta. È necessario scansionare di nuovo il documento.",
 			"validation_not_available": "La validazione per questo documento non è disponibile."
 		},
 		"geolocation": {
