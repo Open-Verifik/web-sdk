@@ -6,6 +6,7 @@ export type VerifyScreen =
 	| "loading"
 	| "upgrade"
 	| "countryBlocked"
+	| "signup"
 	| "name"
 	| "email"
 	| "phone"
@@ -27,7 +28,7 @@ export type VerifyScreen =
 	| "submitted"
 	| "error";
 
-export type ContactScreen = "name" | "email" | "phone" | "agreements";
+export type ContactScreen = "signup";
 
 export interface VerifySettings {
 	email: boolean;
@@ -82,16 +83,11 @@ const TERMINAL = new Set(["COMPLETED", "FAILED", "COMPLETED_WITHOUT_KYC"]);
 
 export const enrollmentClientFrom = (value: unknown): EnrollmentClient => (value === "v2" ? "v2" : "legacy");
 
-export const contactScreens = (settings: VerifySettings): ContactScreen[] => {
-	const screens: ContactScreen[] = [];
-
-	if (settings.fullName || settings.firstName || settings.lastName) screens.push("name");
-	if (settings.email) screens.push("email");
-	if (settings.phone) screens.push("phone");
-	if (settings.showTerms || settings.showPrivacy) screens.push("agreements");
-
-	return screens;
-};
+/** V1 and the setup preview collect name, email, phone and terms on a single sign-up screen, so v2 does the same. */
+export const contactScreens = (settings: VerifySettings): ContactScreen[] =>
+	settings.fullName || settings.firstName || settings.lastName || settings.email || settings.phone || settings.showTerms || settings.showPrivacy
+		? ["signup"]
+		: [];
 
 export const hasContactBlock = (settings: VerifySettings): boolean => contactScreens(settings).length > 0;
 
@@ -157,7 +153,7 @@ export const progressSegments = (hasContact: boolean): Array<"contact" | "consen
 	return segments;
 };
 
-const CONTACT_SCREENS = new Set<VerifyScreen>(["name", "email", "phone", "agreements", "emailCode", "phoneCode"]);
+const CONTACT_SCREENS = new Set<VerifyScreen>(["signup", "name", "email", "phone", "agreements", "emailCode", "phoneCode"]);
 const CONSENT_SCREENS = new Set<VerifyScreen>(["consent", "decline"]);
 const DOCUMENT_SCREENS = new Set<VerifyScreen>(["handoff", "ready", "front", "reviewFront", "flip", "back", "reviewBack"]);
 const SELFIE_SCREENS = new Set<VerifyScreen>(["selfieIntro", "selfie", "retry"]);

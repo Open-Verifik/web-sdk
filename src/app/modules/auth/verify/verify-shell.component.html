@@ -54,7 +54,7 @@
 					<button type="button" class="primary" (click)="session.back()">{{ t("verify.back") }}</button>
 				</div>
 
-				<form *ngSwitchCase="'name'" class="form" (ngSubmit)="session.continueContact()">
+				<form *ngSwitchCase="'signup'" class="form" (ngSubmit)="session.continueContact()">
 					<h1>{{ t("verify.nameTitle") }}</h1>
 					<label *ngIf="session.settings?.fullName && !session.settings?.firstName">
 						{{ t("verify.fullName") }}
@@ -68,21 +68,11 @@
 						{{ t("verify.lastName") }}
 						<input [(ngModel)]="session.draft.lastName" name="lastName" autocomplete="family-name" />
 					</label>
-					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
-				</form>
-
-				<form *ngSwitchCase="'email'" class="form" (ngSubmit)="session.continueContact()">
-					<h1>{{ t("verify.emailTitle") }}</h1>
-					<label>
+					<label *ngIf="session.settings?.email">
 						{{ t("verify.emailLabel") }}
 						<input [(ngModel)]="session.draft.email" name="email" type="email" autocomplete="email" />
 					</label>
-					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
-				</form>
-
-				<form *ngSwitchCase="'phone'" class="form" (ngSubmit)="session.continueContact()">
-					<h1>{{ t("verify.phoneTitle") }}</h1>
-					<div class="phone-row">
+					<div class="phone-row" *ngIf="session.settings?.phone">
 						<select [(ngModel)]="session.draft.countryCode" name="countryCode">
 							<option *ngFor="let dial of dialCodes" [value]="dial.code">{{ dial.code }}</option>
 						</select>
@@ -92,12 +82,7 @@
 						<button type="button" [class.on]="session.draft.phoneGateway === 'sms'" (click)="session.setGateway('sms')">{{ t("verify.sms") }}</button>
 						<button type="button" [class.on]="session.draft.phoneGateway === 'whatsapp'" (click)="session.setGateway('whatsapp')">{{ t("verify.whatsapp") }}</button>
 					</div>
-					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
-				</form>
-
-				<form *ngSwitchCase="'agreements'" class="form" (ngSubmit)="session.continueContact()">
-					<h1>{{ t("verify.agreementsTitle") }}</h1>
-					<label class="check">
+					<label class="check" *ngIf="session.settings?.showTerms || session.settings?.showPrivacy">
 						<input type="checkbox" [(ngModel)]="session.draft.agreements" name="agreements" />
 						<span>
 							{{ t("verify.agreeTerms") }}

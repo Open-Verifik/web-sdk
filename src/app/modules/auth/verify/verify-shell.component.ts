@@ -97,15 +97,16 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	canContinue(): boolean {
 		const draft = this.session.draft;
 
-		if (this.session.screen === "name") {
-			if (this.session.settings?.firstName || this.session.settings?.lastName) return Boolean(draft.firstName.trim() && draft.lastName.trim());
+		if (this.session.screen === "signup") {
+			const settings = this.session.settings;
+			const named = settings?.firstName || settings?.lastName ? Boolean(draft.firstName.trim() && draft.lastName.trim()) : settings?.fullName ? Boolean(draft.fullName.trim()) : true;
+			const emailOk = !settings?.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim());
+			const phoneOk = !settings?.phone || (draft.phone.replace(/\D/g, "").length >= 6 && Boolean(draft.phoneGateway));
+			const agreed = !(settings?.showTerms || settings?.showPrivacy) || draft.agreements;
 
-			return Boolean(draft.fullName.trim());
+			return named && emailOk && phoneOk && agreed;
 		}
 
-		if (this.session.screen === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim());
-		if (this.session.screen === "phone") return draft.phone.replace(/\D/g, "").length >= 6 && Boolean(draft.phoneGateway);
-		if (this.session.screen === "agreements") return draft.agreements;
 		if (this.session.screen === "emailCode" || this.session.screen === "phoneCode") return draft.otp.replace(/\D/g, "").length === 6;
 
 		return true;

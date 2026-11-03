@@ -44,7 +44,7 @@ describe("verify-flow", () => {
 	});
 
 	it("builds contact screens from the sign-up flags", () => {
-		expect(contactScreens(settings())).toEqual(["name", "email", "phone", "agreements"]);
+		expect(contactScreens(settings())).toEqual(["signup"]);
 		expect(hasContactBlock(settings({ email: false, phone: false, fullName: false, showPrivacy: false, showTerms: false }))).toBeFalse();
 	});
 
