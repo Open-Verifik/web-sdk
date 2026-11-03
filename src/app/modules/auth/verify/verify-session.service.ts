@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
 import { catchError, Observable, of, shareReplay, Subject, switchMap, take, takeUntil } from "rxjs";
 
-import { ProjectFlow } from "app/core/classes/project-flow.class";
+import { FlowOrder, ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { AuthService } from "app/core/auth/auth.service";
@@ -74,6 +74,8 @@ export class VerifySessionService implements OnDestroy {
 	screen: VerifyScreen = "loading";
 	sheet: VerifySheet = null;
 	previewStyle: VerifyStyleId | null = null;
+	/** `?order=a|b` from the URL; wins over the order saved on the project so both can be compared. */
+	orderOverride: FlowOrder | null = null;
 	template: PromptTemplate | null = null;
 	readonly changed = new Subject<void>();
 	readonly selfieDone$ = new Subject<void>();
@@ -117,6 +119,10 @@ export class VerifySessionService implements OnDestroy {
 		return this.projectFlow ? settingsFromFlow(this.projectFlow) : null;
 	}
 
+	get flowOrder(): FlowOrder {
+		return this.orderOverride || this.projectFlow?.flowOrder || "contact_first";
+	}
+
 	get showHeader(): boolean {
 		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "countryBlocked";
 	}
@@ -126,6 +132,7 @@ export class VerifySessionService implements OnDestroy {
 
 		if (this._token) params.set("token", this._token);
 		if (this.previewStyle) params.set("style", this.previewStyle);
+		if (this.orderOverride) params.set("order", this.orderOverride === "consent_first" ? "b" : "a");
 
 		const query = params.toString();
 
@@ -248,6 +255,13 @@ export class VerifySessionService implements OnDestroy {
 		this._agreed = true;
 
 		if (!this.registration) {
+			const screens = this.settings ? contactScreens(this.settings) : [];
+
+			if (this.flowOrder === "consent_first" && screens.length) {
+				this._push(screens[0]);
+				return;
+			}
+
 			this._createRegistration();
 			return;
 		}
@@ -520,7 +534,7 @@ export class VerifySessionService implements OnDestroy {
 
 		this._seedPhoneGateway();
 		this.history = [];
-		this.screen = screens[0] || "consent";
+		this.screen = this.flowOrder === "consent_first" ? "consent" : screens[0] || "consent";
 		this._touch();
 	}
 

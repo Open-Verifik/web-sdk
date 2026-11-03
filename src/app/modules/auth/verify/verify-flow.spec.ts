@@ -1,3 +1,4 @@
+import { flowOrderFrom, flowOrderFromQuery } from "app/core/classes/project-flow.class";
 import {
 	attemptsRemaining,
 	cameraStepsAhead,
@@ -155,5 +156,13 @@ describe("verify-flow", () => {
 		expect(progressIndex("submitted", true)).toBe(progressSegments(true).length - 1);
 		expect(cameraStepsAhead(settings({ document: "skip", liveness: "skip" }))).toBeFalse();
 		expect(attemptsRemaining(3, 3)).toBe(0);
+	});
+
+	it("reads the flow order from the saved project or the ?order query", () => {
+		expect(flowOrderFrom({ onboardingSettings: { flowOrder: "consent_first" } })).toBe("consent_first");
+		expect(flowOrderFrom({ onboardingSettings: { flowOrder: "nope" } })).toBeUndefined();
+		expect(flowOrderFromQuery("a")).toBe("contact_first");
+		expect(flowOrderFromQuery("B")).toBe("consent_first");
+		expect(flowOrderFromQuery("x")).toBeUndefined();
 	});
 });

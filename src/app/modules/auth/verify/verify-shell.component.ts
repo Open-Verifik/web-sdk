@@ -12,6 +12,7 @@ import { SmartLivenessComponent } from "app/modules/auth/smart-enroll/smart-live
 import { VerifyCameraComponent } from "./verify-camera.component";
 import { VerifySessionService } from "./verify-session.service";
 import { hasContactBlock, progressIndex, progressSegments } from "./verify-flow";
+import { flowOrderFromQuery } from "app/core/classes/project-flow.class";
 import { parseVerifyStyle, resolveVerifyStyle, VERIFY_FONT_HREF, VerifyStyleId } from "./verify-style";
 
 @Component({
@@ -53,6 +54,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 			.subscribe(([params, query]) => {
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);
+				this.session.orderOverride = flowOrderFromQuery(query.get("order")) || null;
 				this._applyStyle();
 				this.session.open(params.get("projectId") || "", query.get("token") || undefined);
 			});
