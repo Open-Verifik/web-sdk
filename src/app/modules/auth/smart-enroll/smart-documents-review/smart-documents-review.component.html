@@ -3,7 +3,53 @@
 		<!-- Card Container -->
 		<div class="w-full max-w-[480px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mt-4 mb-4 md:my-auto">
 
-			<!-- Header with Logo + Title -->
+			<!-- Brief Waiting State Indicator (1.5-2s) -->
+			<div *ngIf="isBriefWaitingVisible" class="flex flex-col items-center justify-center p-8 py-16 text-center">
+				<div class="mb-4">
+					<ng-container *ngIf="project.branding.logo; else defaultLogo">
+						<img class="h-12 w-auto object-contain" [src]="project.branding.logo" alt="Logo" />
+					</ng-container>
+
+					<ng-template #defaultLogo>
+						<div
+							class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+							[style.background-color]="project.branding.buttonColor || '#2563eb'"
+						>
+							<mat-icon
+								class="!w-6 !h-6"
+								[style.color]="project.branding.buttonTextColor || '#ffffff'"
+								svgIcon="heroicons_outline:shield-check"
+							></mat-icon>
+						</div>
+					</ng-template>
+				</div>
+
+				<div
+					class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-sm"
+					[style.background-color]="(project?.branding?.buttonColor || '#2563eb') + '15'"
+				>
+					<mat-spinner
+						diameter="28"
+						strokeWidth="3"
+						[style.color]="project?.branding?.buttonColor || '#2563eb'"
+					></mat-spinner>
+				</div>
+				<h3
+					class="text-lg font-bold mb-2"
+					[style.color]="project?.branding?.titleColor || '#111827'"
+				>
+					{{ t("smart_enroll.documents.background_check_initiated") }}
+				</h3>
+				<p
+					class="text-sm max-w-xs mb-0"
+					[style.color]="project?.branding?.textColor || '#6B7280'"
+				>
+					{{ t("smart_enroll.documents.background_check_running_background") }}
+				</p>
+			</div>
+
+			<ng-container *ngIf="!isBriefWaitingVisible">
+				<!-- Header with Logo + Title -->
 			<div class="flex flex-col items-center pt-6 pb-4 px-5 bg-gradient-to-b from-gray-50/80 to-white">
 				<div class="mb-4">
 					<ng-container *ngIf="project.branding.logo; else defaultLogo">
@@ -184,53 +230,7 @@
 								</div>
 							</div>
 
-							<!-- Criminal Validation -->
-							<div
-								class="flex items-center gap-3 p-3 transition-all duration-200"
-								*ngIf="verifyCriminalHistoryEnabled"
-								[class.border-b]="
-									verifyCriminalHistoryEnabled ||
-									zeroKnowledgeProofEnabled ||
-									(appRegistration?.biometricValidation && appRegistration?.documentValidation)
-								"
-								[style.border-color]="project?.branding?.borderColor || '#E5E7EB'"
-							>
-								<div class="flex-shrink-0">
-									<div
-										class="w-8 h-8 rounded-full flex items-center justify-center"
-										[class.animate-pulse]="loading.criminalValidation"
-										[style.background-color]="
-											loading.criminalValidation ? (project?.branding?.buttonColor || '#3B82F6') + '20' : '#10B98120'
-										"
-									>
-										<mat-spinner
-											*ngIf="loading.criminalValidation"
-											diameter="18"
-											strokeWidth="2"
-											[style.color]="project?.branding?.buttonColor || '#3B82F6'"
-										></mat-spinner>
-										<mat-icon *ngIf="!loading.criminalValidation" class="text-green-600 !text-base !w-4 !h-4">check_circle</mat-icon>
-									</div>
-								</div>
-								<div class="flex-grow min-w-0">
-									<h5
-										class="font-medium text-sm mb-0.5"
-										[style.color]="project?.branding?.titleColor || '#111827'"
-									>
-										{{ t("smart_enroll.documents.criminal_validation_title") }}
-									</h5>
-									<p class="text-xs" [style.color]="project?.branding?.textColor || '#6B7280'">
-										<span *ngIf="loading.criminalValidation">
-											{{ validationMessages['criminalValidation'] || t("smart_enroll.documents.running_background_check") }}
-										</span>
-										<span *ngIf="!loading.criminalValidation" class="text-green-600">
-											{{ t("smart_enroll.documents.background_check_complete") }}
-										</span>
-									</p>
-								</div>
-							</div>
-
-							<!-- Document Criminal Validation -->
+							<!-- Non-Blocking Background Check Indicator -->
 							<div
 								class="flex items-center gap-3 p-3 transition-all duration-200"
 								*ngIf="verifyCriminalHistoryEnabled"
@@ -242,18 +242,17 @@
 								<div class="flex-shrink-0">
 									<div
 										class="w-8 h-8 rounded-full flex items-center justify-center"
-										[class.animate-pulse]="loading.documentCriminalValidation"
 										[style.background-color]="
-											loading.documentCriminalValidation ? (project?.branding?.buttonColor || '#3B82F6') + '20' : '#10B98120'
+											backgroundCheckRunning ? (project?.branding?.buttonColor || '#3B82F6') + '20' : '#10B98120'
 										"
 									>
 										<mat-spinner
-											*ngIf="loading.documentCriminalValidation"
-											diameter="18"
+											*ngIf="backgroundCheckRunning"
+											diameter="16"
 											strokeWidth="2"
 											[style.color]="project?.branding?.buttonColor || '#3B82F6'"
 										></mat-spinner>
-										<mat-icon *ngIf="!loading.documentCriminalValidation" class="text-green-600 !text-base !w-4 !h-4">check_circle</mat-icon>
+										<mat-icon *ngIf="!backgroundCheckRunning" class="text-green-600 !text-base !w-4 !h-4">check_circle</mat-icon>
 									</div>
 								</div>
 								<div class="flex-grow min-w-0">
@@ -261,14 +260,14 @@
 										class="font-medium text-sm mb-0.5"
 										[style.color]="project?.branding?.titleColor || '#111827'"
 									>
-										{{ t("smart_enroll.documents.document_criminal_validation_title") }}
+										{{ t("smart_enroll.documents.background_check_title") }}
 									</h5>
-									<p class="text-xs" [style.color]="project?.branding?.textColor || '#6B7280'">
-										<span *ngIf="loading.documentCriminalValidation">
-											{{ validationMessages['documentCriminalValidation'] || t("smart_enroll.documents.running_document_background_check") }}
+									<p class="text-xs mb-0" [style.color]="project?.branding?.textColor || '#6B7280'">
+										<span *ngIf="backgroundCheckRunning">
+											{{ t("smart_enroll.documents.background_check_running_background") }}
 										</span>
-										<span *ngIf="!loading.documentCriminalValidation" class="text-green-600">
-											{{ t("smart_enroll.documents.document_background_check_complete") }}
+										<span *ngIf="!backgroundCheckRunning" class="text-green-600">
+											{{ t("smart_enroll.documents.background_check_complete") }}
 										</span>
 									</p>
 								</div>
@@ -494,6 +493,7 @@
 					<span>{{ t("continue") }}</span>
 				</button>
 			</div>
+			</ng-container>
 
 		</div>
 	</div>

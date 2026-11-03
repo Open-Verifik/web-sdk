@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -80,7 +80,7 @@ type DocumentCriminalValidationResponse = {
 	styleUrls: ["../smart-enroll.component.scss", "../../sign-up/sign-up.component.scss"],
 	templateUrl: "./smart-documents-review.component.html",
 })
-export class SmartDocumentsReviewComponent {
+export class SmartDocumentsReviewComponent implements OnDestroy {
 	appRegistration: AppRegistration;
 	errors: any = {};
 	isVerifikProject: boolean = false;
@@ -88,6 +88,9 @@ export class SmartDocumentsReviewComponent {
 	projectFlow: ProjectFlow;
 	showErrors: boolean = false;
 	ocrKeys: Array<string> = [];
+
+	isBriefWaitingVisible: boolean = false;
+	private _waitingTimeout?: ReturnType<typeof setTimeout>;
 
 	ORDER_OCR_BY: { [key: string]: number } = {
 		address: 15,
@@ -109,10 +112,8 @@ export class SmartDocumentsReviewComponent {
 
 	loading: { [key: string]: boolean } = {
 		compareValidation: true,
-		criminalValidation: true,
 		nameValidation: true,
 		zkProofValidation: true,
-		documentCriminalValidation: true,
 	};
 
 	validationStartTimes: { [key: string]: number } = {};
@@ -151,24 +152,41 @@ export class SmartDocumentsReviewComponent {
 		if (docValidation?.imageValidated) {
 			this.loading.nameValidation = false;
 		}
-		if (this.appRegistration?.informationValidation?.criminalData) {
-			this.loading.criminalValidation = false;
-		}
 		if (this.appRegistration?.compareFaceVerification) {
 			this.loading.compareValidation = false;
 		}
 		if (docValidation?.zelfKey) {
 			this.loading.zkProofValidation = false;
 		}
-		if (docValidation?.criminalData) {
-			this.loading.documentCriminalValidation = false;
-		}
 
 		this._cleanOCR(this.appRegistration.documentValidation.OCRExtraction);
 
 		this._setErrors();
 
+		const hasCompletedBackgroundChecks = Boolean(
+			this.appRegistration?.informationValidation?.criminalData &&
+			this.appRegistration?.documentValidation?.criminalData
+		);
+
+		if (this.verifyCriminalHistoryEnabled && !hasCompletedBackgroundChecks) {
+			this.isBriefWaitingVisible = true;
+			this._waitingTimeout = setTimeout(() => {
+				this.isBriefWaitingVisible = false;
+			}, 1800);
+		} else {
+			this.isBriefWaitingVisible = false;
+		}
+
 		this._sendDocumentValidationAndNameValidation();
+	}
+
+	ngOnDestroy(): void {
+		if (this._waitingTimeout) {
+			clearTimeout(this._waitingTimeout);
+		}
+		Object.keys(this.validationMessageIntervals).forEach((key) => {
+			this._clearProgressiveFeedback(key);
+		});
 	}
 
 	get hasErrors(): boolean {
@@ -176,7 +194,21 @@ export class SmartDocumentsReviewComponent {
 	}
 
 	get validationsInProgress(): boolean {
-		return Object.values(this.loading).includes(true);
+		return Boolean(
+			this.loading.nameValidation ||
+			(this.appRegistration.biometricValidation && this.loading.compareValidation) ||
+			(this.zeroKnowledgeProofEnabled && this.loading.zkProofValidation)
+		);
+	}
+
+	get backgroundCheckRunning(): boolean {
+		const progress = this._KYCService.backgroundCheckProgress;
+		if (progress?.status === "running") return true;
+		if (progress?.status === "completed" || progress?.status === "error") return false;
+		return Boolean(
+			this.verifyCriminalHistoryEnabled &&
+			(!this.appRegistration?.informationValidation?.criminalData || !this.appRegistration?.documentValidation?.criminalData)
+		);
 	}
 
 	get verifyNamesEnabled(): boolean {
@@ -394,7 +426,6 @@ export class SmartDocumentsReviewComponent {
 						() =>
 							this._KYCService.updateDocumentValidationNameValidation({
 								_id: this.appRegistration.documentValidation._id,
-								force: true,
 							}),
 						validationResults,
 						validationErrors,
@@ -405,44 +436,9 @@ export class SmartDocumentsReviewComponent {
 				break;
 
 			case "criminalValidation":
-				const informationValidationId =
-					!this.appRegistration.informationValidation
-						? null
-						: typeof this.appRegistration.informationValidation === "string"
-							? this.appRegistration.informationValidation
-							: this.appRegistration.informationValidation?._id;
-
-				if (informationValidationId) {
-					this._executeValidationRequest(
-						"criminalValidation",
-						() =>
-							this._KYCService.updateInformationValidationWithCriminalRecords({
-								_id: informationValidationId,
-								force: true,
-							}),
-						validationResults,
-						validationErrors,
-						completedValidations,
-						checkAllCompleted
-					);
-				}
-				break;
-
 			case "documentCriminalValidation":
-				if (this.appRegistration.documentValidation?._id) {
-					this._executeValidationRequest(
-						"documentCriminalValidation",
-						() =>
-							this._KYCService.updateDocumentValidationWithCriminalRecords({
-								_id: this.appRegistration.documentValidation._id,
-								force: true,
-							}),
-						validationResults,
-						validationErrors,
-						completedValidations,
-						checkAllCompleted
-					);
-				}
+				this._KYCService.dispatchBackgroundChecks();
+				this.retryingValidations[validationType] = false;
 				break;
 
 			case "compareValidation":
@@ -478,10 +474,8 @@ export class SmartDocumentsReviewComponent {
 
 	private _handleError(exception: any): void {
 		this.loading.compareValidation = false;
-		this.loading.criminalValidation = false;
 		this.loading.nameValidation = false;
 		this.loading.zkProofValidation = false;
-		this.loading.documentCriminalValidation = false;
 
 		if (exception?.error?.code === "PaymentRequired") {
 			this._smartEnrollService.insufficientCreditsTrigger();
@@ -572,16 +566,19 @@ export class SmartDocumentsReviewComponent {
 	private _sendDocumentValidationAndNameValidation(): void {
 		if (this.errors && Object.keys(this.errors).length > 0) return;
 
+		// Dispatch background checks asynchronously if enabled
+		if (this.verifyCriminalHistoryEnabled) {
+			this._KYCService.dispatchBackgroundChecks();
+		}
+
 		const completedValidations = new Set<string>();
 		const validationResults: Partial<CombinedValidationResponse> = {};
 		const validationErrors: any[] = [];
 
 		const totalValidations = [
-			this.verifyNamesEnabled ? "nameValidation" : null,
-			this.verifyCriminalHistoryEnabled && !this.appRegistration?.informationValidation?.criminalData ? "criminalValidation" : null,
+			this.verifyNamesEnabled && !this.appRegistration.documentValidation?.imageValidated ? "nameValidation" : null,
 			this.appRegistration.biometricValidation ? "compareValidation" : null,
 			this.zeroKnowledgeProofEnabled && !this.appRegistration.documentValidation?.zelfKey ? "zkProofValidation" : null,
-			this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData ? "documentCriminalValidation" : null,
 		].filter(Boolean);
 
 		const checkAllCompleted = () => {
@@ -603,7 +600,6 @@ export class SmartDocumentsReviewComponent {
 					() =>
 						this._KYCService.updateDocumentValidationNameValidation({
 							_id: this.appRegistration.documentValidation._id,
-							force: true,
 						}),
 					validationResults,
 					validationErrors,
@@ -617,89 +613,6 @@ export class SmartDocumentsReviewComponent {
 			}
 		} else {
 			this.loading.nameValidation = false;
-		}
-
-		// Criminal Validation
-		if (this.verifyCriminalHistoryEnabled && !this.appRegistration?.informationValidation?.criminalData) {
-			// Check if informationValidation exists and has an _id before proceeding
-			const informationValidationId =
-				!this.appRegistration.informationValidation
-					? null
-					: typeof this.appRegistration.informationValidation === "string"
-						? this.appRegistration.informationValidation
-						: this.appRegistration.informationValidation?._id;
-
-			if (informationValidationId) {
-				this._executeValidationRequest(
-					"criminalValidation",
-					() =>
-						this._KYCService.updateInformationValidationWithCriminalRecords({
-							_id: informationValidationId,
-							force: environment.production,
-						}),
-					validationResults,
-					validationErrors,
-					completedValidations,
-					() => {
-						// Chain document criminal validation after information validation
-						if (this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData) {
-							// Check if documentValidation exists before accessing _id
-							if (this.appRegistration.documentValidation?._id) {
-								this._executeValidationRequest(
-									"documentCriminalValidation",
-									() =>
-										this._KYCService.updateDocumentValidationWithCriminalRecords({
-											_id: this.appRegistration.documentValidation._id,
-											force: environment.production,
-										}),
-									validationResults,
-									validationErrors,
-									completedValidations,
-									checkAllCompleted
-								);
-							} else {
-								this.loading.documentCriminalValidation = false;
-								completedValidations.add("documentCriminalValidation");
-								checkAllCompleted();
-							}
-						} else {
-							checkAllCompleted();
-						}
-					}
-				);
-			} else {
-				// If informationValidation doesn't exist, skip criminal validation
-				this.loading.criminalValidation = false;
-				completedValidations.add("criminalValidation");
-				// Still check for document criminal validation
-				if (this.verifyCriminalHistoryEnabled && !this.appRegistration.documentValidation?.criminalData) {
-					if (this.appRegistration.documentValidation?._id) {
-						this._executeValidationRequest(
-							"documentCriminalValidation",
-							() =>
-								this._KYCService.updateDocumentValidationWithCriminalRecords({
-									_id: this.appRegistration.documentValidation._id,
-									force: environment.production,
-								}),
-							validationResults,
-							validationErrors,
-							completedValidations,
-							checkAllCompleted
-						);
-					} else {
-						this.loading.documentCriminalValidation = false;
-						completedValidations.add("documentCriminalValidation");
-						checkAllCompleted();
-					}
-				} else {
-					this.loading.documentCriminalValidation = false;
-					completedValidations.add("documentCriminalValidation");
-					checkAllCompleted();
-				}
-			}
-		} else {
-			this.loading.criminalValidation = false;
-			this.loading.documentCriminalValidation = false;
 		}
 
 		// Face Comparison Validation
