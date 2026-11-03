@@ -4,6 +4,16 @@
 		[class.compact]="session.compact"
 		[ngClass]="'style-' + styleId"
 		[attr.data-style]="styleId"
+		[style.--style-cta]="session.project?.branding?.buttonColor || null"
+		[style.--accent]="session.project?.branding?.buttonColor || null"
+		[style.--style-cta-text]="session.project?.branding?.buttonTextColor || null"
+		[style.--accent-text]="session.project?.branding?.buttonTextColor || null"
+		[style.--title]="session.project?.branding?.titleColor || null"
+		[style.--style-ink]="session.project?.branding?.titleColor || null"
+		[style.--body]="session.project?.branding?.textColor || null"
+		[style.--style-body]="session.project?.branding?.textColor || null"
+		[style.--style-page]="session.project?.branding?.backgroundColor || null"
+		[style.--style-page-mobile]="session.project?.branding?.backgroundColor || null"
 	>
 		<section class="card" [class.dimmed]="session.sheet">
 			<header class="top" *ngIf="session.showHeader">
@@ -11,9 +21,10 @@
 					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" /></svg>
 				</button>
 				<div class="brand">
-					<img *ngIf="session.project?.branding?.logo" [src]="session.project?.branding?.logo" alt="" />
-					<img src="assets/images/logo/logo.svg" alt="Verifik" />
-					<span>{{ session.project?.name }}</span>
+					<img *ngIf="session.project?.branding?.logo; else brandNameTpl" [src]="session.project?.branding?.logo" [alt]="session.project?.name || ''" />
+					<ng-template #brandNameTpl>
+						<span>{{ session.project?.name }}</span>
+					</ng-template>
 				</div>
 			</header>
 			<div class="progress" *ngIf="session.showHeader">
@@ -118,7 +129,6 @@
 				</form>
 
 				<div *ngSwitchCase="'consent'" class="center">
-					<p class="merchant">{{ t("verify.worksWith", { project: session.project?.name }) }}</p>
 					<h1>{{ t("verify.consentTitle") }}</h1>
 					<ul class="rows">
 						<li>{{ t("verify.consentRow1") }} <button type="button" class="link inline" (click)="session.openSheet('acceptedIds')">{{ t("verify.photoId") }}</button></li>

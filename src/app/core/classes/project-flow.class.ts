@@ -123,6 +123,7 @@ export class ProjectFlow {
 				searchMode: liveness?.searchMode || "FAST",
 			},
 			enrollmentClient: this.enrollmentClient,
+			verifyStyle: this.verifyStyle,
 			signUpForm: {
 				email: signUpForm?.email || false,
 				emailGateway: signUpForm?.emailGateway || "none",
@@ -422,20 +423,35 @@ export class ProjectFlow {
 	}
 }
 
-const enrollmentClientFrom = (data: object): "legacy" | "v2" | undefined => {
-	const value = (data as { onboardingSettings?: { enrollmentClient?: string } })?.onboardingSettings?.enrollmentClient;
+export const enrollmentClientFrom = (data: unknown): "legacy" | "v2" | undefined => {
+	const nested = (data as { onboardingSettings?: { enrollmentClient?: string } })?.onboardingSettings?.enrollmentClient;
+	if (nested === "v2" || nested === "legacy") return nested;
 
-	if (value === "v2" || value === "legacy") return value;
+	const root = (data as { enrollmentClient?: string })?.enrollmentClient;
+	if (root === "v2" || root === "legacy") return root;
 
 	return undefined;
 };
 
-const VERIFY_STYLE_IDS = ["a", "b", "c", "d", "e", "f"] as const;
+export const VERIFY_STYLE_IDS = ["a", "b", "c", "d", "e", "f"] as const;
 
-const verifyStyleFrom = (data: object): (typeof VERIFY_STYLE_IDS)[number] | undefined => {
-	const value = String((data as { onboardingSettings?: { verifyStyle?: string } })?.onboardingSettings?.verifyStyle || "")
+export const verifyStyleFrom = (data: unknown): (typeof VERIFY_STYLE_IDS)[number] | undefined => {
+	const nested = String(
+		(data as { onboardingSettings?: { verifyStyle?: unknown } })?.onboardingSettings?.verifyStyle ?? ""
+	)
 		.trim()
 		.toLowerCase();
+	if ((VERIFY_STYLE_IDS as readonly string[]).includes(nested)) {
+		return nested as (typeof VERIFY_STYLE_IDS)[number];
+	}
 
-	return (VERIFY_STYLE_IDS as readonly string[]).includes(value) ? (value as (typeof VERIFY_STYLE_IDS)[number]) : undefined;
+	const root = String((data as { verifyStyle?: unknown })?.verifyStyle ?? "")
+		.trim()
+		.toLowerCase();
+	if ((VERIFY_STYLE_IDS as readonly string[]).includes(root)) {
+		return root as (typeof VERIFY_STYLE_IDS)[number];
+	}
+
+	return undefined;
 };
+

@@ -5,6 +5,23 @@ export interface VerifyStyle {
 	variables: Record<string, string>;
 }
 
+export interface VerifyStyleColorDefaults {
+	backgroundColor: string;
+	buttonColor: string;
+	buttonTextColor: string;
+	textColor: string;
+	titleColor: string;
+}
+
+export const VERIFY_STYLE_COLOR_DEFAULTS: Record<VerifyStyleId, VerifyStyleColorDefaults> = {
+	a: { buttonColor: "#9fe870", buttonTextColor: "#163300", titleColor: "#0e0f0c", textColor: "#454745", backgroundColor: "#e8ebe6" },
+	b: { buttonColor: "#000000", buttonTextColor: "#ffffff", titleColor: "#000000", textColor: "#444444", backgroundColor: "#e5e5e5" },
+	c: { buttonColor: "#0d111b", buttonTextColor: "#ffffff", titleColor: "#1e1e1e", textColor: "#666666", backgroundColor: "#ffffff" },
+	d: { buttonColor: "#1c6cff", buttonTextColor: "#ffffff", titleColor: "#ffffff", textColor: "#ccced0", backgroundColor: "#000814" },
+	e: { buttonColor: "#ffffff", buttonTextColor: "#151581", titleColor: "#151581", textColor: "#292824", backgroundColor: "#f6f6fa" },
+	f: { buttonColor: "#adff02", buttonTextColor: "#000000", titleColor: "#000000", textColor: "#6e6e6e", backgroundColor: "#f2f2f2" },
+};
+
 const INTER = '"Inter", sans-serif';
 const BARLOW = '"Barlow Condensed", "Arial Narrow", sans-serif';
 const MONO = '"IBM Plex Mono", ui-monospace, monospace';
