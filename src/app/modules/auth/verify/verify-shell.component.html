@@ -17,7 +17,7 @@
 	>
 		<section class="card" [class.dimmed]="session.sheet">
 			<header class="top" *ngIf="session.showHeader">
-				<button type="button" class="back" (click)="session.back()" [attr.aria-label]="t('verify.back')">
+				<button type="button" class="back" *ngIf="session.history.length > 0 || session.sheet" (click)="session.back()" [attr.aria-label]="t('verify.back')">
 					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" /></svg>
 				</button>
 				<div class="brand">

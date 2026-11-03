@@ -118,7 +118,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	get showHeader(): boolean {
-		return this.history.length > 0 && this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "countryBlocked";
+		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "countryBlocked";
 	}
 
 	get sessionUrl(): string {
