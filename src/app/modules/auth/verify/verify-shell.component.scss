@@ -1088,3 +1088,39 @@ a,
 	/* dims everything outside the frame so the eye lands on where the ID goes */
 	box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.28);
 }
+
+/* Live scan feedback: neutral while searching, amber when something needs fixing, green when the shot is coming */
+.capture .pill.scanning svg {
+	animation: scan-pulse 1.2s ease-in-out infinite;
+}
+
+.capture .pill.warn {
+	background: #8a4b00;
+	color: #fff;
+}
+
+.capture .pill.ok {
+	background: #0f7a35;
+	color: #fff;
+}
+
+.capture .guide.ready::before {
+	border-style: solid;
+	border-color: #3bf65f;
+}
+
+@keyframes scan-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.35;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.capture .pill.scanning svg {
+		animation: none;
+	}
+}

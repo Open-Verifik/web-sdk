@@ -7,6 +7,7 @@ import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { ImageScan } from "app/modules/auth/project";
 import { ColombianBarcodeReadinessService } from "app/modules/auth/smart-enroll/colombian-barcode-readiness.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { HINT_KEYS, ScanState, ScanVerdict, guideRect, judgeBack, judgeFront, laplacianVariance, luminanceVariance, Rect } from "./verify-scan";
 
 @Component({
 	selector: "verify-camera",
@@ -28,11 +29,19 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 	@ViewChild("still") stillRef: ElementRef<HTMLCanvasElement>;
 	@ViewChild("faceCard") faceCardRef: ElementRef<HTMLCanvasElement>;
 
+	/** What the auto scan sees right now. The shell shows `hintKey` and colours the frame from `state`. */
+	state: ScanState = "starting";
+	hintKey = HINT_KEYS.starting;
+	/** True while the frame is good and we are counting frames before the shot. */
 	framed = false;
 
 	private _alive = true;
 	private _capturing = false;
+	private _detecting = false;
 	private _hits = 0;
+	private _misses = 0;
+	private _crop: HTMLCanvasElement | null = null;
+	private _probe: HTMLCanvasElement | null = null;
 	private _stream: MediaStream | null = null;
 	private _timer: ReturnType<typeof setInterval> | null = null;
 	private readonly _destroy$ = new Subject<void>();
@@ -93,43 +102,98 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 	}
 
 	private async _watch(): Promise<void> {
-		if (!this._alive || this._capturing || this.mode !== "auto") return;
-
-		const ready = await this._frameIsReady();
-
 		if (!this._alive || this._capturing) return;
 
-		this.framed = ready;
-		this._hits = ready ? this._hits + 1 : 0;
+		if (this.mode !== "auto") {
+			this._show({ state: "manual", hintKey: HINT_KEYS.manual, ready: false });
+			this._hits = 0;
+			return;
+		}
 
-		if (this._hits >= 3) void this._capture("CAMERA");
+		// The interval keeps ticking while a detection runs; never stack them.
+		if (this._detecting) return;
+
+		this._detecting = true;
+
+		try {
+			const result = await this._judge();
+
+			if (!this._alive || this._capturing) return;
+
+			this._show(result);
+			this._hits = result.ready ? this._hits + 1 : 0;
+
+			if (this._hits >= 3) void this._capture("CAMERA");
+		} finally {
+			this._detecting = false;
+		}
 	}
 
-	private async _frameIsReady(): Promise<boolean> {
+	private _show(result: ScanVerdict): void {
+		this.state = result.state;
+		this.hintKey = result.hintKey;
+		this.framed = result.ready;
+	}
+
+	private async _judge(): Promise<ScanVerdict> {
 		const canvas = this._drawStill();
 
-		if (!canvas) return false;
-		if (this.side === "front") return this._frontIsReady(canvas);
+		if (!canvas) return { state: "starting", hintKey: HINT_KEYS.starting, ready: false };
+
+		const guide = guideRect(canvas.width, canvas.height);
+		const region = this._regionStats(canvas, guide);
+
+		if (this.side === "front") {
+			const faces = await this._detectFaces(canvas, guide);
+
+			this._misses = faces && !faces.length ? this._misses + 1 : 0;
+
+			return judgeFront({ faces, guide, missesInARow: this._misses, region });
+		}
 
 		if (this.checkBarcode && this._barcode.shouldCheck({ promptTemplate: this.promptTemplate, side: "back" })) {
 			await this._barcode.sampleCanvas(canvas);
-			return this._barcode.ready;
+
+			if (this._barcode.ready) return { state: "steady", hintKey: HINT_KEYS.steady, ready: true };
+
+			return { state: "back", hintKey: this._barcode.hintKey || HINT_KEYS.back, ready: false };
 		}
 
-		return this._contrast(canvas) > 350;
+		return judgeBack(region);
 	}
 
-	private async _frontIsReady(canvas: HTMLCanvasElement): Promise<boolean> {
+	/**
+	 * Face boxes in video pixels, or `null` when the face model could not run.
+	 *
+	 * The detector shrinks whatever it gets to ~416px. The photo on an ID is small, so on a full 1280px frame it shrank to
+	 * a few pixels and was never found. Looking only at the area around the guide keeps it large enough to detect.
+	 */
+	private async _detectFaces(canvas: HTMLCanvasElement, guide: Rect): Promise<Rect[] | null> {
+		const margin = 0.08;
+		const x = Math.max(0, guide.x - guide.width * margin);
+		const y = Math.max(0, guide.y - guide.height * margin);
+		const width = Math.min(canvas.width - x, guide.width * (1 + margin * 2));
+		const height = Math.min(canvas.height - y, guide.height * (1 + margin * 2));
+		const scale = 512 / width;
+		const crop = this._crop || (this._crop = document.createElement("canvas"));
+
+		crop.width = 512;
+		crop.height = Math.max(1, Math.round(height * scale));
+		crop.getContext("2d")?.drawImage(canvas, x, y, width, height, 0, 0, crop.width, crop.height);
+
 		try {
-			const detections = await faceapi.detectAllFaces(canvas, this._demo.faceEngine);
-			const face = this._demo.findBiggestFace(detections);
+			const detections = await faceapi.detectAllFaces(crop, this._demo.faceEngine);
 
-			if (face?.alignedRect?.box?.width > 36) return true;
+			// Plain detections carry `box`; only landmark results add `alignedRect`. Reading `alignedRect` alone made every
+			// frame look empty, so auto capture never fired.
+			return detections.map((detection: any) => {
+				const box = detection.alignedRect?.box || detection.box;
+
+				return { x: x + box.x / scale, y: y + box.y / scale, width: box.width / scale, height: box.height / scale };
+			});
 		} catch {
-			return this._contrast(canvas) > 350;
+			return null;
 		}
-
-		return false;
 	}
 
 	private async _capture(inputMethod: ImageScan["inputMethod"]): Promise<void> {
@@ -210,31 +274,31 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 		return canvas;
 	}
 
-	private _contrast(canvas: HTMLCanvasElement): number {
-		const context = canvas.getContext("2d", { willReadFrequently: true });
+	/** Contrast and sharpness of the pixels inside the guide, measured on a small copy to stay cheap. */
+	private _regionStats(canvas: HTMLCanvasElement, guide: Rect): { contrast: number; sharpness: number } {
+		const width = 160;
+		const height = Math.max(1, Math.round((width * guide.height) / guide.width));
+		const probe = this._probe || (this._probe = document.createElement("canvas"));
 
-		if (!context) return 0;
+		probe.width = width;
+		probe.height = height;
 
-		const width = Math.floor(canvas.width * 0.6);
-		const height = Math.floor(canvas.height * 0.5);
-		const data = context.getImageData(Math.floor(canvas.width * 0.2), Math.floor(canvas.height * 0.25), width, height).data;
-		let sum = 0;
-		let sumSq = 0;
-		let count = 0;
+		const context = probe.getContext("2d", { willReadFrequently: true });
 
-		for (let index = 0; index < data.length; index += 16) {
-			const luminance = data[index] * 0.3 + data[index + 1] * 0.59 + data[index + 2] * 0.11;
+		if (!context) return { contrast: 0, sharpness: 0 };
 
-			sum += luminance;
-			sumSq += luminance * luminance;
-			count += 1;
+		context.drawImage(canvas, guide.x, guide.y, guide.width, guide.height, 0, 0, width, height);
+
+		const { data } = context.getImageData(0, 0, width, height);
+		const luminance = new Float32Array(width * height);
+
+		for (let index = 0; index < luminance.length; index += 1) {
+			const offset = index * 4;
+
+			luminance[index] = data[offset] * 0.3 + data[offset + 1] * 0.59 + data[offset + 2] * 0.11;
 		}
 
-		if (!count) return 0;
-
-		const mean = sum / count;
-
-		return sumSq / count - mean * mean;
+		return { contrast: luminanceVariance(luminance), sharpness: laplacianVariance(luminance, width, height) };
 	}
 
 	private _stop(): void {
