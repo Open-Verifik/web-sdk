@@ -280,24 +280,15 @@
 			<div *ngIf="session.sheet === 'document'">
 				<h2>{{ t("verify.documentTitle") }}</h2>
 				<p>{{ t("verify.documentBody") }}</p>
-				<label>{{ t("verify.country") }}
-					<select [ngModel]="session.country" (ngModelChange)="session.selectCountry($event)">
-						<option value="">—</option>
-						<option *ngFor="let country of session.countries" [value]="country.country">{{ country.country }}</option>
-					</select>
-				</label>
-				<label>{{ t("verify.category") }}
-					<select [ngModel]="session.category" (ngModelChange)="session.selectCategory($event)">
-						<option value="">—</option>
-						<option *ngFor="let category of session.categories" [value]="category">{{ t(categoryLabel(category)) }}</option>
-					</select>
-				</label>
-				<label *ngIf="session.templates.length">{{ t("verify.template") }}
-					<select [ngModel]="session.template" (ngModelChange)="session.selectTemplate($event)">
-						<option [ngValue]="null">—</option>
-						<option *ngFor="let template of session.templates" [ngValue]="template">{{ template.name || template.documentCategory }}</option>
-					</select>
-				</label>
+				<div class="field"><span class="field-label">{{ t("verify.country") }}</span>
+					<verify-select [ariaLabel]="t('verify.country')" [options]="countryOptions" [value]="session.country" (valueChange)="session.selectCountry($any($event))"></verify-select>
+				</div>
+				<div class="field"><span class="field-label">{{ t("verify.category") }}</span>
+					<verify-select [ariaLabel]="t('verify.category')" [options]="categoryOptions(t)" [value]="session.category" (valueChange)="session.selectCategory($any($event))"></verify-select>
+				</div>
+				<div class="field" *ngIf="session.templates.length"><span class="field-label">{{ t("verify.template") }}</span>
+					<verify-select [ariaLabel]="t('verify.template')" [options]="templateOptions" [value]="session.template" (valueChange)="session.selectTemplate($any($event))"></verify-select>
+				</div>
 			</div>
 			<div *ngIf="session.sheet === 'camera'">
 				<h2>{{ t("verify.cameraTitle") }}</h2>

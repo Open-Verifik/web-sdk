@@ -1,0 +1,37 @@
+<div class="select" [class.open]="open" [class.disabled]="disabled" (keydown)="onKeydown($event)">
+	<button
+		type="button"
+		class="trigger"
+		role="combobox"
+		aria-haspopup="listbox"
+		[attr.aria-expanded]="open"
+		[attr.aria-controls]="listId"
+		[attr.aria-label]="ariaLabel || null"
+		[attr.aria-activedescendant]="open && active >= 0 ? optionId(active) : null"
+		[disabled]="disabled"
+		(click)="toggle()"
+	>
+		<span class="current" [class.placeholder]="!selected">{{ selected ? selected.label : placeholder }}</span>
+		<svg class="chevron" viewBox="0 0 20 20" aria-hidden="true">
+			<path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+		</svg>
+	</button>
+
+	<ul *ngIf="open" class="list" role="listbox" [id]="listId">
+		<li
+			*ngFor="let option of options; let i = index; trackBy: trackByIndex"
+			role="option"
+			[id]="optionId(i)"
+			[class.active]="i === active"
+			[class.selected]="option.value === value"
+			[attr.aria-selected]="option.value === value"
+			(mouseenter)="active = i"
+			(click)="choose(option)"
+		>
+			<span>{{ option.label }}</span>
+			<svg *ngIf="option.value === value" class="check" viewBox="0 0 20 20" aria-hidden="true">
+				<path d="m4.5 10.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</li>
+	</ul>
+</div>

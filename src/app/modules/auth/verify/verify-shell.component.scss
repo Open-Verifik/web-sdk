@@ -115,7 +115,8 @@ li {
 	line-height: 1.4;
 }
 
-label {
+label,
+.field {
 	color: var(--body);
 	line-height: 1.45;
 }
@@ -145,7 +146,8 @@ label {
 	align-items: stretch;
 }
 
-label {
+label,
+.field {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
@@ -1040,4 +1042,9 @@ a,
 .bust svg {
 	width: 96px;
 	height: auto;
+}
+
+/* Space the document fields out so each label clearly belongs to its own dropdown */
+.sheet .field {
+	margin-top: 16px;
 }

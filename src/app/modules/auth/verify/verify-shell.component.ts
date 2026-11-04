@@ -10,6 +10,7 @@ import { CountryService } from "app/core/services/country.service";
 import { ImageScan } from "app/modules/auth/project";
 import { SmartLivenessComponent } from "app/modules/auth/smart-enroll/smart-liveness/smart-liveness.component";
 import { VerifyCameraComponent } from "./verify-camera.component";
+import { VerifySelectComponent, VerifySelectOption } from "./verify-select.component";
 import { VerifySessionService } from "./verify-session.service";
 import { hasContactBlock, progressIndex, progressSegments } from "./verify-flow";
 import { flowOrderFromQuery } from "app/core/classes/project-flow.class";
@@ -18,7 +19,7 @@ import { parseVerifyStyle, resolveVerifyStyle, VERIFY_FONT_HREF, VerifyStyleId }
 @Component({
 	selector: "verify-shell",
 	standalone: true,
-	imports: [CommonModule, FormsModule, TranslocoModule, VerifyCameraComponent, SmartLivenessComponent],
+	imports: [CommonModule, FormsModule, TranslocoModule, VerifyCameraComponent, VerifySelectComponent, SmartLivenessComponent],
 	templateUrl: "./verify-shell.component.html",
 	styleUrls: ["./verify-shell.component.scss"],
 	providers: [VerifySessionService],
@@ -87,6 +88,18 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 
 	get dialCodes(): Array<{ code: string; name: string }> {
 		return this._countries.countryCodes;
+	}
+
+	get countryOptions(): VerifySelectOption[] {
+		return this.session.countries.map((country) => ({ label: country.country, value: country.country }));
+	}
+
+	categoryOptions(translate: (key: string) => string): VerifySelectOption[] {
+		return this.session.categories.map((category) => ({ label: translate(this.categoryLabel(category)), value: category }));
+	}
+
+	get templateOptions(): VerifySelectOption[] {
+		return this.session.templates.map((template) => ({ label: template.name || template.documentCategory, value: template }));
 	}
 
 	categoryLabel(category: string): string {
