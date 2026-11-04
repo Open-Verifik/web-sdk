@@ -69,6 +69,8 @@ export class VerifySessionService implements OnDestroy {
 	retryTitleKey = "verify.retryTitle";
 	retryBodyKey = "verify.retryBody";
 	retryAttemptsRemaining: number | null = null;
+	docImageFailed = false;
+	selfieImageFailed = false;
 	frontDocumentFace: string | null = null;
 	frontDocumentImage: string | null = null;
 	history: VerifyScreen[] = [];
@@ -204,7 +206,15 @@ export class VerifySessionService implements OnDestroy {
 
 	/** Live selfie portrait (or ID portrait fallback when liveness was not run) for the submitted screen. */
 	get submittedSelfie(): string | null {
+		if (this.selfieImageFailed) return null;
 		if (this.selfieImage) return this.selfieImage;
+
+		if (typeof sessionStorage !== "undefined" && this.projectId) {
+			try {
+				const cached = sessionStorage.getItem(`verify_selfie_${this.projectId}`);
+				if (cached) return cached;
+			} catch {}
+		}
 
 		const rawFace = this.registration?.face?.base64 || this.registration?.face?.url || this.registration?.biometricValidation?.url;
 
@@ -215,12 +225,39 @@ export class VerifySessionService implements OnDestroy {
 
 	/** Scanned front of the ID document for the submitted screen when document verification was used. */
 	get submittedDocument(): string | null {
+		if (this.docImageFailed) return null;
 		if (this.frontDocumentImage) return this.frontDocumentImage;
+
+		if (typeof sessionStorage !== "undefined" && this.projectId) {
+			try {
+				const cached = sessionStorage.getItem(`verify_doc_${this.projectId}`);
+				if (cached) return cached;
+			} catch {}
+		}
+
 		if (this.pending?.rawImage) return this.pending.rawImage;
 
 		const docUrl = this.registration?.documentValidation?.frontUrl || this.registration?.documentValidation?.url;
 
 		return docUrl ? String(docUrl) : null;
+	}
+
+	onSubmittedDocError(): void {
+		this.docImageFailed = true;
+		this._touch();
+	}
+
+	onSubmittedSelfieError(): void {
+		this.selfieImageFailed = true;
+		this._touch();
+	}
+
+	get skippedLiveness(): boolean {
+		return Boolean(this._skippedLiveness || this.settings?.liveness === "skip");
+	}
+
+	get skippedDocument(): boolean {
+		return Boolean(this._skippedDocument || this.settings?.document === "skip");
 	}
 
 	/** AI classification result comparing requested document type vs. scanned document. */
@@ -1255,6 +1292,11 @@ export class VerifySessionService implements OnDestroy {
 			if (this.pending.barcodeReadAttempts) body.barcodeReadAttempts = this.pending.barcodeReadAttempts;
 		} else {
 			this.frontDocumentImage = this.pending.rawImage || (base64Image ? `data:image/jpeg;base64,${base64Image}` : null);
+			if (this.frontDocumentImage && typeof sessionStorage !== "undefined" && this.projectId) {
+				try {
+					sessionStorage.setItem(`verify_doc_${this.projectId}`, this.frontDocumentImage);
+				} catch {}
+			}
 			if (this.pending.face) this.frontDocumentFace = this.pending.face;
 			body.image = base64Image;
 			body.documentFace = this.pending.face || this.frontDocumentFace;
@@ -1513,6 +1555,11 @@ export class VerifySessionService implements OnDestroy {
 
 		this.busy = true;
 		this.selfieImage = scan.rawImage || (scan.face ? `data:image/jpeg;base64,${scan.face}` : scan.base64Image ? `data:image/jpeg;base64,${scan.base64Image}` : null);
+		if (this.selfieImage && typeof sessionStorage !== "undefined" && this.projectId) {
+			try {
+				sessionStorage.setItem(`verify_selfie_${this.projectId}`, this.selfieImage);
+			} catch {}
+		}
 		this.selfiePhase = "liveness";
 		this._touch();
 

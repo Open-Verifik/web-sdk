@@ -178,7 +178,17 @@
 		"readyTitleBoth": "Provide your photo ID",
 		"readyBodyBoth": "Scan with your camera or upload a photo of your driver's license, passport or government-issued ID.",
 		"documentBodyUpload": "Choose the country and type of ID you will upload.",
-		"documentBodyBoth": "Choose how you want to provide your ID, its country and document type."
+		"documentBodyBoth": "Choose how you want to provide your ID, its country and document type.",
+		"submittedSubtitle": "Your identity details and biometrics have been safely received.",
+		"submittedCheckDocument": "Identity Document",
+		"submittedCheckLiveness": "Facial Liveness",
+		"submittedCheckSecurity": "Security & Privacy",
+		"submittedLivenessDesc": "Biometric match passed",
+		"submittedSecurityDesc": "256-bit encrypted transmission",
+		"submittedStatusVerified": "Verified",
+		"submittedStatusProtected": "Protected",
+		"submittedContinueBtn": "Continue to {{project}}",
+		"submittedRedirecting": "Redirecting automatically in {{seconds}}s..."
 	},
 	"previous": "Previous",
 	"restart": "Restart",

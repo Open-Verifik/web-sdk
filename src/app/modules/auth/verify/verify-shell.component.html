@@ -32,7 +32,7 @@
 			</div>
 
 			<div class="body" [ngSwitch]="session.screen">
-				<p class="eyebrow" *ngIf="styleId === 'c' || styleId === 'd'">{{ t("verify.eyebrow") }}</p>
+				<p class="eyebrow" *ngIf="(styleId === 'c' || styleId === 'd') && session.screen !== 'submitted'">{{ t("verify.eyebrow") }}</p>
 				<div *ngSwitchCase="'loading'" class="center"><div class="spinner"></div></div>
 
 				<div *ngSwitchCase="'upgrade'" class="center">
@@ -427,38 +427,125 @@
 					<button type="button" class="primary" (click)="session.tryAgain()">{{ t("verify.tryAgain") }}</button>
 				</div>
 
-				<div *ngSwitchCase="'submitted'" class="center">
+				<div *ngSwitchCase="'submitted'" class="submitted-screen center">
 					<div class="submitted-media has-face" *ngIf="session.submittedSelfie as selfie; else submittedDocOrIcon">
-						<img class="submitted-face" [src]="selfie" alt="" />
-						<img class="submitted-mini-doc" *ngIf="session.submittedDocument as doc" [src]="doc" alt="" />
+						<img class="submitted-face" [src]="selfie" (error)="session.onSubmittedSelfieError()" alt="Selfie" />
+
+						<!-- Miniature ID document preview or elegant vector fallback badge -->
+						<img
+							class="submitted-mini-doc"
+							*ngIf="session.submittedDocument as doc; else docFallbackBadge"
+							[src]="doc"
+							(error)="session.onSubmittedDocError()"
+							alt="ID Document"
+						/>
+						<ng-template #docFallbackBadge>
+							<div
+								class="submitted-mini-doc doc-fallback"
+								*ngIf="session.registration?.documentValidation"
+								aria-hidden="true"
+							>
+								<svg viewBox="0 0 24 24">
+									<rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+									<circle cx="8" cy="11" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+									<path d="M13 10h5M13 14h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								</svg>
+							</div>
+						</ng-template>
+
+						<!-- Verified green check badge -->
 						<span class="submitted-badge" aria-hidden="true">
 							<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
 						</span>
 					</div>
+
 					<ng-template #submittedDocOrIcon>
 						<div class="submitted-media has-doc" *ngIf="session.submittedDocument as doc; else submittedCheckIcon">
-							<img class="submitted-doc" [src]="doc" alt="" />
+							<img class="submitted-doc" [src]="doc" (error)="session.onSubmittedDocError()" alt="ID Document" />
 							<span class="submitted-badge" aria-hidden="true">
 								<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
 							</span>
 						</div>
 					</ng-template>
+
 					<ng-template #submittedCheckIcon>
-						<div class="clock" aria-hidden="true">
-							<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+						<div class="submitted-icon-circle" aria-hidden="true">
+							<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
 						</div>
 					</ng-template>
-					<h1>{{ t("verify.submittedTitle") }}</h1>
-					<p>
-						<button type="button" class="link inline" (click)="session.redirectNow()">
-							{{
-								t(
-									session.redirectSeconds === 1 ? "verify.submittedBodySingular" : "verify.submittedBody",
-									{ project: session.project?.name, seconds: session.redirectSeconds }
-								)
-							}}
+
+					<div class="submitted-headings">
+						<h1 class="submitted-title">{{ t("verify.submittedTitle") }}</h1>
+						<p class="submitted-subtitle">{{ t("verify.submittedSubtitle") }}</p>
+					</div>
+
+					<!-- Trust and verification summary card filling the middle void -->
+					<div class="submitted-card">
+						<div class="submitted-row" *ngIf="session.registration?.documentValidation">
+							<div class="submitted-row-left">
+								<span class="submitted-row-icon doc-icon" aria-hidden="true">
+									<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="11" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 10h5M13 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+								</span>
+								<div class="submitted-row-meta">
+									<span class="submitted-row-label">{{ t("verify.submittedCheckDocument") }}</span>
+									<span class="submitted-row-value">{{ session.template?.title || session.template?.name || t(categoryLabel(session.category)) }}</span>
+								</div>
+							</div>
+							<span class="submitted-row-status verified">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								{{ t("verify.submittedStatusVerified") }}
+							</span>
+						</div>
+
+						<div class="submitted-row" *ngIf="!session.skippedLiveness && session.registration?.biometricValidation">
+							<div class="submitted-row-left">
+								<span class="submitted-row-icon bio-icon" aria-hidden="true">
+									<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m18 0V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4m10 0h4a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+								</span>
+								<div class="submitted-row-meta">
+									<span class="submitted-row-label">{{ t("verify.submittedCheckLiveness") }}</span>
+									<span class="submitted-row-value">{{ t("verify.submittedLivenessDesc") }}</span>
+								</div>
+							</div>
+							<span class="submitted-row-status verified">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								{{ t("verify.submittedStatusVerified") }}
+							</span>
+						</div>
+
+						<div class="submitted-row">
+							<div class="submitted-row-left">
+								<span class="submitted-row-icon sec-icon" aria-hidden="true">
+									<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</span>
+								<div class="submitted-row-meta">
+									<span class="submitted-row-label">{{ t("verify.submittedCheckSecurity") }}</span>
+									<span class="submitted-row-value">{{ t("verify.submittedSecurityDesc") }}</span>
+								</div>
+							</div>
+							<span class="submitted-row-status protected">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								{{ t("verify.submittedStatusProtected") }}
+							</span>
+						</div>
+					</div>
+
+					<!-- Bottom Actions & Redirect countdown -->
+					<div class="submitted-actions">
+						<button type="button" class="primary submitted-cta" (click)="session.redirectNow()">
+							<span>{{ t("verify.submittedContinueBtn", { project: session.project?.name || "WIWO" }) }}</span>
+							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 						</button>
-					</p>
+
+						<div class="submitted-redirect-wrap" *ngIf="session.redirectSeconds > 0">
+							<p class="submitted-redirect-text">
+								{{ t("verify.submittedRedirecting", { seconds: session.redirectSeconds }) }}
+							</p>
+							<div class="submitted-progress-track" aria-hidden="true">
+								<div class="submitted-progress-fill" [style.width.%]="((7 - session.redirectSeconds) / 7) * 100"></div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
