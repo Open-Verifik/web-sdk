@@ -165,8 +165,9 @@
 						<button type="button" [class.on]="session.mode === 'auto'" (click)="session.setMode('auto')">{{ t("verify.auto") }}</button>
 						<button type="button" [class.on]="session.mode === 'manual'" (click)="session.setMode('manual')">{{ t("verify.manual") }}</button>
 					</div>
-					<verify-camera #cam [mode]="session.mode" side="front" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
-						<div class="guide" [class.ready]="cam.framed" aria-hidden="true"></div>
+					<verify-camera #cam [mode]="session.mode" [category]="session.category" side="front" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
+						<div class="guide" [class.ready]="cam.framed" [style.--guide-aspect]="cam.aspect" aria-hidden="true"></div>
+						<div class="outline" *ngIf="cam.outline as o" [class.ok]="cam.outlineOk" [style.left.%]="o.left" [style.top.%]="o.top" [style.width.%]="o.width" [style.height.%]="o.height" aria-hidden="true"></div>
 						<div class="pill" role="status" aria-live="polite" [class.ok]="cam.framed" [class.warn]="!cam.framed && cam.state !== 'starting' && cam.state !== 'searching' && cam.state !== 'manual'" [class.scanning]="cam.state === 'searching' || cam.state === 'starting'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>{{ t(cam.hintKey) }}</span></div>
 					</verify-camera>
 					<p *ngIf="session.mode === 'auto'">{{ t("verify.autoHelp") }}</p>
@@ -194,8 +195,9 @@
 						<button type="button" [class.on]="session.mode === 'auto'" (click)="session.setMode('auto')">{{ t("verify.auto") }}</button>
 						<button type="button" [class.on]="session.mode === 'manual'" (click)="session.setMode('manual')">{{ t("verify.manual") }}</button>
 					</div>
-					<verify-camera #cam [mode]="session.mode" side="back" [checkBarcode]="true" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
-						<div class="guide" [class.ready]="cam.framed" aria-hidden="true"></div>
+					<verify-camera #cam [mode]="session.mode" [category]="session.category" side="back" [checkBarcode]="true" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
+						<div class="guide" [class.ready]="cam.framed" [style.--guide-aspect]="cam.aspect" aria-hidden="true"></div>
+						<div class="outline" *ngIf="cam.outline as o" [class.ok]="cam.outlineOk" [style.left.%]="o.left" [style.top.%]="o.top" [style.width.%]="o.width" [style.height.%]="o.height" aria-hidden="true"></div>
 						<div class="pill" role="status" aria-live="polite" [class.ok]="cam.framed" [class.warn]="!cam.framed && cam.state !== 'starting' && cam.state !== 'searching' && cam.state !== 'manual'" [class.scanning]="cam.state === 'searching' || cam.state === 'starting'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>{{ t(cam.hintKey) }}</span></div>
 					</verify-camera>
 					<button type="button" class="shutter" *ngIf="session.mode === 'manual'" (click)="shutter()" [attr.aria-label]="t('verify.manual')"></button>

@@ -7,7 +7,22 @@ import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { ImageScan } from "app/modules/auth/project";
 import { ColombianBarcodeReadinessService } from "app/modules/auth/smart-enroll/colombian-barcode-readiness.service";
 import { DemoService } from "app/modules/demo/demo.service";
-import { HINT_KEYS, ScanState, ScanVerdict, guideRect, judgeBack, judgeFront, laplacianVariance, luminanceVariance, Rect } from "./verify-scan";
+import {
+	HINT_KEYS,
+	Rect,
+	ScanState,
+	ScanVerdict,
+	ShapeResult,
+	aspectFor,
+	findDocumentEdges,
+	guideRect,
+	judgeBack,
+	judgeFront,
+	judgeShape,
+	laplacianVariance,
+	luminanceVariance,
+	visibleRect,
+} from "./verify-scan";
 
 @Component({
 	selector: "verify-camera",
@@ -17,6 +32,8 @@ import { HINT_KEYS, ScanState, ScanVerdict, guideRect, judgeBack, judgeFront, la
 	styleUrls: ["./verify-camera.component.scss"],
 })
 export class VerifyCameraComponent implements OnInit, OnDestroy {
+	/** `passport`, `license` or `government_id`: picks the frame shape and the shape the card must have. */
+	@Input() category = "";
 	@Input() checkBarcode = false;
 	@Input() mode: "auto" | "manual" = "auto";
 	@Input() promptTemplate: PromptTemplate | null = null;
@@ -34,6 +51,9 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 	hintKey = HINT_KEYS.starting;
 	/** True while the frame is good and we are counting frames before the shot. */
 	framed = false;
+	/** The card outline we found, in % of the camera well, so the screen can snap a frame onto it. */
+	outline: { height: number; left: number; top: number; width: number } | null = null;
+	outlineOk = false;
 
 	private _alive = true;
 	private _capturing = false;
@@ -43,7 +63,11 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 	private _crop: HTMLCanvasElement | null = null;
 	private _probe: HTMLCanvasElement | null = null;
 	private _stream: MediaStream | null = null;
-	private _timer: ReturnType<typeof setInterval> | null = null;
+	private _avgMs = 120;
+	private _grid: HTMLCanvasElement | null = null;
+	private _tick = 0;
+	private _timer: ReturnType<typeof setTimeout> | null = null;
+	private _weakHits = 0;
 	private readonly _destroy$ = new Subject<void>();
 
 	constructor(private _barcode: ColombianBarcodeReadinessService, private _demo: DemoService) {}
@@ -98,7 +122,30 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 
 		video.srcObject = this._stream;
 		await video.play().catch(() => undefined);
-		this._timer = setInterval(() => void this._watch(), 350);
+		this._loop();
+	}
+
+	get aspect(): number {
+		return aspectFor(this.category);
+	}
+
+	/**
+	 * One scan at a time, paced by how long the last one took: a slow phone is asked for fewer scans instead of
+	 * piling them up, and nothing runs while the tab is hidden.
+	 */
+	private _loop(): void {
+		if (!this._alive) return;
+
+		const delay = Math.min(900, Math.max(300, this._avgMs * 2));
+
+		this._timer = setTimeout(async () => {
+			const started = performance.now();
+
+			if (!document.hidden) await this._watch();
+
+			this._avgMs = this._avgMs * 0.7 + (performance.now() - started) * 0.3;
+			this._loop();
+		}, delay);
 	}
 
 	private async _watch(): Promise<void> {
@@ -106,7 +153,9 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 
 		if (this.mode !== "auto") {
 			this._show({ state: "manual", hintKey: HINT_KEYS.manual, ready: false });
+			this.outline = null;
 			this._hits = 0;
+			this._weakHits = 0;
 			return;
 		}
 
@@ -115,15 +164,32 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 
 		this._detecting = true;
 
+		this._tick += 1;
+
 		try {
 			const result = await this._judge();
 
 			if (!this._alive || this._capturing) return;
 
+			// A round that skipped the face model says nothing new: keep the hint on screen instead of flipping it
+			// between "looking" and the last real advice, and leave the weak-streak untouched.
+			if (result.skipped) {
+				this._hits = 0;
+
+				const keepHint = !["starting", "steady", "manual", "searching"].includes(this.state);
+
+				if (!keepHint || result.state === "noFace") this._show(result);
+
+				return;
+			}
+
 			this._show(result);
 			this._hits = result.ready ? this._hits + 1 : 0;
+			// The card outline was not found but the face and image are fine: wait longer before trusting it. These rounds
+			// come every few scans, so four in a row is about five seconds.
+			this._weakHits = result.weak ? this._weakHits + 1 : 0;
 
-			if (this._hits >= 3) void this._capture("CAMERA");
+			if (this._hits >= 3 || this._weakHits >= 4) void this._capture("CAMERA");
 		} finally {
 			this._detecting = false;
 		}
@@ -140,15 +206,19 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 
 		if (!canvas) return { state: "starting", hintKey: HINT_KEYS.starting, ready: false };
 
-		const guide = guideRect(canvas.width, canvas.height);
+		const aspect = this.aspect;
+		const guide = guideRect(canvas.width, canvas.height, aspect);
 		const region = this._regionStats(canvas, guide);
+		const shape = this._findShape(canvas, guide, aspect);
 
 		if (this.side === "front") {
-			const faces = await this._detectFaces(canvas, guide);
+			// The face model is the expensive part. Run it when a card shape is in view, and only now and then otherwise.
+			const worthChecking = (shape.found && shape.coverage >= 0.5) || this._tick % 3 === 0;
+			const faces = worthChecking ? await this._detectFaces(canvas, guide) : undefined;
 
-			this._misses = faces && !faces.length ? this._misses + 1 : 0;
+			this._misses = faces === null || (faces && faces.length) ? 0 : this._misses + 1;
 
-			return judgeFront({ faces, guide, missesInARow: this._misses, region });
+			return { ...judgeFront({ aspect, faces, guide, missesInARow: this._misses, region, shape }), skipped: faces === undefined };
 		}
 
 		if (this.checkBarcode && this._barcode.shouldCheck({ promptTemplate: this.promptTemplate, side: "back" })) {
@@ -159,7 +229,66 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 			return { state: "back", hintKey: this._barcode.hintKey || HINT_KEYS.back, ready: false };
 		}
 
-		return judgeBack(region);
+		return judgeBack(region, shape, aspect);
+	}
+
+	/**
+	 * Looks for the four card edges on a tiny grayscale copy of the area around the guide (256px wide), then
+	 * publishes the outline so the screen can snap a frame onto the card.
+	 */
+	private _findShape(canvas: HTMLCanvasElement, guide: Rect, aspect: number): ShapeResult {
+		const pad = 0.3;
+		const x = Math.max(0, guide.x - guide.width * pad);
+		const y = Math.max(0, guide.y - guide.height * pad);
+		const width = Math.min(canvas.width - x, guide.width * (1 + pad * 2));
+		const height = Math.min(canvas.height - y, guide.height * (1 + pad * 2));
+		const gridWidth = 256;
+		const scale = gridWidth / width;
+		const gridHeight = Math.max(16, Math.round(height * scale));
+		const grid = this._grid || (this._grid = document.createElement("canvas"));
+
+		grid.width = gridWidth;
+		grid.height = gridHeight;
+
+		const context = grid.getContext("2d", { willReadFrequently: true });
+
+		if (!context) return { found: false, aspect: 0, coverage: 0, offsetX: 0, offsetY: 0, rect: { x: 0, y: 0, width: 0, height: 0 } };
+
+		context.drawImage(canvas, x, y, width, height, 0, 0, gridWidth, gridHeight);
+
+		const { data } = context.getImageData(0, 0, gridWidth, gridHeight);
+		const luminance = new Float32Array(gridWidth * gridHeight);
+
+		for (let index = 0; index < luminance.length; index += 1) {
+			const offset = index * 4;
+
+			luminance[index] = data[offset] * 0.3 + data[offset + 1] * 0.59 + data[offset + 2] * 0.11;
+		}
+
+		const guideInGrid = { x: (guide.x - x) * scale, y: (guide.y - y) * scale, width: guide.width * scale, height: guide.height * scale };
+		const shape = findDocumentEdges(luminance, gridWidth, gridHeight, guideInGrid, aspect);
+
+		if (!shape.found) {
+			this.outline = null;
+			this.outlineOk = false;
+
+			return shape;
+		}
+
+		// grid pixels -> video pixels -> percentages of the visible well
+		const visible = visibleRect(canvas.width, canvas.height);
+		const toVideoX = (value: number): number => x + value / scale;
+		const toVideoY = (value: number): number => y + value / scale;
+
+		this.outline = {
+			left: ((toVideoX(shape.rect.x) - visible.x) / visible.width) * 100,
+			top: ((toVideoY(shape.rect.y) - visible.y) / visible.height) * 100,
+			width: (shape.rect.width / scale / visible.width) * 100,
+			height: (shape.rect.height / scale / visible.height) * 100,
+		};
+		this.outlineOk = judgeShape(shape, aspect).ok;
+
+		return shape;
 	}
 
 	/**
@@ -302,7 +431,7 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 	}
 
 	private _stop(): void {
-		if (this._timer) clearInterval(this._timer);
+		if (this._timer) clearTimeout(this._timer);
 
 		this._timer = null;
 		this._stream?.getTracks().forEach((track) => track.stop());

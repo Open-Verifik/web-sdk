@@ -75,6 +75,8 @@
 		"scanNotFace": "Hold up the ID, not your face.",
 		"scanCenter": "Center the ID in the frame.",
 		"scanSteady": "Hold steady…",
+		"scanFlat": "Hold the ID flat, facing the camera.",
+		"scanEdges": "Keep all four edges of the ID in view.",
 		"scanLight": "Needs more light or less glare.",
 		"scanBlurry": "Hold still so the ID is sharp.",
 		"scanBackShow": "Show the back of the ID.",

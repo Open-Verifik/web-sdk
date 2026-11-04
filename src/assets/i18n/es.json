@@ -1059,6 +1059,8 @@
         "scanNotFace": "Muestra el documento, no tu rostro.",
         "scanCenter": "Centra el documento en el marco.",
         "scanSteady": "Mantenlo quieto…",
+        "scanFlat": "Sostén el documento plano, de frente a la cámara.",
+        "scanEdges": "Mantén visibles los cuatro bordes del documento.",
         "scanLight": "Necesita más luz o menos reflejo.",
         "scanBlurry": "Quédate quieto para que se vea nítido.",
         "scanBackShow": "Muestra el reverso del documento.",

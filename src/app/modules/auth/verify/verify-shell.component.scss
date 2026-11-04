@@ -1082,7 +1082,7 @@ a,
 .capture .guide::before {
 	content: "";
 	width: 84%;
-	aspect-ratio: 1.586 / 1;
+	aspect-ratio: var(--guide-aspect, 1.586) / 1;
 	border: 2px dashed rgba(255, 255, 255, 0.92);
 	border-radius: 14px;
 	/* dims everything outside the frame so the eye lands on where the ID goes */
@@ -1122,5 +1122,25 @@ a,
 @media (prefers-reduced-motion: reduce) {
 	.capture .pill.scanning svg {
 		animation: none;
+	}
+}
+
+/* The frame that snaps onto the card we found: amber until the shape is right, green when it is */
+.capture .outline {
+	position: absolute;
+	z-index: 1;
+	border: 3px solid #ffb347;
+	border-radius: 12px;
+	pointer-events: none;
+	transition: left 0.15s ease, top 0.15s ease, width 0.15s ease, height 0.15s ease, border-color 0.15s ease;
+}
+
+.capture .outline.ok {
+	border-color: #3bf65f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.capture .outline {
+		transition: none;
 	}
 }

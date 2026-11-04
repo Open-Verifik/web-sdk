@@ -1059,6 +1059,8 @@
         "scanNotFace": "Montre la pièce, pas ton visage.",
         "scanCenter": "Centre la pièce dans le cadre.",
         "scanSteady": "Ne bouge pas…",
+        "scanFlat": "Tiens la pièce à plat, face à la caméra.",
+        "scanEdges": "Garde les quatre bords de la pièce visibles.",
         "scanLight": "Il faut plus de lumière ou moins de reflets.",
         "scanBlurry": "Reste immobile pour que la pièce soit nette.",
         "scanBackShow": "Montre le verso de la pièce.",
