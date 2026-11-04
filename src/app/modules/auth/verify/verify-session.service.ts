@@ -309,7 +309,7 @@ export class VerifySessionService implements OnDestroy {
 			if (translated && translated !== key) return translated;
 		}
 
-		for (const ns of ["errors.", "biometrics.", "document.", "verify."]) {
+		for (const ns of ["errors.", "liveness.", "id_scanning.", "verify."]) {
 			const candidate = `${ns}${key}`;
 			const translated = t(candidate);
 			if (translated && translated !== candidate) return translated;
@@ -327,7 +327,7 @@ export class VerifySessionService implements OnDestroy {
 			if (translated && translated !== key) return translated;
 		}
 
-		for (const ns of ["biometrics.", "errors.", "document.", "verify."]) {
+		for (const ns of ["liveness.", "id_scanning.", "errors.", "verify."]) {
 			const candidate = `${ns}${key}`;
 			const translated = t(candidate);
 			if (translated && translated !== candidate) return translated;
@@ -339,32 +339,32 @@ export class VerifySessionService implements OnDestroy {
 	private _mapBiometricReason(reason: string): string {
 		const key = String(reason || "").trim();
 		const knownQuality: Record<string, string> = {
-			face_not_centered: "biometrics.face_not_centered",
-			face_rotation_too_large: "biometrics.face_rotation_too_large",
-			face_occluded: "biometrics.face_occluded",
-			no_face_detected: "biometrics.no_face_detected",
-			multiple_faces_detected: "biometrics.multiple_faces_detected",
-			face_too_far: "biometrics.face_too_far",
-			face_too_close: "biometrics.face_too_close",
-			poor_lighting: "biometrics.poor_lighting",
-			face_not_visible: "biometrics.face_not_visible",
+			face_not_centered: "liveness.face_not_centered",
+			face_rotation_too_large: "liveness.face_rotation_too_large",
+			face_occluded: "liveness.face_occluded",
+			no_face_detected: "liveness.no_face_detected",
+			multiple_faces_detected: "liveness.multiple_faces_detected",
+			face_too_far: "liveness.face_too_far",
+			face_too_close: "liveness.face_too_close",
+			poor_lighting: "liveness.poor_lighting",
+			face_not_visible: "liveness.face_not_visible",
 			liveness_failed: "errors.liveness_failed",
 			liveness_score_not_acceptable: "errors.Liveness_score_not_acceptable",
 		};
 
-		return knownQuality[key] || (key && !key.includes("unknown") ? `biometrics.${key}` : "verify.retryBody");
+		return knownQuality[key] || (key && !key.includes("unknown") ? `liveness.${key}` : "verify.retryBody");
 	}
 
 	private _mapDocumentReason(reason: string): string {
 		const key = String(reason || "").trim();
 		const knownDoc: Record<string, string> = {
-			document_not_detected: "document.document_not_detected_description",
-			country_mismatch: "document.country_mismatch",
-			face_not_found: "document.face_not_found_details",
-			failed_to_read: "document.error_extracting_document_information",
-			error_extracting_document_information: "document.error_extracting_document_information",
-			driver_license_not_allowed: "document.driver_license_not_allowed",
-			passport_not_allowed: "document.passport_not_allowed",
+			document_not_detected: "id_scanning.document_not_detected_description",
+			country_mismatch: "id_scanning.country_mismatch",
+			face_not_found: "id_scanning.face_not_found_details",
+			failed_to_read: "id_scanning.error_extracting_document_information",
+			error_extracting_document_information: "id_scanning.error_extracting_document_information",
+			driver_license_not_allowed: "id_scanning.driver_license_not_allowed",
+			passport_not_allowed: "id_scanning.passport_not_allowed",
 		};
 
 		return knownDoc[key] || "verify.retryBody";
