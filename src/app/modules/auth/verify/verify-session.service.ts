@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
+import * as faceapi from "@vladmandic/face-api";
 import { catchError, Observable, of, shareReplay, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { FlowOrder, ProjectFlow } from "app/core/classes/project-flow.class";
@@ -61,17 +62,29 @@ export class VerifySessionService implements OnDestroy {
 	country = "";
 	countries: CountryOption[] = [];
 	detectedCountry = "";
+	documentMethod: "scan" | "upload" = "scan";
 	draft: VerifyDraft = this._emptyDraft();
 	errorKey = "";
+	frontDocumentFace: string | null = null;
+	frontDocumentImage: string | null = null;
 	history: VerifyScreen[] = [];
+	manualVerificationRequested = false;
 	mode: "auto" | "manual" = "auto";
+	nameValidationState: "idle" | "running" | "passed" | "mismatch" | "unsupported" | "error" = "idle";
+	ocrDraft: Record<string, string> = {};
+	ocrEditing = false;
+	ocrFields: Array<{ key: string; labelKey: string; fallbackLabel: string }> = [];
+	ocrOriginal: Record<string, string> = {};
 	pending: ImageScan | null = null;
 	project: Project | null = null;
 	projectFlow: ProjectFlow | null = null;
 	projectId = "";
+	redirectSeconds = 7;
 	registration: any = null;
 	retryTarget: "front" | "selfie" = "front";
 	screen: VerifyScreen = "loading";
+	selfieImage: string | null = null;
+	selfiePhase: "idle" | "liveness" | "compare" | "finishing" = "idle";
 	sheet: VerifySheet = null;
 	previewStyle: VerifyStyleId | null = null;
 	/** `?order=a|b` from the URL; wins over the order saved on the project so both can be compared. */
@@ -124,7 +137,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	get showHeader(): boolean {
-		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "countryBlocked";
+		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "countryBlocked" && this.screen !== "submitted";
 	}
 
 	get sessionUrl(): string {
@@ -170,6 +183,119 @@ export class VerifySessionService implements OnDestroy {
 		return this.captureSide === "back";
 	}
 
+	/** Cropped portrait extracted from the front of the ID document. */
+	get documentFaceImage(): string | null {
+		const raw =
+			this.frontDocumentFace ||
+			this.registration?.documentFace?.base64 ||
+			this.registration?.documentFace?.url ||
+			this.pending?.face;
+
+		if (!raw) return null;
+
+		return String(raw).startsWith("data:") || String(raw).startsWith("http")
+			? String(raw)
+			: `data:image/jpeg;base64,${raw}`;
+	}
+
+	/** Live selfie portrait (or ID portrait fallback when liveness was not run) for the submitted screen. */
+	get submittedSelfie(): string | null {
+		if (this.selfieImage) return this.selfieImage;
+
+		const rawFace = this.registration?.face?.base64 || this.registration?.face?.url || this.registration?.biometricValidation?.url;
+
+		if (rawFace) return String(rawFace).startsWith("data:") || String(rawFace).startsWith("http") ? String(rawFace) : `data:image/jpeg;base64,${rawFace}`;
+
+		return this.documentFaceImage;
+	}
+
+	/** Scanned front of the ID document for the submitted screen when document verification was used. */
+	get submittedDocument(): string | null {
+		if (this.frontDocumentImage) return this.frontDocumentImage;
+		if (this.pending?.rawImage) return this.pending.rawImage;
+
+		const docUrl = this.registration?.documentValidation?.frontUrl || this.registration?.documentValidation?.url;
+
+		return docUrl ? String(docUrl) : null;
+	}
+
+	/** AI classification result comparing requested document type vs. scanned document. */
+	get documentClassification(): any {
+		return this.registration?.documentValidation?.OCRExtraction?.documentClassification || null;
+	}
+
+	/** True when the scanned document does not match the requested document type/country. */
+	get documentMismatch(): boolean {
+		return Boolean(this.documentClassification && this.documentClassification.isMatch === false);
+	}
+
+	get verifyNamesEnabled(): boolean {
+		return Boolean(this.projectFlow?.onboardingSettings?.document?.verifyNames);
+	}
+
+	get verifyCriminalHistoryEnabled(): boolean {
+		return Boolean(this.projectFlow?.onboardingSettings?.document?.verifyCriminalHistory);
+	}
+
+	get zeroKnowledgeEnabled(): boolean {
+		return Boolean((this.projectFlow?.onboardingSettings?.document as any)?.zero_knowledge);
+	}
+
+	get scanAllowed(): boolean {
+		return this.settings?.scanAllowed !== false;
+	}
+
+	get uploadAllowed(): boolean {
+		return this.settings?.uploadAllowed !== false;
+	}
+
+	get bothDocumentMethodsAllowed(): boolean {
+		return this.scanAllowed && this.uploadAllowed;
+	}
+
+	get uploadOnlyDocumentMethod(): boolean {
+		return !this.scanAllowed && this.uploadAllowed;
+	}
+
+	get effectiveDocumentMethod(): "scan" | "upload" {
+		if (!this.scanAllowed && this.uploadAllowed) return "upload";
+		if (this.scanAllowed && !this.uploadAllowed) return "scan";
+
+		return this.documentMethod;
+	}
+
+	get modifiedOcrCount(): number {
+		return this.ocrFields.filter((f) => this.isOcrFieldModified(f.key)).length;
+	}
+
+	isOcrFieldModified(key: string): boolean {
+		return String(this.ocrDraft[key] ?? "").trim() !== String(this.ocrOriginal[key] ?? "").trim();
+	}
+
+	toggleOcrEditing(): void {
+		this.ocrEditing = !this.ocrEditing;
+		this._touch();
+	}
+
+	resetOcrField(key: string): void {
+		this.ocrDraft[key] = this.ocrOriginal[key] ?? "";
+		this._touch();
+	}
+
+	resetAllOcrFields(): void {
+		this.ocrDraft = { ...this.ocrOriginal };
+		this._touch();
+	}
+
+	retakeFromOcrReview(): void {
+		this._startDocumentCapture("front");
+	}
+
+	changeDocumentTypeFromOcrReview(): void {
+		this.sheet = "document";
+		this._touch();
+	}
+
 	open(projectId: string, rawToken?: string): void {
 		const token = resolveToken(projectId, rawToken);
 		const key = `${projectId}:${token}`;
@@ -203,6 +329,8 @@ export class VerifySessionService implements OnDestroy {
 			this._touch();
 			return;
 		}
+
+		if (this.screen === "submitted") return;
 
 		const previous = this.history.pop();
 
@@ -324,8 +452,23 @@ export class VerifySessionService implements OnDestroy {
 
 	imReady(): void {
 		this.country = this.countries.length === 1 ? this.countries[0].country : this.country;
+		this._syncDocumentMethod();
 		this._syncCategory();
 		this.sheet = "document";
+		this._touch();
+	}
+
+	selectDocumentMethod(method: "scan" | "upload"): void {
+		if (method === "scan" && !this.scanAllowed) return;
+		if (method === "upload" && !this.uploadAllowed) return;
+
+		this.documentMethod = method;
+
+		if ((this.screen === "front" || this.screen === "back") && method === "scan") {
+			void this._openCamera(this.captureSide);
+			return;
+		}
+
 		this._touch();
 	}
 
@@ -353,8 +496,7 @@ export class VerifySessionService implements OnDestroy {
 		if (!this.country || !this.category || !this.template) return;
 
 		this.sheet = null;
-		this.captureSide = "front";
-		void this._openCamera("front");
+		this._startDocumentCapture("front");
 	}
 
 	async grantCamera(): Promise<void> {
@@ -371,30 +513,192 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	onCaptured(scan: ImageScan): void {
+		if (this.captureSide === "front" && scan.face) {
+			this.frontDocumentFace = scan.face;
+		}
 		this.pending = scan;
 		this._push(this.captureSide === "front" ? "reviewFront" : "reviewBack");
 	}
 
 	retake(): void {
 		this.pending = null;
-		void this._openCamera(this.captureSide);
+		this._startDocumentCapture(this.captureSide);
 	}
 
 	useFile(scan: ImageScan): void {
 		this.sheet = null;
+		this.documentMethod = "upload";
 		this.mode = "manual";
-		this.pending = { ...scan, inputMethod: "FILE_UPLOAD", front: this.captureSide === "front" };
+		const pendingScan: ImageScan = { ...scan, inputMethod: "FILE_UPLOAD", front: this.captureSide === "front" };
+		this.pending = pendingScan;
+
+		if (this.captureSide === "front" && pendingScan.rawImage && !pendingScan.face) {
+			void this._extractFaceFromRaw(pendingScan.rawImage)
+				.then((face) => {
+					if (face) {
+						pendingScan.face = face;
+						this.frontDocumentFace = face;
+						this._touch();
+					}
+				})
+				.catch((err) => {
+					console.warn("Document face extraction skipped:", err);
+				});
+		}
+
 		this._push(this.captureSide === "front" ? "reviewFront" : "reviewBack");
 	}
 
 	submitPhoto(): void {
-		if (this.captureSide === "front") this._submitFront();
-		else this._submitBack();
+		if (this.screen === "reviewBack" || this.captureSide === "back") {
+			this._submitBack();
+		} else {
+			this._submitFront();
+		}
+	}
+
+	confirmOcrReview(): void {
+		if (this.busy || this.documentMismatch) return;
+
+		const docId = this.registration?.documentValidation?._id;
+
+		if (!docId) {
+			this._proceedAfterOcrReview();
+			return;
+		}
+
+		this.busy = true;
+		this._touch();
+
+		const hadChanges = this.modifiedOcrCount > 0;
+		const updatedOcr = {
+			...(this.registration?.documentValidation?.OCRExtraction || {}),
+			...this.ocrDraft,
+		};
+
+		this._kyc
+			.updateDocumentValidation(docId, { OCRExtraction: this.ocrDraft })
+			.pipe(catchError(() => of(null)))
+			.subscribe((res) => {
+				if (res?.data) {
+					this.registration.documentValidation = res.data;
+				} else if (this.registration?.documentValidation) {
+					this.registration.documentValidation.OCRExtraction = updatedOcr;
+				}
+				this._kyc.appRegistration = this.registration;
+				this.ocrOriginal = { ...this.ocrDraft };
+				this.ocrEditing = false;
+
+				if (
+					this.verifyNamesEnabled &&
+					!this.manualVerificationRequested &&
+					(hadChanges || this.nameValidationState === "idle" || this.nameValidationState === "mismatch")
+				) {
+					this.nameValidationState = "running";
+					this._touch();
+
+					this._kyc
+						.updateDocumentValidationNameValidation({ _id: docId, force: hadChanges })
+						.pipe(catchError(() => of(null)))
+						.subscribe((valRes) => {
+							const data = valRes?.data?.documentValidation || valRes?.data;
+
+							if (data?._id) {
+								this.registration.documentValidation = data;
+							}
+							if (valRes?.data?.informationValidation) {
+								this.registration.informationValidation = valRes.data.informationValidation;
+							}
+							this._kyc.appRegistration = this.registration;
+
+							if (data?.namesMatch === false && data?.infoValidationSupported !== false) {
+								this.nameValidationState = "mismatch";
+								this.busy = false;
+								this._touch();
+								return;
+							}
+
+							this.nameValidationState = data?.infoValidationSupported === false ? "unsupported" : "passed";
+							this._dispatchPostDocumentChecks();
+							this._proceedAfterOcrReview();
+						});
+					return;
+				}
+
+				this._dispatchPostDocumentChecks();
+				this._proceedAfterOcrReview();
+			});
+	}
+
+	proceedWithManualVerification(): void {
+		if (this.busy) return;
+
+		const docId = this.registration?.documentValidation?._id;
+		this.manualVerificationRequested = true;
+
+		if (!docId) {
+			this.confirmOcrReview();
+			return;
+		}
+
+		this.busy = true;
+		this._touch();
+
+		this._kyc
+			.setDocumentValidationManualVerification({
+				_id: docId,
+				reason: "name_mismatch_user_proceeded",
+				timeoutType: "name_validation",
+				elapsedTime: 0,
+			})
+			.pipe(catchError(() => of(null)))
+			.subscribe(() => {
+				this.busy = false;
+				this.confirmOcrReview();
+			});
+	}
+
+	runNameValidation(silent = true): void {
+		const docId = this.registration?.documentValidation?._id;
+
+		if (!docId || !this.verifyNamesEnabled) return;
+
+		this.nameValidationState = "running";
+		if (!silent) this._touch();
+
+		this._kyc
+			.updateDocumentValidationNameValidation({ _id: docId })
+			.pipe(catchError(() => of(null)))
+			.subscribe((res) => {
+				const data = res?.data?.documentValidation || res?.data;
+
+				if (!data) {
+					this.nameValidationState = "error";
+					this._touch();
+					return;
+				}
+
+				if (data._id) {
+					this.registration.documentValidation = data;
+				}
+				if (res?.data?.informationValidation) {
+					this.registration.informationValidation = res.data.informationValidation;
+				}
+				this._kyc.appRegistration = this.registration;
+
+				if (data.namesMatch === false && data.infoValidationSupported !== false) {
+					this.nameValidationState = "mismatch";
+				} else if (data.infoValidationSupported === false) {
+					this.nameValidationState = "unsupported";
+				} else {
+					this.nameValidationState = "passed";
+				}
+				this._touch();
+			});
 	}
 
 	readyForBack(): void {
-		this.captureSide = "back";
-		void this._openCamera("back");
+		this._startDocumentCapture("back");
 	}
 
 	continueSelfie(): void {
@@ -402,14 +706,13 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	onSelfie(scan: ImageScan): void {
-		this.selfieDone$.next();
 		this._submitSelfie(scan);
 	}
 
 	tryAgain(): void {
 		this.pending = null;
 		if (this.retryTarget === "selfie") this._push("selfie");
-		else void this._openCamera("front");
+		else this._startDocumentCapture("front");
 	}
 
 	selectLanguage(id: string): void {
@@ -421,6 +724,13 @@ export class VerifySessionService implements OnDestroy {
 	setMode(mode: "auto" | "manual"): void {
 		this.mode = mode;
 		this.sheet = null;
+		if (this.documentMethod !== "scan" && this.scanAllowed) {
+			this.documentMethod = "scan";
+			if (this.screen === "front" || this.screen === "back") {
+				void this._openCamera(this.captureSide);
+				return;
+			}
+		}
 		this._touch();
 	}
 
@@ -430,7 +740,10 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	redirectNow(): void {
-		if (this._redirectTimer) clearTimeout(this._redirectTimer);
+		if (this._redirectTimer) {
+			clearInterval(this._redirectTimer);
+			this._redirectTimer = null;
+		}
 
 		const token = this._token;
 		const projectId = this.project?._id || this.projectId;
@@ -464,6 +777,7 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
+		this._syncDocumentMethod();
 		this._loadCountries();
 		this._checkCountry(response);
 	}
@@ -556,9 +870,10 @@ export class VerifySessionService implements OnDestroy {
 		const screen = resumeScreen({
 			currentStep: this.registration?.currentStep,
 			documentFailed: document?.status === "FAILED",
+			documentMismatch: this.documentMismatch,
 			documentStep: settings.document,
 			emailNeeded: needsEmailCode(settings, this.registration?.emailValidation?.status === "validated"),
-			hasBack: Boolean(document?.backUrl),
+			hasBack: Boolean(document?.backUrl || document?.hasBackImage),
 			hasBiometric: Boolean(this.registration?.biometricValidation),
 			hasDocument: Boolean(document),
 			livenessStep: settings.liveness,
@@ -577,6 +892,33 @@ export class VerifySessionService implements OnDestroy {
 		if (screen === "submitted") {
 			this._showSubmitted(this._token);
 			return;
+		}
+
+		if (document) {
+			if (document.country) this.country = document.country;
+			if (document.documentCategory) this.category = document.documentCategory;
+			if (document.inputMethod === "FILE_UPLOAD" && this.uploadAllowed) {
+				this.documentMethod = "upload";
+			}
+			if (document.template) {
+				const all = this.projectFlow?.promptTemplates ? this.projectFlow.promptTemplates() : [];
+				const found = all.find(
+					(t) => String(t._id || t) === String(document.template?._id || document.template)
+				);
+				this.template = found || document.template;
+			}
+		}
+		this._syncDocumentMethod();
+
+		if (screen === "ocrReview") {
+			this._hydrateOcrDraft();
+			if (!this.documentMismatch && this.verifyNamesEnabled) {
+				this.runNameValidation(true);
+			}
+		}
+
+		if (screen === "back" || screen === "flip" || screen === "reviewBack") {
+			this.captureSide = "back";
 		}
 
 		const first = contactScreens(settings)[0] || "consent";
@@ -735,9 +1077,30 @@ export class VerifySessionService implements OnDestroy {
 		this._finish("COMPLETED_WITHOUT_KYC", "skipKYC");
 	}
 
+	private _startDocumentCapture(side: "front" | "back"): void {
+		this.captureSide = side;
+		this.pending = null;
+		this._syncDocumentMethod();
+
+		if (this.effectiveDocumentMethod === "upload") {
+			this.sheet = null;
+			this._push(side);
+			return;
+		}
+
+		void this._openCamera(side);
+	}
+
 	private async _openCamera(side: "front" | "back"): Promise<void> {
 		this.captureSide = side;
 		this.pending = null;
+
+		if (!this.scanAllowed && this.uploadAllowed) {
+			this.documentMethod = "upload";
+			this.sheet = null;
+			this._push(side);
+			return;
+		}
 
 		if (await cameraAlreadyGranted()) {
 			this.sheet = null;
@@ -750,15 +1113,25 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _submitFront(): void {
-		this._postDocument(false);
+		void this._postDocument(false);
 	}
 
 	private _submitBack(): void {
-		this._postDocument(true);
+		void this._postDocument(true);
 	}
 
-	private _postDocument(back: boolean): void {
-		if (!this.pending || !this.template || this.busy) return;
+	private async _postDocument(back: boolean): Promise<void> {
+		if (this.busy) return;
+
+		if (!this.pending) {
+			console.warn("submitPhoto called without pending scan");
+			return;
+		}
+
+		const template = this.template || this._resolveTemplateFromRegistration();
+		const country = this.country || this.registration?.documentValidation?.country || (this.countries?.length ? this.countries[0]?.country : "") || "";
+		const category = this.category || this.registration?.documentValidation?.documentCategory || (this.settings ? flagCategories(this.settings)[0] : "government_id") || "government_id";
+		const promptTemplateId = template?._id || template || this.registration?.documentValidation?.template;
 
 		const settings = this.settings;
 		const failures = this.registration?.failedDocumentValidations?.length || this._documentFailures;
@@ -771,26 +1144,65 @@ export class VerifySessionService implements OnDestroy {
 		this.busy = true;
 		this._touch();
 
+		if (!back && !this.pending.face && !this.frontDocumentFace && this.pending.rawImage) {
+			try {
+				const extractedFace = await this._extractFaceFromRaw(this.pending.rawImage);
+				if (extractedFace) {
+					this.pending.face = extractedFace;
+					this.frontDocumentFace = extractedFace;
+				}
+			} catch (e) {
+				console.warn("Document face extraction skipped:", e);
+			}
+		}
+
+		const base64Image = this.pending.base64Image || this.pending.rawImage?.replace(/^data:.*;base64,/, "");
+
 		const body: any = {
-			category: this.category,
-			country: this.country,
+			category,
+			country,
 			force: Boolean(this.registration?.documentValidation) || failures > 0,
-			inputMethod: this.pending.inputMethod,
-			promptTemplate: this.template._id || this.template,
+			inputMethod: this.pending.inputMethod || "FILE_UPLOAD",
 		};
 
+		if (promptTemplateId) {
+			body.promptTemplate = promptTemplateId;
+		}
+
 		if (back) {
-			body.backImage = this.pending.base64Image;
+			body.backImage = base64Image;
 			if (this.pending.barcodeReadAttempts) body.barcodeReadAttempts = this.pending.barcodeReadAttempts;
 		} else {
-			body.image = this.pending.base64Image;
-			body.documentFace = this.pending.face;
+			this.frontDocumentImage = this.pending.rawImage || (base64Image ? `data:image/jpeg;base64,${base64Image}` : null);
+			if (this.pending.face) this.frontDocumentFace = this.pending.face;
+			body.image = base64Image;
+			body.documentFace = this.pending.face || this.frontDocumentFace;
 		}
 
 		this._kyc.createDocumentValidation(body).subscribe({
 			next: (response) => this._afterDocument(response, back),
 			error: () => this._failAttempt("document"),
 		});
+	}
+
+	private _resolveTemplateFromRegistration(): any {
+		const docTemplate = this.registration?.documentValidation?.template;
+
+		if (docTemplate) {
+			const all = this.projectFlow?.promptTemplates ? this.projectFlow.promptTemplates() : [];
+			const found = all.find(
+				(t) => String(t._id || t) === String(docTemplate?._id || docTemplate)
+			);
+
+			if (found) return found;
+			return docTemplate;
+		}
+
+		if (this.templates?.length) return this.templates[0];
+		const all = this.projectFlow?.promptTemplates ? this.projectFlow.promptTemplates() : [];
+		if (all.length) return all[0];
+
+		return null;
 	}
 
 	private _afterDocument(response: any, back: boolean): void {
@@ -804,13 +1216,21 @@ export class VerifySessionService implements OnDestroy {
 		}
 		if (response?.data?.documentFace || response?.data?.appRegistration?.documentFace) {
 			this.registration.documentFace = response.data.documentFace || response.data.appRegistration.documentFace;
-		} else if (this.pending?.face) {
-			this.registration.documentFace = { base64: this.pending.face };
+		} else if (!back && (this.pending?.face || this.frontDocumentFace)) {
+			this.registration.documentFace = { base64: this.pending?.face || this.frontDocumentFace };
 		}
 		this._kyc.appRegistration = this.registration;
 
 		if (document?.status === "FAILED") {
 			this._failAttempt("document");
+			return;
+		}
+
+		// If the scanned front document does not match the requested document type/country,
+		// open OCR Review immediately so the user isn't forced to scan the back of the wrong ID.
+		if (!back && this.documentMismatch) {
+			this.pending = null;
+			this._openOcrReview();
 			return;
 		}
 
@@ -822,16 +1242,183 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
-		this._afterDocumentDone();
+		this.pending = null;
+		this._openOcrReview();
 	}
 
-	private _afterDocumentDone(): void {
+	private _openOcrReview(): void {
+		this._hydrateOcrDraft();
+		this.ocrEditing = false;
+		this.nameValidationState = "idle";
+		this.manualVerificationRequested = false;
+		this._push("ocrReview");
+
+		if (!this.documentMismatch && this.verifyNamesEnabled) {
+			this.runNameValidation(true);
+		}
+	}
+
+	private _proceedAfterOcrReview(): void {
 		if (this.settings?.liveness !== "skip") {
-			this._push("selfieIntro");
+			this._kyc
+				.syncAppRegistration("liveness", "ONGOING")
+				.pipe(catchError(() => of(null)))
+				.subscribe(() => {
+					this._push("selfieIntro");
+				});
 			return;
 		}
 
 		this._finish("COMPLETED", "end");
+	}
+
+	private _dispatchPostDocumentChecks(): void {
+		if (this.verifyCriminalHistoryEnabled) {
+			this._kyc
+				.dispatchBackgroundChecks()
+				.pipe(catchError(() => of(null)))
+				.subscribe();
+		}
+
+		if (this.zeroKnowledgeEnabled) {
+			this._kyc
+				.createZkProof()
+				.pipe(catchError(() => of(null)))
+				.subscribe();
+		}
+	}
+
+	private _hydrateOcrDraft(): void {
+		const rawOcr = this.registration?.documentValidation?.OCRExtraction || {};
+		const doc = this.registration?.documentValidation || {};
+		const preferredFields: Array<{ key: string; labelKey: string; fallbackLabel: string }> = [
+			{ key: "firstName", labelKey: "verify.ocrFieldFirstName", fallbackLabel: "First name" },
+			{ key: "lastName", labelKey: "verify.ocrFieldLastName", fallbackLabel: "Last name" },
+			{ key: "fullName", labelKey: "verify.ocrFieldFullName", fallbackLabel: "Full name" },
+			{ key: "documentNumber", labelKey: "verify.ocrFieldDocumentNumber", fallbackLabel: "Document number" },
+			{ key: "documentType", labelKey: "verify.ocrFieldDocumentType", fallbackLabel: "Document type" },
+			{ key: "dateOfBirth", labelKey: "verify.ocrFieldDateOfBirth", fallbackLabel: "Date of birth" },
+			{ key: "expirationDate", labelKey: "verify.ocrFieldExpirationDate", fallbackLabel: "Expiration date" },
+			{ key: "expeditionDate", labelKey: "verify.ocrFieldExpeditionDate", fallbackLabel: "Issue date" },
+			{ key: "dateOfIssue", labelKey: "verify.ocrFieldDateOfIssue", fallbackLabel: "Issue date" },
+			{ key: "nationality", labelKey: "verify.ocrFieldNationality", fallbackLabel: "Nationality" },
+			{ key: "country", labelKey: "verify.ocrFieldCountry", fallbackLabel: "Country" },
+			{ key: "gender", labelKey: "verify.ocrFieldGender", fallbackLabel: "Sex / Gender" },
+			{ key: "sex", labelKey: "verify.ocrFieldGender", fallbackLabel: "Sex / Gender" },
+			{ key: "placeOfBirth", labelKey: "verify.ocrFieldPlaceOfBirth", fallbackLabel: "Place of birth" },
+			{ key: "expeditionPlace", labelKey: "verify.ocrFieldExpeditionPlace", fallbackLabel: "Place of issue" },
+			{ key: "address", labelKey: "verify.ocrFieldAddress", fallbackLabel: "Address" },
+			{ key: "MRZ", labelKey: "verify.ocrFieldMrz", fallbackLabel: "MRZ" },
+		];
+		const ignoredKeys = new Set([
+			"documentClassification",
+			"barcodeValidation",
+			"raw",
+			"_id",
+			"id",
+			"status",
+			"confidence",
+			"isMatch",
+		]);
+
+		const draft: Record<string, string> = {};
+		const fields: Array<{ key: string; labelKey: string; fallbackLabel: string }> = [];
+		const seen = new Set<string>();
+
+		for (const item of preferredFields) {
+			const val = rawOcr[item.key];
+			if (val !== undefined && val !== null && typeof val !== "object" && String(val).trim() !== "") {
+				draft[item.key] = String(val).trim();
+				fields.push(item);
+				seen.add(item.key);
+			}
+		}
+
+		for (const [key, val] of Object.entries(rawOcr)) {
+			if (seen.has(key) || ignoredKeys.has(key)) continue;
+			if (val === undefined || val === null || typeof val === "object") continue;
+			const str = String(val).trim();
+			if (!str) continue;
+			draft[key] = str;
+			fields.push({
+				key,
+				labelKey: "",
+				fallbackLabel: humanizeOcrKey(key),
+			});
+			seen.add(key);
+		}
+
+		// Ensure core identity fields are always present so the user can review or fill them
+		const coreDefaults: Array<{ key: string; labelKey: string; fallbackLabel: string; fallbackValue?: string }> = [
+			{ key: "firstName", labelKey: "verify.ocrFieldFirstName", fallbackLabel: "First name", fallbackValue: rawOcr.firstName || "" },
+			{ key: "lastName", labelKey: "verify.ocrFieldLastName", fallbackLabel: "Last name", fallbackValue: rawOcr.lastName || "" },
+			{
+				key: "documentNumber",
+				labelKey: "verify.ocrFieldDocumentNumber",
+				fallbackLabel: "Document number",
+				fallbackValue: rawOcr.documentNumber || doc.documentNumber || "",
+			},
+			{
+				key: "documentType",
+				labelKey: "verify.ocrFieldDocumentType",
+				fallbackLabel: "Document type",
+				fallbackValue: rawOcr.documentType || doc.documentType || "",
+			},
+		];
+
+		if (fields.length === 0) {
+			for (const core of coreDefaults) {
+				draft[core.key] = String(core.fallbackValue || "").trim();
+				fields.push({ key: core.key, labelKey: core.labelKey, fallbackLabel: core.fallbackLabel });
+			}
+		} else {
+			for (const core of coreDefaults) {
+				if (!seen.has(core.key) && core.fallbackValue) {
+					draft[core.key] = String(core.fallbackValue).trim();
+					fields.unshift({ key: core.key, labelKey: core.labelKey, fallbackLabel: core.fallbackLabel });
+					seen.add(core.key);
+				}
+			}
+		}
+
+		this.ocrFields = fields;
+		this.ocrDraft = { ...draft };
+		this.ocrOriginal = { ...draft };
+	}
+
+	private _isFaceModelLoaded(): boolean {
+		return Boolean(
+			(this._demo.useSsdMobilenetv1 && faceapi.nets.ssdMobilenetv1?.isLoaded) ||
+			(!this._demo.useSsdMobilenetv1 && faceapi.nets.tinyFaceDetector?.isLoaded)
+		);
+	}
+
+	private async _extractFaceFromRaw(rawImage: string): Promise<string | undefined> {
+		try {
+			if (!this._isFaceModelLoaded()) {
+				await this._demo.loadModels().catch(() => {});
+			}
+
+			if (!this._isFaceModelLoaded()) {
+				return undefined;
+			}
+
+			const img = await loadHtmlImage(rawImage);
+			const detections = await faceapi.detectAllFaces(img, this._demo.faceEngine);
+
+			if (!detections?.length) return undefined;
+
+			const found: any = this._demo.findBiggestFace(detections);
+			const box = found?.alignedRect?.box || found?.detection?.box || found?.box;
+			if (!box) return undefined;
+
+			const canvas = document.createElement("canvas");
+			const cropped = this._demo.cutFaceIdCard(img, box, canvas);
+			return String(cropped || "").replace(/^data:.*;base64,/, "") || undefined;
+		} catch (err) {
+			console.warn("Could not extract face from document:", err);
+			return undefined;
+		}
 	}
 
 	private _submitSelfie(scan: ImageScan): void {
@@ -844,6 +1431,8 @@ export class VerifySessionService implements OnDestroy {
 		}
 
 		this.busy = true;
+		this.selfieImage = scan.rawImage || (scan.face ? `data:image/jpeg;base64,${scan.face}` : scan.base64Image ? `data:image/jpeg;base64,${scan.base64Image}` : null);
+		this.selfiePhase = "liveness";
 		this._touch();
 
 		this._kyc
@@ -876,6 +1465,8 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _compareAndFinish(): void {
+		this.selfiePhase = "compare";
+		this._touch();
 		this._kyc.compareFaces().subscribe({
 			next: (response) => {
 				this.registration.compareFaceVerification = response?.data?.compareFaceVerification;
@@ -905,6 +1496,8 @@ export class VerifySessionService implements OnDestroy {
 
 	private _failAttempt(kind: "document" | "liveness"): void {
 		this.busy = false;
+		this.selfiePhase = "idle";
+		this.selfieDone$.next();
 		const settings = this.settings;
 
 		if (kind === "document") this._documentFailures += 1;
@@ -927,7 +1520,9 @@ export class VerifySessionService implements OnDestroy {
 
 	private _finish(status: "COMPLETED" | "FAILED" | "COMPLETED_WITHOUT_KYC", step: "end" | "skipKYC"): void {
 		this.busy = true;
+		if (this.selfiePhase !== "idle") this.selfiePhase = "finishing";
 		this.sheet = null;
+		this._touch();
 		this._kyc.syncAppRegistration(step, status).subscribe({
 			next: (response) => {
 				const token = response?.data?.token || this._token;
@@ -944,12 +1539,24 @@ export class VerifySessionService implements OnDestroy {
 
 	private _showSubmitted(token: string): void {
 		this.busy = false;
+		this.selfiePhase = "idle";
+		this.selfieDone$.next();
 		this._setToken(token);
 		this.history.push(this.screen);
 		this.screen = "submitted";
+		this.redirectSeconds = 7;
 		this._touch();
-		if (this._redirectTimer) clearTimeout(this._redirectTimer);
-		this._redirectTimer = setTimeout(() => this.redirectNow(), 7000);
+		if (this._redirectTimer) clearInterval(this._redirectTimer);
+		this._redirectTimer = setInterval(() => {
+			this.redirectSeconds -= 1;
+			if (this.redirectSeconds <= 0) {
+				clearInterval(this._redirectTimer!);
+				this._redirectTimer = null;
+				this.redirectNow();
+			} else {
+				this._touch();
+			}
+		}, 1000);
 	}
 
 	private _push(screen: VerifyScreen): void {
@@ -958,6 +1565,7 @@ export class VerifySessionService implements OnDestroy {
 		this.screen = screen;
 		this.sheet = null;
 		this.busy = false;
+		this.selfiePhase = "idle";
 		this.errorKey = "";
 		this._touch();
 	}
@@ -1041,6 +1649,14 @@ export class VerifySessionService implements OnDestroy {
 		const options = names.length ? this._countries.findAllowedCountryOptions(names) : this._countries.countries;
 
 		this.countries = options.filter((option) => option.country && option.country.toLowerCase() !== "all");
+	}
+
+	private _syncDocumentMethod(): void {
+		if (!this.scanAllowed && this.uploadAllowed) {
+			this.documentMethod = "upload";
+		} else if (this.scanAllowed && !this.uploadAllowed) {
+			this.documentMethod = "scan";
+		}
 	}
 
 	private _syncCategory(): void {
@@ -1163,3 +1779,21 @@ const cameraAlreadyGranted = async (): Promise<boolean> => {
 		return false;
 	}
 };
+
+const humanizeOcrKey = (key: string): string => {
+	const spaced = key
+		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+		.replace(/[_-]+/g, " ")
+		.trim();
+
+	return spaced ? spaced.charAt(0).toUpperCase() + spaced.slice(1) : key;
+};
+
+const loadHtmlImage = (src: string): Promise<HTMLImageElement> =>
+	new Promise((resolve, reject) => {
+		const img = new Image();
+		img.crossOrigin = "anonymous";
+		img.onload = () => resolve(img);
+		img.onerror = reject;
+		img.src = src;
+	});

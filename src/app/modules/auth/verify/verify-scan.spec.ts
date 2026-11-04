@@ -1,4 +1,4 @@
-import { PASSPORT_ASPECT, aspectFor, findDocumentEdges, guideRect, judgeBack, judgeFront, judgeShape, laplacianVariance } from "./verify-scan";
+import { PASSPORT_ASPECT, aspectFor, findDocumentEdges, guideRect, judgeBack, judgeFront, judgeSelfie, judgeShape, laplacianVariance, ovalRect } from "./verify-scan";
 
 describe("verify-scan", () => {
 	const guide = guideRect(1280, 720);
@@ -38,9 +38,12 @@ describe("verify-scan", () => {
 		expect(judgeFront({ faces: null, guide, missesInARow: 0, region: good }).ready).toBeTrue();
 	});
 
-	it("judges the back by detail and separates flat from detailed images", () => {
-		expect(judgeBack({ contrast: 100, sharpness: 100 }).state).toBe("back");
-		expect(judgeBack({ contrast: 800, sharpness: 80 }).ready).toBeTrue();
+	it("judges the back by requiring a valid card shape, contrast, and sharpness", () => {
+		const validShape: any = { found: true, coverage: 0.95, offsetX: 0, offsetY: 0, aspect: 1.586 };
+		expect(judgeBack({ contrast: 100, sharpness: 100 }, validShape).state).toBe("back");
+		expect(judgeBack({ contrast: 800, sharpness: 80 }, validShape).ready).toBeTrue();
+		expect(judgeBack({ contrast: 800, sharpness: 80 }, null).ready).toBeFalse();
+		expect(judgeBack({ contrast: 800, sharpness: 80 }, { found: false } as any).ready).toBeFalse();
 
 		const width = 40;
 		const height = 30;
@@ -161,6 +164,46 @@ describe("verify-scan", () => {
 			for (let i = 0; i < 200; i += 1) find(luminance);
 
 			expect((performance.now() - started) / 200).toBeLessThan(5);
+		});
+
+		it("rejects a face clipped by the card border and accepts a face fully inside the card", () => {
+			const clipped = { x: guide.x + guide.width * 0.85, y: guide.y + guide.height * 0.25, width: guide.width * 0.2, height: guide.height * 0.4 };
+			const inside = { x: guide.x + guide.width * 0.62, y: guide.y + guide.height * 0.25, width: guide.width * 0.2, height: guide.height * 0.4 };
+
+			expect(judgeFront({ cardRect: guide, faces: [clipped], guide, missesInARow: 0, region: good }).state).toBe("center");
+			expect(judgeFront({ cardRect: guide, faces: [inside], guide, missesInARow: 0, region: good }).ready).toBeTrue();
+		});
+	});
+
+	describe("selfie oval", () => {
+		const oval = ovalRect(1280, 720);
+		const goodFace = {
+			x: oval.x + oval.width * 0.18,
+			y: oval.y + oval.height * 0.16,
+			width: oval.width * 0.64,
+			height: oval.height * 0.68,
+		};
+
+		it("guides the person into the oval and turns green when steady", () => {
+			expect(judgeSelfie({ faces: [], oval }).hintKey).toBe("verify.selfieCenter");
+			expect(
+				judgeSelfie({
+					faces: [{ x: oval.x + oval.width * 0.35, y: oval.y + oval.height * 0.35, width: oval.width * 0.25, height: oval.height * 0.25 }],
+					oval,
+				}).hintKey
+			).toBe("verify.selfieCloser");
+			expect(
+				judgeSelfie({
+					faces: [{ x: oval.x - 20, y: oval.y - 20, width: oval.width * 1.2, height: oval.height * 1.2 }],
+					oval,
+				}).hintKey
+			).toBe("verify.selfieFarther");
+			expect(judgeSelfie({ angle: { yaw: 60 }, faces: [goodFace], oval }).hintKey).toBe("verify.selfieStraight");
+
+			const steady = judgeSelfie({ angle: { pitch: 0, roll: 0, yaw: 0 }, contrast: 400, faces: [goodFace], oval });
+
+			expect(steady.ready).toBeTrue();
+			expect(steady.hintKey).toBe("verify.selfieSteady");
 		});
 	});
 });

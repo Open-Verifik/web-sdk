@@ -113,12 +113,21 @@ export const contains = (outer: Rect, point: { x: number; y: number }, margin = 
 	point.y >= outer.y - outer.height * margin &&
 	point.y <= outer.y + outer.height * (1 + margin);
 
+/** True when all four sides of `inner` sit inside `outer` (negative `margin` requires an inset from the border). */
+export const boxInside = (outer: Rect, inner: Rect, margin = 0): boolean =>
+	inner.x >= outer.x - outer.width * margin &&
+	inner.y >= outer.y - outer.height * margin &&
+	inner.x + inner.width <= outer.x + outer.width * (1 + margin) &&
+	inner.y + inner.height <= outer.y + outer.height * (1 + margin);
+
 export const biggest = (boxes: Rect[]): Rect | undefined =>
 	boxes.reduce<Rect | undefined>((best, box) => (!best || box.width * box.height > best.width * best.height ? box : best), undefined);
 
 export interface FrontInput {
 	/** Document aspect the person is holding; drives the shape check. */
 	aspect?: number;
+	/** Detected card rectangle in the same pixel space as `guide` and `faces`, when found. */
+	cardRect?: Rect | null;
 	/** Face boxes in video pixels. `null`: the face model is not available. `undefined`: skipped this round to save CPU. */
 	faces: Rect[] | null | undefined;
 	guide: Rect;
@@ -132,7 +141,7 @@ export interface FrontInput {
 /** After this many empty frames (about 4 seconds) we stop saying "looking" and explain what is missing. */
 export const MISSES_BEFORE_HELP = 11;
 
-export const judgeFront = ({ aspect = ID_ASPECT, faces, guide, missesInARow, region, shape }: FrontInput): ScanVerdict => {
+export const judgeFront = ({ aspect = ID_ASPECT, cardRect, faces, guide, missesInARow, region, shape }: FrontInput): ScanVerdict => {
 	const outline = shape ? judgeShape(shape, aspect) : null;
 
 	// A card outline that is clearly wrong beats everything else: it tells the person exactly how to move.
@@ -148,8 +157,16 @@ export const judgeFront = ({ aspect = ID_ASPECT, faces, guide, missesInARow, reg
 
 	if (faces === undefined || !faces.length) return verdict(missesInARow >= MISSES_BEFORE_HELP ? "noFace" : "searching");
 
-	const inside = faces.filter((face) => contains(guide, centerOf(face), 0.05));
-	const face = biggest(inside);
+	const insideGuide = faces.filter((face) => contains(guide, centerOf(face), 0.05));
+	const largestInGuide = biggest(insideGuide);
+
+	if (!largestInGuide) return verdict("center");
+	if (largestInGuide.height / guide.height > FACE_MAX_RATIO) return verdict("notFace");
+
+	// All four sides of the ID portrait must sit inside the card boundary (not clipped at the edge or peeking behind the card).
+	const cardBounds = cardRect || guide;
+	const fullyVisible = insideGuide.filter((face) => boxInside(cardBounds, face, -0.01));
+	const face = biggest(fullyVisible);
 
 	if (!face) return verdict("center");
 
@@ -169,10 +186,12 @@ export const judgeFront = ({ aspect = ID_ASPECT, faces, guide, missesInARow, reg
 export const judgeBack = (region: { contrast: number; sharpness: number }, shape?: ShapeResult | null, aspect = ID_ASPECT): ScanVerdict => {
 	const outline = shape ? judgeShape(shape, aspect) : null;
 
-	if (outline?.found && !outline.ok && outline.state) return verdict(outline.state);
+	// The back of the document does not have a face photo, but it MUST have the document's
+	// physical card outline detected inside the guide. Never auto-capture on an empty frame or face.
+	if (!outline || !outline.found) return verdict("back");
+	if (!outline.ok && outline.state) return verdict(outline.state);
 	if (region.contrast < BACK_MIN_CONTRAST) return verdict("back");
 	if (region.sharpness < MIN_SHARPNESS) return verdict("blurry");
-	if (outline && !outline.found) return { ...verdict("edges"), weak: true };
 
 	return verdict("steady", true);
 };
@@ -241,7 +260,7 @@ export const EDGE_MIN = 5;
 /** A line counts as a possible edge from this share of the strongest line on its side; faint real borders stay in. */
 export const EDGE_CANDIDATE_RATIO = 0.2;
 /** Wide enough for edge noise and a slight tilt, narrow enough to tell a passport page from an ID card. */
-export const SHAPE_ASPECT_TOLERANCE = 0.1;
+export const SHAPE_ASPECT_TOLERANCE = 0.14;
 export const SHAPE_MIN_COVERAGE = 0.62;
 export const SHAPE_MAX_COVERAGE = 1.18;
 
@@ -456,4 +475,62 @@ export const judgeShape = (shape: ShapeResult, expectedAspect: number): ShapeJud
 	if (Math.abs(shape.aspect / expectedAspect - 1) > SHAPE_ASPECT_TOLERANCE) return { found: true, ok: false, state: "flat" };
 
 	return { found: true, ok: true, state: null };
+};
+
+export const OVAL_WIDTH_RATIO = 0.62;
+export const OVAL_HEIGHT_RATIO = 0.72;
+
+/** Where the selfie oval sits inside the visible 3:4 well, in video pixels. */
+export const ovalRect = (videoWidth: number, videoHeight: number): Rect => {
+	const visible = visibleRect(videoWidth, videoHeight);
+	const width = visible.width * OVAL_WIDTH_RATIO;
+	const height = visible.height * OVAL_HEIGHT_RATIO;
+
+	return {
+		x: visible.x + (visible.width - width) / 2,
+		y: visible.y + (visible.height - height) / 2,
+		width,
+		height,
+	};
+};
+
+export interface SelfieInput {
+	angle?: { pitch?: number; roll?: number; yaw?: number } | null;
+	contrast?: number;
+	faces: Rect[] | null | undefined;
+	oval: Rect;
+}
+
+/** Evaluates whether the person's face is centered, sized and facing straight inside the selfie oval. */
+export const judgeSelfie = ({ angle, contrast, faces, oval }: SelfieInput): ScanVerdict => {
+	if (!faces || !faces.length) return verdict("searching", false, "verify.selfieCenter");
+
+	const face = biggest(faces);
+
+	if (!face) return verdict("searching", false, "verify.selfieCenter");
+
+	const heightRatio = face.height / oval.height;
+	const widthRatio = face.width / oval.width;
+
+	if (heightRatio < 0.35 && widthRatio < 0.42) return verdict("closer", false, "verify.selfieCloser");
+	if (heightRatio > 0.92 || widthRatio > 0.98) return verdict("farther", false, "verify.selfieFarther");
+
+	const faceCenter = centerOf(face);
+	const ovalCenter = centerOf(oval);
+	const offsetX = Math.abs(faceCenter.x - ovalCenter.x) / oval.width;
+	const offsetY = Math.abs(faceCenter.y - ovalCenter.y) / oval.height;
+
+	if (offsetX > 0.18 || offsetY > 0.2 || !boxInside(oval, face, 0.06)) return verdict("center", false, "verify.selfieCenter");
+
+	if (angle) {
+		const roll = Math.abs(angle.roll || 0);
+		const pitch = Math.abs(angle.pitch || 0);
+		const yaw = Math.abs(angle.yaw || 0);
+
+		if (roll > 25 || pitch > 28 || yaw > 45) return verdict("flat", false, "verify.selfieStraight");
+	}
+
+	if (contrast !== undefined && contrast < 100) return verdict("light", false, "verify.scanLight");
+
+	return verdict("steady", true, "verify.selfieSteady");
 };

@@ -57,8 +57,10 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 
 	private _alive = true;
 	private _capturing = false;
+	private _cardRect: Rect | null = null;
 	private _detecting = false;
 	private _hits = 0;
+	private _lastFaces: Rect[] | null = null;
 	private _misses = 0;
 	private _crop: HTMLCanvasElement | null = null;
 	private _probe: HTMLCanvasElement | null = null;
@@ -216,9 +218,11 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 			const worthChecking = (shape.found && shape.coverage >= 0.5) || this._tick % 3 === 0;
 			const faces = worthChecking ? await this._detectFaces(canvas, guide) : undefined;
 
+			if (faces && faces.length) this._lastFaces = faces;
+
 			this._misses = faces === null || (faces && faces.length) ? 0 : this._misses + 1;
 
-			return { ...judgeFront({ aspect, faces, guide, missesInARow: this._misses, region, shape }), skipped: faces === undefined };
+			return { ...judgeFront({ aspect, cardRect: this._cardRect, faces, guide, missesInARow: this._misses, region, shape }), skipped: faces === undefined };
 		}
 
 		if (this.checkBarcode && this._barcode.shouldCheck({ promptTemplate: this.promptTemplate, side: "back" })) {
@@ -271,6 +275,7 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 		if (!shape.found) {
 			this.outline = null;
 			this.outlineOk = false;
+			this._cardRect = null;
 
 			return shape;
 		}
@@ -279,14 +284,21 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 		const visible = visibleRect(canvas.width, canvas.height);
 		const toVideoX = (value: number): number => x + value / scale;
 		const toVideoY = (value: number): number => y + value / scale;
+		const videoRect: Rect = {
+			x: toVideoX(shape.rect.x),
+			y: toVideoY(shape.rect.y),
+			width: shape.rect.width / scale,
+			height: shape.rect.height / scale,
+		};
 
 		this.outline = {
-			left: ((toVideoX(shape.rect.x) - visible.x) / visible.width) * 100,
-			top: ((toVideoY(shape.rect.y) - visible.y) / visible.height) * 100,
-			width: (shape.rect.width / scale / visible.width) * 100,
-			height: (shape.rect.height / scale / visible.height) * 100,
+			left: ((videoRect.x - visible.x) / visible.width) * 100,
+			top: ((videoRect.y - visible.y) / visible.height) * 100,
+			width: (videoRect.width / visible.width) * 100,
+			height: (videoRect.height / visible.height) * 100,
 		};
 		this.outlineOk = judgeShape(shape, aspect).ok;
+		this._cardRect = this.outlineOk ? videoRect : null;
 
 		return shape;
 	}
@@ -314,12 +326,14 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 			const detections = await faceapi.detectAllFaces(crop, this._demo.faceEngine);
 
 			// Plain detections carry `box`; only landmark results add `alignedRect`. Reading `alignedRect` alone made every
-			// frame look empty, so auto capture never fired.
-			return detections.map((detection: any) => {
-				const box = detection.alignedRect?.box || detection.box;
+			// frame look empty, so auto capture never fired. Filter out low-confidence partial detections.
+			return detections
+				.filter((detection: any) => (detection.score ?? detection.detection?.score ?? 1) >= 0.45)
+				.map((detection: any) => {
+					const box = detection.alignedRect?.box || detection.box;
 
-				return { x: x + box.x / scale, y: y + box.y / scale, width: box.width / scale, height: box.height / scale };
-			});
+					return { x: x + box.x / scale, y: y + box.y / scale, width: box.width / scale, height: box.height / scale };
+				});
 		} catch {
 			return null;
 		}
@@ -336,12 +350,14 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 		this._alive = false;
 		this._stop();
 
-		const raw = canvas.toDataURL("image/jpeg", 0.92);
+		// Crop tightly to the detected card (or the guide frame) with a small border margin so Review and OCR only see the ID.
+		const cardCanvas = this._cropDocument(canvas);
+		const raw = cardCanvas.toDataURL("image/jpeg", 0.92);
 		let base64 = raw.replace(/^data:.*;base64,/, "");
 		let face: string | undefined;
 		let barcodeReadAttempts: number | undefined;
 
-		if (this.side === "front") face = await this._cropFace(raw);
+		if (this.side === "front") face = await this._cropFace(raw, canvas);
 
 		if (this.side === "back" && this.checkBarcode && this._barcode.shouldCheck({ promptTemplate: this.promptTemplate, side: "back" })) {
 			const decision = await this._barcode.evaluateShutter(raw);
@@ -370,24 +386,75 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	private async _cropFace(raw: string): Promise<string | undefined> {
+	/** Crops the video frame to the detected card rectangle (or the guide frame) plus a 6% border margin. */
+	private _cropDocument(canvas: HTMLCanvasElement): HTMLCanvasElement {
+		const target = this._cardRect || guideRect(canvas.width, canvas.height, this.aspect);
+		const padX = target.width * 0.06;
+		const padY = target.height * 0.06;
+		const x = Math.max(0, Math.round(target.x - padX));
+		const y = Math.max(0, Math.round(target.y - padY));
+		const width = Math.min(canvas.width - x, Math.max(1, Math.round(target.width + padX * 2)));
+		const height = Math.min(canvas.height - y, Math.max(1, Math.round(target.height + padY * 2)));
+		const out = document.createElement("canvas");
+
+		out.width = width;
+		out.height = height;
+		out.getContext("2d")?.drawImage(canvas, x, y, width, height, 0, 0, width, height);
+
+		return out;
+	}
+
+	private async _cropFace(raw: string, fullCanvas?: HTMLCanvasElement): Promise<string | undefined> {
 		const image = new Image();
 
 		image.src = raw;
 		await image.decode().catch(() => undefined);
 
+		const cutCanvas = this.faceCardRef?.nativeElement || document.createElement("canvas");
+
 		try {
-			const detections = await faceapi.detectAllFaces(image, this._demo.faceEngine).withFaceLandmarks(!this._demo.useSsdMobilenetv1);
-			const found = this._demo.findBiggestFace(detections);
+			let detections: any[] = [];
+			try {
+				detections = await faceapi.detectAllFaces(image, this._demo.faceEngine).withFaceLandmarks(!this._demo.useSsdMobilenetv1);
+			} catch {
+				detections = [];
+			}
 
-			if (!found || !this.faceCardRef) return undefined;
+			if (!detections?.length) {
+				detections = await faceapi.detectAllFaces(image, this._demo.faceEngine);
+			}
 
-			const cropped = this._demo.cutFaceIdCard(image, found.alignedRect.box, this.faceCardRef.nativeElement);
+			const found: any = detections?.length ? this._demo.findBiggestFace(detections) : null;
+			const box = found?.alignedRect?.box || found?.detection?.box || found?.box;
 
-			return String(cropped || "").replace(/^data:.*;base64,/, "") || undefined;
+			if (box) {
+				const cropped = this._demo.cutFaceIdCard(image, box, cutCanvas);
+				const clean = String(cropped || "").replace(/^data:.*;base64,/, "");
+				if (clean) return clean;
+			}
 		} catch {
-			return undefined;
+			// Fall back to the last face rect detected during live framing
 		}
+
+		if (this._lastFaces?.length && fullCanvas) {
+			const best = this._lastFaces.reduce((acc, r) => (r.width * r.height > acc.width * acc.height ? r : acc), this._lastFaces[0]);
+			const ctx = cutCanvas.getContext("2d");
+			if (ctx) {
+				const width = Math.min(fullCanvas.width, Math.max(1, Math.ceil(best.width * 2)));
+				const height = Math.min(fullCanvas.height, Math.max(1, Math.ceil(best.height * 2)));
+				const sx = Math.max(0, Math.min(fullCanvas.width - width, Math.floor(best.x - best.width / 2)));
+				const sy = Math.max(0, Math.min(fullCanvas.height - height, Math.floor(best.y - best.height / 2)));
+
+				cutCanvas.width = width;
+				cutCanvas.height = height;
+				ctx.drawImage(fullCanvas, sx, sy, width, height, 0, 0, width, height);
+
+				const cropped = cutCanvas.toDataURL("image/jpeg", 0.9);
+				return String(cropped || "").replace(/^data:.*;base64,/, "") || undefined;
+			}
+		}
+
+		return undefined;
 	}
 
 	private _drawStill(): HTMLCanvasElement | null {

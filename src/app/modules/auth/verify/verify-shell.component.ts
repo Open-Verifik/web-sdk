@@ -10,6 +10,7 @@ import { CountryService } from "app/core/services/country.service";
 import { ImageScan } from "app/modules/auth/project";
 import { SmartLivenessComponent } from "app/modules/auth/smart-enroll/smart-liveness/smart-liveness.component";
 import { VerifyCameraComponent } from "./verify-camera.component";
+import { VerifySelfieComponent } from "./verify-selfie.component";
 import { VerifySelectComponent, VerifySelectOption } from "./verify-select.component";
 import { VerifySessionService } from "./verify-session.service";
 import { hasContactBlock, progressIndex, progressSegments } from "./verify-flow";
@@ -19,7 +20,7 @@ import { parseVerifyStyle, resolveVerifyStyle, VERIFY_FONT_HREF, VerifyStyleId }
 @Component({
 	selector: "verify-shell",
 	standalone: true,
-	imports: [CommonModule, FormsModule, TranslocoModule, VerifyCameraComponent, VerifySelectComponent, SmartLivenessComponent],
+	imports: [CommonModule, FormsModule, TranslocoModule, VerifyCameraComponent, VerifySelfieComponent, VerifySelectComponent, SmartLivenessComponent],
 	templateUrl: "./verify-shell.component.html",
 	styleUrls: ["./verify-shell.component.scss"],
 	providers: [VerifySessionService],
@@ -30,6 +31,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	@ViewChild(VerifyCameraComponent) camera?: VerifyCameraComponent;
 
 	boxes = [0, 1, 2, 3, 4, 5];
+	isDraggingFile = false;
 	styleId: VerifyStyleId = "a";
 
 	private _destroy$ = new Subject<void>();
@@ -48,7 +50,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		this.session.compact = window.matchMedia("(max-width: 720px)").matches;
 		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => {
 			this._applyStyle();
-			this._cdr.markForCheck();
+			this._cdr.detectChanges();
 		});
 		combineLatest([this._route.paramMap, this._route.queryParamMap])
 			.pipe(takeUntil(this._destroy$))
@@ -192,12 +194,38 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		this.file?.nativeElement.click();
 	}
 
+	onDragOver(event: DragEvent): void {
+		event.preventDefault();
+		event.stopPropagation();
+		if (!this.isDraggingFile) this.isDraggingFile = true;
+	}
+
+	onDragLeave(event: DragEvent): void {
+		event.preventDefault();
+		event.stopPropagation();
+		this.isDraggingFile = false;
+	}
+
+	onFileDrop(event: DragEvent): void {
+		event.preventDefault();
+		event.stopPropagation();
+		this.isDraggingFile = false;
+		const file = event.dataTransfer?.files?.[0];
+		if (file) this._readSelectedFile(file);
+	}
+
 	onFile(event: Event): void {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 
 		if (!file) return;
 
+		this._readSelectedFile(file, () => {
+			input.value = "";
+		});
+	}
+
+	private _readSelectedFile(file: File, afterRead?: () => void): void {
 		const reader = new FileReader();
 
 		reader.onload = () => {
@@ -210,7 +238,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				rawImage: raw,
 				source: "document",
 			} as ImageScan);
-			input.value = "";
+			afterRead?.();
 		};
 		reader.readAsDataURL(file);
 	}

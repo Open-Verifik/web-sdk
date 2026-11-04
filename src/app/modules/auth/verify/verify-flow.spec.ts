@@ -1,4 +1,4 @@
-import { flowOrderFrom, flowOrderFromQuery } from "app/core/classes/project-flow.class";
+import { flowOrderFrom, flowOrderFromQuery, ProjectFlow } from "app/core/classes/project-flow.class";
 import {
 	attemptsRemaining,
 	cameraStepsAhead,
@@ -109,6 +109,37 @@ describe("verify-flow", () => {
 
 		expect(
 			resumeScreen({
+				currentStep: "document",
+				documentFailed: false,
+				documentMismatch: true,
+				documentStep: "mandatory",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: true,
+				livenessStep: "mandatory",
+				needsBack: true,
+				phoneNeeded: false,
+			})
+		).toBe("ocrReview");
+
+		expect(
+			resumeScreen({
+				currentStep: "document",
+				documentFailed: false,
+				documentStep: "mandatory",
+				emailNeeded: false,
+				hasBack: true,
+				hasBiometric: false,
+				hasDocument: true,
+				livenessStep: "mandatory",
+				needsBack: true,
+				phoneNeeded: false,
+			})
+		).toBe("ocrReview");
+
+		expect(
+			resumeScreen({
 				currentStep: "end",
 				documentFailed: false,
 				documentStep: "mandatory",
@@ -164,5 +195,39 @@ describe("verify-flow", () => {
 		expect(flowOrderFromQuery("a")).toBe("contact_first");
 		expect(flowOrderFromQuery("B")).toBe("consent_first");
 		expect(flowOrderFromQuery("x")).toBeUndefined();
+	});
+
+	it("maps document verificationMethods for both v3 and legacy v2 flows", () => {
+		const both = new ProjectFlow({
+			version: 3,
+			documents: { verificationMethods: ["upload", "scan"], documentTypes: [] },
+		} as any);
+		expect(both.documentScanAllowed).toBeTrue();
+		expect(both.documentUploadAllowed).toBeTrue();
+		expect(both.onboardingSettings.document.scanDocumentAllowed).toBeTrue();
+		expect(both.onboardingSettings.document.uploadDocumentAllowed).toBeTrue();
+
+		const uploadOnly = new ProjectFlow({
+			version: 3,
+			documents: { verificationMethods: ["upload"], documentTypes: [] },
+		} as any);
+		expect(uploadOnly.documentScanAllowed).toBeFalse();
+		expect(uploadOnly.documentUploadAllowed).toBeTrue();
+
+		const scanOnly = new ProjectFlow({
+			version: 3,
+			documents: { verificationMethods: ["scan"], documentTypes: [] },
+		} as any);
+		expect(scanOnly.documentScanAllowed).toBeTrue();
+		expect(scanOnly.documentUploadAllowed).toBeFalse();
+
+		const legacyUploadOnly = new ProjectFlow({
+			version: 2,
+			onboardingSettings: {
+				document: { scanDocumentAllowed: false, uploadDocumentAllowed: true },
+			},
+		} as any);
+		expect(legacyUploadOnly.documentScanAllowed).toBeFalse();
+		expect(legacyUploadOnly.documentUploadAllowed).toBeTrue();
 	});
 });

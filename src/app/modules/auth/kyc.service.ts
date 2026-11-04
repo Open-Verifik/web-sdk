@@ -321,6 +321,10 @@ export class KYCService {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/document-validations/app-registration`, data);
 	}
 
+	updateDocumentValidation(id: string, data: any): Observable<any> {
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${id}`, data);
+	}
+
 	createBiometricValidation(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/app-registration`, data);
 	}
@@ -441,16 +445,25 @@ export class KYCService {
 	}
 
 	updateDocumentValidationNameValidation(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/validate`, data);
+		const id = typeof data === "string" ? data : data?._id;
+		const payload = typeof data === "string" ? { _id: data } : data;
+
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${id}/validate`, payload);
 	}
 
 	setDocumentValidationManualVerification(data: {
 		_id: string;
-		reason: string;
-		timeoutType: string;
-		elapsedTime: number;
-	}): Observable<any> {
-		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${data._id}/manual-verification`, data);
+		reason?: string;
+		timeoutType?: string;
+		elapsedTime?: number;
+	} | string): Observable<any> {
+		const id = typeof data === "string" ? data : data?._id;
+		const payload =
+			typeof data === "string"
+				? { _id: data, reason: "name_mismatch_user_proceeded" }
+				: data;
+
+		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${id}/manual-verification`, payload);
 	}
 
 	getIdentityImages(data: any): Observable<any> {

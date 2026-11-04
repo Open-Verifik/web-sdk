@@ -1,0 +1,65 @@
+<ng-container *transloco="let t">
+	<div class="selfie-wrap">
+		<div class="selfie-well" [class.captured]="!!capturedPreview">
+			<video #video autoplay playsinline muted [class.hidden]="!!capturedPreview"></video>
+			<img *ngIf="capturedPreview" class="captured-img" [src]="capturedPreview" alt="" />
+			<canvas #still hidden></canvas>
+
+			<div
+				class="oval-mask"
+				[class.ok]="framed || !!capturedPreview"
+				[class.warn]="!framed && !capturedPreview && state !== 'starting' && state !== 'searching'"
+				aria-hidden="true"
+			>
+				<svg class="oval-svg" viewBox="0 0 200 260" fill="none">
+					<ellipse class="oval-track" cx="100" cy="130" rx="100" ry="130" stroke-width="4.5" />
+					<path
+						class="oval-progress"
+						d="M 100 0 A 100 130 0 1 1 100 260 A 100 130 0 1 1 100 0"
+						stroke-width="5.5"
+						pathLength="100"
+						stroke-dasharray="100"
+						[attr.stroke-dashoffset]="100 - progress * 100"
+						[style.opacity]="progress > 0 ? 1 : 0"
+					/>
+				</svg>
+				<div class="oval-badge" *ngIf="capturedPreview">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</div>
+			</div>
+
+			<div
+				class="selfie-pill"
+				role="status"
+				aria-live="polite"
+				[class.ok]="framed || !!capturedPreview"
+				[class.warn]="!framed && !capturedPreview && state !== 'starting' && state !== 'searching'"
+			>
+				<span class="dot" aria-hidden="true"></span>
+				<span>{{ t(capturedPreview ? phaseKey : hintKey) }}</span>
+			</div>
+		</div>
+
+		<div class="verify-progress" *ngIf="capturedPreview" role="status" aria-live="polite">
+			<div class="step" [class.active]="phase === 'liveness' || phase === 'idle'" [class.done]="phase === 'compare' || phase === 'finishing'">
+				<span class="step-icon" aria-hidden="true"></span>
+				<span>{{ t("verify.selfieStepLiveness") }}</span>
+			</div>
+			<div class="step" [class.active]="phase === 'compare'" [class.done]="phase === 'finishing'">
+				<span class="step-icon" aria-hidden="true"></span>
+				<span>{{ t("verify.selfieStepCompare") }}</span>
+			</div>
+			<div class="step" [class.active]="phase === 'finishing'">
+				<span class="step-icon" aria-hidden="true"></span>
+				<span>{{ t("verify.selfieStepFinish") }}</span>
+			</div>
+		</div>
+
+		<button type="button" class="skip-link" *ngIf="canSkip && !capturedPreview" (click)="skipped.emit()">
+			{{ t("verify.skip") }}
+		</button>
+	</div>
+</ng-container>
+

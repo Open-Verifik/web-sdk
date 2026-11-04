@@ -176,11 +176,11 @@ export class ProjectFlow {
 	private _getVerificationMethods(v2Document: any): string[] {
 		const methods: string[] = [];
 
-		if (v2Document.scanDocumentAllowed) {
+		if (v2Document.scanDocumentAllowed !== false && (v2Document.scanDocumentAllowed || v2Document.uploadDocumentAllowed === undefined)) {
 			methods.push("scan");
 		}
 
-		if (v2Document.uploadDocumentAllowed) {
+		if (v2Document.uploadDocumentAllowed !== false && (v2Document.uploadDocumentAllowed || v2Document.scanDocumentAllowed === undefined)) {
 			methods.push("upload");
 		}
 

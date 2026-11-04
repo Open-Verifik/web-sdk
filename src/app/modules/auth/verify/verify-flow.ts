@@ -22,6 +22,7 @@ export type VerifyScreen =
 	| "flip"
 	| "back"
 	| "reviewBack"
+	| "ocrReview"
 	| "selfieIntro"
 	| "selfie"
 	| "retry"
@@ -56,6 +57,7 @@ export interface VerifySettings {
 export interface ResumeInput {
 	currentStep?: string;
 	documentFailed: boolean;
+	documentMismatch?: boolean;
 	documentStep: StepFlag;
 	emailNeeded: boolean;
 	hasBack: boolean;
@@ -115,11 +117,13 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (input.emailNeeded) return "emailCode";
 	if (input.phoneNeeded) return "phoneCode";
 	if (input.documentFailed) return "retry";
+	if (input.hasDocument && input.documentMismatch) return "ocrReview";
 	if (input.hasDocument && input.needsBack && !input.hasBack) return "flip";
 
 	const startedCapture = input.currentStep === "document" || input.currentStep === "liveness" || input.hasDocument;
 
 	if (startedCapture && input.documentStep !== "skip" && !input.hasDocument) return "ready";
+	if (input.hasDocument && input.currentStep === "document") return "ocrReview";
 	if (input.hasDocument && input.livenessStep !== "skip") return "selfieIntro";
 	if (startedCapture && input.documentStep === "skip" && input.livenessStep !== "skip") return "selfieIntro";
 	if (input.hasDocument && input.livenessStep === "skip") return "submitted";
@@ -155,7 +159,7 @@ export const progressSegments = (hasContact: boolean): Array<"contact" | "consen
 
 const CONTACT_SCREENS = new Set<VerifyScreen>(["signup", "name", "email", "phone", "agreements", "emailCode", "phoneCode"]);
 const CONSENT_SCREENS = new Set<VerifyScreen>(["consent", "decline"]);
-const DOCUMENT_SCREENS = new Set<VerifyScreen>(["handoff", "ready", "front", "reviewFront", "flip", "back", "reviewBack"]);
+const DOCUMENT_SCREENS = new Set<VerifyScreen>(["handoff", "ready", "front", "reviewFront", "flip", "back", "reviewBack", "ocrReview"]);
 const SELFIE_SCREENS = new Set<VerifyScreen>(["selfieIntro", "selfie", "retry"]);
 
 export const progressIndex = (screen: VerifyScreen, hasContact: boolean): number => {
