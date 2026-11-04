@@ -65,6 +65,10 @@ export class VerifySessionService implements OnDestroy {
 	documentMethod: "scan" | "upload" = "scan";
 	draft: VerifyDraft = this._emptyDraft();
 	errorKey = "";
+	errorTitleKey = "verify.errorTitle";
+	retryTitleKey = "verify.retryTitle";
+	retryBodyKey = "verify.retryBody";
+	retryAttemptsRemaining: number | null = null;
 	frontDocumentFace: string | null = null;
 	frontDocumentImage: string | null = null;
 	history: VerifyScreen[] = [];
@@ -296,6 +300,76 @@ export class VerifySessionService implements OnDestroy {
 		this._touch();
 	}
 
+	resolveErrorText(t: (key: string, params?: any) => string): string {
+		const key = this.errorKey;
+		if (!key) return t("verify.errorBody");
+
+		if (key.includes(".")) {
+			const translated = t(key);
+			if (translated && translated !== key) return translated;
+		}
+
+		for (const ns of ["errors.", "biometrics.", "document.", "verify."]) {
+			const candidate = `${ns}${key}`;
+			const translated = t(candidate);
+			if (translated && translated !== candidate) return translated;
+		}
+
+		return key;
+	}
+
+	resolveRetryText(t: (key: string, params?: any) => string): string {
+		const key = this.retryBodyKey;
+		if (!key) return t("verify.retryBody");
+
+		if (key.includes(".")) {
+			const translated = t(key);
+			if (translated && translated !== key) return translated;
+		}
+
+		for (const ns of ["biometrics.", "errors.", "document.", "verify."]) {
+			const candidate = `${ns}${key}`;
+			const translated = t(candidate);
+			if (translated && translated !== candidate) return translated;
+		}
+
+		return t("verify.retryBody");
+	}
+
+	private _mapBiometricReason(reason: string): string {
+		const key = String(reason || "").trim();
+		const knownQuality: Record<string, string> = {
+			face_not_centered: "biometrics.face_not_centered",
+			face_rotation_too_large: "biometrics.face_rotation_too_large",
+			face_occluded: "biometrics.face_occluded",
+			no_face_detected: "biometrics.no_face_detected",
+			multiple_faces_detected: "biometrics.multiple_faces_detected",
+			face_too_far: "biometrics.face_too_far",
+			face_too_close: "biometrics.face_too_close",
+			poor_lighting: "biometrics.poor_lighting",
+			face_not_visible: "biometrics.face_not_visible",
+			liveness_failed: "errors.liveness_failed",
+			liveness_score_not_acceptable: "errors.Liveness_score_not_acceptable",
+		};
+
+		return knownQuality[key] || (key && !key.includes("unknown") ? `biometrics.${key}` : "verify.retryBody");
+	}
+
+	private _mapDocumentReason(reason: string): string {
+		const key = String(reason || "").trim();
+		const knownDoc: Record<string, string> = {
+			document_not_detected: "document.document_not_detected_description",
+			country_mismatch: "document.country_mismatch",
+			face_not_found: "document.face_not_found_details",
+			failed_to_read: "document.error_extracting_document_information",
+			error_extracting_document_information: "document.error_extracting_document_information",
+			driver_license_not_allowed: "document.driver_license_not_allowed",
+			passport_not_allowed: "document.passport_not_allowed",
+		};
+
+		return knownDoc[key] || "verify.retryBody";
+	}
+
 	open(projectId: string, rawToken?: string): void {
 		const token = resolveToken(projectId, rawToken);
 		const key = `${projectId}:${token}`;
@@ -334,7 +408,14 @@ export class VerifySessionService implements OnDestroy {
 
 		const previous = this.history.pop();
 
-		if (!previous) return;
+		if (!previous) {
+			if (this.screen === "error") {
+				const first = contactScreens(this.settings)[0] || "consent";
+				this.screen = first;
+				this._touch();
+			}
+			return;
+		}
 
 		this.screen = previous;
 		this._touch();
@@ -1181,7 +1262,7 @@ export class VerifySessionService implements OnDestroy {
 
 		this._kyc.createDocumentValidation(body).subscribe({
 			next: (response) => this._afterDocument(response, back),
-			error: () => this._failAttempt("document"),
+			error: (err) => this._failAttempt("document", err),
 		});
 	}
 
@@ -1449,7 +1530,9 @@ export class VerifySessionService implements OnDestroy {
 					this._kyc.appRegistration = this.registration;
 
 					if (this.registration.biometricValidation?.status === "failed") {
-						this._failAttempt("liveness");
+						this._failAttempt("liveness", {
+							failureReason: this.registration.biometricValidation.failedReason,
+						});
 						return;
 					}
 
@@ -1460,7 +1543,7 @@ export class VerifySessionService implements OnDestroy {
 
 					this._finish(this._score(), "end");
 				},
-				error: () => this._failAttempt("liveness"),
+				error: (err) => this._failAttempt("liveness", err),
 			});
 	}
 
@@ -1494,11 +1577,30 @@ export class VerifySessionService implements OnDestroy {
 		});
 	}
 
-	private _failAttempt(kind: "document" | "liveness"): void {
+	private _failAttempt(kind: "document" | "liveness", error?: any): void {
 		this.busy = false;
 		this.selfiePhase = "idle";
 		this.selfieDone$.next();
 		const settings = this.settings;
+
+		const parsed = parseApiError(error);
+
+		// Unrecoverable identity conflicts or fatal account/billing errors
+		if (
+			parsed.kind === "conflict" ||
+			parsed.kind === "billing" ||
+			parsed.reason.includes("linked_to_another") ||
+			parsed.reason.includes("already_set") ||
+			parsed.reason.includes("duplicated_person") ||
+			parsed.reason === "insufficient_credits" ||
+			parsed.reason === "existing_document_validation_with_document_number"
+		) {
+			this.errorTitleKey = parsed.kind === "conflict" ? "errors.conflict" : "verify.errorTitle";
+			this.errorKey = parsed.reason.includes(".") ? parsed.reason : `errors.${parsed.reason}`;
+			this.screen = "error";
+			this._touch();
+			return;
+		}
 
 		if (kind === "document") this._documentFailures += 1;
 		else this._livenessFailures += 1;
@@ -1513,8 +1615,18 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
+		this.retryAttemptsRemaining = remaining;
 		this.retryTarget = kind === "document" ? "front" : "selfie";
 		this.captureSide = "front";
+
+		if (kind === "liveness") {
+			this.retryTitleKey = "verify.retryTitle";
+			this.retryBodyKey = this._mapBiometricReason(parsed.reason);
+		} else {
+			this.retryTitleKey = "verify.retryTitle";
+			this.retryBodyKey = this._mapDocumentReason(parsed.reason);
+		}
+
 		this._push("retry");
 	}
 
@@ -1566,12 +1678,17 @@ export class VerifySessionService implements OnDestroy {
 		this.sheet = null;
 		this.busy = false;
 		this.selfiePhase = "idle";
-		this.errorKey = "";
+		if (screen !== "error" && screen !== "retry") {
+			this.errorKey = "";
+			this.errorTitleKey = "verify.errorTitle";
+			this.retryBodyKey = "verify.retryBody";
+		}
 		this._touch();
 	}
 
-	private _fail(key: string): void {
+	private _fail(key: string, titleKey?: string): void {
 		this.busy = false;
+		this.errorTitleKey = titleKey || "verify.errorTitle";
 		this.errorKey = key;
 		this.screen = "error";
 		this._touch();
@@ -1797,3 +1914,44 @@ const loadHtmlImage = (src: string): Promise<HTMLImageElement> =>
 		img.onerror = reject;
 		img.src = src;
 	});
+
+interface ParsedApiError {
+	reason: string;
+	kind: string;
+	message: string;
+	status: number;
+}
+
+const parseApiError = (err: any): ParsedApiError => {
+	if (!err) return { reason: "unknown", kind: "unknown", message: "", status: 0 };
+	const status = Number(err.status || err.statusCode || 0);
+	const body = err.error || err.body || (typeof err === "object" ? err : {});
+	const rawMsg = String(body?.message || body?.error || err.message || "").replace(/^\d{3}:/, "").trim();
+	const bodyReason = String(body?.failureReason || "").replace(/^\d{3}:/, "").trim();
+	const reason =
+		bodyReason && bodyReason !== "liveness_error" && bodyReason !== "unknown"
+			? bodyReason
+			: rawMsg || bodyReason || "unknown";
+
+	let kind = String(body?.failureKind || "").trim();
+
+	if (!kind || kind === "unknown") {
+		if (
+			status === 409 ||
+			reason.includes("linked_to_another") ||
+			reason.includes("already_set") ||
+			reason.includes("duplicated_person")
+		) {
+			kind = "conflict";
+		} else if (status === 402 || reason === "insufficient_credits") {
+			kind = "billing";
+		}
+	}
+
+	return {
+		reason: reason || "unknown",
+		kind: kind || "unknown",
+		message: rawMsg,
+		status,
+	};
+};

@@ -49,8 +49,8 @@
 				</div>
 
 				<div *ngSwitchCase="'error'" class="center">
-					<h1>{{ t("verify.errorTitle") }}</h1>
-					<p>{{ session.errorKey.startsWith("verify.") ? t(session.errorKey) : session.errorKey || t("verify.errorBody") }}</p>
+					<h1>{{ t(session.errorTitleKey || "verify.errorTitle") }}</h1>
+					<p>{{ session.resolveErrorText(t) }}</p>
 					<button type="button" class="primary" (click)="session.back()">{{ t("verify.back") }}</button>
 				</div>
 
@@ -422,8 +422,8 @@
 
 				<div *ngSwitchCase="'retry'" class="center">
 					<div class="icon">!</div>
-					<h1>{{ t("verify.retryTitle") }}</h1>
-					<p>{{ t("verify.retryBody") }}</p>
+					<h1>{{ t(session.retryTitleKey || "verify.retryTitle") }}</h1>
+					<p>{{ session.resolveRetryText(t) }}</p>
 					<button type="button" class="primary" (click)="session.tryAgain()">{{ t("verify.tryAgain") }}</button>
 				</div>
 
