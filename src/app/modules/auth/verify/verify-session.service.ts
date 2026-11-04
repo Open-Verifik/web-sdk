@@ -191,11 +191,12 @@ export class VerifySessionService implements OnDestroy {
 
 	/** Cropped portrait extracted from the front of the ID document. */
 	get documentFaceImage(): string | null {
+		if (this.registration?.documentFace?.isPurged) return null;
+
 		const raw =
-			this.frontDocumentFace ||
 			this.registration?.documentFace?.base64 ||
 			this.registration?.documentFace?.url ||
-			this.pending?.face;
+			(!this.registration?.documentFace ? this.frontDocumentFace || this.pending?.face : null);
 
 		if (!raw) return null;
 
@@ -207,16 +208,13 @@ export class VerifySessionService implements OnDestroy {
 	/** Live selfie portrait (or ID portrait fallback when liveness was not run) for the submitted screen. */
 	get submittedSelfie(): string | null {
 		if (this.selfieImageFailed) return null;
-		if (this.selfieImage) return this.selfieImage;
+		if (this.registration?.face?.isPurged) return null;
 
-		if (typeof sessionStorage !== "undefined" && this.projectId) {
-			try {
-				const cached = sessionStorage.getItem(`verify_selfie_${this.projectId}`);
-				if (cached) return cached;
-			} catch {}
-		}
-
-		const rawFace = this.registration?.face?.base64 || this.registration?.face?.url || this.registration?.biometricValidation?.url;
+		const rawFace =
+			this.registration?.face?.base64 ||
+			this.registration?.face?.url ||
+			this.registration?.biometricValidation?.url ||
+			(!this.registration?.face ? this.selfieImage : null);
 
 		if (rawFace) return String(rawFace).startsWith("data:") || String(rawFace).startsWith("http") ? String(rawFace) : `data:image/jpeg;base64,${rawFace}`;
 
@@ -226,20 +224,16 @@ export class VerifySessionService implements OnDestroy {
 	/** Scanned front of the ID document for the submitted screen when document verification was used. */
 	get submittedDocument(): string | null {
 		if (this.docImageFailed) return null;
-		if (this.frontDocumentImage) return this.frontDocumentImage;
-
-		if (typeof sessionStorage !== "undefined" && this.projectId) {
-			try {
-				const cached = sessionStorage.getItem(`verify_doc_${this.projectId}`);
-				if (cached) return cached;
-			} catch {}
-		}
-
-		if (this.pending?.rawImage) return this.pending.rawImage;
+		if (this.registration?.documentValidation?.isPurged) return null;
 
 		const docUrl = this.registration?.documentValidation?.frontUrl || this.registration?.documentValidation?.url;
+		if (docUrl) return String(docUrl);
 
-		return docUrl ? String(docUrl) : null;
+		if (this.registration?.documentValidation && typeof this.registration.documentValidation === "object") {
+			return null;
+		}
+
+		return this.frontDocumentImage || this.pending?.rawImage || null;
 	}
 
 	onSubmittedDocError(): void {
@@ -1292,11 +1286,6 @@ export class VerifySessionService implements OnDestroy {
 			if (this.pending.barcodeReadAttempts) body.barcodeReadAttempts = this.pending.barcodeReadAttempts;
 		} else {
 			this.frontDocumentImage = this.pending.rawImage || (base64Image ? `data:image/jpeg;base64,${base64Image}` : null);
-			if (this.frontDocumentImage && typeof sessionStorage !== "undefined" && this.projectId) {
-				try {
-					sessionStorage.setItem(`verify_doc_${this.projectId}`, this.frontDocumentImage);
-				} catch {}
-			}
 			if (this.pending.face) this.frontDocumentFace = this.pending.face;
 			body.image = base64Image;
 			body.documentFace = this.pending.face || this.frontDocumentFace;
@@ -1555,11 +1544,6 @@ export class VerifySessionService implements OnDestroy {
 
 		this.busy = true;
 		this.selfieImage = scan.rawImage || (scan.face ? `data:image/jpeg;base64,${scan.face}` : scan.base64Image ? `data:image/jpeg;base64,${scan.base64Image}` : null);
-		if (this.selfieImage && typeof sessionStorage !== "undefined" && this.projectId) {
-			try {
-				sessionStorage.setItem(`verify_selfie_${this.projectId}`, this.selfieImage);
-			} catch {}
-		}
 		this.selfiePhase = "liveness";
 		this._touch();
 
