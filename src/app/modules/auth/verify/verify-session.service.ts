@@ -458,6 +458,7 @@ export class VerifySessionService implements OnDestroy {
 		}
 
 		if (!response.planCode) {
+			this.busy = false;
 			this.screen = "upgrade";
 			this._touch();
 			return;
@@ -482,6 +483,7 @@ export class VerifySessionService implements OnDestroy {
 				next: (ip) => {
 					if (shouldBlockCountry(allowed, ip?.data)) {
 						this.detectedCountry = ip?.data?.country || "";
+						this.busy = false;
 						this.screen = "countryBlocked";
 						this._touch();
 						return;
@@ -534,6 +536,7 @@ export class VerifySessionService implements OnDestroy {
 
 		this._seedPhoneGateway();
 		this.history = [];
+		this.busy = false;
 		this.screen = this.flowOrder === "consent_first" ? "consent" : screens[0] || "consent";
 		this._touch();
 	}
@@ -579,6 +582,7 @@ export class VerifySessionService implements OnDestroy {
 		const first = contactScreens(settings)[0] || "consent";
 
 		this.history = screen === first ? [] : [first];
+		this.busy = false;
 		this.screen = screen;
 		this._touch();
 	}
@@ -596,7 +600,7 @@ export class VerifySessionService implements OnDestroy {
 			.pipe(takeUntil(this._destroy$))
 			.subscribe({
 				next: (response) => {
-					this.busy = false;
+					// stays busy until the next screen shows, so the button keeps its spinner during the follow-up request
 					const token = response?.data?.token;
 
 					this.registration = response?.data?.appRegistration;
@@ -623,7 +627,6 @@ export class VerifySessionService implements OnDestroy {
 		this.busy = true;
 		this._afterSend(this._emailSend$, () => this._kyc.confirmEmailValidation(this.draft.email, this.draft.otp)).subscribe({
 			next: () => {
-				this.busy = false;
 				this.draft.otp = "";
 				if (this.registration?.emailValidation) this.registration.emailValidation.status = "validated";
 				if (needsPhoneCode(this.settings, false)) {
@@ -647,7 +650,6 @@ export class VerifySessionService implements OnDestroy {
 			this._kyc.confirmPhoneValidation(this.draft.countryCode, this.draft.phone, this.draft.otp)
 		).subscribe({
 			next: () => {
-				this.busy = false;
 				this.draft.otp = "";
 				if (this.registration?.phoneValidation) this.registration.phoneValidation.status = "validated";
 				this._syncContact();

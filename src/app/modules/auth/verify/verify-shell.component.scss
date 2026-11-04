@@ -200,6 +200,40 @@ select:focus {
 
 .primary:disabled {
 	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* A busy button keeps its full colour and shows a spinner, so it reads as "working", not "unavailable". */
+.primary.loading,
+.primary.loading:disabled {
+	opacity: 1;
+	cursor: progress;
+}
+
+.primary.loading::before {
+	content: "";
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-right: 10px;
+	vertical-align: -3px;
+	border-radius: 50%;
+	border: 2px solid currentColor;
+	border-right-color: transparent;
+	animation: spin 0.7s linear infinite;
+}
+
+.form.is-busy label,
+.form.is-busy .otp,
+.form.is-busy .choices {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.primary.loading::before {
+		animation-duration: 2.4s;
+	}
 }
 
 .secondary {

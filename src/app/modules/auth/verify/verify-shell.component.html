@@ -54,7 +54,7 @@
 					<button type="button" class="primary" (click)="session.back()">{{ t("verify.back") }}</button>
 				</div>
 
-				<form *ngSwitchCase="'signup'" class="form" (ngSubmit)="session.continueContact()">
+				<form *ngSwitchCase="'signup'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.continueContact()">
 					<h1>{{ t("verify.nameTitle") }}</h1>
 					<label *ngIf="session.settings?.fullName && !session.settings?.firstName">
 						{{ t("verify.fullName") }}
@@ -90,27 +90,27 @@
 							<a *ngIf="session.settings?.showPrivacy && session.project?.privacyUrl" [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacy") }}</a>
 						</span>
 					</label>
-					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+					<button class="primary" type="submit" [disabled]="!canContinue() || session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy">{{ t("verify.continue") }}</button>
 				</form>
 
-				<form *ngSwitchCase="'emailCode'" class="form" (ngSubmit)="session.submitCode()">
+				<form *ngSwitchCase="'emailCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
 					<h1>{{ t("verify.codeTitle") }}</h1>
 					<p>{{ t("verify.codeEmail", { email: session.draft.email || session.registration?.email }) }}</p>
 					<div class="otp" (paste)="onOtpPaste($event)">
 						<input *ngFor="let box of boxes; let i = index" [value]="otpAt(i)" (input)="onOtp($event, i)" inputmode="numeric" maxlength="1" />
 					</div>
 					<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
-					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+					<button class="primary" type="submit" [disabled]="!canContinue() || session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy">{{ t("verify.continue") }}</button>
 				</form>
 
-				<form *ngSwitchCase="'phoneCode'" class="form" (ngSubmit)="session.submitCode()">
+				<form *ngSwitchCase="'phoneCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
 					<h1>{{ t("verify.codeTitle") }}</h1>
 					<p>{{ t("verify.codePhone", { phone: (session.draft.countryCode || '') + ' ' + (session.draft.phone || session.registration?.phone || '') }) }}</p>
 					<div class="otp" (paste)="onOtpPaste($event)">
 						<input *ngFor="let box of boxes; let i = index" [value]="otpAt(i)" (input)="onOtp($event, i)" inputmode="numeric" maxlength="1" />
 					</div>
 					<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
-					<button class="primary" type="submit" [disabled]="!canContinue()">{{ t("verify.continue") }}</button>
+					<button class="primary" type="submit" [disabled]="!canContinue() || session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy">{{ t("verify.continue") }}</button>
 				</form>
 
 				<div *ngSwitchCase="'consent'" class="center">
@@ -133,8 +133,8 @@
 						<a *ngIf="session.project?.privacyUrl" [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacyPolicy") }}</a>
 						<button type="button" class="link inline" (click)="session.openSheet('language')">{{ languageLabel }}</button>
 					</p>
-					<button type="button" class="primary" (click)="session.agree()">{{ t("verify.agree") }}</button>
-					<button type="button" class="secondary" (click)="session.decline()">{{ t("verify.decline") }}</button>
+					<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.agree()">{{ t("verify.agree") }}</button>
+					<button type="button" class="secondary" [disabled]="session.busy" (click)="session.decline()">{{ t("verify.decline") }}</button>
 				</div>
 
 				<div *ngSwitchCase="'decline'" class="center">
@@ -178,7 +178,7 @@
 					<h1>{{ t("verify.reviewTitle") }}</h1>
 					<img class="preview" [src]="session.pending?.rawImage" alt="" />
 					<p>{{ t("verify.reviewBody") }}</p>
-					<button type="button" class="primary" [disabled]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
+					<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
 					<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
 				</div>
 
@@ -205,7 +205,7 @@
 					<h1>{{ t("verify.reviewBackTitle") }}</h1>
 					<img class="preview" [src]="session.pending?.rawImage" alt="" />
 					<p>{{ t("verify.reviewBody") }}</p>
-					<button type="button" class="primary" [disabled]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
+					<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
 					<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
 				</div>
 
