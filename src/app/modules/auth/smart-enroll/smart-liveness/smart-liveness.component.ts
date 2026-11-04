@@ -337,7 +337,10 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             .then(this._validateFace)
             .catch(() => {
                 this.face.error = true;
+                this.face.success = false;
+                this.face.successPosition = 0;
                 this.face.message = "not-found";
+                this._changeDetectionRef.markForCheck();
             });
     };
 
@@ -369,6 +372,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         videoCanvas.style.transform = `translate(${this.scaledVideo.offsetX}px, ${this.scaledVideo.offsetY}px) scaleX(-1)`;
 
         this.camera.loading = false;
+        this._changeDetectionRef.detectChanges();
 
         // Adaptive detection timing based on device performance
         const isMobile = this.device !== "DESKTOP";
@@ -578,7 +582,10 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         // Require fewer consecutive successes on mobile for better UX
         const requiredSuccesses = this.device !== "DESKTOP" ? 2 : 2;
 
-        if (this.face.successPosition < requiredSuccesses) return;
+        if (this.face.successPosition < requiredSuccesses) {
+            this._changeDetectionRef.markForCheck();
+            return;
+        }
 
         this.faceCapture = { angle, base64: this.videoCanvas.nativeElement.toDataURL(), detection };
 
@@ -587,11 +594,10 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
         this.face.error = false;
         this.face.message = "";
 
-        this._changeDetectionRef.detectChanges();
-
-        this.uploading = true;
-
         this._stopCamera();
+        this.uploading = true;
+        this.camera.loading = false;
+        this._changeDetectionRef.detectChanges();
 
         this._captureAndCropImage().then((base64Image) => {
             const croppedImage = base64Image.replace(/^data:.*;base64,/, "");

@@ -33,6 +33,9 @@ export class ProjectFlow {
 	client: string;
 	createdAt?: string;
 	documents?: PersonalDocuments | BusinessDocuments;
+	enrollmentClient?: "legacy" | "v2";
+	verifyStyle?: "a" | "b" | "c" | "d" | "e" | "f";
+	flowOrder?: "contact_first" | "consent_first";
 	integrations: PersonalIntegrations | BusinessIntegrations;
 	liveness: PersonalLiveness | BusinessLiveness;
 	loginSettings?: LoginSettings;
@@ -56,6 +59,9 @@ export class ProjectFlow {
 		this.type = data.type;
 		this.updatedAt = data.updatedAt;
 		this.version = data.version || 2; // Default to V2 - V3 will have the version set
+		this.enrollmentClient = enrollmentClientFrom(data);
+		this.verifyStyle = verifyStyleFrom(data);
+		this.flowOrder = flowOrderFrom(data);
 
 		if (!this.version || this.version < 3) {
 			this._migrateFromV2(data as LegacyProjectFlow);
@@ -118,6 +124,9 @@ export class ProjectFlow {
 				searchMinScore: liveness?.searchMinScore || 0.81,
 				searchMode: liveness?.searchMode || "FAST",
 			},
+			enrollmentClient: this.enrollmentClient,
+			verifyStyle: this.verifyStyle,
+			flowOrder: this.flowOrder,
 			signUpForm: {
 				email: signUpForm?.email || false,
 				emailGateway: signUpForm?.emailGateway || "none",
@@ -167,11 +176,11 @@ export class ProjectFlow {
 	private _getVerificationMethods(v2Document: any): string[] {
 		const methods: string[] = [];
 
-		if (v2Document.scanDocumentAllowed) {
+		if (v2Document.scanDocumentAllowed !== false && (v2Document.scanDocumentAllowed || v2Document.uploadDocumentAllowed === undefined)) {
 			methods.push("scan");
 		}
 
-		if (v2Document.uploadDocumentAllowed) {
+		if (v2Document.uploadDocumentAllowed !== false && (v2Document.uploadDocumentAllowed || v2Document.scanDocumentAllowed === undefined)) {
 			methods.push("upload");
 		}
 
@@ -416,3 +425,55 @@ export class ProjectFlow {
 		}
 	}
 }
+
+export const enrollmentClientFrom = (data: unknown): "legacy" | "v2" | undefined => {
+	const nested = (data as { onboardingSettings?: { enrollmentClient?: string } })?.onboardingSettings?.enrollmentClient;
+	if (nested === "v2" || nested === "legacy") return nested;
+
+	const root = (data as { enrollmentClient?: string })?.enrollmentClient;
+	if (root === "v2" || root === "legacy") return root;
+
+	return undefined;
+};
+
+export const VERIFY_STYLE_IDS = ["a", "b", "c", "d", "e", "f"] as const;
+
+export const verifyStyleFrom = (data: unknown): (typeof VERIFY_STYLE_IDS)[number] | undefined => {
+	const nested = String(
+		(data as { onboardingSettings?: { verifyStyle?: unknown } })?.onboardingSettings?.verifyStyle ?? ""
+	)
+		.trim()
+		.toLowerCase();
+	if ((VERIFY_STYLE_IDS as readonly string[]).includes(nested)) {
+		return nested as (typeof VERIFY_STYLE_IDS)[number];
+	}
+
+	const root = String((data as { verifyStyle?: unknown })?.verifyStyle ?? "")
+		.trim()
+		.toLowerCase();
+	if ((VERIFY_STYLE_IDS as readonly string[]).includes(root)) {
+		return root as (typeof VERIFY_STYLE_IDS)[number];
+	}
+
+	return undefined;
+};
+
+
+export type FlowOrder = "contact_first" | "consent_first";
+
+/** A = contact first (V1 order), B = consent first (Stripe Identity order). */
+export const flowOrderFrom = (data: unknown): FlowOrder | undefined => {
+	const value = (data as { onboardingSettings?: { flowOrder?: string } })?.onboardingSettings?.flowOrder ?? (data as { flowOrder?: string })?.flowOrder;
+
+	return value === "contact_first" || value === "consent_first" ? value : undefined;
+};
+
+/** `?order=a` or `?order=b` lets testers compare both orders without touching the saved project. */
+export const flowOrderFromQuery = (value: string | null | undefined): FlowOrder | undefined => {
+	const key = String(value || "").trim().toLowerCase();
+
+	if (key === "a" || key === "contact_first") return "contact_first";
+	if (key === "b" || key === "consent_first") return "consent_first";
+
+	return undefined;
+};

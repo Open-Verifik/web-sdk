@@ -40,6 +40,10 @@ export const appRoutes: Route[] = [
                 path: "sign-up",
                 loadChildren: () => import("app/modules/auth/sign-up/sign-up.routes"),
             },
+            {
+                path: "verify",
+                loadChildren: () => import("app/modules/auth/verify/verify.routes"),
+            },
         ],
     },
     {

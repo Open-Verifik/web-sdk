@@ -1,0 +1,112 @@
+:host {
+	display: block;
+	margin-top: 6px;
+}
+
+.select {
+	position: relative;
+}
+
+.trigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	width: 100%;
+	min-height: 48px;
+	/* The chevron gets its own gutter, so it never sits against the border */
+	padding: 11px 16px 11px 14px;
+	border: 1px solid var(--style-line, #868685);
+	border-radius: var(--style-radius-input, 10px);
+	background: var(--style-input-bg, var(--style-card, #fff));
+	color: var(--style-ink, var(--title));
+	font-family: var(--style-body-font, "Inter", sans-serif);
+	font-size: 16px;
+	font-weight: 400;
+	letter-spacing: 0;
+	text-align: left;
+	text-transform: none;
+	cursor: pointer;
+}
+
+.trigger:focus-visible,
+.select.open .trigger {
+	outline: none;
+	border-color: var(--style-focus, var(--style-ink, #163300));
+}
+
+.trigger:focus-visible {
+	box-shadow: 0 0 0 3px rgba(127, 127, 127, 0.25);
+}
+
+.select.disabled .trigger {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.current {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.current.placeholder {
+	opacity: 0.55;
+}
+
+.chevron {
+	flex: none;
+	width: 18px;
+	height: 18px;
+	transition: transform 0.18s ease;
+}
+
+.select.open .chevron {
+	transform: rotate(180deg);
+}
+
+.list {
+	margin: 6px 0 0;
+	padding: 4px;
+	max-height: 208px;
+	overflow-y: auto;
+	list-style: none;
+	border: 1px solid var(--style-line, #868685);
+	border-radius: var(--style-radius-input, 10px);
+	background: var(--style-card, #fff);
+}
+
+.list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 44px;
+	padding: 10px 12px;
+	border-radius: calc(var(--style-radius-input, 10px) - 2px);
+	color: var(--style-ink, var(--title));
+	font-family: var(--style-body-font, "Inter", sans-serif);
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.list li.active {
+	background: rgba(127, 127, 127, 0.14);
+}
+
+.list li.selected {
+	font-weight: 600;
+}
+
+.check {
+	flex: none;
+	width: 18px;
+	height: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.chevron {
+		transition: none;
+	}
+}

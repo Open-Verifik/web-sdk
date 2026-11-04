@@ -181,6 +181,9 @@ export interface LivenessSettings {
 export interface OnboardingSettings {
 	basicInformation: BasicInformationSettings;
 	document: DocumentSettings;
+	enrollmentClient?: "legacy" | "v2";
+	verifyStyle?: "a" | "b" | "c" | "d" | "e" | "f";
+	flowOrder?: "contact_first" | "consent_first";
 	form?: string;
 	hiddenLoginOption?: boolean;
 	liveness: LivenessSettings;
