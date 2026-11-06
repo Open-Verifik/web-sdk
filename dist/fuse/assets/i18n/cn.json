@@ -1047,6 +1047,7 @@
 		"handoffTitle": "在移动设备上继续",
 		"havingTrouble": "遇到问题？",
 		"imReady": "我准备好了",
+		"identityVerification": "身份验证",
 		"languageTitle": "语言",
 		"lastName": "姓氏",
 		"license": "驾照",
@@ -1172,6 +1173,16 @@
 		"submittedStatusVerified": "已验证",
 		"submittedStatusProtected": "已保护",
 		"submittedContinueBtn": "继续前往 {{project}}",
-		"submittedRedirecting": "{{seconds}}秒后自动重定向..."
+		"submittedRedirecting": "{{seconds}}秒后自动重定向...",
+		"handoffWaitingPhone": "正在等待手机连接…",
+		"handoffConnectedTitle": "已连接到您的手机",
+		"handoffConnectedBody": "在移动设备上完成验证期间，请保持此窗口打开。",
+		"handoffStepConnected": "手机已连接",
+		"handoffStepDocument": "身份证件拍摄",
+		"handoffStepSelfie": "自拍与活体检测",
+		"handoffShowQrAgain": "再次显示二维码",
+		"handoffBackToProgress": "返回实时进度",
+		"returnToComputerTitle": "请在电脑上继续",
+		"returnToComputerBody": "您的电脑屏幕已自动更新，您现在可以安全地关闭手机上的此标签页。"
 	}
 }

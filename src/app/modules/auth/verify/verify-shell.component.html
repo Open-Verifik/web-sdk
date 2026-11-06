@@ -2,6 +2,7 @@
 	<div
 		class="page"
 		[class.compact]="session.compact"
+		[class.has-banner]="hasBanner"
 		[ngClass]="'style-' + styleId"
 		[attr.data-style]="styleId"
 		[style.--style-cta]="session.project?.branding?.buttonColor || null"
@@ -14,548 +15,1222 @@
 		[style.--style-body]="session.project?.branding?.textColor || null"
 		[style.--style-page]="session.project?.branding?.backgroundColor || null"
 		[style.--style-page-mobile]="session.project?.branding?.backgroundColor || null"
+		[style.--branding-image-bg]="bannerBgColor"
 	>
-		<section class="card" [class.dimmed]="session.sheet">
-			<header class="top" *ngIf="session.showHeader">
-				<button type="button" class="back" *ngIf="session.history.length > 0 || session.sheet" (click)="session.back()" [attr.aria-label]="t('verify.back')">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" /></svg>
-				</button>
-				<div class="brand">
-					<img *ngIf="session.project?.branding?.logo; else brandNameTpl" [src]="session.project?.branding?.logo" [alt]="session.project?.name || ''" />
-					<ng-template #brandNameTpl>
-						<span>{{ session.project?.name }}</span>
-					</ng-template>
-				</div>
-			</header>
-			<div class="progress" *ngIf="session.showHeader">
-				<span *ngFor="let segment of segments; let i = index" [class.filled]="i <= progressAt"></span>
-			</div>
-
-			<div class="body" [ngSwitch]="session.screen">
-				<p class="eyebrow" *ngIf="(styleId === 'c' || styleId === 'd') && session.screen !== 'submitted'">{{ t("verify.eyebrow") }}</p>
-				<div *ngSwitchCase="'loading'" class="center"><div class="spinner"></div></div>
-
-				<div *ngSwitchCase="'upgrade'" class="center">
-					<h1>{{ t("verify.upgradeTitle") }}</h1>
-					<p>{{ t("verify.upgradeBody") }}</p>
-				</div>
-
-				<div *ngSwitchCase="'countryBlocked'" class="center">
-					<h1>{{ t("verify.countryTitle") }}</h1>
-					<p>{{ t("verify.countryBody", { country: session.detectedCountry }) }}</p>
-					<button type="button" class="primary" *ngIf="session.projectFlow?.integrations?.redirectUrl" (click)="session.leaveBlockedCountry()">
-						{{ t("verify.continueToProject") }}
-					</button>
-				</div>
-
-				<div *ngSwitchCase="'error'" class="center">
-					<h1>{{ t(session.errorTitleKey || "verify.errorTitle") }}</h1>
-					<p>{{ session.resolveErrorText(t) }}</p>
-					<button type="button" class="primary" (click)="session.back()">{{ t("verify.back") }}</button>
-				</div>
-
-				<form *ngSwitchCase="'signup'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.continueContact()">
-					<h1>{{ t("verify.nameTitle") }}</h1>
-					<label *ngIf="session.settings?.fullName && !session.settings?.firstName">
-						{{ t("verify.fullName") }}
-						<input [(ngModel)]="session.draft.fullName" name="fullName" autocomplete="name" />
-					</label>
-					<label *ngIf="session.settings?.firstName">
-						{{ t("verify.firstName") }}
-						<input [(ngModel)]="session.draft.firstName" name="firstName" autocomplete="given-name" />
-					</label>
-					<label *ngIf="session.settings?.lastName">
-						{{ t("verify.lastName") }}
-						<input [(ngModel)]="session.draft.lastName" name="lastName" autocomplete="family-name" />
-					</label>
-					<label *ngIf="session.settings?.email">
-						{{ t("verify.emailLabel") }}
-						<input [(ngModel)]="session.draft.email" name="email" type="email" autocomplete="email" />
-					</label>
-					<div class="phone-row" *ngIf="session.settings?.phone">
-						<select [(ngModel)]="session.draft.countryCode" name="countryCode">
-							<option *ngFor="let dial of dialCodes" [value]="dial.code">{{ dial.code }}</option>
-						</select>
-						<input [(ngModel)]="session.draft.phone" name="phone" inputmode="tel" autocomplete="tel" />
-					</div>
-					<div class="choices" *ngIf="session.settings?.phoneGateway === 'both'">
-						<button type="button" [class.on]="session.draft.phoneGateway === 'sms'" (click)="session.setGateway('sms')">{{ t("verify.sms") }}</button>
-						<button type="button" [class.on]="session.draft.phoneGateway === 'whatsapp'" (click)="session.setGateway('whatsapp')">{{ t("verify.whatsapp") }}</button>
-					</div>
-					<label class="check" *ngIf="session.settings?.showTerms || session.settings?.showPrivacy">
-						<input type="checkbox" [(ngModel)]="session.draft.agreements" name="agreements" />
-						<span>
-							{{ t("verify.agreeTerms") }}
-							<a *ngIf="session.settings?.showTerms && session.project?.termsAndConditionsUrl" [href]="session.project?.termsAndConditionsUrl" target="_blank" rel="noopener">{{ t("verify.terms") }}</a>
-							<a *ngIf="session.settings?.showPrivacy && session.project?.privacyUrl" [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacy") }}</a>
-						</span>
-					</label>
-					<button class="primary" type="submit" [disabled]="!canContinue() || session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy">{{ t("verify.continue") }}</button>
-				</form>
-
-				<form *ngSwitchCase="'emailCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
-					<h1>{{ t("verify.codeTitle") }}</h1>
-					<p>{{ t("verify.codeEmail", { email: session.draft.email || session.registration?.email }) }}</p>
-					<div class="otp" (paste)="onOtpPaste($event)">
-						<input *ngFor="let box of boxes; let i = index" [value]="otpAt(i)" (input)="onOtp($event, i)" inputmode="numeric" maxlength="1" />
-					</div>
-					<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
-					<button class="primary" type="submit" [disabled]="!canContinue() || session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy">{{ t("verify.continue") }}</button>
-				</form>
-
-				<form *ngSwitchCase="'phoneCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
-					<h1>{{ t("verify.codeTitle") }}</h1>
-					<p>{{ t("verify.codePhone", { phone: (session.draft.countryCode || '') + ' ' + (session.draft.phone || session.registration?.phone || '') }) }}</p>
-					<div class="otp" (paste)="onOtpPaste($event)">
-						<input *ngFor="let box of boxes; let i = index" [value]="otpAt(i)" (input)="onOtp($event, i)" inputmode="numeric" maxlength="1" />
-					</div>
-					<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
-					<button class="primary" type="submit" [disabled]="!canContinue() || session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy">{{ t("verify.continue") }}</button>
-				</form>
-
-				<div *ngSwitchCase="'consent'" class="center">
-					<h1>{{ t("verify.consentTitle") }}</h1>
-					<ul class="rows consent-rows">
-						<li>
-							<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" /><circle cx="12" cy="12.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 6 9.6 4h4.8l1.1 2" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-							<span>{{ t("verify.consentRow1") }} <button type="button" class="link inline" (click)="session.openSheet('acceptedIds')">{{ t("verify.photoId") }}</button>{{ t("verify.consentRow1End") }}</span>
-						</li>
-						<li>
-							<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-							<span>{{ t("verify.consentRow2", { project: session.project?.name }) }}</span>
-						</li>
-						<li>
-							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="12" cy="10.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7.8 16.5c.7-2 2.2-3 4.2-3s3.5 1 4.2 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-							<span>{{ t("verify.consentRow3") }}</span>
-						</li>
-					</ul>
-					<p class="meta" *ngIf="session.project?.privacyUrl">
-						<a [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacyPolicy") }}</a>
-					</p>
-					<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.agree()">{{ t("verify.agree") }}</button>
-					<button type="button" class="secondary" [disabled]="session.busy" (click)="session.decline()">{{ t("verify.decline") }}</button>
-				</div>
-
-				<div *ngSwitchCase="'decline'" class="center">
-					<div class="icon">!</div>
-					<h1>{{ t("verify.declineTitle") }}</h1>
-					<p>{{ t("verify.declineBody") }}</p>
-					<button type="button" class="primary" (click)="session.backToConsent()">{{ t("verify.backToConsent") }}</button>
-					<button type="button" class="secondary" (click)="session.leaveProject()">{{ t("verify.goBackToProject", { project: session.project?.name }) }}</button>
-				</div>
-
-				<div *ngSwitchCase="'handoff'" class="center">
-					<h1>{{ t("verify.handoffTitle") }}</h1>
-					<p>{{ t("verify.handoffBody") }}</p>
-					<canvas #qr></canvas>
-					<button type="button" class="link" (click)="session.openSheet('otherOptions')">{{ t("verify.otherOptions") }}</button>
-				</div>
-
-				<div *ngSwitchCase="'ready'" class="center">
-					<div class="id-icon" aria-hidden="true"><svg viewBox="0 0 120 84" role="img" aria-hidden="true"><rect x="2" y="2" width="116" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2.5" /><rect x="14" y="20" width="34" height="42" rx="6" fill="none" stroke="currentColor" stroke-width="2.5" /><circle cx="31" cy="35" r="7" fill="none" stroke="currentColor" stroke-width="2.5" /><path d="M19 58c1-8 6-12 12-12s11 4 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /><path d="M60 26h46M60 38h34M60 50h22" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.55" /><rect x="90" y="56" width="18" height="12" rx="3" fill="var(--style-cta, currentColor)" stroke="currentColor" stroke-width="2" /></svg></div>
-					<h1>{{ session.uploadOnlyDocumentMethod ? t("verify.readyTitleUpload") : session.bothDocumentMethodsAllowed ? t("verify.readyTitleBoth") : t("verify.readyTitle") }}</h1>
-					<p>{{ session.uploadOnlyDocumentMethod ? t("verify.readyBodyUpload") : session.bothDocumentMethodsAllowed ? t("verify.readyBodyBoth") : t("verify.readyBody") }}</p>
-					<button type="button" class="primary" (click)="session.imReady()">{{ t("verify.imReady") }}</button>
-					<button type="button" class="link" *ngIf="session.settings?.document === 'optional'" (click)="session.skipDocument()">{{ t("verify.skip") }}</button>
-				</div>
-
-				<div *ngSwitchCase="'front'" class="capture">
-					<h1>{{ t("verify.frontTitle") }}</h1>
-					<div class="modes" *ngIf="session.scanAllowed">
-						<button type="button" [class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'auto'" (click)="session.setMode('auto')">{{ t("verify.auto") }}</button>
-						<button type="button" [class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'manual'" (click)="session.setMode('manual')">{{ t("verify.manual") }}</button>
-						<button type="button" *ngIf="session.uploadAllowed" [class.on]="session.effectiveDocumentMethod === 'upload'" (click)="session.selectDocumentMethod('upload')">{{ t("verify.uploadTab") }}</button>
-					</div>
-					<ng-container *ngIf="session.effectiveDocumentMethod === 'scan'; else uploadFrontView">
-						<verify-camera #cam [mode]="session.mode" [category]="session.category" side="front" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
-							<div class="guide" [class.ready]="cam.framed" [style.--guide-aspect]="cam.aspect" aria-hidden="true"></div>
-							<div class="outline" *ngIf="cam.outline as o" [class.ok]="cam.outlineOk" [style.left.%]="o.left" [style.top.%]="o.top" [style.width.%]="o.width" [style.height.%]="o.height" aria-hidden="true"></div>
-							<div class="pill" role="status" aria-live="polite" [class.ok]="cam.framed" [class.warn]="!cam.framed && cam.state !== 'starting' && cam.state !== 'searching' && cam.state !== 'manual'" [class.scanning]="cam.state === 'searching' || cam.state === 'starting'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>{{ t(cam.hintKey) }}</span></div>
-						</verify-camera>
-						<p *ngIf="session.mode === 'auto'">{{ t("verify.autoHelp") }}</p>
-						<button type="button" class="shutter" *ngIf="session.mode === 'manual'" (click)="shutter()" [attr.aria-label]="t('verify.manual')"></button>
-						<div class="capture-foot-links">
-							<button type="button" class="link" *ngIf="session.uploadAllowed" (click)="pickFile()">{{ t("verify.uploadPhotoInstead") }}</button>
-							<button type="button" class="link" (click)="session.openSheet('trouble')">{{ t("verify.havingTrouble") }}</button>
-						</div>
-					</ng-container>
-					<ng-template #uploadFrontView>
-						<div
-							class="upload-dropzone"
-							[class.drag-over]="isDraggingFile"
-							(click)="pickFile()"
-							(dragover)="onDragOver($event)"
-							(dragleave)="onDragLeave($event)"
-							(drop)="onFileDrop($event)"
-							role="button"
-							tabindex="0"
-							(keydown.enter)="pickFile()"
-							(keydown.space)="$event.preventDefault(); pickFile()"
+		<div class="shell-layout">
+			<div class="shell-main">
+				<section class="card" [class.dimmed]="session.sheet">
+					<header class="top" *ngIf="session.showHeader">
+						<button
+							type="button"
+							class="back"
+							*ngIf="session.history.length > 0 || session.sheet"
+							(click)="session.back()"
+							[attr.aria-label]="t('verify.back')"
 						>
-							<div class="upload-drop-icon" aria-hidden="true">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-									<polyline points="17 8 12 3 7 8" />
-									<line x1="12" y1="3" x2="12" y2="15" />
-								</svg>
-							</div>
-							<strong class="upload-drop-title">{{ t("verify.uploadDropTitleFront") }}</strong>
-							<span class="upload-drop-sub">{{ t("verify.uploadDropSub") }}</span>
-							<div class="upload-drop-badges" aria-hidden="true">
-								<span>JPG · PNG · WEBP</span>
-								<span>{{ t("verify.uploadTipClear") }}</span>
-							</div>
-						</div>
-						<button type="button" class="primary" (click)="pickFile()">{{ t("verify.uploadChooseFile") }}</button>
-						<button type="button" class="link" *ngIf="session.scanAllowed" (click)="session.selectDocumentMethod('scan')">{{ t("verify.useCameraInstead") }}</button>
-					</ng-template>
-				</div>
-
-				<div *ngSwitchCase="'reviewFront'" class="form">
-					<h1>{{ t("verify.reviewTitle") }}</h1>
-					<img class="preview" [src]="session.pending?.rawImage" alt="" />
-					<p>{{ t("verify.reviewBody") }}</p>
-					<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
-					<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
-				</div>
-
-				<div *ngSwitchCase="'flip'" class="center">
-					<h1>{{ t("verify.flipTitle") }}</h1>
-					<p>{{ t("verify.flipBody") }}</p>
-					<button type="button" class="primary" (click)="session.readyForBack()">{{ t("verify.imReady") }}</button>
-				</div>
-
-				<div *ngSwitchCase="'back'" class="capture">
-					<h1>{{ t("verify.backTitle") }}</h1>
-					<div class="modes" *ngIf="session.scanAllowed">
-						<button type="button" [class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'auto'" (click)="session.setMode('auto')">{{ t("verify.auto") }}</button>
-						<button type="button" [class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'manual'" (click)="session.setMode('manual')">{{ t("verify.manual") }}</button>
-						<button type="button" *ngIf="session.uploadAllowed" [class.on]="session.effectiveDocumentMethod === 'upload'" (click)="session.selectDocumentMethod('upload')">{{ t("verify.uploadTab") }}</button>
-					</div>
-					<ng-container *ngIf="session.effectiveDocumentMethod === 'scan'; else uploadBackView">
-						<verify-camera #cam [mode]="session.mode" [category]="session.category" side="back" [checkBarcode]="true" [promptTemplate]="session.template" (captured)="session.onCaptured($event)" (permissionDenied)="session.openSheet('camera')">
-							<div class="guide" [class.ready]="cam.framed" [style.--guide-aspect]="cam.aspect" aria-hidden="true"></div>
-							<div class="outline" *ngIf="cam.outline as o" [class.ok]="cam.outlineOk" [style.left.%]="o.left" [style.top.%]="o.top" [style.width.%]="o.width" [style.height.%]="o.height" aria-hidden="true"></div>
-							<div class="pill" role="status" aria-live="polite" [class.ok]="cam.framed" [class.warn]="!cam.framed && cam.state !== 'starting' && cam.state !== 'searching' && cam.state !== 'manual'" [class.scanning]="cam.state === 'searching' || cam.state === 'starting'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>{{ t(cam.hintKey) }}</span></div>
-						</verify-camera>
-						<button type="button" class="shutter" *ngIf="session.mode === 'manual'" (click)="shutter()" [attr.aria-label]="t('verify.manual')"></button>
-						<div class="capture-foot-links">
-							<button type="button" class="link" *ngIf="session.uploadAllowed" (click)="pickFile()">{{ t("verify.uploadPhotoInstead") }}</button>
-							<button type="button" class="link" (click)="session.openSheet('trouble')">{{ t("verify.havingTrouble") }}</button>
-						</div>
-					</ng-container>
-					<ng-template #uploadBackView>
+							<svg viewBox="0 0 24 24" aria-hidden="true">
+								<path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" />
+							</svg>
+						</button>
 						<div
-							class="upload-dropzone"
-							[class.drag-over]="isDraggingFile"
-							(click)="pickFile()"
-							(dragover)="onDragOver($event)"
-							(dragleave)="onDragLeave($event)"
-							(drop)="onFileDrop($event)"
-							role="button"
-							tabindex="0"
-							(keydown.enter)="pickFile()"
-							(keydown.space)="$event.preventDefault(); pickFile()"
+							class="brand"
+							[attr.data-logo-shape]="logoMetrics.shape"
+							[style.--logo-h.px]="logoMetrics.heightPx"
+							[style.--logo-max-w.px]="logoMetrics.maxWidthPx"
 						>
-							<div class="upload-drop-icon" aria-hidden="true">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-									<polyline points="17 8 12 3 7 8" />
-									<line x1="12" y1="3" x2="12" y2="15" />
-								</svg>
-							</div>
-							<strong class="upload-drop-title">{{ t("verify.uploadDropTitleBack") }}</strong>
-							<span class="upload-drop-sub">{{ t("verify.uploadDropSub") }}</span>
-							<div class="upload-drop-badges" aria-hidden="true">
-								<span>JPG · PNG · WEBP</span>
-								<span>{{ t("verify.uploadTipClear") }}</span>
-							</div>
-						</div>
-						<button type="button" class="primary" (click)="pickFile()">{{ t("verify.uploadChooseFile") }}</button>
-						<button type="button" class="link" *ngIf="session.scanAllowed" (click)="session.selectDocumentMethod('scan')">{{ t("verify.useCameraInstead") }}</button>
-					</ng-template>
-				</div>
-
-				<div *ngSwitchCase="'reviewBack'" class="form">
-					<h1>{{ t("verify.reviewBackTitle") }}</h1>
-					<img class="preview" [src]="session.pending?.rawImage" alt="" />
-					<p>{{ t("verify.reviewBody") }}</p>
-					<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.submitPhoto()">{{ t("verify.submitPhoto") }}</button>
-					<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
-				</div>
-
-				<div *ngSwitchCase="'ocrReview'" class="form ocr-review" [class.is-busy]="session.busy">
-					<h1>{{ session.documentMismatch ? t("verify.ocrMismatchTitle") : t("verify.ocrReviewTitle") }}</h1>
-					<p class="ocr-lead">{{ session.documentMismatch ? t("verify.ocrMismatchBody") : t("verify.ocrReviewBody") }}</p>
-
-					<div class="ocr-summary-card" [class.is-mismatch]="session.documentMismatch">
-						<div class="ocr-media-pair">
-							<div class="ocr-face-wrap" *ngIf="session.documentFaceImage as docFace; else ocrDocThumbOnly">
-								<img class="ocr-face-img" [src]="docFace" alt="" />
-								<img class="ocr-doc-mini" *ngIf="session.submittedDocument as docImg" [src]="docImg" alt="" />
-							</div>
-							<ng-template #ocrDocThumbOnly>
-								<img class="ocr-doc-thumb" *ngIf="session.submittedDocument as docImg" [src]="docImg" alt="" />
+							<img
+								*ngIf="session.project?.branding?.logo; else brandNameTpl"
+								[src]="session.project?.branding?.logo"
+								[alt]="session.project?.name || ''"
+								[ngClass]="'logo-' + logoMetrics.shape"
+								(load)="onLogoLoad($event)"
+							/>
+							<ng-template #brandNameTpl>
+								<span>{{ session.project?.name }}</span>
 							</ng-template>
 						</div>
-						<div class="ocr-summary-meta">
-							<span class="ocr-doc-title">{{ session.template?.title || session.template?.name || session.registration?.documentValidation?.documentType || t(categoryLabel(session.category)) }}</span>
-							<span class="ocr-doc-sub">{{ session.country || session.registration?.documentValidation?.country }}</span>
-						</div>
-						<span class="ocr-status-pill" [class.warn]="session.documentMismatch" [class.ok]="!session.documentMismatch">
-							{{ session.documentMismatch ? t("verify.ocrStatusMismatch") : t("verify.ocrStatusExtracted") }}
-						</span>
+					</header>
+					<div class="progress" *ngIf="session.showHeader">
+						<span *ngFor="let segment of segments; let i = index" [class.filled]="i <= progressAt"></span>
 					</div>
 
-					<ng-container *ngIf="session.documentMismatch; else ocrFieldsBlock">
-						<div class="ocr-mismatch-card" role="alert">
-							<div class="ocr-mismatch-row">
-								<span class="ocr-mismatch-label">{{ t("verify.ocrRequestedDoc") }}</span>
-								<strong class="ocr-mismatch-val">{{ session.template?.title || session.template?.name || session.documentClassification?.requestedDocumentType }} ({{ session.country || session.registration?.documentValidation?.country }})</strong>
-							</div>
-							<div class="ocr-mismatch-row" *ngIf="session.documentClassification?.detectedDocumentName || session.documentClassification?.detectedDocumentType">
-								<span class="ocr-mismatch-label">{{ t("verify.ocrDetectedDoc") }}</span>
-								<strong class="ocr-mismatch-val">{{ session.documentClassification?.detectedDocumentName || session.documentClassification?.detectedDocumentType }}</strong>
-							</div>
-							<p class="ocr-mismatch-reason" *ngIf="session.documentClassification?.reason">{{ session.documentClassification?.reason }}</p>
-						</div>
-						<button type="button" class="primary" (click)="session.retakeFromOcrReview()">{{ t("verify.retake") }}</button>
-						<button type="button" class="secondary" (click)="session.changeDocumentTypeFromOcrReview()">{{ t("verify.ocrChangeDocumentType") }}</button>
-					</ng-container>
+					<div class="body" [ngSwitch]="session.screen">
+						<p class="eyebrow" *ngIf="(styleId === 'c' || styleId === 'd') && session.screen !== 'submitted'">
+							{{ t("verify.eyebrow") }}
+						</p>
+						<div *ngSwitchCase="'loading'" class="center"><div class="spinner"></div></div>
 
-					<ng-template #ocrFieldsBlock>
-						<div class="ocr-fields-card">
-							<div class="ocr-fields-head">
-								<span class="ocr-fields-title">{{ t("verify.ocrExtractedTitle") }}</span>
-								<div class="ocr-fields-actions">
-									<button type="button" class="ocr-text-btn" *ngIf="session.modifiedOcrCount > 0" (click)="session.resetAllOcrFields()">
-										{{ t("verify.ocrResetAll") }}
-									</button>
-									<button type="button" class="ocr-edit-toggle" [class.active]="session.ocrEditing" (click)="session.toggleOcrEditing()">
-										{{ session.ocrEditing ? t("verify.ocrDoneEditing") : t("verify.ocrEditFields") }}
-									</button>
-								</div>
-							</div>
-
-							<div class="ocr-field-list">
-								<div class="ocr-field-item" *ngFor="let field of session.ocrFields" [class.is-modified]="session.isOcrFieldModified(field.key)">
-									<div class="ocr-field-top">
-										<span class="ocr-field-label">{{ field.labelKey ? t(field.labelKey) : field.fallbackLabel }}</span>
-										<div class="ocr-field-badges" *ngIf="session.isOcrFieldModified(field.key)">
-											<span class="ocr-mod-pill">{{ t("verify.ocrModifiedBadge") }}</span>
-											<button type="button" class="ocr-undo-btn" (click)="session.resetOcrField(field.key)">{{ t("verify.ocrResetField") }}</button>
-										</div>
-									</div>
-									<input
-										*ngIf="session.ocrEditing; else ocrReadonlyValue"
-										class="ocr-input"
-										[(ngModel)]="session.ocrDraft[field.key]"
-										[name]="'ocr_' + field.key"
-										[attr.name]="'ocr_' + field.key"
-										(ngModelChange)="session.changed.next()"
-									/>
-									<ng-template #ocrReadonlyValue>
-										<button type="button" class="ocr-value-btn" (click)="session.toggleOcrEditing()">
-											<span class="ocr-value-text">{{ session.ocrDraft[field.key] || "—" }}</span>
-											<svg class="ocr-edit-icon" viewBox="0 0 20 20" aria-hidden="true">
-												<path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-8.5 8.5L4.5 15.5l.586-3.414 8.5-8.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-											</svg>
-										</button>
-									</ng-template>
-								</div>
-							</div>
+						<div *ngSwitchCase="'upgrade'" class="center">
+							<h1>{{ t("verify.upgradeTitle") }}</h1>
+							<p>{{ t("verify.upgradeBody") }}</p>
 						</div>
 
-						<div
-							class="ocr-validation-card"
-							*ngIf="
-								session.verifyNamesEnabled &&
-								(session.nameValidationState === 'running' ||
-									session.nameValidationState === 'passed' ||
-									session.nameValidationState === 'mismatch')
-							"
-							[ngClass]="session.nameValidationState"
-						>
-							<div class="ocr-val-row" *ngIf="session.nameValidationState === 'running'">
-								<span class="ocr-mini-spinner" aria-hidden="true"></span>
-								<span>{{ t("verify.ocrValidatingNames") }}</span>
+						<div *ngSwitchCase="'countryBlocked'" class="center">
+							<h1>{{ t("verify.countryTitle") }}</h1>
+							<p>{{ t("verify.countryBody", { country: session.detectedCountry }) }}</p>
+							<button
+								type="button"
+								class="primary"
+								*ngIf="session.projectFlow?.integrations?.redirectUrl"
+								(click)="session.leaveBlockedCountry()"
+							>
+								{{ t("verify.continueToProject") }}
+							</button>
+						</div>
+
+						<div *ngSwitchCase="'error'" class="center">
+							<h1>{{ t(session.errorTitleKey || "verify.errorTitle") }}</h1>
+							<p>{{ session.resolveErrorText(t) }}</p>
+							<button type="button" class="primary" (click)="session.back()">{{ t("verify.back") }}</button>
+						</div>
+
+						<form *ngSwitchCase="'signup'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.continueContact()">
+							<h1>{{ t("verify.nameTitle") }}</h1>
+							<label *ngIf="session.settings?.fullName && !session.settings?.firstName">
+								{{ t("verify.fullName") }}
+								<input [(ngModel)]="session.draft.fullName" name="fullName" autocomplete="name" />
+							</label>
+							<label *ngIf="session.settings?.firstName">
+								{{ t("verify.firstName") }}
+								<input [(ngModel)]="session.draft.firstName" name="firstName" autocomplete="given-name" />
+							</label>
+							<label *ngIf="session.settings?.lastName">
+								{{ t("verify.lastName") }}
+								<input [(ngModel)]="session.draft.lastName" name="lastName" autocomplete="family-name" />
+							</label>
+							<label *ngIf="session.settings?.email">
+								{{ t("verify.emailLabel") }}
+								<input [(ngModel)]="session.draft.email" name="email" type="email" autocomplete="email" />
+							</label>
+							<div class="phone-row" *ngIf="session.settings?.phone">
+								<select [(ngModel)]="session.draft.countryCode" name="countryCode">
+									<option *ngFor="let dial of dialCodes" [value]="dial.code">{{ dial.code }}</option>
+								</select>
+								<input [(ngModel)]="session.draft.phone" name="phone" inputmode="tel" autocomplete="tel" />
 							</div>
-							<div class="ocr-val-row" *ngIf="session.nameValidationState === 'passed'">
-								<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-								<span>{{ t("verify.ocrNamesVerified") }}</span>
-							</div>
-							<div class="ocr-val-mismatch" *ngIf="session.nameValidationState === 'mismatch'">
-								<p>{{ t("verify.ocrNamesMismatchBody") }}</p>
-								<button type="button" class="ocr-manual-btn" (click)="session.proceedWithManualVerification()">
-									{{ t("verify.ocrProceedManual") }}
+							<div class="choices" *ngIf="session.settings?.phoneGateway === 'both'">
+								<button type="button" [class.on]="session.draft.phoneGateway === 'sms'" (click)="session.setGateway('sms')">
+									{{ t("verify.sms") }}
+								</button>
+								<button type="button" [class.on]="session.draft.phoneGateway === 'whatsapp'" (click)="session.setGateway('whatsapp')">
+									{{ t("verify.whatsapp") }}
 								</button>
 							</div>
+							<label class="check" *ngIf="session.settings?.showTerms || session.settings?.showPrivacy">
+								<input type="checkbox" [(ngModel)]="session.draft.agreements" name="agreements" />
+								<span>
+									{{ t("verify.agreeTerms") }}
+									<a
+										*ngIf="session.settings?.showTerms && session.project?.termsAndConditionsUrl"
+										[href]="session.project?.termsAndConditionsUrl"
+										target="_blank"
+										rel="noopener"
+										>{{ t("verify.terms") }}</a
+									>
+									<a
+										*ngIf="session.settings?.showPrivacy && session.project?.privacyUrl"
+										[href]="session.project?.privacyUrl"
+										target="_blank"
+										rel="noopener"
+										>{{ t("verify.privacy") }}</a
+									>
+								</span>
+							</label>
+							<button
+								class="primary"
+								type="submit"
+								[disabled]="!canContinue() || session.busy"
+								[class.loading]="session.busy"
+								[attr.aria-busy]="session.busy"
+							>
+								{{ t("verify.continue") }}
+							</button>
+						</form>
+
+						<form *ngSwitchCase="'emailCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
+							<h1>{{ t("verify.codeTitle") }}</h1>
+							<p>{{ t("verify.codeEmail", { email: session.draft.email || session.registration?.email }) }}</p>
+							<div class="otp" (paste)="onOtpPaste($event)">
+								<input
+									*ngFor="let box of boxes; let i = index"
+									[value]="otpAt(i)"
+									(input)="onOtp($event, i)"
+									inputmode="numeric"
+									maxlength="1"
+								/>
+							</div>
+							<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
+							<button
+								class="primary"
+								type="submit"
+								[disabled]="!canContinue() || session.busy"
+								[class.loading]="session.busy"
+								[attr.aria-busy]="session.busy"
+							>
+								{{ t("verify.continue") }}
+							</button>
+						</form>
+
+						<form *ngSwitchCase="'phoneCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
+							<h1>{{ t("verify.codeTitle") }}</h1>
+							<p>
+								{{
+									t("verify.codePhone", {
+										phone: (session.draft.countryCode || "") + " " + (session.draft.phone || session.registration?.phone || ""),
+									})
+								}}
+							</p>
+							<div class="otp" (paste)="onOtpPaste($event)">
+								<input
+									*ngFor="let box of boxes; let i = index"
+									[value]="otpAt(i)"
+									(input)="onOtp($event, i)"
+									inputmode="numeric"
+									maxlength="1"
+								/>
+							</div>
+							<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
+							<button
+								class="primary"
+								type="submit"
+								[disabled]="!canContinue() || session.busy"
+								[class.loading]="session.busy"
+								[attr.aria-busy]="session.busy"
+							>
+								{{ t("verify.continue") }}
+							</button>
+						</form>
+
+						<div *ngSwitchCase="'consent'" class="center">
+							<h1>{{ t("verify.consentTitle") }}</h1>
+							<ul class="rows consent-rows">
+								<li>
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<circle cx="12" cy="12.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path d="M8.5 6 9.6 4h4.8l1.1 2" fill="none" stroke="currentColor" stroke-width="1.6" />
+									</svg>
+									<span
+										>{{ t("verify.consentRow1") }}
+										<button type="button" class="link inline" (click)="session.openSheet('acceptedIds')">
+											{{ t("verify.photoId") }}</button
+										>{{ t("verify.consentRow1End") }}</span
+									>
+								</li>
+								<li>
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+									</svg>
+									<span>{{ t("verify.consentRow2", { project: session.project?.name }) }}</span>
+								</li>
+								<li>
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<path
+											d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+										/>
+										<circle cx="12" cy="10.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path
+											d="M7.8 16.5c.7-2 2.2-3 4.2-3s3.5 1 4.2 3"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+										/>
+									</svg>
+									<span>{{ t("verify.consentRow3") }}</span>
+								</li>
+							</ul>
+							<p class="meta" *ngIf="session.project?.privacyUrl">
+								<a [href]="session.project?.privacyUrl" target="_blank" rel="noopener">{{ t("verify.privacyPolicy") }}</a>
+							</p>
+							<button
+								type="button"
+								class="primary"
+								[disabled]="session.busy"
+								[class.loading]="session.busy"
+								[attr.aria-busy]="session.busy"
+								(click)="session.agree()"
+							>
+								{{ t("verify.agree") }}
+							</button>
+							<button type="button" class="secondary" [disabled]="session.busy" (click)="session.decline()">
+								{{ t("verify.decline") }}
+							</button>
 						</div>
 
-						<button type="button" class="primary" [disabled]="session.busy" [class.loading]="session.busy" [attr.aria-busy]="session.busy" (click)="session.confirmOcrReview()">
-							{{ t("verify.ocrConfirmContinue") }}
-						</button>
-						<button type="button" class="secondary" [disabled]="session.busy" (click)="session.retakeFromOcrReview()">
-							{{ t("verify.retake") }}
-						</button>
-					</ng-template>
-				</div>
+						<div *ngSwitchCase="'decline'" class="center">
+							<div class="icon">!</div>
+							<h1>{{ t("verify.declineTitle") }}</h1>
+							<p>{{ t("verify.declineBody") }}</p>
+							<button type="button" class="primary" (click)="session.backToConsent()">{{ t("verify.backToConsent") }}</button>
+							<button type="button" class="secondary" (click)="session.leaveProject()">
+								{{ t("verify.goBackToProject", { project: session.project?.name }) }}
+							</button>
+						</div>
 
-				<div *ngSwitchCase="'selfieIntro'" class="center">
-					<div class="bust" aria-hidden="true"><svg viewBox="0 0 84 84" role="img" aria-hidden="true"><path d="M10 28V16a6 6 0 0 1 6-6h12M56 10h12a6 6 0 0 1 6 6v12M74 56v12a6 6 0 0 1-6 6H56M28 74H16a6 6 0 0 1-6-6V56" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /><circle cx="42" cy="35" r="10" fill="var(--style-cta, currentColor)" fill-opacity="0.35" stroke="currentColor" stroke-width="2.5" /><path d="M24 66c2-12 9-18 18-18s16 6 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg></div>
-					<h1>{{ t("verify.selfieTitle") }}</h1>
-					<p>{{ t("verify.selfieBody") }}</p>
-					<button type="button" class="primary" (click)="session.continueSelfie()">{{ t("verify.continue") }}</button>
-					<button type="button" class="link" *ngIf="session.settings?.liveness === 'optional'" (click)="session.skipLiveness()">{{ t("verify.skip") }}</button>
-				</div>
+						<div *ngSwitchCase="'handoff'" class="center handoff-view">
+							<ng-container *ngIf="session.handoffPhase === 'qr' || session.showQrOverride; else handoffConnectedTpl">
+								<h1>{{ t("verify.handoffTitle") }}</h1>
+								<p>{{ t("verify.handoffBody") }}</p>
+								<canvas #qr></canvas>
+								<div class="handoff-wait-pill" role="status" aria-live="polite">
+									<span class="handoff-pulse-dot" aria-hidden="true"></span>
+									<span>{{ t("verify.handoffWaitingPhone") }}</span>
+								</div>
+								<div class="handoff-actions">
+									<button type="button" class="link" (click)="session.openSheet('otherOptions')">
+										{{ t("verify.otherOptions") }}
+									</button>
+									<button
+										*ngIf="session.handoffPhase !== 'qr'"
+										type="button"
+										class="link"
+										(click)="session.toggleQrOverride(false)"
+									>
+										{{ t("verify.handoffBackToProgress") }}
+									</button>
+								</div>
+							</ng-container>
 
-				<div *ngSwitchCase="'selfie'" class="capture">
-					<h1>{{ t("verify.selfieTitle") }}</h1>
-					<verify-selfie
-						[phase]="session.selfiePhase"
-						[canSkip]="session.settings?.liveness === 'optional'"
-						(captured)="session.onSelfie($event)"
-						(permissionDenied)="session.openSheet('camera')"
-						(skipped)="session.skipLiveness()"
-					></verify-selfie>
-				</div>
+							<ng-template #handoffConnectedTpl>
+								<div class="handoff-device-badge" aria-hidden="true">
+									<svg viewBox="0 0 24 24" fill="none">
+										<rect
+											x="7"
+											y="2.5"
+											width="10"
+											height="19"
+											rx="2.5"
+											stroke="currentColor"
+											stroke-width="1.8"
+										/>
+										<path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+									<span class="handoff-device-pulse"></span>
+								</div>
 
-				<div *ngSwitchCase="'retry'" class="center">
-					<div class="icon">!</div>
-					<h1>{{ t(session.retryTitleKey || "verify.retryTitle") }}</h1>
-					<p>{{ session.resolveRetryText(t) }}</p>
-					<button type="button" class="primary" (click)="session.tryAgain()">{{ t("verify.tryAgain") }}</button>
-				</div>
+								<h1>{{ t("verify.handoffConnectedTitle") }}</h1>
+								<p>{{ t("verify.handoffConnectedBody") }}</p>
 
-				<div *ngSwitchCase="'submitted'" class="submitted-screen center">
-					<div class="submitted-media has-face" *ngIf="session.submittedSelfie as selfie; else submittedDocOrIcon">
-						<img class="submitted-face" [src]="selfie" (error)="session.onSubmittedSelfieError()" alt="Selfie" />
+								<div class="handoff-steps-card" role="status" aria-live="polite">
+									<!-- Step 1: Phone connected -->
+									<div class="handoff-step-row is-done">
+										<span class="handoff-step-indicator" aria-hidden="true">
+											<svg viewBox="0 0 24 24">
+												<path
+													d="m5 13 4 4L19 7"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2.6"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												/>
+											</svg>
+										</span>
+										<span class="handoff-step-label">{{ t("verify.handoffStepConnected") }}</span>
+									</div>
 
-						<!-- Miniature ID document preview or elegant vector fallback badge -->
-						<img
-							class="submitted-mini-doc"
-							*ngIf="session.submittedDocument as doc; else docFallbackBadge"
-							[src]="doc"
-							(error)="session.onSubmittedDocError()"
-							alt="ID Document"
-						/>
-						<ng-template #docFallbackBadge>
-							<div
-								class="submitted-mini-doc doc-fallback"
-								*ngIf="session.registration?.documentValidation"
-								aria-hidden="true"
-							>
-								<svg viewBox="0 0 24 24">
-									<rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
-									<circle cx="8" cy="11" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-									<path d="M13 10h5M13 14h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+									<!-- Step 2: Identity document capture -->
+									<div
+										class="handoff-step-row"
+										[class.is-active]="session.handoffPhase === 'document'"
+										[class.is-done]="session.handoffPhase === 'liveness' || session.handoffPhase === 'completed'"
+									>
+										<span class="handoff-step-indicator" aria-hidden="true">
+											<span *ngIf="session.handoffPhase === 'document'" class="handoff-step-spinner"></span>
+											<svg *ngIf="session.handoffPhase !== 'document'" viewBox="0 0 24 24">
+												<path
+													d="m5 13 4 4L19 7"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2.6"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												/>
+											</svg>
+										</span>
+										<span class="handoff-step-label">{{ t("verify.handoffStepDocument") }}</span>
+									</div>
+
+									<!-- Step 3: Selfie & liveness check -->
+									<div
+										*ngIf="session.needsLiveness"
+										class="handoff-step-row"
+										[class.is-pending]="session.handoffPhase === 'document'"
+										[class.is-active]="session.handoffPhase === 'liveness'"
+										[class.is-done]="session.handoffPhase === 'completed'"
+									>
+										<span class="handoff-step-indicator" aria-hidden="true">
+											<span *ngIf="session.handoffPhase === 'document'" class="handoff-step-dot"></span>
+											<span *ngIf="session.handoffPhase === 'liveness'" class="handoff-step-spinner"></span>
+											<svg *ngIf="session.handoffPhase === 'completed'" viewBox="0 0 24 24">
+												<path
+													d="m5 13 4 4L19 7"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2.6"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												/>
+											</svg>
+										</span>
+										<span class="handoff-step-label">{{ t("verify.handoffStepSelfie") }}</span>
+									</div>
+								</div>
+
+								<div class="handoff-actions">
+									<button type="button" class="link" (click)="session.toggleQrOverride(true)">
+										{{ t("verify.handoffShowQrAgain") }}
+									</button>
+									<button type="button" class="link" (click)="session.continueOnDevice()">
+										{{ t("verify.continueHere") }}
+									</button>
+								</div>
+							</ng-template>
+						</div>
+
+						<div *ngSwitchCase="'ready'" class="center">
+							<div class="id-icon" aria-hidden="true">
+								<svg viewBox="0 0 120 84" role="img" aria-hidden="true">
+									<rect x="2" y="2" width="116" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2.5" />
+									<rect x="14" y="20" width="34" height="42" rx="6" fill="none" stroke="currentColor" stroke-width="2.5" />
+									<circle cx="31" cy="35" r="7" fill="none" stroke="currentColor" stroke-width="2.5" />
+									<path
+										d="M19 58c1-8 6-12 12-12s11 4 12 12"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+										stroke-linecap="round"
+									/>
+									<path
+										d="M60 26h46M60 38h34M60 50h22"
+										stroke="currentColor"
+										stroke-width="3"
+										stroke-linecap="round"
+										opacity="0.55"
+									/>
+									<rect
+										x="90"
+										y="56"
+										width="18"
+										height="12"
+										rx="3"
+										fill="var(--style-cta, currentColor)"
+										stroke="currentColor"
+										stroke-width="2"
+									/>
 								</svg>
 							</div>
-						</ng-template>
-
-						<!-- Verified green check badge -->
-						<span class="submitted-badge" aria-hidden="true">
-							<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-						</span>
-					</div>
-
-					<ng-template #submittedDocOrIcon>
-						<div class="submitted-media has-doc" *ngIf="session.submittedDocument as doc; else submittedCheckIcon">
-							<img class="submitted-doc" [src]="doc" (error)="session.onSubmittedDocError()" alt="ID Document" />
-							<span class="submitted-badge" aria-hidden="true">
-								<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-							</span>
-						</div>
-					</ng-template>
-
-					<ng-template #submittedCheckIcon>
-						<div class="submitted-icon-circle" aria-hidden="true">
-							<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-						</div>
-					</ng-template>
-
-					<div class="submitted-headings">
-						<h1 class="submitted-title">{{ t("verify.submittedTitle") }}</h1>
-						<p class="submitted-subtitle">{{ t("verify.submittedSubtitle") }}</p>
-					</div>
-
-					<!-- Trust and verification summary card filling the middle void -->
-					<div class="submitted-card">
-						<div class="submitted-row" *ngIf="session.registration?.documentValidation">
-							<div class="submitted-row-left">
-								<span class="submitted-row-icon doc-icon" aria-hidden="true">
-									<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="11" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 10h5M13 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-								</span>
-								<div class="submitted-row-meta">
-									<span class="submitted-row-label">{{ t("verify.submittedCheckDocument") }}</span>
-									<span class="submitted-row-value">{{ session.template?.title || session.template?.name || t(categoryLabel(session.category)) }}</span>
-								</div>
-							</div>
-							<span class="submitted-row-status verified">
-								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-								{{ t("verify.submittedStatusVerified") }}
-							</span>
-						</div>
-
-						<div class="submitted-row" *ngIf="!session.skippedLiveness && session.registration?.biometricValidation">
-							<div class="submitted-row-left">
-								<span class="submitted-row-icon bio-icon" aria-hidden="true">
-									<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m18 0V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4m10 0h4a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-								</span>
-								<div class="submitted-row-meta">
-									<span class="submitted-row-label">{{ t("verify.submittedCheckLiveness") }}</span>
-									<span class="submitted-row-value">{{ t("verify.submittedLivenessDesc") }}</span>
-								</div>
-							</div>
-							<span class="submitted-row-status verified">
-								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-								{{ t("verify.submittedStatusVerified") }}
-							</span>
-						</div>
-
-						<div class="submitted-row">
-							<div class="submitted-row-left">
-								<span class="submitted-row-icon sec-icon" aria-hidden="true">
-									<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-								</span>
-								<div class="submitted-row-meta">
-									<span class="submitted-row-label">{{ t("verify.submittedCheckSecurity") }}</span>
-									<span class="submitted-row-value">{{ t("verify.submittedSecurityDesc") }}</span>
-								</div>
-							</div>
-							<span class="submitted-row-status protected">
-								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-								{{ t("verify.submittedStatusProtected") }}
-							</span>
-						</div>
-					</div>
-
-					<!-- Bottom Actions & Redirect countdown -->
-					<div class="submitted-actions">
-						<button type="button" class="primary submitted-cta" (click)="session.redirectNow()">
-							<span>{{ t("verify.submittedContinueBtn", { project: session.project?.name || "WIWO" }) }}</span>
-							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-						</button>
-
-						<div class="submitted-redirect-wrap" *ngIf="session.redirectSeconds > 0">
-							<p class="submitted-redirect-text">
-								{{ t("verify.submittedRedirecting", { seconds: session.redirectSeconds }) }}
+							<h1>
+								{{
+									session.uploadOnlyDocumentMethod
+										? t("verify.readyTitleUpload")
+										: session.bothDocumentMethodsAllowed
+											? t("verify.readyTitleBoth")
+											: t("verify.readyTitle")
+								}}
+							</h1>
+							<p>
+								{{
+									session.uploadOnlyDocumentMethod
+										? t("verify.readyBodyUpload")
+										: session.bothDocumentMethodsAllowed
+											? t("verify.readyBodyBoth")
+											: t("verify.readyBody")
+								}}
 							</p>
-							<div class="submitted-progress-track" aria-hidden="true">
-								<div class="submitted-progress-fill" [style.width.%]="((7 - session.redirectSeconds) / 7) * 100"></div>
+							<button type="button" class="primary" (click)="session.imReady()">{{ t("verify.imReady") }}</button>
+							<button type="button" class="link" *ngIf="session.settings?.document === 'optional'" (click)="session.skipDocument()">
+								{{ t("verify.skip") }}
+							</button>
+						</div>
+
+						<div *ngSwitchCase="'front'" class="capture">
+							<h1>{{ t("verify.frontTitle") }}</h1>
+							<div class="modes" *ngIf="session.scanAllowed">
+								<button
+									type="button"
+									[class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'auto'"
+									(click)="session.setMode('auto')"
+								>
+									{{ t("verify.auto") }}
+								</button>
+								<button
+									type="button"
+									[class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'manual'"
+									(click)="session.setMode('manual')"
+								>
+									{{ t("verify.manual") }}
+								</button>
+								<button
+									type="button"
+									*ngIf="session.uploadAllowed"
+									[class.on]="session.effectiveDocumentMethod === 'upload'"
+									(click)="session.selectDocumentMethod('upload')"
+								>
+									{{ t("verify.uploadTab") }}
+								</button>
+							</div>
+							<ng-container *ngIf="session.effectiveDocumentMethod === 'scan'; else uploadFrontView">
+								<verify-camera
+									#cam
+									[mode]="session.mode"
+									[category]="session.category"
+									side="front"
+									[promptTemplate]="session.template"
+									(captured)="session.onCaptured($event)"
+									(permissionDenied)="session.openSheet('camera')"
+								>
+									<div class="guide" [class.ready]="cam.framed" [style.--guide-aspect]="cam.aspect" aria-hidden="true"></div>
+									<div
+										class="outline"
+										*ngIf="cam.outline as o"
+										[class.ok]="cam.outlineOk"
+										[style.left.%]="o.left"
+										[style.top.%]="o.top"
+										[style.width.%]="o.width"
+										[style.height.%]="o.height"
+										aria-hidden="true"
+									></div>
+									<div
+										class="pill"
+										role="status"
+										aria-live="polite"
+										[class.ok]="cam.framed"
+										[class.warn]="!cam.framed && cam.state !== 'starting' && cam.state !== 'searching' && cam.state !== 'manual'"
+										[class.scanning]="cam.state === 'searching' || cam.state === 'starting'"
+									>
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+											<circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+											<path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg
+										><span>{{ t(cam.hintKey) }}</span>
+									</div>
+								</verify-camera>
+								<p *ngIf="session.mode === 'auto'">{{ t("verify.autoHelp") }}</p>
+								<button
+									type="button"
+									class="shutter"
+									*ngIf="session.mode === 'manual'"
+									(click)="shutter()"
+									[attr.aria-label]="t('verify.manual')"
+								></button>
+								<div class="capture-foot-links">
+									<button type="button" class="link" *ngIf="session.uploadAllowed" (click)="pickFile()">
+										{{ t("verify.uploadPhotoInstead") }}
+									</button>
+									<button type="button" class="link" (click)="session.openSheet('trouble')">{{ t("verify.havingTrouble") }}</button>
+								</div>
+							</ng-container>
+							<ng-template #uploadFrontView>
+								<div
+									class="upload-dropzone"
+									[class.drag-over]="isDraggingFile"
+									(click)="pickFile()"
+									(dragover)="onDragOver($event)"
+									(dragleave)="onDragLeave($event)"
+									(drop)="onFileDrop($event)"
+									role="button"
+									tabindex="0"
+									(keydown.enter)="pickFile()"
+									(keydown.space)="$event.preventDefault(); pickFile()"
+								>
+									<div class="upload-drop-icon" aria-hidden="true">
+										<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.8"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+									</div>
+									<strong class="upload-drop-title">{{ t("verify.uploadDropTitleFront") }}</strong>
+									<span class="upload-drop-sub">{{ t("verify.uploadDropSub") }}</span>
+									<div class="upload-drop-badges" aria-hidden="true">
+										<span>JPG · PNG · WEBP</span>
+										<span>{{ t("verify.uploadTipClear") }}</span>
+									</div>
+								</div>
+								<button type="button" class="primary" (click)="pickFile()">{{ t("verify.uploadChooseFile") }}</button>
+								<button type="button" class="link" *ngIf="session.scanAllowed" (click)="session.selectDocumentMethod('scan')">
+									{{ t("verify.useCameraInstead") }}
+								</button>
+							</ng-template>
+						</div>
+
+						<div *ngSwitchCase="'reviewFront'" class="form">
+							<h1>{{ t("verify.reviewTitle") }}</h1>
+							<img class="preview" [src]="session.pending?.rawImage" alt="" />
+							<p>{{ t("verify.reviewBody") }}</p>
+							<button
+								type="button"
+								class="primary"
+								[disabled]="session.busy"
+								[class.loading]="session.busy"
+								[attr.aria-busy]="session.busy"
+								(click)="session.submitPhoto()"
+							>
+								{{ t("verify.submitPhoto") }}
+							</button>
+							<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
+						</div>
+
+						<div *ngSwitchCase="'flip'" class="center">
+							<h1>{{ t("verify.flipTitle") }}</h1>
+							<p>{{ t("verify.flipBody") }}</p>
+							<button type="button" class="primary" (click)="session.readyForBack()">{{ t("verify.imReady") }}</button>
+						</div>
+
+						<div *ngSwitchCase="'back'" class="capture">
+							<h1>{{ t("verify.backTitle") }}</h1>
+							<div class="modes" *ngIf="session.scanAllowed">
+								<button
+									type="button"
+									[class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'auto'"
+									(click)="session.setMode('auto')"
+								>
+									{{ t("verify.auto") }}
+								</button>
+								<button
+									type="button"
+									[class.on]="session.effectiveDocumentMethod === 'scan' && session.mode === 'manual'"
+									(click)="session.setMode('manual')"
+								>
+									{{ t("verify.manual") }}
+								</button>
+								<button
+									type="button"
+									*ngIf="session.uploadAllowed"
+									[class.on]="session.effectiveDocumentMethod === 'upload'"
+									(click)="session.selectDocumentMethod('upload')"
+								>
+									{{ t("verify.uploadTab") }}
+								</button>
+							</div>
+							<ng-container *ngIf="session.effectiveDocumentMethod === 'scan'; else uploadBackView">
+								<verify-camera
+									#cam
+									[mode]="session.mode"
+									[category]="session.category"
+									side="back"
+									[checkBarcode]="true"
+									[promptTemplate]="session.template"
+									(captured)="session.onCaptured($event)"
+									(permissionDenied)="session.openSheet('camera')"
+								>
+									<div class="guide" [class.ready]="cam.framed" [style.--guide-aspect]="cam.aspect" aria-hidden="true"></div>
+									<div
+										class="outline"
+										*ngIf="cam.outline as o"
+										[class.ok]="cam.outlineOk"
+										[style.left.%]="o.left"
+										[style.top.%]="o.top"
+										[style.width.%]="o.width"
+										[style.height.%]="o.height"
+										aria-hidden="true"
+									></div>
+									<div
+										class="pill"
+										role="status"
+										aria-live="polite"
+										[class.ok]="cam.framed"
+										[class.warn]="!cam.framed && cam.state !== 'starting' && cam.state !== 'searching' && cam.state !== 'manual'"
+										[class.scanning]="cam.state === 'searching' || cam.state === 'starting'"
+									>
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+											<circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+											<path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg
+										><span>{{ t(cam.hintKey) }}</span>
+									</div>
+								</verify-camera>
+								<button
+									type="button"
+									class="shutter"
+									*ngIf="session.mode === 'manual'"
+									(click)="shutter()"
+									[attr.aria-label]="t('verify.manual')"
+								></button>
+								<div class="capture-foot-links">
+									<button type="button" class="link" *ngIf="session.uploadAllowed" (click)="pickFile()">
+										{{ t("verify.uploadPhotoInstead") }}
+									</button>
+									<button type="button" class="link" (click)="session.openSheet('trouble')">{{ t("verify.havingTrouble") }}</button>
+								</div>
+							</ng-container>
+							<ng-template #uploadBackView>
+								<div
+									class="upload-dropzone"
+									[class.drag-over]="isDraggingFile"
+									(click)="pickFile()"
+									(dragover)="onDragOver($event)"
+									(dragleave)="onDragLeave($event)"
+									(drop)="onFileDrop($event)"
+									role="button"
+									tabindex="0"
+									(keydown.enter)="pickFile()"
+									(keydown.space)="$event.preventDefault(); pickFile()"
+								>
+									<div class="upload-drop-icon" aria-hidden="true">
+										<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.8"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+									</div>
+									<strong class="upload-drop-title">{{ t("verify.uploadDropTitleBack") }}</strong>
+									<span class="upload-drop-sub">{{ t("verify.uploadDropSub") }}</span>
+									<div class="upload-drop-badges" aria-hidden="true">
+										<span>JPG · PNG · WEBP</span>
+										<span>{{ t("verify.uploadTipClear") }}</span>
+									</div>
+								</div>
+								<button type="button" class="primary" (click)="pickFile()">{{ t("verify.uploadChooseFile") }}</button>
+								<button type="button" class="link" *ngIf="session.scanAllowed" (click)="session.selectDocumentMethod('scan')">
+									{{ t("verify.useCameraInstead") }}
+								</button>
+							</ng-template>
+						</div>
+
+						<div *ngSwitchCase="'reviewBack'" class="form">
+							<h1>{{ t("verify.reviewBackTitle") }}</h1>
+							<img class="preview" [src]="session.pending?.rawImage" alt="" />
+							<p>{{ t("verify.reviewBody") }}</p>
+							<button
+								type="button"
+								class="primary"
+								[disabled]="session.busy"
+								[class.loading]="session.busy"
+								[attr.aria-busy]="session.busy"
+								(click)="session.submitPhoto()"
+							>
+								{{ t("verify.submitPhoto") }}
+							</button>
+							<button type="button" class="secondary" (click)="session.retake()">{{ t("verify.retake") }}</button>
+						</div>
+
+						<div *ngSwitchCase="'ocrReview'" class="form ocr-review" [class.is-busy]="session.busy">
+							<h1>{{ session.documentMismatch ? t("verify.ocrMismatchTitle") : t("verify.ocrReviewTitle") }}</h1>
+							<p class="ocr-lead">{{ session.documentMismatch ? t("verify.ocrMismatchBody") : t("verify.ocrReviewBody") }}</p>
+
+							<div class="ocr-summary-card" [class.is-mismatch]="session.documentMismatch">
+								<div class="ocr-media-pair">
+									<div class="ocr-face-wrap" *ngIf="session.documentFaceImage as docFace; else ocrDocThumbOnly">
+										<img class="ocr-face-img" [src]="docFace" alt="" />
+										<img class="ocr-doc-mini" *ngIf="session.submittedDocument as docImg" [src]="docImg" alt="" />
+									</div>
+									<ng-template #ocrDocThumbOnly>
+										<img class="ocr-doc-thumb" *ngIf="session.submittedDocument as docImg" [src]="docImg" alt="" />
+									</ng-template>
+								</div>
+								<div class="ocr-summary-meta">
+									<span class="ocr-doc-title">{{
+										session.template?.title ||
+											session.template?.name ||
+											session.registration?.documentValidation?.documentType ||
+											t(categoryLabel(session.category))
+									}}</span>
+									<span class="ocr-doc-sub">{{ session.country || session.registration?.documentValidation?.country }}</span>
+								</div>
+								<span class="ocr-status-pill" [class.warn]="session.documentMismatch" [class.ok]="!session.documentMismatch">
+									{{ session.documentMismatch ? t("verify.ocrStatusMismatch") : t("verify.ocrStatusExtracted") }}
+								</span>
+							</div>
+
+							<ng-container *ngIf="session.documentMismatch; else ocrFieldsBlock">
+								<div class="ocr-mismatch-card" role="alert">
+									<div class="ocr-mismatch-row">
+										<span class="ocr-mismatch-label">{{ t("verify.ocrRequestedDoc") }}</span>
+										<strong class="ocr-mismatch-val"
+											>{{
+												session.template?.title ||
+													session.template?.name ||
+													session.documentClassification?.requestedDocumentType
+											}}
+											({{ session.country || session.registration?.documentValidation?.country }})</strong
+										>
+									</div>
+									<div
+										class="ocr-mismatch-row"
+										*ngIf="
+											session.documentClassification?.detectedDocumentName ||
+											session.documentClassification?.detectedDocumentType
+										"
+									>
+										<span class="ocr-mismatch-label">{{ t("verify.ocrDetectedDoc") }}</span>
+										<strong class="ocr-mismatch-val">{{
+											session.documentClassification?.detectedDocumentName ||
+												session.documentClassification?.detectedDocumentType
+										}}</strong>
+									</div>
+									<p class="ocr-mismatch-reason" *ngIf="session.documentClassification?.reason">
+										{{ session.documentClassification?.reason }}
+									</p>
+								</div>
+								<button type="button" class="primary" (click)="session.retakeFromOcrReview()">{{ t("verify.retake") }}</button>
+								<button type="button" class="secondary" (click)="session.changeDocumentTypeFromOcrReview()">
+									{{ t("verify.ocrChangeDocumentType") }}
+								</button>
+							</ng-container>
+
+							<ng-template #ocrFieldsBlock>
+								<div class="ocr-fields-card">
+									<div class="ocr-fields-head">
+										<span class="ocr-fields-title">{{ t("verify.ocrExtractedTitle") }}</span>
+										<div class="ocr-fields-actions">
+											<button
+												type="button"
+												class="ocr-text-btn"
+												*ngIf="session.modifiedOcrCount > 0"
+												(click)="session.resetAllOcrFields()"
+											>
+												{{ t("verify.ocrResetAll") }}
+											</button>
+											<button
+												type="button"
+												class="ocr-edit-toggle"
+												[class.active]="session.ocrEditing"
+												(click)="session.toggleOcrEditing()"
+											>
+												{{ session.ocrEditing ? t("verify.ocrDoneEditing") : t("verify.ocrEditFields") }}
+											</button>
+										</div>
+									</div>
+
+									<div class="ocr-field-list">
+										<div
+											class="ocr-field-item"
+											*ngFor="let field of session.ocrFields"
+											[class.is-modified]="session.isOcrFieldModified(field.key)"
+										>
+											<div class="ocr-field-top">
+												<span class="ocr-field-label">{{ field.labelKey ? t(field.labelKey) : field.fallbackLabel }}</span>
+												<div class="ocr-field-badges" *ngIf="session.isOcrFieldModified(field.key)">
+													<span class="ocr-mod-pill">{{ t("verify.ocrModifiedBadge") }}</span>
+													<button type="button" class="ocr-undo-btn" (click)="session.resetOcrField(field.key)">
+														{{ t("verify.ocrResetField") }}
+													</button>
+												</div>
+											</div>
+											<input
+												*ngIf="session.ocrEditing; else ocrReadonlyValue"
+												class="ocr-input"
+												[(ngModel)]="session.ocrDraft[field.key]"
+												[name]="'ocr_' + field.key"
+												[attr.name]="'ocr_' + field.key"
+												(ngModelChange)="session.changed.next()"
+											/>
+											<ng-template #ocrReadonlyValue>
+												<button type="button" class="ocr-value-btn" (click)="session.toggleOcrEditing()">
+													<span class="ocr-value-text">{{ session.ocrDraft[field.key] || "—" }}</span>
+													<svg class="ocr-edit-icon" viewBox="0 0 20 20" aria-hidden="true">
+														<path
+															d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-8.5 8.5L4.5 15.5l.586-3.414 8.5-8.5Z"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="1.6"
+															stroke-linejoin="round"
+														/>
+													</svg>
+												</button>
+											</ng-template>
+										</div>
+									</div>
+								</div>
+
+								<div
+									class="ocr-validation-card"
+									*ngIf="
+										session.verifyNamesEnabled &&
+										(session.nameValidationState === 'running' ||
+											session.nameValidationState === 'passed' ||
+											session.nameValidationState === 'mismatch')
+									"
+									[ngClass]="session.nameValidationState"
+								>
+									<div class="ocr-val-row" *ngIf="session.nameValidationState === 'running'">
+										<span class="ocr-mini-spinner" aria-hidden="true"></span>
+										<span>{{ t("verify.ocrValidatingNames") }}</span>
+									</div>
+									<div class="ocr-val-row" *ngIf="session.nameValidationState === 'passed'">
+										<svg viewBox="0 0 20 20" aria-hidden="true">
+											<path
+												d="m4.5 10.5 3.5 3.5 7.5-7.5"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										<span>{{ t("verify.ocrNamesVerified") }}</span>
+									</div>
+									<div class="ocr-val-mismatch" *ngIf="session.nameValidationState === 'mismatch'">
+										<p>{{ t("verify.ocrNamesMismatchBody") }}</p>
+										<button type="button" class="ocr-manual-btn" (click)="session.proceedWithManualVerification()">
+											{{ t("verify.ocrProceedManual") }}
+										</button>
+									</div>
+								</div>
+
+								<button
+									type="button"
+									class="primary"
+									[disabled]="session.busy"
+									[class.loading]="session.busy"
+									[attr.aria-busy]="session.busy"
+									(click)="session.confirmOcrReview()"
+								>
+									{{ t("verify.ocrConfirmContinue") }}
+								</button>
+								<button type="button" class="secondary" [disabled]="session.busy" (click)="session.retakeFromOcrReview()">
+									{{ t("verify.retake") }}
+								</button>
+							</ng-template>
+						</div>
+
+						<div *ngSwitchCase="'selfieIntro'" class="center">
+							<div class="bust" aria-hidden="true">
+								<svg viewBox="0 0 84 84" role="img" aria-hidden="true">
+									<path
+										d="M10 28V16a6 6 0 0 1 6-6h12M56 10h12a6 6 0 0 1 6 6v12M74 56v12a6 6 0 0 1-6 6H56M28 74H16a6 6 0 0 1-6-6V56"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+										stroke-linecap="round"
+									/>
+									<circle
+										cx="42"
+										cy="35"
+										r="10"
+										fill="var(--style-cta, currentColor)"
+										fill-opacity="0.35"
+										stroke="currentColor"
+										stroke-width="2.5"
+									/>
+									<path
+										d="M24 66c2-12 9-18 18-18s16 6 18 18"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+										stroke-linecap="round"
+									/>
+								</svg>
+							</div>
+							<h1>{{ t("verify.selfieTitle") }}</h1>
+							<p>{{ t("verify.selfieBody") }}</p>
+							<button type="button" class="primary" (click)="session.continueSelfie()">{{ t("verify.continue") }}</button>
+							<button type="button" class="link" *ngIf="session.settings?.liveness === 'optional'" (click)="session.skipLiveness()">
+								{{ t("verify.skip") }}
+							</button>
+						</div>
+
+						<div *ngSwitchCase="'selfie'" class="capture">
+							<h1>{{ t("verify.selfieTitle") }}</h1>
+							<verify-selfie
+								[phase]="session.selfiePhase"
+								[canSkip]="session.settings?.liveness === 'optional'"
+								(captured)="session.onSelfie($event)"
+								(permissionDenied)="session.openSheet('camera')"
+								(skipped)="session.skipLiveness()"
+							></verify-selfie>
+						</div>
+
+						<div *ngSwitchCase="'retry'" class="center">
+							<div class="icon">!</div>
+							<h1>{{ t(session.retryTitleKey || "verify.retryTitle") }}</h1>
+							<p>{{ session.resolveRetryText(t) }}</p>
+							<button type="button" class="primary" (click)="session.tryAgain()">{{ t("verify.tryAgain") }}</button>
+						</div>
+
+						<div *ngSwitchCase="'submitted'" class="submitted-screen center">
+							<div class="submitted-media has-face" *ngIf="session.submittedSelfie as selfie; else submittedDocOrIcon">
+								<img class="submitted-face" [src]="selfie" (error)="session.onSubmittedSelfieError()" alt="Selfie" />
+
+								<!-- Miniature ID document preview or elegant vector fallback badge -->
+								<img
+									class="submitted-mini-doc"
+									*ngIf="session.submittedDocument as doc; else docFallbackBadge"
+									[src]="doc"
+									(error)="session.onSubmittedDocError()"
+									alt="ID Document"
+								/>
+								<ng-template #docFallbackBadge>
+									<div class="submitted-mini-doc doc-fallback" *ngIf="session.registration?.documentValidation" aria-hidden="true">
+										<svg viewBox="0 0 24 24">
+											<rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2" />
+											<circle cx="8" cy="11" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+											<path d="M13 10h5M13 14h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+										</svg>
+									</div>
+								</ng-template>
+
+								<!-- Verified green check badge -->
+								<span class="submitted-badge" aria-hidden="true">
+									<svg viewBox="0 0 24 24">
+										<path
+											d="m6 12.5 4 4 8-8.5"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+								</span>
+							</div>
+
+							<ng-template #submittedDocOrIcon>
+								<div class="submitted-media has-doc" *ngIf="session.submittedDocument as doc; else submittedCheckIcon">
+									<img class="submitted-doc" [src]="doc" (error)="session.onSubmittedDocError()" alt="ID Document" />
+									<span class="submitted-badge" aria-hidden="true">
+										<svg viewBox="0 0 24 24">
+											<path
+												d="m6 12.5 4 4 8-8.5"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+									</span>
+								</div>
+							</ng-template>
+
+							<ng-template #submittedCheckIcon>
+								<div class="submitted-icon-circle" aria-hidden="true">
+									<svg viewBox="0 0 24 24">
+										<path
+											d="m6 12.5 4 4 8-8.5"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+								</div>
+							</ng-template>
+
+							<div class="submitted-headings">
+								<h1 class="submitted-title">{{ t("verify.submittedTitle") }}</h1>
+								<p class="submitted-subtitle">{{ t("verify.submittedSubtitle") }}</p>
+							</div>
+
+							<!-- Trust and verification summary card filling the middle void -->
+							<div class="submitted-card">
+								<div class="submitted-row" *ngIf="session.registration?.documentValidation">
+									<div class="submitted-row-left">
+										<span class="submitted-row-icon doc-icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24">
+												<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+												<circle cx="8" cy="11" r="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+												<path d="M13 10h5M13 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+											</svg>
+										</span>
+										<div class="submitted-row-meta">
+											<span class="submitted-row-label">{{ t("verify.submittedCheckDocument") }}</span>
+											<span class="submitted-row-value">{{
+												session.template?.title || session.template?.name || t(categoryLabel(session.category))
+											}}</span>
+										</div>
+									</div>
+									<span class="submitted-row-status verified">
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="m5 13 4 4L19 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										{{ t("verify.submittedStatusVerified") }}
+									</span>
+								</div>
+
+								<div class="submitted-row" *ngIf="!session.skippedLiveness && session.registration?.biometricValidation">
+									<div class="submitted-row-left">
+										<span class="submitted-row-icon bio-icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24">
+												<path
+													d="M9 3H5a2 2 0 0 0-2 2v4m18 0V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4m10 0h4a2 2 0 0 0 2-2v-4"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+												/>
+												<circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="2" />
+											</svg>
+										</span>
+										<div class="submitted-row-meta">
+											<span class="submitted-row-label">{{ t("verify.submittedCheckLiveness") }}</span>
+											<span class="submitted-row-value">{{ t("verify.submittedLivenessDesc") }}</span>
+										</div>
+									</div>
+									<span class="submitted-row-status verified">
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="m5 13 4 4L19 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										{{ t("verify.submittedStatusVerified") }}
+									</span>
+								</div>
+
+								<div class="submitted-row">
+									<div class="submitted-row-left">
+										<span class="submitted-row-icon sec-icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24">
+												<path
+													d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												/>
+											</svg>
+										</span>
+										<div class="submitted-row-meta">
+											<span class="submitted-row-label">{{ t("verify.submittedCheckSecurity") }}</span>
+											<span class="submitted-row-value">{{ t("verify.submittedSecurityDesc") }}</span>
+										</div>
+									</div>
+									<span class="submitted-row-status protected">
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="m5 13 4 4L19 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										{{ t("verify.submittedStatusProtected") }}
+									</span>
+								</div>
+							</div>
+
+							<!-- Bottom Actions & Redirect countdown -->
+							<div class="submitted-actions">
+								<ng-container *ngIf="session.isMobileHandoff; else desktopSubmittedActionsTpl">
+									<div class="submitted-handback-card" role="status" aria-live="polite">
+										<div class="submitted-handback-icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24" fill="none">
+												<rect
+													x="3"
+													y="4"
+													width="18"
+													height="12"
+													rx="2"
+													stroke="currentColor"
+													stroke-width="1.8"
+												/>
+												<path
+													d="M8 20h8M12 16v4"
+													stroke="currentColor"
+													stroke-width="1.8"
+													stroke-linecap="round"
+												/>
+											</svg>
+										</div>
+										<div class="submitted-handback-copy">
+											<strong class="submitted-handback-title">{{ t("verify.returnToComputerTitle") }}</strong>
+											<p class="submitted-handback-body">{{ t("verify.returnToComputerBody") }}</p>
+										</div>
+									</div>
+
+									<button type="button" class="secondary submitted-cta" (click)="session.redirectNow()">
+										<span>{{ t("verify.submittedContinueBtn", { project: session.project?.name || "WIWO" }) }}</span>
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="M5 12h14M12 5l7 7-7 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+									</button>
+								</ng-container>
+
+								<ng-template #desktopSubmittedActionsTpl>
+									<button type="button" class="primary submitted-cta" (click)="session.redirectNow()">
+										<span>{{ t("verify.submittedContinueBtn", { project: session.project?.name || "WIWO" }) }}</span>
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="M5 12h14M12 5l7 7-7 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+									</button>
+
+									<div class="submitted-redirect-wrap" *ngIf="session.redirectSeconds > 0">
+										<p class="submitted-redirect-text">
+											{{ t("verify.submittedRedirecting", { seconds: session.redirectSeconds }) }}
+										</p>
+										<div class="submitted-progress-track" aria-hidden="true">
+											<div class="submitted-progress-fill" [style.width.%]="((7 - session.redirectSeconds) / 7) * 100"></div>
+										</div>
+									</div>
+								</ng-template>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-		</section>
+				</section>
 
-		<footer class="lang-foot" *ngIf="session.screen !== 'loading' && session.languages.length > 1">
-			<button type="button" class="lang-btn" (click)="session.openSheet('language')" [attr.aria-label]="t('verify.languageTitle')">
-				<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
-				<span>{{ languageLabel }}</span>
-			</button>
-		</footer>
+				<footer class="lang-foot" *ngIf="session.screen !== 'loading' && session.languages.length > 1">
+					<button type="button" class="lang-btn" (click)="session.openSheet('language')" [attr.aria-label]="t('verify.languageTitle')">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+							<path
+								d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5Z"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+							/>
+						</svg>
+						<span>{{ languageLabel }}</span>
+					</button>
+				</footer>
+			</div>
+
+			<!-- Right Panel: Decorative Banner Background -->
+			<aside class="shell-banner" *ngIf="hasBanner" aria-hidden="true">
+				<div class="banner-media" [style.background-image]="'url(' + bannerImage + ')'" [style.background-color]="bannerBgColor"></div>
+			</aside>
+		</div>
 
 		<div class="sheet-backdrop" *ngIf="session.sheet" (click)="session.closeSheet()" aria-hidden="true"></div>
 		<div class="sheet" *ngIf="session.sheet">
@@ -566,7 +1241,14 @@
 				<ul class="sheet-rows sheet-id-list">
 					<li *ngIf="session.settings?.usePassport">
 						<span class="sheet-id-icon" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
 								<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H18a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
 								<circle cx="12.5" cy="10" r="3" />
 								<path d="M8 2v20" />
@@ -575,12 +1257,27 @@
 						</span>
 						<span class="sheet-id-name">{{ t("verify.passport") }}</span>
 						<span class="sheet-id-check" aria-hidden="true">
-							<svg viewBox="0 0 20 20" fill="none"><path d="M4.5 10.5 8 14 15.5 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+							<svg viewBox="0 0 20 20" fill="none">
+								<path
+									d="M4.5 10.5 8 14 15.5 6.5"
+									stroke="currentColor"
+									stroke-width="2.2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+							</svg>
 						</span>
 					</li>
 					<li *ngIf="session.settings?.useLicense">
 						<span class="sheet-id-icon" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
 								<rect x="2.5" y="4" width="19" height="16" rx="3" />
 								<circle cx="8" cy="11.5" r="3" />
 								<path d="M8 8.8v5.4M5.5 11.5h5" />
@@ -589,12 +1286,27 @@
 						</span>
 						<span class="sheet-id-name">{{ t("verify.license") }}</span>
 						<span class="sheet-id-check" aria-hidden="true">
-							<svg viewBox="0 0 20 20" fill="none"><path d="M4.5 10.5 8 14 15.5 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+							<svg viewBox="0 0 20 20" fill="none">
+								<path
+									d="M4.5 10.5 8 14 15.5 6.5"
+									stroke="currentColor"
+									stroke-width="2.2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+							</svg>
 						</span>
 					</li>
 					<li *ngIf="session.settings?.useGovernmentId">
 						<span class="sheet-id-icon" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
 								<rect x="2.5" y="4" width="19" height="16" rx="3" />
 								<circle cx="8" cy="10.5" r="2.2" />
 								<path d="M5.2 16.5c0-1.5 1.2-2.5 2.8-2.5s2.8 1 2.8 2.5" />
@@ -603,7 +1315,15 @@
 						</span>
 						<span class="sheet-id-name">{{ t("verify.nationalId") }}</span>
 						<span class="sheet-id-check" aria-hidden="true">
-							<svg viewBox="0 0 20 20" fill="none"><path d="M4.5 10.5 8 14 15.5 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+							<svg viewBox="0 0 20 20" fill="none">
+								<path
+									d="M4.5 10.5 8 14 15.5 6.5"
+									stroke="currentColor"
+									stroke-width="2.2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+							</svg>
 						</span>
 					</li>
 				</ul>
@@ -622,13 +1342,25 @@
 			<div *ngIf="session.sheet === 'otherOptions'">
 				<h2>{{ t("verify.otherOptions") }}</h2>
 				<ul class="sheet-rows">
-					<li><button type="button" (click)="session.copyLink()">{{ session.copied ? t("verify.copied") : t("verify.copyLink") }}</button></li>
-					<li><button type="button" (click)="session.continueOnDevice()">{{ t("verify.continueHere") }}</button></li>
+					<li>
+						<button type="button" (click)="session.copyLink()">{{ session.copied ? t("verify.copied") : t("verify.copyLink") }}</button>
+					</li>
+					<li>
+						<button type="button" (click)="session.continueOnDevice()">{{ t("verify.continueHere") }}</button>
+					</li>
 				</ul>
 			</div>
 			<div *ngIf="session.sheet === 'document'">
 				<h2>{{ t("verify.documentTitle") }}</h2>
-				<p>{{ session.uploadOnlyDocumentMethod ? t("verify.documentBodyUpload") : session.bothDocumentMethodsAllowed ? t("verify.documentBodyBoth") : t("verify.documentBody") }}</p>
+				<p>
+					{{
+						session.uploadOnlyDocumentMethod
+							? t("verify.documentBodyUpload")
+							: session.bothDocumentMethodsAllowed
+								? t("verify.documentBodyBoth")
+								: t("verify.documentBody")
+					}}
+				</p>
 				<div class="field" *ngIf="session.bothDocumentMethodsAllowed">
 					<span class="field-label">{{ t("verify.methodLabel") }}</span>
 					<div class="method-grid" role="radiogroup" [attr.aria-label]="t('verify.methodLabel')">
@@ -641,7 +1373,14 @@
 							(click)="session.selectDocumentMethod('scan')"
 						>
 							<span class="method-card-icon" aria-hidden="true">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
 									<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" />
 									<circle cx="12" cy="13" r="3.5" />
 								</svg>
@@ -660,7 +1399,14 @@
 							(click)="session.selectDocumentMethod('upload')"
 						>
 							<span class="method-card-icon" aria-hidden="true">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
 									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 									<polyline points="17 8 12 3 7 8" />
 									<line x1="12" y1="3" x2="12" y2="15" />
@@ -673,14 +1419,32 @@
 						</button>
 					</div>
 				</div>
-				<div class="field"><span class="field-label">{{ t("verify.country") }}</span>
-					<verify-select [ariaLabel]="t('verify.country')" [options]="countryOptions" [value]="session.country" (valueChange)="session.selectCountry($any($event))"></verify-select>
+				<div class="field">
+					<span class="field-label">{{ t("verify.country") }}</span>
+					<verify-select
+						[ariaLabel]="t('verify.country')"
+						[options]="countryOptions"
+						[value]="session.country"
+						(valueChange)="session.selectCountry($any($event))"
+					></verify-select>
 				</div>
-				<div class="field"><span class="field-label">{{ t("verify.category") }}</span>
-					<verify-select [ariaLabel]="t('verify.category')" [options]="categoryOptions(t)" [value]="session.category" (valueChange)="session.selectCategory($any($event))"></verify-select>
+				<div class="field">
+					<span class="field-label">{{ t("verify.category") }}</span>
+					<verify-select
+						[ariaLabel]="t('verify.category')"
+						[options]="categoryOptions(t)"
+						[value]="session.category"
+						(valueChange)="session.selectCategory($any($event))"
+					></verify-select>
 				</div>
-				<div class="field" *ngIf="session.templates.length"><span class="field-label">{{ t("verify.template") }}</span>
-					<verify-select [ariaLabel]="t('verify.template')" [options]="templateOptions" [value]="session.template" (valueChange)="session.selectTemplate($any($event))"></verify-select>
+				<div class="field" *ngIf="session.templates.length">
+					<span class="field-label">{{ t("verify.template") }}</span>
+					<verify-select
+						[ariaLabel]="t('verify.template')"
+						[options]="templateOptions"
+						[value]="session.template"
+						(valueChange)="session.selectTemplate($any($event))"
+					></verify-select>
 				</div>
 			</div>
 			<div *ngIf="session.sheet === 'camera'">
@@ -691,9 +1455,15 @@
 			<div *ngIf="session.sheet === 'trouble'">
 				<h2>{{ t("verify.troubleTitle") }}</h2>
 				<ul class="sheet-rows">
-					<li><button type="button" (click)="session.anotherDevice()">{{ t("verify.anotherDevice") }}</button></li>
-					<li><button type="button" (click)="session.setMode('auto')">{{ t("verify.captureAuto") }}</button></li>
-					<li *ngIf="session.settings?.uploadAllowed"><button type="button" (click)="pickFile()">{{ t("verify.selectFile") }}</button></li>
+					<li>
+						<button type="button" (click)="session.anotherDevice()">{{ t("verify.anotherDevice") }}</button>
+					</li>
+					<li>
+						<button type="button" (click)="session.setMode('auto')">{{ t("verify.captureAuto") }}</button>
+					</li>
+					<li *ngIf="session.settings?.uploadAllowed">
+						<button type="button" (click)="pickFile()">{{ t("verify.selectFile") }}</button>
+					</li>
 				</ul>
 			</div>
 			<button

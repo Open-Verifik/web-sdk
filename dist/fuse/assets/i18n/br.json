@@ -1047,6 +1047,7 @@
 		"handoffTitle": "Continue no seu celular",
 		"havingTrouble": "Problemas?",
 		"imReady": "Estou pronto",
+		"identityVerification": "Verificação de Identidade",
 		"languageTitle": "Idioma",
 		"lastName": "Sobrenome",
 		"license": "Carteira de motorista",
@@ -1172,6 +1173,16 @@
 		"submittedStatusVerified": "Verificado",
 		"submittedStatusProtected": "Protegido",
 		"submittedContinueBtn": "Continuar para {{project}}",
-		"submittedRedirecting": "Redirecionando automaticamente em {{seconds}}s..."
+		"submittedRedirecting": "Redirecionando automaticamente em {{seconds}}s...",
+		"handoffWaitingPhone": "Aguardando a conexão do seu celular…",
+		"handoffConnectedTitle": "Conectado ao seu celular",
+		"handoffConnectedBody": "Mantenha esta janela aberta enquanto conclui a verificação no seu dispositivo móvel.",
+		"handoffStepConnected": "Celular conectado",
+		"handoffStepDocument": "Captura do documento de identidade",
+		"handoffStepSelfie": "Selfie e prova de vida",
+		"handoffShowQrAgain": "Mostrar código QR novamente",
+		"handoffBackToProgress": "Voltar ao progresso ao vivo",
+		"returnToComputerTitle": "Continue no seu computador",
+		"returnToComputerBody": "A tela do seu computador foi atualizada automaticamente. Você já pode fechar esta aba no celular."
 	}
 }

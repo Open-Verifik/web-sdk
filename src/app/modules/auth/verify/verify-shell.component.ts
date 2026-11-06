@@ -15,7 +15,15 @@ import { VerifySelectComponent, VerifySelectOption } from "./verify-select.compo
 import { VerifySessionService } from "./verify-session.service";
 import { hasContactBlock, progressIndex, progressSegments } from "./verify-flow";
 import { flowOrderFromQuery } from "app/core/classes/project-flow.class";
-import { parseVerifyStyle, resolveVerifyStyle, VERIFY_FONT_HREF, VerifyStyleId } from "./verify-style";
+import {
+	DEFAULT_VERIFY_LOGO_METRICS,
+	parseVerifyStyle,
+	resolveLogoMetrics,
+	resolveVerifyStyle,
+	VERIFY_FONT_HREF,
+	VerifyLogoMetrics,
+	VerifyStyleId,
+} from "./verify-style";
 
 @Component({
 	selector: "verify-shell",
@@ -33,10 +41,17 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	boxes = [0, 1, 2, 3, 4, 5];
 	isDraggingFile = false;
 	styleId: VerifyStyleId = "a";
+	logoMetrics: VerifyLogoMetrics = { ...DEFAULT_VERIFY_LOGO_METRICS };
 
 	private _destroy$ = new Subject<void>();
 	private _preview: string | null = null;
 	private _qrUrl = "";
+	private _qrCanvasEl: HTMLCanvasElement | null = null;
+	private _compactMql?: MediaQueryList;
+	private _onCompactChange = (event: MediaQueryListEvent): void => {
+		this.session.compact = event.matches;
+		this._cdr.detectChanges();
+	};
 
 	constructor(
 		public session: VerifySessionService,
@@ -47,7 +62,9 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 
 	ngOnInit(): void {
 		this._loadStyleFonts();
-		this.session.compact = window.matchMedia("(max-width: 720px)").matches;
+		this._compactMql = window.matchMedia("(max-width: 639px)");
+		this.session.compact = this._compactMql.matches;
+		this._compactMql.addEventListener?.("change", this._onCompactChange);
 		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => {
 			this._applyStyle();
 			this._cdr.detectChanges();
@@ -55,23 +72,30 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		combineLatest([this._route.paramMap, this._route.queryParamMap])
 			.pipe(takeUntil(this._destroy$))
 			.subscribe(([params, query]) => {
+				const projectId = params.get("projectId") || "";
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this.session.orderOverride = flowOrderFromQuery(query.get("order")) || null;
+				const handoffParam = query.get("handoff");
+				if (handoffParam === "1" || handoffParam === "true") {
+					this.session.markMobileHandoff(projectId);
+				}
 				this._applyStyle();
-				this.session.open(params.get("projectId") || "", query.get("token") || undefined);
+				this.session.open(projectId, query.get("token") || undefined);
 			});
 	}
 
 	ngAfterViewChecked(): void {
 		if (this.session.screen !== "handoff" || !this.qr?.nativeElement) return;
-		if (this._qrUrl === this.session.sessionUrl) return;
+		if (this._qrUrl === this.session.sessionUrl && this._qrCanvasEl === this.qr.nativeElement) return;
 
 		this._qrUrl = this.session.sessionUrl;
+		this._qrCanvasEl = this.qr.nativeElement;
 		void QRCode.toCanvas(this.qr.nativeElement, this.session.sessionUrl, { margin: 1, width: 220 });
 	}
 
 	ngOnDestroy(): void {
+		this._compactMql?.removeEventListener?.("change", this._onCompactChange);
 		this._destroy$.next();
 		this._destroy$.complete();
 	}
@@ -86,6 +110,33 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 
 	get languageLabel(): string {
 		return this.session.languages.find((lang) => lang.id === this.session.activeLang)?.label || this.session.activeLang;
+	}
+
+	get bannerImage(): string {
+		const b = this.session.project?.branding as any;
+		const img = b?.image || b?.rightImage;
+		return typeof img === "string" ? img.trim() : "";
+	}
+
+	get hasBanner(): boolean {
+		return this.bannerImage.length > 0;
+	}
+
+	get bannerBgColor(): string {
+		const b = this.session.project?.branding as any;
+		return b?.imageBackgroundColor || b?.rightBackgroundColor || "#f9fafb";
+	}
+
+	get projectName(): string {
+		const name = this.session.project?.name;
+		return typeof name === "string" && name.trim() ? name.trim() : "Verifik";
+	}
+
+	onLogoLoad(event: Event): void {
+		const img = event.target as HTMLImageElement | null;
+		if (!img) return;
+		this.logoMetrics = resolveLogoMetrics(img.naturalWidth, img.naturalHeight);
+		this._cdr.detectChanges();
 	}
 
 	get dialCodes(): Array<{ code: string; name: string }> {

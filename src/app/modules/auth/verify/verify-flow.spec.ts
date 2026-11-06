@@ -7,9 +7,11 @@ import {
 	documentNeedsBack,
 	enrollmentClientFrom,
 	hasContactBlock,
+	isTerminalStatus,
 	needsEmailCode,
 	progressIndex,
 	progressSegments,
+	resolveHandoffPhase,
 	resumeScreen,
 	VerifySettings,
 } from "./verify-flow";
@@ -229,5 +231,96 @@ describe("verify-flow", () => {
 		} as any);
 		expect(legacyUploadOnly.documentScanAllowed).toBeFalse();
 		expect(legacyUploadOnly.documentUploadAllowed).toBeTrue();
+	});
+
+	it("skips redundant consent on mobile handoff or when currentStep is instructions", () => {
+		expect(
+			resumeScreen({
+				currentStep: "instructions",
+				documentFailed: false,
+				documentStep: "mandatory",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "mandatory",
+				needsBack: true,
+				phoneNeeded: false,
+			})
+		).toBe("ready");
+
+		expect(
+			resumeScreen({
+				currentStep: "signUpForm",
+				documentFailed: false,
+				documentStep: "mandatory",
+				emailNeeded: false,
+				handoff: true,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "mandatory",
+				needsBack: true,
+				phoneNeeded: false,
+			})
+		).toBe("ready");
+
+		expect(
+			resumeScreen({
+				currentStep: "instructions",
+				documentFailed: false,
+				documentStep: "skip",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "mandatory",
+				needsBack: false,
+				phoneNeeded: false,
+			})
+		).toBe("selfieIntro");
+	});
+
+	it("resolves desktop handoff live phases and terminal statuses accurately", () => {
+		expect(isTerminalStatus("COMPLETED")).toBeTrue();
+		expect(isTerminalStatus("NEEDS_MANUAL_VERIFICATION")).toBeTrue();
+		expect(isTerminalStatus("EXPIRED")).toBeTrue();
+		expect(isTerminalStatus("STARTED")).toBeFalse();
+
+		expect(
+			resolveHandoffPhase({
+				currentStep: "instructions",
+				hasBiometric: false,
+				hasDocument: false,
+				status: "STARTED",
+			})
+		).toBe("qr");
+
+		expect(
+			resolveHandoffPhase({
+				currentStep: "document",
+				hasBiometric: false,
+				hasDocument: false,
+				status: "STARTED",
+			})
+		).toBe("document");
+
+		expect(
+			resolveHandoffPhase({
+				currentStep: "liveness",
+				hasBiometric: false,
+				hasDocument: true,
+				status: "ONGOING",
+			})
+		).toBe("liveness");
+
+		expect(
+			resolveHandoffPhase({
+				currentStep: "end",
+				hasBiometric: true,
+				hasDocument: true,
+				status: "COMPLETED",
+			})
+		).toBe("completed");
 	});
 });

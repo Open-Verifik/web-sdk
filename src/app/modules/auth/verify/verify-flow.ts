@@ -60,12 +60,22 @@ export interface ResumeInput {
 	documentMismatch?: boolean;
 	documentStep: StepFlag;
 	emailNeeded: boolean;
+	handoff?: boolean;
 	hasBack: boolean;
 	hasBiometric: boolean;
 	hasDocument: boolean;
 	livenessStep: StepFlag;
 	needsBack: boolean;
 	phoneNeeded: boolean;
+	status?: string;
+}
+
+export type VerifyHandoffPhase = "qr" | "document" | "liveness" | "completed";
+
+export interface HandoffPhaseInput {
+	currentStep?: string;
+	hasBiometric?: boolean;
+	hasDocument?: boolean;
 	status?: string;
 }
 
@@ -81,7 +91,7 @@ export interface CompletionInput {
 	livenessStatus?: string;
 }
 
-const TERMINAL = new Set(["COMPLETED", "FAILED", "COMPLETED_WITHOUT_KYC"]);
+const TERMINAL = new Set(["COMPLETED", "FAILED", "COMPLETED_WITHOUT_KYC", "NEEDS_MANUAL_VERIFICATION", "EXPIRED"]);
 
 export const enrollmentClientFrom = (value: unknown): EnrollmentClient => (value === "v2" ? "v2" : "legacy");
 
@@ -120,7 +130,12 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (input.hasDocument && input.documentMismatch) return "ocrReview";
 	if (input.hasDocument && input.needsBack && !input.hasBack) return "flip";
 
-	const startedCapture = input.currentStep === "document" || input.currentStep === "liveness" || input.hasDocument;
+	const startedCapture =
+		input.currentStep === "instructions" ||
+		input.currentStep === "document" ||
+		input.currentStep === "liveness" ||
+		Boolean(input.handoff) ||
+		input.hasDocument;
 
 	if (startedCapture && input.documentStep !== "skip" && !input.hasDocument) return "ready";
 	if (input.hasDocument && input.currentStep === "document") return "ocrReview";
@@ -129,6 +144,20 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (input.hasDocument && input.livenessStep === "skip") return "submitted";
 
 	return "consent";
+};
+
+export const resolveHandoffPhase = (input: HandoffPhaseInput): VerifyHandoffPhase => {
+	if (isTerminalStatus(input.status, input.currentStep) || input.hasBiometric) {
+		return "completed";
+	}
+	if (input.currentStep === "liveness" || input.hasDocument) {
+		return "liveness";
+	}
+	if (input.currentStep === "document") {
+		return "document";
+	}
+
+	return "qr";
 };
 
 export const completionStatus = (input: CompletionInput): "COMPLETED" | "FAILED" | "COMPLETED_WITHOUT_KYC" => {

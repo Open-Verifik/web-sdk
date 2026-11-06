@@ -1047,6 +1047,7 @@
 		"handoffTitle": "Magpatuloy sa iyong mobile device",
 		"havingTrouble": "May problema ba?",
 		"imReady": "Handa na ako",
+		"identityVerification": "Pagpapatunay ng Pagkakakilanlan",
 		"languageTitle": "Wika",
 		"lastName": "Apelyido",
 		"license": "Lisensya sa pagmamaneho",
@@ -1172,6 +1173,16 @@
 		"submittedStatusVerified": "Na-verify",
 		"submittedStatusProtected": "Protektado",
 		"submittedContinueBtn": "Magpatuloy sa {{project}}",
-		"submittedRedirecting": "Awtomatikong magre-redirect sa loob ng {{seconds}}s..."
+		"submittedRedirecting": "Awtomatikong magre-redirect sa loob ng {{seconds}}s...",
+		"handoffWaitingPhone": "Naghihintay na kumonekta ang iyong telepono…",
+		"handoffConnectedTitle": "Nakakonekta sa iyong telepono",
+		"handoffConnectedBody": "Panatilihing bukas ang window na ito habang tinatapos mo ang beripikasyon sa iyong mobile device.",
+		"handoffStepConnected": "Nakakonekta ang telepono",
+		"handoffStepDocument": "Pagkuha ng ID document",
+		"handoffStepSelfie": "Selfie at liveness check",
+		"handoffShowQrAgain": "Ipakita muli ang QR code",
+		"handoffBackToProgress": "Bumalik sa live na progreso",
+		"returnToComputerTitle": "Magpatuloy sa iyong computer",
+		"returnToComputerBody": "Awtomatikong na-update ang screen ng iyong computer. Maaari mo nang isara ang tab na ito sa iyong telepono."
 	}
 }

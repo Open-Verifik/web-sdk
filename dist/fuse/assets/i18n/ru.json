@@ -1047,6 +1047,7 @@
 		"handoffTitle": "Продолжить на телефоне",
 		"havingTrouble": "Возникли трудности?",
 		"imReady": "Я готов",
+		"identityVerification": "Проверка личности",
 		"languageTitle": "Язык",
 		"lastName": "Фамилия",
 		"license": "Водительское удостоверение",
@@ -1172,6 +1173,16 @@
 		"submittedStatusVerified": "Проверено",
 		"submittedStatusProtected": "Защищено",
 		"submittedContinueBtn": "Продолжить в {{project}}",
-		"submittedRedirecting": "Автоматическое перенаправление через {{seconds}}с..."
+		"submittedRedirecting": "Автоматическое перенаправление через {{seconds}}с...",
+		"handoffWaitingPhone": "Ожидание подключения телефона…",
+		"handoffConnectedTitle": "Телефон подключен",
+		"handoffConnectedBody": "Не закрывайте это окно, пока завершаете проверку на мобильном устройстве.",
+		"handoffStepConnected": "Телефон подключен",
+		"handoffStepDocument": "Съемка документа, удостоверяющего личность",
+		"handoffStepSelfie": "Селфи и проверка подлинности",
+		"handoffShowQrAgain": "Показать QR-код снова",
+		"handoffBackToProgress": "Вернуться к текущему прогрессу",
+		"returnToComputerTitle": "Продолжите на компьютере",
+		"returnToComputerBody": "Экран вашего компьютера автоматически обновился. Вы можете закрыть эту вкладку на телефоне."
 	}
 }

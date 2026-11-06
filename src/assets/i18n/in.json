@@ -1047,6 +1047,7 @@
 		"handoffTitle": "अपने मोबाइल डिवाइस पर जारी रखें",
 		"havingTrouble": "कोई समस्या आ रही है?",
 		"imReady": "मैं तैयार हूँ",
+		"identityVerification": "पहचान सत्यापन",
 		"languageTitle": "भाषा",
 		"lastName": "उपनाम",
 		"license": "ड्राइविंग लाइसेंस",
@@ -1172,6 +1173,16 @@
 		"submittedStatusVerified": "सत्यापित",
 		"submittedStatusProtected": "सुरक्षित",
 		"submittedContinueBtn": "{{project}} पर जारी रखें",
-		"submittedRedirecting": "{{seconds}} सेकंड में स्वचालित रूप से रीडायरेक्ट हो रहा है..."
+		"submittedRedirecting": "{{seconds}} सेकंड में स्वचालित रूप से रीडायरेक्ट हो रहा है...",
+		"handoffWaitingPhone": "आपके फ़ोन के कनेक्ट होने की प्रतीक्षा हो रही है…",
+		"handoffConnectedTitle": "आपके फ़ोन से कनेक्ट हो गया",
+		"handoffConnectedBody": "जब तक आप अपने मोबाइल डिवाइस पर सत्यापन पूरा करते हैं, तब तक इस विंडो को खुला रखें।",
+		"handoffStepConnected": "फ़ोन कनेक्ट हो गया",
+		"handoffStepDocument": "पहचान दस्तावेज़ कैप्चर",
+		"handoffStepSelfie": "सेल्फ़ी और लाइवनेस जाँच",
+		"handoffShowQrAgain": "क्यूआर कोड फिर से दिखाएँ",
+		"handoffBackToProgress": "लाइव प्रगति पर वापस जाएँ",
+		"returnToComputerTitle": "अपने कंप्यूटर पर जारी रखें",
+		"returnToComputerBody": "आपके कंप्यूटर की स्क्रीन अपने आप अपडेट हो गई है। अब आप अपने फ़ोन पर इस टैब को सुरक्षित रूप से बंद कर सकते हैं।"
 	}
 }

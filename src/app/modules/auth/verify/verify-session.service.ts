@@ -32,11 +32,29 @@ import {
 	hasContactBlock,
 	needsEmailCode,
 	needsPhoneCode,
+	resolveHandoffPhase,
 	resumeScreen,
+	VerifyHandoffPhase,
 	VerifyScreen,
 	VerifySettings,
 } from "./verify-flow";
 import { VerifyStyleId } from "./verify-style";
+
+const FULL_REGISTRATION_POPULATES = [
+	"biometricValidation",
+	"compareFaceVerification",
+	"documentFace",
+	"documentValidation",
+	"emailValidation",
+	"face",
+	"informationValidation",
+	"person",
+	"phoneValidation",
+	"project",
+	"projectFlow",
+];
+
+const HANDOFF_POLL_INTERVAL_MS = 2500;
 
 export type VerifySheet = null | "acceptedIds" | "language" | "otherOptions" | "document" | "camera" | "trouble";
 
@@ -73,7 +91,9 @@ export class VerifySessionService implements OnDestroy {
 	selfieImageFailed = false;
 	frontDocumentFace: string | null = null;
 	frontDocumentImage: string | null = null;
+	handoffPhase: VerifyHandoffPhase = "qr";
 	history: VerifyScreen[] = [];
+	isMobileHandoff = false;
 	manualVerificationRequested = false;
 	mode: "auto" | "manual" = "auto";
 	nameValidationState: "idle" | "running" | "passed" | "mismatch" | "unsupported" | "error" = "idle";
@@ -92,6 +112,7 @@ export class VerifySessionService implements OnDestroy {
 	selfieImage: string | null = null;
 	selfiePhase: "idle" | "liveness" | "compare" | "finishing" = "idle";
 	sheet: VerifySheet = null;
+	showQrOverride = false;
 	previewStyle: VerifyStyleId | null = null;
 	/** `?order=a|b` from the URL; wins over the order saved on the project so both can be compared. */
 	orderOverride: FlowOrder | null = null;
@@ -103,6 +124,8 @@ export class VerifySessionService implements OnDestroy {
 	private _destroy$ = new Subject<void>();
 	private _device: any;
 	private _documentFailures = 0;
+	private _handoffPollInFlight = false;
+	private _handoffPollTimer: ReturnType<typeof setInterval> | null = null;
 	private _key = "";
 	private _livenessFailures = 0;
 	private _location: any = null;
@@ -112,6 +135,11 @@ export class VerifySessionService implements OnDestroy {
 	private _skippedDocument = false;
 	private _skippedLiveness = false;
 	private _token = "";
+	private _onVisibilityChange = (): void => {
+		if (typeof document !== "undefined" && document.visibilityState === "visible" && this.screen === "handoff") {
+			this._pollHandoffStatus();
+		}
+	};
 
 	constructor(
 		private _app: AppService,
@@ -129,9 +157,22 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this._stopHandoffPolling();
 		if (this._redirectTimer) clearTimeout(this._redirectTimer);
 		this._destroy$.next();
 		this._destroy$.complete();
+	}
+
+	markMobileHandoff(projectId?: string): void {
+		this.isMobileHandoff = true;
+		try {
+			if (projectId) sessionStorage.setItem(`verifik_handoff_${projectId}`, "1");
+		} catch {}
+	}
+
+	toggleQrOverride(showQr: boolean): void {
+		this.showQrOverride = showQr;
+		this._touch();
 	}
 
 	get settings(): VerifySettings | null {
@@ -152,6 +193,7 @@ export class VerifySessionService implements OnDestroy {
 		if (this._token) params.set("token", this._token);
 		if (this.previewStyle) params.set("style", this.previewStyle);
 		if (this.orderOverride) params.set("order", this.orderOverride === "consent_first" ? "b" : "a");
+		params.set("handoff", "1");
 
 		const query = params.toString();
 
@@ -402,6 +444,12 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	open(projectId: string, rawToken?: string): void {
+		try {
+			if (!this.isMobileHandoff && projectId && sessionStorage.getItem(`verifik_handoff_${projectId}`) === "1") {
+				this.isMobileHandoff = true;
+			}
+		} catch {}
+
 		const token = resolveToken(projectId, rawToken);
 		const key = `${projectId}:${token}`;
 
@@ -436,6 +484,7 @@ export class VerifySessionService implements OnDestroy {
 		}
 
 		if (this.screen === "submitted") return;
+		if (this.screen === "handoff") this._stopHandoffPolling();
 
 		const previous = this.history.pop();
 
@@ -449,6 +498,9 @@ export class VerifySessionService implements OnDestroy {
 		}
 
 		this.screen = previous;
+		if (this.screen === "handoff") {
+			this._startHandoffPolling();
+		}
 		this._touch();
 	}
 
@@ -525,6 +577,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	continueOnDevice(): void {
+		this._stopHandoffPolling();
 		this.sheet = null;
 		this._enterCapture();
 	}
@@ -848,7 +901,7 @@ export class VerifySessionService implements OnDestroy {
 
 	anotherDevice(): void {
 		this.sheet = null;
-		this._push("handoff");
+		this._enterHandoff();
 	}
 
 	redirectNow(): void {
@@ -929,19 +982,7 @@ export class VerifySessionService implements OnDestroy {
 
 		this._kyc
 			.getAppRegistration({
-				populates: [
-					"biometricValidation",
-					"compareFaceVerification",
-					"documentFace",
-					"documentValidation",
-					"emailValidation",
-					"face",
-					"informationValidation",
-					"person",
-					"phoneValidation",
-					"project",
-					"projectFlow",
-				],
+				populates: FULL_REGISTRATION_POPULATES,
 			})
 			.pipe(takeUntil(this._destroy$))
 			.subscribe({
@@ -985,6 +1026,7 @@ export class VerifySessionService implements OnDestroy {
 			documentMismatch: this.documentMismatch,
 			documentStep: settings.document,
 			emailNeeded: needsEmailCode(settings, this.registration?.emailValidation?.status === "validated"),
+			handoff: this.isMobileHandoff,
 			hasBack: Boolean(document?.backUrl || document?.hasBackImage),
 			hasBiometric: Boolean(this.registration?.biometricValidation),
 			hasDocument: Boolean(document),
@@ -999,27 +1041,28 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
-		if (screen === "emailCode") this._sendEmailCode();
-		if (screen === "phoneCode") this._sendPhoneCode();
-		if (screen === "submitted") {
-			this._showSubmitted(this._token);
+		// If Desktop refreshes while waiting on the handoff screen (`currentStep === "instructions"`),
+		// restore the handoff screen & poller on Desktop instead of jumping into desktop camera capture.
+		if (
+			!this.compact &&
+			!this.isMobileHandoff &&
+			this.registration?.currentStep === "instructions" &&
+			!document &&
+			!this.registration?.biometricValidation &&
+			(screen === "ready" || screen === "selfieIntro")
+		) {
+			this._enterHandoff();
 			return;
 		}
 
-		if (document) {
-			if (document.country) this.country = document.country;
-			if (document.documentCategory) this.category = document.documentCategory;
-			if (document.inputMethod === "FILE_UPLOAD" && this.uploadAllowed) {
-				this.documentMethod = "upload";
-			}
-			if (document.template) {
-				const all = this.projectFlow?.promptTemplates ? this.projectFlow.promptTemplates() : [];
-				const found = all.find(
-					(t) => String(t._id || t) === String(document.template?._id || document.template)
-				);
-				this.template = found || document.template;
-			}
+		if (screen === "emailCode") this._sendEmailCode();
+		if (screen === "phoneCode") this._sendPhoneCode();
+		if (screen === "submitted") {
+			this._showSubmitted(this.registration?.token || this._token);
+			return;
 		}
+
+		this._hydrateDocumentMeta(document);
 		this._syncDocumentMethod();
 
 		if (screen === "ocrReview") {
@@ -1033,12 +1076,51 @@ export class VerifySessionService implements OnDestroy {
 			this.captureSide = "back";
 		}
 
+		// When Mobile opens the handoff link (or resumes into capture), notify the backend
+		// so the Desktop handoff poller immediately transitions to the "Connected to phone" progress view.
+		if (this.registration?._id) {
+			if (screen === "ready" && this.registration.currentStep !== "document") {
+				this._kyc
+					.syncAppRegistration("document", "ONGOING")
+					.pipe(
+						catchError(() => of(null)),
+						takeUntil(this._destroy$)
+					)
+					.subscribe();
+			} else if (screen === "selfieIntro" && this.registration.currentStep !== "liveness") {
+				this._kyc
+					.syncAppRegistration("liveness", "ONGOING")
+					.pipe(
+						catchError(() => of(null)),
+						takeUntil(this._destroy$)
+					)
+					.subscribe();
+			}
+		}
+
 		const first = contactScreens(settings)[0] || "consent";
 
 		this.history = screen === first ? [] : [first];
 		this.busy = false;
 		this.screen = screen;
 		this._touch();
+	}
+
+	private _hydrateDocumentMeta(document: any): void {
+		if (!document || typeof document !== "object") return;
+
+		if (document.country) this.country = document.country;
+		if (document.documentCategory) this.category = document.documentCategory;
+		if (document.inputMethod === "FILE_UPLOAD" && this.uploadAllowed) {
+			this.documentMethod = "upload";
+		}
+		if (document.template) {
+			const all = this.projectFlow?.promptTemplates ? this.projectFlow.promptTemplates() : [];
+			const found = all.find(
+				(t) => String(t._id || t) === String(document.template?._id || document.template)
+			);
+			this.template = found || document.template;
+		}
 	}
 
 	private _createRegistration(): void {
@@ -1164,12 +1246,153 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
-		if (!this.compact) {
-			this._push("handoff");
+		if (!this.compact && !this.isMobileHandoff) {
+			this._enterHandoff();
 			return;
 		}
 
 		this._enterCapture();
+	}
+
+	private _enterHandoff(): void {
+		this.handoffPhase = resolveHandoffPhase({
+			currentStep: this.registration?.currentStep === "instructions" ? undefined : this.registration?.currentStep,
+			hasBiometric: Boolean(this.registration?.biometricValidation),
+			hasDocument: Boolean(this.registration?.documentValidation),
+			status: this.registration?.status,
+		});
+		this.showQrOverride = false;
+		this._push("handoff");
+
+		if (
+			this.registration?._id &&
+			(!this.registration.currentStep ||
+				this.registration.currentStep === "signUpForm" ||
+				this.registration.currentStep === "basicInformation")
+		) {
+			this._kyc
+				.syncAppRegistration("instructions", "ONGOING")
+				.pipe(
+					catchError(() => of(null)),
+					takeUntil(this._destroy$)
+				)
+				.subscribe();
+		}
+
+		this._startHandoffPolling();
+	}
+
+	private _startHandoffPolling(): void {
+		this._stopHandoffPolling();
+		if (!this._token) return;
+
+		if (typeof document !== "undefined") {
+			document.addEventListener("visibilitychange", this._onVisibilityChange);
+		}
+		if (typeof window !== "undefined") {
+			window.addEventListener("focus", this._onVisibilityChange);
+		}
+
+		this._handoffPollTimer = setInterval(() => {
+			if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+			this._pollHandoffStatus();
+		}, HANDOFF_POLL_INTERVAL_MS);
+	}
+
+	private _stopHandoffPolling(): void {
+		if (this._handoffPollTimer) {
+			clearInterval(this._handoffPollTimer);
+			this._handoffPollTimer = null;
+		}
+		this._handoffPollInFlight = false;
+		if (typeof document !== "undefined") {
+			document.removeEventListener("visibilitychange", this._onVisibilityChange);
+		}
+		if (typeof window !== "undefined") {
+			window.removeEventListener("focus", this._onVisibilityChange);
+		}
+	}
+
+	private _pollHandoffStatus(): void {
+		if (this.screen !== "handoff" || !this._token || this._handoffPollInFlight) return;
+
+		this._handoffPollInFlight = true;
+		this._kyc
+			.getAppRegistration({ populates: [] })
+			.pipe(
+				catchError(() => of(null)),
+				takeUntil(this._destroy$)
+			)
+			.subscribe((response) => {
+				this._handoffPollInFlight = false;
+				const reg = response?.data;
+				if (!reg || this.screen !== "handoff") return;
+
+				const nextPhase = resolveHandoffPhase({
+					currentStep: reg.currentStep === "instructions" ? undefined : reg.currentStep,
+					hasBiometric: Boolean(reg.biometricValidation),
+					hasDocument: Boolean(reg.documentValidation),
+					status: reg.status,
+				});
+
+				if (nextPhase === "completed") {
+					this._completeHandoffOnDesktop(reg);
+					return;
+				}
+
+				if (nextPhase !== this.handoffPhase) {
+					this.handoffPhase = nextPhase;
+					if (nextPhase !== "qr") {
+						this.showQrOverride = false;
+					}
+					if (this.registration) {
+						this.registration.currentStep = reg.currentStep;
+						this.registration.status = reg.status;
+					}
+					this._touch();
+				}
+			});
+	}
+
+	private _completeHandoffOnDesktop(lightReg: any): void {
+		this._stopHandoffPolling();
+		this.handoffPhase = "completed";
+		this.busy = true;
+		this._touch();
+
+		this._kyc
+			.getAppRegistration({ populates: FULL_REGISTRATION_POPULATES })
+			.pipe(
+				catchError(() => of({ data: lightReg })),
+				takeUntil(this._destroy$)
+			)
+			.subscribe((fullResponse) => {
+				const fullReg = fullResponse?.data || lightReg;
+				this.registration = fullReg;
+				this._kyc.appRegistration = fullReg;
+				this._hydrateDocumentMeta(fullReg?.documentValidation);
+
+				if (fullReg?.token) {
+					this._showSubmitted(fullReg.token);
+					return;
+				}
+
+				const terminalStatus =
+					fullReg?.status === "FAILED" || fullReg?.status === "COMPLETED_WITHOUT_KYC"
+						? fullReg.status
+						: "COMPLETED";
+
+				this._kyc
+					.syncAppRegistration("end", terminalStatus)
+					.pipe(
+						catchError(() => of(null)),
+						takeUntil(this._destroy$)
+					)
+					.subscribe((syncRes) => {
+						const finalToken = syncRes?.data?.token || fullReg?.token || this._token;
+						this._showSubmitted(finalToken);
+					});
+			});
 	}
 
 	private _enterCapture(): void {
@@ -1177,11 +1400,29 @@ export class VerifySessionService implements OnDestroy {
 
 		if (!settings) return;
 		if (settings.document !== "skip") {
+			if (this.registration?._id && this.registration.currentStep !== "document") {
+				this._kyc
+					.syncAppRegistration("document", "ONGOING")
+					.pipe(
+						catchError(() => of(null)),
+						takeUntil(this._destroy$)
+					)
+					.subscribe();
+			}
 			this._push("ready");
 			return;
 		}
 
 		if (settings.liveness !== "skip") {
+			if (this.registration?._id && this.registration.currentStep !== "liveness") {
+				this._kyc
+					.syncAppRegistration("liveness", "ONGOING")
+					.pipe(
+						catchError(() => of(null)),
+						takeUntil(this._destroy$)
+					)
+					.subscribe();
+			}
 			this._push("selfieIntro");
 			return;
 		}
@@ -1681,15 +1922,26 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _showSubmitted(token: string): void {
+		this._stopHandoffPolling();
 		this.busy = false;
 		this.selfiePhase = "idle";
 		this.selfieDone$.next();
 		this._setToken(token);
 		this.history.push(this.screen);
 		this.screen = "submitted";
+		if (this._redirectTimer) {
+			clearInterval(this._redirectTimer);
+			this._redirectTimer = null;
+		}
+
+		if (this.isMobileHandoff) {
+			this.redirectSeconds = 0;
+			this._touch();
+			return;
+		}
+
 		this.redirectSeconds = 7;
 		this._touch();
-		if (this._redirectTimer) clearInterval(this._redirectTimer);
 		this._redirectTimer = setInterval(() => {
 			this.redirectSeconds -= 1;
 			if (this.redirectSeconds <= 0) {
@@ -1703,6 +1955,9 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _push(screen: VerifyScreen): void {
+		if (this.screen === "handoff" && screen !== "handoff") {
+			this._stopHandoffPolling();
+		}
 		if (this.screen !== screen && this.screen !== "loading") this.history.push(this.screen);
 
 		this.screen = screen;
