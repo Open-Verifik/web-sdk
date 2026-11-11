@@ -31,6 +31,7 @@ export type BarcodeCaptureDecision = {
 
 export type BarcodeCheckInput = {
 	documentValidation?: { documentType?: unknown; OCRExtraction?: { documentType?: unknown } };
+	enabled?: boolean;
 	promptTemplate?: PromptTemplate | null;
 	side: "back" | "front";
 };
@@ -63,8 +64,9 @@ export class ColombianBarcodeReadinessService {
 		if (input.side !== "back") return false;
 
 		const documents = this._passwordlessService.currentProjectFlow?.documents as PersonalDocuments | undefined;
+		const isEnabled = input.enabled ?? (documents?.colombianBarcodeValidation === true);
 
-		if (documents?.colombianBarcodeValidation !== true) return false;
+		if (!isEnabled) return false;
 
 		const candidates = [
 			input.promptTemplate?.documentType,

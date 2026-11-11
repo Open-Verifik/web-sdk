@@ -1,8 +1,10 @@
 import { Injectable, OnDestroy } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
 import * as faceapi from "@vladmandic/face-api";
 import { catchError, Observable, of, shareReplay, Subject, switchMap, take, takeUntil } from "rxjs";
+import { environment } from "environments/environment";
 
 import { FlowOrder, ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
@@ -59,15 +61,24 @@ const HANDOFF_POLL_INTERVAL_MS = 2500;
 export type VerifySheet = null | "acceptedIds" | "language" | "otherOptions" | "document" | "camera" | "trouble";
 
 export interface VerifyDraft {
+	addressLine1: string;
+	addressLine2: string;
+	age: string;
 	agreements: boolean;
+	city: string;
+	country: string;
 	countryCode: string;
+	dateOfBirth: string;
 	email: string;
 	firstName: string;
 	fullName: string;
+	gender: string;
 	lastName: string;
 	otp: string;
 	phone: string;
 	phoneGateway: string;
+	postalCode: string;
+	state: string;
 }
 
 @Injectable()
@@ -94,6 +105,17 @@ export class VerifySessionService implements OnDestroy {
 	handoffPhase: VerifyHandoffPhase = "qr";
 	history: VerifyScreen[] = [];
 	isMobileHandoff = false;
+	isRepresentativeKyc = false;
+	repContext: {
+		memberId?: string;
+		fullName: string;
+		documentType: string;
+		documentNumber: string;
+		role?: string;
+		companyName?: string;
+		country?: string;
+		businessRegistrationId?: string;
+	} | null = null;
 	manualVerificationRequested = false;
 	mode: "auto" | "manual" = "auto";
 	nameValidationState: "idle" | "running" | "passed" | "mismatch" | "unsupported" | "error" = "idle";
@@ -135,6 +157,7 @@ export class VerifySessionService implements OnDestroy {
 	private _skippedDocument = false;
 	private _skippedLiveness = false;
 	private _token = "";
+	private _rawToken = "";
 	private _onVisibilityChange = (): void => {
 		if (typeof document !== "undefined" && document.visibilityState === "visible" && this.screen === "handoff") {
 			this._pollHandoffStatus();
@@ -146,6 +169,7 @@ export class VerifySessionService implements OnDestroy {
 		private _auth: AuthService,
 		private _countries: CountryService,
 		private _demo: DemoService,
+		private _http: HttpClient,
 		private _kyc: KYCService,
 		private _passwordless: PasswordlessService,
 		private _router: Router,
@@ -228,7 +252,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	get checkBarcode(): boolean {
-		return this.captureSide === "back";
+		return this.captureSide === "back" && Boolean(this.settings?.colombianBarcodeValidation);
 	}
 
 	/** Cropped portrait extracted from the front of the ID document. */
@@ -450,8 +474,13 @@ export class VerifySessionService implements OnDestroy {
 			}
 		} catch {}
 
+		this._rawToken = typeof rawToken === "string" ? rawToken.trim() : "";
+		if (this._rawToken) {
+			this.isRepresentativeKyc = true;
+		}
+
 		const token = resolveToken(projectId, rawToken);
-		const key = `${projectId}:${token}`;
+		const key = `${projectId}:${token || this._rawToken}`;
 
 		if (key === this._key && this.screen !== "loading") return;
 
@@ -658,7 +687,9 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	confirmDocument(): void {
-		if (!this.country || !this.category || !this.template) return;
+		if (!this.country || !this.category) return;
+		if (!this.template) this._syncTemplate();
+		if (!this.template) return;
 
 		this.sheet = null;
 		this._startDocumentCapture("front");
@@ -927,12 +958,16 @@ export class VerifySessionService implements OnDestroy {
 		this.projectFlow = this.project.getOnboardingProjectFlow() || null;
 		this._kyc.setProjectData(this.project, this.projectFlow);
 
-		if (enrollmentClientFrom(this.projectFlow?.enrollmentClient) !== "v2") {
+		if (enrollmentClientFrom(this.projectFlow?.enrollmentClient) !== "v2" && !this.projectFlow?.verifyStyle) {
 			this._router.navigate(["/sign-up", this.projectId], {
 				queryParams: this._token ? { token: this._token } : {},
 				replaceUrl: true,
 			});
 			return;
+		}
+
+		if (this.settings?.countryCode) {
+			this.draft.countryCode = this.settings.countryCode;
 		}
 
 		if (!response.planCode) {
@@ -975,11 +1010,110 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _loadRegistrationOrStart(): void {
+		if (this._rawToken && (this.projectFlow?.target === "business" || !this._token)) {
+			this._http
+				.get<{ success: boolean; data: any }>(
+					`${environment.apiUrl}/v2/business-registrations/rep-kyc/${encodeURIComponent(this._rawToken)}`
+				)
+				.pipe(takeUntil(this._destroy$))
+				.subscribe({
+					next: (res) => {
+						const data = res?.data;
+						if (data?.token) {
+							this._setToken(data.token);
+						}
+						if (data?.representativesPolicy && this.projectFlow) {
+							this.projectFlow.representativesPolicy = data.representativesPolicy;
+						}
+						if (data?.member) {
+							this.isRepresentativeKyc = true;
+							this.repContext = {
+								memberId: data.member._id,
+								fullName:
+									data.member.fullName ||
+									`${data.member.firstName || ""} ${data.member.lastName || ""}`.trim(),
+								documentType: data.member.documentType || "ID",
+								documentNumber: data.member.documentNumber || "",
+								role: data.member.role || "legal_representative",
+								companyName:
+									data.companyInfo?.legalName || data.companyInfo?.commercialName || "",
+								country: data.companyInfo?.country || "",
+								businessRegistrationId: data.businessRegistrationId,
+							};
+
+							if (!this.country) {
+								const companyCountry = String(data.companyInfo?.country || "").trim();
+								const matchedCountry = this.countries.find(
+									(c) =>
+										c.country.toLowerCase() === companyCountry.toLowerCase() ||
+										c.code?.toLowerCase() === companyCountry.toLowerCase()
+								);
+								this.country = matchedCountry?.country || this.countries[0]?.country || "Colombia";
+							}
+							if (!this.category) {
+								const docTypeUpper = String(data.member.documentType || "").toUpperCase();
+								if (docTypeUpper === "PA" || docTypeUpper === "PASSPORT") {
+									this.category = "passport";
+								} else if (docTypeUpper === "LIC" || docTypeUpper === "LICENSE") {
+									this.category = "license";
+								} else {
+									this.category = "government_id";
+								}
+							}
+							this._syncCategory();
+						}
+
+						if (this._token) {
+							this._kyc
+								.getAppRegistration({
+									populates: FULL_REGISTRATION_POPULATES,
+								})
+								.pipe(takeUntil(this._destroy$))
+								.subscribe({
+									next: (regRes) => {
+										this.registration = regRes.data || data?.appRegistration;
+										this._kyc.appRegistration = this.registration;
+										this._documentFailures =
+											this.registration?.failedDocumentValidations?.length || 0;
+										this._livenessFailures =
+											this.registration?.failedBiometricValidations?.length || 0;
+										this._applyResume();
+									},
+									error: () => {
+										if (data?.appRegistration) {
+											this.registration = data.appRegistration;
+											this._kyc.appRegistration = this.registration;
+											this._applyResume();
+											return;
+										}
+										this._startFresh();
+									},
+								});
+							return;
+						}
+
+						this._startFresh();
+					},
+					error: () => {
+						if (this._token) {
+							this._fetchRegistrationByToken();
+							return;
+						}
+						this._startFresh();
+					},
+				});
+			return;
+		}
+
 		if (!this._token) {
 			this._startFresh();
 			return;
 		}
 
+		this._fetchRegistrationByToken();
+	}
+
+	private _fetchRegistrationByToken(): void {
 		this._kyc
 			.getAppRegistration({
 				populates: FULL_REGISTRATION_POPULATES,
@@ -1046,6 +1180,7 @@ export class VerifySessionService implements OnDestroy {
 		if (
 			!this.compact &&
 			!this.isMobileHandoff &&
+			!this.isRepresentativeKyc &&
 			this.registration?.currentStep === "instructions" &&
 			!document &&
 			!this.registration?.biometricValidation &&
@@ -1098,7 +1233,11 @@ export class VerifySessionService implements OnDestroy {
 			}
 		}
 
-		const first = contactScreens(settings)[0] || "consent";
+		const first = this.isRepresentativeKyc
+			? settings.document !== "skip"
+				? "ready"
+				: "selfieIntro"
+			: contactScreens(settings)[0] || "consent";
 
 		this.history = screen === first ? [] : [first];
 		this.busy = false;
@@ -1524,6 +1663,9 @@ export class VerifySessionService implements OnDestroy {
 
 		if (back) {
 			body.backImage = base64Image;
+			if (this.settings?.colombianBarcodeValidation) {
+				body.colombianBarcodeValidation = true;
+			}
 			if (this.pending.barcodeReadAttempts) body.barcodeReadAttempts = this.pending.barcodeReadAttempts;
 		} else {
 			this.frontDocumentImage = this.pending.rawImage || (base64Image ? `data:image/jpeg;base64,${base64Image}` : null);
@@ -1907,6 +2049,24 @@ export class VerifySessionService implements OnDestroy {
 		if (this.selfiePhase !== "idle") this.selfiePhase = "finishing";
 		this.sheet = null;
 		this._touch();
+
+		const completeRepIfApplicable = (finalToken: string): void => {
+			const repLookupToken = this._rawToken || finalToken;
+			if (this.isRepresentativeKyc && repLookupToken && status !== "FAILED") {
+				this._http
+					.post(
+						`${environment.apiUrl}/v2/business-registrations/rep-kyc/${encodeURIComponent(repLookupToken)}/complete`,
+						{ status }
+					)
+					.pipe(catchError(() => of(null)))
+					.subscribe(() => {
+						this._showSubmitted(finalToken);
+					});
+				return;
+			}
+			this._showSubmitted(finalToken);
+		};
+
 		this._kyc.syncAppRegistration(step, status).subscribe({
 			next: (response) => {
 				const token = response?.data?.token || this._token;
@@ -1915,9 +2075,9 @@ export class VerifySessionService implements OnDestroy {
 				if (status === "FAILED" && this._passwordless.isVerifikProject) {
 					this._kyc.submitKycApprovalRequest().subscribe({ error: () => undefined });
 				}
-				this._showSubmitted(token);
+				completeRepIfApplicable(token);
 			},
-			error: () => this._showSubmitted(this._token),
+			error: () => completeRepIfApplicable(this._token),
 		});
 	}
 
@@ -2001,6 +2161,19 @@ export class VerifySessionService implements OnDestroy {
 		}
 		if ((settings?.showTerms || settings?.showPrivacy) && this.draft.agreements) payload.agreements = true;
 
+		const extraFields = settings?.additionalFields || [];
+		if (extraFields.includes("gender") && this.draft.gender) payload.gender = this.draft.gender.trim();
+		if (extraFields.includes("dateOfBirth") && this.draft.dateOfBirth) payload.dateOfBirth = this.draft.dateOfBirth.trim();
+		if (extraFields.includes("age") && this.draft.age) payload.age = Number(this.draft.age);
+		if (extraFields.includes("address")) {
+			if (this.draft.addressLine1) payload.addressLine1 = this.draft.addressLine1.trim();
+			if (this.draft.addressLine2) payload.addressLine2 = this.draft.addressLine2.trim();
+			if (this.draft.city) payload.city = this.draft.city.trim();
+			if (this.draft.state) payload.state = this.draft.state.trim();
+		}
+		if (extraFields.includes("postalCode") && this.draft.postalCode) payload.postalCode = this.draft.postalCode.trim();
+		if (extraFields.includes("country") && this.draft.country) payload.country = this.draft.country.trim();
+
 		const device = this._device;
 
 		if (device) {
@@ -2048,7 +2221,11 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _loadCountries(): void {
-		const names = (this.projectFlow?.allowedCountries() || []).filter((country) => country);
+		const flowNames = (this.projectFlow?.allowedCountries() || []).filter((country) => country);
+		const projectNames = Array.isArray(this.project?.allowedCountries)
+			? this.project!.allowedCountries.filter((c: string) => c && c.toLowerCase() !== "all")
+			: [];
+		const names = flowNames.length ? flowNames : projectNames;
 		const options = names.length ? this._countries.findAllowedCountryOptions(names) : this._countries.countries;
 
 		this.countries = options.filter((option) => option.country && option.country.toLowerCase() !== "all");
@@ -2068,7 +2245,34 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _syncTemplate(): void {
-		if (this.templates.length === 1) this.template = this.templates[0];
+		if (this.templates.length >= 1) {
+			if (this.repContext?.documentType) {
+				const targetCode = this.repContext.documentType.trim().toUpperCase();
+				const matchedByCode = this.templates.find(
+					(t) => String((t.documentType as any)?.code || "").toUpperCase() === targetCode
+				);
+				if (matchedByCode) {
+					this.template = matchedByCode;
+					return;
+				}
+			}
+			this.template = this.templates[0];
+		} else if (this.country && this.category) {
+			this.template = {
+				_id: `fallback_${this.category}_${this.country.toLowerCase().replace(/\s+/g, "_")}`,
+				name:
+					this.category === "government_id"
+						? "National Identity Document"
+						: this.category === "passport"
+							? "Passport"
+							: "Driver's License",
+				country: this.country,
+				documentCategory: this.category as any,
+				requiresBackSide: this.category === "government_id",
+				system: true,
+				active: true,
+			} as any;
+		}
 	}
 
 	private _setToken(token?: string): void {
@@ -2098,15 +2302,24 @@ export class VerifySessionService implements OnDestroy {
 
 	private _emptyDraft(): VerifyDraft {
 		return {
+			addressLine1: "",
+			addressLine2: "",
+			age: "",
 			agreements: false,
+			city: "",
+			country: "",
 			countryCode: DEFAULT_PHONE_COUNTRY_CODE,
+			dateOfBirth: "",
 			email: "",
 			firstName: "",
 			fullName: "",
+			gender: "",
 			lastName: "",
 			otp: "",
 			phone: "",
 			phoneGateway: "sms",
+			postalCode: "",
+			state: "",
 		};
 	}
 
@@ -2123,7 +2336,10 @@ const settingsFromFlow = (flow: ProjectFlow): VerifySettings => {
 	const steps = settings.steps || ({} as VerifySettings);
 
 	return {
+		additionalFields: Array.isArray(signUp.additionalFields) ? signUp.additionalFields : [],
+		colombianBarcodeValidation: Boolean(document.colombianBarcodeValidation),
 		compareMinScore: document.compareMinScore || liveness.compareMinScore || 0.85,
+		countryCode: signUp.countryCode,
 		document: (steps.document || "skip") as VerifySettings["document"],
 		documentMaxAttempts: document.maxAttempts || 3,
 		email: Boolean(signUp.email),

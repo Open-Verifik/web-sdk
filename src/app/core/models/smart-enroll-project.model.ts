@@ -134,6 +134,9 @@ export interface OnboardingSteps {
 }
 
 export interface SignUpFormSettings {
+	additionalFields?: string[];
+	allowAdditionalFields?: boolean;
+	countryCode?: string;
 	email?: boolean;
 	emailGateway?: "mailgun" | "none";
 	extraFields?: string[];
@@ -155,6 +158,7 @@ export interface BasicInformationSettings {
 }
 
 export interface DocumentSettings {
+	colombianBarcodeValidation?: boolean;
 	compareMinScore?: number;
 	criminalEndpoints?: string[];
 	fallbackValidationMethod?: "SCAN_ZERO" | "SCAN_PROMPT" | "SCAN_STUDIO";

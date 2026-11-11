@@ -32,6 +32,9 @@ export type VerifyScreen =
 export type ContactScreen = "signup";
 
 export interface VerifySettings {
+	additionalFields?: string[];
+	colombianBarcodeValidation?: boolean;
+	countryCode?: string;
 	email: boolean;
 	emailGateway: string;
 	firstName: boolean;
@@ -92,12 +95,20 @@ export interface CompletionInput {
 }
 
 const TERMINAL = new Set(["COMPLETED", "FAILED", "COMPLETED_WITHOUT_KYC", "NEEDS_MANUAL_VERIFICATION", "EXPIRED"]);
+const IN_PROGRESS_STEPS = new Set(["signUpForm", "instructions", "document", "liveness"]);
 
 export const enrollmentClientFrom = (value: unknown): EnrollmentClient => (value === "v2" ? "v2" : "legacy");
 
 /** V1 and the setup preview collect name, email, phone and terms on a single sign-up screen, so v2 does the same. */
 export const contactScreens = (settings: VerifySettings): ContactScreen[] =>
-	settings.fullName || settings.firstName || settings.lastName || settings.email || settings.phone || settings.showTerms || settings.showPrivacy
+	settings.fullName ||
+	settings.firstName ||
+	settings.lastName ||
+	settings.email ||
+	settings.phone ||
+	settings.showTerms ||
+	settings.showPrivacy ||
+	Boolean(settings.additionalFields?.length)
 		? ["signup"]
 		: [];
 
@@ -119,8 +130,13 @@ export const documentNeedsBack = (category: string, requiresBackSide?: boolean):
 
 export const attemptsRemaining = (maxAttempts: number, failedCount: number): number => Math.max(0, (maxAttempts || 3) - (failedCount || 0));
 
-export const isTerminalStatus = (status?: string, currentStep?: string): boolean =>
-	TERMINAL.has(status || "") || currentStep === "end" || currentStep === "skipKYC";
+export const isTerminalStatus = (status?: string, currentStep?: string): boolean => {
+	if (currentStep === "end" || currentStep === "skipKYC") return true;
+	if (status === "NEEDS_MANUAL_VERIFICATION" && currentStep && IN_PROGRESS_STEPS.has(currentStep)) {
+		return false;
+	}
+	return TERMINAL.has(status || "");
+};
 
 export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (isTerminalStatus(input.status, input.currentStep) || input.hasBiometric) return "submitted";

@@ -292,6 +292,36 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 
 		if (this.projectFlow) this._projectStorageService.setProjectFlow(this.projectFlow);
 
+		if (
+			this.project?._id &&
+			this.projectFlow?.target === "business" &&
+			(this.projectFlow?.enrollmentClient === "v2" || Boolean(this.projectFlow?.verifyStyle))
+		) {
+			this._projectLoadFinished = true;
+			this._splashScreenService.hide();
+			this._router.navigate(["/verify-business", this.project._id], {
+				queryParamsHandling: "preserve",
+				replaceUrl: true,
+			});
+
+			return;
+		}
+
+		if (
+			this.project?._id &&
+			this.projectFlow?.target !== "business" &&
+			(this.projectFlow?.enrollmentClient === "v2" || Boolean(this.projectFlow?.verifyStyle))
+		) {
+			this._projectLoadFinished = true;
+			this._splashScreenService.hide();
+			this._router.navigate(["/verify", this.project._id], {
+				queryParamsHandling: "preserve",
+				replaceUrl: true,
+			});
+
+			return;
+		}
+
 		this._appService.applyDynamicTheming(this.project);
 
 		if (!response.planCode) {

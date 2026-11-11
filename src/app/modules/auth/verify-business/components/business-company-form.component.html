@@ -1,0 +1,250 @@
+<ng-container *transloco="let t">
+	<div class="company-form-wrap">
+		<header class="section-head">
+			<span class="step-badge">{{ t("verifyBusiness.step1Badge") || "Paso 1 de 4" }}</span>
+			<h1 class="title">{{ t("verifyBusiness.companyTitle") || "Perfil de la Compañía" }}</h1>
+			<p class="subtitle">
+				{{ t("verifyBusiness.companySubtitle") || "Ingrese los datos legales y fiscales de la entidad corporativa para iniciar la verificación oficial." }}
+			</p>
+		</header>
+
+		<div *ngIf="session.error" class="error-banner">
+			<svg viewBox="0 0 24 24" aria-hidden="true" class="error-icon">
+				<path d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" fill="none" stroke="currentColor" stroke-width="2" />
+			</svg>
+			<span>{{ session.error }}</span>
+		</div>
+
+		<form class="form" (ngSubmit)="submit()">
+			<div class="field-group">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.jurisdiction") || "País / Jurisdicción" }}</span>
+					<div class="select-wrap">
+						<select
+							class="input"
+							[ngModel]="currentJurisdiction.code"
+							(ngModelChange)="selectJurisdiction($event)"
+							name="jurisdiction"
+							autocomplete="country"
+						>
+							<option *ngFor="let j of jurisdictions" [value]="j.code">
+								{{ j.name }} ({{ j.code }})
+							</option>
+						</select>
+					</div>
+				</label>
+
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.entityType") || "Tipo de Sociedad" }}</span>
+					<div class="select-wrap">
+						<select
+							class="input"
+							[(ngModel)]="session.company.entityType"
+							name="entityType"
+							required
+						>
+							<option *ngFor="let et of availableEntityTypes" [value]="et.value">
+								{{ et.label }}
+							</option>
+						</select>
+					</div>
+				</label>
+			</div>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.legalName") || "Razón Social" }}</span>
+					<input
+						type="text"
+						class="input"
+						[(ngModel)]="session.company.legalName"
+						name="legalName"
+						autocomplete="organization"
+						[placeholder]="t('verifyBusiness.legalNamePlaceholder')"
+						required
+					/>
+				</label>
+
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.commercialName") || "Nombre Comercial (DBA)" }}</span>
+					<input
+						type="text"
+						class="input"
+						[(ngModel)]="session.company.commercialName"
+						name="commercialName"
+						[placeholder]="t('verifyBusiness.commercialNamePlaceholder')"
+					/>
+				</label>
+			</div>
+
+			<div class="field-row row-tax" [class.has-dv]="currentJurisdiction.hasCheckDigit">
+				<label class="label">
+					<span class="label-text">{{ currentJurisdiction.taxIdLabel }}</span>
+					<input
+						type="text"
+						class="input"
+						[(ngModel)]="session.company.taxId"
+						(ngModelChange)="onTaxIdChange()"
+						name="taxId"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						[placeholder]="currentJurisdiction.taxIdMask || t('verifyBusiness.taxIdPlaceholder')"
+						required
+					/>
+				</label>
+
+				<label class="label" *ngIf="currentJurisdiction.hasCheckDigit">
+					<span class="label-text">{{ t("verifyBusiness.checkDigit") || "Dígito (DV)" }}</span>
+					<div class="dv-wrap">
+						<input
+							type="text"
+							class="input dv-input"
+							[(ngModel)]="session.company.checkDigit"
+							name="checkDigit"
+							inputmode="numeric"
+							autocorrect="off"
+							autocapitalize="off"
+							spellcheck="false"
+							maxlength="1"
+							placeholder="0"
+						/>
+						<span class="dv-badge" *ngIf="session.company.checkDigit" [title]="t('verifyBusiness.calcBadgeTooltip')">
+							Calc: {{ session.company.checkDigit }}
+						</span>
+					</div>
+				</label>
+			</div>
+
+			<fieldset class="address-fieldset">
+				<legend class="legend">{{ t("verifyBusiness.registeredAddress") || "Domicilio Fiscal Principal" }}</legend>
+
+				<div class="field-row row-single">
+					<label class="label">
+						<span class="label-text">{{ t("verifyBusiness.streetAddress") || "Dirección" }}</span>
+						<input
+							type="text"
+							class="input"
+							[(ngModel)]="session.company.address.street"
+							name="addressStreet"
+							autocomplete="address-line1"
+							[placeholder]="t('verifyBusiness.streetAddressPlaceholder')"
+							required
+						/>
+					</label>
+				</div>
+
+				<div class="field-row row-three">
+					<label class="label">
+						<span class="label-text">{{ t("verifyBusiness.city") || "Ciudad" }}</span>
+						<input
+							type="text"
+							class="input"
+							[(ngModel)]="session.company.address.city"
+							name="addressCity"
+							autocomplete="address-level2"
+							[placeholder]="t('verifyBusiness.cityPlaceholder')"
+							required
+						/>
+					</label>
+
+					<label class="label">
+						<span class="label-text">{{ t("verifyBusiness.state") || "Estado / Provincia" }}</span>
+						<input
+							type="text"
+							class="input"
+							[(ngModel)]="session.company.address.state"
+							name="addressState"
+							autocomplete="address-level1"
+							[placeholder]="t('verifyBusiness.statePlaceholder')"
+						/>
+					</label>
+
+					<label class="label">
+						<span class="label-text">{{ t("verifyBusiness.postalCode") || "Código Postal" }}</span>
+						<input
+							type="text"
+							class="input"
+							[(ngModel)]="session.company.address.postalCode"
+							name="addressPostal"
+							autocomplete="postal-code"
+							autocorrect="off"
+							autocapitalize="off"
+							spellcheck="false"
+							[placeholder]="t('verifyBusiness.postalCodePlaceholder')"
+						/>
+					</label>
+				</div>
+			</fieldset>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.corporateEmail") || "Correo Corporativo" }}</span>
+					<input
+						type="email"
+						class="input"
+						[(ngModel)]="session.company.email"
+						name="corporateEmail"
+						autocomplete="email"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						[placeholder]="t('verifyBusiness.corporateEmailPlaceholder')"
+						required
+					/>
+				</label>
+
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.corporatePhone") || "Teléfono Empresarial" }}</span>
+					<input
+						type="tel"
+						class="input"
+						[(ngModel)]="session.company.phone"
+						name="corporatePhone"
+						autocomplete="tel"
+						[placeholder]="t('verifyBusiness.corporatePhonePlaceholder')"
+						required
+					/>
+				</label>
+			</div>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.website") || "Sitio Web (Opcional)" }}</span>
+					<input
+						type="url"
+						class="input"
+						[(ngModel)]="session.company.website"
+						name="website"
+						autocomplete="url"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						[placeholder]="t('verifyBusiness.websitePlaceholder')"
+					/>
+				</label>
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.industry") || "Sector Económico" }}</span>
+					<input
+						type="text"
+						class="input"
+						[(ngModel)]="session.company.industry"
+						name="industry"
+						[placeholder]="t('verifyBusiness.industryPlaceholder')"
+					/>
+				</label>
+			</div>
+
+			<div class="actions">
+				<button
+					type="submit"
+					class="primary-btn"
+					[disabled]="!canProceed() || session.busy"
+				>
+					<span *ngIf="!session.busy" class="btn-content">{{ t("verifyBusiness.continueToDocs") || "Continuar" }} &rarr;</span>
+					<span *ngIf="session.busy" class="spinner-small"></span>
+				</button>
+			</div>
+		</form>
+	</div>
+</ng-container>

@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslocoModule } from "@ngneat/transloco";
 import QRCode from "qrcode";
 import { Subject, combineLatest, takeUntil } from "rxjs";
@@ -28,7 +28,15 @@ import {
 @Component({
 	selector: "verify-shell",
 	standalone: true,
-	imports: [CommonModule, FormsModule, TranslocoModule, VerifyCameraComponent, VerifySelfieComponent, VerifySelectComponent, SmartLivenessComponent],
+	imports: [
+		CommonModule,
+		FormsModule,
+		TranslocoModule,
+		VerifyCameraComponent,
+		VerifySelfieComponent,
+		VerifySelectComponent,
+		SmartLivenessComponent,
+	],
 	templateUrl: "./verify-shell.component.html",
 	styleUrls: ["./verify-shell.component.scss"],
 	providers: [VerifySessionService],
@@ -57,7 +65,8 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		public session: VerifySessionService,
 		private _cdr: ChangeDetectorRef,
 		private _countries: CountryService,
-		private _route: ActivatedRoute
+		private _route: ActivatedRoute,
+		private _router: Router,
 	) {}
 
 	ngOnInit(): void {
@@ -66,6 +75,13 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		this.session.compact = this._compactMql.matches;
 		this._compactMql.addEventListener?.("change", this._onCompactChange);
 		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => {
+			if (this.session.projectFlow?.target === "business" && !this.session.isRepresentativeKyc) {
+				this._router.navigate(["/verify-business", this.session.projectId], {
+					queryParamsHandling: "preserve",
+					replaceUrl: true,
+				});
+				return;
+			}
 			this._applyStyle();
 			this._cdr.detectChanges();
 		});
@@ -76,12 +92,17 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this.session.orderOverride = flowOrderFromQuery(query.get("order")) || null;
+				const rawToken = query.get("token") || undefined;
+				const repParam = query.get("rep");
 				const handoffParam = query.get("handoff");
+				this.session.isRepresentativeKyc = Boolean(
+					rawToken || repParam === "1" || repParam === "true" || handoffParam === "1" || handoffParam === "true",
+				);
 				if (handoffParam === "1" || handoffParam === "true") {
 					this.session.markMobileHandoff(projectId);
 				}
 				this._applyStyle();
-				this.session.open(projectId, query.get("token") || undefined);
+				this.session.open(projectId, rawToken);
 			});
 	}
 
@@ -101,11 +122,28 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	}
 
 	get segments(): string[] {
-		return this.session.settings ? progressSegments(hasContactBlock(this.session.settings)) : [];
+		if (!this.session.settings) return [];
+		if (this.session.isRepresentativeKyc) {
+			const repSegments: string[] = [];
+			if (this.session.settings.document !== "skip") repSegments.push("document");
+			if (this.session.settings.liveness !== "skip") repSegments.push("selfie");
+			repSegments.push("done");
+			return repSegments;
+		}
+		return progressSegments(hasContactBlock(this.session.settings));
 	}
 
 	get progressAt(): number {
-		return this.session.settings ? progressIndex(this.session.screen, hasContactBlock(this.session.settings)) : 0;
+		if (!this.session.settings) return 0;
+		if (this.session.isRepresentativeKyc) {
+			const segs = this.segments;
+			if (this.session.screen === "submitted") return segs.length - 1;
+			if (this.session.screen === "selfieIntro" || this.session.screen === "selfie" || this.session.screen === "retry") {
+				return Math.max(0, segs.indexOf("selfie"));
+			}
+			return 0;
+		}
+		return progressIndex(this.session.screen, hasContactBlock(this.session.settings));
 	}
 
 	get languageLabel(): string {
@@ -162,17 +200,48 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		return "verify.nationalId";
 	}
 
+	hasAdditionalField(field: string): boolean {
+		return Boolean(this.session.settings?.additionalFields?.includes(field));
+	}
+
+	onDateOfBirthChange(value: string): void {
+		this.session.draft.dateOfBirth = value;
+		if (!value || !this.hasAdditionalField("age")) return;
+		const dob = new Date(value);
+		if (Number.isNaN(dob.getTime())) return;
+		const today = new Date();
+		let age = today.getFullYear() - dob.getFullYear();
+		const m = today.getMonth() - dob.getMonth();
+		const d = today.getDate() - dob.getDate();
+		if (m < 0 || (m === 0 && d < 0)) age--;
+		if (age >= 0 && age <= 120) {
+			this.session.draft.age = String(age);
+		}
+	}
+
 	canContinue(): boolean {
 		const draft = this.session.draft;
 
 		if (this.session.screen === "signup") {
 			const settings = this.session.settings;
-			const named = settings?.firstName || settings?.lastName ? Boolean(draft.firstName.trim() && draft.lastName.trim()) : settings?.fullName ? Boolean(draft.fullName.trim()) : true;
+			const named =
+				settings?.firstName || settings?.lastName
+					? Boolean(draft.firstName.trim() && draft.lastName.trim())
+					: settings?.fullName
+						? Boolean(draft.fullName.trim())
+						: true;
 			const emailOk = !settings?.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim());
 			const phoneOk = !settings?.phone || (draft.phone.replace(/\D/g, "").length >= 6 && Boolean(draft.phoneGateway));
 			const agreed = !(settings?.showTerms || settings?.showPrivacy) || draft.agreements;
+			const genderOk = !this.hasAdditionalField("gender") || Boolean(draft.gender.trim());
+			const dobOk = !this.hasAdditionalField("dateOfBirth") || Boolean(draft.dateOfBirth.trim());
+			const ageNum = Number(draft.age);
+			const ageOk = !this.hasAdditionalField("age") || (Boolean(String(draft.age).trim()) && ageNum >= 18 && ageNum <= 120);
+			const addressOk = !this.hasAdditionalField("address") || Boolean(draft.addressLine1.trim() && draft.city.trim() && draft.state.trim());
+			const postalOk = !this.hasAdditionalField("postalCode") || /^[A-Za-z0-9\s\-]{3,12}$/.test(draft.postalCode.trim());
+			const countryOk = !this.hasAdditionalField("country") || Boolean(draft.country.trim());
 
-			return named && emailOk && phoneOk && agreed;
+			return named && emailOk && phoneOk && agreed && genderOk && dobOk && ageOk && addressOk && postalOk && countryOk;
 		}
 
 		if (this.session.screen === "emailCode" || this.session.screen === "phoneCode") return draft.otp.replace(/\D/g, "").length === 6;

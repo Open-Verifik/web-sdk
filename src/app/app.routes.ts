@@ -44,6 +44,14 @@ export const appRoutes: Route[] = [
                 path: "verify",
                 loadChildren: () => import("app/modules/auth/verify/verify.routes"),
             },
+            {
+                path: "verify-business",
+                loadChildren: () => import("app/modules/auth/verify-business/verify-business.routes"),
+            },
+            {
+                path: "business",
+                redirectTo: "verify-business",
+            },
         ],
     },
     {

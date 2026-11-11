@@ -41,6 +41,8 @@ export class ProjectFlow {
 	loginSettings?: LoginSettings;
 	project: string | any;
 	representatives?: BusinessRepresentatives;
+	representativesPolicy?: any;
+	rawOnboardingSettings?: any;
 	signUpForm: PersonalSignUpForm | BusinessSignUpForm;
 	status: "draft" | "active" | "paused";
 	steps?: PersonalSteps | BusinessSteps;
@@ -92,6 +94,76 @@ export class ProjectFlow {
 		const signUpForm = this.signUpForm as PersonalSignUpForm;
 		const steps = this.steps as PersonalSteps;
 
+		if (this.isBusiness) {
+			const repPolicy = this.representativesPolicy || (this.rawOnboardingSettings as any)?.legalRepresentatives || {};
+			const requireDocumentScan = repPolicy.requireDocumentScan ?? repPolicy.requireDocument ?? true;
+			const requireLiveness = repPolicy.requireLiveness ?? true;
+			const rawCompareMin =
+				repPolicy.compareMinScore ??
+				this.representatives?.liveness?.compareMinScore ??
+				liveness?.compareMinScore ??
+				0.85;
+			const compareMinScore = Number(rawCompareMin) > 1 ? Number(rawCompareMin) / 100 : Number(rawCompareMin) || 0.85;
+			const rawLivenessMin =
+				repPolicy.livenessMinScore ??
+				this.representatives?.liveness?.minScore ??
+				liveness?.minScore ??
+				0.85;
+			const livenessMinScore = Number(rawLivenessMin) > 1 ? Number(rawLivenessMin) / 100 : Number(rawLivenessMin) || 0.85;
+
+			return {
+				basicInformation: {
+					address: false,
+					age: false,
+					dateOfBirth: false,
+					gender: false,
+					postalCode: false,
+				},
+				document: {
+					colombianBarcodeValidation: false,
+					compareMinScore,
+					maxAttempts: this.representatives?.documents?.attemptLimit || documents?.attemptLimit || 3,
+					scanDocumentAllowed: true,
+					uploadDocumentAllowed: true,
+					useGovernmentID: true,
+					useLicense: true,
+					usePassport: true,
+					verifyCriminalHistory: Boolean(this.representatives?.documents?.criminalHistoryVerification),
+					verifyNames: Boolean(this.representatives?.documents?.informationVerification),
+				},
+				liveness: {
+					livenessMinScore,
+					maxAttempts: this.representatives?.liveness?.attemptLimit || liveness?.attemptLimit || 3,
+					searchMinScore: this.representatives?.liveness?.searchMinScore || liveness?.searchMinScore || 0.85,
+					searchMode: this.representatives?.liveness?.searchMode || liveness?.searchMode || "FAST",
+				},
+				enrollmentClient: this.enrollmentClient,
+				verifyStyle: this.verifyStyle,
+				flowOrder: "consent_first",
+				signUpForm: {
+					additionalFields: [],
+					allowAdditionalFields: false,
+					countryCode: signUpForm?.countryCode,
+					email: false,
+					emailGateway: "none",
+					fullName: false,
+					firstName: false,
+					lastName: false,
+					phone: false,
+					phoneGateway: "none",
+					showPrivacyNotice: false,
+					showTermsAndConditions: false,
+				},
+				steps: {
+					basicInformation: "skip",
+					document: requireDocumentScan ? "mandatory" : "skip",
+					form: "skip",
+					liveness: requireLiveness ? "mandatory" : "skip",
+					signUpForm: "skip",
+				},
+			};
+		}
+
 		return {
 			basicInformation: {
 				address: false,
@@ -101,6 +173,7 @@ export class ProjectFlow {
 				postalCode: false,
 			},
 			document: {
+				colombianBarcodeValidation: documents?.colombianBarcodeValidation || false,
 				// Mirror backend resolveCompareMinScoreFromProjectFlow:
 				// v3 reads liveness.compareMinScore first, then onboardingSettings.document.compareMinScore.
 				// Default 0.85 matches the Mongoose schema default in
@@ -128,6 +201,12 @@ export class ProjectFlow {
 			verifyStyle: this.verifyStyle,
 			flowOrder: this.flowOrder,
 			signUpForm: {
+				additionalFields:
+					signUpForm?.allowAdditionalFields && Array.isArray(signUpForm?.additionalFields)
+						? signUpForm.additionalFields
+						: [],
+				allowAdditionalFields: Boolean(signUpForm?.allowAdditionalFields),
+				countryCode: signUpForm?.countryCode,
 				email: signUpForm?.email || false,
 				emailGateway: signUpForm?.emailGateway || "none",
 				fullName: signUpForm?.fullNameStyle === "together",
@@ -221,10 +300,12 @@ export class ProjectFlow {
 
 	private _migrateFromV3(data: SmartEnrollProjectFlow | SmartAccessProjectFlow): void {
 		this.business = (data as BusinessProjectFlow).business;
-		this.documents = (data as PersonalProjectFlow).documents;
+		this.documents = (data as PersonalProjectFlow).documents || (data as BusinessProjectFlow).representatives?.documents;
 		this.integrations = data.integrations;
-		this.liveness = data.liveness;
+		this.liveness = data.liveness || (data as BusinessProjectFlow).representatives?.liveness;
 		this.representatives = (data as BusinessProjectFlow).representatives;
+		this.representativesPolicy = (data as any).representativesPolicy;
+		this.rawOnboardingSettings = (data as any).onboardingSettings;
 		this.signUpForm = data.signUpForm;
 		this.steps = (data as PersonalProjectFlow | BusinessProjectFlow).steps;
 		this.loginSettings = (data as LoginProjectFlow).loginSettings;
@@ -428,10 +509,14 @@ export class ProjectFlow {
 
 export const enrollmentClientFrom = (data: unknown): "legacy" | "v2" | undefined => {
 	const nested = (data as { onboardingSettings?: { enrollmentClient?: string } })?.onboardingSettings?.enrollmentClient;
-	if (nested === "v2" || nested === "legacy") return nested;
+	if (nested === "v2") return "v2";
 
 	const root = (data as { enrollmentClient?: string })?.enrollmentClient;
-	if (root === "v2" || root === "legacy") return root;
+	if (root === "v2") return "v2";
+
+	if (verifyStyleFrom(data)) return "v2";
+
+	if (nested === "legacy" || root === "legacy") return "legacy";
 
 	return undefined;
 };
@@ -446,6 +531,16 @@ export const verifyStyleFrom = (data: unknown): (typeof VERIFY_STYLE_IDS)[number
 		.toLowerCase();
 	if ((VERIFY_STYLE_IDS as readonly string[]).includes(nested)) {
 		return nested as (typeof VERIFY_STYLE_IDS)[number];
+	}
+
+	const legacyStyle = String(
+		(data as { onboardingSettings?: { style?: unknown } })?.onboardingSettings?.style ?? ""
+	)
+		.trim()
+		.toLowerCase()
+		.replace(/^style_/, "");
+	if ((VERIFY_STYLE_IDS as readonly string[]).includes(legacyStyle)) {
+		return legacyStyle as (typeof VERIFY_STYLE_IDS)[number];
 	}
 
 	const root = String((data as { verifyStyle?: unknown })?.verifyStyle ?? "")

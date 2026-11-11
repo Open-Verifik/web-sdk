@@ -323,4 +323,27 @@ describe("verify-flow", () => {
 			})
 		).toBe("completed");
 	});
+
+	it("auto-upgrades enrollmentClient to v2 when verifyStyle is selected and preserves additionalFields", () => {
+		const flow = new ProjectFlow({
+			version: 3,
+			onboardingSettings: {
+				verifyStyle: "f",
+			},
+			signUpForm: {
+				allowAdditionalFields: true,
+				additionalFields: ["gender", "dateOfBirth"],
+				countryCode: "+57",
+				email: true,
+				fullNameStyle: "separate",
+			},
+		} as any);
+
+		expect(flow.verifyStyle).toBe("f");
+		expect(flow.enrollmentClient).toBe("v2");
+		expect(flow.onboardingSettings.enrollmentClient).toBe("v2");
+		expect(flow.onboardingSettings.signUpForm?.additionalFields).toEqual(["gender", "dateOfBirth"]);
+		expect(flow.onboardingSettings.signUpForm?.countryCode).toBe("+57");
+		expect(hasContactBlock(settings({ email: false, phone: false, fullName: false, showPrivacy: false, showTerms: false, additionalFields: ["gender"] }))).toBeTrue();
+	});
 });

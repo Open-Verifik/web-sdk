@@ -1,0 +1,227 @@
+<ng-container *transloco="let t">
+	<!-- Normal Review & Attestation state -->
+	<div class="review-wrap" *ngIf="session.screen === 'review'">
+		<header class="section-head">
+			<span class="step-badge">{{ t("verifyBusiness.step4Badge") || "Paso 4 de 4" }}</span>
+			<h1 class="title">{{ t("verifyBusiness.reviewTitle") || "Revisión Final y Declaración Juramentada" }}</h1>
+			<p class="subtitle">
+				{{ t("verifyBusiness.reviewSubtitle") || "Revise cuidadosamente la información corporativa consolidada antes de firmar y radicar formalmente el expediente." }}
+			</p>
+		</header>
+
+		<div *ngIf="session.error" class="error-banner">
+			<svg viewBox="0 0 24 24" aria-hidden="true" class="error-icon">
+				<path d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" fill="none" stroke="currentColor" stroke-width="2" />
+			</svg>
+			<span>{{ session.error }}</span>
+		</div>
+
+		<!-- Dossier summary blocks -->
+		<div class="dossier-blocks">
+			<!-- Section 1: Company Profile -->
+			<div class="summary-card">
+				<div class="card-head">
+					<div class="card-head-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="head-icon">
+							<rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+							<path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+						</svg>
+						<h3>{{ t("verifyBusiness.summaryCompany") || "Datos de la Empresa" }}</h3>
+					</div>
+					<button type="button" class="edit-link" (click)="editCompany()">
+						{{ t("verifyBusiness.edit") || "Editar" }}
+					</button>
+				</div>
+				<div class="summary-grid">
+					<div class="grid-item">
+						<span class="item-label">{{ t("verifyBusiness.legalName") || "Razón Social" }}</span>
+						<span class="item-value font-bold">{{ session.company.legalName }}</span>
+					</div>
+					<div class="grid-item" *ngIf="session.company.commercialName">
+						<span class="item-label">{{ t("verifyBusiness.commercialName") || "Nombre Comercial" }}</span>
+						<span class="item-value">{{ session.company.commercialName }}</span>
+					</div>
+					<div class="grid-item">
+						<span class="item-label">{{ t("verifyBusiness.taxIdNumber") || "Identificación Fiscal" }}</span>
+						<span class="item-value">
+							{{ session.company.taxId }}<span *ngIf="session.company.checkDigit">-{{ session.company.checkDigit }}</span>
+							({{ session.company.country }})
+						</span>
+					</div>
+					<div class="grid-item">
+						<span class="item-label">{{ t("verifyBusiness.entityType") || "Tipo de Sociedad" }}</span>
+						<span class="item-value">{{ session.company.entityType }}</span>
+					</div>
+					<div class="grid-item span-full">
+						<span class="item-label">{{ t("verifyBusiness.address") || "Domicilio Fiscal" }}</span>
+						<span class="item-value">
+							{{ session.company.address.street }}, {{ session.company.address.city }}
+							<span *ngIf="session.company.address.state">, {{ session.company.address.state }}</span>
+						</span>
+					</div>
+					<div class="grid-item">
+						<span class="item-label">{{ t("verifyBusiness.email") || "Correo de Contacto" }}</span>
+						<span class="item-value">{{ session.company.email }}</span>
+					</div>
+					<div class="grid-item">
+						<span class="item-label">{{ t("verifyBusiness.phone") || "Teléfono" }}</span>
+						<span class="item-value">{{ session.company.phone }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Section 2: Corporate Documents -->
+			<div class="summary-card">
+				<div class="card-head">
+					<div class="card-head-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="head-icon">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+							<polyline points="14 2 14 8 20 8" />
+						</svg>
+						<h3>{{ t("verifyBusiness.summaryDocs") || "Documentos Adjuntos" }} ({{ session.documents.length }})</h3>
+					</div>
+					<button type="button" class="edit-link" (click)="editDocuments()">
+						{{ t("verifyBusiness.edit") || "Editar" }}
+					</button>
+				</div>
+				<div class="docs-checklist">
+					<div *ngFor="let doc of session.documents" class="doc-check-row">
+						<svg viewBox="0 0 20 20" fill="currentColor" class="ok-icon">
+							<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+						</svg>
+						<div class="doc-meta-info">
+							<span class="doc-cat-label">{{ categoryLabelKey(doc.category) ? t(categoryLabelKey(doc.category)) : doc.category }}</span>
+							<span class="doc-file-label">{{ doc.filename }}</span>
+						</div>
+						<span class="status-pill ok">{{ t("verifyBusiness.uploadedBadge") || "Cargado" }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Section 3: Representatives and UBOs -->
+			<div class="summary-card">
+				<div class="card-head">
+					<div class="card-head-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="head-icon">
+							<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+							<circle cx="9" cy="7" r="4" />
+							<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+							<path d="M16 3.13a4 4 0 0 1 0 7.75" />
+						</svg>
+						<h3>{{ t("verifyBusiness.summaryMembers") || "Miembros y Beneficiarios" }} ({{ session.representatives.length }})</h3>
+					</div>
+					<button type="button" class="edit-link" (click)="editRepresentatives()">
+						{{ t("verifyBusiness.edit") || "Editar" }}
+					</button>
+				</div>
+				<div class="members-checklist">
+					<div *ngFor="let rep of session.representatives" class="member-check-row">
+						<div class="member-check-avatar">
+							{{ rep.firstName.charAt(0) }}{{ rep.lastName.charAt(0) }}
+						</div>
+						<div class="member-check-info">
+							<span class="member-check-name">{{ rep.firstName }} {{ rep.lastName }}</span>
+							<span class="member-check-sub">
+								{{ t('verifyBusiness.roles.' + rep.role) || rep.role }} &bull; {{ rep.documentType }}: {{ rep.documentNumber }}
+								<span *ngIf="rep.ownershipPercentage">&bull; {{ rep.ownershipPercentage }}%</span>
+							</span>
+						</div>
+						<div class="member-check-badge">
+							<span class="kyc-pill ok" *ngIf="rep.kycStatus === 'COMPLETED'">{{ t("verifyBusiness.verified") || "Verificado" }}</span>
+							<span class="kyc-pill pending" *ngIf="rep.kycStatus !== 'COMPLETED'">{{ t("verifyBusiness.pendingKycBadge") || "Pendiente KYC" }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Legal Attestation Statement -->
+		<div class="attestation-box">
+			<label class="attestation-checkbox-label">
+				<input type="checkbox" [(ngModel)]="session.legalAttestation" class="attestation-checkbox" />
+				<span class="attestation-text">
+					<strong>{{ t("verifyBusiness.attestationStatementBold") || "Declaro bajo la gravedad de juramento" }}</strong>
+					{{ t("verifyBusiness.attestationStatementText") || "que toda la información consignada y los documentos corporativos aportados son auténticos, vigentes y corresponden a la realidad jurídica de la entidad, y que poseo plenas facultades estatutarias y legales para actuar en nombre y representación de la compañía." }}
+				</span>
+			</label>
+		</div>
+
+		<!-- Submit action -->
+		<div class="actions">
+			<button type="button" class="secondary-btn" (click)="editRepresentatives()">
+				&larr; {{ t("verifyBusiness.back") || "Atrás" }}
+			</button>
+			<button
+				type="button"
+				class="submit-btn"
+				[disabled]="!canSubmit() || session.busy"
+				(click)="submit()"
+			>
+				<span *ngIf="!session.busy" class="btn-content">
+					<svg viewBox="0 0 20 20" fill="currentColor" class="lock-icon" aria-hidden="true">
+						<path fill-rule="evenodd" d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 016 0v2h2V7a5 5 0 00-5-5z" clip-rule="evenodd" />
+					</svg>
+					<span>{{ t("verifyBusiness.submitDossier") || "Finalizar y Enviar" }}</span>
+				</span>
+				<span *ngIf="session.busy" class="spinner-small"></span>
+			</button>
+		</div>
+	</div>
+
+	<!-- Submitted Success State Screen -->
+	<div class="submitted-wrap" *ngIf="session.screen === 'submitted'">
+		<div class="submitted-card">
+			<div class="shield-icon-wrap">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shield-icon">
+					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					<polyline points="9 12 11 14 15 10" />
+				</svg>
+			</div>
+
+			<h1 class="submitted-title">
+				{{ t("verifyBusiness.submittedSuccessTitle") || "Registro Empresarial Radicado" }}
+			</h1>
+			<p class="submitted-subtitle">
+				{{ t("verifyBusiness.submittedSuccessDesc") || "Su expediente corporativo ha sido recibido formalmente y está siendo evaluado en tiempo real con las fuentes oficiales y listas restrictivas." }}
+			</p>
+
+			<div class="dossier-receipt">
+				<div class="receipt-row">
+					<span class="receipt-label">{{ t("verifyBusiness.companyName") || "Empresa" }}</span>
+					<span class="receipt-val font-bold">{{ session.company.legalName }}</span>
+				</div>
+				<div class="receipt-row">
+					<span class="receipt-label">{{ t("verifyBusiness.taxId") || "Identificación Fiscal" }}</span>
+					<span class="receipt-val">{{ session.company.taxId }}<span *ngIf="session.company.checkDigit">-{{ session.company.checkDigit }}</span></span>
+				</div>
+				<div class="receipt-row" *ngIf="session.registrationId">
+					<span class="receipt-label">{{ t("verifyBusiness.referenceNumber") || "Radicado No." }}</span>
+					<span class="receipt-val font-mono">{{ session.registrationId }}</span>
+				</div>
+				<div class="receipt-row">
+					<span class="receipt-label">{{ t("verifyBusiness.status") || "Estado" }}</span>
+					<span class="status-pill ok">
+						{{ session.submissionResult?.status || t("verifyBusiness.statusInOfficialVerification") }}
+					</span>
+				</div>
+			</div>
+
+			<div class="security-seal">
+				<svg viewBox="0 0 20 20" fill="currentColor" class="seal-icon">
+					<path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+				</svg>
+				<span>{{ t("verifyBusiness.securitySealText") || "Verificado y protegido por Verifik KYB SmartEngine" }}</span>
+			</div>
+
+			<!-- Redirect countdown -->
+			<div class="redirect-banner" *ngIf="redirectUrl">
+				<p class="redirect-text">
+					{{ t("verifyBusiness.redirectingCountdown", { seconds: session.redirectCountdown }) || ("Redirigiendo automáticamente en " + session.redirectCountdown + " segundos...") }}
+				</p>
+				<button type="button" class="redirect-now-btn" (click)="redirectNow()">
+					{{ t("verifyBusiness.redirectNow") || "Continuar ahora" }} &rarr;
+				</button>
+			</div>
+		</div>
+	</div>
+</ng-container>

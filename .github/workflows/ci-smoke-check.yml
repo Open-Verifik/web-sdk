@@ -1,0 +1,24 @@
+name: ci-smoke-check
+
+on:
+  pull_request:
+    branches:
+      - development
+      - staging-access.verifik.co
+      - access.verifik.co
+  push:
+    branches:
+      - development
+      - staging-access.verifik.co
+      - access.verifik.co
+
+jobs:
+  verify-tracked-imports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify tracked TypeScript imports, templates, styles, and i18n JSON
+        run: node scripts/verify-tracked-imports.js

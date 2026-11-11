@@ -225,12 +225,10 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 			return { ...judgeFront({ aspect, cardRect: this._cardRect, faces, guide, missesInARow: this._misses, region, shape }), skipped: faces === undefined };
 		}
 
-		if (this.checkBarcode && this._barcode.shouldCheck({ promptTemplate: this.promptTemplate, side: "back" })) {
+		if (this.checkBarcode && this._barcode.shouldCheck({ enabled: this.checkBarcode, promptTemplate: this.promptTemplate, side: "back" })) {
 			await this._barcode.sampleCanvas(canvas);
 
 			if (this._barcode.ready) return { state: "steady", hintKey: HINT_KEYS.steady, ready: true };
-
-			return { state: "back", hintKey: this._barcode.hintKey || HINT_KEYS.back, ready: false };
 		}
 
 		return judgeBack(region, shape, aspect);
@@ -359,20 +357,13 @@ export class VerifyCameraComponent implements OnInit, OnDestroy {
 
 		if (this.side === "front") face = await this._cropFace(raw, canvas);
 
-		if (this.side === "back" && this.checkBarcode && this._barcode.shouldCheck({ promptTemplate: this.promptTemplate, side: "back" })) {
+		if (this.side === "back" && this.checkBarcode && this._barcode.shouldCheck({ enabled: this.checkBarcode, promptTemplate: this.promptTemplate, side: "back" })) {
 			const decision = await this._barcode.evaluateShutter(raw);
 
 			barcodeReadAttempts = decision.attempts;
-
-			if (!decision.accept) {
-				this._capturing = false;
-				this._alive = true;
-				this._hits = 0;
-				void this._start();
-				return;
+			if (decision.accept && decision.image) {
+				base64 = decision.image;
 			}
-
-			base64 = decision.image;
 		}
 
 		this.captured.emit({

@@ -1,0 +1,215 @@
+<ng-container *transloco="let t">
+	<div class="members-wrap">
+		<header class="section-head">
+			<span class="step-badge">{{ t("verifyBusiness.step3Badge") || "Paso 3 de 4" }}</span>
+			<h1 class="title">{{ t("verifyBusiness.membersTitle") || "Representantes Legales y Beneficiarios Finales" }}</h1>
+			<p class="subtitle">
+				{{ t("verifyBusiness.membersSubtitle") || "Registre a los representantes legales facultados y a las personas naturales que posean directa o indirectamente el 25% o más del capital social (UBO)." }}
+			</p>
+		</header>
+
+		<div *ngIf="session.error" class="error-banner">
+			<svg viewBox="0 0 24 24" aria-hidden="true" class="error-icon">
+				<path d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" fill="none" stroke="currentColor" stroke-width="2" />
+			</svg>
+			<span>{{ session.error }}</span>
+		</div>
+
+		<!-- Ownership progress bar -->
+		<div class="ownership-summary-card">
+			<div class="ownership-header">
+				<span class="ownership-title">{{ t("verifyBusiness.equityTally") || "Participación Accionaria Declarada" }}</span>
+				<span class="ownership-pct" [class.is-full]="totalOwnership >= 100">{{ totalOwnership }}% / 100%</span>
+			</div>
+			<div class="ownership-track">
+				<div
+					class="ownership-fill"
+					[style.width.%]="totalOwnership > 100 ? 100 : totalOwnership"
+					[class.is-full]="totalOwnership >= 100"
+				></div>
+			</div>
+		</div>
+
+		<!-- Member list -->
+		<div class="members-list" *ngIf="session.representatives.length > 0">
+			<div *ngFor="let rep of session.representatives; let i = index" class="member-card">
+				<div class="member-head">
+					<div class="member-avatar">
+						{{ rep.firstName.charAt(0) }}{{ rep.lastName.charAt(0) }}
+					</div>
+					<div class="member-info">
+						<div class="member-name-row">
+							<span class="member-name">{{ rep.firstName }} {{ rep.lastName }}</span>
+							<span class="ubo-badge" *ngIf="rep.isUBO || rep.ownershipPercentage >= 25">
+								UBO &ge; 25%
+							</span>
+						</div>
+						<div class="member-details-row">
+							<span class="member-role">{{ t('verifyBusiness.roles.' + rep.role) || getRoleLabel(rep.role) }}</span>
+							<span class="separator">&bull;</span>
+							<span class="member-doc">{{ rep.documentType }}: {{ rep.documentNumber }}</span>
+							<span class="separator" *ngIf="rep.ownershipPercentage">&bull;</span>
+							<span class="member-equity" *ngIf="rep.ownershipPercentage">{{ rep.ownershipPercentage }}{{ t('verifyBusiness.equityShareSuffix') }}</span>
+						</div>
+					</div>
+
+					<div class="member-status-block">
+						<span class="kyc-pill ok" *ngIf="rep.kycStatus === 'COMPLETED'">
+							<svg viewBox="0 0 20 20" fill="currentColor" class="check-icon">
+								<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+							</svg>
+							{{ t("verifyBusiness.verified") || "Verificado" }}
+						</span>
+						<span class="kyc-pill in-progress" *ngIf="rep.kycStatus === 'IN_PROGRESS'">
+							{{ t("verifyBusiness.inProgress") || "En Proceso" }}
+						</span>
+						<span class="kyc-pill pending" *ngIf="!rep.kycStatus || rep.kycStatus === 'PENDING'">
+							{{ t("verifyBusiness.kycRequired") || "Requiere KYC" }}
+						</span>
+
+						<button type="button" class="remove-member-btn" (click)="removeMember(i)" [title]="t('verifyBusiness.removeMemberTitle')">
+							&times;
+						</button>
+					</div>
+				</div>
+
+				<div class="member-foot-actions" *ngIf="rep.kycStatus !== 'COMPLETED'">
+					<button type="button" class="verify-now-btn" (click)="verifyIdentity(rep)">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="camera-icon">
+							<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+							<circle cx="12" cy="13" r="4" />
+						</svg>
+						{{ t("verifyBusiness.verifyIdentityNow") || "Verificar Identidad Ahora" }}
+					</button>
+
+					<button
+						type="button"
+						class="send-invite-btn"
+						(click)="dispatchInvite(rep)"
+						[disabled]="session.busy"
+					>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mail-icon">
+							<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+							<polyline points="22,6 12,13 2,6" />
+						</svg>
+						<span *ngIf="!rep.inviteSentAt">{{ t("verifyBusiness.sendLink") || "Enviar Enlace Remoto" }}</span>
+						<span *ngIf="rep.inviteSentAt">{{ t("verifyBusiness.inviteSent") || "Enlace Enviado" }} &#10003;</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Add member button -->
+		<div *ngIf="!isAddingMember" class="add-member-cta">
+			<button type="button" class="add-btn" (click)="openAddMember()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="plus-icon">
+					<line x1="12" y1="5" x2="12" y2="19" />
+					<line x1="5" y1="12" x2="19" y2="12" />
+				</svg>
+				{{ t("verifyBusiness.addMember") || "Agregar Representante Legal o Beneficiario Final" }}
+			</button>
+		</div>
+
+		<!-- Add member modal form -->
+		<div *ngIf="isAddingMember" class="add-member-form-card">
+			<div class="form-head">
+				<h3 class="form-title">{{ t("verifyBusiness.newMemberTitle") || "Nuevo Miembro / Representante" }}</h3>
+				<button type="button" class="close-btn" (click)="cancelAddMember()">&times;</button>
+			</div>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.firstName") || "Nombres" }}</span>
+					<input type="text" class="input" [(ngModel)]="newMember.firstName" autocomplete="given-name" [placeholder]="t('verifyBusiness.firstNamePlaceholder')" required />
+				</label>
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.lastName") || "Apellidos" }}</span>
+					<input type="text" class="input" [(ngModel)]="newMember.lastName" autocomplete="family-name" [placeholder]="t('verifyBusiness.lastNamePlaceholder')" required />
+				</label>
+			</div>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.role") || "Rol / Cargo" }}</span>
+					<div class="select-wrap">
+						<select class="input" [(ngModel)]="newMember.role" name="role">
+							<option *ngFor="let r of roles" [value]="r.value">{{ t('verifyBusiness.roles.' + r.value) || r.label }}</option>
+						</select>
+					</div>
+				</label>
+
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.ownershipPct") || "% de Participación" }}</span>
+					<input
+						type="number"
+						class="input"
+						[(ngModel)]="newMember.ownershipPercentage"
+						(ngModelChange)="onOwnershipChange()"
+						min="0"
+						max="100"
+						[placeholder]="t('verifyBusiness.ownershipPctPlaceholder')"
+					/>
+				</label>
+			</div>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.docType") || "Tipo de Documento" }}</span>
+					<div class="select-wrap">
+						<select class="input" [(ngModel)]="newMember.documentType" name="docType">
+							<option *ngFor="let dt of docTypes" [value]="dt.value">{{ t('verifyBusiness.docTypes.' + dt.value) || dt.label }}</option>
+						</select>
+					</div>
+				</label>
+
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.docNumber") || "Número de Documento" }}</span>
+					<input type="text" class="input" [(ngModel)]="newMember.documentNumber" autocorrect="off" autocapitalize="off" spellcheck="false" [placeholder]="t('verifyBusiness.docNumberPlaceholder')" required />
+				</label>
+			</div>
+
+			<div class="field-row">
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.email") || "Correo Electrónico" }}</span>
+					<input type="email" class="input" [(ngModel)]="newMember.email" autocomplete="email" autocorrect="off" autocapitalize="off" spellcheck="false" [placeholder]="t('verifyBusiness.emailPlaceholder')" required />
+				</label>
+
+				<label class="label">
+					<span class="label-text">{{ t("verifyBusiness.phone") || "Teléfono Móvil" }}</span>
+					<input type="tel" class="input" [(ngModel)]="newMember.phone" autocomplete="tel" [placeholder]="t('verifyBusiness.phonePlaceholder')" />
+				</label>
+			</div>
+
+			<div class="ubo-checkbox-row">
+				<label class="checkbox-label">
+					<input type="checkbox" [(ngModel)]="newMember.isUBO" />
+					<span>{{ t("verifyBusiness.isUBODeclaration") || "Declarar como Beneficiario Final (UBO) con control efectivo" }}</span>
+				</label>
+			</div>
+
+			<div class="form-actions">
+				<button type="button" class="cancel-btn" (click)="cancelAddMember()">
+					{{ t("verifyBusiness.cancel") || "Cancelar" }}
+				</button>
+				<button type="button" class="save-btn" (click)="saveNewMember()" [disabled]="session.busy">
+					<span *ngIf="!session.busy">{{ t("verifyBusiness.saveMember") || "Guardar Miembro" }}</span>
+					<span *ngIf="session.busy" class="spinner-small"></span>
+				</button>
+			</div>
+		</div>
+
+		<div class="actions">
+			<button type="button" class="secondary-btn" (click)="back()">
+				&larr; {{ t("verifyBusiness.back") || "Atrás" }}
+			</button>
+			<button
+				type="button"
+				class="primary-btn"
+				[disabled]="!canProceed() || session.busy"
+				(click)="next()"
+			>
+				<span>{{ t("verifyBusiness.continueToReview") || "Continuar a Revisión Final" }} &rarr;</span>
+			</button>
+		</div>
+	</div>
+</ng-container>

@@ -365,7 +365,7 @@ export const VERIFY_STYLES: Record<VerifyStyleId, VerifyStyle> = {
 };
 
 export const VERIFY_FONT_HREF =
-	"https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter+Tight:wght@400&family=Inter:wght@100;400;500;700;900&family=Outfit:wght@500;600&family=Roboto+Condensed:wght@900&family=Space+Grotesk:wght@500;600&display=swap";
+	"https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=IBM+Plex+Mono:wght@500;600&family=Inter+Tight:wght@400&family=Inter:wght@100;400;500;700;900&family=Outfit:wght@500;600&family=Roboto+Condensed:wght@900&family=Space+Grotesk:wght@500;600&display=swap";
 
 /** Returns a registry id, or null when the value is empty or unknown. */
 export const parseVerifyStyle = (value: unknown): VerifyStyleId | null => {

@@ -1,0 +1,161 @@
+<ng-container *transloco="let t">
+	<div class="modal-backdrop" (click)="close()">
+		<div class="modal-dialog" (click)="$event.stopPropagation()">
+			<header class="modal-header">
+				<div class="modal-title-wrap">
+					<h3 class="modal-title">{{ t("verifyBusiness.repKycTitle") || "Verificación de Identidad del Representante" }}</h3>
+					<p class="modal-subtitle" *ngIf="rep">
+						{{ rep.firstName }} {{ rep.lastName }} &bull; {{ rep.documentType }}: {{ rep.documentNumber }}
+					</p>
+				</div>
+				<button type="button" class="modal-close-btn" (click)="close()">&times;</button>
+			</header>
+
+			<!-- Verification completed feedback -->
+			<div class="kyc-success-panel" *ngIf="rep?.kycStatus === 'COMPLETED'">
+				<div class="success-icon-wrap">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="success-icon">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+				</div>
+				<h4 class="success-title">{{ t("verifyBusiness.kycVerifiedSuccess") || "¡Identidad Verificada con Éxito!" }}</h4>
+				<p class="success-desc">
+					{{ t("verifyBusiness.kycVerifiedSuccessDesc") || "La prueba biométrica y el documento de identidad fueron validados satisfactoriamente." }}
+				</p>
+				<button type="button" class="primary-btn" (click)="close()">
+					{{ t("verifyBusiness.continue") || "Volver al Registro" }}
+				</button>
+			</div>
+
+			<!-- Verification in progress body -->
+			<div class="modal-body" *ngIf="rep?.kycStatus !== 'COMPLETED'">
+				<!-- Method tabs -->
+				<div class="tabs-nav">
+					<button
+						type="button"
+						class="tab-btn"
+						[class.active]="activeTab === 'qr'"
+						(click)="activeTab = 'qr'"
+					>
+						{{ t("verifyBusiness.tabQr") || "Código QR Móvil" }}
+					</button>
+					<button
+						type="button"
+						class="tab-btn"
+						[class.active]="activeTab === 'inline'"
+						(click)="activeTab = 'inline'"
+					>
+						{{ t("verifyBusiness.tabInline") || "Este Dispositivo" }}
+					</button>
+					<button
+						type="button"
+						class="tab-btn"
+						[class.active]="activeTab === 'sms'"
+						(click)="activeTab = 'sms'"
+					>
+						{{ t("verifyBusiness.tabDispatch") || "SMS / Correo" }}
+					</button>
+				</div>
+
+				<!-- Tab 1: QR Code -->
+				<div *ngIf="activeTab === 'qr'" class="tab-pane qr-pane">
+					<p class="instruction-text">
+						{{ t("verifyBusiness.qrInstructions") || "Escanee el código QR con la cámara de su teléfono inteligente para capturar su documento y realizar la prueba de vida facial." }}
+					</p>
+
+					<div class="qr-canvas-box">
+						<canvas #qrCanvas class="qr-canvas"></canvas>
+					</div>
+
+					<div class="link-copy-box">
+						<input type="text" readonly [value]="repKycUrl" class="link-input" />
+						<button type="button" class="copy-btn" (click)="copyLink()">
+							{{ linkCopied ? (t("verifyBusiness.copied") || "Copiado!") : (t("verifyBusiness.copy") || "Copiar") }}
+						</button>
+					</div>
+				</div>
+
+				<!-- Tab 2: Inline Verification -->
+				<div *ngIf="activeTab === 'inline'" class="tab-pane inline-pane">
+					<p class="instruction-text">
+						{{ t("verifyBusiness.inlineInstructions") || "Abra el flujo biométrico en una ventana dedicada para escanear su documento de identidad y selfie con la cámara de este equipo." }}
+					</p>
+
+					<div class="inline-cta-box">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="inline-icon">
+							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+							<line x1="8" y1="21" x2="16" y2="21" />
+							<line x1="12" y1="17" x2="12" y2="21" />
+						</svg>
+						<button type="button" class="primary-btn" (click)="openInlineWindow()">
+							{{ t("verifyBusiness.launchBiometrics") || "Iniciar Captura Biométrica" }} &rarr;
+						</button>
+					</div>
+				</div>
+
+				<!-- Tab 3: Dispatch SMS / Email -->
+				<div *ngIf="activeTab === 'sms'" class="tab-pane dispatch-pane">
+					<p class="instruction-text">
+						{{ t("verifyBusiness.dispatchInstructions") || "Envíe un enlace seguro de verificación directamente al correo o teléfono del representante." }}
+					</p>
+
+					<div class="dispatch-options">
+						<div class="dispatch-item" *ngIf="rep?.email">
+							<div class="dispatch-info">
+								<span class="dispatch-channel">{{ t("verifyBusiness.emailLabel") || "Correo Electrónico" }}</span>
+								<span class="dispatch-val">{{ rep?.email }}</span>
+							</div>
+							<button
+								type="button"
+								class="dispatch-btn"
+								[disabled]="sendingChannel !== null"
+								(click)="sendInvite('email')"
+							>
+								<ng-container *ngIf="sendingChannel === 'email'">...</ng-container>
+								<ng-container *ngIf="sendingChannel !== 'email' && inviteSent && lastSentChannel === 'email'">
+									{{ t("verifyBusiness.inviteSent") || "Sent" }} &#10003;
+								</ng-container>
+								<ng-container *ngIf="sendingChannel !== 'email' && !(inviteSent && lastSentChannel === 'email')">
+									{{ t("verifyBusiness.sendEmail") || "Enviar Correo" }}
+								</ng-container>
+							</button>
+						</div>
+
+						<div class="dispatch-item" *ngIf="rep?.phone">
+							<div class="dispatch-info">
+								<span class="dispatch-channel">{{ t("verifyBusiness.smsLabel") || "Mensaje SMS / WhatsApp" }}</span>
+								<span class="dispatch-val">{{ rep?.phone }}</span>
+							</div>
+							<button
+								type="button"
+								class="dispatch-btn"
+								[disabled]="sendingChannel !== null"
+								(click)="sendInvite('phone')"
+							>
+								<ng-container *ngIf="sendingChannel === 'phone'">...</ng-container>
+								<ng-container *ngIf="sendingChannel !== 'phone' && inviteSent && lastSentChannel === 'phone'">
+									{{ t("verifyBusiness.inviteSent") || "Sent" }} &#10003;
+								</ng-container>
+								<ng-container *ngIf="sendingChannel !== 'phone' && !(inviteSent && lastSentChannel === 'phone')">
+									{{ t("verifyBusiness.sendSms") || "Enviar SMS" }}
+								</ng-container>
+							</button>
+						</div>
+					</div>
+
+					<div *ngIf="inviteSent" class="invite-sent-alert">
+						<span>&#10003; {{ t("verifyBusiness.inviteDispatchedSuccess") || "¡Enlace de verificación enviado satisfactoriamente!" }}</span>
+					</div>
+				</div>
+
+				<!-- Live polling footer -->
+				<div class="polling-indicator">
+					<span class="pulsing-dot"></span>
+					<span class="polling-text">
+						{{ t("verifyBusiness.waitingBiometrics") || "Esperando confirmación biométrica en tiempo real..." }}
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</ng-container>
