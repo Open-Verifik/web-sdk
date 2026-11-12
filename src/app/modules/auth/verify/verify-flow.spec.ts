@@ -2,6 +2,7 @@ import { flowOrderFrom, flowOrderFromQuery, ProjectFlow } from "app/core/classes
 import {
 	attemptsRemaining,
 	cameraStepsAhead,
+	canSkipIdentity,
 	completionStatus,
 	contactScreens,
 	documentNeedsBack,
@@ -93,6 +94,59 @@ describe("verify-flow", () => {
 				phoneNeeded: false,
 			})
 		).toBe("consent");
+
+		expect(
+			resumeScreen({
+				currentStep: "signUpForm",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+			})
+		).toBe("kycPrompt");
+
+		expect(canSkipIdentity({ document: "optional", liveness: "optional" })).toBeTrue();
+		expect(canSkipIdentity({ document: "optional", liveness: "skip" })).toBeTrue();
+		expect(canSkipIdentity({ document: "mandatory", liveness: "optional" })).toBeFalse();
+		expect(canSkipIdentity({ document: "skip", liveness: "skip" })).toBeFalse();
+		expect(progressIndex("kycPrompt", true)).toBe(1);
+
+		expect(
+			resumeScreen({
+				currentStep: "document",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				handoff: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+			})
+		).toBe("kycPrompt");
+
+		expect(
+			resumeScreen({
+				currentStep: "document",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				handoff: true,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+			})
+		).toBe("ready");
 
 		expect(
 			resumeScreen({

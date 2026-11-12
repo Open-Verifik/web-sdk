@@ -26,6 +26,7 @@ import { DemoService } from "app/modules/demo/demo.service";
 import {
 	attemptsRemaining,
 	cameraStepsAhead,
+	canSkipIdentity,
 	completionStatus,
 	contactScreens,
 	ContactScreen,
@@ -135,6 +136,14 @@ export class VerifySessionService implements OnDestroy {
 	selfiePhase: "idle" | "liveness" | "compare" | "finishing" = "idle";
 	sheet: VerifySheet = null;
 	showQrOverride = false;
+	editingContact = false;
+	editEmailDraft = "";
+	editCountryCodeDraft = "";
+	editPhoneDraft = "";
+	resendSecondsLeft = 0;
+	resendingCode = false;
+	codeSentFeedback = false;
+	otpErrorKey = "";
 	previewStyle: VerifyStyleId | null = null;
 	/** `?order=a|b` from the URL; wins over the order saved on the project so both can be compared. */
 	orderOverride: FlowOrder | null = null;
@@ -143,9 +152,11 @@ export class VerifySessionService implements OnDestroy {
 	readonly selfieDone$ = new Subject<void>();
 
 	private _agreed = false;
+	private _choseVerifyNow = false;
 	private _destroy$ = new Subject<void>();
 	private _device: any;
 	private _documentFailures = 0;
+	private _feedbackTimer: ReturnType<typeof setTimeout> | null = null;
 	private _handoffPollInFlight = false;
 	private _handoffPollTimer: ReturnType<typeof setInterval> | null = null;
 	private _key = "";
@@ -154,6 +165,7 @@ export class VerifySessionService implements OnDestroy {
 	private _emailSend$: Observable<unknown> | null = null;
 	private _phoneSend$: Observable<unknown> | null = null;
 	private _redirectTimer: ReturnType<typeof setTimeout> | null = null;
+	private _resendCountdownTimer: ReturnType<typeof setInterval> | null = null;
 	private _skippedDocument = false;
 	private _skippedLiveness = false;
 	private _token = "";
@@ -182,6 +194,8 @@ export class VerifySessionService implements OnDestroy {
 
 	ngOnDestroy(): void {
 		this._stopHandoffPolling();
+		this._stopResendCountdown();
+		if (this._feedbackTimer) clearTimeout(this._feedbackTimer);
 		if (this._redirectTimer) clearTimeout(this._redirectTimer);
 		this._destroy$.next();
 		this._destroy$.complete();
@@ -318,6 +332,26 @@ export class VerifySessionService implements OnDestroy {
 
 	get skippedDocument(): boolean {
 		return Boolean(this._skippedDocument || this.settings?.document === "skip");
+	}
+
+	/** True when neither document nor liveness is mandatory (and at least one is optional), allowing the user to defer KYC. */
+	get canSkipKyc(): boolean {
+		return !this.isRepresentativeKyc && canSkipIdentity(this.settings);
+	}
+
+	/** True when the registration completed without KYC (user chose to do identity verification later). */
+	get completedWithoutKyc(): boolean {
+		if (this.registration?.status === "COMPLETED_WITHOUT_KYC" || this.registration?.currentStep === "skipKYC") {
+			return true;
+		}
+
+		return (
+			!this.registration?.documentValidation &&
+			!this.registration?.biometricValidation &&
+			((this._skippedDocument && this._skippedLiveness) ||
+				(this._skippedDocument && this.settings?.liveness === "skip") ||
+				(this._skippedLiveness && this.settings?.document === "skip"))
+		);
 	}
 
 	/** AI classification result comparing requested document type vs. scanned document. */
@@ -475,7 +509,7 @@ export class VerifySessionService implements OnDestroy {
 		} catch {}
 
 		this._rawToken = typeof rawToken === "string" ? rawToken.trim() : "";
-		if (this._rawToken) {
+		if (this._rawToken && !isUsableAppRegistrationSessionToken(this._rawToken)) {
 			this.isRepresentativeKyc = true;
 		}
 
@@ -512,8 +546,18 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
+		if (this.editingContact) {
+			this.cancelEditContact();
+			return;
+		}
+
 		if (this.screen === "submitted") return;
 		if (this.screen === "handoff") this._stopHandoffPolling();
+		if (this.screen === "emailCode" || this.screen === "phoneCode") {
+			this._stopResendCountdown();
+			this.otpErrorKey = "";
+			this.codeSentFeedback = false;
+		}
 
 		const previous = this.history.pop();
 
@@ -567,13 +611,174 @@ export class VerifySessionService implements OnDestroy {
 		if (this.screen === "phoneCode") this._confirmPhone();
 	}
 
+	get canResendCode(): boolean {
+		return this.resendSecondsLeft <= 0 && !this.resendingCode && !this.busy && !this.editingContact;
+	}
+
+	get resendTimerFormatted(): string {
+		const total = Math.max(0, Math.floor(this.resendSecondsLeft));
+		const mins = Math.floor(total / 60);
+		const secs = total % 60;
+		return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+	}
+
+	get activeEmailTarget(): string {
+		return (this.draft.email || this.registration?.email || "").trim();
+	}
+
+	get activePhoneTarget(): string {
+		const code = (this.draft.countryCode || this.registration?.countryCode || "").trim();
+		const phone = (this.draft.phone || this.registration?.phone || "").trim();
+		return `${code} ${phone}`.trim();
+	}
+
+	clearOtpMessages(): void {
+		if (!this.otpErrorKey) return;
+		this.otpErrorKey = "";
+		this._touch();
+	}
+
+	startEditContact(): void {
+		if (this.busy || this.resendingCode) return;
+		this.otpErrorKey = "";
+		this.codeSentFeedback = false;
+		this.editEmailDraft = this.activeEmailTarget;
+		this.editCountryCodeDraft = this.draft.countryCode || this.registration?.countryCode || DEFAULT_PHONE_COUNTRY_CODE;
+		this.editPhoneDraft = this.draft.phone || this.registration?.phone || "";
+		this.editingContact = true;
+		this._touch();
+	}
+
+	cancelEditContact(): void {
+		this.editingContact = false;
+		this.otpErrorKey = "";
+		this._touch();
+	}
+
+	canSaveEditedContact(): boolean {
+		if (this.busy || this.resendingCode) return false;
+		if (this.screen === "emailCode") {
+			const email = this.editEmailDraft.replace(/\s/g, "").trim();
+			return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+		}
+		if (this.screen === "phoneCode") {
+			const digits = this.editPhoneDraft.replace(/\D/g, "");
+			return digits.length >= 6 && Boolean(this.editCountryCodeDraft);
+		}
+		return false;
+	}
+
+	saveEditedContact(): void {
+		if (!this.canSaveEditedContact() || !this.registration?._id) return;
+
+		this.busy = true;
+		this.otpErrorKey = "";
+		this._touch();
+
+		if (this.screen === "emailCode") {
+			const email = this.editEmailDraft.replace(/\s/g, "").trim().toLowerCase();
+			this._kyc
+				.updateAppRegistration({
+					_id: this.registration._id,
+					email,
+					replaceEmail: true,
+				})
+				.pipe(takeUntil(this._destroy$))
+				.subscribe({
+					next: (res) => {
+						const updatedEmail = res?.data?.email || email;
+						this.draft.email = updatedEmail;
+						this.draft.otp = "";
+						if (this.registration) {
+							this.registration.email = updatedEmail;
+							this.registration.emailValidation = null;
+						}
+						this.busy = false;
+						this.editingContact = false;
+						this._sendEmailCode(true);
+					},
+					error: () => {
+						this.busy = false;
+						this.otpErrorKey = "signup.invalid_email";
+						this._touch();
+					},
+				});
+			return;
+		}
+
+		if (this.screen === "phoneCode") {
+			const countryCode = this.editCountryCodeDraft.trim() || DEFAULT_PHONE_COUNTRY_CODE;
+			const phone = this.editPhoneDraft.replace(/\D/g, "");
+			this._kyc
+				.updateAppRegistration({
+					_id: this.registration._id,
+					countryCode,
+					phone,
+					replacePhone: true,
+				})
+				.pipe(takeUntil(this._destroy$))
+				.subscribe({
+					next: (res) => {
+						const updatedCode = res?.data?.countryCode || countryCode;
+						const updatedPhone = res?.data?.phone || phone;
+						this.draft.countryCode = updatedCode;
+						this.draft.phone = updatedPhone;
+						this.draft.otp = "";
+						if (this.registration) {
+							this.registration.countryCode = updatedCode;
+							this.registration.phone = updatedPhone;
+							this.registration.phoneValidation = null;
+						}
+						this.busy = false;
+						this.editingContact = false;
+						this._sendPhoneCode(true);
+					},
+					error: () => {
+						this.busy = false;
+						this.otpErrorKey = "signup.invalid_phone";
+						this._touch();
+					},
+				});
+		}
+	}
+
 	resendCode(): void {
-		if (this.screen === "emailCode") this._sendEmailCode();
-		if (this.screen === "phoneCode") this._sendPhoneCode();
+		if (!this.canResendCode) return;
+		this.draft.otp = "";
+		this.otpErrorKey = "";
+		if (this.screen === "emailCode") this._sendEmailCode(true);
+		if (this.screen === "phoneCode") this._sendPhoneCode(true);
+	}
+
+	proceedToConsent(): void {
+		this._choseVerifyNow = true;
+		this._push("consent");
+	}
+
+	skipKycForNow(): void {
+		if (!this.canSkipKyc || this.busy) return;
+
+		this._skippedDocument = true;
+		this._skippedLiveness = true;
+
+		if (!this.registration) {
+			const screens = this.settings ? contactScreens(this.settings) : [];
+
+			if (screens.length) {
+				this._push(screens[0]);
+				return;
+			}
+
+			this._createRegistration();
+			return;
+		}
+
+		this._finish("COMPLETED_WITHOUT_KYC", "skipKYC");
 	}
 
 	agree(): void {
 		this._agreed = true;
+		this._choseVerifyNow = true;
 
 		if (!this.registration) {
 			const screens = this.settings ? contactScreens(this.settings) : [];
@@ -600,6 +805,11 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	leaveProject(): void {
+		if (this.canSkipKyc && this.registration?._id) {
+			this.skipKycForNow();
+			return;
+		}
+
 		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
 
 		if (redirectUrl) window.location.href = redirectUrl;
@@ -957,6 +1167,9 @@ export class VerifySessionService implements OnDestroy {
 		this.project = new Project({ ...response.data, type: "onboarding" });
 		this.projectFlow = this.project.getOnboardingProjectFlow() || null;
 		this._kyc.setProjectData(this.project, this.projectFlow);
+		if (this.projectFlow?.target === "business" && (this._rawToken || this._token)) {
+			this.isRepresentativeKyc = true;
+		}
 
 		if (enrollmentClientFrom(this.projectFlow?.enrollmentClient) !== "v2" && !this.projectFlow?.verifyStyle) {
 			this._router.navigate(["/sign-up", this.projectId], {
@@ -1134,11 +1347,12 @@ export class VerifySessionService implements OnDestroy {
 	private _startFresh(): void {
 		const settings = this.settings;
 		const screens = settings ? contactScreens(settings) : [];
+		const preCaptureScreen: VerifyScreen = this.canSkipKyc ? "kycPrompt" : "consent";
 
 		this._seedPhoneGateway();
 		this.history = [];
 		this.busy = false;
-		this.screen = this.flowOrder === "consent_first" ? "consent" : screens[0] || "consent";
+		this.screen = this.flowOrder === "consent_first" ? preCaptureScreen : screens[0] || preCaptureScreen;
 		this._touch();
 	}
 
@@ -1154,7 +1368,7 @@ export class VerifySessionService implements OnDestroy {
 		if (!settings) return this._fail("verify.errorBody");
 
 		const document = this.registration?.documentValidation;
-		const screen = resumeScreen({
+		let screen = resumeScreen({
 			currentStep: this.registration?.currentStep,
 			documentFailed: document?.status === "FAILED",
 			documentMismatch: this.documentMismatch,
@@ -1170,7 +1384,16 @@ export class VerifySessionService implements OnDestroy {
 			status: this.registration?.status,
 		});
 
-		if (screen === "consent" && this._agreed) {
+		if (screen === "kycPrompt" && (this._choseVerifyNow || this.isRepresentativeKyc)) {
+			screen = "consent";
+		}
+
+		if ((screen === "consent" || screen === "kycPrompt") && this._skippedDocument && this._skippedLiveness && this.canSkipKyc) {
+			this._finish("COMPLETED_WITHOUT_KYC", "skipKYC");
+			return;
+		}
+
+		if ((screen === "consent" || screen === "kycPrompt") && this._agreed) {
 			this._enterAfterAgree();
 			return;
 		}
@@ -1188,6 +1411,19 @@ export class VerifySessionService implements OnDestroy {
 		) {
 			this._enterHandoff();
 			return;
+		}
+
+		if (this.registration?.email && !this.draft.email) {
+			this.draft.email = this.registration.email;
+		}
+		if (this.registration?.phone && !this.draft.phone) {
+			this.draft.phone = this.registration.phone;
+		}
+		if (
+			this.registration?.countryCode &&
+			(!this.draft.countryCode || this.draft.countryCode === DEFAULT_PHONE_COUNTRY_CODE)
+		) {
+			this.draft.countryCode = this.registration.countryCode;
 		}
 
 		if (screen === "emailCode") this._sendEmailCode();
@@ -1213,7 +1449,7 @@ export class VerifySessionService implements OnDestroy {
 
 		// When Mobile opens the handoff link (or resumes into capture), notify the backend
 		// so the Desktop handoff poller immediately transitions to the "Connected to phone" progress view.
-		if (this.registration?._id) {
+		if (this.isMobileHandoff && this.registration?._id) {
 			if (screen === "ready" && this.registration.currentStep !== "document") {
 				this._kyc
 					.syncAppRegistration("document", "ONGOING")
@@ -1233,13 +1469,26 @@ export class VerifySessionService implements OnDestroy {
 			}
 		}
 
+		const preCaptureScreen: VerifyScreen = this.canSkipKyc ? "kycPrompt" : "consent";
 		const first = this.isRepresentativeKyc
 			? settings.document !== "skip"
 				? "ready"
 				: "selfieIntro"
-			: contactScreens(settings)[0] || "consent";
+			: contactScreens(settings)[0] || preCaptureScreen;
 
-		this.history = screen === first ? [] : [first];
+		if (screen === first) {
+			this.history = [];
+		} else if (!this.isRepresentativeKyc && screen === "consent" && this.canSkipKyc) {
+			this.history = [...(contactScreens(settings)[0] ? [contactScreens(settings)[0]] : []), "kycPrompt"];
+		} else if (!this.isRepresentativeKyc && (screen === "ready" || screen === "selfieIntro") && !this.isMobileHandoff) {
+			this.history = [
+				...(contactScreens(settings)[0] ? [contactScreens(settings)[0]] : []),
+				...(this.canSkipKyc ? (["kycPrompt"] as VerifyScreen[]) : []),
+				"consent",
+			];
+		} else {
+			this.history = [first];
+		}
 		this.busy = false;
 		this.screen = screen;
 		this._touch();
@@ -1300,9 +1549,14 @@ export class VerifySessionService implements OnDestroy {
 		if (!this.settings) return;
 
 		this.busy = true;
-		this._afterSend(this._emailSend$, () => this._kyc.confirmEmailValidation(this.draft.email, this.draft.otp)).subscribe({
+		this.otpErrorKey = "";
+		this._touch();
+		const targetEmail = this.activeEmailTarget;
+		this._afterSend(this._emailSend$, () => this._kyc.confirmEmailValidation(targetEmail, this.draft.otp)).subscribe({
 			next: () => {
 				this.draft.otp = "";
+				this.otpErrorKey = "";
+				this._stopResendCountdown();
 				if (this.registration?.emailValidation) this.registration.emailValidation.status = "validated";
 				if (needsPhoneCode(this.settings, false)) {
 					this._sendPhoneCode();
@@ -1314,47 +1568,133 @@ export class VerifySessionService implements OnDestroy {
 			},
 			error: () => {
 				this.busy = false;
-				this._fail("verify.errorBody");
+				this.draft.otp = "";
+				this.otpErrorKey = "signup.invalid_otp";
+				this._touch();
 			},
 		});
 	}
 
 	private _confirmPhone(): void {
 		this.busy = true;
+		this.otpErrorKey = "";
+		this._touch();
+		const countryCode = this.draft.countryCode || this.registration?.countryCode || DEFAULT_PHONE_COUNTRY_CODE;
+		const phone = this.draft.phone || this.registration?.phone || "";
 		this._afterSend(this._phoneSend$, () =>
-			this._kyc.confirmPhoneValidation(this.draft.countryCode, this.draft.phone, this.draft.otp)
+			this._kyc.confirmPhoneValidation(countryCode, phone, this.draft.otp)
 		).subscribe({
 			next: () => {
 				this.draft.otp = "";
+				this.otpErrorKey = "";
+				this._stopResendCountdown();
 				if (this.registration?.phoneValidation) this.registration.phoneValidation.status = "validated";
 				this._syncContact();
 			},
 			error: () => {
 				this.busy = false;
-				this._fail("verify.errorBody");
+				this.draft.otp = "";
+				this.otpErrorKey = "signup.invalid_otp";
+				this._touch();
 			},
 		});
 	}
 
-	private _sendEmailCode(): void {
-		this._emailSend$ = this._rememberSend(this._kyc.sendAppRegistationEmailValidation(this.draft.email || this.registration?.email));
+	private _startResendCountdown(seconds = 120): void {
+		this._stopResendCountdown();
+		this.resendSecondsLeft = seconds;
+		this._touch();
+		this._resendCountdownTimer = setInterval(() => {
+			if (this.resendSecondsLeft <= 1) {
+				this.resendSecondsLeft = 0;
+				this._stopResendCountdown();
+				this._touch();
+				return;
+			}
+			this.resendSecondsLeft -= 1;
+			this._touch();
+		}, 1000);
 	}
 
-	private _sendPhoneCode(): void {
-		const gateway = this.draft.phoneGateway === "both" ? "sms" : this.draft.phoneGateway || "sms";
+	private _stopResendCountdown(): void {
+		if (this._resendCountdownTimer) {
+			clearInterval(this._resendCountdownTimer);
+			this._resendCountdownTimer = null;
+		}
+	}
 
-		this._phoneSend$ = this._rememberSend(
-			this._kyc.sendAppRegistrationPhoneValidation(this.draft.countryCode, this.draft.phone || this.registration?.phone, gateway)
+	private _triggerCodeSentFeedback(): void {
+		if (this._feedbackTimer) clearTimeout(this._feedbackTimer);
+		this.codeSentFeedback = true;
+		this._touch();
+		this._feedbackTimer = setTimeout(() => {
+			this.codeSentFeedback = false;
+			this._touch();
+		}, 6000);
+	}
+
+	private _sendEmailCode(showFeedback = false): void {
+		this.editingContact = false;
+		this.otpErrorKey = "";
+		if (showFeedback) {
+			this.resendingCode = true;
+			this.codeSentFeedback = false;
+			this._touch();
+		}
+		this._startResendCountdown(120);
+		this._emailSend$ = this._rememberSend(
+			this._kyc.sendAppRegistationEmailValidation(this.activeEmailTarget),
+			showFeedback
 		);
 	}
 
-	private _rememberSend(send$: Observable<unknown>): Observable<unknown> {
+	private _sendPhoneCode(showFeedback = false): void {
+		const gateway = this.draft.phoneGateway === "both" ? "sms" : this.draft.phoneGateway || "sms";
+		this.editingContact = false;
+		this.otpErrorKey = "";
+		if (showFeedback) {
+			this.resendingCode = true;
+			this.codeSentFeedback = false;
+			this._touch();
+		}
+		this._startResendCountdown(120);
+		this._phoneSend$ = this._rememberSend(
+			this._kyc.sendAppRegistrationPhoneValidation(
+				this.draft.countryCode || this.registration?.countryCode || DEFAULT_PHONE_COUNTRY_CODE,
+				this.draft.phone || this.registration?.phone,
+				gateway
+			),
+			showFeedback
+		);
+	}
+
+	private _rememberSend(send$: Observable<unknown>, showFeedback = false): Observable<unknown> {
+		let failed = false;
 		const remembered = send$.pipe(
-			catchError(() => of(null)),
+			catchError(() => {
+				failed = true;
+				return of(null);
+			}),
 			shareReplay(1)
 		);
 
-		remembered.pipe(takeUntil(this._destroy$)).subscribe();
+		remembered.pipe(takeUntil(this._destroy$)).subscribe(() => {
+			this.resendingCode = false;
+			if (failed) {
+				if (showFeedback) {
+					this.otpErrorKey = "verify.resendError";
+					this.resendSecondsLeft = 0;
+					this._stopResendCountdown();
+				}
+				this._touch();
+				return;
+			}
+			if (showFeedback) {
+				this._triggerCodeSentFeedback();
+			} else {
+				this._touch();
+			}
+		});
 
 		return remembered;
 	}
@@ -1367,12 +1707,19 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	private _syncContact(): void {
+		const nextPreCaptureScreen: VerifyScreen = this.canSkipKyc && !this._choseVerifyNow ? "kycPrompt" : "consent";
+
 		this._kyc.syncAppRegistration("signUpForm", "ONGOING").subscribe({
 			next: () => {
-				if (this._agreed) this._enterAfterAgree();
-				else this._push("consent");
+				if (this._skippedDocument && this._skippedLiveness && this.canSkipKyc) {
+					this._finish("COMPLETED_WITHOUT_KYC", "skipKYC");
+				} else if (this._agreed) {
+					this._enterAfterAgree();
+				} else {
+					this._push(nextPreCaptureScreen);
+				}
 			},
-			error: () => this._push("consent"),
+			error: () => this._push(nextPreCaptureScreen),
 		});
 	}
 
@@ -1401,7 +1748,18 @@ export class VerifySessionService implements OnDestroy {
 			status: this.registration?.status,
 		});
 		this.showQrOverride = false;
-		this._push("handoff");
+		if (this.screen === "loading" && !this.isRepresentativeKyc && this.settings) {
+			this.history = [
+				...(contactScreens(this.settings)[0] ? [contactScreens(this.settings)[0]] : []),
+				...(this.canSkipKyc ? (["kycPrompt"] as VerifyScreen[]) : []),
+				"consent",
+			];
+			this.busy = false;
+			this.screen = "handoff";
+			this._touch();
+		} else {
+			this._push("handoff");
+		}
 
 		if (
 			this.registration?._id &&
@@ -2071,13 +2429,24 @@ export class VerifySessionService implements OnDestroy {
 			next: (response) => {
 				const token = response?.data?.token || this._token;
 
+				if (this.registration) {
+					this.registration.status = response?.data?.appRegistration?.status || status;
+					this.registration.currentStep = step;
+				}
+
 				this._setToken(token);
 				if (status === "FAILED" && this._passwordless.isVerifikProject) {
 					this._kyc.submitKycApprovalRequest().subscribe({ error: () => undefined });
 				}
 				completeRepIfApplicable(token);
 			},
-			error: () => completeRepIfApplicable(this._token),
+			error: () => {
+				if (this.registration) {
+					this.registration.status = status;
+					this.registration.currentStep = step;
+				}
+				completeRepIfApplicable(this._token);
+			},
 		});
 	}
 

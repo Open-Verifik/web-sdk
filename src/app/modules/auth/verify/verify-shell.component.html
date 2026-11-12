@@ -247,59 +247,459 @@
 							</button>
 						</form>
 
-						<form *ngSwitchCase="'emailCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
-							<h1>{{ t("verify.codeTitle") }}</h1>
-							<p>{{ t("verify.codeEmail", { email: session.draft.email || session.registration?.email }) }}</p>
-							<div class="otp" (paste)="onOtpPaste($event)">
-								<input
-									*ngFor="let box of boxes; let i = index"
-									[value]="otpAt(i)"
-									(input)="onOtp($event, i)"
-									inputmode="numeric"
-									maxlength="1"
-								/>
-							</div>
-							<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
-							<button
-								class="primary"
-								type="submit"
-								[disabled]="!canContinue() || session.busy"
-								[class.loading]="session.busy"
-								[attr.aria-busy]="session.busy"
-							>
-								{{ t("verify.continue") }}
-							</button>
+						<form
+							*ngSwitchCase="'emailCode'"
+							class="form"
+							[class.is-busy]="session.busy"
+							(ngSubmit)="session.editingContact ? session.saveEditedContact() : session.submitCode()"
+						>
+							<ng-container *ngIf="!session.editingContact; else editEmailTpl">
+								<h1>{{ t("verify.codeTitle") }}</h1>
+								<p>{{ t("verify.codeEmail", { email: session.activeEmailTarget }) }}</p>
+
+								<div class="otp-contact-card">
+									<div class="otp-contact-info">
+										<svg class="otp-contact-icon" viewBox="0 0 20 20" aria-hidden="true">
+											<rect x="2.5" y="4.5" width="15" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+											<path d="m3 5.5 7 5 7-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+										</svg>
+										<span class="otp-contact-value">{{ session.activeEmailTarget }}</span>
+									</div>
+									<button
+										type="button"
+										class="otp-change-btn"
+										[disabled]="session.busy || session.resendingCode"
+										(click)="session.startEditContact()"
+									>
+										<svg viewBox="0 0 16 16" aria-hidden="true">
+											<path
+												d="M11.2 2.3a1.5 1.5 0 0 1 2.1 2.1l-7.6 7.6-2.9.8.8-2.9 7.6-7.6Z"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.5"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										<span>{{ t("login.change_contact") }}</span>
+									</button>
+								</div>
+
+								<div class="otp" [class.has-error]="!!session.otpErrorKey" (paste)="onOtpPaste($event)">
+									<input
+										*ngFor="let box of boxes; let i = index"
+										type="text"
+										[name]="'otp_' + i"
+										[value]="otpAt(i)"
+										(input)="onOtp($event, i)"
+										(keydown)="onOtpKeydown($event, i)"
+										inputmode="numeric"
+										[attr.autocomplete]="i === 0 ? 'one-time-code' : 'off'"
+										[attr.aria-label]="'Digit ' + (i + 1)"
+										[attr.aria-invalid]="session.otpErrorKey ? 'true' : null"
+										maxlength="6"
+									/>
+								</div>
+
+								<div *ngIf="session.otpErrorKey" class="otp-feedback-banner is-error" role="alert" aria-live="assertive">
+									<svg viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8" />
+										<path d="M10 6.2v4.4M10 13.6h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+									<span>{{ t(session.otpErrorKey) }}</span>
+								</div>
+
+								<div *ngIf="session.codeSentFeedback" class="otp-feedback-banner is-success" role="status" aria-live="polite">
+									<svg viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8" />
+										<path
+											d="m6.5 10.2 2.3 2.3 4.8-4.8"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.8"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+									<span>{{ t("verify.codeSentBanner", { target: session.activeEmailTarget }) }}</span>
+								</div>
+
+								<div class="otp-resend-row" *ngIf="session.resendingCode" role="status" aria-live="polite">
+									<span class="otp-mini-spinner" aria-hidden="true"></span>
+									<span class="otp-timer-text">{{ t("verify.sendingCode") }}</span>
+								</div>
+
+								<div
+									class="otp-resend-row"
+									*ngIf="!session.resendingCode && session.resendSecondsLeft > 0"
+									role="status"
+									aria-live="off"
+								>
+									<svg class="otp-clock-icon" viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path
+											d="M10 6v4.2l2.8 1.8"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+									<span class="otp-timer-text">{{ t("verify.resendIn", { time: session.resendTimerFormatted }) }}</span>
+								</div>
+
+								<div class="otp-resend-row" *ngIf="session.canResendCode">
+									<button type="button" class="otp-resend-btn" (click)="session.resendCode()">
+										<svg viewBox="0 0 20 20" aria-hidden="true">
+											<path
+												d="M15.5 7.5A6 6 0 1 0 16 11"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.7"
+												stroke-linecap="round"
+											/>
+											<path
+												d="M16 4v3.8h-3.8"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.7"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										<span>{{ t("verify.sendAgain") }}</span>
+									</button>
+								</div>
+
+								<button
+									class="primary"
+									type="submit"
+									[disabled]="!canContinue() || session.busy || session.resendingCode"
+									[class.loading]="session.busy"
+									[attr.aria-busy]="session.busy"
+								>
+									{{ t("verify.continue") }}
+								</button>
+							</ng-container>
+
+							<ng-template #editEmailTpl>
+								<h1>{{ t("signup.update_email") }}</h1>
+								<p>{{ t("signup.update_email_description") }}</p>
+								<label for="verify-update-email">
+									{{ t("verify.emailLabel") }}
+									<input
+										id="verify-update-email"
+										type="email"
+										name="editEmailDraft"
+										[(ngModel)]="session.editEmailDraft"
+										(input)="session.clearOtpMessages()"
+										autocomplete="email"
+										autocorrect="off"
+										autocapitalize="none"
+										spellcheck="false"
+										required
+									/>
+								</label>
+
+								<div *ngIf="session.otpErrorKey" class="otp-feedback-banner is-error" role="alert" aria-live="assertive">
+									<svg viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8" />
+										<path d="M10 6.2v4.4M10 13.6h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+									<span>{{ t(session.otpErrorKey) }}</span>
+								</div>
+
+								<button
+									class="primary"
+									type="submit"
+									[disabled]="!session.canSaveEditedContact()"
+									[class.loading]="session.busy"
+									[attr.aria-busy]="session.busy"
+								>
+									{{ t("signup.update_email_button") }}
+								</button>
+								<button
+									type="button"
+									class="secondary kyc-later-btn"
+									[disabled]="session.busy"
+									(click)="session.cancelEditContact()"
+								>
+									{{ t("cancel") }}
+								</button>
+							</ng-template>
 						</form>
 
-						<form *ngSwitchCase="'phoneCode'" class="form" [class.is-busy]="session.busy" (ngSubmit)="session.submitCode()">
-							<h1>{{ t("verify.codeTitle") }}</h1>
-							<p>
-								{{
-									t("verify.codePhone", {
-										phone: (session.draft.countryCode || "") + " " + (session.draft.phone || session.registration?.phone || ""),
-									})
-								}}
+						<form
+							*ngSwitchCase="'phoneCode'"
+							class="form"
+							[class.is-busy]="session.busy"
+							(ngSubmit)="session.editingContact ? session.saveEditedContact() : session.submitCode()"
+						>
+							<ng-container *ngIf="!session.editingContact; else editPhoneTpl">
+								<h1>{{ t("verify.codeTitle") }}</h1>
+								<p>
+									{{
+										t("verify.codePhone", {
+											phone: session.activePhoneTarget,
+										})
+									}}
+								</p>
+
+								<div class="otp-contact-card">
+									<div class="otp-contact-info">
+										<svg class="otp-contact-icon" viewBox="0 0 20 20" aria-hidden="true">
+											<rect x="5.5" y="2.5" width="9" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+											<path d="M8.5 14.5h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+										</svg>
+										<span class="otp-contact-value">{{ session.activePhoneTarget }}</span>
+									</div>
+									<button
+										type="button"
+										class="otp-change-btn"
+										[disabled]="session.busy || session.resendingCode"
+										(click)="session.startEditContact()"
+									>
+										<svg viewBox="0 0 16 16" aria-hidden="true">
+											<path
+												d="M11.2 2.3a1.5 1.5 0 0 1 2.1 2.1l-7.6 7.6-2.9.8.8-2.9 7.6-7.6Z"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.5"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										<span>{{ t("login.change_contact") }}</span>
+									</button>
+								</div>
+
+								<div class="otp" [class.has-error]="!!session.otpErrorKey" (paste)="onOtpPaste($event)">
+									<input
+										*ngFor="let box of boxes; let i = index"
+										type="text"
+										[name]="'phone_otp_' + i"
+										[value]="otpAt(i)"
+										(input)="onOtp($event, i)"
+										(keydown)="onOtpKeydown($event, i)"
+										inputmode="numeric"
+										[attr.autocomplete]="i === 0 ? 'one-time-code' : 'off'"
+										[attr.aria-label]="'Digit ' + (i + 1)"
+										[attr.aria-invalid]="session.otpErrorKey ? 'true' : null"
+										maxlength="6"
+									/>
+								</div>
+
+								<div *ngIf="session.otpErrorKey" class="otp-feedback-banner is-error" role="alert" aria-live="assertive">
+									<svg viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8" />
+										<path d="M10 6.2v4.4M10 13.6h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+									<span>{{ t(session.otpErrorKey) }}</span>
+								</div>
+
+								<div *ngIf="session.codeSentFeedback" class="otp-feedback-banner is-success" role="status" aria-live="polite">
+									<svg viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8" />
+										<path
+											d="m6.5 10.2 2.3 2.3 4.8-4.8"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.8"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+									<span>{{ t("verify.codeSentBanner", { target: session.activePhoneTarget }) }}</span>
+								</div>
+
+								<div class="otp-resend-row" *ngIf="session.resendingCode" role="status" aria-live="polite">
+									<span class="otp-mini-spinner" aria-hidden="true"></span>
+									<span class="otp-timer-text">{{ t("verify.sendingCode") }}</span>
+								</div>
+
+								<div
+									class="otp-resend-row"
+									*ngIf="!session.resendingCode && session.resendSecondsLeft > 0"
+									role="status"
+									aria-live="off"
+								>
+									<svg class="otp-clock-icon" viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path
+											d="M10 6v4.2l2.8 1.8"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+									<span class="otp-timer-text">{{ t("verify.resendIn", { time: session.resendTimerFormatted }) }}</span>
+								</div>
+
+								<div class="otp-resend-row" *ngIf="session.canResendCode">
+									<button type="button" class="otp-resend-btn" (click)="session.resendCode()">
+										<svg viewBox="0 0 20 20" aria-hidden="true">
+											<path
+												d="M15.5 7.5A6 6 0 1 0 16 11"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.7"
+												stroke-linecap="round"
+											/>
+											<path
+												d="M16 4v3.8h-3.8"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.7"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+										<span>{{ t("verify.sendAgain") }}</span>
+									</button>
+								</div>
+
+								<button
+									class="primary"
+									type="submit"
+									[disabled]="!canContinue() || session.busy || session.resendingCode"
+									[class.loading]="session.busy"
+									[attr.aria-busy]="session.busy"
+								>
+									{{ t("verify.continue") }}
+								</button>
+							</ng-container>
+
+							<ng-template #editPhoneTpl>
+								<h1>{{ t("signup.update_phone") }}</h1>
+								<p>{{ t("signup.update_phone_description") }}</p>
+								<div class="phone-row">
+									<select [(ngModel)]="session.editCountryCodeDraft" name="editCountryCode" (change)="session.clearOtpMessages()">
+										<option *ngFor="let dial of dialCodes" [value]="dial.code">{{ dial.code }}</option>
+									</select>
+									<input
+										type="tel"
+										[(ngModel)]="session.editPhoneDraft"
+										name="editPhone"
+										(input)="session.clearOtpMessages()"
+										inputmode="numeric"
+										autocomplete="tel-national"
+										required
+									/>
+								</div>
+
+								<div *ngIf="session.otpErrorKey" class="otp-feedback-banner is-error" role="alert" aria-live="assertive">
+									<svg viewBox="0 0 20 20" aria-hidden="true">
+										<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8" />
+										<path d="M10 6.2v4.4M10 13.6h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+									<span>{{ t(session.otpErrorKey) }}</span>
+								</div>
+
+								<button
+									class="primary"
+									type="submit"
+									[disabled]="!session.canSaveEditedContact()"
+									[class.loading]="session.busy"
+									[attr.aria-busy]="session.busy"
+								>
+									{{ t("signup.update_phone_button") }}
+								</button>
+								<button
+									type="button"
+									class="secondary kyc-later-btn"
+									[disabled]="session.busy"
+									(click)="session.cancelEditContact()"
+								>
+									{{ t("cancel") }}
+								</button>
+							</ng-template>
+						</form>
+
+						<div *ngSwitchCase="'kycPrompt'" class="center kyc-prompt-view">
+							<span class="kyc-optional-pill">{{ t("verify.optionalBadge") }}</span>
+							<h1>{{ t("verify.kycPromptTitle") }}</h1>
+							<p class="kyc-prompt-desc">
+								{{ t("verify.kycPromptBody", { project: session.project?.name || "Verifik" }) }}
 							</p>
-							<div class="otp" (paste)="onOtpPaste($event)">
-								<input
-									*ngFor="let box of boxes; let i = index"
-									[value]="otpAt(i)"
-									(input)="onOtp($event, i)"
-									inputmode="numeric"
-									maxlength="1"
-								/>
-							</div>
-							<button type="button" class="link" (click)="session.resendCode()">{{ t("verify.sendAgain") }}</button>
+							<ul class="rows consent-rows kyc-prompt-rows">
+								<li *ngIf="session.settings?.document !== 'skip'">
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<circle cx="12" cy="12.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path d="M8.5 6 9.6 4h4.8l1.1 2" fill="none" stroke="currentColor" stroke-width="1.6" />
+									</svg>
+									<div class="kyc-prompt-row-content">
+										<div class="kyc-prompt-row-head">
+											<strong>{{ t("verify.kycPromptDocTitle") }}</strong>
+											<span class="kyc-step-badge">{{ t("verify.optionalBadge") }}</span>
+										</div>
+										<span>{{ t("verify.kycPromptDocDesc") }}</span>
+									</div>
+								</li>
+								<li *ngIf="session.settings?.liveness !== 'skip'">
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<path
+											d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+										/>
+										<circle cx="12" cy="10.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path
+											d="M7.8 16.5c.7-2 2.2-3 4.2-3s3.5 1 4.2 3"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+										/>
+									</svg>
+									<div class="kyc-prompt-row-content">
+										<div class="kyc-prompt-row-head">
+											<strong>{{ t("verify.kycPromptSelfieTitle") }}</strong>
+											<span class="kyc-step-badge">{{ t("verify.optionalBadge") }}</span>
+										</div>
+										<span>{{ t("verify.kycPromptSelfieDesc") }}</span>
+									</div>
+								</li>
+								<li>
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+										<path
+											d="M12 7.5v4.8l3.2 2"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+									<div class="kyc-prompt-row-content">
+										<strong>{{ t("verify.kycPromptLaterTitle") }}</strong>
+										<span>{{ t("verify.kycPromptLaterDesc") }}</span>
+									</div>
+								</li>
+							</ul>
 							<button
+								type="button"
 								class="primary"
-								type="submit"
-								[disabled]="!canContinue() || session.busy"
+								[disabled]="session.busy"
 								[class.loading]="session.busy"
 								[attr.aria-busy]="session.busy"
+								(click)="session.proceedToConsent()"
 							>
-								{{ t("verify.continue") }}
+								{{ t("verify.kycPromptVerifyNow") }}
 							</button>
-						</form>
+							<button
+								type="button"
+								class="secondary kyc-later-btn"
+								[disabled]="session.busy"
+								(click)="session.skipKycForNow()"
+							>
+								{{ t("verify.kycPromptDoLater") }}
+							</button>
+						</div>
 
 						<div *ngSwitchCase="'consent'" class="center">
 							<h1>{{ t("verify.consentTitle") }}</h1>
@@ -358,7 +758,16 @@
 							>
 								{{ t("verify.agree") }}
 							</button>
-							<button type="button" class="secondary" [disabled]="session.busy" (click)="session.decline()">
+							<button
+								*ngIf="session.canSkipKyc"
+								type="button"
+								class="secondary kyc-later-btn"
+								[disabled]="session.busy"
+								(click)="session.skipKycForNow()"
+							>
+								{{ t("verify.kycPromptDoLater") }}
+							</button>
+							<button *ngIf="!session.canSkipKyc" type="button" class="secondary" [disabled]="session.busy" (click)="session.decline()">
 								{{ t("verify.decline") }}
 							</button>
 						</div>
@@ -382,6 +791,15 @@
 									<span class="handoff-pulse-dot" aria-hidden="true"></span>
 									<span>{{ t("verify.handoffWaitingPhone") }}</span>
 								</div>
+								<button
+									*ngIf="session.canSkipKyc"
+									type="button"
+									class="secondary kyc-later-btn"
+									[disabled]="session.busy"
+									(click)="session.skipKycForNow()"
+								>
+									{{ t("verify.kycPromptDoLater") }}
+								</button>
 								<div class="handoff-actions">
 									<button type="button" class="link" (click)="session.openSheet('otherOptions')">
 										{{ t("verify.otherOptions") }}
@@ -536,8 +954,23 @@
 											: t("verify.readyBody")
 								}}
 							</p>
-							<button type="button" class="primary" (click)="session.imReady()">{{ t("verify.imReady") }}</button>
-							<button type="button" class="link" *ngIf="session.settings?.document === 'optional'" (click)="session.skipDocument()">
+							<button type="button" class="primary" [disabled]="session.busy" (click)="session.imReady()">{{ t("verify.imReady") }}</button>
+							<button
+								type="button"
+								class="secondary kyc-later-btn"
+								*ngIf="session.canSkipKyc"
+								[disabled]="session.busy"
+								(click)="session.skipKycForNow()"
+							>
+								{{ t("verify.kycPromptDoLater") }}
+							</button>
+							<button
+								type="button"
+								class="secondary kyc-later-btn"
+								*ngIf="!session.canSkipKyc && session.settings?.document === 'optional'"
+								[disabled]="session.busy"
+								(click)="session.skipDocument()"
+							>
 								{{ t("verify.skip") }}
 							</button>
 						</div>
@@ -1028,9 +1461,15 @@
 							</div>
 							<h1>{{ t("verify.selfieTitle") }}</h1>
 							<p>{{ t("verify.selfieBody") }}</p>
-							<button type="button" class="primary" (click)="session.continueSelfie()">{{ t("verify.continue") }}</button>
-							<button type="button" class="link" *ngIf="session.settings?.liveness === 'optional'" (click)="session.skipLiveness()">
-								{{ t("verify.skip") }}
+							<button type="button" class="primary" [disabled]="session.busy" (click)="session.continueSelfie()">{{ t("verify.continue") }}</button>
+							<button
+								type="button"
+								class="secondary kyc-later-btn"
+								*ngIf="session.settings?.liveness === 'optional'"
+								[disabled]="session.busy"
+								(click)="session.skipLiveness()"
+							>
+								{{ session.canSkipKyc && !session.registration?.documentValidation ? t("verify.kycPromptDoLater") : t("verify.skip") }}
 							</button>
 						</div>
 
@@ -1123,12 +1562,41 @@
 							</ng-template>
 
 							<div class="submitted-headings">
-								<h1 class="submitted-title">{{ t("verify.submittedTitle") }}</h1>
-								<p class="submitted-subtitle">{{ t("verify.submittedSubtitle") }}</p>
+								<h1 class="submitted-title">
+									{{ session.completedWithoutKyc ? t("verify.submittedSkippedTitle") : t("verify.submittedTitle") }}
+								</h1>
+								<p class="submitted-subtitle">
+									{{ session.completedWithoutKyc ? t("verify.submittedSkippedSubtitle") : t("verify.submittedSubtitle") }}
+								</p>
 							</div>
 
 							<!-- Trust and verification summary card filling the middle void -->
 							<div class="submitted-card">
+								<div class="submitted-row" *ngIf="session.completedWithoutKyc">
+									<div class="submitted-row-left">
+										<span class="submitted-row-icon doc-icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24">
+												<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" />
+												<path
+													d="M12 7.5v4.8l3.2 2"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												/>
+											</svg>
+										</span>
+										<div class="submitted-row-meta">
+											<span class="submitted-row-label">{{ t("verify.submittedCheckKycDeferred") }}</span>
+											<span class="submitted-row-value">{{ t("verify.submittedCheckKycDeferredDesc") }}</span>
+										</div>
+									</div>
+									<span class="submitted-row-status deferred">
+										{{ t("verify.submittedStatusDeferred") }}
+									</span>
+								</div>
+
 								<div class="submitted-row" *ngIf="session.registration?.documentValidation">
 									<div class="submitted-row-left">
 										<span class="submitted-row-icon doc-icon" aria-hidden="true">

@@ -7,6 +7,7 @@ import QRCode from "qrcode";
 import { Subject, combineLatest, takeUntil } from "rxjs";
 
 import { CountryService } from "app/core/services/country.service";
+import { isUsableAppRegistrationSessionToken } from "app/core/services/app-registration-session.storage";
 import { ImageScan } from "app/modules/auth/project";
 import { SmartLivenessComponent } from "app/modules/auth/smart-enroll/smart-liveness/smart-liveness.component";
 import { VerifyCameraComponent } from "./verify-camera.component";
@@ -95,8 +96,9 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				const rawToken = query.get("token") || undefined;
 				const repParam = query.get("rep");
 				const handoffParam = query.get("handoff");
+				const isRepToken = Boolean(rawToken && !isUsableAppRegistrationSessionToken(rawToken));
 				this.session.isRepresentativeKyc = Boolean(
-					rawToken || repParam === "1" || repParam === "true" || handoffParam === "1" || handoffParam === "true",
+					isRepToken || repParam === "1" || repParam === "true" || this.session.projectFlow?.target === "business",
 				);
 				if (handoffParam === "1" || handoffParam === "true") {
 					this.session.markMobileHandoff(projectId);
@@ -254,8 +256,15 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	}
 
 	onOtp(event: Event, index: number): void {
+		this.session.clearOtpMessages();
 		const input = event.target as HTMLInputElement;
-		const digit = input.value.replace(/\D/g, "").slice(-1);
+		const cleaned = input.value.replace(/\D/g, "");
+		if (cleaned.length > 1) {
+			this.session.draft.otp = cleaned.slice(0, 6);
+			input.value = this.session.draft.otp[index] || "";
+			return;
+		}
+		const digit = cleaned.slice(-1);
 		const chars = this.session.draft.otp.padEnd(6, " ").split("");
 
 		chars[index] = digit || " ";
@@ -267,12 +276,29 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		if (digit && next) next.focus();
 	}
 
+	onOtpKeydown(event: KeyboardEvent, index: number): void {
+		if (event.key !== "Backspace") return;
+		const input = event.target as HTMLInputElement;
+		if (!input.value && index > 0) {
+			const prev = input.previousElementSibling as HTMLInputElement | null;
+			if (prev) {
+				event.preventDefault();
+				const chars = this.session.draft.otp.padEnd(6, " ").split("");
+				chars[index - 1] = " ";
+				this.session.draft.otp = chars.join("").replace(/\s/g, "").slice(0, 6);
+				prev.value = "";
+				prev.focus();
+			}
+		}
+	}
+
 	onOtpPaste(event: ClipboardEvent): void {
 		const text = event.clipboardData?.getData("text")?.replace(/\D/g, "").slice(0, 6) || "";
 
 		if (!text) return;
 
 		event.preventDefault();
+		this.session.clearOtpMessages();
 		this.session.draft.otp = text;
 	}
 

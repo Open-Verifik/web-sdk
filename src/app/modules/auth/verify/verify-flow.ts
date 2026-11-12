@@ -13,6 +13,7 @@ export type VerifyScreen =
 	| "agreements"
 	| "emailCode"
 	| "phoneCode"
+	| "kycPrompt"
 	| "consent"
 	| "decline"
 	| "handoff"
@@ -122,6 +123,14 @@ export const needsPhoneCode = (settings: VerifySettings, validated: boolean): bo
 
 export const cameraStepsAhead = (settings: VerifySettings): boolean => settings.document !== "skip" || settings.liveness !== "skip";
 
+export const canSkipIdentity = (settings?: Pick<VerifySettings, "document" | "liveness"> | null): boolean =>
+	Boolean(
+		settings &&
+			settings.document !== "mandatory" &&
+			settings.liveness !== "mandatory" &&
+			(settings.document === "optional" || settings.liveness === "optional")
+	);
+
 export const documentNeedsBack = (category: string, requiresBackSide?: boolean): boolean => {
 	if (typeof requiresBackSide === "boolean") return requiresBackSide;
 
@@ -145,6 +154,15 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (input.documentFailed) return "retry";
 	if (input.hasDocument && input.documentMismatch) return "ocrReview";
 	if (input.hasDocument && input.needsBack && !input.hasBack) return "flip";
+
+	if (
+		!input.handoff &&
+		!input.hasDocument &&
+		!input.hasBiometric &&
+		canSkipIdentity({ document: input.documentStep, liveness: input.livenessStep })
+	) {
+		return "kycPrompt";
+	}
 
 	const startedCapture =
 		input.currentStep === "instructions" ||
@@ -203,7 +221,7 @@ export const progressSegments = (hasContact: boolean): Array<"contact" | "consen
 };
 
 const CONTACT_SCREENS = new Set<VerifyScreen>(["signup", "name", "email", "phone", "agreements", "emailCode", "phoneCode"]);
-const CONSENT_SCREENS = new Set<VerifyScreen>(["consent", "decline"]);
+const CONSENT_SCREENS = new Set<VerifyScreen>(["kycPrompt", "consent", "decline"]);
 const DOCUMENT_SCREENS = new Set<VerifyScreen>(["handoff", "ready", "front", "reviewFront", "flip", "back", "reviewBack", "ocrReview"]);
 const SELFIE_SCREENS = new Set<VerifyScreen>(["selfieIntro", "selfie", "retry"]);
 
