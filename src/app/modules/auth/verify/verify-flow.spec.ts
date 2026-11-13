@@ -7,6 +7,7 @@ import {
 	contactScreens,
 	documentNeedsBack,
 	enrollmentClientFrom,
+	finalScreen,
 	hasContactBlock,
 	isTerminalStatus,
 	needsEmailCode,
@@ -399,5 +400,59 @@ describe("verify-flow", () => {
 		expect(flow.onboardingSettings.signUpForm?.additionalFields).toEqual(["gender", "dateOfBirth"]);
 		expect(flow.onboardingSettings.signUpForm?.countryCode).toBe("+57");
 		expect(hasContactBlock(settings({ email: false, phone: false, fullName: false, showPrivacy: false, showTerms: false, additionalFields: ["gender"] }))).toBeTrue();
+	});
+
+	describe("HumanAuthn", () => {
+		const humanAuthnFlow = (overrides: Record<string, unknown> = {}) =>
+			new ProjectFlow({
+				version: 3,
+				type: "humanAuthn",
+				target: "personal",
+				onboardingSettings: { verifyStyle: "b", flowOrder: "consent_first" },
+				humanAuthn: { mode: "standard", outputFormat: "qrCode", publicDataKeys: ["fullName", "email"], tolerance: "HARDENED" },
+				storage: { provider: "none" },
+				steps: { document: "skip", humanAuthn: "mandatory" },
+				signUpForm: { fullNameStyle: "together", email: true, emailGateway: "mailgun" },
+				...overrides,
+			} as any);
+
+		it("exposes the HumanID output, public data and storage from the flow", () => {
+			const flow = humanAuthnFlow();
+
+			expect(flow.type).toBe("humanAuthn");
+			expect(flow.humanAuthn?.outputFormat).toBe("qrCode");
+			expect(flow.humanAuthn?.publicDataKeys).toEqual(["fullName", "email"]);
+			expect(flow.storage?.provider).toBe("none");
+		});
+
+		it("always requires the selfie, keeps the saved verify style, and uses v2 even without onboardingSettings", () => {
+			const flow = humanAuthnFlow();
+			const legacyHumanAuthnFlow = humanAuthnFlow({ onboardingSettings: undefined });
+
+			expect(flow.onboardingSettings.steps?.liveness).toBe("mandatory");
+			expect(flow.onboardingSettings.steps?.document).toBe("skip");
+			expect(flow.verifyStyle).toBe("b");
+			expect(flow.enrollmentClient).toBe("v2");
+			expect(legacyHumanAuthnFlow.enrollmentClient).toBe("v2");
+		});
+
+		it("falls back to a string HumanID pinned to IPFS when the flow has no humanAuthn block", () => {
+			const flow = humanAuthnFlow({ humanAuthn: undefined, storage: undefined });
+
+			expect(flow.humanAuthn?.outputFormat).toBe("string");
+			expect(flow.humanAuthn?.publicDataKeys).toEqual(["fullName"]);
+			expect(flow.storage?.provider).toBe("ipfs");
+		});
+
+		it("ends on the HumanID screen instead of the verification summary and omits skipped document from progress", () => {
+			const humanAuthn = { outputFormat: "string" as const, publicDataKeys: [], storage: "ipfs" as const };
+
+			expect(finalScreen(settings({ humanAuthn }))).toBe("humanId");
+			expect(finalScreen(settings())).toBe("submitted");
+			expect(progressSegments(true, false)).toEqual(["contact", "consent", "selfie", "done"]);
+			expect(progressIndex("selfieIntro", true, false)).toBe(2);
+			expect(progressIndex("humanId", true, false)).toBe(3);
+			expect(progressIndex("humanId", true)).toBe(progressSegments(true).length - 1);
+		});
 	});
 });

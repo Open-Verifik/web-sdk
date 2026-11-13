@@ -47,13 +47,13 @@
 				<span class="step-icon" aria-hidden="true"></span>
 				<span>{{ t("verify.selfieStepLiveness") }}</span>
 			</div>
-			<div class="step" [class.active]="phase === 'compare'" [class.done]="phase === 'finishing'">
+			<div *ngIf="!isHumanAuthn" class="step" [class.active]="phase === 'compare'" [class.done]="phase === 'finishing'">
 				<span class="step-icon" aria-hidden="true"></span>
 				<span>{{ t("verify.selfieStepCompare") }}</span>
 			</div>
-			<div class="step" [class.active]="phase === 'finishing'">
+			<div class="step" [class.active]="phase === 'finishing' || (isHumanAuthn && phase === 'compare')">
 				<span class="step-icon" aria-hidden="true"></span>
-				<span>{{ t("verify.selfieStepFinish") }}</span>
+				<span>{{ t(isHumanAuthn ? "verify.humanIdSelfieStepFinish" : "verify.selfieStepFinish") }}</span>
 			</div>
 		</div>
 

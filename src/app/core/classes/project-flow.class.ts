@@ -27,6 +27,16 @@ import {
 import { LegacyProjectFlow } from "../models/legacy-project.model";
 import { PromptTemplate } from "../models/prompt-template.model";
 
+export type HumanAuthnPublicDataKey = "fullName" | "email" | "phone" | "documentNumber";
+
+export interface HumanAuthnSettings {
+	compareMinScore?: number;
+	mode?: "standard" | "active_user";
+	outputFormat?: "string" | "qrCode";
+	publicDataKeys?: HumanAuthnPublicDataKey[];
+	tolerance?: string;
+}
+
 export class ProjectFlow {
 	_id?: string;
 	business?: BusinessSettings;
@@ -39,6 +49,9 @@ export class ProjectFlow {
 	integrations: PersonalIntegrations | BusinessIntegrations;
 	liveness: PersonalLiveness | BusinessLiveness;
 	loginSettings?: LoginSettings;
+	/** HumanAuthn: what the end user receives (HumanID string or QR) and how it is kept. */
+	humanAuthn?: HumanAuthnSettings;
+	storage?: { provider?: "ipfs" | "cloud" | "none" };
 	project: string | any;
 	representatives?: BusinessRepresentatives;
 	representativesPolicy?: any;
@@ -47,7 +60,7 @@ export class ProjectFlow {
 	status: "draft" | "active" | "paused";
 	steps?: PersonalSteps | BusinessSteps;
 	target: "personal" | "business";
-	type: "login" | "onboarding" | "oneTimeLink" | "idScan" | "scanPro" | "scanGPT" | "datAPI" | "liveness" | "smartlink";
+	type: "login" | "onboarding" | "humanAuthn" | "oneTimeLink" | "idScan" | "scanPro" | "scanGPT" | "datAPI" | "liveness" | "smartlink";
 	updatedAt?: string;
 	version: number;
 
@@ -309,6 +322,27 @@ export class ProjectFlow {
 		this.signUpForm = data.signUpForm;
 		this.steps = (data as PersonalProjectFlow | BusinessProjectFlow).steps;
 		this.loginSettings = (data as LoginProjectFlow).loginSettings;
+
+		if (data.type === ("humanAuthn" as typeof data.type)) this._applyHumanAuthn(data as any);
+	}
+
+	/**
+	 * HumanAuthn flows have no liveness block: the selfie is always required and is checked while the
+	 * HumanID is created, so liveness is mandatory and scored with sensible defaults.
+	 */
+	private _applyHumanAuthn(data: { humanAuthn?: HumanAuthnSettings; storage?: { provider?: "ipfs" | "cloud" | "none" } }): void {
+		const humanAuthn = data.humanAuthn || {};
+
+		this.humanAuthn = {
+			compareMinScore: humanAuthn.compareMinScore,
+			mode: humanAuthn.mode === "active_user" ? "active_user" : "standard",
+			outputFormat: humanAuthn.outputFormat === "qrCode" ? "qrCode" : "string",
+			publicDataKeys: Array.isArray(humanAuthn.publicDataKeys) ? humanAuthn.publicDataKeys : ["fullName"],
+			tolerance: humanAuthn.tolerance,
+		};
+		this.storage = { provider: data.storage?.provider || "ipfs" };
+		this.steps = { ...(this.steps as PersonalSteps), liveness: "mandatory" } as PersonalSteps;
+		this.liveness = { ...(this.liveness || {}), attemptLimit: 3, minScore: 0.65 } as PersonalLiveness;
 	}
 
 	private _migrateIntegrations(data: LegacyProjectFlow): PersonalIntegrations | BusinessIntegrations {
@@ -513,6 +547,8 @@ export const enrollmentClientFrom = (data: unknown): "legacy" | "v2" | undefined
 
 	const root = (data as { enrollmentClient?: string })?.enrollmentClient;
 	if (root === "v2") return "v2";
+
+	if ((data as { type?: string })?.type === "humanAuthn") return "v2";
 
 	if (verifyStyleFrom(data)) return "v2";
 

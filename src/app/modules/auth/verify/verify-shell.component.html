@@ -102,14 +102,14 @@
 					</div>
 
 					<div class="body" [ngSwitch]="session.screen">
-						<p class="eyebrow" *ngIf="(styleId === 'c' || styleId === 'd') && session.screen !== 'submitted'">
+						<p class="eyebrow" *ngIf="(styleId === 'c' || styleId === 'd') && session.screen !== 'submitted' && session.screen !== 'humanId'">
 							{{ t("verify.eyebrow") }}
 						</p>
 						<div *ngSwitchCase="'loading'" class="center"><div class="spinner"></div></div>
 
 						<div *ngSwitchCase="'upgrade'" class="center">
 							<h1>{{ t("verify.upgradeTitle") }}</h1>
-							<p>{{ t("verify.upgradeBody") }}</p>
+							<p>{{ t(session.settings?.humanAuthn ? "verify.humanIdUpgradeBody" : "verify.upgradeBody") }}</p>
 						</div>
 
 						<div *ngSwitchCase="'countryBlocked'" class="center">
@@ -702,27 +702,30 @@
 						</div>
 
 						<div *ngSwitchCase="'consent'" class="center">
-							<h1>{{ t("verify.consentTitle") }}</h1>
-							<ul class="rows consent-rows">
-								<li>
+							<h1>{{ t(session.settings?.humanAuthn ? "verify.humanIdConsentTitle" : "verify.consentTitle") }}</h1>
+							<ul class="rows consent-rows" role="list">
+								<li *ngIf="session.settings?.document !== 'skip' || session.settings?.humanAuthn">
 									<svg viewBox="0 0 24 24" aria-hidden="true">
 										<rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
 										<circle cx="12" cy="12.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" />
 										<path d="M8.5 6 9.6 4h4.8l1.1 2" fill="none" stroke="currentColor" stroke-width="1.6" />
 									</svg>
-									<span
+									<span *ngIf="session.settings?.document !== 'skip'; else humanIdSelfieConsentTpl"
 										>{{ t("verify.consentRow1") }}
 										<button type="button" class="link inline" (click)="session.openSheet('acceptedIds')">
 											{{ t("verify.photoId") }}</button
 										>{{ t("verify.consentRow1End") }}</span
 									>
+									<ng-template #humanIdSelfieConsentTpl>
+										<span>{{ t("verify.humanIdConsentRow1") }}</span>
+									</ng-template>
 								</li>
 								<li>
 									<svg viewBox="0 0 24 24" aria-hidden="true">
 										<rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
 										<path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
 									</svg>
-									<span>{{ t("verify.consentRow2", { project: session.project?.name }) }}</span>
+									<span>{{ t(session.settings?.humanAuthn ? "verify.humanIdConsentRow2" : "verify.consentRow2", { project: session.project?.name }) }}</span>
 								</li>
 								<li>
 									<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -742,7 +745,7 @@
 											stroke-linecap="round"
 										/>
 									</svg>
-									<span>{{ t("verify.consentRow3") }}</span>
+									<span>{{ t(session.settings?.humanAuthn ? "verify.humanIdConsentRow3" : "verify.consentRow3") }}</span>
 								</li>
 							</ul>
 							<p class="meta" *ngIf="session.project?.privacyUrl">
@@ -847,6 +850,7 @@
 
 									<!-- Step 2: Identity document capture -->
 									<div
+										*ngIf="session.settings?.document !== 'skip'"
 										class="handoff-step-row"
 										[class.is-active]="session.handoffPhase === 'document'"
 										[class.is-done]="session.handoffPhase === 'liveness' || session.handoffPhase === 'completed'"
@@ -1459,8 +1463,8 @@
 									/>
 								</svg>
 							</div>
-							<h1>{{ t("verify.selfieTitle") }}</h1>
-							<p>{{ t("verify.selfieBody") }}</p>
+							<h1>{{ t(session.settings?.humanAuthn ? "verify.humanIdSelfieTitle" : "verify.selfieTitle") }}</h1>
+							<p>{{ t(session.settings?.humanAuthn ? "verify.humanIdSelfieBody" : "verify.selfieBody") }}</p>
 							<button type="button" class="primary" [disabled]="session.busy" (click)="session.continueSelfie()">{{ t("verify.continue") }}</button>
 							<button
 								type="button"
@@ -1474,9 +1478,10 @@
 						</div>
 
 						<div *ngSwitchCase="'selfie'" class="capture">
-							<h1>{{ t("verify.selfieTitle") }}</h1>
+							<h1>{{ t(session.settings?.humanAuthn ? "verify.humanIdSelfieTitle" : "verify.selfieTitle") }}</h1>
 							<verify-selfie
 								[phase]="session.selfiePhase"
+								[isHumanAuthn]="!!session.settings?.humanAuthn"
 								[canSkip]="session.settings?.liveness === 'optional'"
 								(captured)="session.onSelfie($event)"
 								(permissionDenied)="session.openSheet('camera')"
@@ -1489,6 +1494,30 @@
 							<h1>{{ t(session.retryTitleKey || "verify.retryTitle") }}</h1>
 							<p>{{ session.resolveRetryText(t) }}</p>
 							<button type="button" class="primary" (click)="session.tryAgain()">{{ t("verify.tryAgain") }}</button>
+						</div>
+
+						<div *ngSwitchCase="'humanId'" class="center human-id-screen">
+							<verify-human-id
+								*ngIf="session.humanId as humanId; else humanIdFallback"
+								[result]="humanId"
+								[publicDataKeys]="session.settings?.humanAuthn?.publicDataKeys || []"
+								[projectName]="session.project?.name || ''"
+								[showContinue]="!!session.projectFlow?.integrations?.redirectUrl || session.isMobileHandoff"
+								(continued)="session.redirectNow()"
+							/>
+							<!-- A resumed session cannot show the HumanID again: it was delivered once and is never stored. -->
+							<ng-template #humanIdFallback>
+								<h1>{{ t("verify.humanIdAlreadyIssuedTitle") }}</h1>
+								<p>{{ t("verify.humanIdAlreadyIssuedBody") }}</p>
+								<button
+									type="button"
+									class="primary"
+									*ngIf="session.projectFlow?.integrations?.redirectUrl"
+									(click)="session.redirectNow()"
+								>
+									{{ t("verify.submittedContinueBtn", { project: projectName }) }}
+								</button>
+							</ng-template>
 						</div>
 
 						<div *ngSwitchCase="'submitted'" class="submitted-screen center">

@@ -32,7 +32,9 @@ import {
 	ContactScreen,
 	documentNeedsBack,
 	enrollmentClientFrom,
+	finalScreen,
 	hasContactBlock,
+	HumanIdResult,
 	needsEmailCode,
 	needsPhoneCode,
 	resolveHandoffPhase,
@@ -131,6 +133,8 @@ export class VerifySessionService implements OnDestroy {
 	redirectSeconds = 7;
 	registration: any = null;
 	retryTarget: "front" | "selfie" = "front";
+	/** HumanAuthn: result of the HumanID creation. Kept in memory only so it is never persisted in the browser. */
+	humanId: HumanIdResult | null = null;
 	screen: VerifyScreen = "loading";
 	selfieImage: string | null = null;
 	selfiePhase: "idle" | "liveness" | "compare" | "finishing" = "idle";
@@ -222,7 +226,13 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	get showHeader(): boolean {
-		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "countryBlocked" && this.screen !== "submitted";
+		return (
+			this.screen !== "loading" &&
+			this.screen !== "upgrade" &&
+			this.screen !== "countryBlocked" &&
+			this.screen !== "submitted" &&
+			this.screen !== "humanId"
+		);
 	}
 
 	get sessionUrl(): string {
@@ -551,7 +561,7 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
-		if (this.screen === "submitted") return;
+		if (this.screen === "submitted" || this.screen === "humanId") return;
 		if (this.screen === "handoff") this._stopHandoffPolling();
 		if (this.screen === "emailCode" || this.screen === "phoneCode") {
 			this._stopResendCountdown();
@@ -1376,7 +1386,7 @@ export class VerifySessionService implements OnDestroy {
 			emailNeeded: needsEmailCode(settings, this.registration?.emailValidation?.status === "validated"),
 			handoff: this.isMobileHandoff,
 			hasBack: Boolean(document?.backUrl || document?.hasBackImage),
-			hasBiometric: Boolean(this.registration?.biometricValidation),
+			hasBiometric: Boolean(this.registration?.biometricValidation || this.registration?.zelfKey?.issued),
 			hasDocument: Boolean(document),
 			livenessStep: settings.liveness,
 			needsBack: documentNeedsBack(document?.documentCategory || this.category, document?.requiresBackSide),
@@ -1407,6 +1417,7 @@ export class VerifySessionService implements OnDestroy {
 			this.registration?.currentStep === "instructions" &&
 			!document &&
 			!this.registration?.biometricValidation &&
+			!this.registration?.zelfKey?.issued &&
 			(screen === "ready" || screen === "selfieIntro")
 		) {
 			this._enterHandoff();
@@ -1428,7 +1439,7 @@ export class VerifySessionService implements OnDestroy {
 
 		if (screen === "emailCode") this._sendEmailCode();
 		if (screen === "phoneCode") this._sendPhoneCode();
-		if (screen === "submitted") {
+		if (screen === "submitted" || screen === "humanId") {
 			this._showSubmitted(this.registration?.token || this._token);
 			return;
 		}
@@ -1827,7 +1838,7 @@ export class VerifySessionService implements OnDestroy {
 
 				const nextPhase = resolveHandoffPhase({
 					currentStep: reg.currentStep === "instructions" ? undefined : reg.currentStep,
-					hasBiometric: Boolean(reg.biometricValidation),
+					hasBiometric: Boolean(reg.biometricValidation || reg.zelfKey?.issued),
 					hasDocument: Boolean(reg.documentValidation),
 					status: reg.status,
 				});
@@ -2283,6 +2294,11 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
+		if (this.settings?.humanAuthn) {
+			this._createHumanId(scan);
+			return;
+		}
+
 		this.busy = true;
 		this.selfieImage = scan.rawImage || (scan.face ? `data:image/jpeg;base64,${scan.face}` : scan.base64Image ? `data:image/jpeg;base64,${scan.base64Image}` : null);
 		this.selfiePhase = "liveness";
@@ -2317,6 +2333,41 @@ export class VerifySessionService implements OnDestroy {
 				},
 				error: (err) => this._failAttempt("liveness", err),
 			});
+	}
+
+	/**
+	 * HumanAuthn: the selfie goes straight to the HumanID encryption (which also checks liveness).
+	 * Nothing is stored as a biometric record, and the result is only kept in memory for the final screen.
+	 */
+	private _createHumanId(scan: ImageScan): void {
+		const faceBase64 = scan.face || scan.base64Image || "";
+
+		this.busy = true;
+		this.selfiePhase = "liveness";
+		this._touch();
+
+		this._kyc.createHumanId({ faceBase64, os: this._demo.detectOS() }).subscribe({
+			next: (response) => {
+				const data = response?.data || {};
+				const outputFormat = this.settings?.humanAuthn?.outputFormat || "string";
+				const value = outputFormat === "qrCode" ? data.humanIDQR || data.zelfQR || "" : data.humanID || "";
+
+				if (!value) {
+					this._failAttempt("liveness", { error: { message: "humanId_missing" } });
+					return;
+				}
+
+				this.humanId = {
+					outputFormat,
+					storage: this.settings?.humanAuthn?.storage || "ipfs",
+					value,
+					ipfsReference: data.ipfs?.IpfsHash || data.ipfs?.cid || data.ipfs?.url || "",
+				};
+				this.selfieImage = null;
+				this._finish("COMPLETED", "end");
+			},
+			error: (err) => this._failAttempt("liveness", err),
+		});
 	}
 
 	private _compareAndFinish(): void {
@@ -2356,6 +2407,11 @@ export class VerifySessionService implements OnDestroy {
 		const settings = this.settings;
 
 		const parsed = parseApiError(error);
+
+		if (parsed.reason === "human_id_already_issued") {
+			this._showSubmitted(this._token);
+			return;
+		}
 
 		// Unrecoverable identity conflicts or fatal account/billing errors
 		if (
@@ -2457,10 +2513,17 @@ export class VerifySessionService implements OnDestroy {
 		this.selfieDone$.next();
 		this._setToken(token);
 		this.history.push(this.screen);
-		this.screen = "submitted";
+		this.screen = finalScreen(this.settings);
 		if (this._redirectTimer) {
 			clearInterval(this._redirectTimer);
 			this._redirectTimer = null;
+		}
+
+		// The HumanID is shown once: wait for the user to copy it instead of redirecting away.
+		if (this.screen === "humanId") {
+			this.redirectSeconds = 0;
+			this._touch();
+			return;
 		}
 
 		if (this.isMobileHandoff) {
@@ -2704,8 +2767,17 @@ const settingsFromFlow = (flow: ProjectFlow): VerifySettings => {
 	const liveness = settings.liveness || {};
 	const steps = settings.steps || ({} as VerifySettings);
 
+	const humanAuthn = flow.type === "humanAuthn" ? flow.humanAuthn : undefined;
+
 	return {
 		additionalFields: Array.isArray(signUp.additionalFields) ? signUp.additionalFields : [],
+		humanAuthn: humanAuthn
+			? {
+					outputFormat: humanAuthn.outputFormat === "qrCode" ? "qrCode" : "string",
+					publicDataKeys: humanAuthn.publicDataKeys || [],
+					storage: flow.storage?.provider || "ipfs",
+				}
+			: undefined,
 		colombianBarcodeValidation: Boolean(document.colombianBarcodeValidation),
 		compareMinScore: document.compareMinScore || liveness.compareMinScore || 0.85,
 		countryCode: signUp.countryCode,

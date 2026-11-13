@@ -325,6 +325,11 @@ export class KYCService {
 		return this._httpWrapper.sendRequest("put", `${this.baseUrl}/v2/document-validations/${id}`, data);
 	}
 
+	/** HumanAuthn: encrypts the selfie into a HumanID for this enrollment session. */
+	createHumanId(data: { faceBase64: string; os?: string }): Observable<any> {
+		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations/human-id`, data);
+	}
+
 	createBiometricValidation(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/biometric-validations/app-registration`, data);
 	}

@@ -1,0 +1,65 @@
+<ng-container *transloco="let t">
+	<section class="human-id" aria-labelledby="human-id-title">
+		<div class="human-id-hero" aria-hidden="true">
+			<svg viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M9 3H5a2 2 0 0 0-2 2v4m18 0V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4m10 0h4a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+				<path d="m8.5 12.5 2.4 2.4 4.6-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</div>
+
+		<div class="human-id-headings">
+			<h1 #titleEl id="human-id-title" tabindex="-1">{{ t("verify.humanIdTitle") }}</h1>
+			<p>{{ t("verify.humanIdSubtitle") }}</p>
+		</div>
+
+		<div class="human-id-card">
+			<span class="human-id-label">{{ t("verify.humanIdKeyLabel") }}</span>
+
+			<img *ngIf="isQr; else keyTpl" class="human-id-qr" [src]="result.value" [alt]="t('verify.humanIdQrAlt')" />
+			<ng-template #keyTpl>
+				<code class="human-id-key">{{ result.value }}</code>
+			</ng-template>
+
+			<ul class="human-id-chips" role="list" *ngIf="publicDataKeys.length" [attr.aria-label]="t('verify.humanIdPublicData')">
+				<li *ngFor="let key of publicDataKeys">{{ t("verify.humanIdField_" + key) }}</li>
+			</ul>
+
+			<p class="human-id-storage">
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M12 3 4 6v5c0 4.6 3.2 8.4 8 10 4.8-1.6 8-5.4 8-10V6l-8-3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+				</svg>
+				<span>{{ t(storageKey) }}</span>
+			</p>
+		</div>
+
+		<p class="human-id-warning">{{ t("verify.humanIdSaveWarning") }}</p>
+
+		<div class="human-id-actions">
+			<span class="human-id-copy">
+				<button
+					type="button"
+					class="primary human-id-copy-button"
+					[attr.data-copied]="copyState === 'copied' ? '' : null"
+					[attr.data-failed]="copyState === 'failed' ? '' : null"
+					(click)="copy()"
+				>
+					<svg *ngIf="copyState !== 'copied'" class="human-id-copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+						<rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.9" />
+						<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+					</svg>
+					<svg *ngIf="copyState === 'copied'" class="human-id-copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="m5 12.5 4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+					<span>{{ t(isQr ? "verify.humanIdCopyQr" : "verify.humanIdCopy") }}</span>
+				</button>
+				<span class="human-id-tip" role="status">{{ statusMessage }}</span>
+			</span>
+
+			<a class="secondary human-id-download" [href]="downloadHref" [attr.download]="downloadName">{{ t("verify.humanIdDownload") }}</a>
+
+			<button type="button" class="secondary human-id-continue" *ngIf="showContinue" (click)="continued.emit()">
+				{{ t("verify.submittedContinueBtn", { project: projectName }) }}
+			</button>
+		</div>
+	</section>
+</ng-container>

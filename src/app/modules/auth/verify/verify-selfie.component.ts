@@ -18,6 +18,7 @@ const STEADY_FRAMES_REQUIRED = 3;
 })
 export class VerifySelfieComponent implements OnInit, OnDestroy {
 	@Input() canSkip = false;
+	@Input() isHumanAuthn = false;
 	@Input() phase: "idle" | "liveness" | "compare" | "finishing" = "idle";
 
 	@Output() captured = new EventEmitter<ImageScan>();
@@ -55,8 +56,8 @@ export class VerifySelfieComponent implements OnInit, OnDestroy {
 	}
 
 	get phaseKey(): string {
-		if (this.phase === "compare") return "verify.selfieStepCompare";
-		if (this.phase === "finishing") return "verify.selfieStepFinish";
+		if (this.phase === "compare") return this.isHumanAuthn ? "verify.humanIdSelfieStepFinish" : "verify.selfieStepCompare";
+		if (this.phase === "finishing") return this.isHumanAuthn ? "verify.humanIdSelfieStepFinish" : "verify.selfieStepFinish";
 
 		return "verify.selfieStepLiveness";
 	}

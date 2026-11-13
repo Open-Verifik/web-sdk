@@ -28,12 +28,24 @@ export type VerifyScreen =
 	| "selfie"
 	| "retry"
 	| "submitted"
+	| "humanId"
 	| "error";
 
 export type ContactScreen = "signup";
 
+export type HumanIdOutputFormat = "string" | "qrCode";
+export type HumanIdStorage = "ipfs" | "cloud" | "none";
+
+/** HumanAuthn differentiators: the journey ends on a HumanID instead of a verification summary. */
+export interface HumanAuthnSettings {
+	outputFormat: HumanIdOutputFormat;
+	publicDataKeys: string[];
+	storage: HumanIdStorage;
+}
+
 export interface VerifySettings {
 	additionalFields?: string[];
+	humanAuthn?: HumanAuthnSettings;
 	colombianBarcodeValidation?: boolean;
 	countryCode?: string;
 	email: boolean;
@@ -210,12 +222,17 @@ export const completionStatus = (input: CompletionInput): "COMPLETED" | "FAILED"
 	return "COMPLETED";
 };
 
-export const progressSegments = (hasContact: boolean): Array<"contact" | "consent" | "document" | "selfie" | "done"> => {
+export const progressSegments = (
+	hasContact: boolean,
+	hasDocument = true,
+): Array<"contact" | "consent" | "document" | "selfie" | "done"> => {
 	const segments: Array<"contact" | "consent" | "document" | "selfie" | "done"> = [];
 
 	if (hasContact) segments.push("contact");
 
-	segments.push("consent", "document", "selfie", "done");
+	segments.push("consent");
+	if (hasDocument) segments.push("document");
+	segments.push("selfie", "done");
 
 	return segments;
 };
@@ -225,21 +242,38 @@ const CONSENT_SCREENS = new Set<VerifyScreen>(["kycPrompt", "consent", "decline"
 const DOCUMENT_SCREENS = new Set<VerifyScreen>(["handoff", "ready", "front", "reviewFront", "flip", "back", "reviewBack", "ocrReview"]);
 const SELFIE_SCREENS = new Set<VerifyScreen>(["selfieIntro", "selfie", "retry"]);
 
-export const progressIndex = (screen: VerifyScreen, hasContact: boolean): number => {
-	const segments = progressSegments(hasContact);
+export const progressIndex = (screen: VerifyScreen, hasContact: boolean, hasDocument = true): number => {
+	const segments = progressSegments(hasContact, hasDocument);
 
-	if (screen === "submitted") return segments.length - 1;
+	if (screen === "submitted" || screen === "humanId") return segments.length - 1;
 	if (CONTACT_SCREENS.has(screen)) return Math.max(0, segments.indexOf("contact"));
 	if (CONSENT_SCREENS.has(screen)) return segments.indexOf("consent");
-	if (DOCUMENT_SCREENS.has(screen)) return segments.indexOf("document");
+	if (DOCUMENT_SCREENS.has(screen)) {
+		const docIdx = segments.indexOf("document");
+		return docIdx >= 0 ? docIdx : Math.max(0, segments.indexOf("selfie"));
+	}
 	if (SELFIE_SCREENS.has(screen)) return segments.indexOf("selfie");
 
 	return 0;
 };
 
+/** What the enrollee receives at the end of a HumanAuthn journey (shown once, never stored by Verifik). */
+export interface HumanIdResult {
+	/** Encrypted HumanID string, or the QR image (data URL) when the project outputs a QR. */
+	value: string;
+	outputFormat: HumanIdOutputFormat;
+	storage: HumanIdStorage;
+	/** IPFS CID or URL when the project pins the HumanID. */
+	ipfsReference: string;
+}
+
+/** Screen that closes the journey: the HumanID for HumanAuthn projects, the summary otherwise. */
+export const finalScreen = (settings?: Pick<VerifySettings, "humanAuthn"> | null): "submitted" | "humanId" =>
+	settings?.humanAuthn ? "humanId" : "submitted";
+
 export const nextAfterCapture = (settings: VerifySettings, skippedDocument: boolean): VerifyScreen => {
 	if (settings.liveness !== "skip" && !skippedDocument) return "selfieIntro";
 	if (settings.liveness !== "skip") return "selfieIntro";
 
-	return "submitted";
+	return finalScreen(settings);
 };

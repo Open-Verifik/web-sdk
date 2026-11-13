@@ -59,7 +59,7 @@ export class Project {
     getOnboardingProjectFlow(): ProjectFlow | undefined {
         if (!this.projectFlows || !this.projectFlows.length) return undefined;
 
-        const onboardingFlow = this.projectFlows.find((flow) => flow.type === "onboarding");
+        const onboardingFlow = this.projectFlows.find((flow) => flow.type === "onboarding" || flow.type === "humanAuthn");
 
         if (onboardingFlow) return onboardingFlow;
 

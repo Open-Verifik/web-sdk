@@ -11,6 +11,7 @@ import { isUsableAppRegistrationSessionToken } from "app/core/services/app-regis
 import { ImageScan } from "app/modules/auth/project";
 import { SmartLivenessComponent } from "app/modules/auth/smart-enroll/smart-liveness/smart-liveness.component";
 import { VerifyCameraComponent } from "./verify-camera.component";
+import { VerifyHumanIdComponent } from "./verify-human-id.component";
 import { VerifySelfieComponent } from "./verify-selfie.component";
 import { VerifySelectComponent, VerifySelectOption } from "./verify-select.component";
 import { VerifySessionService } from "./verify-session.service";
@@ -35,6 +36,7 @@ import {
 		TranslocoModule,
 		VerifyCameraComponent,
 		VerifySelfieComponent,
+		VerifyHumanIdComponent,
 		VerifySelectComponent,
 		SmartLivenessComponent,
 	],
@@ -132,20 +134,20 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 			repSegments.push("done");
 			return repSegments;
 		}
-		return progressSegments(hasContactBlock(this.session.settings));
+		return progressSegments(hasContactBlock(this.session.settings), this.session.settings.document !== "skip");
 	}
 
 	get progressAt(): number {
 		if (!this.session.settings) return 0;
 		if (this.session.isRepresentativeKyc) {
 			const segs = this.segments;
-			if (this.session.screen === "submitted") return segs.length - 1;
+			if (this.session.screen === "submitted" || this.session.screen === "humanId") return segs.length - 1;
 			if (this.session.screen === "selfieIntro" || this.session.screen === "selfie" || this.session.screen === "retry") {
 				return Math.max(0, segs.indexOf("selfie"));
 			}
 			return 0;
 		}
-		return progressIndex(this.session.screen, hasContactBlock(this.session.settings));
+		return progressIndex(this.session.screen, hasContactBlock(this.session.settings), this.session.settings.document !== "skip");
 	}
 
 	get languageLabel(): string {
