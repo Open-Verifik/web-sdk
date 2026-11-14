@@ -5,6 +5,7 @@ import { UserService } from "app/core/user/user.service";
 import { environment } from "environments/environment";
 import { catchError, Observable, of, switchMap, throwError } from "rxjs";
 import { ProjectFlow } from "../classes/project-flow.class";
+import { redirectForCurrentHost } from "./panel-url";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
@@ -58,7 +59,7 @@ export class AuthService {
 			return;
 		}
 
-		const integrationsRedirect = (projectFlow.integrations?.redirectUrl ?? "").trim();
+		const integrationsRedirect = redirectForCurrentHost((projectFlow.integrations?.redirectUrl ?? "").trim());
 		const smartAgentBridge = this._resolveSmartAgentBridgeUrl();
 
 		if (projectId !== verifikProject) {
@@ -226,10 +227,11 @@ export class AuthService {
 	private _resolveSmartAgentBridgeUrl(): string {
 		const hostname = window.location.hostname;
 
-		if (
-			hostname.includes("staging-access.verifik.co") ||
-			hostname.includes("sandbox-auth.verifik.co")
-		) {
+		if (hostname.includes("sandbox-auth.verifik.co")) {
+			return "https://sandbox.verifik.co/bridge";
+		}
+
+		if (hostname.includes("staging-access.verifik.co")) {
 			return "https://staging.verifik.co/bridge";
 		}
 
@@ -256,7 +258,7 @@ export class AuthService {
 		try {
 			const url = new URL(integrationsRedirect);
 			const path = url.pathname.replace(/\/+$/, "") || "/";
-			const isVerifikPanelHost = /^(staging\.verifik\.co|testing\.verifik\.co|app\.verifik\.co)$/i.test(url.hostname);
+			const isVerifikPanelHost = /^(staging\.verifik\.co|testing\.verifik\.co|app\.verifik\.co|sandbox\.verifik\.co)$/i.test(url.hostname);
 
 			return isVerifikPanelHost && path === "/sign-in";
 		} catch {

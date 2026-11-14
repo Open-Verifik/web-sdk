@@ -10,6 +10,7 @@ import { FlowOrder, ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { AuthService } from "app/core/auth/auth.service";
+import { redirectForCurrentHost } from "app/core/auth/panel-url";
 import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { CountryOption, CountryService } from "app/core/services/country.service";
 import {
@@ -832,7 +833,7 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
-		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
+		const redirectUrl = redirectForCurrentHost(this.projectFlow?.integrations?.redirectUrl || "");
 
 		if (redirectUrl) window.location.href = redirectUrl;
 	}

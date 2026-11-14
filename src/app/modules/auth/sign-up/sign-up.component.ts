@@ -12,6 +12,7 @@ import { combineLatest, map, Subject, takeUntil, timeout } from "rxjs";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { CountryService } from "app/core/services/country.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { redirectForCurrentHost } from "app/core/auth/panel-url";
 import { environment } from "environments/environment";
 import { ProjectFlow } from "../../../core/classes/project-flow.class";
 import { Project } from "../../../core/classes/project.class";
@@ -61,7 +62,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	private _projectLoadFinished = false;
 
 	appRegistration: AppRegistration | null = null;
-	appUrl: string = environment.appUrl;
+	appUrl: string = redirectForCurrentHost(environment.appUrl);
 	countryCheckPending = false;
 	countryNotAllowed = false;
 	detectedCountry = "";
@@ -513,7 +514,7 @@ export class AuthSignUpComponent implements OnInit, OnDestroy {
 	}
 
 	countryNotAllowedAccept(): void {
-		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
+		const redirectUrl = redirectForCurrentHost(this.projectFlow?.integrations?.redirectUrl || "");
 
 		if (redirectUrl) {
 			window.location.href = redirectUrl;

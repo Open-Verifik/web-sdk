@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TranslocoModule } from "@ngneat/transloco";
 
+import { redirectForCurrentHost } from "app/core/auth/panel-url";
 import { VerifyBusinessSessionService } from "../verify-business-session.service";
 import { CorporateDocumentCategory } from "../verify-business.types";
 
@@ -49,7 +50,9 @@ export class BusinessReviewSubmitComponent {
 	}
 
 	get redirectUrl(): string | undefined {
-		return this.session.projectFlow?.integrations?.redirectUrl;
+		const url = this.session.projectFlow?.integrations?.redirectUrl;
+
+		return url ? redirectForCurrentHost(url) : url;
 	}
 
 	redirectNow(): void {

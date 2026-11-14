@@ -9,6 +9,7 @@ import { fuseAnimations } from "@fuse/animations";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 
 import { AuthService } from "app/core/auth/auth.service";
+import { redirectForCurrentHost } from "app/core/auth/panel-url";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
@@ -147,7 +148,7 @@ export class SmartInstructionsComponent implements OnInit {
 	get redirectUrl(): string {
 		const baseUrl = this.projectFlow.integrations?.redirectUrl || window.location.origin;
 
-		return baseUrl;
+		return redirectForCurrentHost(baseUrl);
 	}
 
 	get displayRedirectUrl(): string {

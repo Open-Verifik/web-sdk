@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
 import { Observable, Subject, catchError, map, of, takeUntil, timeout } from "rxjs";
 
+import { redirectForCurrentHost } from "app/core/auth/panel-url";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { PasswordlessService } from "app/modules/auth/passwordless.service";
@@ -656,7 +657,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			this.redirectCountdown--;
 			if (this.redirectCountdown <= 0) {
 				this._stopRedirectTimer();
-				window.location.href = redirectUrl;
+				window.location.href = redirectForCurrentHost(redirectUrl);
 			}
 			this.changed.next();
 		}, 1000);
