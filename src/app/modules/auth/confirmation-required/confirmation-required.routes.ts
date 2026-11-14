@@ -5,7 +5,10 @@ import { AuthConfirmationRequiredComponent } from "app/modules/auth/confirmation
 import { environment } from "environments/environment";
 
 const defaultPath =
-    window.location.hostname.includes("localhost") || window.location.hostname.includes("staging-access.verifik.co")
+    window.location.hostname.includes("localhost") ||
+    window.location.hostname.includes("staging-access.verifik.co") ||
+    window.location.hostname.includes("testing-access.verifik.co") ||
+    window.location.hostname.includes("sandbox-auth.verifik.co")
         ? `/sign-in/${environment.sandboxProject}`
         : `/sign-in/${environment.verifikProject}`;
 
