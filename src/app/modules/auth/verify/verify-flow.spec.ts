@@ -509,4 +509,40 @@ describe("verify-flow", () => {
 			expect(progressIndex("humanId", true)).toBe(progressSegments(true).length - 1);
 		});
 	});
+
+	it("skips kycPrompt and routes straight to ready/consent when requireKyc is true on optional flows", () => {
+		expect(
+			resumeScreen({
+				currentStep: "document",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+				requireKyc: true,
+				status: "ONGOING",
+			})
+		).toBe("ready");
+
+		expect(
+			resumeScreen({
+				currentStep: "end",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+				requireKyc: true,
+				status: "ONGOING",
+			})
+		).toBe("consent");
+	});
 });

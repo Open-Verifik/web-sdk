@@ -83,6 +83,7 @@ export interface ResumeInput {
 	livenessStep: StepFlag;
 	needsBack: boolean;
 	phoneNeeded: boolean;
+	requireKyc?: boolean;
 	status?: string;
 }
 
@@ -184,6 +185,7 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (input.hasDocument && input.needsBack && !input.hasBack) return "flip";
 
 	if (
+		!input.requireKyc &&
 		!input.handoff &&
 		!input.hasDocument &&
 		!input.hasBiometric &&
