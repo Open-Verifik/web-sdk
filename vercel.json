@@ -9,11 +9,6 @@
         },
         {
             "source": "/v2/:path*",
-            "has": [{ "type": "host", "value": "testing-access.verifik.co" }],
-            "destination": "https://staging-api.verifik.co/v2/:path*"
-        },
-        {
-            "source": "/v2/:path*",
             "has": [{ "type": "host", "value": "sandbox-auth.verifik.co" }],
             "destination": "https://staging-api.verifik.co/v2/:path*"
         },

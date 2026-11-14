@@ -4,13 +4,12 @@ import { NoAuthGuard } from "app/core/auth/guards/noAuth.guard";
 import { LayoutComponent } from "app/layout/layout.component";
 import { environment } from "environments/environment";
 
-// if its https://testing-access.verifik.co it should use sandboxProject
-// if its production it should use verifikProject
-// if its localhost it should use sandboxProject
+// sandbox-auth and staging-access use sandboxProject
+// production uses verifikProject
+// localhost uses sandboxProject
 const defaultPath =
     window.location.hostname.includes("localhost") ||
     window.location.hostname.includes("staging-access.verifik.co") ||
-    window.location.hostname.includes("testing-access.verifik.co") ||
     window.location.hostname.includes("sandbox-auth.verifik.co")
         ? `/sign-in/${environment.sandboxProject}`
         : `/sign-in/${environment.verifikProject}`;
