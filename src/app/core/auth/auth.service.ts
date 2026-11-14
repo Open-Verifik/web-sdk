@@ -42,7 +42,8 @@ export class AuthService {
 		const verifikProject =
 			window.location.hostname.includes("localhost") ||
 			window.location.hostname.includes("access.app") ||
-			window.location.hostname.includes("staging-access.verifik.co")
+			window.location.hostname.includes("staging-access.verifik.co") ||
+			window.location.hostname.includes("testing-access.verifik.co")
 				? environment.sandboxProject
 				: environment.verifikProject;
 
