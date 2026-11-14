@@ -98,6 +98,8 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				const rawToken = query.get("token") || undefined;
 				const repParam = query.get("rep");
 				const handoffParam = query.get("handoff");
+				const requireKycParam = query.get("requireKyc");
+				const requireKyc = requireKycParam === "1" || requireKycParam === "true";
 				const isRepToken = Boolean(rawToken && !isUsableAppRegistrationSessionToken(rawToken));
 				this.session.isRepresentativeKyc = Boolean(
 					isRepToken || repParam === "1" || repParam === "true" || this.session.projectFlow?.target === "business",
@@ -106,7 +108,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 					this.session.markMobileHandoff(projectId);
 				}
 				this._applyStyle();
-				this.session.open(projectId, rawToken);
+				this.session.open(projectId, rawToken, { requireKyc });
 			});
 	}
 
