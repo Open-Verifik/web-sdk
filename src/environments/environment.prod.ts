@@ -7,6 +7,8 @@ const sandboxKycUrl = (): string => {
 
     if (hostname.includes("testing-access.verifik.co")) return "https://testing-access.verifik.co";
 
+    if (hostname.includes("sandbox-auth.verifik.co")) return "https://sandbox-auth.verifik.co";
+
     return "https://access.verifik.co";
 };
 

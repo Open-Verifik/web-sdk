@@ -25,7 +25,7 @@ export class AuthService {
 
 		if (origin.includes("staging-access.verifik.co")) {
 			return `${environment.stagingUrl}`;
-		} else if (origin.includes("testing-access.verifik.co")) {
+		} else if (origin.includes("testing-access.verifik.co") || origin.includes("sandbox-auth.verifik.co")) {
 			return `${environment.sandboxUrl}`;
 		} else {
 			return `${environment.appUrl}`;
@@ -43,7 +43,8 @@ export class AuthService {
 			window.location.hostname.includes("localhost") ||
 			window.location.hostname.includes("access.app") ||
 			window.location.hostname.includes("staging-access.verifik.co") ||
-			window.location.hostname.includes("testing-access.verifik.co")
+			window.location.hostname.includes("testing-access.verifik.co") ||
+			window.location.hostname.includes("sandbox-auth.verifik.co")
 				? environment.sandboxProject
 				: environment.verifikProject;
 
@@ -226,7 +227,11 @@ export class AuthService {
 	private _resolveSmartAgentBridgeUrl(): string {
 		const hostname = window.location.hostname;
 
-		if (hostname.includes("staging-access.verifik.co") || hostname.includes("testing-access.verifik.co")) {
+		if (
+			hostname.includes("staging-access.verifik.co") ||
+			hostname.includes("testing-access.verifik.co") ||
+			hostname.includes("sandbox-auth.verifik.co")
+		) {
 			return "https://staging.verifik.co/bridge";
 		}
 
