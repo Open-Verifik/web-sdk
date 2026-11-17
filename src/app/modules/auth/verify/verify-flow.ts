@@ -110,6 +110,34 @@ export interface CompletionInput {
 const TERMINAL = new Set(["COMPLETED", "FAILED", "COMPLETED_WITHOUT_KYC", "NEEDS_MANUAL_VERIFICATION", "EXPIRED"]);
 const IN_PROGRESS_STEPS = new Set(["signUpForm", "instructions", "document", "liveness"]);
 
+export const DEFAULT_ARCFACE_COMPARE_MIN_SCORE = 0.7;
+
+/**
+ * Calibrate legacy OpenCV thresholds (> 0.75..0.95) into native ArcFace cosine thresholds (0.65..0.75).
+ * Matches `verifik-backend/Repositories/OpenCV/helpers/compare-threshold.helper.js`.
+ */
+export const calibrateArcFaceCompareThreshold = (
+	value: unknown,
+	fallback = DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+): number => {
+	if (value === undefined || value === null || value === "") return fallback;
+	const num = Number(value);
+	if (!Number.isFinite(num) || num <= 0) return fallback;
+	const numeric = num > 1 && num <= 100 ? num / 100 : num;
+	if (numeric <= 0.75) {
+		return Math.max(0.6, Math.min(0.75, numeric));
+	}
+	if (numeric <= 0.85) {
+		const mapped = 0.65 + ((Math.max(0.8, numeric) - 0.8) / 0.05) * 0.05;
+		return Math.max(0.65, Math.min(0.7, Number(mapped.toFixed(4))));
+	}
+	if (numeric <= 0.95) {
+		const mapped = 0.7 + ((numeric - 0.85) / 0.1) * 0.05;
+		return Math.max(0.7, Math.min(0.75, Number(mapped.toFixed(4))));
+	}
+	return Math.min(0.95, numeric);
+};
+
 export const enrollmentClientFrom = (value: unknown): EnrollmentClient => (value === "v2" ? "v2" : "legacy");
 
 /** V1 and the setup preview collect name, email, phone and terms on a single sign-up screen, so v2 does the same. */
