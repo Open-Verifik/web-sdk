@@ -153,6 +153,7 @@ export class VerifySessionService implements OnDestroy {
 	previewStyle: VerifyStyleId | null = null;
 	/** `?order=a|b` from the URL; wins over the order saved on the project so both can be compared. */
 	orderOverride: FlowOrder | null = null;
+	requireKyc = false;
 	template: PromptTemplate | null = null;
 	readonly changed = new Subject<void>();
 	readonly selfieDone$ = new Subject<void>();
@@ -348,7 +349,17 @@ export class VerifySessionService implements OnDestroy {
 
 	/** True when neither document nor liveness is mandatory (and at least one is optional), allowing the user to defer KYC. */
 	get canSkipKyc(): boolean {
-		return !this.isRepresentativeKyc && canSkipIdentity(this.settings);
+		return !this.requireKyc && !this.isRepresentativeKyc && canSkipIdentity(this.settings);
+	}
+
+	/** True when an optional document step may be skipped individually. */
+	get canSkipDocumentStep(): boolean {
+		return !this.requireKyc && !this.canSkipKyc && this.settings?.document === "optional";
+	}
+
+	/** True when an optional liveness step may be skipped individually. */
+	get canSkipLivenessStep(): boolean {
+		return !this.requireKyc && this.settings?.liveness === "optional";
 	}
 
 	/** True when the registration completed without KYC (user chose to do identity verification later). */
@@ -513,7 +524,7 @@ export class VerifySessionService implements OnDestroy {
 		return knownDoc[key] || "verify.retryBody";
 	}
 
-	open(projectId: string, rawToken?: string): void {
+	open(projectId: string, rawToken?: string, options?: { requireKyc?: boolean }): void {
 		try {
 			if (!this.isMobileHandoff && projectId && sessionStorage.getItem(`verifik_handoff_${projectId}`) === "1") {
 				this.isMobileHandoff = true;
@@ -526,6 +537,7 @@ export class VerifySessionService implements OnDestroy {
 		}
 
 		const token = resolveToken(projectId, rawToken);
+		this.requireKyc = Boolean(options?.requireKyc || tokenHasRequireKyc(token || this._rawToken));
 		const key = `${projectId}:${token || this._rawToken}`;
 
 		if (key === this._key && this.screen !== "loading") return;
@@ -844,7 +856,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	skipDocument(): void {
-		if (this.settings?.document === "mandatory") return;
+		if (this.requireKyc || this.settings?.document === "mandatory") return;
 
 		this._skippedDocument = true;
 
@@ -857,7 +869,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	skipLiveness(): void {
-		if (this.settings?.liveness === "mandatory") return;
+		if (this.requireKyc || this.settings?.liveness === "mandatory") return;
 
 		this._skippedLiveness = true;
 		const status = this._skippedDocument || this.settings?.document === "skip" ? "COMPLETED_WITHOUT_KYC" : "COMPLETED";
@@ -1393,6 +1405,7 @@ export class VerifySessionService implements OnDestroy {
 			livenessStep: settings.liveness,
 			needsBack: documentNeedsBack(document?.documentCategory || this.category, document?.requiresBackSide),
 			phoneNeeded: needsPhoneCode(settings, this.registration?.phoneValidation?.status === "validated"),
+			requireKyc: this.requireKyc,
 			status: this.registration?.status,
 		});
 
@@ -2837,6 +2850,19 @@ const resolveToken = (projectId: string, rawToken?: string): string => {
 	if (query && isUsableAppRegistrationSessionToken(query)) return query;
 
 	return readSignUpAppRegistrationToken(projectId) || "";
+};
+
+const tokenHasRequireKyc = (token?: string): boolean => {
+	if (!token) return false;
+	const parts = token.split(".");
+	if (parts.length < 2) return false;
+	try {
+		const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+		const payload = JSON.parse(atob(base64));
+		return Boolean(payload?.requireKyc);
+	} catch {
+		return false;
+	}
 };
 
 const cameraAlreadyGranted = async (): Promise<boolean> => {

@@ -971,7 +971,7 @@
 							<button
 								type="button"
 								class="secondary kyc-later-btn"
-								*ngIf="!session.canSkipKyc && session.settings?.document === 'optional'"
+								*ngIf="session.canSkipDocumentStep"
 								[disabled]="session.busy"
 								(click)="session.skipDocument()"
 							>
@@ -1469,7 +1469,7 @@
 							<button
 								type="button"
 								class="secondary kyc-later-btn"
-								*ngIf="session.settings?.liveness === 'optional'"
+								*ngIf="session.canSkipLivenessStep"
 								[disabled]="session.busy"
 								(click)="session.skipLiveness()"
 							>
@@ -1482,7 +1482,7 @@
 							<verify-selfie
 								[phase]="session.selfiePhase"
 								[isHumanAuthn]="!!session.settings?.humanAuthn"
-								[canSkip]="session.settings?.liveness === 'optional'"
+								[canSkip]="session.canSkipLivenessStep"
 								(captured)="session.onSelfie($event)"
 								(permissionDenied)="session.openSheet('camera')"
 								(skipped)="session.skipLiveness()"

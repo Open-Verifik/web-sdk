@@ -83,6 +83,7 @@ export interface ResumeInput {
 	livenessStep: StepFlag;
 	needsBack: boolean;
 	phoneNeeded: boolean;
+	requireKyc?: boolean;
 	status?: string;
 }
 
@@ -138,6 +139,10 @@ export const calibrateArcFaceCompareThreshold = (
 	return Math.min(0.95, numeric);
 };
 
+/** Document or liveness capture stored on the registration (documentValidation / biometricValidation). */
+const hasKycEvidence = (evidence?: Pick<ResumeInput, "hasBiometric" | "hasDocument">): boolean =>
+	Boolean(evidence?.hasDocument || evidence?.hasBiometric);
+
 export const enrollmentClientFrom = (value: unknown): EnrollmentClient => (value === "v2" ? "v2" : "legacy");
 
 /** V1 and the setup preview collect name, email, phone and terms on a single sign-up screen, so v2 does the same. */
@@ -179,16 +184,28 @@ export const documentNeedsBack = (category: string, requiresBackSide?: boolean):
 
 export const attemptsRemaining = (maxAttempts: number, failedCount: number): number => Math.max(0, (maxAttempts || 3) - (failedCount || 0));
 
-export const isTerminalStatus = (status?: string, currentStep?: string): boolean => {
-	if (currentStep === "end" || currentStep === "skipKYC") return true;
+export const isTerminalStatus = (
+	status?: string,
+	currentStep?: string,
+	evidence?: Pick<ResumeInput, "hasBiometric" | "hasDocument">,
+): boolean => {
+	if (currentStep === "skipKYC") return true;
+
+	// resumeKYC can report "end" for optional document and liveness steps that were never
+	// captured. That step is finished only when the registration holds KYC evidence.
+	if (currentStep === "end" && hasKycEvidence(evidence)) return true;
+
 	if (status === "NEEDS_MANUAL_VERIFICATION" && currentStep && IN_PROGRESS_STEPS.has(currentStep)) {
 		return false;
 	}
+
 	return TERMINAL.has(status || "");
 };
 
 export const resumeScreen = (input: ResumeInput): VerifyScreen => {
-	if (isTerminalStatus(input.status, input.currentStep) || input.hasBiometric) return "submitted";
+	const evidence = { hasBiometric: input.hasBiometric, hasDocument: input.hasDocument };
+
+	if (isTerminalStatus(input.status, input.currentStep, evidence) || input.hasBiometric) return "submitted";
 	if (input.emailNeeded) return "emailCode";
 	if (input.phoneNeeded) return "phoneCode";
 	if (input.documentFailed) return "retry";
@@ -196,6 +213,7 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 	if (input.hasDocument && input.needsBack && !input.hasBack) return "flip";
 
 	if (
+		!input.requireKyc &&
 		!input.handoff &&
 		!input.hasDocument &&
 		!input.hasBiometric &&
@@ -221,7 +239,13 @@ export const resumeScreen = (input: ResumeInput): VerifyScreen => {
 };
 
 export const resolveHandoffPhase = (input: HandoffPhaseInput): VerifyHandoffPhase => {
-	if (isTerminalStatus(input.status, input.currentStep) || input.hasBiometric) {
+	if (
+		isTerminalStatus(input.status, input.currentStep, {
+			hasBiometric: Boolean(input.hasBiometric),
+			hasDocument: Boolean(input.hasDocument),
+		}) ||
+		input.hasBiometric
+	) {
 		return "completed";
 	}
 	if (input.currentStep === "liveness" || input.hasDocument) {

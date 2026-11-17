@@ -380,6 +380,60 @@ describe("verify-flow", () => {
 		).toBe("completed");
 	});
 
+	it("does not finish an ongoing registration whose currentStep is end until a document or selfie exists", () => {
+		const ongoingEnd = (overrides: Partial<Parameters<typeof resumeScreen>[0]> = {}) =>
+			resumeScreen({
+				currentStep: "end",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+				status: "ONGOING",
+				...overrides,
+			});
+
+		expect(isTerminalStatus("ONGOING", "end")).toBeFalse();
+		expect(isTerminalStatus("ONGOING", "end", { hasBiometric: false, hasDocument: false })).toBeFalse();
+		expect(isTerminalStatus("ONGOING", "end", { hasBiometric: false, hasDocument: true })).toBeTrue();
+		expect(isTerminalStatus("ONGOING", "end", { hasBiometric: true, hasDocument: false })).toBeTrue();
+		expect(isTerminalStatus("COMPLETED", "end")).toBeTrue();
+		expect(isTerminalStatus("FAILED", "end")).toBeTrue();
+		expect(isTerminalStatus("COMPLETED_WITHOUT_KYC", "end")).toBeTrue();
+		expect(isTerminalStatus("ONGOING", "skipKYC")).toBeTrue();
+		expect(isTerminalStatus("NEEDS_MANUAL_VERIFICATION", "document")).toBeFalse();
+
+		expect(ongoingEnd()).toBe("kycPrompt");
+		expect(ongoingEnd({ documentStep: "mandatory", livenessStep: "mandatory" })).toBe("consent");
+		expect(ongoingEnd({ documentStep: "skip", livenessStep: "mandatory" })).toBe("consent");
+		expect(ongoingEnd({ emailNeeded: true })).toBe("emailCode");
+		expect(ongoingEnd({ hasDocument: true })).toBe("submitted");
+		expect(ongoingEnd({ hasBiometric: true, hasDocument: false })).toBe("submitted");
+		expect(ongoingEnd({ handoff: true, documentStep: "mandatory", livenessStep: "optional" })).toBe("ready");
+
+		expect(
+			resolveHandoffPhase({
+				currentStep: "end",
+				hasBiometric: false,
+				hasDocument: false,
+				status: "ONGOING",
+			})
+		).toBe("qr");
+
+		expect(
+			resolveHandoffPhase({
+				currentStep: "end",
+				hasBiometric: false,
+				hasDocument: true,
+				status: "ONGOING",
+			})
+		).toBe("completed");
+	});
+
 	it("auto-upgrades enrollmentClient to v2 when verifyStyle is selected and preserves additionalFields", () => {
 		const flow = new ProjectFlow({
 			version: 3,
@@ -455,6 +509,42 @@ describe("verify-flow", () => {
 			expect(progressIndex("humanId", true, false)).toBe(3);
 			expect(progressIndex("humanId", true)).toBe(progressSegments(true).length - 1);
 		});
+	});
+
+	it("skips kycPrompt and routes straight to ready/consent when requireKyc is true on optional flows", () => {
+		expect(
+			resumeScreen({
+				currentStep: "document",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+				requireKyc: true,
+				status: "ONGOING",
+			})
+		).toBe("ready");
+
+		expect(
+			resumeScreen({
+				currentStep: "end",
+				documentFailed: false,
+				documentStep: "optional",
+				emailNeeded: false,
+				hasBack: false,
+				hasBiometric: false,
+				hasDocument: false,
+				livenessStep: "optional",
+				needsBack: false,
+				phoneNeeded: false,
+				requireKyc: true,
+				status: "ONGOING",
+			})
+		).toBe("consent");
 	});
 
 	describe("calibrateArcFaceCompareThreshold", () => {
