@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSelectModule } from "@angular/material/select";
 import { MatTabsModule } from "@angular/material/tabs";
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { DEFAULT_PHONE_COUNTRY_CODE } from "app/core/constants/phone-defaults";
 import { fuseAnimations } from "@fuse/animations";
 import { FuseAlertComponent, FuseAlertType } from "@fuse/components/alert";
@@ -19,8 +19,20 @@ import { FuseSplashScreenService } from "@fuse/services/splash-screen";
 import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
+import { LinkedProjectMeta } from "app/core/models/smart-enroll-project.model";
+import {
+    DEFAULT_VERIFY_LOGO_METRICS,
+    VERIFY_FONT_HREF,
+    VERIFY_STYLES,
+    VerifyLogoMetrics,
+    VerifyStyle,
+    VerifyStyleId,
+    parseVerifyStyle,
+    resolveLogoMetrics,
+} from "../verify/verify-style";
 import { PasskeyZelfService } from "app/core/services/passkey-zelf.service";
 import { BiometricSecurityService } from "app/core/services/biometric-security.service";
+import { AntiBotChallengeService } from "app/core/services/anti-bot-challenge.service";
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
@@ -106,6 +118,58 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     showPasskeySuccess: boolean = false;
     private _pendingPasskeyIdentifier: string = "";
     private _passkeyDebounceTimer: any;
+
+    logoMetrics: VerifyLogoMetrics = { ...DEFAULT_VERIFY_LOGO_METRICS };
+    queryStyleId: VerifyStyleId | null = null;
+    private _otpAbortController: AbortController | null = null;
+    showSignUpPicker: boolean = false;
+    antiBotHeaders: Record<string, string> | null = null;
+
+    get verifyStyleId(): VerifyStyleId | null {
+        if (this.queryStyleId) return this.queryStyleId;
+        return parseVerifyStyle(this.projectFlow?.verifyStyle);
+    }
+
+    get activeStyleDef(): VerifyStyle | null {
+        const id = this.verifyStyleId;
+        return id ? VERIFY_STYLES[id] : null;
+    }
+
+    get styleVars(): Record<string, string> {
+        const def = this.activeStyleDef;
+        if (!def) return {};
+        const b = this.project?.branding;
+        return {
+            ...def.variables,
+            ...(b?.backgroundColor ? { "--style-page": b.backgroundColor, "--style-page-mobile": b.backgroundColor } : {}),
+            ...(b?.buttonColor ? { "--style-cta": b.buttonColor, "--accent": b.buttonColor } : {}),
+            ...(b?.buttonTextColor ? { "--style-cta-text": b.buttonTextColor, "--accent-text": b.buttonTextColor } : {}),
+            ...(b?.titleColor ? { "--style-ink": b.titleColor, "--title": b.titleColor } : {}),
+            ...(b?.textColor ? { "--style-body": b.textColor, "--body": b.textColor } : {}),
+        };
+    }
+
+    private _loadStyleFonts(): void {
+        if (!isPlatformBrowser(this.platformId) || typeof document === "undefined") return;
+        if (document.getElementById("verify-style-fonts")) return;
+
+        const preconnect = document.createElement("link");
+        preconnect.rel = "preconnect";
+        preconnect.href = "https://fonts.googleapis.com";
+        document.head.appendChild(preconnect);
+
+        const files = document.createElement("link");
+        files.rel = "preconnect";
+        files.href = "https://fonts.gstatic.com";
+        files.crossOrigin = "anonymous";
+        document.head.appendChild(files);
+
+        const sheet = document.createElement("link");
+        sheet.id = "verify-style-fonts";
+        sheet.rel = "stylesheet";
+        sheet.href = VERIFY_FONT_HREF;
+        document.head.appendChild(sheet);
+    }
 
     // --- Passkey Logic ---
 
@@ -452,6 +516,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
         private _activatedRoute: ActivatedRoute,
+        private _router: Router,
         private _appService: AppService,
         private _authService: AuthService,
         private _changeDetectorRef: ChangeDetectorRef,
@@ -464,6 +529,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         private _translocoService: TranslocoService,
         private _passkeyZelfService: PasskeyZelfService,
         private _biometricSecurityService: BiometricSecurityService,
+        private _antiBotChallengeService: AntiBotChallengeService,
     ) {
         this.setLanguage();
 
@@ -487,6 +553,13 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this._loadStyleFonts();
+        this.queryStyleId = parseVerifyStyle(this._activatedRoute.snapshot.queryParamMap.get("style"));
+        this._activatedRoute.queryParamMap.pipe(takeUntil(this.unsubscriber$)).subscribe((params) => {
+            this.queryStyleId = parseVerifyStyle(params.get("style"));
+            this._changeDetectorRef.markForCheck();
+        });
+
         this._activatedRoute.params.subscribe((params) => {
             this.requestProject(params.id);
         });
@@ -531,6 +604,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this._stopWebOtpListener();
         this.unsubscriber$.next();
 
         this.unsubscriber$.complete();
@@ -835,6 +909,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     selectLogin(event) {
+        this._stopWebOtpListener();
         this.groupFields = {};
         this.typeLogin = event.index ? "phone" : "email";
 
@@ -970,6 +1045,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     }
 
     signIn(): void {
+        this._stopWebOtpListener();
         if (this.loading) return;
 
         this.loading = true;
@@ -1012,6 +1088,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     async sendOTP(event, gateway): Promise<void> {
         event.preventDefault();
 
+        this._stopWebOtpListener();
         this.sendingOTP = true;
 
         switch (this.typeLogin) {
@@ -1044,6 +1121,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
                             this.smsSent = true;
 
                             this._startTimer(this.typeLogin);
+                            this._startWebOtpListener();
 
                             this.sendingOTP = false;
                         },
@@ -1196,6 +1274,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
      * Resets the OTP step so the user can edit their email/phone again.
      */
     changeContact(): void {
+        this._stopWebOtpListener();
         this.stopTimer();
 
         this.passkeyExistsForContact = false;
@@ -1252,5 +1331,183 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
         return luminance < 0.5;
+    }
+
+    onLogoLoad(event: Event): void {
+        const img = event.target as HTMLImageElement | null;
+        if (!img) return;
+        this.logoMetrics = resolveLogoMetrics(img.naturalWidth, img.naturalHeight);
+        this._changeDetectorRef.markForCheck();
+    }
+
+    private async _startWebOtpListener(): Promise<void> {
+        if (!isPlatformBrowser(this.platformId) || typeof window === "undefined") return;
+        if (!("OTPCredential" in window) || !navigator.credentials) return;
+
+        this._stopWebOtpListener();
+
+        const ac = new AbortController();
+        this._otpAbortController = ac;
+
+        try {
+            const content = (await (navigator.credentials as any).get({
+                otp: { transport: ["sms"] },
+                signal: ac.signal,
+            })) as { code?: string } | null;
+
+            if (!content?.code) return;
+
+            const rawCode = content.code.replace(/\D/g, "").slice(0, 6);
+            if (rawCode.length === 6) {
+                const controlName = this.typeLogin === "phone" ? "phoneOTP" : "emailOTP";
+                const control = this.signInForm.get(controlName);
+                if (control) {
+                    control.setValue(rawCode);
+                    control.markAsDirty();
+                    control.markAsTouched();
+                    this._changeDetectorRef.markForCheck();
+                    setTimeout(() => this.signIn());
+                }
+            }
+        } catch (err: any) {
+            if (err?.name === "AbortError") {
+                return;
+            }
+            console.warn("WebOTP error:", err);
+        }
+    }
+
+    private _stopWebOtpListener(): void {
+        if (this._otpAbortController) {
+            this._otpAbortController.abort();
+            this._otpAbortController = null;
+        }
+    }
+
+    onOtpEnter(event: Event): void {
+        event.preventDefault();
+        const controlName = this.typeLogin === "email" ? "emailOTP" : "phoneOTP";
+        if (this.signInForm.get(controlName)?.value?.length === 6) {
+            this.signIn();
+        }
+    }
+
+    get showBiometricButton(): boolean {
+        return Boolean(this.projectFlow?.loginSettings?.faceLiveness);
+    }
+
+    get linkedSmartEnrollProject(): LinkedProjectMeta | undefined {
+        return this.projectFlow?.linkedProjectsMeta?.find(
+            (p) => p.status === "active" && p.flowType === "onboarding"
+        );
+    }
+
+    get linkedHumanAuthnProject(): LinkedProjectMeta | undefined {
+        return this.projectFlow?.linkedProjectsMeta?.find(
+            (p) => p.status === "active" && p.flowType === "humanAuthn"
+        );
+    }
+
+    get biometricButtonMode(): "humanAuthn" {
+        return "humanAuthn";
+    }
+
+    get biometricButtonLabel(): string {
+        return this.linkedHumanAuthnProject ? "login.continue_with_human_id" : "login.continue_with_face";
+    }
+
+    get biometricButtonIcon(): string {
+        return this.linkedHumanAuthnProject ? "qr_code_scanner" : "face";
+    }
+
+    private async _prepareAntiBotChallenge(): Promise<Record<string, string> | null> {
+        if (!isPlatformBrowser(this.platformId) || !this.project?._id) return null;
+
+        try {
+            const headers = await this._antiBotChallengeService.prepareVerificationHeaders(this.project._id);
+            this.antiBotHeaders = headers;
+            sessionStorage.setItem(`verifik_antibot_headers_${this.project._id}`, JSON.stringify(headers));
+            return headers;
+        } catch (err) {
+            console.warn("[AntiBot] Background challenge preparation failed", err);
+            return null;
+        }
+    }
+
+    onBiometricActionClick(): void {
+        void this._prepareAntiBotChallenge();
+
+        const storage = this.linkedHumanAuthnProject?.humanAuthn?.storageProvider || "ipfs";
+        if (storage === "none") {
+            this._router.navigate(["/sign-in", this.project._id, "human-id"]);
+            return;
+        }
+
+        const typedEmail = this.signInForm.get("email")?.value;
+        const typedPhone = this.signInForm.get("phone")?.value;
+        const identifier = this.typeLogin === "email" ? typedEmail : typedPhone;
+
+        if (identifier) {
+            this._router.navigate(["/sign-in", this.project._id, "human-id"], {
+                queryParams: { identifier, direct: "selfie" },
+            });
+        } else {
+            this._router.navigate(["/sign-in", this.project._id, "human-id"]);
+        }
+    }
+
+    get signUpProjects(): LinkedProjectMeta[] {
+        return (this.projectFlow?.linkedProjectsMeta || []).filter(
+            (p) => p.status === "active" && p.allowSignUpRedirect === true
+        );
+    }
+
+    get showSignUpLink(): boolean {
+        return this.signUpProjects.length > 0 || Boolean(this.kycProjectFlow);
+    }
+
+    onSignUpClick(event: Event): void {
+        event.preventDefault();
+        const eligible = this.signUpProjects;
+
+        if (eligible.length === 0 && this.kycProjectFlow) {
+            this._router.navigate(["/sign-up", this.project._id]);
+            return;
+        }
+
+        if (eligible.length === 1) {
+            this.selectSignUpProject(eligible[0]);
+            return;
+        }
+
+        const primaryId = this.projectFlow?.security?.primarySignUpProject;
+        if (primaryId) {
+            const primary = eligible.find((p) => p._id === primaryId);
+            if (primary) {
+                this.selectSignUpProject(primary);
+                return;
+            }
+        }
+
+        const isPrimary = eligible.find((p) => p.isPrimarySignUp);
+        if (isPrimary) {
+            this.selectSignUpProject(isPrimary);
+            return;
+        }
+
+        this.showSignUpPicker = true;
+        this._changeDetectorRef.markForCheck();
+    }
+
+    selectSignUpProject(target: LinkedProjectMeta): void {
+        this.showSignUpPicker = false;
+        const returnTo = encodeURIComponent(`/sign-in/${this.project._id}`);
+        const basePath = target.target === "business" ? "/verify-business" : "/verify";
+        this._router.navigateByUrl(`${basePath}/${target._id}?returnTo=${returnTo}`);
+    }
+
+    closeSignUpPicker(): void {
+        this.showSignUpPicker = false;
+        this._changeDetectorRef.markForCheck();
     }
 }

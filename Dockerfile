@@ -17,5 +17,7 @@ VOLUME ["/usr/src/app"]
 # Expose port 4200
 EXPOSE 4200
 
+ENV NODE_OPTIONS="--max-old-space-size=1536"
+
 # Run Angular development server with aggressive polling for file changes
 CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200", "--disable-host-check", "--poll=1000", "--watch"]

@@ -1,0 +1,46 @@
+.human-id-shell {
+	background-color: #f8fafc;
+}
+
+.human-id-card {
+	min-height: 480px;
+}
+
+.icon-sm {
+	font-size: 1.125rem;
+	width: 1.125rem;
+	height: 1.125rem;
+}
+
+.tab-button {
+	color: #64748b;
+	background: transparent;
+
+	&.active-tab {
+		background: #ffffff;
+		color: #0f172a;
+		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+	}
+}
+
+.animate-scan-pulse {
+	animation: scanPulse 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes scanPulse {
+	0% {
+		top: 5%;
+		opacity: 0.3;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		top: 92%;
+		opacity: 0.3;
+	}
+}
+
+.selfie-wrap {
+	max-width: 360px;
+}

@@ -1,0 +1,239 @@
+<ng-container *transloco="let t">
+	<div
+		class="human-id-shell min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6"
+		[style.backgroundColor]="project?.branding?.backgroundColor || '#f8fafc'"
+	>
+		<div class="human-id-card w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden p-6 sm:p-8 flex flex-col">
+			<!-- Card Header -->
+			<div class="flex items-center justify-between mb-6">
+				<button
+					type="button"
+					class="back-button flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
+					(click)="backToSignIn()"
+				>
+					<mat-icon class="icon-sm">arrow_back</mat-icon>
+					<span>{{ t("human_id_login.back_to_signin") }}</span>
+				</button>
+				<img
+					*ngIf="project?.branding?.logo"
+					[src]="project?.branding?.logo"
+					alt="Logo"
+					class="h-8 max-w-[120px] object-contain"
+				/>
+			</div>
+
+			<!-- Title & Subtitle -->
+			<div class="text-center mb-6">
+				<h1
+					class="text-2xl font-bold tracking-tight text-slate-900"
+					[style.color]="project?.branding?.titleColor || '#0f172a'"
+				>
+					{{ step === "selfie" ? t("human_id_login.selfie_title") : t("human_id_login.title") }}
+				</h1>
+				<p
+					class="text-sm text-slate-500 mt-1"
+					[style.color]="project?.branding?.textColor || '#64748b'"
+				>
+					{{ step === "selfie" ? t("human_id_login.selfie_instructions") : t("human_id_login.subtitle") }}
+				</p>
+			</div>
+
+			<!-- Stepper Indicator -->
+			<div class="flex items-center justify-center gap-2 mb-6" aria-hidden="true">
+				<div
+					class="step-pill h-1.5 w-16 rounded-full transition-all"
+					[class.bg-indigo-600]="step === 'input'"
+					[class.bg-slate-200]="step !== 'input'"
+					[style.backgroundColor]="step === 'input' ? (project?.branding?.buttonColor || '#6366f1') : undefined"
+				></div>
+				<div
+					class="step-pill h-1.5 w-16 rounded-full transition-all"
+					[class.bg-indigo-600]="step === 'selfie' || step === 'submitting' || step === 'success'"
+					[class.bg-slate-200]="step === 'input' || step === 'loading'"
+					[style.backgroundColor]="(step === 'selfie' || step === 'submitting' || step === 'success') ? (project?.branding?.buttonColor || '#6366f1') : undefined"
+				></div>
+			</div>
+
+			<!-- STEP 0: LOADING -->
+			<div *ngIf="step === 'loading'" class="flex flex-col items-center justify-center py-12">
+				<mat-spinner [diameter]="48"></mat-spinner>
+				<p class="text-sm text-slate-500 mt-4">{{ t("human_id_login.session_loading") }}</p>
+			</div>
+
+			<!-- STEP 1: INPUT MODE SELECTION & HUMAN-ID PRESENTATION -->
+			<div *ngIf="step === 'input'" class="step-input-container flex flex-col">
+				<!-- Segmented Controls / Tab Bar -->
+				<div class="mode-tabs grid grid-cols-3 p-1 bg-slate-100 rounded-xl mb-6">
+					<button
+						type="button"
+						class="tab-button py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
+						[class.active-tab]="inputMode === 'qr_camera'"
+						(click)="switchInputMode('qr_camera')"
+					>
+						{{ t("human_id_login.tab_scan_qr") }}
+					</button>
+					<button
+						type="button"
+						class="tab-button py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
+						[class.active-tab]="inputMode === 'qr_upload'"
+						(click)="switchInputMode('qr_upload')"
+					>
+						{{ t("human_id_login.tab_upload_qr") }}
+					</button>
+					<button
+						type="button"
+						class="tab-button py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
+						[class.active-tab]="inputMode === 'text_paste'"
+						(click)="switchInputMode('text_paste')"
+					>
+						{{ t("human_id_login.tab_enter_code") }}
+					</button>
+				</div>
+
+				<!-- Mode 1: Live Webcam QR Scanner -->
+				<div *ngIf="inputMode === 'qr_camera'" class="qr-camera-view flex flex-col items-center">
+					<div class="qr-camera-well relative w-full aspect-[4/3] max-w-sm rounded-xl overflow-hidden bg-black flex items-center justify-center">
+						<video #qrVideo autoplay playsinline muted class="w-full h-full object-cover"></video>
+
+						<!-- Scanning Reticle Overlay -->
+						<div class="reticle-box absolute inset-8 sm:inset-10 border-2 border-indigo-400/80 rounded-2xl pointer-events-none flex items-center justify-center">
+							<div class="scan-laser absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-indigo-400 to-transparent animate-scan-pulse"></div>
+						</div>
+
+						<!-- Camera Flip Button -->
+						<button
+							*ngIf="availableCameras.length > 1"
+							type="button"
+							class="switch-camera-btn absolute bottom-3 right-3 p-2 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
+							(click)="toggleCamera()"
+							aria-label="Switch Camera"
+						>
+							<mat-icon class="icon-sm">cameraswitch</mat-icon>
+						</button>
+					</div>
+
+					<!-- Permission Denied Fallback -->
+					<div *ngIf="qrCameraPermissionDenied" class="p-4 mt-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs sm:text-sm w-full">
+						{{ t("human_id_login.camera_permission_denied") }}
+					</div>
+
+					<p class="text-xs text-slate-500 mt-3 text-center">
+						{{ t("human_id_login.scan_instructions") }}
+					</p>
+				</div>
+
+				<!-- Mode 2: Drag & Drop QR Image Upload -->
+				<div *ngIf="inputMode === 'qr_upload'" class="qr-upload-view flex flex-col items-center">
+					<div
+						class="upload-dropzone w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors"
+						[class.border-indigo-400]="isDragOver"
+						[class.bg-indigo-50]="isDragOver"
+						[class.border-slate-200]="!isDragOver"
+						(dragover)="onDragOver($event)"
+						(dragleave)="onDragLeave($event)"
+						(drop)="onFileDrop($event)"
+						(click)="fileInput.click()"
+					>
+						<input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+
+						<div class="p-3 bg-indigo-50 text-indigo-600 rounded-full mb-3" [style.color]="project?.branding?.buttonColor || '#6366f1'">
+							<mat-icon>cloud_upload</mat-icon>
+						</div>
+
+						<p class="text-sm font-semibold text-slate-700">
+							{{ t("human_id_login.upload_instructions") }}
+						</p>
+						<p class="text-xs text-slate-400 mt-1">
+							{{ t("human_id_login.upload_hint") }}
+						</p>
+
+						<div *ngIf="isDecodingUpload" class="flex items-center gap-2 mt-4 text-xs font-medium text-indigo-600">
+							<mat-spinner [diameter]="16"></mat-spinner>
+							<span>{{ t("human_id_login.verifying") }}</span>
+						</div>
+					</div>
+
+					<!-- Upload Error Alert -->
+					<fuse-alert *ngIf="uploadErrorKey" [appearance]="'soft'" [type]="'error'" class="w-full mt-4">
+						{{ t(uploadErrorKey) }}
+					</fuse-alert>
+				</div>
+
+				<!-- Mode 3: Text Paste -->
+				<div *ngIf="inputMode === 'text_paste'" class="text-paste-view flex flex-col">
+					<label for="humanIdTextarea" class="text-xs font-medium text-slate-600 mb-1.5">
+						{{ t("human_id_login.code_instructions") }}
+					</label>
+
+					<textarea
+						id="humanIdTextarea"
+						rows="4"
+						[ngModel]="pastedHumanId"
+						(ngModelChange)="onTextChange($event)"
+						[placeholder]="t('human_id_login.code_placeholder')"
+						class="w-full p-3 font-mono text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all"
+					></textarea>
+
+					<!-- Text Error Alert -->
+					<fuse-alert *ngIf="textValidationErrorKey" [appearance]="'soft'" [type]="'error'" class="w-full mt-3">
+						{{ t(textValidationErrorKey) }}
+					</fuse-alert>
+
+					<button
+						type="button"
+						[disabled]="!isTextValid"
+						(click)="submitPastedText()"
+						class="w-full mt-4 py-3 px-4 rounded-xl text-white font-semibold text-sm transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+						[style.backgroundColor]="project?.branding?.buttonColor || '#6366f1'"
+						[style.color]="project?.branding?.buttonTextColor || '#ffffff'"
+					>
+						{{ t("human_id_login.continue_to_selfie") }}
+					</button>
+				</div>
+			</div>
+
+			<!-- STEP 2: LIVE SELFIE VERIFICATION -->
+			<div *ngIf="step === 'selfie'" class="step-selfie-container flex flex-col items-center">
+				<div class="selfie-wrap w-full flex justify-center">
+					<verify-selfie
+						[isHumanAuthn]="true"
+						[phase]="selfiePhase"
+						(captured)="onSelfieCaptured($event)"
+						(permissionDenied)="onSelfiePermissionDenied()"
+					></verify-selfie>
+				</div>
+			</div>
+
+			<!-- STEP 3: SUBMITTING -->
+			<div *ngIf="step === 'submitting'" class="flex flex-col items-center justify-center py-12">
+				<mat-spinner [diameter]="48"></mat-spinner>
+				<p class="text-sm font-medium text-slate-600 mt-4">{{ t("human_id_login.verifying") }}</p>
+			</div>
+
+			<!-- STEP 4: SUCCESS -->
+			<div *ngIf="step === 'success'" class="flex flex-col items-center justify-center py-12">
+				<div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+					<mat-icon class="text-3xl">check_circle</mat-icon>
+				</div>
+				<h3 class="text-lg font-semibold text-slate-900">{{ t("verify.agree") }}</h3>
+			</div>
+
+			<!-- STEP 5: ERROR -->
+			<div *ngIf="step === 'error'" class="flex flex-col items-center justify-center py-8">
+				<fuse-alert [appearance]="'soft'" [type]="'error'" class="w-full mb-6">
+					{{ errorMessageKey ? t(errorMessageKey) : rawErrorMessage }}
+				</fuse-alert>
+
+				<button
+					type="button"
+					(click)="retry()"
+					class="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm transition-opacity shadow-sm"
+					[style.backgroundColor]="project?.branding?.buttonColor || '#6366f1'"
+					[style.color]="project?.branding?.buttonTextColor || '#ffffff'"
+				>
+					{{ t("accept") }}
+				</button>
+			</div>
+		</div>
+	</div>
+</ng-container>

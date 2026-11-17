@@ -2,7 +2,56 @@ import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpRequest } from "@angul
 import { inject } from "@angular/core";
 import { AuthService } from "app/core/auth/auth.service";
 import { AuthUtils } from "app/core/auth/auth.utils";
+import { AntiBotChallengeService } from "app/core/services/anti-bot-challenge.service";
 import { catchError, Observable, throwError } from "rxjs";
+
+const ANTI_BOT_PROTECTED_PATHS = [
+    "/v2/app-logins/human-id",
+    "/v2/app-login/human-id",
+    "/v2/app-login/zk-proof",
+    "/v2/projects/biometrics/sign-in",
+    "/v2/biometric-validations",
+    "/v2/app-registrations/human-id",
+];
+
+function attachStoredAntiBotHeaders(req: HttpRequest<unknown>): HttpRequest<unknown> {
+    if (req.method !== "POST" || req.headers.has("X-Bot-Ticket") || typeof sessionStorage === "undefined") {
+        return req;
+    }
+
+    const isProtectedUrl = ANTI_BOT_PROTECTED_PATHS.some((path) => req.url.includes(path));
+    if (!isProtectedUrl) {
+        return req;
+    }
+
+    const body = req.body as Record<string, any> | null | undefined;
+    const projectId = body?.projectId || body?.project;
+    if (typeof projectId !== "string" || !projectId) {
+        return req;
+    }
+
+    const storageKey = AntiBotChallengeService.getStorageKey(projectId);
+    try {
+        const raw = sessionStorage.getItem(storageKey);
+        if (!raw) return req;
+
+        const validHeaders = AntiBotChallengeService.extractValidHeaders(JSON.parse(raw));
+        if (!validHeaders) return req;
+
+        sessionStorage.removeItem(storageKey);
+
+        let updatedHeaders = req.headers;
+        for (const [headerName, headerValue] of Object.entries(validHeaders)) {
+            if (!updatedHeaders.has(headerName)) {
+                updatedHeaders = updatedHeaders.set(headerName, headerValue);
+            }
+        }
+
+        return req.clone({ headers: updatedHeaders });
+    } catch {
+        return req;
+    }
+}
 
 /**
  * Intercept
@@ -29,6 +78,8 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
             headers: req.headers.set("Authorization", "Bearer " + authService.accessToken),
         });
     }
+
+    newReq = attachStoredAntiBotHeaders(newReq);
 
     // Response
     return next(newReq).pipe(

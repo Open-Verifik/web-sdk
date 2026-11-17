@@ -247,7 +247,9 @@
 		"humanIdSelfieTitle": "Create your HumanID",
 		"humanIdSelfieBody": "Take a quick selfie to encrypt your HumanID. Your face image is never stored.",
 		"humanIdSelfieStepFinish": "Encrypting your HumanID…",
-		"humanIdUpgradeBody": "This project does not have an active HumanAuthn plan or available credits."
+		"humanIdUpgradeBody": "This project does not have an active HumanAuthn plan or available credits.",
+		"continue_to_sign_in": "Continue to Sign In",
+		"return_to_signin_hint": "Your enrollment is complete. Continue to sign in to your account."
 	},
 	"previous": "Previous",
 	"restart": "Restart",
@@ -588,7 +590,23 @@
 		"passkey_enroll_confirm": "Setup passkey",
 		"passkey_enroll_skip": "Maybe later",
 		"secured_by": "Secured by Verifik",
-		"user_not_found": "User not found"
+		"user_not_found": "User not found",
+		"sign_in_with_face": "Sign in with Face Biometrics",
+		"use_human_id_button": "Sign in with HumanID",
+		"continue_with_face": "Continue with Face Biometrics",
+		"continue_with_human_id": "Continue with HumanID",
+		"otp_waiting_sms": "Waiting for SMS code...",
+		"otp_autofilled": "Code detected from SMS",
+		"otp_enter_manually": "Enter code manually",
+		"otp_hint": "Enter the 6-digit verification code",
+		"resend_code": "Resend code",
+		"resend_in": "Resend in {{seconds}}s",
+		"create_account": "Create one",
+		"choose_registration_title": "Choose registration option",
+		"choose_registration_subtitle": "Select how you would like to create your account:",
+		"registration_smart_enroll": "Identity Verification (KYC)",
+		"registration_human_authn": "Private HumanID (Zero-Knowledge)",
+		"registration_business": "Business Verification (KYB)"
 	},
 	"add_biometrics": {
 		"button": "Start verification",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "Verified and protected by Verifik KYB SmartEngine",
 		"redirectingCountdown": "Redirecting automatically in {{seconds}} seconds...",
 		"redirectNow": "Continue now"
+	},
+	"human_id_login": {
+		"title": "HumanID Verification",
+		"subtitle": "Unlock your account with your zero-knowledge HumanID proof and a quick selfie.",
+		"tab_scan_qr": "Scan QR",
+		"tab_upload_qr": "Upload QR",
+		"tab_enter_code": "Enter Code",
+		"scan_instructions": "Position your HumanID QR code in front of the camera",
+		"upload_instructions": "Drag and drop your HumanID QR image, or click to browse",
+		"upload_hint": "Supports PNG, JPG, or WEBP up to 5MB",
+		"code_instructions": "Paste your raw HumanID cryptographic string below",
+		"code_placeholder": "Paste HumanID proof (eyJ...)",
+		"continue_to_selfie": "Continue to Face Verification",
+		"selfie_title": "Take a quick selfie",
+		"selfie_instructions": "Center your face in the oval to confirm you are the owner of this HumanID.",
+		"verifying": "Verifying identity...",
+		"session_loading": "Loading HumanID session...",
+		"session_invalid": "Session expired or invalid. Please try again.",
+		"invalid_qr": "No valid HumanID QR code detected. Please try another image or enter the code manually.",
+		"invalid_code": "Invalid HumanID format. Please check the code and try again.",
+		"camera_permission_denied": "Camera permission denied. Please allow camera access in your browser settings to continue.",
+		"camera_not_found": "No camera detected on this device. You can upload a QR image or enter your code instead.",
+		"verification_failed": "HumanID biometric verification failed. Please try again.",
+		"decrypt_error": "Failed to decrypt identity proof with this project's verifier key.",
+		"use_qr_or_code": "Use HumanID QR or code instead",
+		"back_to_signin": "Back to Sign In"
 	}
 }
