@@ -348,7 +348,23 @@
 		"passkey_enroll_title": "Более быстрый вход",
 		"passkey_enroll_description": "Настройте passkey, чтобы в следующий раз входить с Face ID, Touch ID или отпечатком устройства — без ожидания кодов.",
 		"passkey_enroll_confirm": "Настроить passkey",
-		"passkey_enroll_skip": "Позже"
+		"passkey_enroll_skip": "Позже",
+		"sign_in_with_face": "Войти с помощью биометрии лица",
+		"use_human_id_button": "Войти с помощью HumanID",
+		"continue_with_face": "Продолжить с биометрией лица",
+		"continue_with_human_id": "Продолжить с HumanID",
+		"otp_waiting_sms": "Ожидание SMS-кода...",
+		"otp_autofilled": "Код обнаружен в SMS",
+		"otp_enter_manually": "Введите код вручную",
+		"otp_hint": "Введите 6-значный код подтверждения",
+		"resend_code": "Отправить код повторно",
+		"resend_in": "Повторить через {{seconds}}с",
+		"create_account": "Создать аккаунт",
+		"choose_registration_title": "Выберите способ регистрации",
+		"choose_registration_subtitle": "Выберите, как вы хотите создать учетную запись:",
+		"registration_smart_enroll": "Проверка личности (KYC)",
+		"registration_human_authn": "Приватный HumanID (Zero-Knowledge)",
+		"registration_business": "Проверка бизнеса (KYB)"
 	},
 	"add_biometrics": {
 		"button": "Начать верификацию",
@@ -1231,7 +1247,9 @@
 		"humanIdSelfieTitle": "Создайте свой HumanID",
 		"humanIdSelfieBody": "Сделайте селфи, чтобы зашифровать ваш HumanID. Фото лица нигде не сохраняется.",
 		"humanIdSelfieStepFinish": "Шифрование вашего HumanID…",
-		"humanIdUpgradeBody": "У этого проекта нет активного тарифа HumanAuthn или доступных кредитов."
+		"humanIdUpgradeBody": "У этого проекта нет активного тарифа HumanAuthn или доступных кредитов.",
+		"continue_to_sign_in": "Продолжить вход",
+		"return_to_signin_hint": "Регистрация завершена. Продолжите, чтобы войти в свою учетную запись."
 	},
 	"verifyBusiness": {
 		"stepCompany": "Профиль компании",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "Проверено и защищено системой Verifik KYB SmartEngine",
 		"redirectingCountdown": "Автоматическое перенаправление через {{seconds}} сек...",
 		"redirectNow": "Продолжить сейчас"
+	},
+	"human_id_login": {
+		"title": "Верификация HumanID",
+		"subtitle": "Разблокируйте учетную запись с помощью доказательства HumanID с нулевым разглашением и быстрого селфи.",
+		"tab_scan_qr": "Сканировать QR",
+		"tab_upload_qr": "Загрузить QR",
+		"tab_enter_code": "Ввести код",
+		"scan_instructions": "Поместите QR-код HumanID перед камерой",
+		"upload_instructions": "Перетащите изображение QR-кода HumanID или нажмите для выбора",
+		"upload_hint": "Поддерживаются PNG, JPG или WEBP до 5 МБ",
+		"code_instructions": "Вставьте криптографическую строку HumanID ниже",
+		"code_placeholder": "Вставьте подтверждение HumanID (eyJ...)",
+		"continue_to_selfie": "Перейти к верификации лица",
+		"selfie_title": "Сделайте быстрое селфи",
+		"selfie_instructions": "Поместите лицо в центр овала, чтобы подтвердить владение этим HumanID.",
+		"verifying": "Проверка личности...",
+		"session_loading": "Загрузка сессии HumanID...",
+		"session_invalid": "Сессия истекла или недействительна. Пожалуйста, попробуйте снова.",
+		"invalid_qr": "Действительный QR-код HumanID не обнаружен. Попробуйте другое изображение или введите код вручную.",
+		"invalid_code": "Неверный формат HumanID. Пожалуйста, проверьте код и попробуйте снова.",
+		"camera_permission_denied": "В доступе к камере отказано. Пожалуйста, разрешите доступ к камере в настройках браузера для продолжения.",
+		"camera_not_found": "Камера на этом устройстве не обнаружена. Вы можете загрузить QR-код или ввести код вручную.",
+		"verification_failed": "Биометрическая верификация HumanID не удалась. Пожалуйста, попробуйте снова.",
+		"decrypt_error": "Не удалось расшифровать подтверждение личности с помощью ключа верификатора этого проекта.",
+		"use_qr_or_code": "Использовать QR-код или текстовый код HumanID",
+		"back_to_signin": "Назад ко входу"
 	}
 }

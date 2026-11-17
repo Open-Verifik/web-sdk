@@ -348,7 +348,23 @@
 		"passkey_enroll_title": "Connexion plus rapide",
 		"passkey_enroll_description": "Configurez une passkey pour vous connecter la prochaine fois avec Face ID, Touch ID ou l'empreinte de votre appareil — sans attendre de codes.",
 		"passkey_enroll_confirm": "Configurer la passkey",
-		"passkey_enroll_skip": "Plus tard"
+		"passkey_enroll_skip": "Plus tard",
+		"sign_in_with_face": "Se connecter avec la biométrie faciale",
+		"use_human_id_button": "Se connecter avec HumanID",
+		"continue_with_face": "Continuer avec la biométrie faciale",
+		"continue_with_human_id": "Continuer avec HumanID",
+		"otp_waiting_sms": "En attente du code SMS...",
+		"otp_autofilled": "Code détecté depuis le SMS",
+		"otp_enter_manually": "Saisir le code manuellement",
+		"otp_hint": "Entrez le code de vérification à 6 chiffres",
+		"resend_code": "Renvoyer le code",
+		"resend_in": "Renvoyer dans {{seconds}}s",
+		"create_account": "En créer un",
+		"choose_registration_title": "Choisissez une option d'inscription",
+		"choose_registration_subtitle": "Sélectionnez comment vous souhaitez créer votre compte :",
+		"registration_smart_enroll": "Vérification d'identité (KYC)",
+		"registration_human_authn": "HumanID privé (Preuve à divulgation nulle)",
+		"registration_business": "Vérification d'entreprise (KYB)"
 	},
 	"add_biometrics": {
 		"button": "Commencer la vérification",
@@ -1231,7 +1247,9 @@
 		"humanIdSelfieTitle": "Créez votre HumanID",
 		"humanIdSelfieBody": "Prenez un selfie rapide pour chiffrer votre HumanID. Votre visage n’est jamais stocké.",
 		"humanIdSelfieStepFinish": "Chiffrement de votre HumanID…",
-		"humanIdUpgradeBody": "Ce projet ne dispose pas d’un forfait HumanAuthn actif ni de crédits disponibles."
+		"humanIdUpgradeBody": "Ce projet ne dispose pas d’un forfait HumanAuthn actif ni de crédits disponibles.",
+		"continue_to_sign_in": "Continuer vers la connexion",
+		"return_to_signin_hint": "Votre inscription est terminée. Continuez pour vous connecter à votre compte."
 	},
 	"verifyBusiness": {
 		"stepCompany": "Profil de l'Entreprise",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "Vérifié et protégé par Verifik KYB SmartEngine",
 		"redirectingCountdown": "Redirection automatique dans {{seconds}} secondes...",
 		"redirectNow": "Continuer maintenant"
+	},
+	"human_id_login": {
+		"title": "Vérification HumanID",
+		"subtitle": "Déverrouillez votre compte grâce à votre preuve HumanID à divulgation nulle et un selfie rapide.",
+		"tab_scan_qr": "Scanner le QR",
+		"tab_upload_qr": "Téléverser QR",
+		"tab_enter_code": "Entrer le code",
+		"scan_instructions": "Placez votre code QR HumanID devant la caméra",
+		"upload_instructions": "Glissez-déposez votre image QR HumanID ou cliquez pour parcourir",
+		"upload_hint": "Prend en charge PNG, JPG ou WEBP jusqu'à 5 Mo",
+		"code_instructions": "Collez votre chaîne cryptographique HumanID ci-dessous",
+		"code_placeholder": "Coller la preuve HumanID (eyJ...)",
+		"continue_to_selfie": "Continuer vers la vérification faciale",
+		"selfie_title": "Prenez un selfie rapide",
+		"selfie_instructions": "Centrez votre visage dans l'ovale pour confirmer que vous êtes le propriétaire de cet HumanID.",
+		"verifying": "Vérification de l'identité...",
+		"session_loading": "Chargement de la session HumanID...",
+		"session_invalid": "Session expirée ou invalide. Veuillez réessayer.",
+		"invalid_qr": "Aucun code QR HumanID valide détecté. Veuillez essayer une autre image ou saisir le code manuellement.",
+		"invalid_code": "Format d'HumanID invalide. Veuillez vérifier le code et réessayer.",
+		"camera_permission_denied": "Autorisation de la caméra refusée. Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur pour continuer.",
+		"camera_not_found": "Aucune caméra détectée sur cet appareil. Vous pouvez téléverser une image QR ou entrer votre code.",
+		"verification_failed": "La vérification biométrique HumanID a échoué. Veuillez réessayer.",
+		"decrypt_error": "Échec du déchiffrement de la preuve d'identité avec la clé de vérificateur de ce projet.",
+		"use_qr_or_code": "Utiliser plutôt le QR ou le code HumanID",
+		"back_to_signin": "Retour à la connexion"
 	}
 }

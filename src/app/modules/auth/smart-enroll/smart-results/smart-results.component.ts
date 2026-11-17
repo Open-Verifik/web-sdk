@@ -461,7 +461,11 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	get compareMinScorePercent(): number {
-		const minScore = this.enrollStore.biometric.compareMinScore ?? 0;
+		const storedMin = this.appRegistration?.compareFaceVerification?.result?.compare_min_score;
+		const minScore =
+			storedMin !== undefined && storedMin !== null
+				? Number(storedMin)
+				: (this.enrollStore.biometric.compareMinScore ?? 0);
 
 		return minScore <= 1 ? Math.floor(minScore * 100) : Math.floor(minScore);
 	}

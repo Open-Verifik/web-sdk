@@ -13,6 +13,14 @@ const defaultPath =
 
 export default [
     { path: "", pathMatch: "full", redirectTo: defaultPath },
+    { path: ":id/biometrics", redirectTo: ":id/human-id", pathMatch: "full" },
+    {
+        path: ":id/human-id",
+        loadComponent: () =>
+            import("../human-id-login/human-id-login.component").then(
+                (m) => m.HumanIdLoginComponent
+            ),
+    },
     {
         path: ":id",
         component: AuthSignInComponent,

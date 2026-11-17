@@ -294,7 +294,7 @@ export class SmartEnrollService {
             },
             biometric: {
                 attempts: 0,
-                compareMinScore: 0.62,
+                compareMinScore: 0.7,
                 compareScore: 0,
                 limit: 3,
                 livenessMinScore: 0.64,

@@ -53,6 +53,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 	isDraggingFile = false;
 	styleId: VerifyStyleId = "a";
 	logoMetrics: VerifyLogoMetrics = { ...DEFAULT_VERIFY_LOGO_METRICS };
+	returnTo: string | null = null;
 
 	private _destroy$ = new Subject<void>();
 	private _preview: string | null = null;
@@ -107,6 +108,8 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				if (handoffParam === "1" || handoffParam === "true") {
 					this.session.markMobileHandoff(projectId);
 				}
+				const rawReturnTo = query.get("returnTo");
+				this.returnTo = this._sanitizeReturnTo(rawReturnTo);
 				this._applyStyle();
 				this.session.open(projectId, rawToken, { requireKyc });
 			});
@@ -391,5 +394,24 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 			afterRead?.();
 		};
 		reader.readAsDataURL(file);
+	}
+
+	private _sanitizeReturnTo(url: string | null): string | null {
+		if (!url) return null;
+		try {
+			const decoded = decodeURIComponent(url).trim();
+			if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(decoded)) return null;
+			if (decoded.startsWith("//") || decoded.includes("\\")) return null;
+			const safeRegex = /^\/sign-in\/[a-zA-Z0-9_\-]+(\?[a-zA-Z0-9_=&%-]*)?$/;
+			return safeRegex.test(decoded) ? decoded : null;
+		} catch {
+			return null;
+		}
+	}
+
+	continueToSignIn(): void {
+		if (this.returnTo) {
+			this._router.navigateByUrl(this.returnTo);
+		}
 	}
 }
