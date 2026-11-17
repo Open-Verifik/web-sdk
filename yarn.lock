@@ -3311,7 +3311,7 @@ buffer-from@^1.0.0:
   resolved "https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.2.tgz"
   integrity sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==
 
-buffer@^5.4.3, buffer@^5.5.0:
+buffer@^5.5.0:
   version "5.7.1"
   resolved "https://registry.npmjs.org/buffer/-/buffer-5.7.1.tgz"
   integrity sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==
@@ -3680,13 +3680,6 @@ critters@0.0.20:
     htmlparser2 "^8.0.2"
     postcss "^8.4.23"
     pretty-bytes "^5.3.0"
-
-cross-fetch@^3.0.4:
-  version "3.1.8"
-  resolved "https://registry.npmjs.org/cross-fetch/-/cross-fetch-3.1.8.tgz"
-  integrity sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==
-  dependencies:
-    node-fetch "^2.6.12"
 
 cross-spawn@^7.0.0, cross-spawn@^7.0.3:
   version "7.0.6"
@@ -4266,11 +4259,6 @@ figures@^3.0.0:
   integrity sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==
   dependencies:
     escape-string-regexp "^1.0.5"
-
-file-type@^12.3.0:
-  version "12.4.2"
-  resolved "https://registry.npmjs.org/file-type/-/file-type-12.4.2.tgz"
-  integrity sha512-UssQP5ZgIOKelfsaB5CuGAL+Y+q7EmONuiwF3N5HAH0t27rvrttgi6Ra9k/+DVaY9UF6+ybxu5pOXLUdA8N7Vg==
 
 fill-range@^7.1.1:
   version "7.1.1"
@@ -5532,21 +5520,6 @@ minizlib@^2.1.1, minizlib@^2.1.2:
     minipass "^3.0.0"
     yallist "^4.0.0"
 
-mirada@^0.0.15:
-  version "0.0.15"
-  resolved "https://registry.npmjs.org/mirada/-/mirada-0.0.15.tgz"
-  integrity sha512-mbm4c+wjBVcmUzHRLv/TfOAq+iy03D24KwGxx8H+NSXkD5EOZV9zFWbVxTvZCc9XwR0FIUhryU/kQm12SMSQ3g==
-  dependencies:
-    buffer "^5.4.3"
-    cross-fetch "^3.0.4"
-    file-type "^12.3.0"
-    misc-utils-of-mine-generic "^0.2.31"
-
-misc-utils-of-mine-generic@^0.2.31:
-  version "0.2.45"
-  resolved "https://registry.npmjs.org/misc-utils-of-mine-generic/-/misc-utils-of-mine-generic-0.2.45.tgz"
-  integrity sha512-WsG2zYiui2cdEbHF2pXmJfnjHb4zL+cy+PaYcLgIpMju98hwX89VbjlvGIfamCfEodbQ0qjCEvD3ocgkCXfMOQ==
-
 mkdirp@^1.0.3:
   version "1.0.4"
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz"
@@ -5655,7 +5628,7 @@ node-addon-api@^3.0.0:
   resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-3.2.1.tgz"
   integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
 
-node-fetch@^2.6.12, node-fetch@~2.6.1:
+node-fetch@~2.6.1:
   version "2.6.13"
   resolved "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.13.tgz"
   integrity sha512-StxNAxh15zr77QvvkmveSQ8uCQ4+v5FkvNTj0OESmiHu+VRi/gXArXtkWMElOsOUNLtUEvI4yS+rdtOHZTwlQA==

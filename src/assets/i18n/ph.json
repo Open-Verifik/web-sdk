@@ -348,7 +348,23 @@
 		"passkey_enroll_title": "Mas mabilis na login",
 		"passkey_enroll_description": "Mag-set up ng passkey para makapag-sign in sa susunod gamit ang Face ID, Touch ID, o fingerprint ng device — walang code na hintayin.",
 		"passkey_enroll_confirm": "I-setup ang passkey",
-		"passkey_enroll_skip": "Mamaya na"
+		"passkey_enroll_skip": "Mamaya na",
+		"sign_in_with_face": "Mag-sign in gamit ang Face Biometrics",
+		"use_human_id_button": "Mag-sign in gamit ang HumanID",
+		"continue_with_face": "Magpatuloy gamit ang Face Biometrics",
+		"continue_with_human_id": "Magpatuloy gamit ang HumanID",
+		"otp_waiting_sms": "Naghihintay ng SMS code...",
+		"otp_autofilled": "Natukoy ang code mula sa SMS",
+		"otp_enter_manually": "Ilagay ang code nang manu-mano",
+		"otp_hint": "Ilagay ang 6-digit na verification code",
+		"resend_code": "Muling ipadala ang code",
+		"resend_in": "Muling ipadala sa loob ng {{seconds}}s",
+		"create_account": "Gumawa ng isa",
+		"choose_registration_title": "Pumili ng opsyon sa pagpaparehistro",
+		"choose_registration_subtitle": "Piliin kung paano mo gustong gawin ang iyong account:",
+		"registration_smart_enroll": "Pag-verify ng Pagkakakilanlan (KYC)",
+		"registration_human_authn": "Pribadong HumanID (Zero-Knowledge)",
+		"registration_business": "Pag-verify ng Negosyo (KYB)"
 	},
 	"add_biometrics": {
 		"button": "Simulan ang pag-verify",
@@ -1231,7 +1247,9 @@
 		"humanIdSelfieTitle": "Gawin ang iyong HumanID",
 		"humanIdSelfieBody": "Kumuha ng selfie para i-encrypt ang iyong HumanID. Hindi sine-save ang iyong mukha.",
 		"humanIdSelfieStepFinish": "Ini-encrypt ang iyong HumanID…",
-		"humanIdUpgradeBody": "Walang aktibong HumanAuthn plan o available credits ang proyektong ito."
+		"humanIdUpgradeBody": "Walang aktibong HumanAuthn plan o available credits ang proyektong ito.",
+		"continue_to_sign_in": "Magpatuloy sa Pag-sign In",
+		"return_to_signin_hint": "Kumpleto na ang iyong pagpaparehistro. Magpatuloy upang mag-sign in sa iyong account."
 	},
 	"verifyBusiness": {
 		"stepCompany": "Profile ng Kompanya",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "Beripikado at protektado ng Verifik KYB SmartEngine",
 		"redirectingCountdown": "Awtomatikong magre-redirect sa loob ng {{seconds}} segundo...",
 		"redirectNow": "Magpatuloy ngayon"
+	},
+	"human_id_login": {
+		"title": "Pag-verify ng HumanID",
+		"subtitle": "I-unlock ang iyong account gamit ang iyong zero-knowledge HumanID proof at mabilisang selfie.",
+		"tab_scan_qr": "I-scan ang QR",
+		"tab_upload_qr": "Mag-upload ng QR",
+		"tab_enter_code": "Ilagay ang Code",
+		"scan_instructions": "Iposisyon ang iyong HumanID QR code sa harap ng camera",
+		"upload_instructions": "I-drag at i-drop ang iyong imahe ng HumanID QR, o i-click upang mag-browse",
+		"upload_hint": "Sumusuporta sa PNG, JPG, o WEBP hanggang 5MB",
+		"code_instructions": "I-paste ang iyong raw HumanID cryptographic string sa ibaba",
+		"code_placeholder": "I-paste ang HumanID proof (eyJ...)",
+		"continue_to_selfie": "Magpatuloy sa Pag-verify ng Mukha",
+		"selfie_title": "Kumuha ng mabilisang selfie",
+		"selfie_instructions": "Igitna ang iyong mukha sa oval upang makumpirma na ikaw ang may-ari ng HumanID na ito.",
+		"verifying": "Bine-verify ang pagkakakilanlan...",
+		"session_loading": "Naglo-load ng session ng HumanID...",
+		"session_invalid": "Nag-expire o hindi wasto ang session. Pakisubukang muli.",
+		"invalid_qr": "Walang natukoy na wastong HumanID QR code. Pakisubukan ang ibang imahe o ilagay ang code nang manu-mano.",
+		"invalid_code": "Hindi wastong format ng HumanID. Pakisuri ang code at subukang muli.",
+		"camera_permission_denied": "Tinanggihan ang pahintulot sa camera. Payagan ang access sa camera sa mga setting ng iyong browser upang magpatuloy.",
+		"camera_not_found": "Walang natukoy na camera sa device na ito. Maaari kang mag-upload ng QR image o ilagay ang iyong code.",
+		"verification_failed": "Nabigo ang biometric verification ng HumanID. Pakisubukang muli.",
+		"decrypt_error": "Nabigong i-decrypt ang patunay ng pagkakakilanlan gamit ang verifier key ng proyektong ito.",
+		"use_qr_or_code": "Gamitin ang HumanID QR o code sa halip",
+		"back_to_signin": "Bumalik sa Sign In"
 	}
 }

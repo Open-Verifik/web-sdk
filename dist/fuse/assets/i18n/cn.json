@@ -349,7 +349,23 @@
 		"passkey_enroll_title": "更快登录",
 		"passkey_enroll_description": "设置通行密钥，下次可用 Face ID、Touch ID 或设备指纹登录 — 无需等待验证码。",
 		"passkey_enroll_confirm": "设置通行密钥",
-		"passkey_enroll_skip": "稍后再说"
+		"passkey_enroll_skip": "稍后再说",
+		"sign_in_with_face": "使用人脸生物识别登录",
+		"use_human_id_button": "使用HumanID登录",
+		"continue_with_face": "继续使用人脸生物识别",
+		"continue_with_human_id": "继续使用HumanID",
+		"otp_waiting_sms": "正在等待短信验证码...",
+		"otp_autofilled": "已从短信中检测到验证码",
+		"otp_enter_manually": "手动输入验证码",
+		"otp_hint": "请输入6位验证码",
+		"resend_code": "重新发送验证码",
+		"resend_in": "{{seconds}}秒后重发",
+		"create_account": "立即创建",
+		"choose_registration_title": "选择注册方式",
+		"choose_registration_subtitle": "请选择您希望如何创建账户：",
+		"registration_smart_enroll": "身份验证 (KYC)",
+		"registration_human_authn": "私密HumanID (零知识)",
+		"registration_business": "企业验证 (KYB)"
 	},
 	"add_biometrics": {
 		"button": "开始验证",
@@ -1231,7 +1247,9 @@
 		"humanIdSelfieTitle": "创建您的 HumanID",
 		"humanIdSelfieBody": "拍一张自拍以加密生成您的 HumanID，系统不会保存您的面部照片。",
 		"humanIdSelfieStepFinish": "正在加密您的 HumanID…",
-		"humanIdUpgradeBody": "此项目没有激活的 HumanAuthn 套餐或可用积分。"
+		"humanIdUpgradeBody": "此项目没有激活的 HumanAuthn 套餐或可用积分。",
+		"continue_to_sign_in": "继续前往登录",
+		"return_to_signin_hint": "您的注册已完成。继续登录您的账户。"
 	},
 	"verifyBusiness": {
 		"stepCompany": "企业信息",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "由 Verifik KYB SmartEngine 提供安全核验与加密保护",
 		"redirectingCountdown": "将在 {{seconds}} 秒后自动跳转...",
 		"redirectNow": "立即继续"
+	},
+	"human_id_login": {
+		"title": "HumanID验证",
+		"subtitle": "使用您的零知识HumanID凭据和一张快速自拍解锁您的账户。",
+		"tab_scan_qr": "扫描二维码",
+		"tab_upload_qr": "上传二维码",
+		"tab_enter_code": "输入代码",
+		"scan_instructions": "将您的HumanID二维码对准摄像头",
+		"upload_instructions": "拖放您的HumanID二维码图片，或点击浏览",
+		"upload_hint": "支持不超过5MB的PNG、JPG或WEBP格式",
+		"code_instructions": "在下方粘贴您的HumanID加密字符串",
+		"code_placeholder": "粘贴HumanID凭据 (eyJ...)",
+		"continue_to_selfie": "继续进行人脸验证",
+		"selfie_title": "拍摄一张快速自拍",
+		"selfie_instructions": "将脸部对准椭圆中心，以确认您是该HumanID的所有者。",
+		"verifying": "正在验证身份...",
+		"session_loading": "正在加载HumanID会话...",
+		"session_invalid": "会话已过期或无效。请重试。",
+		"invalid_qr": "未检测到有效的HumanID二维码。请尝试其他图片或手动输入代码。",
+		"invalid_code": "HumanID格式无效。请检查代码并重试。",
+		"camera_permission_denied": "摄像头权限被拒绝。请在浏览器设置中允许摄像头访问以继续。",
+		"camera_not_found": "未在此设备上检测到摄像头。您可以上传二维码图片或输入代码。",
+		"verification_failed": "HumanID生物识别验证失败。请重试。",
+		"decrypt_error": "使用此项目的验证密钥解密身份证明失败。",
+		"use_qr_or_code": "改用HumanID二维码或代码",
+		"back_to_signin": "返回登录"
 	}
 }

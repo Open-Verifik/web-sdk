@@ -1505,6 +1505,15 @@
 								[showContinue]="!!session.projectFlow?.integrations?.redirectUrl || session.isMobileHandoff"
 								(continued)="session.redirectNow()"
 							/>
+							<div *ngIf="returnTo" class="mt-4 flex justify-center w-full">
+								<button
+									type="button"
+									class="primary w-full py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-2"
+									(click)="continueToSignIn()"
+								>
+									<span>{{ t("verify.continue_to_sign_in") }}</span>
+								</button>
+							</div>
 							<!-- A resumed session cannot show the HumanID again: it was delivered once and is never stored. -->
 							<ng-template #humanIdFallback>
 								<h1>{{ t("verify.humanIdAlreadyIssuedTitle") }}</h1>
@@ -1742,6 +1751,25 @@
 										</div>
 									</div>
 
+									<button
+										*ngIf="returnTo"
+										type="button"
+										class="primary submitted-cta mb-3"
+										(click)="continueToSignIn()"
+									>
+										<span>{{ t("verify.continue_to_sign_in") }}</span>
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="M5 12h14M12 5l7 7-7 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+									</button>
+
 									<button type="button" class="secondary submitted-cta" (click)="session.redirectNow()">
 										<span>{{ t("verify.submittedContinueBtn", { project: session.project?.name || "WIWO" }) }}</span>
 										<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1758,7 +1786,30 @@
 								</ng-container>
 
 								<ng-template #desktopSubmittedActionsTpl>
-									<button type="button" class="primary submitted-cta" (click)="session.redirectNow()">
+									<button
+										*ngIf="returnTo"
+										type="button"
+										class="primary submitted-cta mb-3"
+										(click)="continueToSignIn()"
+									>
+										<span>{{ t("verify.continue_to_sign_in") }}</span>
+										<svg viewBox="0 0 24 24" aria-hidden="true">
+											<path
+												d="M5 12h14M12 5l7 7-7 7"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
+									</button>
+
+									<button
+										type="button"
+										[ngClass]="returnTo ? 'secondary submitted-cta' : 'primary submitted-cta'"
+										(click)="session.redirectNow()"
+									>
 										<span>{{ t("verify.submittedContinueBtn", { project: session.project?.name || "WIWO" }) }}</span>
 										<svg viewBox="0 0 24 24" aria-hidden="true">
 											<path
