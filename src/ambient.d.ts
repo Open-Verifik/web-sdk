@@ -1,7 +1,9 @@
 import * as libs from "libs";
 
+export type Mat = any;
+
 interface Window {
-    cv: typeof import("mirada/dist/src/types/opencv/_types");
+    cv: any;
 }
 
 declare module "qrcode";

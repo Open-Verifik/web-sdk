@@ -348,7 +348,23 @@
 		"passkey_enroll_title": "더 빠른 로그인",
 		"passkey_enroll_description": "다음에 Face ID, Touch ID 또는 기기 지문으로 로그인할 수 있도록 패스키를 설정하세요 — 코드를 기다릴 필요 없습니다.",
 		"passkey_enroll_confirm": "패스키 설정",
-		"passkey_enroll_skip": "나중에"
+		"passkey_enroll_skip": "나중에",
+		"sign_in_with_face": "얼굴 생체 인식으로 로그인",
+		"use_human_id_button": "HumanID로 로그인",
+		"continue_with_face": "얼굴 생체 인식으로 계속",
+		"continue_with_human_id": "HumanID로 계속",
+		"otp_waiting_sms": "SMS 코드 대기 중...",
+		"otp_autofilled": "SMS에서 코드가 감지되었습니다",
+		"otp_enter_manually": "수동으로 코드 입력",
+		"otp_hint": "6자리 인증 코드를 입력하세요",
+		"resend_code": "코드 재전송",
+		"resend_in": "{{seconds}}초 후 재전송",
+		"create_account": "계정 만들기",
+		"choose_registration_title": "등록 옵션 선택",
+		"choose_registration_subtitle": "계정을 생성할 방법을 선택하세요:",
+		"registration_smart_enroll": "신원 확인 (KYC)",
+		"registration_human_authn": "비공개 HumanID (영지식)",
+		"registration_business": "기업 인증 (KYB)"
 	},
 	"add_biometrics": {
 		"button": "인증 시작",
@@ -1231,7 +1247,9 @@
 		"humanIdSelfieTitle": "HumanID 생성",
 		"humanIdSelfieBody": "셀피를 촬영하여 HumanID를 암호화하세요. 얼굴 사진은 저장되지 않습니다.",
 		"humanIdSelfieStepFinish": "HumanID 암호화 중…",
-		"humanIdUpgradeBody": "이 프로젝트에는 활성화된 HumanAuthn 플랜이나 사용 가능한 크레딧이 없습니다."
+		"humanIdUpgradeBody": "이 프로젝트에는 활성화된 HumanAuthn 플랜이나 사용 가능한 크레딧이 없습니다.",
+		"continue_to_sign_in": "로그인으로 이동",
+		"return_to_signin_hint": "등록이 완료되었습니다. 계정에 로그인하려면 계속 진행하세요."
 	},
 	"verifyBusiness": {
 		"stepCompany": "기업 정보",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "Verifik KYB SmartEngine에 의해 검증 및 보호됨",
 		"redirectingCountdown": "{{seconds}}초 후 자동으로 이동합니다...",
 		"redirectNow": "지금 이동하기"
+	},
+	"human_id_login": {
+		"title": "HumanID 인증",
+		"subtitle": "영지식 HumanID 증명과 간단한 셀카로 계정을 잠금 해제하세요.",
+		"tab_scan_qr": "QR 스캔",
+		"tab_upload_qr": "QR 업로드",
+		"tab_enter_code": "코드 입력",
+		"scan_instructions": "HumanID QR 코드를 카메라 앞에 놓으세요",
+		"upload_instructions": "HumanID QR 이미지를 드래그 앤 드롭하거나 클릭하여 찾아보세요",
+		"upload_hint": "최대 5MB의 PNG, JPG 또는 WEBP 지원",
+		"code_instructions": "아래에 원시 HumanID 암호화 문자열을 붙여넣으세요",
+		"code_placeholder": "HumanID 증명 붙여넣기 (eyJ...)",
+		"continue_to_selfie": "얼굴 인증으로 계속",
+		"selfie_title": "간단한 셀카 촬영",
+		"selfie_instructions": "이 HumanID의 소유자임을 확인하려면 타원 안에 얼굴을 맞추세요.",
+		"verifying": "신원 확인 중...",
+		"session_loading": "HumanID 세션 로드 중...",
+		"session_invalid": "세션이 만료되었거나 유효하지 않습니다. 다시 시도해 주세요.",
+		"invalid_qr": "유효한 HumanID QR 코드가 감지되지 않았습니다. 다른 이미지로 시도하거나 수동으로 코드를 입력하세요.",
+		"invalid_code": "유효하지 않은 HumanID 형식입니다. 코드를 확인하고 다시 시도하세요.",
+		"camera_permission_denied": "카메라 권한이 거부되었습니다. 계속하려면 브라우저 설정에서 카메라 접근을 허용하세요.",
+		"camera_not_found": "이 기기에서 카메라가 감지되지 않았습니다. QR 이미지를 업로드하거나 코드를 입력할 수 있습니다.",
+		"verification_failed": "HumanID 생체 인식 인증에 실패했습니다. 다시 시도해 주세요.",
+		"decrypt_error": "이 프로젝트의 검증자 키로 신원 증명을 복호화하지 못했습니다.",
+		"use_qr_or_code": "대신 HumanID QR 또는 코드 사용",
+		"back_to_signin": "로그인으로 돌아가기"
 	}
 }

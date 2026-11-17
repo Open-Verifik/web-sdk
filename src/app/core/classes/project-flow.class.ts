@@ -8,6 +8,7 @@ import {
 	BusinessSettings,
 	BusinessSignUpForm,
 	BusinessSteps,
+	LinkedProjectMeta,
 	LivenessSettings,
 	LoginProjectFlow,
 	LoginSettings,
@@ -22,10 +23,12 @@ import {
 	ProjectDocumentTemplate,
 	SignUpFormSettings,
 	SmartAccessProjectFlow,
+	SmartAccessSecurity,
 	SmartEnrollProjectFlow,
 } from "../models/smart-enroll-project.model";
 import { LegacyProjectFlow } from "../models/legacy-project.model";
 import { PromptTemplate } from "../models/prompt-template.model";
+import { calibrateArcFaceCompareThreshold, DEFAULT_ARCFACE_COMPARE_MIN_SCORE } from "../../modules/auth/verify/verify-flow";
 
 export type HumanAuthnPublicDataKey = "fullName" | "email" | "phone" | "documentNumber";
 
@@ -49,6 +52,8 @@ export class ProjectFlow {
 	integrations: PersonalIntegrations | BusinessIntegrations;
 	liveness: PersonalLiveness | BusinessLiveness;
 	loginSettings?: LoginSettings;
+	linkedProjectsMeta?: LinkedProjectMeta[];
+	security?: SmartAccessSecurity;
 	/** HumanAuthn: what the end user receives (HumanID string or QR) and how it is kept. */
 	humanAuthn?: HumanAuthnSettings;
 	storage?: { provider?: "ipfs" | "cloud" | "none" };
@@ -114,9 +119,8 @@ export class ProjectFlow {
 			const rawCompareMin =
 				repPolicy.compareMinScore ??
 				this.representatives?.liveness?.compareMinScore ??
-				liveness?.compareMinScore ??
-				0.85;
-			const compareMinScore = Number(rawCompareMin) > 1 ? Number(rawCompareMin) / 100 : Number(rawCompareMin) || 0.85;
+				liveness?.compareMinScore;
+			const compareMinScore = calibrateArcFaceCompareThreshold(rawCompareMin, DEFAULT_ARCFACE_COMPARE_MIN_SCORE);
 			const rawLivenessMin =
 				repPolicy.livenessMinScore ??
 				this.representatives?.liveness?.minScore ??
@@ -188,13 +192,12 @@ export class ProjectFlow {
 			document: {
 				colombianBarcodeValidation: documents?.colombianBarcodeValidation || false,
 				// Mirror backend resolveCompareMinScoreFromProjectFlow:
-				// v3 reads liveness.compareMinScore first, then onboardingSettings.document.compareMinScore.
-				// Default 0.85 matches the Mongoose schema default in
-				// Repositories/ProjectFlows/models/project-flow.smart-enroll-kyc.model.js.
-				compareMinScore:
-					liveness?.compareMinScore ??
-					(documents as any)?.compareMinScore ??
-					0.85,
+				// v3 reads liveness.compareMinScore first, then onboardingSettings.document.compareMinScore,
+				// calibrating legacy OpenCV thresholds (>0.75..0.95) to native ArcFace (0.65..0.75, default 0.70).
+				compareMinScore: calibrateArcFaceCompareThreshold(
+					liveness?.compareMinScore ?? (documents as any)?.compareMinScore,
+					DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+				),
 				maxAttempts: documents?.attemptLimit || 3,
 				scanDocumentAllowed: this.documentScanAllowed,
 				uploadDocumentAllowed: this.documentUploadAllowed,
@@ -322,6 +325,8 @@ export class ProjectFlow {
 		this.signUpForm = data.signUpForm;
 		this.steps = (data as PersonalProjectFlow | BusinessProjectFlow).steps;
 		this.loginSettings = (data as LoginProjectFlow).loginSettings;
+		this.linkedProjectsMeta = (data as LoginProjectFlow).linkedProjectsMeta || [];
+		this.security = (data as LoginProjectFlow).security;
 
 		if (data.type === ("humanAuthn" as typeof data.type)) this._applyHumanAuthn(data as any);
 	}
@@ -522,6 +527,15 @@ export class ProjectFlow {
 			updatedAt: this.updatedAt,
 			version: this.version,
 		};
+
+		if (this.type === "login") {
+			return {
+				...base,
+				loginSettings: this.loginSettings,
+				security: this.security,
+				linkedProjectsMeta: this.linkedProjectsMeta,
+			} as any;
+		}
 
 		if (this.isPersonal) {
 			return {

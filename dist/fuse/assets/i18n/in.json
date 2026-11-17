@@ -348,7 +348,23 @@
 		"passkey_enroll_title": "तेज़ लॉगिन",
 		"passkey_enroll_description": "अगली बार Face ID, Touch ID या अपने डिवाइस की फिंगरप्रिंट से साइन इन करने के लिए पासकी सेट करें — कोड का इंतज़ार नहीं।",
 		"passkey_enroll_confirm": "पासकी सेटअप करें",
-		"passkey_enroll_skip": "बाद में"
+		"passkey_enroll_skip": "बाद में",
+		"sign_in_with_face": "चेहरे की बायोमेट्रिक्स से साइन इन करें",
+		"use_human_id_button": "HumanID से साइन इन करें",
+		"continue_with_face": "चेहरे की बायोमेट्रिक्स के साथ जारी रखें",
+		"continue_with_human_id": "HumanID के साथ जारी रखें",
+		"otp_waiting_sms": "एसएमएस कोड की प्रतीक्षा कर रहे हैं...",
+		"otp_autofilled": "एसएमएस से कोड का पता चला",
+		"otp_enter_manually": "कोड मैन्युअल रूप से दर्ज करें",
+		"otp_hint": "6 अंकों का सत्यापन कोड दर्ज करें",
+		"resend_code": "कोड पुनः भेजें",
+		"resend_in": "{{seconds}}s में पुनः भेजें",
+		"create_account": "एक खाता बनाएं",
+		"choose_registration_title": "पंजीकरण विकल्प चुनें",
+		"choose_registration_subtitle": "चुनें कि आप अपना खाता कैसे बनाना चाहते हैं:",
+		"registration_smart_enroll": "पहचान सत्यापन (KYC)",
+		"registration_human_authn": "निजी HumanID (शून्य-ज्ञान)",
+		"registration_business": "व्यापार सत्यापन (KYB)"
 	},
 	"add_biometrics": {
 		"button": "सत्यापन प्रारंभ करें",
@@ -1231,7 +1247,9 @@
 		"humanIdSelfieTitle": "अपना HumanID बनाएं",
 		"humanIdSelfieBody": "अपना HumanID एन्क्रिप्ट करने के लिए सेल्फ़ी लें। आपका चेहरा कभी संग्रहीत नहीं होता।",
 		"humanIdSelfieStepFinish": "आपका HumanID एन्क्रिप्ट किया जा रहा है…",
-		"humanIdUpgradeBody": "इस प्रोजेक्ट के पास सक्रिय HumanAuthn प्लान या उपलब्ध क्रेडिट नहीं हैं।"
+		"humanIdUpgradeBody": "इस प्रोजेक्ट के पास सक्रिय HumanAuthn प्लान या उपलब्ध क्रेडिट नहीं हैं।",
+		"continue_to_sign_in": "साइन इन करने के लिए जारी रखें",
+		"return_to_signin_hint": "आपका नामांकन पूरा हो गया है। अपने खाते में साइन इन करने के लिए आगे बढ़ें।"
 	},
 	"verifyBusiness": {
 		"stepCompany": "कंपनी प्रोफ़ाइल",
@@ -1385,5 +1403,31 @@
 		"securitySealText": "Verifik KYB SmartEngine द्वारा सत्यापित और सुरक्षित",
 		"redirectingCountdown": "{{seconds}} सेकंड में स्वचालित रूप से रीडायरेक्ट हो रहा है...",
 		"redirectNow": "अभी जारी रखें"
+	},
+	"human_id_login": {
+		"title": "HumanID सत्यापन",
+		"subtitle": "अपने शून्य-ज्ञान HumanID प्रमाण और त्वरित सेल्फी से अपना खाता अनलॉक करें।",
+		"tab_scan_qr": "QR स्कैन करें",
+		"tab_upload_qr": "QR अपलोड करें",
+		"tab_enter_code": "कोड दर्ज करें",
+		"scan_instructions": "अपने HumanID QR कोड को कैमरे के सामने रखें",
+		"upload_instructions": "अपनी HumanID QR छवि को खींचें और छोड़ें, या ब्राउज़ करने के लिए क्लिक करें",
+		"upload_hint": "5MB तक PNG, JPG, या WEBP का समर्थन करता है",
+		"code_instructions": "नीचे अपना कच्चा HumanID क्रिप्टोग्राफ़िक स्ट्रिंग चिपकाएं",
+		"code_placeholder": "HumanID प्रमाण चिपकाएं (eyJ...)",
+		"continue_to_selfie": "चेहरा सत्यापन के लिए जारी रखें",
+		"selfie_title": "एक त्वरित सेल्फी लें",
+		"selfie_instructions": "यह पुष्टि करने के लिए कि आप इस HumanID के स्वामी हैं, अपने चेहरे को अंडाकार में केंद्रित करें।",
+		"verifying": "पहचान सत्यापित की जा रही है...",
+		"session_loading": "HumanID सत्र लोड हो रहा है...",
+		"session_invalid": "सत्र समाप्त या अमान्य। कृपया पुनः प्रयास करें।",
+		"invalid_qr": "कोई मान्य HumanID QR कोड नहीं मिला। कृपया दूसरी छवि आज़माएं या मैन्युअल रूप से कोड दर्ज करें।",
+		"invalid_code": "अमान्य HumanID प्रारूप। कृपया कोड जांचें और पुनः प्रयास करें।",
+		"camera_permission_denied": "कैमरा अनुमति अस्वीकृत। जारी रखने के लिए कृपया अपनी ब्राउज़र सेटिंग में कैमरा एक्सेस की अनुमति दें।",
+		"camera_not_found": "इस उपकरण पर कोई कैमरा नहीं मिला। आप QR छवि अपलोड कर सकते हैं या अपना कोड दर्ज कर सकते हैं।",
+		"verification_failed": "HumanID बायोमेट्रिक सत्यापन विफल रहा। कृपया पुनः प्रयास करें।",
+		"decrypt_error": "इस परियोजना की सत्यापनकर्ता कुंजी के साथ पहचान प्रमाण को डिक्रिप्ट करने में विफल।",
+		"use_qr_or_code": "इसके बजाय HumanID QR या कोड का उपयोग करें",
+		"back_to_signin": "साइन इन पर वापस जाएं"
 	}
 }

@@ -1,4 +1,4 @@
-import { Mat } from "mirada/dist/src/types/opencv";
+export type Mat = any;
 
 declare class jscanify {
     constructor();
