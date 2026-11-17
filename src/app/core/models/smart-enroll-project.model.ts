@@ -93,10 +93,39 @@ export interface DatApiSettings {
 	required: string[];
 }
 
+export interface LinkedProjectMetaHumanAuthn {
+	mode?: "standard" | "active_user";
+	outputFormat?: "string" | "qrCode";
+	storageProvider?: "ipfs" | "cloud" | "none";
+}
+
+export interface LinkedProjectMeta {
+	_id: string;
+	name: string;
+	status: "active" | "draft" | "paused";
+	flowType: "onboarding" | "humanAuthn";
+	target: "personal" | "business";
+	allowSignUpRedirect?: boolean;
+	isPrimarySignUp?: boolean;
+	hasFaceCollection?: boolean;
+	humanAuthn?: LinkedProjectMetaHumanAuthn;
+}
+
+export interface SmartAccessSecurity {
+	strategy?: "whitelist" | "none";
+	source?: "API" | "CSV" | "NONE" | "SMART_ENROLL" | "HUMAN_AUTHN" | "VERIFIK_PROJECTS" | null;
+	primarySignUpProject?: string | null;
+	apiUrl?: string;
+	apiTestType?: "email" | "phone";
+	apiTestValue?: string;
+}
+
 export interface LoginSettings {
 	email?: boolean;
 	emailGateway?: "mailgun" | "none";
 	faceLiveness?: boolean;
+	requireBiometricStepUp?: boolean;
+	allowDirectHumanIdInput?: boolean;
 	livenessMinScore?: number;
 	phone?: boolean;
 	phoneGateway?: "sms" | "whatsapp" | "both" | "none";
@@ -296,6 +325,8 @@ export interface BusinessProjectFlow extends BaseProjectFlow {
 
 export interface LoginProjectFlow extends BaseProjectFlow {
 	loginSettings: LoginSettings;
+	security?: SmartAccessSecurity;
+	linkedProjectsMeta?: LinkedProjectMeta[];
 	integrations: PersonalIntegrations;
 }
 

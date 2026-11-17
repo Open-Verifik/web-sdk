@@ -1,6 +1,7 @@
 import { flowOrderFrom, flowOrderFromQuery, ProjectFlow } from "app/core/classes/project-flow.class";
 import {
 	attemptsRemaining,
+	calibrateArcFaceCompareThreshold,
 	cameraStepsAhead,
 	canSkipIdentity,
 	completionStatus,
@@ -544,5 +545,29 @@ describe("verify-flow", () => {
 				status: "ONGOING",
 			})
 		).toBe("consent");
+	});
+
+	describe("calibrateArcFaceCompareThreshold", () => {
+		it("calibrates legacy OpenCV thresholds while preserving native ArcFace values", () => {
+			expect(calibrateArcFaceCompareThreshold(0.85)).toBe(0.7);
+			expect(calibrateArcFaceCompareThreshold(0.9)).toBe(0.725);
+			expect(calibrateArcFaceCompareThreshold(0.95)).toBe(0.75);
+			expect(calibrateArcFaceCompareThreshold(0.65)).toBe(0.65);
+			expect(calibrateArcFaceCompareThreshold(undefined)).toBe(0.7);
+		});
+
+		it("applies calibrated compareMinScore when constructing ProjectFlow onboardingSettings", () => {
+			const pf = new ProjectFlow({
+				_id: "flow-1",
+				client: "client-1",
+				name: "Legacy 85 Flow",
+				type: "onboarding",
+				target: "personal",
+				version: 3,
+				liveness: { compareMinScore: 0.85, minScore: 0.65, attemptLimit: 3 },
+			} as any);
+
+			expect(pf.onboardingSettings.document.compareMinScore).toBe(0.7);
+		});
 	});
 });

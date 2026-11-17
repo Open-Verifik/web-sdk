@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { onHttpForbiddenClearAppRegistrationSession, shouldClearAppRegistrationSessionOnHttpForbidden } from "app/core/services/app-registration-session.storage";
 import { Observable, retry, finalize, catchError, throwError } from "rxjs";
@@ -32,12 +32,33 @@ export class HttpWrapperService {
 
         const authToken: string = localStorage.getItem("accessToken");
 
-        let headers = {
+        const baseHeaders: Record<string, any> = {
             timeout: 20,
         };
 
         if (authToken) {
-            headers["Authorization"] = `Bearer ${authToken}`;
+            baseHeaders["Authorization"] = `Bearer ${authToken}`;
+        }
+
+        const { headers: optionHeaders, ...restOptions } = options || {};
+        let headers: Record<string, any> | HttpHeaders = baseHeaders;
+
+        if (optionHeaders instanceof HttpHeaders) {
+            let merged = optionHeaders;
+            for (const [key, value] of Object.entries(baseHeaders)) {
+                if (!merged.has(key)) {
+                    merged = merged.set(key, String(value));
+                }
+            }
+            headers = merged;
+        } else if (optionHeaders && typeof optionHeaders === "object") {
+            const merged: Record<string, any> = { ...baseHeaders };
+            for (const [key, value] of Object.entries(optionHeaders)) {
+                if (value !== undefined && value !== null && value !== "") {
+                    merged[key] = value;
+                }
+            }
+            headers = merged;
         }
 
         switch (method) {
@@ -46,28 +67,28 @@ export class HttpWrapperService {
                     this._http.get(url, {
                         params,
                         headers,
-                        ...options,
+                        ...restOptions,
                     })
                 );
             case "post":
                 return this.request(
                     this._http.post(url, params, {
                         headers,
-                        ...options,
+                        ...restOptions,
                     })
                 );
             case "put":
                 return this.request(
                     this._http.put(url, params, {
                         headers,
-                        ...options,
+                        ...restOptions,
                     })
                 );
             case "delete":
                 return this.request(
                     this._http.delete(url, {
                         headers,
-                        ...options,
+                        ...restOptions,
                     })
                 );
             default:

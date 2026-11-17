@@ -25,11 +25,13 @@ import { PasswordlessService } from "app/modules/auth/passwordless.service";
 import { DemoService } from "app/modules/demo/demo.service";
 import {
 	attemptsRemaining,
+	calibrateArcFaceCompareThreshold,
 	cameraStepsAhead,
 	canSkipIdentity,
 	completionStatus,
 	contactScreens,
 	ContactScreen,
+	DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
 	documentNeedsBack,
 	enrollmentClientFrom,
 	finalScreen,
@@ -2399,9 +2401,13 @@ export class VerifySessionService implements OnDestroy {
 	private _score(): "COMPLETED" | "FAILED" | "COMPLETED_WITHOUT_KYC" {
 		const settings = this.settings;
 		const compare = this.registration?.compareFaceVerification;
+		const effectiveCompareMin =
+			compare?.result?.compare_min_score != null
+				? calibrateArcFaceCompareThreshold(compare.result.compare_min_score, DEFAULT_ARCFACE_COMPARE_MIN_SCORE)
+				: settings?.compareMinScore || DEFAULT_ARCFACE_COMPARE_MIN_SCORE;
 
 		return completionStatus({
-			compareMinScore: settings?.compareMinScore || 0.85,
+			compareMinScore: effectiveCompareMin,
 			comparePassed: compare?.result?.passed,
 			compareScore: compare?.result?.score,
 			documentSkipped: Boolean(this._skippedDocument || settings?.document === "skip"),
@@ -2792,7 +2798,10 @@ const settingsFromFlow = (flow: ProjectFlow): VerifySettings => {
 				}
 			: undefined,
 		colombianBarcodeValidation: Boolean(document.colombianBarcodeValidation),
-		compareMinScore: document.compareMinScore || liveness.compareMinScore || 0.85,
+		compareMinScore: calibrateArcFaceCompareThreshold(
+			document.compareMinScore ?? liveness.compareMinScore,
+			DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+		),
 		countryCode: signUp.countryCode,
 		document: (steps.document || "skip") as VerifySettings["document"],
 		documentMaxAttempts: document.maxAttempts || 3,
