@@ -617,7 +617,8 @@
 			},
 			"capture": "Cattura",
 			"perfect": "Perfetto!",
-			"processing": "Elaborazione..."
+			"processing": "Elaborazione...",
+			"success": "Verifica di vitalità completata!"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Il tuo volto non è stato registrato correttamente",

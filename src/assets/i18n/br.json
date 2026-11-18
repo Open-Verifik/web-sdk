@@ -618,7 +618,8 @@
 			},
 			"capture": "Capturar",
 			"perfect": "Perfeito!",
-			"processing": "Processando..."
+			"processing": "Processando...",
+			"success": "Verificação de vida concluída!"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Seu rosto não foi registrado corretamente",
