@@ -627,7 +627,8 @@
 			},
 			"capture": "Capturar",
 			"perfect": "¡Perfecto!",
-			"processing": "Procesando..."
+			"processing": "Procesando...",
+			"success": "¡Prueba de vida completada!"
 		},
 		"demo_mode": {
 			"title": "Este proyecto está en modo demo",
