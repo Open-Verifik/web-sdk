@@ -617,7 +617,8 @@
 			},
 			"capture": "Kunin",
 			"perfect": "Perpekto!",
-			"processing": "Pinoproseso..."
+			"processing": "Pinoproseso...",
+			"success": "Nakumpleto ang pagsusuri ng liveness!"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Hindi tama ang pagkarehistro ng iyong mukha",
