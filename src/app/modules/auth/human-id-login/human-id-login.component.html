@@ -1,11 +1,11 @@
 <ng-container *transloco="let t">
 	<div
-		class="human-id-shell min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6"
+		class="human-id-shell w-full min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6"
 		[style.backgroundColor]="project?.branding?.backgroundColor || '#f8fafc'"
 	>
 		<div class="human-id-card w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden p-6 sm:p-8 flex flex-col">
 			<!-- Card Header -->
-			<div class="flex items-center justify-between mb-6">
+			<div class="flex items-center justify-between gap-2 mb-6">
 				<button
 					type="button"
 					class="back-button flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
@@ -14,12 +14,15 @@
 					<mat-icon class="icon-sm">arrow_back</mat-icon>
 					<span>{{ t("human_id_login.back_to_signin") }}</span>
 				</button>
-				<img
-					*ngIf="project?.branding?.logo"
-					[src]="project?.branding?.logo"
-					alt="Logo"
-					class="h-8 max-w-[120px] object-contain"
-				/>
+				<div class="flex items-center gap-2 ml-auto">
+					<img
+						*ngIf="project?.branding?.logo"
+						[src]="project?.branding?.logo"
+						alt="Logo"
+						class="h-8 max-w-[120px] object-contain"
+					/>
+					<languages></languages>
+				</div>
 			</div>
 
 			<!-- Title & Subtitle -->
