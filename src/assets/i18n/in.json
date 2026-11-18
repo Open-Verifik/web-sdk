@@ -617,7 +617,8 @@
 			},
 			"capture": "कैप्चर करें",
 			"perfect": "बढ़िया!",
-			"processing": "प्रोसेसिंग..."
+			"processing": "प्रोसेसिंग...",
+			"success": "लाइवनेस जांच पूर्ण हुई!"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "आपका चेहरा सही ढंग से पंजीकृत नहीं किया गया",

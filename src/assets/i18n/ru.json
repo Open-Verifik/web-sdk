@@ -617,7 +617,8 @@
 			},
 			"capture": "Захватить",
 			"perfect": "Отлично!",
-			"processing": "Обработка..."
+			"processing": "Обработка...",
+			"success": "Проверка живости завершена!"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "Ваше лицо было неправильно зарегистрировано",

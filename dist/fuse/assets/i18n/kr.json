@@ -617,7 +617,8 @@
 			},
 			"capture": "캡처",
 			"perfect": "완벽합니다!",
-			"processing": "처리 중..."
+			"processing": "처리 중...",
+			"success": "라이브니스 확인이 완료되었습니다!"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "얼굴이 정확하게 등록되지 않았습니다",

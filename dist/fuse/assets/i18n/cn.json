@@ -618,7 +618,8 @@
 			},
 			"capture": "捕获",
 			"perfect": "完美!",
-			"processing": "处理中..."
+			"processing": "处理中...",
+			"success": "活体检测已完成！"
 		},
 		"failed": {
 			"liveness_registered_incorrectly": "您的面部注册不正确",
