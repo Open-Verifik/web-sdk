@@ -18,6 +18,7 @@ import { KYCService } from "../../kyc.service";
 import { PasswordlessService } from "../../passwordless.service";
 import { AppRegistration, Face } from "../../project";
 import { EnrollSettings, EnrollStore, SmartEnrollService } from "../smart-enroll.service";
+import { calibrateArcFaceCompareThreshold, DEFAULT_ARCFACE_COMPARE_MIN_SCORE } from "../../verify/verify-flow";
 
 @Component({
 	animations: fuseAnimations,
@@ -133,8 +134,8 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		const compareScore = this.enrollStore.biometric.compareScore || compareFaceVerification?.result?.score || 0;
 		const livenessScore = this.enrollStore.biometric.livenessScore || biometricValidation?.livenessScore || 0;
 
-		this.comparisonScore = Math.floor((compareScore || 0) * 100);
-		this.livenessScore = Math.floor((livenessScore || 0) * 100);
+		this.comparisonScore = Math.round((compareScore || 0) * 100);
+		this.livenessScore = Math.round((livenessScore || 0) * 100);
 		this.comparisonFailed = false;
 		this.errorResult = false;
 		this.livenessFailed = false;
@@ -157,7 +158,11 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.errorResult = true;
 				this.comparisonFailed = true;
 			} else if (backendPassed === undefined || backendPassed === null) {
-				if (compareScore < this.enrollStore.biometric.compareMinScore) {
+				const calibratedCompareMin = calibrateArcFaceCompareThreshold(
+					this.enrollStore.biometric.compareMinScore,
+					DEFAULT_ARCFACE_COMPARE_MIN_SCORE
+				);
+				if (compareScore < calibratedCompareMin) {
 					this.appRegistration.status = "FAILED";
 					this.errorResult = true;
 					this.comparisonFailed = true;
@@ -464,10 +469,10 @@ export class SmartResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 		const storedMin = this.appRegistration?.compareFaceVerification?.result?.compare_min_score;
 		const minScore =
 			storedMin !== undefined && storedMin !== null
-				? Number(storedMin)
-				: (this.enrollStore.biometric.compareMinScore ?? 0);
+				? calibrateArcFaceCompareThreshold(storedMin, DEFAULT_ARCFACE_COMPARE_MIN_SCORE)
+				: calibrateArcFaceCompareThreshold(this.enrollStore.biometric.compareMinScore, DEFAULT_ARCFACE_COMPARE_MIN_SCORE);
 
-		return minScore <= 1 ? Math.floor(minScore * 100) : Math.floor(minScore);
+		return Math.round(minScore * 100);
 	}
 
 	private _createAppRegistrationZKP(): void {

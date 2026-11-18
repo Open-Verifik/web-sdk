@@ -569,5 +569,30 @@ describe("verify-flow", () => {
 
 			expect(pf.onboardingSettings.document.compareMinScore).toBe(0.7);
 		});
+
+		it("calibrates humanAuthn, v2 onboarding, and business default liveness thresholds", () => {
+			const haFlow = new ProjectFlow({
+				_id: "flow-ha",
+				client: "client-1",
+				name: "HumanAuthn Legacy 85",
+				type: "humanAuthn",
+				target: "personal",
+				version: 3,
+				humanAuthn: { compareMinScore: 0.85, mode: "standard", outputFormat: "string" },
+			} as any);
+			expect(haFlow.humanAuthn?.compareMinScore).toBe(0.7);
+
+			const bizFlow = new ProjectFlow({
+				_id: "flow-biz",
+				client: "client-1",
+				name: "KYB Default Liveness",
+				type: "onboarding",
+				target: "business",
+				version: 3,
+				representativesPolicy: { compareMinScore: 0.85 },
+			} as any);
+			expect(bizFlow.onboardingSettings.liveness.livenessMinScore).toBe(0.65);
+			expect(bizFlow.onboardingSettings.document.compareMinScore).toBe(0.7);
+		});
 	});
 });

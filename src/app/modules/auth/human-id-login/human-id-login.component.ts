@@ -25,6 +25,7 @@ import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
 import { AntiBotChallengeService } from "app/core/services/anti-bot-challenge.service";
+import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ImageScan } from "app/modules/auth/project";
 import { VerifySelfieComponent } from "app/modules/auth/verify/verify-selfie.component";
 import { HumanIdLoginPayload, PasswordlessService } from "../passwordless.service";
@@ -44,6 +45,7 @@ export type HumanIdInputMode = "qr_camera" | "qr_upload" | "text_paste";
 		MatIconModule,
 		MatProgressSpinnerModule,
 		FuseAlertComponent,
+		LanguagesComponent,
 		VerifySelfieComponent,
 	],
 	templateUrl: "./human-id-login.component.html",

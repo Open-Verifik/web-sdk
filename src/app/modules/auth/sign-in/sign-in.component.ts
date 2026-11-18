@@ -100,6 +100,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
     phoneValidation: any;
     project: Project;
     projectFlow: ProjectFlow;
+    projectLoadError: string | null = null;
     secondFactorData: any;
     secondFactorForm: any;
     selectedCountryCode: string;
@@ -663,6 +664,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     requestProject(projectId?: string): void {
         if (!projectId) projectId = environment.verifikProject;
+        this.projectLoadError = null;
 
         this._passwordlessService.requestProject(projectId, "login").subscribe({
             next: (v) => {
@@ -689,9 +691,11 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
             error: (e) => {
                 console.info({ errorHERE: e });
 
-                if (e.error.code === "InternalServer") alert("something went wrong, try  again");
+                if (e?.error?.code === "InternalServer") alert("something went wrong, try  again");
+                this.projectLoadError = e?.error?.message || "Project not found";
 
                 this._splashScreenService.hide();
+                this._changeDetectorRef.markForCheck();
             },
             complete: () => {
                 if (!this.projectFlow) return;
