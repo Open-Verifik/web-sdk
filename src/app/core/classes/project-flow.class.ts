@@ -125,8 +125,8 @@ export class ProjectFlow {
 				repPolicy.livenessMinScore ??
 				this.representatives?.liveness?.minScore ??
 				liveness?.minScore ??
-				0.85;
-			const livenessMinScore = Number(rawLivenessMin) > 1 ? Number(rawLivenessMin) / 100 : Number(rawLivenessMin) || 0.85;
+				0.65;
+			const livenessMinScore = Number(rawLivenessMin) > 1 ? Number(rawLivenessMin) / 100 : Number(rawLivenessMin) || 0.65;
 
 			return {
 				basicInformation: {
@@ -339,7 +339,10 @@ export class ProjectFlow {
 		const humanAuthn = data.humanAuthn || {};
 
 		this.humanAuthn = {
-			compareMinScore: humanAuthn.compareMinScore,
+			compareMinScore:
+				humanAuthn.compareMinScore != null
+					? calibrateArcFaceCompareThreshold(humanAuthn.compareMinScore, DEFAULT_ARCFACE_COMPARE_MIN_SCORE)
+					: DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
 			mode: humanAuthn.mode === "active_user" ? "active_user" : "standard",
 			outputFormat: humanAuthn.outputFormat === "qrCode" ? "qrCode" : "string",
 			publicDataKeys: Array.isArray(humanAuthn.publicDataKeys) ? humanAuthn.publicDataKeys : ["fullName"],
@@ -383,7 +386,10 @@ export class ProjectFlow {
 	private _migrateLivenessSettings(v2Liveness: any): PersonalLiveness | BusinessLiveness {
 		return {
 			attemptLimit: v2Liveness.maxAttempts || 3,
-			compareMinScore: v2Liveness.compareMinScore,
+			compareMinScore:
+				v2Liveness.compareMinScore != null
+					? calibrateArcFaceCompareThreshold(v2Liveness.compareMinScore, DEFAULT_ARCFACE_COMPARE_MIN_SCORE)
+					: v2Liveness.compareMinScore,
 			minScore: v2Liveness.livenessMinScore || 0.65,
 			searchMinScore: v2Liveness.searchMinScore || 0.8,
 			searchMode: v2Liveness.searchMode || "FAST",
@@ -409,7 +415,10 @@ export class ProjectFlow {
 	private _migrateDocuments(v2Document: any): PersonalDocuments | BusinessDocuments {
 		return {
 			attemptLimit: v2Document.maxAttempts || 3,
-			compareMinScore: v2Document.compareMinScore,
+			compareMinScore:
+				v2Document.compareMinScore != null
+					? calibrateArcFaceCompareThreshold(v2Document.compareMinScore, DEFAULT_ARCFACE_COMPARE_MIN_SCORE)
+					: v2Document.compareMinScore,
 			criminalHistoryVerification: v2Document.verifyCriminalHistory || false,
 			documentTypes: this._migrateDocumentTypes(v2Document),
 			informationVerification: v2Document.verifyNames || false,
