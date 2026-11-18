@@ -227,6 +227,17 @@
 										rel="noopener"
 										>{{ t("verify.terms") }}</a
 									>
+									<span
+										*ngIf="
+											session.settings?.showTerms &&
+											session.project?.termsAndConditionsUrl &&
+											session.settings?.showPrivacy &&
+											session.project?.privacyUrl
+										"
+										aria-hidden="true"
+									>
+										&middot;
+									</span>
 									<a
 										*ngIf="session.settings?.showPrivacy && session.project?.privacyUrl"
 										[href]="session.project?.privacyUrl"
@@ -1514,10 +1525,17 @@
 									<span>{{ t("verify.continue_to_sign_in") }}</span>
 								</button>
 							</div>
-							<!-- A resumed session cannot show the HumanID again: it was delivered once and is never stored. -->
+							<!-- A resumed session cannot show the HumanID again: it was delivered once and is never stored.
+							     If issuance failed (`status === 'FAILED'`), show a failure message instead of claiming it was already issued. -->
 							<ng-template #humanIdFallback>
-								<h1>{{ t("verify.humanIdAlreadyIssuedTitle") }}</h1>
-								<p>{{ t("verify.humanIdAlreadyIssuedBody") }}</p>
+								<ng-container *ngIf="session.registration?.status !== 'FAILED'; else humanIdFailedTpl">
+									<h1>{{ t("verify.humanIdAlreadyIssuedTitle") }}</h1>
+									<p>{{ t("verify.humanIdAlreadyIssuedBody") }}</p>
+								</ng-container>
+								<ng-template #humanIdFailedTpl>
+									<h1>{{ t("verify.errorTitle") }}</h1>
+									<p>{{ t("verify.errorBody") }}</p>
+								</ng-template>
 								<button
 									type="button"
 									class="primary"
