@@ -244,6 +244,7 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 			this.step = "identifier";
 			this._cdr.markForCheck();
 		} catch (err: any) {
+			console.error("[SmartLinkResolver] resolve failed", err);
 			const code = err?.error?.message || "smart_link_not_found";
 			this._setError(code);
 		}

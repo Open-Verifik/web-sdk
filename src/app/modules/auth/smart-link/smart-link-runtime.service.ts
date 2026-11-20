@@ -22,7 +22,17 @@ const ACTIVE_SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 	providedIn: "root",
 })
 export class SmartLinkRuntimeService {
-	private readonly _apiUrl = (environment.apiUrl || "").replace(/\/+$/, "");
+	private get _apiUrl(): string {
+		const raw = (environment.apiUrl || "").replace(/\/+$/, "");
+		if (
+			typeof window !== "undefined" &&
+			window.location.protocol === "https:" &&
+			/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(raw)
+		) {
+			return "";
+		}
+		return raw;
+	}
 
 	constructor(
 		private _http: HttpClient,
