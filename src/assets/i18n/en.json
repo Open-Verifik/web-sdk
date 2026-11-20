@@ -1430,5 +1430,73 @@
 		"decrypt_error": "Failed to decrypt identity proof with this project's verifier key.",
 		"use_qr_or_code": "Use HumanID QR or code instead",
 		"back_to_signin": "Back to Sign In"
+	},
+	"smartLink": {
+		"loadingTitle": "Preparing secure verification",
+		"loadingBody": "One moment while we load your verification experience.",
+		"routingTitle": "Redirecting you now",
+		"routingBody": "Please wait while we route you to the right step.",
+		"poweredBy": "Powered by Verifik SmartLink",
+		"privacy": "Privacy",
+		"terms": "Terms",
+		"actions": {
+			"back": "Back",
+			"continue": "Continue"
+		},
+		"modePicker": {
+			"title": "Choose how to verify",
+			"subtitle": "Select the option that best describes who is verifying."
+		},
+		"modes": {
+			"personal": {
+				"title": "Verify as an Individual",
+				"desc": "Complete identity verification with your document and face."
+			},
+			"business": {
+				"title": "Verify a Company",
+				"desc": "Submit company records and authorized representatives."
+			},
+			"humanId": {
+				"title": "Prove I am Human (HumanID)",
+				"desc": "Privacy-preserving biometric proof of uniqueness."
+			},
+			"access": {
+				"title": "Sign In with Biometrics",
+				"desc": "Quickly confirm your existing verified profile."
+			}
+		},
+		"lookup": {
+			"personalTitle": "Let us find your profile",
+			"personalSubtitle": "Enter your email or phone to continue quickly or start a new verification.",
+			"personalLabel": "Email or phone (optional)",
+			"personalPlaceholder": "alex@example.com or +1 555 0100",
+			"businessTitle": "Identify your organization",
+			"businessSubtitle": "Enter your company tax ID or work email to route your business verification.",
+			"businessLabel": "Company Tax ID or work email (optional)",
+			"businessPlaceholder": "900123456-7 or ops@company.com"
+		},
+		"receipt": {
+			"loading": "Loading your verification receipt...",
+			"title": "Verification Complete",
+			"defaultSubtitle": "Your identity check is complete. You can safely return to your assistant or chat now.",
+			"confirmationCode": "Confirmation Code",
+			"completedAt": "Completed at",
+			"copyCode": "Copy Confirmation Code",
+			"copied": "Copied!",
+			"downloadPdf": "Download / Print Receipt PDF",
+			"returnHint": "You may close this tab and continue where you left off."
+		},
+		"error": {
+			"expiredTitle": "This SmartLink has expired",
+			"expiredBody": "Request a fresh verification link from the sender to continue.",
+			"revokedTitle": "This SmartLink is no longer active",
+			"revokedBody": "This session has already been used or revoked by the issuer.",
+			"pausedTitle": "Verification temporarily paused",
+			"pausedBody": "The organization paused this verification link. Please contact support.",
+			"tokenTitle": "Invalid verification link",
+			"tokenBody": "The link signature is missing or invalid. Request a newly signed link.",
+			"notFoundTitle": "SmartLink not found",
+			"notFoundBody": "Double-check the URL or ask the sender for a valid verification link."
+		}
 	}
 }

@@ -1430,5 +1430,73 @@
 		"decrypt_error": "이 프로젝트의 검증자 키로 신원 증명을 복호화하지 못했습니다.",
 		"use_qr_or_code": "대신 HumanID QR 또는 코드 사용",
 		"back_to_signin": "로그인으로 돌아가기"
+	},
+	"smartLink": {
+		"loadingTitle": "보안 인증을 준비 중입니다",
+		"loadingBody": "인증 환경을 불러오는 동안 잠시만 기다려 주세요.",
+		"routingTitle": "알맞은 단계로 이동 중",
+		"routingBody": "해당 인증 화면으로 안전하게 연결하고 있습니다.",
+		"poweredBy": "Verifik SmartLink 제공",
+		"privacy": "개인정보 처리방침",
+		"terms": "이용약관",
+		"actions": {
+			"back": "뒤로",
+			"continue": "계속"
+		},
+		"modePicker": {
+			"title": "인증 유형을 선택하세요",
+			"subtitle": "본인에게 해당하는 인증 방식을 선택해 주세요."
+		},
+		"modes": {
+			"personal": {
+				"title": "개인 신원 인증",
+				"desc": "신분증과 얼굴 인식으로 본인 인증을 완료합니다."
+			},
+			"business": {
+				"title": "기업 인증",
+				"desc": "법인 정보와 대표자 인증을 제출합니다."
+			},
+			"humanId": {
+				"title": "사람 증명 (HumanID)",
+				"desc": "개인정보를 저장하지 않는 생체 기반 유일성 증명입니다."
+			},
+			"access": {
+				"title": "생체 인증 로그인",
+				"desc": "이미 인증된 프로필로 빠르게 로그인합니다."
+			}
+		},
+		"lookup": {
+			"personalTitle": "프로필을 확인하세요",
+			"personalSubtitle": "빠르게 이어서 진행하거나 새로 시작하려면 이메일 또는 전화번호를 입력하세요.",
+			"personalLabel": "이메일 또는 전화번호 (선택 사항)",
+			"personalPlaceholder": "alex@example.com 또는 +82 10 0000 0000",
+			"businessTitle": "기업 정보를 입력하세요",
+			"businessSubtitle": "사업자등록번호 또는 회사 이메일을 입력해 주세요.",
+			"businessLabel": "사업자번호 또는 회사 이메일 (선택 사항)",
+			"businessPlaceholder": "123-45-67890 또는 ops@company.com"
+		},
+		"receipt": {
+			"loading": "인증 확인서를 불러오는 중...",
+			"title": "인증이 완료되었습니다",
+			"defaultSubtitle": "확인이 완료되었습니다. 이제 채팅 또는 AI 어시스턴트로 돌아가셔도 됩니다.",
+			"confirmationCode": "확인 코드",
+			"completedAt": "완료 시각",
+			"copyCode": "확인 코드 복사",
+			"copied": "복사됨!",
+			"downloadPdf": "PDF 확인서 다운로드 / 인쇄",
+			"returnHint": "이 탭을 닫고 이전 화면에서 계속 진행하실 수 있습니다."
+		},
+		"error": {
+			"expiredTitle": "이 SmartLink가 만료되었습니다",
+			"expiredBody": "계속하려면 발신자에게 새 인증 링크를 요청하세요.",
+			"revokedTitle": "더 이상 유효하지 않은 SmartLink입니다",
+			"revokedBody": "이미 사용되었거나 발급자가 취소한 세션입니다.",
+			"pausedTitle": "인증이 일시 중지되었습니다",
+			"pausedBody": "해당 기관이 링크를 일시 중지했습니다. 고객센터에 문의해 주세요.",
+			"tokenTitle": "잘못된 인증 링크입니다",
+			"tokenBody": "링크 서명이 누락되었거나 올바르지 않습니다.",
+			"notFoundTitle": "SmartLink를 찾을 수 없습니다",
+			"notFoundBody": "URL을 다시 확인하거나 유효한 링크를 요청해 주세요."
+		}
 	}
 }

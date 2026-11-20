@@ -1,0 +1,63 @@
+<ng-container *transloco="let t">
+	<div class="slr-page" [ngClass]="'style-' + styleId" [attr.data-style]="styleId" [ngStyle]="styleVars">
+		<section class="slr-card" *ngIf="loading">
+			<div class="slr-spinner" aria-hidden="true"></div>
+			<h1 class="slr-title">{{ t("smartLink.receipt.loading") }}</h1>
+		</section>
+
+		<section class="slr-card" *ngIf="!loading && error">
+			<h1 class="slr-title">{{ t("smartLink.error.notFoundTitle") }}</h1>
+			<p class="slr-subtitle">{{ t("smartLink.error.notFoundBody") }}</p>
+		</section>
+
+		<section class="slr-card" *ngIf="!loading && !error && receipt">
+			<div class="slr-header">
+				<img
+					*ngIf="receipt.project?.branding?.logo"
+					[src]="receipt.project?.branding?.logo"
+					[alt]="receipt.project?.name || receipt.projectName || ''"
+					class="slr-logo"
+				/>
+				<span class="slr-project-name">{{ receipt.project?.name || receipt.projectName }}</span>
+			</div>
+
+			<div class="slr-check" aria-hidden="true">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m5 12 5 5L20 7"></path>
+				</svg>
+			</div>
+
+			<h1 class="slr-title">{{ t("smartLink.receipt.title") }}</h1>
+			<p class="slr-subtitle">
+				{{ receipt.receiptMessage || t("smartLink.receipt.defaultSubtitle") }}
+			</p>
+
+			<div class="slr-meta">
+				<div class="slr-meta-row">
+					<span class="slr-meta-label">{{ t("smartLink.receipt.confirmationCode") }}</span>
+					<strong class="slr-meta-code">{{ receipt.confirmationCode }}</strong>
+				</div>
+				<div class="slr-meta-row" *ngIf="receipt.completedAt">
+					<span class="slr-meta-label">{{ t("smartLink.receipt.completedAt") }}</span>
+					<span>{{ receipt.completedAt | date: "medium" }}</span>
+				</div>
+			</div>
+
+			<div class="slr-actions no-print">
+				<button type="button" class="slr-btn slr-btn--primary" (click)="copyConfirmationCode()">
+					{{ copied ? t("smartLink.receipt.copied") : t("smartLink.receipt.copyCode") }}
+				</button>
+				<button
+					type="button"
+					class="slr-btn slr-btn--secondary"
+					*ngIf="receipt.allowPdfDownload !== false"
+					(click)="printReceipt()"
+				>
+					{{ t("smartLink.receipt.downloadPdf") }}
+				</button>
+			</div>
+
+			<p class="slr-chat-hint no-print">{{ t("smartLink.receipt.returnHint") }}</p>
+		</section>
+	</div>
+</ng-container>

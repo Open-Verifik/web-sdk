@@ -1,0 +1,136 @@
+<ng-container *transloco="let t">
+	<div class="sl-page" [ngClass]="'style-' + styleId" [attr.data-style]="styleId" [ngStyle]="styleVars">
+		<div class="sl-card">
+			<header class="sl-header" *ngIf="config?.project">
+				<button
+					type="button"
+					class="sl-back"
+					*ngIf="step === 'identifier' && !config?.lockedMode && availableModes.length > 1"
+					(click)="backToModes()"
+					[attr.aria-label]="t('smartLink.actions.back')"
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</button>
+				<div
+					class="sl-brand"
+					[attr.data-logo-shape]="logoMetrics.shape"
+					[style.--logo-h.px]="logoMetrics.heightPx"
+					[style.--logo-max-w.px]="logoMetrics.maxWidthPx"
+				>
+					<img
+						*ngIf="config?.project?.branding?.logo"
+						[src]="config?.project?.branding?.logo"
+						[alt]="config?.project?.name || ''"
+						(load)="onLogoLoad($event)"
+					/>
+					<span class="sl-brand-name">{{ config?.project?.name }}</span>
+				</div>
+			</header>
+
+			<div class="sl-body" *ngIf="loading || step === 'routing'">
+				<div class="sl-spinner" aria-hidden="true"></div>
+				<h1 class="sl-title">{{ loading ? t("smartLink.loadingTitle") : t("smartLink.routingTitle") }}</h1>
+				<p class="sl-subtitle">{{ loading ? t("smartLink.loadingBody") : t("smartLink.routingBody") }}</p>
+			</div>
+
+			<div class="sl-body" *ngIf="!loading && step === 'error'">
+				<div class="sl-badge sl-badge--error">!</div>
+				<h1 class="sl-title">{{ t(errorTitleKey) }}</h1>
+				<p class="sl-subtitle">{{ t(errorBodyKey) }}</p>
+			</div>
+
+			<div class="sl-body" *ngIf="!loading && step === 'mode'">
+				<h1 class="sl-title">{{ t("smartLink.modePicker.title") }}</h1>
+				<p class="sl-subtitle">{{ t("smartLink.modePicker.subtitle") }}</p>
+
+				<div class="sl-mode-list">
+					<button
+						type="button"
+						class="sl-mode-card"
+						*ngFor="let mode of availableModes"
+						(click)="selectMode(mode)"
+					>
+						<span class="sl-mode-icon">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path [attr.d]="modeIconPath(mode)"></path>
+							</svg>
+						</span>
+						<span class="sl-mode-text">
+							<span class="sl-mode-title">{{ t("smartLink.modes." + mode + ".title") }}</span>
+							<span class="sl-mode-desc">{{ t("smartLink.modes." + mode + ".desc") }}</span>
+						</span>
+						<span class="sl-mode-arrow" aria-hidden="true">&rarr;</span>
+					</button>
+				</div>
+			</div>
+
+			<form
+				class="sl-body"
+				*ngIf="!loading && step === 'identifier' && selectedMode"
+				(ngSubmit)="proceedLookup()"
+			>
+				<h1 class="sl-title">
+					{{
+						selectedMode === "business"
+							? t("smartLink.lookup.businessTitle")
+							: t("smartLink.lookup.personalTitle")
+					}}
+				</h1>
+				<p class="sl-subtitle">
+					{{
+						selectedMode === "business"
+							? t("smartLink.lookup.businessSubtitle")
+							: t("smartLink.lookup.personalSubtitle")
+					}}
+				</p>
+
+				<label class="sl-field">
+					<span class="sl-label">
+						{{
+							selectedMode === "business"
+								? t("smartLink.lookup.businessLabel")
+								: t("smartLink.lookup.personalLabel")
+						}}
+					</span>
+					<input
+						type="text"
+						class="sl-input"
+						name="identifier"
+						[(ngModel)]="identifier"
+						[placeholder]="
+							selectedMode === 'business'
+								? t('smartLink.lookup.businessPlaceholder')
+								: t('smartLink.lookup.personalPlaceholder')
+						"
+						autocomplete="email"
+					/>
+				</label>
+
+				<p class="sl-inline-error" *ngIf="errorCode">{{ errorCode }}</p>
+
+				<button type="submit" class="sl-cta" [disabled]="submitting">
+					{{ t("smartLink.actions.continue") }}
+				</button>
+			</form>
+
+			<footer class="sl-footer">
+				<span>{{ t("smartLink.poweredBy") }}</span>
+				<span *ngIf="config?.project?.privacyUrl || config?.project?.termsAndConditionsUrl" class="sl-legal-links">
+					<a *ngIf="config?.project?.privacyUrl" [href]="config?.project?.privacyUrl" target="_blank" rel="noopener noreferrer">
+						{{ t("smartLink.privacy") }}
+					</a>
+					<a
+						*ngIf="config?.project?.termsAndConditionsUrl"
+						[href]="config?.project?.termsAndConditionsUrl"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{{ t("smartLink.terms") }}
+					</a>
+				</span>
+			</footer>
+		</div>
+	</div>
+</ng-container>

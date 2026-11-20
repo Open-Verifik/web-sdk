@@ -1430,5 +1430,73 @@
 		"decrypt_error": "Falha ao descriptografar a prova de identidade com a chave de verificação deste projeto.",
 		"use_qr_or_code": "Usar QR ou código do HumanID em vez disso",
 		"back_to_signin": "Voltar para o login"
+	},
+	"smartLink": {
+		"loadingTitle": "Preparando verificação segura",
+		"loadingBody": "Um momento enquanto carregamos sua experiência de verificação.",
+		"routingTitle": "Redirecionando agora",
+		"routingBody": "Aguarde enquanto direcionamos você para a etapa correta.",
+		"poweredBy": "Desenvolvido por Verifik SmartLink",
+		"privacy": "Privacidade",
+		"terms": "Termos",
+		"actions": {
+			"back": "Voltar",
+			"continue": "Continuar"
+		},
+		"modePicker": {
+			"title": "Escolha como verificar",
+			"subtitle": "Selecione a opção que melhor descreve quem está verificando."
+		},
+		"modes": {
+			"personal": {
+				"title": "Verificar como Pessoa Física",
+				"desc": "Conclua a verificação de identidade com documento e rosto."
+			},
+			"business": {
+				"title": "Verificar uma Empresa",
+				"desc": "Envie documentos da empresa e representantes autorizados."
+			},
+			"humanId": {
+				"title": "Provar que sou Humano (HumanID)",
+				"desc": "Prova biométrica de unicidade com preservação de privacidade."
+			},
+			"access": {
+				"title": "Entrar com Biometria",
+				"desc": "Confirme rapidamente seu perfil verificado existente."
+			}
+		},
+		"lookup": {
+			"personalTitle": "Vamos localizar seu perfil",
+			"personalSubtitle": "Informe seu e-mail ou telefone para continuar rapidamente ou iniciar uma nova verificação.",
+			"personalLabel": "E-mail ou telefone (opcional)",
+			"personalPlaceholder": "alex@exemplo.com ou +55 11 99999-0000",
+			"businessTitle": "Identifique sua organização",
+			"businessSubtitle": "Informe o CNPJ ou e-mail corporativo para direcionar a verificação da empresa.",
+			"businessLabel": "CNPJ ou e-mail corporativo (opcional)",
+			"businessPlaceholder": "12.345.678/0001-90 ou contato@empresa.com"
+		},
+		"receipt": {
+			"loading": "Carregando seu comprovante...",
+			"title": "Verificação Concluída",
+			"defaultSubtitle": "Sua verificação está concluída. Você já pode retornar ao seu assistente ou chat.",
+			"confirmationCode": "Código de Confirmação",
+			"completedAt": "Concluído em",
+			"copyCode": "Copiar Código de Confirmação",
+			"copied": "Copiado!",
+			"downloadPdf": "Baixar / Imprimir Comprovante PDF",
+			"returnHint": "Você pode fechar esta aba e continuar de onde parou."
+		},
+		"error": {
+			"expiredTitle": "Este SmartLink expirou",
+			"expiredBody": "Solicite um novo link de verificação ao remetente para continuar.",
+			"revokedTitle": "Este SmartLink não está mais ativo",
+			"revokedBody": "Esta sessão já foi usada ou revogada pelo emissor.",
+			"pausedTitle": "Verificação temporariamente pausada",
+			"pausedBody": "A organização pausou este link. Entre em contato com o suporte.",
+			"tokenTitle": "Link de verificação inválido",
+			"tokenBody": "A assinatura do link é inválida ou ausente. Solicite um novo link assinado.",
+			"notFoundTitle": "SmartLink não encontrado",
+			"notFoundBody": "Verifique a URL ou peça ao remetente um link válido."
+		}
 	}
 }

@@ -1430,5 +1430,73 @@
 		"decrypt_error": "使用此项目的验证密钥解密身份证明失败。",
 		"use_qr_or_code": "改用HumanID二维码或代码",
 		"back_to_signin": "返回登录"
+	},
+	"smartLink": {
+		"loadingTitle": "正在准备安全验证",
+		"loadingBody": "请稍候，正在加载您的验证流程。",
+		"routingTitle": "正在为您跳转",
+		"routingBody": "请稍候，正在引导您进入正确的验证步骤。",
+		"poweredBy": "由 Verifik SmartLink 提供支持",
+		"privacy": "隐私政策",
+		"terms": "服务条款",
+		"actions": {
+			"back": "返回",
+			"continue": "继续"
+		},
+		"modePicker": {
+			"title": "选择验证方式",
+			"subtitle": "请选择最符合您验证需求的选项。"
+		},
+		"modes": {
+			"personal": {
+				"title": "个人身份验证",
+				"desc": "使用证件与人脸识别完成实名认证。"
+			},
+			"business": {
+				"title": "企业资质验证",
+				"desc": "提交企业证照与授权代表信息。"
+			},
+			"humanId": {
+				"title": "真人验证 (HumanID)",
+				"desc": "隐私保护的唯一真人生物特征证明。"
+			},
+			"access": {
+				"title": "生物识别快捷登录",
+				"desc": "快速确认您已验证的个人档案。"
+			}
+		},
+		"lookup": {
+			"personalTitle": "查找您的档案",
+			"personalSubtitle": "输入邮箱或手机号以快速续接或开始全新验证。",
+			"personalLabel": "邮箱或手机号（可选）",
+			"personalPlaceholder": "alex@example.com 或 +86 138 0000 0000",
+			"businessTitle": "识别您的企业",
+			"businessSubtitle": "输入企业税号或工作邮箱以匹配企业验证流程。",
+			"businessLabel": "企业税号或工作邮箱（可选）",
+			"businessPlaceholder": "900123456-7 或 ops@company.com"
+		},
+		"receipt": {
+			"loading": "正在加载验证回执...",
+			"title": "验证已完成",
+			"defaultSubtitle": "您的身份核验已通过，现在可以安全返回聊天窗口或助手。",
+			"confirmationCode": "确认码",
+			"completedAt": "完成时间",
+			"copyCode": "复制确认码",
+			"copied": "已复制！",
+			"downloadPdf": "下载 / 打印 PDF 回执",
+			"returnHint": "您可以关闭此标签页并继续之前的对话。"
+		},
+		"error": {
+			"expiredTitle": "此 SmartLink 已过期",
+			"expiredBody": "请联系发送方获取新的验证链接。",
+			"revokedTitle": "此 SmartLink 已失效",
+			"revokedBody": "该会话已被使用或被发行方撤销。",
+			"pausedTitle": "验证已暂时暂停",
+			"pausedBody": "相关机构已暂停此验证链接，请联系支持团队。",
+			"tokenTitle": "无效的验证链接",
+			"tokenBody": "链接签名缺失或无效，请重新获取签名链接。",
+			"notFoundTitle": "未找到 SmartLink",
+			"notFoundBody": "请检查链接地址或联系发送方获取有效链接。"
+		}
 	}
 }

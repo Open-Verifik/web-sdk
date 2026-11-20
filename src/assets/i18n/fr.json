@@ -1430,5 +1430,73 @@
 		"decrypt_error": "Échec du déchiffrement de la preuve d'identité avec la clé de vérificateur de ce projet.",
 		"use_qr_or_code": "Utiliser plutôt le QR ou le code HumanID",
 		"back_to_signin": "Retour à la connexion"
+	},
+	"smartLink": {
+		"loadingTitle": "Préparation de la vérification sécurisée",
+		"loadingBody": "Un instant pendant le chargement de votre espace de vérification.",
+		"routingTitle": "Redirection en cours",
+		"routingBody": "Veuillez patienter pendant que nous vous orientons vers la bonne étape.",
+		"poweredBy": "Propulsé par Verifik SmartLink",
+		"privacy": "Confidentialité",
+		"terms": "Conditions",
+		"actions": {
+			"back": "Retour",
+			"continue": "Continuer"
+		},
+		"modePicker": {
+			"title": "Choisissez votre mode de vérification",
+			"subtitle": "Sélectionnez l’option correspondant à votre situation."
+		},
+		"modes": {
+			"personal": {
+				"title": "Vérifier mon identité",
+				"desc": "Complétez votre vérification par pièce d’identité et selfie."
+			},
+			"business": {
+				"title": "Vérifier une entreprise",
+				"desc": "Transmettez les documents de la société et ses représentants."
+			},
+			"humanId": {
+				"title": "Prouver mon humanité (HumanID)",
+				"desc": "Preuve biométrique d’unicité respectueuse de la vie privée."
+			},
+			"access": {
+				"title": "Connexion biométrique",
+				"desc": "Confirmez rapidement votre profil déjà vérifié."
+			}
+		},
+		"lookup": {
+			"personalTitle": "Retrouvons votre profil",
+			"personalSubtitle": "Saisissez votre e-mail ou téléphone pour reprendre ou démarrer une vérification.",
+			"personalLabel": "E-mail ou téléphone (optionnel)",
+			"personalPlaceholder": "alex@exemple.com ou +33 6 12 34 56 78",
+			"businessTitle": "Identifiez votre organisation",
+			"businessSubtitle": "Saisissez l’identifiant fiscal ou l’e-mail professionnel de la société.",
+			"businessLabel": "Identifiant fiscal ou e-mail pro (optionnel)",
+			"businessPlaceholder": "SIRET / TVA ou ops@entreprise.com"
+		},
+		"receipt": {
+			"loading": "Chargement de votre reçu de vérification...",
+			"title": "Vérification Terminée",
+			"defaultSubtitle": "Votre vérification est réussie. Vous pouvez retourner vers votre assistant ou messagerie.",
+			"confirmationCode": "Code de Confirmation",
+			"completedAt": "Terminé le",
+			"copyCode": "Copier le Code de Confirmation",
+			"copied": "Copié !",
+			"downloadPdf": "Télécharger / Imprimer le Reçu PDF",
+			"returnHint": "Vous pouvez fermer cet onglet et poursuivre votre échange."
+		},
+		"error": {
+			"expiredTitle": "Ce SmartLink a expiré",
+			"expiredBody": "Demandez un nouveau lien de vérification à l’expéditeur.",
+			"revokedTitle": "Ce SmartLink n’est plus actif",
+			"revokedBody": "Cette session a déjà été utilisée ou révoquée.",
+			"pausedTitle": "Vérification temporairement suspendue",
+			"pausedBody": "L’organisation a suspendu ce lien. Contactez le support.",
+			"tokenTitle": "Lien de vérification invalide",
+			"tokenBody": "La signature du lien est manquante ou invalide.",
+			"notFoundTitle": "SmartLink introuvable",
+			"notFoundBody": "Vérifiez l’URL ou demandez un lien valide."
+		}
 	}
 }

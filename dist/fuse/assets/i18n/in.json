@@ -1430,5 +1430,73 @@
 		"decrypt_error": "इस परियोजना की सत्यापनकर्ता कुंजी के साथ पहचान प्रमाण को डिक्रिप्ट करने में विफल।",
 		"use_qr_or_code": "इसके बजाय HumanID QR या कोड का उपयोग करें",
 		"back_to_signin": "साइन इन पर वापस जाएं"
+	},
+	"smartLink": {
+		"loadingTitle": "Surakshit satyapan taiyar ho raha hai",
+		"loadingBody": "Aapka verification page load ho raha hai, kripya pratiksha karein.",
+		"routingTitle": "Aapko aage bheja ja raha hai",
+		"routingBody": "Sahi verification step par jaane ke liye pratiksha karein.",
+		"poweredBy": "Verifik SmartLink dwara sanchalit",
+		"privacy": "Gopniyata",
+		"terms": "Niyam",
+		"actions": {
+			"back": "Peeche",
+			"continue": "Aage badhein"
+		},
+		"modePicker": {
+			"title": "Satyapan ka tarika chunein",
+			"subtitle": "Sahi vikalp chunein jo aapke satyapan se mel khata hai."
+		},
+		"modes": {
+			"personal": {
+				"title": "Vyaktigat Satyapan (KYC)",
+				"desc": "Apne dastavez aur chehre se pehchan satyapit karein."
+			},
+			"business": {
+				"title": "Company Satyapan (KYB)",
+				"desc": "Company ke dastavez aur pratinidhi jama karein."
+			},
+			"humanId": {
+				"title": "Manav Praman (HumanID)",
+				"desc": "Gopniya biometric dwara apni vastavikta siddh karein."
+			},
+			"access": {
+				"title": "Biometrics se Sign In",
+				"desc": "Apni pehle se satyapit profile ki turant pushti karein."
+			}
+		},
+		"lookup": {
+			"personalTitle": "Apni profile khojein",
+			"personalSubtitle": "Tezi se aage badhne ya naya satyapan shuru karne ke liye email ya phone darj karein.",
+			"personalLabel": "Email ya phone (vaikalpik)",
+			"personalPlaceholder": "alex@example.com ya +91 98000 00000",
+			"businessTitle": "Apne sangathan ki pehchan karein",
+			"businessSubtitle": "Business satyapan ke liye company Tax ID ya karya email darj karein.",
+			"businessLabel": "Company Tax ID ya email (vaikalpik)",
+			"businessPlaceholder": "GSTIN / Tax ID ya ops@company.com"
+		},
+		"receipt": {
+			"loading": "Satyapan raseed load ho rahi hai...",
+			"title": "Satyapan Poorna Hua",
+			"defaultSubtitle": "Aapki janch poori ho chuki hai. Ab aap apni chat ya assistant par wapas ja sakte hain.",
+			"confirmationCode": "Pushti Code",
+			"completedAt": "Samapti samay",
+			"copyCode": "Pushti Code Copy Karein",
+			"copied": "Copy ho gaya!",
+			"downloadPdf": "PDF Raseed Download / Print Karein",
+			"returnHint": "Aap is tab ko band karke apna kaam jari rakh sakte hain."
+		},
+		"error": {
+			"expiredTitle": "Yeh SmartLink samapt ho gaya hai",
+			"expiredBody": "Aage badhne ke liye bhejne wale se naya link maangein.",
+			"revokedTitle": "Yeh SmartLink ab sakriya nahi hai",
+			"revokedBody": "Yeh satra pehle hi upyog ya radd kiya ja chuka hai.",
+			"pausedTitle": "Satyapan asthayi roop se ruka hua hai",
+			"pausedBody": "Sangathan ne is link ko roka hai. Sahayata se sampark karein.",
+			"tokenTitle": "Amanya satyapan link",
+			"tokenBody": "Link signature galat ya gayab hai. Naya link maangein.",
+			"notFoundTitle": "SmartLink nahi mila",
+			"notFoundBody": "URL janchein ya sahi link ke liye anurodh karein."
+		}
 	}
 }

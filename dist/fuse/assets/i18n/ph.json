@@ -1430,5 +1430,73 @@
 		"decrypt_error": "Nabigong i-decrypt ang patunay ng pagkakakilanlan gamit ang verifier key ng proyektong ito.",
 		"use_qr_or_code": "Gamitin ang HumanID QR o code sa halip",
 		"back_to_signin": "Bumalik sa Sign In"
+	},
+	"smartLink": {
+		"loadingTitle": "Inihahanda ang ligtas na beripikasyon",
+		"loadingBody": "Maghintay sandali habang nilo-load ang iyong verification.",
+		"routingTitle": "Inililipat ka na ngayon",
+		"routingBody": "Maghintay habang dinadala ka sa tamang hakbang.",
+		"poweredBy": "Pinapagana ng Verifik SmartLink",
+		"privacy": "Pagkapribado",
+		"terms": "Mga Tuntunin",
+		"actions": {
+			"back": "Bumalik",
+			"continue": "Magpatuloy"
+		},
+		"modePicker": {
+			"title": "Piliin kung paano mag-verify",
+			"subtitle": "Piliin ang opsyong pinakaangkop sa iyong beripikasyon."
+		},
+		"modes": {
+			"personal": {
+				"title": "Mag-verify bilang Indibidwal",
+				"desc": "Kumpletuhin ang beripikasyon gamit ang ID at mukha."
+			},
+			"business": {
+				"title": "Mag-verify ng Kumpanya",
+				"desc": "Isumite ang mga dokumento ng kumpanya at kinatawan."
+			},
+			"humanId": {
+				"title": "Patunayang Tao Ako (HumanID)",
+				"desc": "Pribadong biometrikong patunay ng pagiging totoo."
+			},
+			"access": {
+				"title": "Mag-sign In gamit ang Biometrics",
+				"desc": "Mabilis na kumpirmahin ang umiiral mong profile."
+			}
+		},
+		"lookup": {
+			"personalTitle": "Hanapin natin ang iyong profile",
+			"personalSubtitle": "Ilagay ang email o telepono upang magpatuloy agad o magsimula ng bago.",
+			"personalLabel": "Email o telepono (opsyonal)",
+			"personalPlaceholder": "alex@example.com o +63 917 000 0000",
+			"businessTitle": "Tukuyin ang iyong organisasyon",
+			"businessSubtitle": "Ilagay ang Tax ID o work email ng kumpanya para sa business verification.",
+			"businessLabel": "Tax ID ng Kumpanya o work email (opsyonal)",
+			"businessPlaceholder": "900123456-7 o ops@company.com"
+		},
+		"receipt": {
+			"loading": "Nilo-load ang iyong resibo ng beripikasyon...",
+			"title": "Tapos na ang Beripikasyon",
+			"defaultSubtitle": "Kumpleto na ang iyong verification. Maaari ka nang bumalik sa iyong chat o assistant.",
+			"confirmationCode": "Code ng Kumpirmasyon",
+			"completedAt": "Natapos noong",
+			"copyCode": "Kopyahin ang Confirmation Code",
+			"copied": "Nakopya!",
+			"downloadPdf": "I-download / I-print ang Resibo PDF",
+			"returnHint": "Maaari mong isara ang tab na ito at ituloy ang iyong naunang usapan."
+		},
+		"error": {
+			"expiredTitle": "Nag-expire na ang SmartLink na ito",
+			"expiredBody": "Humiling ng bagong verification link mula sa nagpadala.",
+			"revokedTitle": "Hindi na aktibo ang SmartLink na ito",
+			"revokedBody": "Nagamit na o binawi na ng nag-isyu ang session na ito.",
+			"pausedTitle": "Pansamantalang naka-pause ang beripikasyon",
+			"pausedBody": "Pansamantalang pinatigil ng organisasyon ang link na ito.",
+			"tokenTitle": "Hindi wastong verification link",
+			"tokenBody": "Kulang o hindi wasto ang pirma ng link. Humiling ng bagong link.",
+			"notFoundTitle": "Hindi natagpuan ang SmartLink",
+			"notFoundBody": "Suriin ang URL o humingi ng wastong link."
+		}
 	}
 }
