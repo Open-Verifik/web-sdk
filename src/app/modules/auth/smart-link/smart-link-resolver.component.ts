@@ -15,7 +15,7 @@ import {
 	resolveVerifyStyle,
 } from "../verify/verify-style";
 import { SmartLinkRuntimeService } from "./smart-link-runtime.service";
-import { SmartLinkMode, SmartLinkPublicConfig } from "./smart-link.types";
+import { SmartLinkPublicConfig } from "./smart-link.types";
 
 @Component({
 	selector: "smart-link-resolver",
@@ -33,9 +33,10 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	loading = true;
 	submitting = false;
 	errorCode: string | null = null;
-	step: "mode" | "identifier" | "routing" | "error" = "mode";
-	selectedMode: SmartLinkMode | null = null;
+	step: "identifier" | "routing" | "error" = "routing";
+	identifierChannel: "email" | "phone" = "email";
 	identifier = "";
+	countryCode = "+1";
 
 	private _destroy$ = new Subject<void>();
 	private _styleOverride: string | null = null;
@@ -60,11 +61,10 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 				}
 				void this._resolveLink(slugOrToken, {
 					t: query.get("t"),
-					mode: query.get("mode"),
 					email: query.get("email"),
 					phone: query.get("phone"),
 					countryCode: query.get("countryCode"),
-					taxId: query.get("taxId"),
+					requireDocument: query.get("requireDocument"),
 					fullName: query.get("fullName"),
 				});
 			});
@@ -75,8 +75,13 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		this._destroy$.complete();
 	}
 
-	get availableModes(): SmartLinkMode[] {
-		return this.config?.supportedModes?.length ? this.config.supportedModes : ["personal", "business"];
+	get allowedIdentifiers(): ("email" | "phone")[] {
+		const raw = this.config?.allowedIdentifiers;
+		return raw && raw.length ? raw : ["email", "phone"];
+	}
+
+	get canSwitchIdentifier(): boolean {
+		return this.allowedIdentifiers.includes("email") && this.allowedIdentifiers.includes("phone");
 	}
 
 	get errorTitleKey(): string {
@@ -120,37 +125,34 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		this._cdr.markForCheck();
 	}
 
-	selectMode(mode: SmartLinkMode): void {
-		this.selectedMode = mode;
-		this.errorCode = null;
-		this._syncIdentifierFromPrefill(mode);
-
-		if (mode === "humanId" || (this.config && !this.config.autoDetectExisting) || this.identifier.trim()) {
-			void this.proceedLookup();
-			return;
-		}
-
-		this.step = "identifier";
-		this._cdr.markForCheck();
-	}
-
-	backToModes(): void {
-		if (!this.config || this.config.lockedMode || this.availableModes.length <= 1) return;
-		this.step = "mode";
-		this.selectedMode = null;
+	setIdentifierChannel(channel: "email" | "phone"): void {
+		this.identifierChannel = channel;
+		this.identifier = "";
 		this.errorCode = null;
 		this._cdr.markForCheck();
 	}
 
 	async proceedLookup(): Promise<void> {
-		if (!this.config || !this.selectedMode || this.submitting) return;
+		if (!this.config || this.submitting) return;
+		const cleanId = this.identifier.trim();
+		if (!cleanId) {
+			this.errorCode = "identifier_required";
+			this._cdr.markForCheck();
+			return;
+		}
+
 		this.submitting = true;
+		this.errorCode = null;
 		this.step = "routing";
 		this._cdr.markForCheck();
 
 		try {
 			const res = await firstValueFrom(
-				this._smartLink.lookupTarget(this.config.shortCode, this.selectedMode, this.identifier)
+				this._smartLink.lookupTarget(
+					this.config.shortCode,
+					cleanId,
+					this.identifierChannel === "phone" ? this.countryCode : ""
+				)
 			);
 
 			this._smartLink.saveActiveSession({
@@ -165,14 +167,25 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 				smartLink: this.config.shortCode,
 			};
 			const prefill = this.config.prefill || {};
-			if (prefill.email) queryParams["email"] = prefill.email;
-			if (prefill.phone) queryParams["phone"] = prefill.phone;
-			if (prefill.countryCode) queryParams["countryCode"] = prefill.countryCode;
-			if (prefill.taxId) queryParams["taxId"] = prefill.taxId;
-			if (prefill.fullName) queryParams["fullName"] = prefill.fullName;
-			if (!queryParams["email"] && this.identifier.includes("@")) {
-				queryParams["email"] = this.identifier.trim();
+			if (res.directSelfie) {
+				queryParams["identifier"] = cleanId;
+				queryParams["direct"] = "selfie";
+			} else {
+				if (prefill.email) queryParams["email"] = prefill.email;
+				if (prefill.phone) queryParams["phone"] = prefill.phone;
+				if (prefill.countryCode) queryParams["countryCode"] = prefill.countryCode;
+				if (prefill.fullName) queryParams["fullName"] = prefill.fullName;
+				if (!queryParams["email"] && cleanId.includes("@")) {
+					queryParams["email"] = cleanId;
+				} else if (!queryParams["phone"] && !cleanId.includes("@")) {
+					queryParams["phone"] = cleanId;
+					if (this.countryCode) queryParams["countryCode"] = this.countryCode;
+				}
+				if (res.requireDocument || this.config.requireDocument) {
+					queryParams["requireDocument"] = "1";
+				}
 			}
+
 			if (this._styleOverride) {
 				queryParams["style"] = this._styleOverride;
 			}
@@ -194,19 +207,6 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	modeIconPath(mode: SmartLinkMode): string {
-		switch (mode) {
-			case "personal":
-				return "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z";
-			case "business":
-				return "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21";
-			case "humanId":
-				return "M7.864 4.243A7.5 7.5 0 0 1 19.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 0 0 4.5 10.5a7.464 7.464 0 0 1-1.15 3.993m1.989 3.559A11.209 11.209 0 0 0 8.25 10.5a3.75 3.75 0 1 1 7.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 0 1-3.6 9.75m6.633-4.596a18.666 18.666 0 0 1-2.485 5.33";
-			case "access":
-				return "M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z";
-		}
-	}
-
 	private async _resolveLink(
 		slugOrToken: string,
 		query: Record<string, string | null | undefined>
@@ -220,36 +220,32 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 			this.config = cfg;
 			this._applyStyle(cfg);
 
-			const locked = cfg.lockedMode || (cfg.supportedModes?.length === 1 ? cfg.supportedModes[0] : null);
-			if (locked) {
-				this.selectedMode = locked;
-				this._syncIdentifierFromPrefill(locked);
-				this.loading = false;
-				if (locked === "humanId" || !cfg.autoDetectExisting || this.identifier.trim()) {
-					await this.proceedLookup();
-					return;
-				}
-				this.step = "identifier";
-				this._cdr.markForCheck();
-				return;
+			const allowed = this.allowedIdentifiers;
+			this.identifierChannel = allowed.includes("email") ? "email" : "phone";
+
+			const prefill = cfg.prefill || {};
+			if (prefill.email) {
+				this.identifierChannel = "email";
+				this.identifier = prefill.email;
+			} else if (prefill.phone) {
+				this.identifierChannel = "phone";
+				this.identifier = prefill.phone;
+				if (prefill.countryCode) this.countryCode = prefill.countryCode;
 			}
 
 			this.loading = false;
-			this.step = "mode";
+
+			// If the human/AI agent already set email or phone when generating the link, skip straight to verification
+			if (this.identifier.trim()) {
+				await this.proceedLookup();
+				return;
+			}
+
+			this.step = "identifier";
 			this._cdr.markForCheck();
 		} catch (err: any) {
 			const code = err?.error?.message || "smart_link_not_found";
 			this._setError(code);
-		}
-	}
-
-	private _syncIdentifierFromPrefill(mode: SmartLinkMode): void {
-		const pre = this.config?.prefill;
-		if (!pre) return;
-		if (mode === "business") {
-			this.identifier = pre.taxId || pre.email || "";
-		} else {
-			this.identifier = pre.email || pre.phone || "";
 		}
 	}
 
@@ -262,39 +258,26 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	}
 
 	private _applyStyle(cfg: SmartLinkPublicConfig): void {
-		this.styleId = resolveVerifyStyle(this._styleOverride, cfg.verifyStyle, "v2");
-		const baseVars = { ...VERIFY_STYLES[this.styleId].variables };
-		const branding = cfg.project?.branding || {};
-
-		if (branding.buttonColor) {
-			baseVars["--style-cta"] = branding.buttonColor;
-			baseVars["--accent"] = branding.buttonColor;
+		this.styleId = resolveVerifyStyle(this._styleOverride, cfg.verifyStyle || "a", "v2");
+		const base = { ...VERIFY_STYLES[this.styleId].variables };
+		const b = cfg.project?.branding || {};
+		if (b.buttonColor) base["--style-cta"] = b.buttonColor;
+		if (b.buttonTextColor) base["--style-cta-text"] = b.buttonTextColor;
+		if (b.titleColor) base["--style-ink"] = b.titleColor;
+		if (b.textColor) base["--style-body"] = b.textColor;
+		if (b.backgroundColor) {
+			base["--style-page"] = b.backgroundColor;
+			base["--style-page-mobile"] = b.backgroundColor;
 		}
-		if (branding.buttonTextColor) {
-			baseVars["--style-cta-text"] = branding.buttonTextColor;
-			baseVars["--accent-text"] = branding.buttonTextColor;
-		}
-		if (branding.titleColor) {
-			baseVars["--title"] = branding.titleColor;
-			baseVars["--style-ink"] = branding.titleColor;
-		}
-		if (branding.textColor) {
-			baseVars["--body"] = branding.textColor;
-			baseVars["--style-body"] = branding.textColor;
-		}
-		if (branding.backgroundColor) {
-			baseVars["--style-page"] = branding.backgroundColor;
-			baseVars["--style-page-mobile"] = branding.backgroundColor;
-		}
-		this.styleVars = baseVars;
+		this.styleVars = base;
 	}
 
 	private _loadStyleFonts(): void {
 		if (typeof document === "undefined" || document.getElementById("verify-style-fonts")) return;
-		const sheet = document.createElement("link");
-		sheet.id = "verify-style-fonts";
-		sheet.rel = "stylesheet";
-		sheet.href = VERIFY_FONT_HREF;
-		document.head.appendChild(sheet);
+		const link = document.createElement("link");
+		link.id = "verify-style-fonts";
+		link.rel = "stylesheet";
+		link.href = VERIFY_FONT_HREF;
+		document.head.appendChild(link);
 	}
 }

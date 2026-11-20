@@ -50,14 +50,16 @@ export class SmartLinkRuntimeService {
 
 	lookupTarget(
 		shortCode: string,
-		mode: SmartLinkMode,
-		identifier: string = ""
+		identifier: string = "",
+		countryCode: string = "",
+		mode?: SmartLinkMode
 	): Observable<SmartLinkLookupResponse> {
 		return this._http
 			.post<{ data: SmartLinkLookupResponse }>(`${this._apiUrl}/v3/smart-links/public/lookup`, {
 				shortCode,
-				mode,
+				...(mode ? { mode } : {}),
 				identifier: identifier.trim(),
+				...(countryCode ? { countryCode: countryCode.trim() } : {}),
 			})
 			.pipe(map((res) => res.data));
 	}

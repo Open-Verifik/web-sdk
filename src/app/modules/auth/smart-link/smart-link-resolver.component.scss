@@ -197,6 +197,33 @@
 	gap: 6px;
 }
 
+.sl-segment {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 6px;
+	padding: 4px;
+	border-radius: var(--style-radius-input, 10px);
+	background: var(--style-segment, #e8ebe6);
+}
+
+.sl-segment-btn {
+	border: 0;
+	border-radius: calc(var(--style-radius-input, 10px) - 2px);
+	background: transparent;
+	color: var(--style-body, #454745);
+	padding: 9px 12px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+
+	&.is-active {
+		background: var(--style-segment-on, #ffffff);
+		color: var(--style-segment-on-text, #0e0f0c);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+	}
+}
+
 .sl-label {
 	font-size: 13px;
 	font-weight: 600;

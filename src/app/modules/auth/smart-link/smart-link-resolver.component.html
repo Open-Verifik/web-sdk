@@ -2,17 +2,6 @@
 	<div class="sl-page" [ngClass]="'style-' + styleId" [attr.data-style]="styleId" [ngStyle]="styleVars">
 		<div class="sl-card">
 			<header class="sl-header" *ngIf="config?.project">
-				<button
-					type="button"
-					class="sl-back"
-					*ngIf="step === 'identifier' && !config?.lockedMode && availableModes.length > 1"
-					(click)="backToModes()"
-					[attr.aria-label]="t('smartLink.actions.back')"
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-					</svg>
-				</button>
 				<div
 					class="sl-brand"
 					[attr.data-logo-shape]="logoMetrics.shape"
@@ -41,70 +30,60 @@
 				<p class="sl-subtitle">{{ t(errorBodyKey) }}</p>
 			</div>
 
-			<div class="sl-body" *ngIf="!loading && step === 'mode'">
-				<h1 class="sl-title">{{ t("smartLink.modePicker.title") }}</h1>
-				<p class="sl-subtitle">{{ t("smartLink.modePicker.subtitle") }}</p>
-
-				<div class="sl-mode-list">
-					<button
-						type="button"
-						class="sl-mode-card"
-						*ngFor="let mode of availableModes"
-						(click)="selectMode(mode)"
-					>
-						<span class="sl-mode-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-								<path [attr.d]="modeIconPath(mode)"></path>
-							</svg>
-						</span>
-						<span class="sl-mode-text">
-							<span class="sl-mode-title">{{ t("smartLink.modes." + mode + ".title") }}</span>
-							<span class="sl-mode-desc">{{ t("smartLink.modes." + mode + ".desc") }}</span>
-						</span>
-						<span class="sl-mode-arrow" aria-hidden="true">&rarr;</span>
-					</button>
-				</div>
-			</div>
-
 			<form
 				class="sl-body"
-				*ngIf="!loading && step === 'identifier' && selectedMode"
+				*ngIf="!loading && step === 'identifier'"
 				(ngSubmit)="proceedLookup()"
 			>
-				<h1 class="sl-title">
-					{{
-						selectedMode === "business"
-							? t("smartLink.lookup.businessTitle")
-							: t("smartLink.lookup.personalTitle")
-					}}
-				</h1>
-				<p class="sl-subtitle">
-					{{
-						selectedMode === "business"
-							? t("smartLink.lookup.businessSubtitle")
-							: t("smartLink.lookup.personalSubtitle")
-					}}
-				</p>
+				<h1 class="sl-title">{{ t("smartLink.lookup.personalTitle") }}</h1>
+				<p class="sl-subtitle">{{ t("smartLink.lookup.personalSubtitle") }}</p>
+
+				<div class="sl-segment" *ngIf="canSwitchIdentifier">
+					<button
+						type="button"
+						class="sl-segment-btn"
+						[class.is-active]="identifierChannel === 'email'"
+						(click)="setIdentifierChannel('email')"
+					>
+						Email
+					</button>
+					<button
+						type="button"
+						class="sl-segment-btn"
+						[class.is-active]="identifierChannel === 'phone'"
+						(click)="setIdentifierChannel('phone')"
+					>
+						Phone
+					</button>
+				</div>
 
 				<label class="sl-field">
-					<span class="sl-label">
-						{{
-							selectedMode === "business"
-								? t("smartLink.lookup.businessLabel")
-								: t("smartLink.lookup.personalLabel")
-						}}
-					</span>
+					<span class="sl-label">{{ t("smartLink.lookup.personalLabel") }}</span>
 					<input
-						type="text"
+						*ngIf="identifierChannel === 'email'"
+						type="email"
 						class="sl-input"
 						name="identifier"
 						[(ngModel)]="identifier"
-						[placeholder]="
-							selectedMode === 'business'
-								? t('smartLink.lookup.businessPlaceholder')
-								: t('smartLink.lookup.personalPlaceholder')
-						"
+						[placeholder]="t('smartLink.lookup.personalPlaceholder')"
 						autocomplete="email"
+						autocorrect="off"
+						autocapitalize="none"
+						spellcheck="false"
+						required
+					/>
+					<input
+						*ngIf="identifierChannel === 'phone'"
+						type="tel"
+						class="sl-input"
+						name="identifier"
+						[(ngModel)]="identifier"
+						placeholder="+1 555 010 2030"
+						autocomplete="tel"
+						autocorrect="off"
+						autocapitalize="none"
+						spellcheck="false"
+						required
 					/>
 				</label>
 

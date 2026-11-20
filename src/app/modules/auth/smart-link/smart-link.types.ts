@@ -40,9 +40,12 @@ export interface SmartLinkPublicConfig {
 	project: SmartLinkPublicProject;
 	verifyStyle?: string;
 	flowOrder?: "contact_first" | "consent_first";
-	supportedModes: SmartLinkMode[];
-	defaultMode: SmartLinkMode | "prompt";
-	lockedMode: SmartLinkMode | null;
+	allowedIdentifiers?: ("email" | "phone")[];
+	requireDocument?: boolean;
+	hasPrefilledIdentifier?: boolean;
+	supportedModes?: SmartLinkMode[];
+	defaultMode?: SmartLinkMode | "prompt";
+	lockedMode?: SmartLinkMode | null;
 	autoDetectExisting: boolean;
 	completionMode: SmartLinkCompletionMode;
 	prefill?: SmartLinkPrefill;
@@ -51,7 +54,12 @@ export interface SmartLinkPublicConfig {
 
 export interface SmartLinkLookupResponse {
 	shortCode: string;
+	identifier?: string;
 	resolvedMode: SmartLinkResolvedMode;
+	verificationAction?: "face_only" | "document_and_face" | "enroll";
+	hasExistingAccount?: boolean;
+	requireDocument?: boolean;
+	directSelfie?: boolean;
 	targetProjectId: string;
 	targetRoute: string;
 	stepUpReason: string | null;
