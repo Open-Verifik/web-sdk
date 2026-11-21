@@ -65,6 +65,7 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	readonly dialCodes: CountryCodeOption[];
 	private readonly _sortedDialCodes: string[];
 	private _destroy$ = new Subject<void>();
+	private _accessToken = "";
 	private _styleOverride: string | null = null;
 	private _userSelectedCountryCode = false;
 	private _userSelectedLanguage = false;
@@ -95,18 +96,15 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this._destroy$))
 			.subscribe(([params, query]) => {
 				const slugOrToken = (params.get("slugOrToken") || "").trim();
+				this._accessToken = (query.get("t") || "").trim();
 				this._styleOverride = query.get("style");
 				if (!slugOrToken) {
 					this._setError("smart_link_not_found");
 					return;
 				}
 				void this._resolveLink(slugOrToken, {
-					t: query.get("t"),
-					email: query.get("email"),
-					phone: query.get("phone"),
-					countryCode: query.get("countryCode"),
-					requireDocument: query.get("requireDocument"),
-					fullName: query.get("fullName"),
+					t: this._accessToken || null,
+					mode: query.get("mode"),
 				});
 			});
 	}
@@ -268,11 +266,12 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 
 		try {
 			const res = await firstValueFrom(
-				this._smartLink.lookupTarget(this.config.shortCode, cleanId, activeCountryCode)
+				this._smartLink.lookupTarget(this.config.shortCode, cleanId, activeCountryCode, undefined, this._accessToken)
 			);
 
 			this._smartLink.saveActiveSession({
 				shortCode: this.config.shortCode,
+				...(this._accessToken ? { accessToken: this._accessToken } : {}),
 				completionMode: this.config.completionMode,
 				verifyStyle: this.styleId,
 				projectName: this.config.project?.name,
@@ -280,7 +279,7 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 			});
 
 			if (res.inlineFaceVerify) {
-				this.matchedNameHint = (res.matchedNameHint || "").trim() || null;
+				this.matchedNameHint = null;
 				this.selfiePhase = "idle";
 				this.verifyingFace = false;
 				this.showSelfieCapture = true;
@@ -302,11 +301,21 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 				smartLink: this.config.shortCode,
 			};
 			const prefill = this.config.prefill || {};
-			if (res.directSelfie) {
+			if (res.targetRoute.startsWith("/sign-in/")) {
+				if (res.directSelfie) {
+					queryParams["identifier"] = cleanId;
+					queryParams["direct"] = "selfie";
+					if (activeCountryCode) queryParams["countryCode"] = activeCountryCode;
+				}
+			} else if (res.directSelfie) {
 				queryParams["identifier"] = cleanId;
 				queryParams["direct"] = "selfie";
 				if (activeCountryCode) queryParams["countryCode"] = activeCountryCode;
 			} else {
+				if (res.reverifyToken) {
+					queryParams["token"] = res.reverifyToken;
+					queryParams["reverify"] = "1";
+				}
 				if (prefill.email) queryParams["email"] = prefill.email;
 				if (prefill.phone) queryParams["phone"] = prefill.phone;
 				if (prefill.countryCode) queryParams["countryCode"] = prefill.countryCode;
@@ -337,7 +346,10 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 				code === "smart_link_session_expired" ||
 				code === "smart_link_session_revoked" ||
 				code === "smart_link_session_exhausted" ||
-				code === "smart_link_paused"
+				code === "smart_link_paused" ||
+				code === "invalid_smart_link_token" ||
+				code === "signed_session_required" ||
+				code === "invalid_mode"
 			) {
 				this._setError(code);
 			} else {
@@ -365,7 +377,9 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		this._cdr.markForCheck();
 
 		try {
-			const result = await firstValueFrom(this._smartLink.verifyFace(this.config.shortCode, faceBase64));
+			const result = await firstValueFrom(
+				this._smartLink.verifyFace(this.config.shortCode, faceBase64, this._accessToken)
+			);
 			this.selfiePhase = "finishing";
 			this._cdr.markForCheck();
 			await this._smartLink.completeHandoffFromResult(
@@ -382,7 +396,10 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 				code === "smart_link_session_expired" ||
 				code === "smart_link_session_revoked" ||
 				code === "smart_link_session_exhausted" ||
-				code === "smart_link_paused"
+				code === "smart_link_paused" ||
+				code === "invalid_smart_link_token" ||
+				code === "face_check_attempt_limit" ||
+				code === "document_required"
 			) {
 				this._setError(code);
 				return;
@@ -433,6 +450,9 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		try {
 			const cfg = await firstValueFrom(this._smartLink.resolvePublic(slugOrToken, query));
 			this.config = cfg;
+			if (this._accessToken) {
+				this._smartLink.saveAccessToken(cfg.shortCode, this._accessToken);
+			}
 			this._applyTheme(cfg);
 			this._applyDefaultLanguage(cfg.project?.defaultLanguage);
 

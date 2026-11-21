@@ -309,7 +309,8 @@
       "request_timeout": "La demande d'informations de localisation a expiré",
       "user_denied_request_subtitle": "Veuillez activer les services de localisation dans les paramètres de votre navigateur pour continuer.",
       "user_denied_request": "L'accès à la localisation est nécessaire pour créer un compte"
-    }
+    },
+    "reverify_document_mismatch": "Le numéro de document soumis ne correspond pas au document vérifié enregistré."
   },
   "login": {
     "code": "Code",
@@ -1536,7 +1537,15 @@
       "faceCloseToBorder": "Gardez tout votre visage centré et éloigné des bords du cadre, puis réessayez.",
       "livenessUnavailable": "La vérification faciale en direct est temporairement indisponible. Réessayez dans un instant.",
       "invalidFaceImage": "La photo capturée n'a pas pu être traitée. Ajustez l'éclairage et réessayez.",
-      "faceNotAvailable": "La vérification faciale rapide n'est pas disponible pour ce profil pour le moment."
+      "faceNotAvailable": "La vérification faciale rapide n'est pas disponible pour ce profil pour le moment.",
+      "faceLimitTitle": "Limite de vérifications faciales atteinte",
+      "faceLimitBody": "Trop de tentatives de vérification faciale ont été effectuées sur ce lien. Demandez un nouveau SmartLink à l'expéditeur.",
+      "rateLimited": "Trop de tentatives de vérification pour le moment. Patientez un instant et réessayez.",
+      "verificationTimeout": "La vérification a mis trop de temps à répondre. Veuillez réessayer.",
+      "documentRequiredTitle": "Vérification de document requise",
+      "documentRequired": "Ce lien nécessite une pièce d'identité valide avant de continuer.",
+      "completionNotFinalized": "Votre vérification est toujours en attente de révision finale. Aucun reçu ne peut encore être émis.",
+      "documentMismatch": "Veuillez présenter le même numéro de document que celui vérifié à l'origine sur votre profil."
     },
     "faceVerify": {
       "badge": "Contrôle Rapide",

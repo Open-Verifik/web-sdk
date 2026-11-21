@@ -99,9 +99,15 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this.session.orderOverride = flowOrderFromQuery(query.get("order")) || null;
 				const rawToken = query.get("token") || undefined;
+				const reverifyParam = query.get("reverify");
+				const reverifyMode = reverifyParam === "1" || reverifyParam === "true";
 				const smartLinkCode = query.get("smartLink") || query.get("smartLinkSession");
+				const smartLinkToken = query.get("smartLinkToken") || (smartLinkCode ? query.get("t") : null);
 				if (smartLinkCode) {
-					this._smartLink?.captureFromUrl(`smartLink=${encodeURIComponent(smartLinkCode)}`);
+					const slParams = new URLSearchParams();
+					slParams.set("smartLink", smartLinkCode);
+					if (smartLinkToken) slParams.set("smartLinkToken", smartLinkToken);
+					this._smartLink?.captureFromUrl(`?${slParams.toString()}`);
 				}
 				const repParam = query.get("rep");
 				const handoffParam = query.get("handoff");
@@ -126,6 +132,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				this.session.open(projectId, rawToken, {
 					requireKyc,
 					requireDocument,
+					reverifyMode,
 					prefill: {
 						email: prefillEmail,
 						phone: prefillPhone,
@@ -133,6 +140,18 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 						fullName: prefillFullName,
 					},
 				});
+				if (typeof window !== "undefined" && window.history?.replaceState && (smartLinkToken || (reverifyMode && rawToken))) {
+					const cleanParams = new URLSearchParams(window.location.search);
+					cleanParams.delete("smartLinkToken");
+					cleanParams.delete("t");
+					if (reverifyMode && rawToken) cleanParams.delete("token");
+					const qs = cleanParams.toString();
+					window.history.replaceState(
+						null,
+						"",
+						`${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash || ""}`
+					);
+				}
 			});
 	}
 

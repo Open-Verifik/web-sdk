@@ -213,6 +213,11 @@ export const mapSmartLinkInlineErrorKey = (code: string | null | undefined): str
 		poor_lighting: "smartLink.error.poorLighting",
 		camera_permission_denied: "smartLink.error.cameraPermissionDenied",
 		face_verify_failed: "smartLink.error.faceVerifyFailed",
+		RATE_LIMIT_EXCEEDED: "smartLink.error.rateLimited",
+		verification_timeout: "smartLink.error.verificationTimeout",
+		document_required: "smartLink.error.documentRequired",
+		completion_not_finalized: "smartLink.error.completionNotFinalized",
+		reverify_document_mismatch: "smartLink.error.documentMismatch",
 	};
 	return map[key] || "smartLink.error.genericInline";
 };
@@ -231,11 +236,16 @@ export const mapSmartLinkTerminalErrorKeys = (
 		case "invalid_smart_link_token":
 		case "signed_session_required":
 			return { titleKey: "smartLink.error.tokenTitle", bodyKey: "smartLink.error.tokenBody" };
+		case "face_check_attempt_limit":
+			return { titleKey: "smartLink.error.faceLimitTitle", bodyKey: "smartLink.error.faceLimitBody" };
+		case "document_required":
+			return { titleKey: "smartLink.error.documentRequiredTitle", bodyKey: "smartLink.error.documentRequired" };
 		case "personal_project_not_configured":
 		case "business_project_not_configured":
 		case "human_id_project_not_configured":
 		case "access_project_not_configured":
 			return { titleKey: "smartLink.error.configTitle", bodyKey: "smartLink.error.projectNotConfigured" };
+		case "invalid_mode":
 		default:
 			return { titleKey: "smartLink.error.notFoundTitle", bodyKey: "smartLink.error.notFoundBody" };
 	}
