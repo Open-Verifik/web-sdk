@@ -47,12 +47,20 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	loading = true;
 	submitting = false;
 	errorCode: string | null = null;
-	step: "identifier" | "faceVerify" | "faceError" | "routing" | "error" = "routing";
+	step: "identifier" | "otp" | "faceVerify" | "faceError" | "routing" | "error" = "routing";
 	identifierChannel: "email" | "phone" = "email";
 	identifier = "";
 	countryCode = "+1";
 	identifierTouched = false;
 	submitAttempted = false;
+
+	otpCode = "";
+	otpMaskedTarget = "";
+	otpChannel: "email" | "phone" = "email";
+	otpPhoneGateway: "sms" | "whatsapp" = "sms";
+	otpTouched = false;
+	otpSubmitAttempted = false;
+	otpResendCooldown = 0;
 
 	matchedNameHint: string | null = null;
 	selfiePhase: "idle" | "liveness" | "compare" | "finishing" = "idle";
@@ -69,6 +77,9 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	private _styleOverride: string | null = null;
 	private _userSelectedCountryCode = false;
 	private _userSelectedLanguage = false;
+	private _verifiedIdentifier = "";
+	private _otpTimer: ReturnType<typeof setInterval> | null = null;
+	private _webOtpAbortController: AbortController | null = null;
 
 	constructor(
 		private _route: ActivatedRoute,
@@ -110,6 +121,8 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this._abortWebOtp();
+		this._stopOtpTimer();
 		this._destroy$.next();
 		this._destroy$.complete();
 	}
@@ -157,6 +170,32 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 
 	get inlineErrorKey(): string {
 		return mapSmartLinkInlineErrorKey(this.activeInlineErrorCode);
+	}
+
+	get otpValidationError(): string | null {
+		const clean = this.otpCode.trim();
+		return /^\d{6}$/.test(clean) ? null : "invalid_otp_code";
+	}
+
+	get activeOtpErrorCode(): string | null {
+		if (this.step !== "otp") return this.errorCode;
+		if (this.errorCode) return this.errorCode;
+		if (this.otpTouched || this.otpSubmitAttempted) {
+			return this.otpValidationError;
+		}
+		return null;
+	}
+
+	get showOtpError(): boolean {
+		return this.step === "otp" && Boolean(this.activeOtpErrorCode);
+	}
+
+	get otpErrorKey(): string {
+		return mapSmartLinkInlineErrorKey(this.activeOtpErrorCode || "invalid_otp_code");
+	}
+
+	get otpDescribedBy(): string {
+		return this.showOtpError ? "sl-otp-hint sl-otp-error" : "sl-otp-hint";
 	}
 
 	get faceErrorKey(): string {
@@ -236,6 +275,196 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		this._cdr.markForCheck();
 	}
 
+	async onIdentifierFormSubmit(): Promise<void> {
+		if (!this.config || this.submitting) return;
+		this.submitAttempted = true;
+
+		if (this.identifierChannel === "phone" && this.identifier.trim().startsWith("+")) {
+			const extracted = this._extractDialCode(this.identifier.trim(), false);
+			if (extracted) {
+				this.countryCode = extracted.code;
+				this._userSelectedCountryCode = true;
+				this.identifier = extracted.national;
+			}
+		}
+
+		const validationErr = this.clientValidationError;
+		if (validationErr) {
+			this.errorCode = validationErr;
+			this._cdr.markForCheck();
+			return;
+		}
+
+		const cleanId = this.identifier.trim();
+		const needsOtp = Boolean(this.config.requiresOtp || (this._verifiedIdentifier && cleanId !== this._verifiedIdentifier));
+		if (needsOtp) {
+			await this.sendOtpCode(this.identifierChannel === "phone" ? "sms" : undefined);
+			return;
+		}
+
+		await this.proceedLookup();
+	}
+
+	async sendOtpCode(preferredPhoneGateway?: "sms" | "whatsapp"): Promise<void> {
+		if (!this.config || this.submitting) return;
+		this._abortWebOtp();
+
+		const cleanId = this.identifier.trim();
+		const activeCountryCode = this.identifierChannel === "phone" ? this.countryCode : "";
+		const phoneGateway =
+			this.identifierChannel === "phone" ? preferredPhoneGateway || this.otpPhoneGateway || "sms" : undefined;
+
+		this.submitting = true;
+		this.errorCode = null;
+		this._cdr.markForCheck();
+
+		try {
+			const res = await firstValueFrom(
+				this._smartLink.sendOtp({
+					slugOrCode: this.config.shortCode,
+					identifier: cleanId,
+					channel: this.identifierChannel,
+					...(activeCountryCode ? { countryCode: activeCountryCode } : {}),
+					...(phoneGateway ? { phoneGateway } : {}),
+					language: this.activeLang,
+					t: this._accessToken || undefined,
+				})
+			);
+
+			if (res.accessToken) {
+				this._accessToken = res.accessToken;
+			}
+			this.config = {
+				...this.config,
+				shortCode: res.shortCode,
+				...(res.parentShortCode ? { parentShortCode: res.parentShortCode } : {}),
+			};
+			this._smartLink.saveActiveSession({
+				shortCode: res.shortCode,
+				...(this._accessToken ? { accessToken: this._accessToken } : {}),
+				completionMode: this.config.completionMode,
+				verifyStyle: this.styleId,
+				projectName: this.config.project?.name,
+				createdAtMs: Date.now(),
+			});
+
+			this.otpMaskedTarget = res.maskedTarget;
+			this.otpChannel = res.channel;
+			if (res.phoneGateway) this.otpPhoneGateway = res.phoneGateway;
+			this.otpCode = "";
+			this.otpTouched = false;
+			this.otpSubmitAttempted = false;
+			this.errorCode = null;
+			this.submitting = false;
+			this.step = "otp";
+			this._startOtpTimer(30);
+			if (this.otpChannel === "phone") {
+				this._startWebOtpListener();
+			}
+			this._cdr.markForCheck();
+		} catch (err: unknown) {
+			this.submitting = false;
+			const code = extractApiErrorCode(err, "smart_link_lookup_failed");
+			if (
+				code === "smart_link_session_expired" ||
+				code === "smart_link_session_revoked" ||
+				code === "smart_link_session_exhausted" ||
+				code === "smart_link_paused" ||
+				code === "invalid_smart_link_token" ||
+				code === "signed_session_required"
+			) {
+				this._setError(code);
+				return;
+			}
+			this.errorCode = code;
+			if (this.step !== "otp") {
+				this.step = "identifier";
+			}
+			this._cdr.markForCheck();
+		}
+	}
+
+	onOtpChange(value: string): void {
+		this.errorCode = null;
+		this.otpCode = String(value || "").replace(/\D/g, "").slice(0, 6);
+		this._cdr.markForCheck();
+	}
+
+	onOtpBlur(): void {
+		this.otpTouched = true;
+		this._cdr.markForCheck();
+	}
+
+	async submitOtp(): Promise<void> {
+		if (!this.config || this.submitting) return;
+		this._abortWebOtp();
+		this.otpSubmitAttempted = true;
+
+		const validationErr = this.otpValidationError;
+		if (validationErr) {
+			this.errorCode = validationErr;
+			this._cdr.markForCheck();
+			return;
+		}
+
+		this.submitting = true;
+		this.errorCode = null;
+		this._cdr.markForCheck();
+
+		try {
+			const verifyRes = await firstValueFrom(
+				this._smartLink.verifyOtp({
+					shortCode: this.config.shortCode,
+					code: this.otpCode.trim(),
+					t: this._accessToken || undefined,
+				})
+			);
+			this._stopOtpTimer();
+			this._verifiedIdentifier = this.identifier.trim();
+			this.config = {
+				...this.config,
+				shortCode: verifyRes.shortCode || this.config.shortCode,
+				requiresOtp: false,
+			};
+			if (verifyRes.verifiedContactToken) {
+				this._smartLink.saveVerifiedContactToken(this.config.shortCode, verifyRes.verifiedContactToken);
+			}
+			this.submitting = false;
+			await this.proceedLookup();
+		} catch (err: unknown) {
+			this.submitting = false;
+			const code = extractApiErrorCode(err, "invalid_otp_code");
+			if (
+				code === "smart_link_session_expired" ||
+				code === "smart_link_session_revoked" ||
+				code === "smart_link_session_exhausted" ||
+				code === "smart_link_paused" ||
+				code === "invalid_smart_link_token"
+			) {
+				this._setError(code);
+				return;
+			}
+			this.errorCode = code;
+			this._cdr.markForCheck();
+		}
+	}
+
+	async resendOtp(preferredPhoneGateway?: "sms" | "whatsapp"): Promise<void> {
+		if (this.otpResendCooldown > 0 || this.submitting) return;
+		await this.sendOtpCode(preferredPhoneGateway);
+	}
+
+	backToIdentifierFromOtp(): void {
+		this._abortWebOtp();
+		this._stopOtpTimer();
+		this.otpCode = "";
+		this.otpTouched = false;
+		this.otpSubmitAttempted = false;
+		this.errorCode = null;
+		this.step = "identifier";
+		this._cdr.markForCheck();
+	}
+
 	async proceedLookup(): Promise<void> {
 		if (!this.config || this.submitting) return;
 		this.submitAttempted = true;
@@ -269,14 +498,47 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 				this._smartLink.lookupTarget(this.config.shortCode, cleanId, activeCountryCode, undefined, this._accessToken)
 			);
 
+			const resolvedCode = res.shortCode || this.config.shortCode;
+			if (res.accessToken) {
+				this._accessToken = res.accessToken;
+				this._smartLink.saveAccessToken(resolvedCode, res.accessToken);
+			}
+			const vcToken = res.verifiedContactToken || this._smartLink.getVerifiedContactToken(resolvedCode);
+			if (vcToken) {
+				this._smartLink.saveVerifiedContactToken(resolvedCode, vcToken);
+			}
+			this.config = {
+				...this.config,
+				shortCode: resolvedCode,
+				...(res.parentShortCode ? { parentShortCode: res.parentShortCode } : {}),
+			};
+
 			this._smartLink.saveActiveSession({
-				shortCode: this.config.shortCode,
+				shortCode: resolvedCode,
 				...(this._accessToken ? { accessToken: this._accessToken } : {}),
+				...(vcToken ? { verifiedContactToken: vcToken } : {}),
 				completionMode: this.config.completionMode,
 				verifyStyle: this.styleId,
 				projectName: this.config.project?.name,
 				createdAtMs: Date.now(),
 			});
+
+			if (res.allowHumanIdRecovery !== undefined || res.recoveryBlockedReason) {
+				this._smartLink.saveHumanIdRecoveryContext({
+					shortCode: resolvedCode,
+					allowHumanIdRecovery: Boolean(res.allowHumanIdRecovery),
+					...(res.recoveryEnrollProjectId ? { recoveryEnrollProjectId: res.recoveryEnrollProjectId } : {}),
+					...(res.recoveryReverifyToken ? { recoveryReverifyToken: res.recoveryReverifyToken } : {}),
+					...(res.recoveryBlockedReason ? { recoveryBlockedReason: res.recoveryBlockedReason } : {}),
+				});
+			}
+
+			if (res.requiresOtp) {
+				this.submitting = false;
+				this.config = { ...this.config, requiresOtp: true };
+				await this.sendOtpCode(this.identifierChannel === "phone" ? "sms" : undefined);
+				return;
+			}
 
 			if (res.inlineFaceVerify) {
 				this.matchedNameHint = null;
@@ -298,7 +560,7 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 			}
 
 			const queryParams: Record<string, string> = {
-				smartLink: this.config.shortCode,
+				smartLink: resolvedCode,
 			};
 			const prefill = this.config.prefill || {};
 			if (res.targetRoute.startsWith("/sign-in/")) {
@@ -496,7 +758,7 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 
 			this.loading = false;
 
-			if (this.identifier.trim()) {
+			if (this.identifier.trim() && !cfg.requiresOtp) {
 				await this.proceedLookup();
 				return;
 			}
@@ -511,6 +773,8 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 	}
 
 	private _setError(code: string): void {
+		this._abortWebOtp();
+		this._stopOtpTimer();
 		this.loading = false;
 		this.submitting = false;
 		this.verifyingFace = false;
@@ -518,6 +782,58 @@ export class SmartLinkResolverComponent implements OnInit, OnDestroy {
 		this.errorCode = code;
 		this.step = "error";
 		this._cdr.markForCheck();
+	}
+
+	private _startOtpTimer(seconds: number): void {
+		this._stopOtpTimer();
+		this.otpResendCooldown = Math.max(0, Math.floor(seconds));
+		if (this.otpResendCooldown <= 0) return;
+		this._otpTimer = setInterval(() => {
+			if (this.otpResendCooldown <= 1) {
+				this._stopOtpTimer();
+			} else {
+				this.otpResendCooldown -= 1;
+				this._cdr.markForCheck();
+			}
+		}, 1000);
+	}
+
+	private _stopOtpTimer(): void {
+		if (this._otpTimer) {
+			clearInterval(this._otpTimer);
+			this._otpTimer = null;
+		}
+		this.otpResendCooldown = 0;
+		this._cdr.markForCheck();
+	}
+
+	private _startWebOtpListener(): void {
+		if (typeof window === "undefined" || !("OTPCredential" in window) || !navigator.credentials?.get) {
+			return;
+		}
+		this._abortWebOtp();
+		const controller = new AbortController();
+		this._webOtpAbortController = controller;
+		void (navigator.credentials as any)
+			.get({ otp: { transport: ["sms"] }, signal: controller.signal })
+			.then((cred: any) => {
+				const code = String(cred?.code || "").replace(/\D/g, "").slice(0, 6);
+				if (code.length === 6 && this.step === "otp") {
+					this.otpCode = code;
+					this._cdr.markForCheck();
+					void this.submitOtp();
+				}
+			})
+			.catch(() => {
+				// Ignore abort or unsupported timeout silently
+			});
+	}
+
+	private _abortWebOtp(): void {
+		if (this._webOtpAbortController) {
+			this._webOtpAbortController.abort();
+			this._webOtpAbortController = null;
+		}
 	}
 
 	private _applyTheme(cfg: SmartLinkPublicConfig): void {

@@ -1554,6 +1554,30 @@
       "subtitle": "Regardez la caméra pour une vérification faciale rapide afin de terminer votre parcours.",
       "failedTitle": "La vérification faciale n'a pas pu aboutir",
       "switchAccount": "Utiliser un autre e-mail ou téléphone"
+    },
+    "otp": {
+      "badge": "Vérification du contact",
+      "title": "Saisissez votre code à 6 chiffres",
+      "subtitle": "Nous avons envoyé un code de vérification à 6 chiffres à {{target}}.",
+      "codeLabel": "Code de vérification",
+      "hint": "Consultez vos messages et saisissez les 6 chiffres ci-dessous.",
+      "codePlaceholder": "000000",
+      "verifyAction": "Vérifier le code",
+      "verifying": "Vérification...",
+      "resendAction": "Renvoyer le code",
+      "resendCountdown": "Renvoyer le code dans {{seconds}}s",
+      "switchWhatsapp": "Recevoir le code via WhatsApp",
+      "switchSms": "Recevoir le code par SMS",
+      "errorInvalid": "Saisissez un code de vérification valide à 6 chiffres.",
+      "errorExpired": "Ce code a expiré. Demandez un nouveau code ci-dessous.",
+      "errorMaxAttempts": "Trop de tentatives incorrectes. Demandez un nouveau code pour réessayer.",
+      "errorCooldown": "Veuillez patienter quelques secondes avant de demander un autre code."
+    },
+    "humanIdRecovery": {
+      "title": "HumanID perdu ?",
+      "recoveryBody": "Vous pouvez vérifier avec votre pièce d'identité d'origine et un selfie en direct pour émettre un nouvel HumanID.",
+      "recoveryCta": "Revérifier avec votre document d'identité",
+      "noAnchorBody": "Votre profil a été protégé en mode zéro connaissance sans conserver votre document ni votre photo. Présentez votre QR code ou code HumanID d'origine pour continuer, ou demandez un nouveau lien."
     }
   }
 }

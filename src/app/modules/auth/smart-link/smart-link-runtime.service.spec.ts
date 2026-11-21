@@ -373,6 +373,92 @@ describe("SmartLinkRuntimeService", () => {
 		expect(cached?.verifiedName).toBe("Alan Turing");
 		expect(cached?.requireDocument).toBeTrue();
 	});
+
+	it("sends and verifies inline OTP, persists verifiedContactToken & humanIdRecoveryContext, and forwards registrationToken in reportEvent", async () => {
+		const sendPromise = firstValueFrom(
+			service.sendOtp({
+				slugOrCode: "acme-slug",
+				identifier: "3001112233",
+				channel: "phone",
+				countryCode: "+57",
+				phoneGateway: "sms",
+			})
+		);
+		const sendReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/otp/send`);
+		expect(sendReq.request.body.phoneGateway).toBe("sms");
+		sendReq.flush({
+			data: {
+				sent: true,
+				shortCode: "Spawned01",
+				accessToken: "sl_spawned_tok",
+				channel: "phone",
+				phoneGateway: "sms",
+				maskedTarget: "+57 ***2233",
+				expiresAt: "2026-11-21T22:00:00Z",
+				resendAvailableAt: "2026-11-21T21:50:30Z",
+			},
+		});
+		const sendRes = await sendPromise;
+		expect(sendRes.shortCode).toBe("Spawned01");
+		expect(service.getAccessToken("Spawned01")).toBe("sl_spawned_tok");
+
+		const verifyPromise = firstValueFrom(
+			service.verifyOtp({
+				shortCode: "Spawned01",
+				code: "123456",
+			})
+		);
+		const verifyReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/otp/verify`);
+		expect(verifyReq.request.body).toEqual({
+			shortCode: "Spawned01",
+			code: "123456",
+			t: "sl_spawned_tok",
+		});
+		verifyReq.flush({
+			data: {
+				verified: true,
+				shortCode: "Spawned01",
+				verifiedContactToken: "jwt_verified_contact",
+			},
+		});
+		await verifyPromise;
+
+		service.saveActiveSession({
+			shortCode: "Spawned01",
+			accessToken: "sl_spawned_tok",
+			verifiedContactToken: service.getVerifiedContactToken("Spawned01"),
+			createdAtMs: Date.now(),
+		});
+		expect(service.getVerifiedContactToken()).toBe("jwt_verified_contact");
+
+		service.saveHumanIdRecoveryContext({
+			shortCode: "Spawned01",
+			allowHumanIdRecovery: true,
+			recoveryEnrollProjectId: "proj-enroll-1",
+			recoveryReverifyToken: "jwt-recovery-1",
+		});
+		expect(service.getHumanIdRecoveryContext()?.allowHumanIdRecovery).toBeTrue();
+		expect(service.getHumanIdRecoveryContext()?.recoveryEnrollProjectId).toBe("proj-enroll-1");
+
+		const eventPromise = firstValueFrom(
+			service.reportEvent("Spawned01", {
+				type: "IN_PROGRESS",
+				step: "manual_review",
+				registrationToken: "kyc-reg-jwt",
+				outcomeType: "kyc",
+			})
+		);
+		const eventReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/Spawned01/event`);
+		expect(eventReq.request.body).toEqual({
+			type: "IN_PROGRESS",
+			step: "manual_review",
+			registrationToken: "kyc-reg-jwt",
+			outcomeType: "kyc",
+			t: "sl_spawned_tok",
+		});
+		eventReq.flush({ data: { ok: true, state: "IN_PROGRESS" } });
+		await eventPromise;
+	});
 });
 
 describe("SmartLinkUiHelper", () => {
@@ -445,6 +531,13 @@ describe("SmartLinkUiHelper", () => {
 		);
 		expect(mapSmartLinkTerminalErrorKeys("invalid_smart_link_token").titleKey).toBe(
 			"smartLink.error.tokenTitle"
+		);
+		expect(mapSmartLinkInlineErrorKey("invalid_otp_code")).toBe("smartLink.otp.errorInvalid");
+		expect(mapSmartLinkInlineErrorKey("otp_expired")).toBe("smartLink.otp.errorExpired");
+		expect(mapSmartLinkInlineErrorKey("otp_max_attempts_exceeded")).toBe("smartLink.otp.errorMaxAttempts");
+		expect(mapSmartLinkInlineErrorKey("otp_resend_cooldown")).toBe("smartLink.otp.errorCooldown");
+		expect(mapSmartLinkInlineErrorKey("no_document_anchor_zero_knowledge")).toBe(
+			"smartLink.humanIdRecovery.noAnchorBody"
 		);
 	});
 

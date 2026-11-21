@@ -1254,6 +1254,8 @@ export class VerifySessionService implements OnDestroy {
 						type: "IN_PROGRESS",
 						step: "manual_review",
 						summary: "Verification requires manual review",
+						registrationToken: this._token || undefined,
+						outcomeType: "kyc",
 					})
 					.pipe(catchError(() => of(null)))
 					.subscribe();
@@ -1677,7 +1679,7 @@ export class VerifySessionService implements OnDestroy {
 				this.otpErrorKey = "";
 				this._stopResendCountdown();
 				if (this.registration?.emailValidation) this.registration.emailValidation.status = "validated";
-				if (needsPhoneCode(this.settings, false)) {
+				if (needsPhoneCode(this.settings, this.registration?.phoneValidation?.status === "validated")) {
 					this._sendPhoneCode();
 					this._push("phoneCode");
 					return;
@@ -2673,6 +2675,8 @@ export class VerifySessionService implements OnDestroy {
 						type: "IN_PROGRESS",
 						step: "manual_review",
 						summary: "Verification requires manual review",
+						registrationToken: this._token || undefined,
+						outcomeType: "kyc",
 					})
 					.pipe(catchError(() => of(null)))
 					.subscribe();
@@ -2806,6 +2810,10 @@ export class VerifySessionService implements OnDestroy {
 				userAgent: device.userAgent,
 				userAgentData: device.userAgentData,
 			};
+		}
+
+		if (this._smartLink?.getVerifiedContactToken()) {
+			payload.smartLinkVerifiedContactToken = this._smartLink.getVerifiedContactToken();
 		}
 
 		return payload;
