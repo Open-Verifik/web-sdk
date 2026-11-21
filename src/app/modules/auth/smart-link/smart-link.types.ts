@@ -9,12 +9,14 @@ export type SmartLinkOutcomeType = "kyc" | "kyb" | "human_id" | "access";
 export interface SmartLinkBranding {
 	logo?: string;
 	image?: string;
+	rightImage?: string;
 	buttonColor?: string;
 	buttonTextColor?: string;
 	titleColor?: string;
 	textColor?: string;
 	backgroundColor?: string;
 	imageBackgroundColor?: string;
+	rightBackgroundColor?: string;
 }
 
 export interface SmartLinkPublicProject {
@@ -34,9 +36,32 @@ export interface SmartLinkPrefill {
 	fullName?: string;
 }
 
+export interface SmartLinkReceiptPayload {
+	shortCode: string;
+	confirmationCode: string;
+	outcomeType: SmartLinkOutcomeType | string;
+	completedAt?: string;
+	projectName?: string;
+	verifiedName?: string;
+	requireDocument?: boolean;
+	verificationMethod?: string;
+	project?: {
+		name: string;
+		branding?: SmartLinkBranding;
+		defaultLanguage?: string;
+		privacyUrl?: string;
+		termsAndConditionsUrl?: string;
+	};
+	verifyStyle?: string;
+	receiptMessage?: string;
+	allowPdfDownload?: boolean;
+}
+
 export interface SmartLinkPublicConfig {
 	shortCode: string;
 	state: string;
+	alreadyCompleted?: boolean;
+	receipt?: SmartLinkReceiptPayload;
 	project: SmartLinkPublicProject;
 	verifyStyle?: string;
 	flowOrder?: "contact_first" | "consent_first";
@@ -46,7 +71,7 @@ export interface SmartLinkPublicConfig {
 	supportedModes?: SmartLinkMode[];
 	defaultMode?: SmartLinkMode | "prompt";
 	lockedMode?: SmartLinkMode | null;
-	autoDetectExisting: boolean;
+	autoDetectExisting?: boolean;
 	completionMode: SmartLinkCompletionMode;
 	prefill?: SmartLinkPrefill;
 	linkedTargetsAvailable?: Record<SmartLinkMode, boolean>;
@@ -60,25 +85,12 @@ export interface SmartLinkLookupResponse {
 	hasExistingAccount?: boolean;
 	requireDocument?: boolean;
 	directSelfie?: boolean;
+	inlineFaceVerify?: boolean;
+	matchedNameHint?: string | null;
+	matchedAppRegistrationId?: string;
 	targetProjectId: string;
-	targetRoute: string;
+	targetRoute: string | null;
 	stepUpReason: string | null;
-}
-
-export interface SmartLinkReceiptPayload {
-	shortCode: string;
-	confirmationCode: string;
-	outcomeType: SmartLinkOutcomeType | string;
-	completedAt?: string;
-	projectName?: string;
-	project?: {
-		name: string;
-		branding?: SmartLinkBranding;
-		defaultLanguage?: string;
-	};
-	verifyStyle?: string;
-	receiptMessage?: string;
-	allowPdfDownload?: boolean;
 }
 
 export interface SmartLinkCompleteResponse {
@@ -89,6 +101,18 @@ export interface SmartLinkCompleteResponse {
 	sessionCode: string;
 	externalRefId?: string;
 	receipt: SmartLinkReceiptPayload;
+}
+
+export interface SmartLinkEventPayload {
+	type: "FAILED" | "IN_PROGRESS";
+	reason?: string;
+	step?: string;
+	summary?: string;
+}
+
+export interface SmartLinkEventResponse {
+	ok: boolean;
+	state: string;
 }
 
 export interface ActiveSmartLinkContext {

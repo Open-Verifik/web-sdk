@@ -7,6 +7,9 @@ import { Observable, firstValueFrom, map } from "rxjs";
 import {
 	ActiveSmartLinkContext,
 	SmartLinkCompleteResponse,
+	SmartLinkCompletionMode,
+	SmartLinkEventPayload,
+	SmartLinkEventResponse,
 	SmartLinkLookupResponse,
 	SmartLinkMode,
 	SmartLinkOutcomeType,
@@ -71,6 +74,30 @@ export class SmartLinkRuntimeService {
 				identifier: identifier.trim(),
 				...(countryCode ? { countryCode: countryCode.trim() } : {}),
 			})
+			.pipe(map((res) => res.data));
+	}
+
+	verifyFace(shortCode: string, faceBase64: string): Observable<SmartLinkCompleteResponse> {
+		return this._http
+			.post<{ data: SmartLinkCompleteResponse }>(
+				`${this._apiUrl}/v3/smart-links/public/sessions/${encodeURIComponent(shortCode)}/verify-face`,
+				{ faceBase64 }
+			)
+			.pipe(map((res) => res.data));
+	}
+
+	reportEvent(shortCode: string, payload: SmartLinkEventPayload): Observable<SmartLinkEventResponse> {
+		const body: SmartLinkEventPayload = {
+			type: payload.type,
+			...(payload.reason ? { reason: String(payload.reason).slice(0, 240) } : {}),
+			...(payload.step ? { step: String(payload.step).slice(0, 240) } : {}),
+			...(payload.summary ? { summary: String(payload.summary).slice(0, 240) } : {}),
+		};
+		return this._http
+			.post<{ data: SmartLinkEventResponse }>(
+				`${this._apiUrl}/v3/smart-links/public/sessions/${encodeURIComponent(shortCode)}/event`,
+				body
+			)
 			.pipe(map((res) => res.data));
 	}
 
@@ -162,6 +189,15 @@ export class SmartLinkRuntimeService {
 		}
 	}
 
+	cacheReceipt(shortCode: string, receipt: SmartLinkReceiptPayload): void {
+		if (!shortCode || !receipt || typeof sessionStorage === "undefined") return;
+		try {
+			sessionStorage.setItem(`${RECEIPT_STORAGE_PREFIX}${shortCode}`, JSON.stringify(receipt));
+		} catch {
+			// ignore storage quota errors
+		}
+	}
+
 	getCachedReceipt(shortCode: string): SmartLinkReceiptPayload | null {
 		if (!shortCode || typeof sessionStorage === "undefined") return null;
 		try {
@@ -182,6 +218,44 @@ export class SmartLinkRuntimeService {
 		return target.toString();
 	}
 
+	async completeHandoffFromResult(
+		shortCode: string,
+		result: SmartLinkCompleteResponse,
+		fallbackCompletionMode?: SmartLinkCompletionMode
+	): Promise<boolean> {
+		const cleanShortCode = (shortCode || "").trim();
+		if (!cleanShortCode) return false;
+
+		const active = this.getActiveSession();
+		this.clearActiveSession();
+
+		if (result?.receipt) {
+			this.cacheReceipt(cleanShortCode, result.receipt);
+		}
+
+		const mode = result?.completionMode || fallbackCompletionMode || active?.completionMode || "receipt";
+
+		if (mode === "postMessage" && typeof window !== "undefined") {
+			const posted = this._dispatchPostMessage(cleanShortCode, result);
+			if (posted) {
+				return true;
+			}
+		}
+
+		if (mode === "redirect" && result?.redirectUrl) {
+			const destination = this.buildRedirectUrl(result.redirectUrl, {
+				sessionCode: result.sessionCode,
+				shortCode: cleanShortCode,
+				externalRefId: result.externalRefId,
+			});
+			this._redirectExternal(destination);
+			return true;
+		}
+
+		await this._router.navigate(["/l", cleanShortCode, "receipt"], { replaceUrl: true });
+		return true;
+	}
+
 	async finalizeAndHandoff(payload: {
 		outcomeType: SmartLinkOutcomeType;
 		token?: string;
@@ -192,40 +266,7 @@ export class SmartLinkRuntimeService {
 
 		try {
 			const result = await firstValueFrom(this.completeSession(active.shortCode, payload));
-			this.clearActiveSession();
-
-			if (result?.receipt && typeof sessionStorage !== "undefined") {
-				try {
-					sessionStorage.setItem(
-						`${RECEIPT_STORAGE_PREFIX}${active.shortCode}`,
-						JSON.stringify(result.receipt)
-					);
-				} catch {
-					// ignore
-				}
-			}
-
-			const mode = result.completionMode || active.completionMode || "receipt";
-
-			if (mode === "postMessage" && typeof window !== "undefined") {
-				const posted = this._dispatchPostMessage(active.shortCode, result);
-				if (posted) {
-					return true;
-				}
-			}
-
-			if (mode === "redirect" && result.redirectUrl) {
-				const destination = this.buildRedirectUrl(result.redirectUrl, {
-					sessionCode: result.sessionCode,
-					shortCode: active.shortCode,
-					externalRefId: result.externalRefId,
-				});
-				this._redirectExternal(destination);
-				return true;
-			}
-
-			await this._router.navigate(["/l", active.shortCode, "receipt"], { replaceUrl: true });
-			return true;
+			return await this.completeHandoffFromResult(active.shortCode, result, active.completionMode);
 		} catch {
 			await this._router.navigate(["/l", active.shortCode, "receipt"], { replaceUrl: true });
 			return true;

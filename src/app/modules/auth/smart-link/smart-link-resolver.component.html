@@ -1,115 +1,291 @@
 <ng-container *transloco="let t">
-	<div class="sl-page" [ngClass]="'style-' + styleId" [attr.data-style]="styleId" [ngStyle]="styleVars">
-		<div class="sl-card">
-			<header class="sl-header" *ngIf="config?.project">
-				<div
-					class="sl-brand"
-					[attr.data-logo-shape]="logoMetrics.shape"
-					[style.--logo-h.px]="logoMetrics.heightPx"
-					[style.--logo-max-w.px]="logoMetrics.maxWidthPx"
-				>
-					<img
-						*ngIf="config?.project?.branding?.logo"
-						[src]="config?.project?.branding?.logo"
-						[alt]="config?.project?.name || ''"
-						(load)="onLogoLoad($event)"
-					/>
-					<span class="sl-brand-name">{{ config?.project?.name }}</span>
+	<div
+		class="sl-page"
+		[class.has-banner]="hasBanner"
+		[class.is-dark-surface]="isDarkSurface"
+		[ngClass]="'style-' + styleId"
+		[attr.data-style]="styleId"
+		[style.color-scheme]="isDarkSurface ? 'dark' : 'light'"
+		[ngStyle]="styleVars"
+	>
+		<div class="sl-shell-layout">
+			<main class="sl-shell-main">
+				<div class="sl-card">
+					<header class="sl-header" *ngIf="config?.project || languages.length > 1">
+						<div
+							class="sl-brand"
+							*ngIf="config?.project"
+							[attr.data-logo-shape]="logoMetrics.shape"
+							[style.--logo-h.px]="logoMetrics.heightPx"
+							[style.--logo-max-w.px]="logoMetrics.maxWidthPx"
+						>
+							<img
+								*ngIf="config?.project?.branding?.logo"
+								[src]="config?.project?.branding?.logo"
+								[alt]="config?.project?.name || ''"
+								(load)="onLogoLoad($event)"
+							/>
+							<span class="sl-brand-name">{{ config?.project?.name }}</span>
+						</div>
+
+						<div class="sl-lang-wrap" *ngIf="languages.length > 1">
+							<svg class="sl-lang-icon" viewBox="0 0 24 24" aria-hidden="true">
+								<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+								<path
+									d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5Z"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.6"
+								/>
+							</svg>
+							<label class="sr-only" for="sl-lang-select">{{ t("verify.languageTitle") }}</label>
+							<select
+								id="sl-lang-select"
+								class="sl-lang-select"
+								[ngModel]="activeLang"
+								(ngModelChange)="onLanguageChange($event)"
+								[attr.aria-label]="t('verify.languageTitle')"
+							>
+								<option *ngFor="let lang of languages" [value]="lang.id">{{ lang.label }}</option>
+							</select>
+							<svg class="sl-lang-caret" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+								<path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round" />
+							</svg>
+						</div>
+					</header>
+
+					<div class="sl-body sl-body--center" *ngIf="loading || step === 'routing'">
+						<div class="sl-spinner" role="status" [attr.aria-label]="loading ? t('smartLink.loadingTitle') : t('smartLink.routingTitle')"></div>
+						<h1 class="sl-title">{{ loading ? t("smartLink.loadingTitle") : t("smartLink.routingTitle") }}</h1>
+						<p class="sl-subtitle">{{ loading ? t("smartLink.loadingBody") : t("smartLink.routingBody") }}</p>
+					</div>
+
+					<div class="sl-body sl-body--center" *ngIf="!loading && step === 'error'">
+						<div class="sl-badge sl-badge--error" aria-hidden="true">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="12" cy="12" r="9"></circle>
+								<line x1="12" y1="8" x2="12" y2="12.5"></line>
+								<circle cx="12" cy="16" r="0.8" fill="currentColor" stroke="none"></circle>
+							</svg>
+						</div>
+						<h1 class="sl-title">{{ t(errorTitleKey) }}</h1>
+						<p class="sl-subtitle">{{ t(errorBodyKey) }}</p>
+					</div>
+
+					<form
+						class="sl-body"
+						*ngIf="!loading && step === 'identifier'"
+						novalidate
+						(ngSubmit)="proceedLookup()"
+					>
+						<div class="sl-copy">
+							<h1 class="sl-title">{{ t("smartLink.lookup.personalTitle") }}</h1>
+							<p class="sl-subtitle">{{ t("smartLink.lookup.personalSubtitle") }}</p>
+						</div>
+
+						<div class="sl-segment" *ngIf="canSwitchIdentifier" role="group" [attr.aria-label]="t('smartLink.lookup.channelGroupLabel')">
+							<button
+								type="button"
+								class="sl-segment-btn"
+								[class.is-active]="identifierChannel === 'email'"
+								[attr.aria-pressed]="identifierChannel === 'email'"
+								(click)="setIdentifierChannel('email')"
+							>
+								{{ t("smartLink.lookup.tabEmail") }}
+							</button>
+							<button
+								type="button"
+								class="sl-segment-btn"
+								[class.is-active]="identifierChannel === 'phone'"
+								[attr.aria-pressed]="identifierChannel === 'phone'"
+								(click)="setIdentifierChannel('phone')"
+							>
+								{{ t("smartLink.lookup.tabPhone") }}
+							</button>
+						</div>
+
+						<div class="sl-field">
+							<label class="sl-label" [attr.for]="identifierInputId">
+								{{
+									identifierChannel === "phone"
+										? t("smartLink.lookup.phoneLabel")
+										: t("smartLink.lookup.emailLabel")
+								}}
+							</label>
+
+							<input
+								*ngIf="identifierChannel === 'email'"
+								id="sl-email-input"
+								type="email"
+								inputmode="email"
+								class="sl-input"
+								[class.user-invalid-fallback]="showIdentifierError"
+								name="identifier"
+								[ngModel]="identifier"
+								(ngModelChange)="onIdentifierChange($event)"
+								(blur)="onIdentifierBlur()"
+								[placeholder]="t('smartLink.lookup.emailPlaceholder')"
+								autocomplete="email"
+								autocorrect="off"
+								autocapitalize="none"
+								spellcheck="false"
+								enterkeyhint="go"
+								required
+								[attr.aria-invalid]="showIdentifierError ? 'true' : null"
+								[attr.aria-describedby]="showIdentifierError ? 'sl-identifier-error' : null"
+							/>
+
+							<div class="sl-phone-row" *ngIf="identifierChannel === 'phone'">
+								<label class="sr-only" for="sl-country-code">{{ t("smartLink.lookup.countryCodeLabel") }}</label>
+								<select
+									id="sl-country-code"
+									class="sl-input sl-dial-select"
+									name="countryCode"
+									[ngModel]="countryCode"
+									(ngModelChange)="onCountryCodeChange($event)"
+									autocomplete="tel-country-code"
+								>
+									<option *ngFor="let dial of dialCodes" [value]="dial.code">
+										{{ dial.code }} ({{ t(dial.name) }})
+									</option>
+								</select>
+
+								<input
+									#phoneInput
+									id="sl-phone-input"
+									type="tel"
+									inputmode="tel"
+									class="sl-input sl-phone-input"
+									[class.user-invalid-fallback]="showIdentifierError"
+									name="identifier"
+									[ngModel]="identifier"
+									(ngModelChange)="onIdentifierChange($event, phoneInput)"
+									(blur)="onIdentifierBlur()"
+									[placeholder]="t('smartLink.lookup.phonePlaceholder')"
+									autocomplete="tel"
+									autocorrect="off"
+									autocapitalize="none"
+									spellcheck="false"
+									enterkeyhint="go"
+									required
+									[attr.aria-invalid]="showIdentifierError ? 'true' : null"
+									[attr.aria-describedby]="showIdentifierError ? 'sl-identifier-error' : null"
+								/>
+							</div>
+
+							<div
+								*ngIf="showIdentifierError"
+								id="sl-identifier-error"
+								class="sl-inline-error"
+								role="alert"
+							>
+								<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+									<circle cx="10" cy="10" r="8"></circle>
+									<line x1="10" y1="6.2" x2="10" y2="10.8" stroke-linecap="round"></line>
+									<circle cx="10" cy="13.6" r="0.8" fill="currentColor" stroke="none"></circle>
+								</svg>
+								<span>{{ t(inlineErrorKey) }}</span>
+							</div>
+						</div>
+
+						<button
+							type="submit"
+							class="sl-cta"
+							[disabled]="submitting"
+							[attr.aria-busy]="submitting ? 'true' : null"
+						>
+							<span class="sl-btn-spinner" *ngIf="submitting" aria-hidden="true"></span>
+							<span>{{ submitting ? t("smartLink.actions.continuing") : t("smartLink.actions.continue") }}</span>
+						</button>
+					</form>
+
+					<div class="sl-body" *ngIf="!loading && step === 'faceVerify'">
+						<div class="sl-copy">
+							<span class="sl-kicker">{{ t("smartLink.faceVerify.badge") }}</span>
+							<h1 class="sl-title">
+								{{
+									matchedNameHint
+										? t("smartLink.faceVerify.welcomeBackNamed", { name: matchedNameHint })
+										: t("smartLink.faceVerify.welcomeBackTitle")
+								}}
+							</h1>
+							<p class="sl-subtitle">{{ t("smartLink.faceVerify.subtitle") }}</p>
+						</div>
+
+						<div class="sl-selfie-host">
+							<verify-selfie
+								*ngIf="showSelfieCapture"
+								[phase]="selfiePhase"
+								[canSkip]="false"
+								[isHumanAuthn]="false"
+								(captured)="onSelfieCaptured($event)"
+								(permissionDenied)="onSelfiePermissionDenied()"
+							></verify-selfie>
+						</div>
+
+						<button
+							*ngIf="canChangeIdentifierFromFace && !verifyingFace"
+							type="button"
+							class="sl-secondary-btn"
+							(click)="backToIdentifier()"
+						>
+							{{ t("smartLink.faceVerify.switchAccount") }}
+						</button>
+					</div>
+
+					<div class="sl-body sl-body--center" *ngIf="!loading && step === 'faceError'">
+						<div class="sl-badge sl-badge--error" aria-hidden="true">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="12" cy="12" r="9"></circle>
+								<line x1="12" y1="8" x2="12" y2="12.5"></line>
+								<circle cx="12" cy="16" r="0.8" fill="currentColor" stroke="none"></circle>
+							</svg>
+						</div>
+						<h1 class="sl-title">{{ t("smartLink.faceVerify.failedTitle") }}</h1>
+						<p class="sl-subtitle">{{ t(faceErrorKey) }}</p>
+
+						<div class="sl-error-actions">
+							<button type="button" class="sl-cta" (click)="retryFaceVerify()">
+								{{ t("smartLink.actions.retry") }}
+							</button>
+							<button
+								*ngIf="canChangeIdentifierFromFace"
+								type="button"
+								class="sl-secondary-btn"
+								(click)="backToIdentifier()"
+							>
+								{{ t("smartLink.faceVerify.switchAccount") }}
+							</button>
+						</div>
+					</div>
+
+					<footer class="sl-footer">
+						<span>{{ t("smartLink.poweredBy") }}</span>
+						<span *ngIf="config?.project?.privacyUrl || config?.project?.termsAndConditionsUrl" class="sl-legal-links">
+							<a *ngIf="config?.project?.privacyUrl" [href]="config?.project?.privacyUrl" target="_blank" rel="noopener noreferrer">
+								{{ t("smartLink.privacy") }}
+							</a>
+							<a
+								*ngIf="config?.project?.termsAndConditionsUrl"
+								[href]="config?.project?.termsAndConditionsUrl"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{{ t("smartLink.terms") }}
+							</a>
+						</span>
+					</footer>
 				</div>
-			</header>
+			</main>
 
-			<div class="sl-body" *ngIf="loading || step === 'routing'">
-				<div class="sl-spinner" aria-hidden="true"></div>
-				<h1 class="sl-title">{{ loading ? t("smartLink.loadingTitle") : t("smartLink.routingTitle") }}</h1>
-				<p class="sl-subtitle">{{ loading ? t("smartLink.loadingBody") : t("smartLink.routingBody") }}</p>
-			</div>
-
-			<div class="sl-body" *ngIf="!loading && step === 'error'">
-				<div class="sl-badge sl-badge--error">!</div>
-				<h1 class="sl-title">{{ t(errorTitleKey) }}</h1>
-				<p class="sl-subtitle">{{ t(errorBodyKey) }}</p>
-			</div>
-
-			<form
-				class="sl-body"
-				*ngIf="!loading && step === 'identifier'"
-				(ngSubmit)="proceedLookup()"
+			<aside
+				class="sl-shell-banner"
+				*ngIf="hasBanner"
+				[style.background-color]="bannerBgColor"
+				aria-hidden="true"
 			>
-				<h1 class="sl-title">{{ t("smartLink.lookup.personalTitle") }}</h1>
-				<p class="sl-subtitle">{{ t("smartLink.lookup.personalSubtitle") }}</p>
-
-				<div class="sl-segment" *ngIf="canSwitchIdentifier">
-					<button
-						type="button"
-						class="sl-segment-btn"
-						[class.is-active]="identifierChannel === 'email'"
-						(click)="setIdentifierChannel('email')"
-					>
-						Email
-					</button>
-					<button
-						type="button"
-						class="sl-segment-btn"
-						[class.is-active]="identifierChannel === 'phone'"
-						(click)="setIdentifierChannel('phone')"
-					>
-						Phone
-					</button>
-				</div>
-
-				<label class="sl-field">
-					<span class="sl-label">{{ t("smartLink.lookup.personalLabel") }}</span>
-					<input
-						*ngIf="identifierChannel === 'email'"
-						type="email"
-						class="sl-input"
-						name="identifier"
-						[(ngModel)]="identifier"
-						[placeholder]="t('smartLink.lookup.personalPlaceholder')"
-						autocomplete="email"
-						autocorrect="off"
-						autocapitalize="none"
-						spellcheck="false"
-						required
-					/>
-					<input
-						*ngIf="identifierChannel === 'phone'"
-						type="tel"
-						class="sl-input"
-						name="identifier"
-						[(ngModel)]="identifier"
-						placeholder="+1 555 010 2030"
-						autocomplete="tel"
-						autocorrect="off"
-						autocapitalize="none"
-						spellcheck="false"
-						required
-					/>
-				</label>
-
-				<p class="sl-inline-error" *ngIf="errorCode">{{ errorCode }}</p>
-
-				<button type="submit" class="sl-cta" [disabled]="submitting">
-					{{ t("smartLink.actions.continue") }}
-				</button>
-			</form>
-
-			<footer class="sl-footer">
-				<span>{{ t("smartLink.poweredBy") }}</span>
-				<span *ngIf="config?.project?.privacyUrl || config?.project?.termsAndConditionsUrl" class="sl-legal-links">
-					<a *ngIf="config?.project?.privacyUrl" [href]="config?.project?.privacyUrl" target="_blank" rel="noopener noreferrer">
-						{{ t("smartLink.privacy") }}
-					</a>
-					<a
-						*ngIf="config?.project?.termsAndConditionsUrl"
-						[href]="config?.project?.termsAndConditionsUrl"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{{ t("smartLink.terms") }}
-					</a>
-				</span>
-			</footer>
+				<img class="sl-banner-img" [src]="bannerImage" alt="" width="800" height="1000" />
+			</aside>
 		</div>
 	</div>
 </ng-container>

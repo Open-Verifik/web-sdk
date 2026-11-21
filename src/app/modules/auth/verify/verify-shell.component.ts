@@ -107,6 +107,12 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				const handoffParam = query.get("handoff");
 				const requireKycParam = query.get("requireKyc");
 				const requireKyc = requireKycParam === "1" || requireKycParam === "true";
+				const requireDocParam = query.get("requireDocument");
+				const requireDocument = requireDocParam === "1" || requireDocParam === "true";
+				const prefillEmail = (query.get("email") || "").trim();
+				const prefillPhone = (query.get("phone") || "").trim();
+				const prefillCountryCode = (query.get("countryCode") || "").trim();
+				const prefillFullName = (query.get("fullName") || "").trim();
 				const isRepToken = Boolean(rawToken && !isUsableAppRegistrationSessionToken(rawToken));
 				this.session.isRepresentativeKyc = Boolean(
 					isRepToken || repParam === "1" || repParam === "true" || this.session.projectFlow?.target === "business",
@@ -117,7 +123,16 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				const rawReturnTo = query.get("returnTo");
 				this.returnTo = this._sanitizeReturnTo(rawReturnTo);
 				this._applyStyle();
-				this.session.open(projectId, rawToken, { requireKyc });
+				this.session.open(projectId, rawToken, {
+					requireKyc,
+					requireDocument,
+					prefill: {
+						email: prefillEmail,
+						phone: prefillPhone,
+						countryCode: prefillCountryCode,
+						fullName: prefillFullName,
+					},
+				});
 			});
 	}
 
