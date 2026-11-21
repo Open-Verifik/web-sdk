@@ -669,6 +669,8 @@ export class VerifyBusinessSessionService implements OnDestroy {
 							type: "IN_PROGRESS",
 							step: String(this.submissionResult?.status || "pending_review").toLowerCase(),
 							summary: "Business verification pending review",
+							registrationToken: this.token || undefined,
+							outcomeType: "kyb",
 						})
 						.pipe(catchError(() => of(null)))
 						.subscribe();
@@ -692,6 +694,8 @@ export class VerifyBusinessSessionService implements OnDestroy {
 						type: "IN_PROGRESS",
 						step: String(this.submissionResult?.status || "pending_review").toLowerCase(),
 						summary: "Business verification pending review",
+						registrationToken: this.token || undefined,
+						outcomeType: "kyb",
 					})
 					.pipe(catchError(() => of(null)))
 					.subscribe();

@@ -433,10 +433,41 @@
 	font-weight: 600;
 	cursor: pointer;
 
+	&:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+
 	&:focus-visible {
 		outline: 2px solid var(--style-cta, #2563eb);
 		outline-offset: 2px;
 	}
+}
+
+.sl-hint {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--style-body, #475569);
+}
+
+.sl-page.is-dark-surface .sl-hint {
+	color: var(--style-body, #cbd5e1);
+}
+
+.sl-otp-input {
+	text-align: center;
+	letter-spacing: 0.28em;
+	font-size: 1.25rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.sl-otp-actions {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .sl-error-actions {

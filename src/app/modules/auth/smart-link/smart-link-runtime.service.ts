@@ -11,8 +11,13 @@ import {
 	SmartLinkCompletionMode,
 	SmartLinkEventPayload,
 	SmartLinkEventResponse,
+	SmartLinkHumanIdRecoveryContext,
 	SmartLinkLookupResponse,
 	SmartLinkMode,
+	SmartLinkOtpSendRequest,
+	SmartLinkOtpSendResponse,
+	SmartLinkOtpVerifyRequest,
+	SmartLinkOtpVerifyResponse,
 	SmartLinkOutcomeType,
 	SmartLinkPublicConfig,
 	SmartLinkReceiptPayload,
@@ -21,6 +26,8 @@ import {
 const ACTIVE_SESSION_STORAGE_KEY = "verifik_active_smartlink_v1";
 const RECEIPT_STORAGE_PREFIX = "verifik_smartlink_receipt_";
 const TOKEN_STORAGE_PREFIX = "verifik_smartlink_token_";
+const VERIFIED_CONTACT_STORAGE_PREFIX = "verifik_smartlink_vc_";
+const RECOVERY_STORAGE_PREFIX = "verifik_smartlink_recovery_";
 const ACTIVE_SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 
 const NON_RETRYABLE_HANDOFF_ERRORS = new Set([
@@ -92,6 +99,42 @@ export class SmartLinkRuntimeService {
 			.pipe(map((res) => res.data));
 	}
 
+	sendOtp(payload: SmartLinkOtpSendRequest): Observable<SmartLinkOtpSendResponse> {
+		const token = this.getAccessToken(payload.slugOrCode, payload.t);
+		return this._http
+			.post<{ data: SmartLinkOtpSendResponse }>(`${this._apiUrl}/v3/smart-links/public/otp/send`, {
+				...payload,
+				...(token ? { t: token } : {}),
+			})
+			.pipe(
+				map((res) => {
+					const data = res.data;
+					if (data?.shortCode && data?.accessToken) {
+						this.saveAccessToken(data.shortCode, data.accessToken);
+					}
+					return data;
+				})
+			);
+	}
+
+	verifyOtp(payload: SmartLinkOtpVerifyRequest): Observable<SmartLinkOtpVerifyResponse> {
+		const token = this.getAccessToken(payload.shortCode, payload.t);
+		return this._http
+			.post<{ data: SmartLinkOtpVerifyResponse }>(`${this._apiUrl}/v3/smart-links/public/otp/verify`, {
+				...payload,
+				...(token ? { t: token } : {}),
+			})
+			.pipe(
+				map((res) => {
+					const data = res.data;
+					if (data?.shortCode && data?.verifiedContactToken) {
+						this.saveVerifiedContactToken(data.shortCode, data.verifiedContactToken);
+					}
+					return data;
+				})
+			);
+	}
+
 	verifyFace(shortCode: string, faceBase64: string, accessToken?: string): Observable<SmartLinkCompleteResponse> {
 		const token = this.getAccessToken(shortCode, accessToken);
 		return this._http
@@ -112,6 +155,8 @@ export class SmartLinkRuntimeService {
 			...(payload.reason ? { reason: String(payload.reason).slice(0, 240) } : {}),
 			...(payload.step ? { step: String(payload.step).slice(0, 240) } : {}),
 			...(payload.summary ? { summary: String(payload.summary).slice(0, 240) } : {}),
+			...(payload.registrationToken ? { registrationToken: payload.registrationToken } : {}),
+			...(payload.outcomeType ? { outcomeType: payload.outcomeType } : {}),
 			...(token ? { t: token } : {}),
 		};
 		return this._http
@@ -187,6 +232,57 @@ export class SmartLinkRuntimeService {
 		}
 	}
 
+	saveVerifiedContactToken(shortCode: string, token: string | null | undefined): void {
+		const cleanCode = (shortCode || "").trim();
+		const cleanToken = (token || "").trim();
+		if (!cleanCode || !cleanToken || typeof sessionStorage === "undefined") return;
+		try {
+			sessionStorage.setItem(`${VERIFIED_CONTACT_STORAGE_PREFIX}${cleanCode}`, cleanToken);
+			const active = this.getActiveSession();
+			if (active?.shortCode === cleanCode && active.verifiedContactToken !== cleanToken) {
+				this.saveActiveSession({ ...active, verifiedContactToken: cleanToken });
+			}
+		} catch {
+			// ignore storage quota errors
+		}
+	}
+
+	getVerifiedContactToken(shortCode?: string): string {
+		const active = this.getActiveSession();
+		const targetCode = (shortCode || active?.shortCode || "").trim();
+		if (active && (!shortCode || active.shortCode === targetCode) && active.verifiedContactToken) {
+			return active.verifiedContactToken.trim();
+		}
+		if (!targetCode || typeof sessionStorage === "undefined") return "";
+		try {
+			return (sessionStorage.getItem(`${VERIFIED_CONTACT_STORAGE_PREFIX}${targetCode}`) || "").trim();
+		} catch {
+			return "";
+		}
+	}
+
+	saveHumanIdRecoveryContext(ctx: SmartLinkHumanIdRecoveryContext): void {
+		const cleanCode = (ctx?.shortCode || "").trim();
+		if (!cleanCode || typeof sessionStorage === "undefined") return;
+		try {
+			sessionStorage.setItem(`${RECOVERY_STORAGE_PREFIX}${cleanCode}`, JSON.stringify(ctx));
+		} catch {
+			// ignore storage quota errors
+		}
+	}
+
+	getHumanIdRecoveryContext(shortCode?: string): SmartLinkHumanIdRecoveryContext | null {
+		const active = this.getActiveSession();
+		const targetCode = (shortCode || active?.shortCode || "").trim();
+		if (!targetCode || typeof sessionStorage === "undefined") return null;
+		try {
+			const raw = sessionStorage.getItem(`${RECOVERY_STORAGE_PREFIX}${targetCode}`);
+			return raw ? (JSON.parse(raw) as SmartLinkHumanIdRecoveryContext) : null;
+		} catch {
+			return null;
+		}
+	}
+
 	captureFromUrl(search?: string): ActiveSmartLinkContext | null {
 		if (typeof window === "undefined") return null;
 		try {
@@ -202,10 +298,14 @@ export class SmartLinkRuntimeService {
 
 			const existing = this.getActiveSession();
 			const resolvedToken = urlToken || (existing && existing.shortCode === shortCode ? existing.accessToken : undefined) || this.getAccessToken(shortCode);
+			const resolvedVerifiedContact =
+				(existing && existing.shortCode === shortCode ? existing.verifiedContactToken : undefined) ||
+				this.getVerifiedContactToken(shortCode);
 			const ctx: ActiveSmartLinkContext = {
 				...(existing && existing.shortCode === shortCode ? existing : {}),
 				shortCode,
 				...(resolvedToken ? { accessToken: resolvedToken } : {}),
+				...(resolvedVerifiedContact ? { verifiedContactToken: resolvedVerifiedContact } : {}),
 				createdAtMs: Date.now(),
 			};
 			this.saveActiveSession(ctx);

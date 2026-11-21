@@ -1554,6 +1554,30 @@
       "subtitle": "请正视摄像头进行快速人脸核验以完成验证。",
       "failedTitle": "无法完成人脸核验",
       "switchAccount": "改用其他邮箱或手机号"
+    },
+    "otp": {
+      "badge": "联系方式验证",
+      "title": "输入6位验证码",
+      "subtitle": "我们已向 {{target}} 发送6位验证码。",
+      "codeLabel": "验证码",
+      "hint": "请查看消息并在下方输入全部6位数字。",
+      "codePlaceholder": "000000",
+      "verifyAction": "验证",
+      "verifying": "正在验证...",
+      "resendAction": "重新发送验证码",
+      "resendCountdown": "{{seconds}}秒后可重新发送",
+      "switchWhatsapp": "改用 WhatsApp 接收验证码",
+      "switchSms": "改用短信接收验证码",
+      "errorInvalid": "请输入有效的6位数字验证码。",
+      "errorExpired": "该验证码已过期，请在下方重新获取。",
+      "errorMaxAttempts": "错误次数过多，请重新获取验证码后再试。",
+      "errorCooldown": "请稍等几秒后再请求新验证码。"
+    },
+    "humanIdRecovery": {
+      "title": "丢失了您的 HumanID？",
+      "recoveryBody": "您可以使用原始身份证件和活体自拍重新验证，以签发新的 HumanID。",
+      "recoveryCta": "使用身份证件重新验证",
+      "noAnchorBody": "您的资料处于零知识保护模式，未保存证件或照片。请出示原始 HumanID 二维码或字符串继续，或联系发送方获取新链接。"
     }
   }
 }
