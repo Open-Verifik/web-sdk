@@ -30,6 +30,7 @@ import { ImageScan } from "app/modules/auth/project";
 import { VerifySelfieComponent } from "app/modules/auth/verify/verify-selfie.component";
 import { HumanIdLoginPayload, PasswordlessService } from "../passwordless.service";
 import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
+import { SmartLinkHumanIdRecoveryContext } from "../smart-link/smart-link.types";
 
 export type HumanIdStep = "loading" | "input" | "selfie" | "submitting" | "success" | "error";
 export type HumanIdInputMode = "qr_camera" | "qr_upload" | "text_paste";
@@ -109,17 +110,20 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 	// Error & Feedback
 	errorMessageKey: string | null = null;
 	rawErrorMessage: string | null = null;
+	smartLinkRecovery: SmartLinkHumanIdRecoveryContext | null = null;
 
 	constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
 	ngOnInit(): void {
 		this._smartLinkRuntime?.captureFromUrl();
+		this.smartLinkRecovery = this._smartLinkRuntime?.getHumanIdRecoveryContext() || null;
 		this._route.paramMap.pipe(takeUntil(this._destroy$)).subscribe((params) => {
 			this.projectId = params.get("id") || "";
 			if (!this.projectId) {
 				this._router.navigate(["/sign-in"]);
 				return;
 			}
+			this.smartLinkRecovery = this._smartLinkRuntime?.getHumanIdRecoveryContext() || this.smartLinkRecovery;
 			this._loadProject();
 		});
 
@@ -166,24 +170,74 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 		this.step = "loading";
 		this._passwordlessService.requestProject(this.projectId, "login").subscribe({
 			next: (res) => {
-				this.project = new Project({ ...res.data, type: "login" });
-				this.projectFlow = this.project.getLoginProjectFlow();
-
-				if (this.sessionCode || this.humanId || this.identifier) {
-					this._skipToSelfie();
-				} else {
-					this.step = "input";
-					setTimeout(() => {
-						void this._startQrCameraMode();
-					}, 100);
+				const candidate = new Project({ ...res.data, type: "login" });
+				const flow = candidate.getLoginProjectFlow();
+				if (flow) {
+					this._applyLoadedProject(candidate, flow);
+					return;
 				}
-				this._cdr.markForCheck();
+				this._loadStandaloneHumanAuthnProject();
+			},
+			error: () => {
+				this._loadStandaloneHumanAuthnProject();
+			},
+		});
+	}
+
+	private _loadStandaloneHumanAuthnProject(): void {
+		this._passwordlessService.requestProject(this.projectId, "onboarding").subscribe({
+			next: (res) => {
+				const candidate = new Project({ ...res.data, type: "onboarding" });
+				const flow =
+					candidate.projectFlows?.find((f) => f.type === "humanAuthn") || candidate.getLoginProjectFlow();
+				if (!flow) {
+					this.rawErrorMessage = "Failed to load HumanID project flow";
+					this.step = "error";
+					this._cdr.markForCheck();
+					return;
+				}
+				this._applyLoadedProject(candidate, flow);
 			},
 			error: (err) => {
 				this.rawErrorMessage = err?.error?.message || "Failed to load authentication project";
 				this.step = "error";
 				this._cdr.markForCheck();
 			},
+		});
+	}
+
+	private _applyLoadedProject(project: Project, flow: ProjectFlow): void {
+		this.project = project;
+		this.projectFlow = flow;
+		if (this.sessionCode || this.humanId || this.identifier) {
+			this._skipToSelfie();
+		} else {
+			this.step = "input";
+			setTimeout(() => {
+				void this._startQrCameraMode();
+			}, 100);
+		}
+		this._cdr.markForCheck();
+	}
+
+	startDocumentRecovery(): void {
+		const rec = this.smartLinkRecovery;
+		if (!rec?.allowHumanIdRecovery || !rec.recoveryEnrollProjectId || !rec.recoveryReverifyToken) return;
+		this._stopQrCamera();
+		const active = this._smartLinkRuntime?.getActiveSession();
+		const queryParams: Record<string, string> = {
+			smartLink: rec.shortCode || active?.shortCode || "",
+			token: rec.recoveryReverifyToken,
+			reverify: "1",
+			humanIdRecovery: "1",
+			requireDocument: "1",
+		};
+		if (active?.accessToken) {
+			queryParams["smartLinkToken"] = active.accessToken;
+		}
+		void this._router.navigate(["/verify", rec.recoveryEnrollProjectId], {
+			queryParams,
+			replaceUrl: true,
 		});
 	}
 

@@ -1554,6 +1554,30 @@
       "subtitle": "인증을 완료하려면 카메라를 보고 간단한 얼굴 확인을 진행해 주세요.",
       "failedTitle": "얼굴 확인을 완료하지 못했습니다",
       "switchAccount": "다른 이메일 또는 전화번호 사용"
+    },
+    "otp": {
+      "badge": "연락처 인증",
+      "title": "6자리 인증 코드 입력",
+      "subtitle": "{{target}} 로 6자리 인증 코드를 전송했습니다.",
+      "codeLabel": "인증 코드",
+      "hint": "메시지를 확인하고 아래에 6자리 숫자를 모두 입력하세요.",
+      "codePlaceholder": "000000",
+      "verifyAction": "코드 확인",
+      "verifying": "확인 중...",
+      "resendAction": "코드 다시 보내기",
+      "resendCountdown": "{{seconds}}초 후 재전송",
+      "switchWhatsapp": "WhatsApp으로 코드 받기",
+      "switchSms": "SMS로 코드 받기",
+      "errorInvalid": "유효한 6자리 인증 코드를 입력하세요.",
+      "errorExpired": "인증 코드가 만료되었습니다. 아래에서 새 코드를 요청하세요.",
+      "errorMaxAttempts": "잘못된 입력 횟수가 초과되었습니다. 새 코드를 요청해 주세요.",
+      "errorCooldown": "새 코드를 요청하기 전에 잠시 기다려 주세요."
+    },
+    "humanIdRecovery": {
+      "title": "HumanID를 분실하셨나요?",
+      "recoveryBody": "기존 신분증과 실시간 셀카로 다시 인증하면 새 HumanID를 발급받을 수 있습니다.",
+      "recoveryCta": "신분증으로 다시 인증하기",
+      "noAnchorBody": "프로필이 신분증이나 사진을 저장하지 않는 영지식 모드로 보호되었습니다. 기존 HumanID QR 또는 코드를 제시하거나 발신자에게 새 링크를 요청하세요."
     }
   }
 }

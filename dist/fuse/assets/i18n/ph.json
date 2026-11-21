@@ -1554,6 +1554,30 @@
       "subtitle": "Tumingin sa kamera para sa mabilisang pagsusuri ng mukha upang matapos ang beripikasyon.",
       "failedTitle": "Hindi nakumpleto ang pagsusuri ng mukha",
       "switchAccount": "Gumamit ng ibang email o telepono"
+    },
+    "otp": {
+      "badge": "Pagpapatunay ng Contact",
+      "title": "Ilagay ang iyong 6-digit na code",
+      "subtitle": "Nagpadala kami ng 6-digit na verification code sa {{target}}.",
+      "codeLabel": "Verification code",
+      "hint": "Tingnan ang iyong mga mensahe at ilagay ang lahat ng 6 na digit sa ibaba.",
+      "codePlaceholder": "000000",
+      "verifyAction": "I-verify ang code",
+      "verifying": "Nagve-verify...",
+      "resendAction": "Ipadala ulit ang code",
+      "resendCountdown": "Ipadala ulit sa {{seconds}}s",
+      "switchWhatsapp": "Sa WhatsApp na lang tanggapin ang code",
+      "switchSms": "Sa SMS na lang tanggapin ang code",
+      "errorInvalid": "Maglagay ng wastong 6-digit na verification code.",
+      "errorExpired": "Nag-expire na ang code na ito. Humiling ng bagong code sa ibaba.",
+      "errorMaxAttempts": "Masyadong maraming maling subok. Humiling ng bagong code upang subukan ulit.",
+      "errorCooldown": "Maghintay muna ng ilang segundo bago humiling ng isa pang code."
+    },
+    "humanIdRecovery": {
+      "title": "Nawala ang iyong HumanID?",
+      "recoveryBody": "Maaari kang mag-verify gamit ang orihinal mong ID document at live selfie upang makagawa ng bagong HumanID.",
+      "recoveryCta": "Mag-verify ulit gamit ang ID document",
+      "noAnchorBody": "Pinrotektahan ang profile mo sa zero-knowledge mode nang hindi iniimbak ang ID o larawan. Ipakita ang orihinal na HumanID QR o code upang magpatuloy, o humingi ng bagong link."
     }
   }
 }

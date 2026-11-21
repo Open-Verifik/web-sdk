@@ -193,6 +193,30 @@
 						{{ t("human_id_login.continue_to_selfie") }}
 					</button>
 				</div>
+
+				<!-- SmartLink Zero-Knowledge Lost HumanID Recovery / Info -->
+				<div *ngIf="smartLinkRecovery" class="mt-6 pt-5 border-t border-slate-200">
+					<div *ngIf="smartLinkRecovery.allowHumanIdRecovery" class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
+						<p class="text-sm font-semibold text-slate-900">{{ t("smartLink.humanIdRecovery.title") }}</p>
+						<p class="text-xs text-slate-600 mt-1">{{ t("smartLink.humanIdRecovery.recoveryBody") }}</p>
+						<button
+							type="button"
+							(click)="startDocumentRecovery()"
+							class="mt-3 w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-indigo-600 text-indigo-700 bg-white hover:bg-indigo-50 transition-colors"
+						>
+							{{ t("smartLink.humanIdRecovery.recoveryCta") }}
+						</button>
+					</div>
+
+					<div
+						*ngIf="!smartLinkRecovery.allowHumanIdRecovery"
+						role="note"
+						class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left"
+					>
+						<p class="text-sm font-semibold text-slate-900">{{ t("smartLink.humanIdRecovery.title") }}</p>
+						<p class="text-xs text-slate-600 mt-1">{{ t("smartLink.humanIdRecovery.noAnchorBody") }}</p>
+					</div>
+				</div>
 			</div>
 
 			<!-- STEP 2: LIVE SELFIE VERIFICATION -->

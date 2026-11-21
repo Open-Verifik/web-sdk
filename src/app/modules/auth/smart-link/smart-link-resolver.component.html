@@ -76,7 +76,7 @@
 						class="sl-body"
 						*ngIf="!loading && step === 'identifier'"
 						novalidate
-						(ngSubmit)="proceedLookup()"
+						(ngSubmit)="onIdentifierFormSubmit()"
 					>
 						<div class="sl-copy">
 							<h1 class="sl-title">{{ t("smartLink.lookup.personalTitle") }}</h1>
@@ -131,7 +131,7 @@
 								spellcheck="false"
 								enterkeyhint="go"
 								required
-								[attr.aria-invalid]="showIdentifierError ? 'true' : null"
+								[attr.aria-invalid]="showIdentifierError ? 'true' : 'false'"
 								[attr.aria-describedby]="showIdentifierError ? 'sl-identifier-error' : null"
 							/>
 
@@ -168,23 +168,20 @@
 									spellcheck="false"
 									enterkeyhint="go"
 									required
-									[attr.aria-invalid]="showIdentifierError ? 'true' : null"
+									[attr.aria-invalid]="showIdentifierError ? 'true' : 'false'"
 									[attr.aria-describedby]="showIdentifierError ? 'sl-identifier-error' : null"
 								/>
 							</div>
 
-							<div
-								*ngIf="showIdentifierError"
-								id="sl-identifier-error"
-								class="sl-inline-error"
-								role="alert"
-							>
-								<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-									<circle cx="10" cy="10" r="8"></circle>
-									<line x1="10" y1="6.2" x2="10" y2="10.8" stroke-linecap="round"></line>
-									<circle cx="10" cy="13.6" r="0.8" fill="currentColor" stroke="none"></circle>
-								</svg>
-								<span>{{ t(inlineErrorKey) }}</span>
+							<div id="sl-identifier-error" class="sl-inline-error" aria-live="polite">
+								<ng-container *ngIf="showIdentifierError">
+									<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+										<circle cx="10" cy="10" r="8"></circle>
+										<line x1="10" y1="6.2" x2="10" y2="10.8" stroke-linecap="round"></line>
+										<circle cx="10" cy="13.6" r="0.8" fill="currentColor" stroke="none"></circle>
+									</svg>
+									<span>{{ t(inlineErrorKey) }}</span>
+								</ng-container>
 							</div>
 						</div>
 
@@ -197,6 +194,106 @@
 							<span class="sl-btn-spinner" *ngIf="submitting" aria-hidden="true"></span>
 							<span>{{ submitting ? t("smartLink.actions.continuing") : t("smartLink.actions.continue") }}</span>
 						</button>
+					</form>
+
+					<form
+						class="sl-body"
+						*ngIf="!loading && step === 'otp'"
+						novalidate
+						(ngSubmit)="submitOtp()"
+					>
+						<div class="sl-copy">
+							<span class="sl-kicker">{{ t("smartLink.otp.badge") }}</span>
+							<h1 class="sl-title">{{ t("smartLink.otp.title") }}</h1>
+							<p class="sl-subtitle">{{ t("smartLink.otp.subtitle", { target: otpMaskedTarget }) }}</p>
+						</div>
+
+						<div class="sl-field">
+							<label class="sl-label" for="sl-otp-input">{{ t("smartLink.otp.codeLabel") }}</label>
+							<p id="sl-otp-hint" class="sl-hint">{{ t("smartLink.otp.hint") }}</p>
+
+							<input
+								id="sl-otp-input"
+								type="text"
+								inputmode="numeric"
+								autocomplete="one-time-code"
+								pattern="\d{6}"
+								maxlength="6"
+								class="sl-input sl-otp-input"
+								[class.user-invalid-fallback]="showOtpError"
+								name="otpCode"
+								[ngModel]="otpCode"
+								(ngModelChange)="onOtpChange($event)"
+								(blur)="onOtpBlur()"
+								[placeholder]="t('smartLink.otp.codePlaceholder')"
+								autocorrect="off"
+								autocapitalize="none"
+								spellcheck="false"
+								enterkeyhint="done"
+								required
+								[attr.aria-invalid]="showOtpError ? 'true' : 'false'"
+								[attr.aria-describedby]="otpDescribedBy"
+							/>
+
+							<div id="sl-otp-error" class="sl-inline-error" aria-live="polite">
+								<ng-container *ngIf="showOtpError">
+									<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+										<circle cx="10" cy="10" r="8"></circle>
+										<line x1="10" y1="6.2" x2="10" y2="10.8" stroke-linecap="round"></line>
+										<circle cx="10" cy="13.6" r="0.8" fill="currentColor" stroke="none"></circle>
+									</svg>
+									<span>{{ t(otpErrorKey) }}</span>
+								</ng-container>
+							</div>
+						</div>
+
+						<button
+							type="submit"
+							class="sl-cta"
+							[disabled]="submitting"
+							[attr.aria-busy]="submitting ? 'true' : null"
+						>
+							<span class="sl-btn-spinner" *ngIf="submitting" aria-hidden="true"></span>
+							<span>{{ submitting ? t("smartLink.otp.verifying") : t("smartLink.otp.verifyAction") }}</span>
+						</button>
+
+						<div class="sl-otp-actions">
+							<button
+								type="button"
+								class="sl-secondary-btn"
+								[disabled]="submitting || otpResendCooldown > 0"
+								(click)="resendOtp()"
+							>
+								{{
+									otpResendCooldown > 0
+										? t("smartLink.otp.resendCountdown", { seconds: otpResendCooldown })
+										: t("smartLink.otp.resendAction")
+								}}
+							</button>
+
+							<button
+								*ngIf="otpChannel === 'phone'"
+								type="button"
+								class="sl-secondary-btn"
+								[disabled]="submitting || otpResendCooldown > 0"
+								(click)="resendOtp(otpPhoneGateway === 'sms' ? 'whatsapp' : 'sms')"
+							>
+								{{
+									otpPhoneGateway === "sms"
+										? t("smartLink.otp.switchWhatsapp")
+										: t("smartLink.otp.switchSms")
+								}}
+							</button>
+
+							<button
+								type="button"
+								class="sl-secondary-btn"
+								[disabled]="submitting"
+								(click)="backToIdentifierFromOtp()"
+							>
+								{{ t("smartLink.faceVerify.switchAccount") }}
+							</button>
+						</div>
 					</form>
 
 					<div class="sl-body" *ngIf="!loading && step === 'faceVerify'">
