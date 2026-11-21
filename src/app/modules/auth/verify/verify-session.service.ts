@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy, Optional } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
@@ -24,6 +24,7 @@ import { ImageScan } from "app/modules/auth/project";
 import { KYCService } from "app/modules/auth/kyc.service";
 import { PasswordlessService } from "app/modules/auth/passwordless.service";
 import { DemoService } from "app/modules/demo/demo.service";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 import {
 	attemptsRemaining,
 	calibrateArcFaceCompareThreshold,
@@ -65,6 +66,19 @@ const FULL_REGISTRATION_POPULATES = [
 const HANDOFF_POLL_INTERVAL_MS = 2500;
 
 export type VerifySheet = null | "acceptedIds" | "language" | "otherOptions" | "document" | "camera" | "trouble";
+
+export interface VerifyOpenPrefill {
+	email?: string;
+	phone?: string;
+	countryCode?: string;
+	fullName?: string;
+}
+
+export interface VerifyOpenOptions {
+	requireKyc?: boolean;
+	requireDocument?: boolean;
+	prefill?: VerifyOpenPrefill;
+}
 
 export interface VerifyDraft {
 	addressLine1: string;
@@ -155,6 +169,7 @@ export class VerifySessionService implements OnDestroy {
 	/** `?order=a|b` from the URL; wins over the order saved on the project so both can be compared. */
 	orderOverride: FlowOrder | null = null;
 	requireKyc = false;
+	requireDocument = false;
 	template: PromptTemplate | null = null;
 	readonly changed = new Subject<void>();
 	readonly selfieDone$ = new Subject<void>();
@@ -168,12 +183,19 @@ export class VerifySessionService implements OnDestroy {
 	private _handoffPollInFlight = false;
 	private _handoffPollTimer: ReturnType<typeof setInterval> | null = null;
 	private _key = "";
+	private _lastFailureReason = "";
+	private _lastFailureStep = "";
 	private _livenessFailures = 0;
 	private _location: any = null;
 	private _emailSend$: Observable<unknown> | null = null;
 	private _phoneSend$: Observable<unknown> | null = null;
+	private _prefillCountryCode = "";
 	private _redirectTimer: ReturnType<typeof setTimeout> | null = null;
+	private _reportedTerminalFailure = false;
 	private _resendCountdownTimer: ReturnType<typeof setInterval> | null = null;
+	private _settingsCache: VerifySettings | null = null;
+	private _settingsRequireDoc = false;
+	private _settingsSource: ProjectFlow | null = null;
 	private _skippedDocument = false;
 	private _skippedLiveness = false;
 	private _token = "";
@@ -193,7 +215,8 @@ export class VerifySessionService implements OnDestroy {
 		private _kyc: KYCService,
 		private _passwordless: PasswordlessService,
 		private _router: Router,
-		private _transloco: TranslocoService
+		private _transloco: TranslocoService,
+		@Optional() private _smartLink?: SmartLinkRuntimeService
 	) {
 		this._passwordless.flow = "onboarding";
 		this._device = this._app.getDeviceDetails();
@@ -222,7 +245,24 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	get settings(): VerifySettings | null {
-		return this.projectFlow ? settingsFromFlow(this.projectFlow) : null;
+		if (!this.projectFlow) return null;
+		if (
+			this._settingsSource !== this.projectFlow ||
+			this._settingsRequireDoc !== this.requireDocument ||
+			!this._settingsCache
+		) {
+			const base = settingsFromFlow(this.projectFlow);
+			this._settingsCache = this.requireDocument
+				? {
+						...base,
+						document: "mandatory",
+						useGovernmentId: base.useGovernmentId || (!base.usePassport && !base.useLicense),
+					}
+				: base;
+			this._settingsSource = this.projectFlow;
+			this._settingsRequireDoc = this.requireDocument;
+		}
+		return this._settingsCache;
 	}
 
 	get flowOrder(): FlowOrder {
@@ -245,6 +285,10 @@ export class VerifySessionService implements OnDestroy {
 		if (this._token) params.set("token", this._token);
 		if (this.previewStyle) params.set("style", this.previewStyle);
 		if (this.orderOverride) params.set("order", this.orderOverride === "consent_first" ? "b" : "a");
+		if (this.requireKyc) params.set("requireKyc", "1");
+		if (this.requireDocument) params.set("requireDocument", "1");
+		const activeSmartLink = this._smartLink?.getActiveSession()?.shortCode;
+		if (activeSmartLink) params.set("smartLink", activeSmartLink);
 		params.set("handoff", "1");
 
 		const query = params.toString();
@@ -350,12 +394,12 @@ export class VerifySessionService implements OnDestroy {
 
 	/** True when neither document nor liveness is mandatory (and at least one is optional), allowing the user to defer KYC. */
 	get canSkipKyc(): boolean {
-		return !this.requireKyc && !this.isRepresentativeKyc && canSkipIdentity(this.settings);
+		return !this.requireKyc && !this.requireDocument && !this.isRepresentativeKyc && canSkipIdentity(this.settings);
 	}
 
 	/** True when an optional document step may be skipped individually. */
 	get canSkipDocumentStep(): boolean {
-		return !this.requireKyc && !this.canSkipKyc && this.settings?.document === "optional";
+		return !this.requireKyc && !this.requireDocument && !this.canSkipKyc && this.settings?.document === "optional";
 	}
 
 	/** True when an optional liveness step may be skipped individually. */
@@ -525,7 +569,18 @@ export class VerifySessionService implements OnDestroy {
 		return knownDoc[key] || "verify.retryBody";
 	}
 
-	open(projectId: string, rawToken?: string, options?: { requireKyc?: boolean }): void {
+	open(projectId: string, rawToken?: string, options?: VerifyOpenOptions): void {
+		const isDifferentProject = Boolean(this.projectId && this.projectId !== projectId);
+		if (isDifferentProject) {
+			this.requireKyc = false;
+			this.requireDocument = false;
+			this._prefillCountryCode = "";
+			this._lastFailureReason = "";
+			this._lastFailureStep = "";
+			this._reportedTerminalFailure = false;
+			this._settingsCache = null;
+		}
+
 		try {
 			if (!this.isMobileHandoff && projectId && sessionStorage.getItem(`verifik_handoff_${projectId}`) === "1") {
 				this.isMobileHandoff = true;
@@ -538,7 +593,11 @@ export class VerifySessionService implements OnDestroy {
 		}
 
 		const token = resolveToken(projectId, rawToken);
-		this.requireKyc = Boolean(options?.requireKyc || tokenHasRequireKyc(token || this._rawToken));
+		this.requireKyc = Boolean(options?.requireKyc || (!isDifferentProject && this.requireKyc) || tokenHasRequireKyc(token || this._rawToken));
+		this.requireDocument = Boolean(
+			options?.requireDocument || (!isDifferentProject && this.requireDocument) || tokenHasRequireDocument(token || this._rawToken)
+		);
+		this._applyPrefill(options?.prefill);
 		const key = `${projectId}:${token || this._rawToken}`;
 
 		if (key === this._key && this.screen !== "loading") return;
@@ -857,7 +916,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	skipDocument(): void {
-		if (this.requireKyc || this.settings?.document === "mandatory") return;
+		if (this.requireKyc || this.requireDocument || this.settings?.document === "mandatory") return;
 
 		this._skippedDocument = true;
 
@@ -1176,6 +1235,10 @@ export class VerifySessionService implements OnDestroy {
 			this._redirectTimer = null;
 		}
 
+		if (this.registration?.status === "FAILED" && this._smartLink?.hasActiveSession()) {
+			this._smartLink.clearActiveSession();
+		}
+
 		const token = this._token;
 		const projectId = this.project?._id || this.projectId;
 
@@ -1204,7 +1267,7 @@ export class VerifySessionService implements OnDestroy {
 			return;
 		}
 
-		if (this.settings?.countryCode) {
+		if (this.settings?.countryCode && !this._prefillCountryCode) {
 			this.draft.countryCode = this.settings.countryCode;
 		}
 
@@ -1562,6 +1625,7 @@ export class VerifySessionService implements OnDestroy {
 
 					this._router.navigate(["/verify", this.projectId], {
 						queryParams: { token },
+						queryParamsHandling: "merge",
 						replaceUrl: true,
 					});
 				},
@@ -2014,6 +2078,8 @@ export class VerifySessionService implements OnDestroy {
 		const failures = this.registration?.failedDocumentValidations?.length || this._documentFailures;
 
 		if (settings && attemptsRemaining(settings.documentMaxAttempts, failures) <= 0) {
+			this._lastFailureReason = this._lastFailureReason || "document_max_attempts_exceeded";
+			this._lastFailureStep = "document";
 			this._finish("FAILED", "end");
 			return;
 		}
@@ -2306,6 +2372,8 @@ export class VerifySessionService implements OnDestroy {
 		const failures = this.registration?.failedBiometricValidations?.length || this._livenessFailures;
 
 		if (settings && attemptsRemaining(settings.livenessMaxAttempts, failures) <= 0) {
+			this._lastFailureReason = this._lastFailureReason || "liveness_max_attempts_exceeded";
+			this._lastFailureStep = "liveness";
 			this._finish("FAILED", "end");
 			return;
 		}
@@ -2395,7 +2463,12 @@ export class VerifySessionService implements OnDestroy {
 				this._kyc.appRegistration = this.registration;
 				this._finish(this._score(), "end");
 			},
-			error: () => this._finish("FAILED", "end"),
+			error: (err) => {
+				const parsed = parseApiError(err);
+				this._lastFailureReason = parsed.reason && parsed.reason !== "unknown" ? parsed.reason : "face_compare_failed";
+				this._lastFailureStep = "compare";
+				this._finish("FAILED", "end");
+			},
 		});
 	}
 
@@ -2443,6 +2516,7 @@ export class VerifySessionService implements OnDestroy {
 			parsed.reason === "insufficient_credits" ||
 			parsed.reason === "existing_document_validation_with_document_number"
 		) {
+			this._reportSmartLinkFailure(parsed.reason || "verification_error", kind);
 			this.errorTitleKey = parsed.kind === "conflict" ? "errors.conflict" : "verify.errorTitle";
 			this.errorKey = parsed.reason.includes(".") ? parsed.reason : `errors.${parsed.reason}`;
 			this.screen = "error";
@@ -2452,6 +2526,9 @@ export class VerifySessionService implements OnDestroy {
 
 		if (kind === "document") this._documentFailures += 1;
 		else this._livenessFailures += 1;
+
+		this._lastFailureReason = parsed.reason && parsed.reason !== "unknown" ? parsed.reason : `${kind}_failed`;
+		this._lastFailureStep = kind;
 
 		const remaining =
 			kind === "document"
@@ -2483,6 +2560,19 @@ export class VerifySessionService implements OnDestroy {
 		if (this.selfiePhase !== "idle") this.selfiePhase = "finishing";
 		this.sheet = null;
 		this._touch();
+
+		if (status === "FAILED") {
+			const compare = this.registration?.compareFaceVerification;
+			const biometric = this.registration?.biometricValidation;
+			const reason =
+				compare?.result?.passed === false
+					? "face_mismatch"
+					: biometric?.status === "failed"
+						? biometric?.failedReason || "liveness_failed"
+						: this._lastFailureReason || "verification_failed";
+			const failStep = compare?.result?.passed === false ? "compare" : this._lastFailureStep || "verify";
+			this._reportSmartLinkFailure(reason, failStep);
+		}
 
 		const completeRepIfApplicable = (finalToken: string): void => {
 			const repLookupToken = this._rawToken || finalToken;
@@ -2747,9 +2837,95 @@ export class VerifySessionService implements OnDestroy {
 			location.type = "browser";
 			location.countryCode = this._countries.findCountryCodeByName(location.country) || this.draft.countryCode;
 			this._location = location;
-			if (location.countryCode) this.draft.countryCode = location.countryCode;
+			if (location.countryCode && !this._prefillCountryCode) this.draft.countryCode = location.countryCode;
 			this._touch();
 		});
+	}
+
+	private _applyPrefill(prefill?: VerifyOpenPrefill): void {
+		if (!prefill) return;
+
+		const email = (prefill.email || "").trim();
+		if (email && !this.draft.email.trim()) {
+			this.draft.email = email;
+		}
+
+		const rawCountryCode = (prefill.countryCode || "").trim();
+		const normalizedCountryCode = rawCountryCode
+			? rawCountryCode.startsWith("+")
+				? rawCountryCode
+				: `+${rawCountryCode.replace(/^\+/, "")}`
+			: "";
+
+		if (normalizedCountryCode && !this._prefillCountryCode) {
+			this._prefillCountryCode = normalizedCountryCode;
+			if (
+				!this.draft.countryCode ||
+				this.draft.countryCode === DEFAULT_PHONE_COUNTRY_CODE ||
+				this.draft.countryCode === this.settings?.countryCode
+			) {
+				this.draft.countryCode = normalizedCountryCode;
+			}
+		}
+
+		let phone = (prefill.phone || "").trim();
+		if (phone && !this.draft.phone.trim()) {
+			if (!normalizedCountryCode && phone.startsWith("+")) {
+				const detected = this._detectDialCode(phone);
+				if (detected) {
+					this._prefillCountryCode = detected.code;
+					this.draft.countryCode = detected.code;
+					phone = detected.national;
+				}
+			} else if (normalizedCountryCode && phone.startsWith(normalizedCountryCode)) {
+				phone = phone.slice(normalizedCountryCode.length).trim();
+			}
+			this.draft.phone = phone;
+		}
+
+		const fullName = (prefill.fullName || "").trim();
+		if (fullName) {
+			if (!this.draft.fullName.trim()) {
+				this.draft.fullName = fullName;
+			}
+			if (!this.draft.firstName.trim() && !this.draft.lastName.trim()) {
+				const parts = fullName.split(/\s+/);
+				this.draft.firstName = parts[0] || "";
+				this.draft.lastName = parts.slice(1).join(" ");
+			}
+		}
+	}
+
+	private _detectDialCode(rawPhone: string): { code: string; national: string } | null {
+		const cleaned = rawPhone.trim();
+		if (!cleaned.startsWith("+")) return null;
+		const codes = Array.from(new Set(this._countries.countryCodes.map((c) => c.code))).sort(
+			(a, b) => b.length - a.length
+		);
+		const digitsOnly = `+${cleaned.slice(1).replace(/[^\d]/g, "")}`;
+		for (const code of codes) {
+			if (digitsOnly.startsWith(code) && digitsOnly.length > code.length) {
+				const escaped = code.replace("+", "\\+");
+				const national = cleaned.replace(new RegExp(`^${escaped}[\\s\\-]*`), "").trim();
+				return { code, national };
+			}
+		}
+		return null;
+	}
+
+	private _reportSmartLinkFailure(reason: string, step: string): void {
+		if (this._reportedTerminalFailure) return;
+		const shortCode = this._smartLink?.getActiveSession()?.shortCode;
+		if (!shortCode || !this._smartLink) return;
+		this._reportedTerminalFailure = true;
+		this._smartLink
+			.reportEvent(shortCode, {
+				type: "FAILED",
+				reason: reason || "verification_failed",
+				step: step || "verify",
+			})
+			.pipe(catchError(() => of(null)))
+			.subscribe();
 	}
 
 	private _emptyDraft(): VerifyDraft {
@@ -2861,6 +3037,19 @@ const tokenHasRequireKyc = (token?: string): boolean => {
 		const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
 		const payload = JSON.parse(atob(base64));
 		return Boolean(payload?.requireKyc);
+	} catch {
+		return false;
+	}
+};
+
+const tokenHasRequireDocument = (token?: string): boolean => {
+	if (!token) return false;
+	const parts = token.split(".");
+	if (parts.length < 2) return false;
+	try {
+		const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+		const payload = JSON.parse(atob(base64));
+		return Boolean(payload?.requireDocument);
 	} catch {
 		return false;
 	}

@@ -1,4 +1,7 @@
-export const environment = {
+const isLocalAccessApp = (): boolean =>
+    typeof window !== "undefined" && window.location.hostname === "access.app";
+
+const localDefaults = {
     production: false,
     baseUrl: "/",
     apiUrl: "http://localhost:3001",
@@ -12,3 +15,19 @@ export const environment = {
     allowDevFaceFileUpload: false,
     smartAgentBridgeUrl: "https://staging.verifik.co/bridge",
 };
+
+const accessAppOverrides = {
+    apiUrl: "https://access.app",
+    appUrl: "https://verifik.app",
+    kycUrl: "https://access.app",
+    smartAgentBridgeUrl: "https://verifik.app/bridge",
+};
+
+export const environment = new Proxy(localDefaults, {
+    get(target, prop, receiver) {
+        if (isLocalAccessApp() && prop in accessAppOverrides) {
+            return Reflect.get(accessAppOverrides, prop, receiver);
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+});

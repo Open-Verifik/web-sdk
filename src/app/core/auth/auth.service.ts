@@ -1,17 +1,22 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { Injectable, Optional } from "@angular/core";
 import { AuthUtils } from "app/core/auth/auth.utils";
 import { UserService } from "app/core/user/user.service";
 import { environment } from "environments/environment";
 import { catchError, Observable, of, switchMap, throwError } from "rxjs";
 import { ProjectFlow } from "../classes/project-flow.class";
 import { redirectForCurrentHost } from "./panel-url";
+import { SmartLinkRuntimeService } from "app/modules/auth/smart-link/smart-link-runtime.service";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
 	private _authenticated: boolean = false;
 
-	constructor(private _httpClient: HttpClient, private _userService: UserService) {}
+	constructor(
+		private _httpClient: HttpClient,
+		private _userService: UserService,
+		@Optional() private _smartLinkRuntime?: SmartLinkRuntimeService
+	) {}
 
 	set accessToken(token: string) {
 		localStorage.setItem("accessToken", token);
@@ -40,6 +45,13 @@ export class AuthService {
 		type: "login" | "onboarding" = "login",
 		demoMode: boolean = false
 	): void {
+		if (!demoMode && this._smartLinkRuntime?.hasActiveSession()) {
+			const isHumanAuthn = (projectFlow as any)?.type === "humanAuthn" || (projectFlow as any)?.type === "humanId";
+			const outcomeType = type === "login" ? "access" : isHumanAuthn ? "human_id" : "kyc";
+			void this._smartLinkRuntime.finalizeAndHandoff({ outcomeType, token });
+			return;
+		}
+
 		const verifikProject =
 			window.location.hostname.includes("localhost") ||
 			window.location.hostname.includes("access.app") ||
