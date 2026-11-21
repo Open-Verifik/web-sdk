@@ -218,6 +218,16 @@ export const mapSmartLinkInlineErrorKey = (code: string | null | undefined): str
 		document_required: "smartLink.error.documentRequired",
 		completion_not_finalized: "smartLink.error.completionNotFinalized",
 		reverify_document_mismatch: "smartLink.error.documentMismatch",
+		invalid_otp_code: "smartLink.otp.errorInvalid",
+		otp_expired: "smartLink.otp.errorExpired",
+		otp_max_attempts_exceeded: "smartLink.otp.errorMaxAttempts",
+		otp_resend_cooldown: "smartLink.otp.errorCooldown",
+		otp_challenge_not_found: "smartLink.otp.errorExpired",
+		identifier_channel_not_allowed: "smartLink.error.genericInline",
+		invalid_phone_number: "smartLink.error.invalidPhone",
+		prefill_identifier_mismatch: "smartLink.error.genericInline",
+		smart_link_session_exhausted: "smartLink.error.revokedBody",
+		no_document_anchor_zero_knowledge: "smartLink.humanIdRecovery.noAnchorBody",
 	};
 	return map[key] || "smartLink.error.genericInline";
 };
