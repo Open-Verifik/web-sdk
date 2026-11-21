@@ -4,6 +4,7 @@ import {
 	Component,
 	OnDestroy,
 	OnInit,
+	Optional,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -11,6 +12,7 @@ import { TranslocoModule } from "@ngneat/transloco";
 import { Subject, combineLatest, takeUntil } from "rxjs";
 
 import { VerifyBusinessSessionService } from "./verify-business-session.service";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 import { BusinessCompanyFormComponent } from "./components/business-company-form.component";
 import { BusinessDocumentsUploadComponent } from "./components/business-documents-upload.component";
 import { BusinessRepresentativesComponent } from "./components/business-representatives.component";
@@ -63,7 +65,8 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 		public session: VerifyBusinessSessionService,
 		private _cdr: ChangeDetectorRef,
 		private _route: ActivatedRoute,
-		private _router: Router
+		private _router: Router,
+		@Optional() private _smartLink?: SmartLinkRuntimeService
 	) {}
 
 	ngOnInit(): void {
@@ -81,6 +84,10 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this._destroy$))
 			.subscribe(([params, query]) => {
 				const projectId = params.get("projectId") || "";
+				const smartLinkCode = query.get("smartLink") || query.get("smartLinkSession");
+				if (smartLinkCode) {
+					this._smartLink?.captureFromUrl(`smartLink=${encodeURIComponent(smartLinkCode)}`);
+				}
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this._applyStyle();

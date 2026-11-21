@@ -29,6 +29,7 @@ import { LanguagesComponent } from "app/layout/common/languages/languages.compon
 import { ImageScan } from "app/modules/auth/project";
 import { VerifySelfieComponent } from "app/modules/auth/verify/verify-selfie.component";
 import { HumanIdLoginPayload, PasswordlessService } from "../passwordless.service";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 
 export type HumanIdStep = "loading" | "input" | "selfie" | "submitting" | "success" | "error";
 export type HumanIdInputMode = "qr_camera" | "qr_upload" | "text_paste";
@@ -60,6 +61,7 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 	private _authService = inject(AuthService);
 	private _transloco = inject(TranslocoService);
 	private _antiBotChallengeService = inject(AntiBotChallengeService);
+	private _smartLinkRuntime = inject(SmartLinkRuntimeService, { optional: true });
 	private _destroy$ = new Subject<void>();
 
 	@ViewChild("qrVideo") qrVideoRef?: ElementRef<HTMLVideoElement>;
@@ -111,6 +113,7 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 	constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
 	ngOnInit(): void {
+		this._smartLinkRuntime?.captureFromUrl();
 		this._route.paramMap.pipe(takeUntil(this._destroy$)).subscribe((params) => {
 			this.projectId = params.get("id") || "";
 			if (!this.projectId) {
@@ -626,6 +629,14 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 						window.opener.postMessage(successEvent, "*");
 					} else if (window.parent && window.parent !== window) {
 						window.parent.postMessage(successEvent, "*");
+					}
+
+					if (this._smartLinkRuntime?.hasActiveSession()) {
+						void this._smartLinkRuntime.finalizeAndHandoff({
+							outcomeType: "access",
+							token: res.data?.token,
+						});
+						return;
 					}
 
 					// Redirect to host application

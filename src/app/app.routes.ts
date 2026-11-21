@@ -86,4 +86,30 @@ export const appRoutes: Route[] = [
             },
         ],
     },
+    {
+        path: "l",
+        component: LayoutComponent,
+        data: {
+            layout: "empty",
+        },
+        children: [
+            {
+                path: "",
+                loadChildren: () => import("app/modules/auth/smart-link/smart-link.routes"),
+            },
+        ],
+    },
+    {
+        path: "link",
+        component: LayoutComponent,
+        data: {
+            layout: "empty",
+        },
+        children: [
+            {
+                path: "",
+                loadChildren: () => import("app/modules/auth/smart-link/smart-link.routes"),
+            },
+        ],
+    },
 ];
