@@ -81,14 +81,17 @@ export interface SmartLinkLookupResponse {
 	shortCode: string;
 	identifier?: string;
 	resolvedMode: SmartLinkResolvedMode;
-	verificationAction?: "face_only" | "document_and_face" | "enroll";
+	verificationAction?: "face_only" | "document_and_face" | "enroll" | "continue";
+	verificationStrategy?: string;
 	hasExistingAccount?: boolean;
 	requireDocument?: boolean;
 	directSelfie?: boolean;
 	inlineFaceVerify?: boolean;
+	reverifyMode?: boolean;
+	reverifyToken?: string | null;
 	matchedNameHint?: string | null;
 	matchedAppRegistrationId?: string;
-	targetProjectId: string;
+	targetProjectId: string | null;
 	targetRoute: string | null;
 	stepUpReason: string | null;
 }
@@ -117,6 +120,7 @@ export interface SmartLinkEventResponse {
 
 export interface ActiveSmartLinkContext {
 	shortCode: string;
+	accessToken?: string;
 	completionMode?: SmartLinkCompletionMode;
 	verifyStyle?: string;
 	projectName?: string;
