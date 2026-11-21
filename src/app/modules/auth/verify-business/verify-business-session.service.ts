@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy, Optional } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
 import { Observable, Subject, catchError, map, of, takeUntil, timeout } from "rxjs";
@@ -27,6 +27,7 @@ import {
 	resolveResumeStep,
 } from "./verify-business-flow";
 import { VerifyStyleId } from "../verify/verify-style";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
 	legalName: "",
@@ -85,6 +86,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 		private _passwordless: PasswordlessService,
 		private _router: Router,
 		private _transloco: TranslocoService,
+		@Optional() private _smartLink?: SmartLinkRuntimeService,
 	) {}
 
 	ngOnDestroy(): void {
@@ -647,9 +649,26 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			);
 	}
 
-	private _startRedirectCountdown(): void {
+	redirectNow(): void {
+		this._stopRedirectTimer();
+		if (this._smartLink?.hasActiveSession()) {
+			void this._smartLink.finalizeAndHandoff({
+				outcomeType: "kyb",
+				registrationId: this.registrationId || undefined,
+				token: this.token || undefined,
+			});
+			return;
+		}
 		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
-		if (!redirectUrl) return;
+		if (redirectUrl) {
+			window.location.href = redirectForCurrentHost(redirectUrl);
+		}
+	}
+
+	private _startRedirectCountdown(): void {
+		const hasSmartLink = Boolean(this._smartLink?.hasActiveSession());
+		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
+		if (!hasSmartLink && !redirectUrl) return;
 
 		this.redirectCountdown = 7;
 		this._stopRedirectTimer();
@@ -657,7 +676,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			this.redirectCountdown--;
 			if (this.redirectCountdown <= 0) {
 				this._stopRedirectTimer();
-				window.location.href = redirectForCurrentHost(redirectUrl);
+				this.redirectNow();
 			}
 			this.changed.next();
 		}, 1000);

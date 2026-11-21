@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Optional, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslocoModule } from "@ngneat/transloco";
@@ -17,6 +17,7 @@ import { VerifySelectComponent, VerifySelectOption } from "./verify-select.compo
 import { VerifySessionService } from "./verify-session.service";
 import { hasContactBlock, progressIndex, progressSegments } from "./verify-flow";
 import { flowOrderFromQuery } from "app/core/classes/project-flow.class";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 import {
 	DEFAULT_VERIFY_LOGO_METRICS,
 	parseVerifyStyle,
@@ -71,6 +72,7 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 		private _countries: CountryService,
 		private _route: ActivatedRoute,
 		private _router: Router,
+		@Optional() private _smartLink?: SmartLinkRuntimeService,
 	) {}
 
 	ngOnInit(): void {
@@ -97,10 +99,20 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this.session.orderOverride = flowOrderFromQuery(query.get("order")) || null;
 				const rawToken = query.get("token") || undefined;
+				const smartLinkCode = query.get("smartLink") || query.get("smartLinkSession");
+				if (smartLinkCode) {
+					this._smartLink?.captureFromUrl(`smartLink=${encodeURIComponent(smartLinkCode)}`);
+				}
 				const repParam = query.get("rep");
 				const handoffParam = query.get("handoff");
 				const requireKycParam = query.get("requireKyc");
 				const requireKyc = requireKycParam === "1" || requireKycParam === "true";
+				const requireDocParam = query.get("requireDocument");
+				const requireDocument = requireDocParam === "1" || requireDocParam === "true";
+				const prefillEmail = (query.get("email") || "").trim();
+				const prefillPhone = (query.get("phone") || "").trim();
+				const prefillCountryCode = (query.get("countryCode") || "").trim();
+				const prefillFullName = (query.get("fullName") || "").trim();
 				const isRepToken = Boolean(rawToken && !isUsableAppRegistrationSessionToken(rawToken));
 				this.session.isRepresentativeKyc = Boolean(
 					isRepToken || repParam === "1" || repParam === "true" || this.session.projectFlow?.target === "business",
@@ -111,7 +123,16 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				const rawReturnTo = query.get("returnTo");
 				this.returnTo = this._sanitizeReturnTo(rawReturnTo);
 				this._applyStyle();
-				this.session.open(projectId, rawToken, { requireKyc });
+				this.session.open(projectId, rawToken, {
+					requireKyc,
+					requireDocument,
+					prefill: {
+						email: prefillEmail,
+						phone: prefillPhone,
+						countryCode: prefillCountryCode,
+						fullName: prefillFullName,
+					},
+				});
 			});
 	}
 
