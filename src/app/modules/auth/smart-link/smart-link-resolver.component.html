@@ -202,13 +202,7 @@
 					<div class="sl-body" *ngIf="!loading && step === 'faceVerify'">
 						<div class="sl-copy">
 							<span class="sl-kicker">{{ t("smartLink.faceVerify.badge") }}</span>
-							<h1 class="sl-title">
-								{{
-									matchedNameHint
-										? t("smartLink.faceVerify.welcomeBackNamed", { name: matchedNameHint })
-										: t("smartLink.faceVerify.welcomeBackTitle")
-								}}
-							</h1>
+							<h1 class="sl-title">{{ t("smartLink.faceVerify.welcomeBackTitle") }}</h1>
 							<p class="sl-subtitle">{{ t("smartLink.faceVerify.subtitle") }}</p>
 						</div>
 

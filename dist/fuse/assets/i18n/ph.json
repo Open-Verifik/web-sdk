@@ -309,7 +309,8 @@
       "request_timeout": "Nag-timeout ang kahilingan sa impormasyon ng lokasyon",
       "user_denied_request_subtitle": "Pakibuksan ang mga serbisyo ng lokasyon sa iyong mga setting ng browser upang magpatuloy.",
       "user_denied_request": "Kinakailangan ang access sa lokasyon upang lumikha ng account"
-    }
+    },
+    "reverify_document_mismatch": "Ang isinumiteng numero ng dokumento ay hindi tugma sa naka-verify na dokumento sa file."
   },
   "login": {
     "code": "Kodigo",
@@ -1536,7 +1537,15 @@
       "faceCloseToBorder": "Panatilihing nakagitna ang buong mukha at malayo sa mga gilid ng frame, pagkatapos ay subukan muli.",
       "livenessUnavailable": "Pansamantalang hindi magamit ang live face verification. Pakisubukan muli maya-maya.",
       "invalidFaceImage": "Hindi maproseso ang nakuhang larawan. Ayusin ang ilaw at subukan muli.",
-      "faceNotAvailable": "Hindi available ang mabilisang pagberipika ng mukha para sa profile na ito sa ngayon."
+      "faceNotAvailable": "Hindi available ang mabilisang pagberipika ng mukha para sa profile na ito sa ngayon.",
+      "faceLimitTitle": "Naabot na ang limitasyon ng pag-verify ng mukha",
+      "faceLimitBody": "Masyadong maraming pagsubok ng pag-verify ng mukha sa link na ito. Humingi ng bagong SmartLink mula sa nagpadala.",
+      "rateLimited": "Masyadong maraming pagsubok sa ngayon. Maghintay sandali at subukan muli.",
+      "verificationTimeout": "Masyadong matagal bago sumagot ang pag-verify. Pakisubukan muli.",
+      "documentRequiredTitle": "Kailangan ng pag-verify ng dokumento",
+      "documentRequired": "Kinakailangan ng link na ito ang wastong dokumento ng pagkakakilanlan bago magpatuloy.",
+      "completionNotFinalized": "Naghihintay pa ng pangwakas na pagsusuri ang iyong pag-verify. Hindi pa makakapagbigay ng resibo.",
+      "documentMismatch": "Pakiprisinta ang parehong numero ng dokumento na unang na-verify sa iyong profile."
     },
     "faceVerify": {
       "badge": "Mabilisang Pagsusuri",

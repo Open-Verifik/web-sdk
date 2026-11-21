@@ -551,7 +551,8 @@
       "country_block_result_title": "This country cannot enroll",
       "country_block_result_body": "{{country}} is not on the allowed list, so sign-up cannot continue.",
       "country_block_contact_label": "Questions? Contact the administrator"
-    }
+    },
+    "reverify_document_mismatch": "The submitted document number does not match the verified document on file."
   },
   "login": {
     "code": "Code",
@@ -1536,7 +1537,15 @@
       "faceCloseToBorder": "Keep your whole face centered away from the frame edges and try again.",
       "livenessUnavailable": "Live face verification is temporarily unavailable. Please try again in a moment.",
       "invalidFaceImage": "The captured photo could not be processed. Adjust lighting and try again.",
-      "faceNotAvailable": "Quick face verification is not available for this profile right now."
+      "faceNotAvailable": "Quick face verification is not available for this profile right now.",
+      "faceLimitTitle": "Face check limit reached",
+      "faceLimitBody": "Too many face verification attempts were made on this link. Request a new SmartLink from the sender.",
+      "rateLimited": "Too many verification attempts right now. Wait a moment and try again.",
+      "verificationTimeout": "Verification took too long to respond. Please try again.",
+      "documentRequiredTitle": "Document verification required",
+      "documentRequired": "This verification link requires a valid identity document before continuing.",
+      "completionNotFinalized": "Your verification is still awaiting final review. No confirmation receipt can be issued yet.",
+      "documentMismatch": "Please present the same document number originally verified on your profile."
     },
     "faceVerify": {
       "badge": "Quick Identity Check",

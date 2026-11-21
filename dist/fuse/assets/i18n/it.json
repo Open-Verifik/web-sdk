@@ -309,7 +309,8 @@
       "request_timeout": "Richiesta di informazioni sulla posizione scaduta",
       "user_denied_request_subtitle": "Per favore abilita i servizi di localizzazione nelle impostazioni del tuo browser per procedere.",
       "user_denied_request": "L'accesso alla posizione è richiesto per creare un account"
-    }
+    },
+    "reverify_document_mismatch": "Il numero di documento inviato non corrisponde al documento verificato in archivio."
   },
   "login": {
     "code": "Codice",
@@ -1536,7 +1537,15 @@
       "faceCloseToBorder": "Mantieni tutto il volto al centro e lontano dai bordi dell'inquadratura, poi riprova.",
       "livenessUnavailable": "La verifica facciale dal vivo è temporaneamente non disponibile. Riprova tra un momento.",
       "invalidFaceImage": "Impossibile elaborare la foto scattata. Regola la luce e riprova.",
-      "faceNotAvailable": "La verifica facciale rapida non è disponibile per questo profilo al momento."
+      "faceNotAvailable": "La verifica facciale rapida non è disponibile per questo profilo al momento.",
+      "faceLimitTitle": "Limite di verifiche facciali raggiunto",
+      "faceLimitBody": "Sono stati effettuati troppi tentativi di verifica facciale su questo link. Richiedi un nuovo SmartLink al mittente.",
+      "rateLimited": "Troppi tentativi di verifica al momento. Attendi un istante e riprova.",
+      "verificationTimeout": "La verifica ha impiegato troppo tempo a rispondere. Riprova.",
+      "documentRequiredTitle": "Verifica del documento richiesta",
+      "documentRequired": "Questo link richiede un documento di identità valido prima di continuare.",
+      "completionNotFinalized": "La tua verifica è ancora in attesa di revisione finale. Non è ancora possibile emettere una ricevuta.",
+      "documentMismatch": "Presenta lo stesso numero di documento verificato originariamente sul tuo profilo."
     },
     "faceVerify": {
       "badge": "Controllo Rapido",

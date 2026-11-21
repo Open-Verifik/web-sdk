@@ -51,6 +51,85 @@ describe("SmartLinkRuntimeService", () => {
 		expect(service.getActiveSession()).toBeNull();
 	});
 
+	it("captures smartLinkToken or ?t= from URL and forwards t across lookup, verifyFace, event, complete, and receipt", async () => {
+		const ctxFromToken = service.captureFromUrl("?smartLink=SecLink01&smartLinkToken=slt_tok_123");
+		expect(ctxFromToken?.shortCode).toBe("SecLink01");
+		expect(ctxFromToken?.accessToken).toBe("slt_tok_123");
+		expect(service.getAccessToken("SecLink01")).toBe("slt_tok_123");
+
+		const lookupPromise = firstValueFrom(service.lookupTarget("SecLink01", "user@example.com", "+57", "personal"));
+		const lookupReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/lookup`);
+		expect(lookupReq.request.body).toEqual({
+			shortCode: "SecLink01",
+			mode: "personal",
+			identifier: "user@example.com",
+			countryCode: "+57",
+			t: "slt_tok_123",
+		});
+		lookupReq.flush({ data: { shortCode: "SecLink01", resolvedMode: "personal" } });
+		await lookupPromise;
+
+		const facePromise = firstValueFrom(service.verifyFace("SecLink01", "base64_selfie_payload_123456"));
+		const faceReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/SecLink01/verify-face`);
+		expect(faceReq.request.body).toEqual({
+			faceBase64: "base64_selfie_payload_123456",
+			t: "slt_tok_123",
+		});
+		faceReq.flush({ data: { state: "COMPLETED", receipt: { shortCode: "SecLink01" } } });
+		await facePromise;
+
+		const eventPromise = firstValueFrom(service.reportEvent("SecLink01", { type: "IN_PROGRESS", step: "document" }));
+		const eventReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/SecLink01/event`);
+		expect(eventReq.request.body).toEqual({ type: "IN_PROGRESS", step: "document", t: "slt_tok_123" });
+		eventReq.flush({ data: { ok: true, state: "IN_PROGRESS" } });
+		await eventPromise;
+
+		const completePromise = firstValueFrom(service.completeSession("SecLink01", { outcomeType: "kyc", token: "jwt-ok" }));
+		const completeReq = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/SecLink01/complete`);
+		expect(completeReq.request.body).toEqual({ outcomeType: "kyc", token: "jwt-ok", t: "slt_tok_123" });
+		completeReq.flush({ data: { state: "COMPLETED", receipt: { shortCode: "SecLink01" } } });
+		await completePromise;
+
+		const ctxFromT = service.captureFromUrl("?smartLink=SecLink02&t=t_fallback_456");
+		expect(ctxFromT?.accessToken).toBe("t_fallback_456");
+		const receiptPromise = firstValueFrom(service.getReceipt("SecLink02"));
+		const receiptReq = httpMock.expectOne((req) => req.url === `${apiUrl}/v3/smart-links/public/sessions/SecLink02/receipt`);
+		expect(receiptReq.request.params.get("t")).toBe("t_fallback_456");
+		receiptReq.flush({ data: { shortCode: "SecLink02", confirmationCode: "VFK-SEC02", outcomeType: "kyc" } });
+		await receiptPromise;
+	});
+
+	it("returns false without navigating to receipt when finalizeAndHandoff hits non-retryable completion errors", async () => {
+		service.saveActiveSession({
+			shortCode: "NonRet01",
+			completionMode: "receipt",
+			createdAtMs: Date.now(),
+		});
+		service.cacheReceipt("NonRet01", {
+			shortCode: "NonRet01",
+			confirmationCode: "VFK-OLD",
+			outcomeType: "kyc",
+		});
+
+		const firstAttempt = service.finalizeAndHandoff({ outcomeType: "kyc", token: "pending-jwt" });
+		const req1 = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/NonRet01/complete`);
+		req1.flush({ message: "completion_not_finalized" }, { status: 403, statusText: "Forbidden" });
+		expect(await firstAttempt).toBeFalse();
+		expect(routerSpy.navigate).not.toHaveBeenCalled();
+
+		const secondAttempt = service.finalizeAndHandoff({ outcomeType: "kyc", token: "no-doc-jwt" });
+		const req2 = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/NonRet01/complete`);
+		req2.flush({ message: "document_required" }, { status: 403, statusText: "Forbidden" });
+		expect(await secondAttempt).toBeFalse();
+		expect(routerSpy.navigate).not.toHaveBeenCalled();
+
+		const fallbackAttempt = service.finalizeAndHandoff({ outcomeType: "kyc", token: "network-flake-jwt" });
+		const req3 = httpMock.expectOne(`${apiUrl}/v3/smart-links/public/sessions/NonRet01/complete`);
+		req3.flush({ message: "Service Unavailable" }, { status: 503, statusText: "Service Unavailable" });
+		expect(await fallbackAttempt).toBeTrue();
+		expect(routerSpy.navigate).toHaveBeenCalledWith(["/l", "NonRet01", "receipt"], { replaceUrl: true });
+	});
+
 	it("builds redirect URLs with sessionCode, shortCode, and optional externalRefId", () => {
 		const url = service.buildRedirectUrl("https://partner.example.com/callback?foo=bar", {
 			sessionCode: "slc_secret_123",
@@ -338,6 +417,11 @@ describe("SmartLinkUiHelper", () => {
 			"liveness_unavailable",
 			"liveness_failed",
 			"face_mismatch",
+			"RATE_LIMIT_EXCEEDED",
+			"verification_timeout",
+			"document_required",
+			"completion_not_finalized",
+			"reverify_document_mismatch",
 		];
 		for (const code of codes) {
 			const mapped = mapSmartLinkInlineErrorKey(code);
@@ -349,6 +433,18 @@ describe("SmartLinkUiHelper", () => {
 		);
 		expect(mapSmartLinkTerminalErrorKeys("personal_project_not_configured").titleKey).toBe(
 			"smartLink.error.configTitle"
+		);
+		expect(mapSmartLinkTerminalErrorKeys("face_check_attempt_limit").titleKey).toBe(
+			"smartLink.error.faceLimitTitle"
+		);
+		expect(mapSmartLinkTerminalErrorKeys("document_required").titleKey).toBe(
+			"smartLink.error.documentRequiredTitle"
+		);
+		expect(mapSmartLinkTerminalErrorKeys("invalid_mode").titleKey).toBe(
+			"smartLink.error.notFoundTitle"
+		);
+		expect(mapSmartLinkTerminalErrorKeys("invalid_smart_link_token").titleKey).toBe(
+			"smartLink.error.tokenTitle"
 		);
 	});
 

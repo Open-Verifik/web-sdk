@@ -648,14 +648,32 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			);
 	}
 
+	private _isFinalizedSubmission(): boolean {
+		const status = String(this.submissionResult?.status || "").trim();
+		return status === "COMPLETED" || status === "COMPLETED_WITHOUT_REPRESENTATIVES";
+	}
+
 	redirectNow(): void {
 		this._stopRedirectTimer();
 		if (this._smartLink?.hasActiveSession()) {
-			void this._smartLink.finalizeAndHandoff({
-				outcomeType: "kyb",
-				registrationId: this.registrationId || undefined,
-				token: this.token || undefined,
-			});
+			if (this._isFinalizedSubmission() && this.token) {
+				void this._smartLink.finalizeAndHandoff({
+					outcomeType: "kyb",
+					token: this.token,
+				});
+			} else {
+				const shortCode = this._smartLink.getActiveSession()?.shortCode;
+				if (shortCode) {
+					this._smartLink
+						.reportEvent(shortCode, {
+							type: "IN_PROGRESS",
+							step: String(this.submissionResult?.status || "pending_review").toLowerCase(),
+							summary: "Business verification pending review",
+						})
+						.pipe(catchError(() => of(null)))
+						.subscribe();
+				}
+			}
 			return;
 		}
 		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
@@ -666,6 +684,20 @@ export class VerifyBusinessSessionService implements OnDestroy {
 
 	private _startRedirectCountdown(): void {
 		const hasSmartLink = Boolean(this._smartLink?.hasActiveSession());
+		if (hasSmartLink && (!this._isFinalizedSubmission() || !this.token)) {
+			const shortCode = this._smartLink?.getActiveSession()?.shortCode;
+			if (shortCode) {
+				this._smartLink
+					?.reportEvent(shortCode, {
+						type: "IN_PROGRESS",
+						step: String(this.submissionResult?.status || "pending_review").toLowerCase(),
+						summary: "Business verification pending review",
+					})
+					.pipe(catchError(() => of(null)))
+					.subscribe();
+			}
+			return;
+		}
 		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
 		if (!hasSmartLink && !redirectUrl) return;
 

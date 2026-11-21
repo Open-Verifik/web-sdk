@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { environment } from "environments/environment";
 import { Observable, firstValueFrom, map } from "rxjs";
 
+import { extractApiErrorCode } from "./smart-link-ui.helper";
 import {
 	ActiveSmartLinkContext,
 	SmartLinkCompleteResponse,
@@ -19,7 +20,18 @@ import {
 
 const ACTIVE_SESSION_STORAGE_KEY = "verifik_active_smartlink_v1";
 const RECEIPT_STORAGE_PREFIX = "verifik_smartlink_receipt_";
+const TOKEN_STORAGE_PREFIX = "verifik_smartlink_token_";
 const ACTIVE_SESSION_TTL_MS = 2 * 60 * 60 * 1000;
+
+const NON_RETRYABLE_HANDOFF_ERRORS = new Set([
+	"completion_not_finalized",
+	"document_required",
+	"invalid_smart_link_token",
+	"invalid_completion_proof",
+	"smart_link_session_expired",
+	"smart_link_session_revoked",
+	"smart_link_session_exhausted",
+]);
 
 @Injectable({
 	providedIn: "root",
@@ -65,33 +77,42 @@ export class SmartLinkRuntimeService {
 		shortCode: string,
 		identifier: string = "",
 		countryCode: string = "",
-		mode?: SmartLinkMode
+		mode?: SmartLinkMode,
+		accessToken?: string
 	): Observable<SmartLinkLookupResponse> {
+		const token = this.getAccessToken(shortCode, accessToken);
 		return this._http
 			.post<{ data: SmartLinkLookupResponse }>(`${this._apiUrl}/v3/smart-links/public/lookup`, {
 				shortCode,
 				...(mode ? { mode } : {}),
 				identifier: identifier.trim(),
 				...(countryCode ? { countryCode: countryCode.trim() } : {}),
+				...(token ? { t: token } : {}),
 			})
 			.pipe(map((res) => res.data));
 	}
 
-	verifyFace(shortCode: string, faceBase64: string): Observable<SmartLinkCompleteResponse> {
+	verifyFace(shortCode: string, faceBase64: string, accessToken?: string): Observable<SmartLinkCompleteResponse> {
+		const token = this.getAccessToken(shortCode, accessToken);
 		return this._http
 			.post<{ data: SmartLinkCompleteResponse }>(
 				`${this._apiUrl}/v3/smart-links/public/sessions/${encodeURIComponent(shortCode)}/verify-face`,
-				{ faceBase64 }
+				{
+					faceBase64,
+					...(token ? { t: token } : {}),
+				}
 			)
 			.pipe(map((res) => res.data));
 	}
 
-	reportEvent(shortCode: string, payload: SmartLinkEventPayload): Observable<SmartLinkEventResponse> {
-		const body: SmartLinkEventPayload = {
+	reportEvent(shortCode: string, payload: SmartLinkEventPayload, accessToken?: string): Observable<SmartLinkEventResponse> {
+		const token = this.getAccessToken(shortCode, accessToken);
+		const body: SmartLinkEventPayload & { t?: string } = {
 			type: payload.type,
 			...(payload.reason ? { reason: String(payload.reason).slice(0, 240) } : {}),
 			...(payload.step ? { step: String(payload.step).slice(0, 240) } : {}),
 			...(payload.summary ? { summary: String(payload.summary).slice(0, 240) } : {}),
+			...(token ? { t: token } : {}),
 		};
 		return this._http
 			.post<{ data: SmartLinkEventResponse }>(
@@ -107,22 +128,63 @@ export class SmartLinkRuntimeService {
 			outcomeType: SmartLinkOutcomeType;
 			token?: string;
 			registrationId?: string;
-		}
+		},
+		accessToken?: string
 	): Observable<SmartLinkCompleteResponse> {
+		const sessionToken = this.getAccessToken(shortCode, accessToken);
 		return this._http
 			.post<{ data: SmartLinkCompleteResponse }>(
 				`${this._apiUrl}/v3/smart-links/public/sessions/${encodeURIComponent(shortCode)}/complete`,
-				payload
+				{
+					...payload,
+					...(sessionToken ? { t: sessionToken } : {}),
+				}
 			)
 			.pipe(map((res) => res.data));
 	}
 
-	getReceipt(shortCode: string): Observable<SmartLinkReceiptPayload> {
+	getReceipt(shortCode: string, accessToken?: string): Observable<SmartLinkReceiptPayload> {
+		const token = this.getAccessToken(shortCode, accessToken);
+		let params = new HttpParams();
+		if (token) {
+			params = params.set("t", token);
+		}
 		return this._http
 			.get<{ data: SmartLinkReceiptPayload }>(
-				`${this._apiUrl}/v3/smart-links/public/sessions/${encodeURIComponent(shortCode)}/receipt`
+				`${this._apiUrl}/v3/smart-links/public/sessions/${encodeURIComponent(shortCode)}/receipt`,
+				{ params }
 			)
 			.pipe(map((res) => res.data));
+	}
+
+	saveAccessToken(shortCode: string, token: string | null | undefined): void {
+		const cleanCode = (shortCode || "").trim();
+		const cleanToken = (token || "").trim();
+		if (!cleanCode || !cleanToken || typeof sessionStorage === "undefined") return;
+		try {
+			sessionStorage.setItem(`${TOKEN_STORAGE_PREFIX}${cleanCode}`, cleanToken);
+		} catch {
+			// ignore storage quota errors
+		}
+	}
+
+	getAccessToken(shortCode: string, explicitToken?: string | null): string {
+		const cleanExplicit = (explicitToken || "").trim();
+		if (cleanExplicit) return cleanExplicit;
+		const cleanCode = (shortCode || "").trim();
+		if (!cleanCode) return "";
+
+		const active = this.getActiveSession();
+		if (active?.shortCode === cleanCode && active.accessToken) {
+			return active.accessToken.trim();
+		}
+
+		if (typeof sessionStorage === "undefined") return "";
+		try {
+			return (sessionStorage.getItem(`${TOKEN_STORAGE_PREFIX}${cleanCode}`) || "").trim();
+		} catch {
+			return "";
+		}
 	}
 
 	captureFromUrl(search?: string): ActiveSmartLinkContext | null {
@@ -131,15 +193,31 @@ export class SmartLinkRuntimeService {
 			const queryStr = typeof search === "string" ? search : window.location.search;
 			const params = new URLSearchParams(queryStr);
 			const shortCode = (params.get("smartLink") || params.get("smartLinkSession") || "").trim();
+			const urlToken = (params.get("smartLinkToken") || (shortCode ? params.get("t") : "") || "").trim();
 			if (!shortCode) return this.getActiveSession();
 
+			if (urlToken) {
+				this.saveAccessToken(shortCode, urlToken);
+			}
+
 			const existing = this.getActiveSession();
+			const resolvedToken = urlToken || (existing && existing.shortCode === shortCode ? existing.accessToken : undefined) || this.getAccessToken(shortCode);
 			const ctx: ActiveSmartLinkContext = {
 				...(existing && existing.shortCode === shortCode ? existing : {}),
 				shortCode,
+				...(resolvedToken ? { accessToken: resolvedToken } : {}),
 				createdAtMs: Date.now(),
 			};
 			this.saveActiveSession(ctx);
+
+			if (typeof search !== "string" && (params.has("smartLinkToken") || params.has("t")) && window.history?.replaceState) {
+				params.delete("smartLinkToken");
+				params.delete("t");
+				const nextQuery = params.toString();
+				const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash || ""}`;
+				window.history.replaceState(null, "", nextUrl);
+			}
+
 			return ctx;
 		} catch {
 			return null;
@@ -149,6 +227,9 @@ export class SmartLinkRuntimeService {
 	saveActiveSession(ctx: ActiveSmartLinkContext): void {
 		if (!ctx?.shortCode || typeof sessionStorage === "undefined") return;
 		try {
+			if (ctx.accessToken) {
+				this.saveAccessToken(ctx.shortCode, ctx.accessToken);
+			}
 			const normalized: ActiveSmartLinkContext = {
 				...ctx,
 				createdAtMs: ctx.createdAtMs || Date.now(),
@@ -265,11 +346,18 @@ export class SmartLinkRuntimeService {
 		if (!active?.shortCode) return false;
 
 		try {
-			const result = await firstValueFrom(this.completeSession(active.shortCode, payload));
+			const result = await firstValueFrom(this.completeSession(active.shortCode, payload, active.accessToken));
 			return await this.completeHandoffFromResult(active.shortCode, result, active.completionMode);
-		} catch {
-			await this._router.navigate(["/l", active.shortCode, "receipt"], { replaceUrl: true });
-			return true;
+		} catch (err: unknown) {
+			const code = extractApiErrorCode(err, "");
+			if (NON_RETRYABLE_HANDOFF_ERRORS.has(code)) {
+				return false;
+			}
+			if (this.getCachedReceipt(active.shortCode)) {
+				await this._router.navigate(["/l", active.shortCode, "receipt"], { replaceUrl: true });
+				return true;
+			}
+			return false;
 		}
 	}
 

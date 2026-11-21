@@ -152,6 +152,11 @@ export class SmartLinkReceiptComponent implements OnInit, OnDestroy {
 	}
 
 	private async _loadReceipt(shortCode: string): Promise<void> {
+		const tokenFromQuery = (this._route.snapshot.queryParamMap.get("t") || "").trim();
+		if (tokenFromQuery) {
+			this._smartLink.saveAccessToken(shortCode, tokenFromQuery);
+		}
+
 		const cached = this._smartLink.getCachedReceipt(shortCode);
 		if (cached) {
 			this._applyReceipt(cached);
@@ -159,7 +164,7 @@ export class SmartLinkReceiptComponent implements OnInit, OnDestroy {
 		}
 
 		try {
-			const fetched = await firstValueFrom(this._smartLink.getReceipt(shortCode));
+			const fetched = await firstValueFrom(this._smartLink.getReceipt(shortCode, tokenFromQuery || undefined));
 			this._applyReceipt(fetched);
 		} catch {
 			this.loading = false;

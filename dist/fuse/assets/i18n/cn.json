@@ -310,7 +310,8 @@
       "request_timeout": "位置信息请求超时",
       "user_denied_request_subtitle": "请在浏览器设置中启用位置服务以继续。",
       "user_denied_request": "创建账户需要位置访问权限"
-    }
+    },
+    "reverify_document_mismatch": "提交的证件号码与档案中已验证的证件不符。"
   },
   "login": {
     "code": "验证码",
@@ -1536,7 +1537,15 @@
       "faceCloseToBorder": "请保持整张脸居中并远离画面边缘，然后重试。",
       "livenessUnavailable": "活体人脸验证服务暂不可用，请稍后再试。",
       "invalidFaceImage": "无法处理拍摄的照片，请调整光线后重试。",
-      "faceNotAvailable": "当前无法对此档案使用快速人脸验证。"
+      "faceNotAvailable": "当前无法对此档案使用快速人脸验证。",
+      "faceLimitTitle": "已达人脸验证次数上限",
+      "faceLimitBody": "此链接上的人脸验证尝试次数过多。请向发送方申请新的 SmartLink。",
+      "rateLimited": "当前验证尝试过于频繁。请稍候再试。",
+      "verificationTimeout": "验证响应超时。请重试。",
+      "documentRequiredTitle": "需要身份证明文件验证",
+      "documentRequired": "此验证链接要求先提供有效的身份证件才能继续。",
+      "completionNotFinalized": "您的验证仍在等待最终审核，暂无法生成确认凭证。",
+      "documentMismatch": "请出示与您档案中最初验证一致的证件号码。"
     },
     "faceVerify": {
       "badge": "快速身份核验",
