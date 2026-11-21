@@ -85,8 +85,12 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 			.subscribe(([params, query]) => {
 				const projectId = params.get("projectId") || "";
 				const smartLinkCode = query.get("smartLink") || query.get("smartLinkSession");
+				const smartLinkToken = query.get("smartLinkToken") || (smartLinkCode ? query.get("t") : null);
 				if (smartLinkCode) {
-					this._smartLink?.captureFromUrl(`smartLink=${encodeURIComponent(smartLinkCode)}`);
+					const slParams = new URLSearchParams();
+					slParams.set("smartLink", smartLinkCode);
+					if (smartLinkToken) slParams.set("smartLinkToken", smartLinkToken);
+					this._smartLink?.captureFromUrl(`?${slParams.toString()}`);
 				}
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);

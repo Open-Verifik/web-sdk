@@ -77,6 +77,7 @@ export interface VerifyOpenPrefill {
 export interface VerifyOpenOptions {
 	requireKyc?: boolean;
 	requireDocument?: boolean;
+	reverifyMode?: boolean;
 	prefill?: VerifyOpenPrefill;
 }
 
@@ -170,6 +171,7 @@ export class VerifySessionService implements OnDestroy {
 	orderOverride: FlowOrder | null = null;
 	requireKyc = false;
 	requireDocument = false;
+	reverifyMode = false;
 	template: PromptTemplate | null = null;
 	readonly changed = new Subject<void>();
 	readonly selfieDone$ = new Subject<void>();
@@ -287,8 +289,10 @@ export class VerifySessionService implements OnDestroy {
 		if (this.orderOverride) params.set("order", this.orderOverride === "consent_first" ? "b" : "a");
 		if (this.requireKyc) params.set("requireKyc", "1");
 		if (this.requireDocument) params.set("requireDocument", "1");
-		const activeSmartLink = this._smartLink?.getActiveSession()?.shortCode;
-		if (activeSmartLink) params.set("smartLink", activeSmartLink);
+		const activeSmartLink = this._smartLink?.getActiveSession();
+		if (activeSmartLink?.shortCode) params.set("smartLink", activeSmartLink.shortCode);
+		if (activeSmartLink?.accessToken) params.set("smartLinkToken", activeSmartLink.accessToken);
+		if (this.reverifyMode) params.set("reverify", "1");
 		params.set("handoff", "1");
 
 		const query = params.toString();
@@ -574,6 +578,7 @@ export class VerifySessionService implements OnDestroy {
 		if (isDifferentProject) {
 			this.requireKyc = false;
 			this.requireDocument = false;
+			this.reverifyMode = false;
 			this._prefillCountryCode = "";
 			this._lastFailureReason = "";
 			this._lastFailureStep = "";
@@ -597,6 +602,12 @@ export class VerifySessionService implements OnDestroy {
 		this.requireDocument = Boolean(
 			options?.requireDocument || (!isDifferentProject && this.requireDocument) || tokenHasRequireDocument(token || this._rawToken)
 		);
+		this.reverifyMode = Boolean(
+			options?.reverifyMode || (!isDifferentProject && this.reverifyMode) || tokenHasReverifyMode(token || this._rawToken)
+		);
+		if (this.reverifyMode && token && isUsableAppRegistrationSessionToken(token)) {
+			saveSignUpAppRegistrationToken(projectId, token);
+		}
 		this._applyPrefill(options?.prefill);
 		const key = `${projectId}:${token || this._rawToken}`;
 
@@ -1235,7 +1246,20 @@ export class VerifySessionService implements OnDestroy {
 			this._redirectTimer = null;
 		}
 
-		if (this.registration?.status === "FAILED" && this._smartLink?.hasActiveSession()) {
+		if (this.registration?.status === "NEEDS_MANUAL_VERIFICATION" && this._smartLink?.hasActiveSession()) {
+			const slCode = this._smartLink.getActiveSession()?.shortCode;
+			if (slCode) {
+				this._smartLink
+					.reportEvent(slCode, {
+						type: "IN_PROGRESS",
+						step: "manual_review",
+						summary: "Verification requires manual review",
+					})
+					.pipe(catchError(() => of(null)))
+					.subscribe();
+			}
+			this._smartLink.clearActiveSession();
+		} else if (this.registration?.status === "FAILED" && this._smartLink?.hasActiveSession()) {
 			this._smartLink.clearActiveSession();
 		}
 
@@ -1455,6 +1479,10 @@ export class VerifySessionService implements OnDestroy {
 
 		if (!settings) return this._fail("verify.errorBody");
 
+		if (this.registration?.reverifyMode) {
+			this.reverifyMode = true;
+		}
+
 		const document = this.registration?.documentValidation;
 		let screen = resumeScreen({
 			currentStep: this.registration?.currentStep,
@@ -1464,7 +1492,7 @@ export class VerifySessionService implements OnDestroy {
 			emailNeeded: needsEmailCode(settings, this.registration?.emailValidation?.status === "validated"),
 			handoff: this.isMobileHandoff,
 			hasBack: Boolean(document?.backUrl || document?.hasBackImage),
-			hasBiometric: Boolean(this.registration?.biometricValidation || this.registration?.zelfKey?.issued),
+			hasBiometric: Boolean(this.registration?.biometricValidation || (!this.reverifyMode && this.registration?.zelfKey?.issued)),
 			hasDocument: Boolean(document),
 			livenessStep: settings.liveness,
 			needsBack: documentNeedsBack(document?.documentCategory || this.category, document?.requiresBackSide),
@@ -1918,7 +1946,7 @@ export class VerifySessionService implements OnDestroy {
 
 				const nextPhase = resolveHandoffPhase({
 					currentStep: reg.currentStep === "instructions" ? undefined : reg.currentStep,
-					hasBiometric: Boolean(reg.biometricValidation || reg.zelfKey?.issued),
+					hasBiometric: Boolean(reg.biometricValidation || (!this.reverifyMode && reg.zelfKey?.issued)),
 					hasDocument: Boolean(reg.documentValidation),
 					status: reg.status,
 				});
@@ -2104,7 +2132,7 @@ export class VerifySessionService implements OnDestroy {
 		const body: any = {
 			category,
 			country,
-			force: Boolean(this.registration?.documentValidation) || failures > 0,
+			force: Boolean(this.registration?.documentValidation) || failures > 0 || this.reverifyMode,
 			inputMethod: this.pending.inputMethod || "FILE_UPLOAD",
 		};
 
@@ -2390,7 +2418,7 @@ export class VerifySessionService implements OnDestroy {
 
 		this._kyc
 			.createBiometricValidation({
-				force: Boolean(this.registration?.biometricValidation),
+				force: Boolean(this.registration?.biometricValidation) || this.reverifyMode,
 				image: scan.face || scan.base64Image,
 				os: this._demo.detectOS(),
 			})
@@ -2514,6 +2542,7 @@ export class VerifySessionService implements OnDestroy {
 			parsed.reason.includes("already_set") ||
 			parsed.reason.includes("duplicated_person") ||
 			parsed.reason === "insufficient_credits" ||
+			parsed.reason === "reverify_document_mismatch" ||
 			parsed.reason === "existing_document_validation_with_document_number"
 		) {
 			this._reportSmartLinkFailure(parsed.reason || "verification_error", kind);
@@ -2634,6 +2663,26 @@ export class VerifySessionService implements OnDestroy {
 			this.redirectSeconds = 0;
 			this._touch();
 			return;
+		}
+
+		if (this.registration?.status === "NEEDS_MANUAL_VERIFICATION" && this._smartLink?.hasActiveSession()) {
+			const slCode = this._smartLink.getActiveSession()?.shortCode;
+			if (slCode) {
+				this._smartLink
+					.reportEvent(slCode, {
+						type: "IN_PROGRESS",
+						step: "manual_review",
+						summary: "Verification requires manual review",
+					})
+					.pipe(catchError(() => of(null)))
+					.subscribe();
+			}
+			this._smartLink.clearActiveSession();
+			if (!this.projectFlow?.integrations?.redirectUrl) {
+				this.redirectSeconds = 0;
+				this._touch();
+				return;
+			}
 		}
 
 		if (this.isMobileHandoff) {
@@ -3050,6 +3099,19 @@ const tokenHasRequireDocument = (token?: string): boolean => {
 		const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
 		const payload = JSON.parse(atob(base64));
 		return Boolean(payload?.requireDocument);
+	} catch {
+		return false;
+	}
+};
+
+const tokenHasReverifyMode = (token?: string): boolean => {
+	if (!token) return false;
+	const parts = token.split(".");
+	if (parts.length < 2) return false;
+	try {
+		const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+		const payload = JSON.parse(atob(base64));
+		return Boolean(payload?.reverifyMode);
 	} catch {
 		return false;
 	}
