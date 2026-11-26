@@ -220,6 +220,9 @@ export class SmartBiometricsComponent implements OnDestroy {
 			"Face too close": "face_too_close",
 			"Poor lighting": "poor_lighting",
 			"Face not visible": "face_not_visible",
+			"Image is too large. Please capture the photo again.": "image_too_large",
+			"Image is too large": "image_too_large",
+			"ERR_PAYLOAD_IS_TOO_LARGE": "image_too_large",
 		};
 
 		// Check if we have a direct mapping
