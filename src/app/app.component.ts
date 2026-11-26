@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
+import { VerifikEmbedBridgeService } from "app/core/embed/verifik-embed-bridge.service";
 
 @Component({
     selector: "app-root",
@@ -9,5 +10,7 @@ import { RouterOutlet } from "@angular/router";
     imports: [RouterOutlet],
 })
 export class AppComponent {
-    constructor() {}
+    constructor(private _embedBridge: VerifikEmbedBridgeService) {
+        this._embedBridge.initFromWindowLocation();
+    }
 }

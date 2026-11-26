@@ -310,7 +310,8 @@
       "request_timeout": "स्थान जानकारी अनुरोध का समय समाप्त हो गया",
       "user_denied_request_subtitle": "कृपया आगे बढ़ने के लिए अपनी ब्राउज़र सेटिंग्स में स्थान सेवाओं को सक्षम करें।",
       "user_denied_request": "खाता बनाने के लिए स्थान एक्सेस आवश्यक है"
-    }
+    },
+    "reverify_document_mismatch": "प्रस्तुत दस्तावेज़ संख्या रिकॉर्ड में मौजूद सत्यापित दस्तावेज़ से मेल नहीं खाती।"
   },
   "login": {
     "code": "कोड",
@@ -1431,5 +1432,154 @@
     "decrypt_error": "इस परियोजना की सत्यापनकर्ता कुंजी के साथ पहचान प्रमाण को डिक्रिप्ट करने में विफल।",
     "use_qr_or_code": "इसके बजाय HumanID QR या कोड का उपयोग करें",
     "back_to_signin": "साइन इन पर वापस जाएं"
+  },
+  "smartLink": {
+    "loadingTitle": "Surakshit satyapan taiyar ho raha hai",
+    "loadingBody": "Aapka verification page load ho raha hai, kripya pratiksha karein.",
+    "routingTitle": "Aapko aage bheja ja raha hai",
+    "routingBody": "Sahi verification step par jaane ke liye pratiksha karein.",
+    "poweredBy": "Verifik SmartLink dwara sanchalit",
+    "privacy": "Gopniyata",
+    "terms": "Niyam",
+    "actions": {
+      "back": "Peeche",
+      "continue": "Aage badhein",
+      "continuing": "जारी रखा जा रहा है...",
+      "retry": "फिर से प्रयास करें"
+    },
+    "modePicker": {
+      "title": "Satyapan ka tarika chunein",
+      "subtitle": "Sahi vikalp chunein jo aapke satyapan se mel khata hai."
+    },
+    "modes": {
+      "personal": {
+        "title": "Vyaktigat Satyapan (KYC)",
+        "desc": "Apne dastavez aur chehre se pehchan satyapit karein."
+      },
+      "business": {
+        "title": "Company Satyapan (KYB)",
+        "desc": "Company ke dastavez aur pratinidhi jama karein."
+      },
+      "humanId": {
+        "title": "Manav Praman (HumanID)",
+        "desc": "Gopniya biometric dwara apni vastavikta siddh karein."
+      },
+      "access": {
+        "title": "Biometrics se Sign In",
+        "desc": "Apni pehle se satyapit profile ki turant pushti karein."
+      }
+    },
+    "lookup": {
+      "personalTitle": "Apni profile khojein",
+      "personalSubtitle": "Tezi se aage badhne ya naya satyapan shuru karne ke liye email ya phone darj karein.",
+      "personalLabel": "Email ya phone (vaikalpik)",
+      "personalPlaceholder": "alex@example.com ya +91 98000 00000",
+      "businessTitle": "Apne sangathan ki pehchan karein",
+      "businessSubtitle": "Business satyapan ke liye company Tax ID ya karya email darj karein.",
+      "businessLabel": "Company Tax ID ya email (vaikalpik)",
+      "businessPlaceholder": "GSTIN / Tax ID ya ops@company.com",
+      "tabEmail": "ईमेल",
+      "tabPhone": "फ़ोन",
+      "channelGroupLabel": "सत्यापन संपर्क माध्यम",
+      "emailLabel": "ईमेल पता",
+      "emailPlaceholder": "alex@example.com",
+      "phoneLabel": "फ़ोन नंबर",
+      "phonePlaceholder": "98100 12345",
+      "countryCodeLabel": "देश का डायल कोड"
+    },
+    "receipt": {
+      "loading": "Satyapan raseed load ho rahi hai...",
+      "title": "Satyapan Poorna Hua",
+      "defaultSubtitle": "Aapki janch poori ho chuki hai. Ab aap apni chat ya assistant par wapas ja sakte hain.",
+      "confirmationCode": "Pushti Code",
+      "completedAt": "Samapti samay",
+      "copyCode": "Pushti Code Copy Karein",
+      "copied": "Copy ho gaya!",
+      "downloadPdf": "PDF Raseed Download / Print Karein",
+      "returnHint": "Aap is tab ko band karke apna kaam jari rakh sakte hain.",
+      "verifiedName": "सत्यापित नाम",
+      "badgeDocAndFace": "दस्तावेज़ + चेहरा",
+      "badgeFaceLiveness": "फेस लाइवनेस",
+      "badgeHumanId": "HumanID बायोमेट्रिक प्रमाण",
+      "badgeBusiness": "व्यवसाय सत्यापन",
+      "closeWindow": "विंडो बंद करें"
+    },
+    "error": {
+      "expiredTitle": "Yeh SmartLink samapt ho gaya hai",
+      "expiredBody": "Aage badhne ke liye bhejne wale se naya link maangein.",
+      "revokedTitle": "Yeh SmartLink ab sakriya nahi hai",
+      "revokedBody": "Yeh satra pehle hi upyog ya radd kiya ja chuka hai.",
+      "pausedTitle": "Satyapan asthayi roop se ruka hua hai",
+      "pausedBody": "Sangathan ne is link ko roka hai. Sahayata se sampark karein.",
+      "tokenTitle": "Amanya satyapan link",
+      "tokenBody": "Link signature galat ya gayab hai. Naya link maangein.",
+      "notFoundTitle": "SmartLink nahi mila",
+      "notFoundBody": "URL janchein ya sahi link ke liye anurodh karein.",
+      "configTitle": "सत्यापन अस्थायी रूप से अनुपलब्ध है",
+      "identifierRequired": "जारी रखने के लिए कृपया अपना ईमेल पता या फ़ोन नंबर दर्ज करें।",
+      "invalidEmail": "एक मान्य ईमेल पता दर्ज करें (उदाहरण के लिए, name@company.com)।",
+      "invalidPhone": "कम से कम 6 अंकों का मान्य फ़ोन नंबर दर्ज करें।",
+      "projectNotConfigured": "यह सत्यापन लिंक अभी कॉन्फ़िगर नहीं है। सहायता के लिए भेजने वाले से संपर्क करें।",
+      "lookupFailed": "अभी आपकी सत्यापन प्रोफ़ाइल नहीं मिल सकी। कृपया पुनः प्रयास करें।",
+      "genericInline": "आपके विवरण की जांच करते समय समस्या आई। कृपया पुनः प्रयास करें।",
+      "faceNotInitialized": "आपका चेहरा सत्यापन सत्र फिर से शुरू करना होगा। वापस जाएं और संपर्क विवरण फिर दर्ज करें।",
+      "noFaceDetected": "फ़ोटो में स्पष्ट चेहरा नहीं दिखा। अच्छी रोशनी में चेहरा केंद्र में रखकर पुनः प्रयास करें।",
+      "multipleFaces": "एक से अधिक चेहरे दिखाई दिए। सुनिश्चित करें कि फ़्रेम में केवल आप हैं और पुनः प्रयास करें।",
+      "livenessFailed": "लाइव चेहरा जांच की पुष्टि नहीं हो सकी। समान रोशनी में स्थिर रहकर पुनः प्रयास करें।",
+      "faceMismatch": "आपकी सेल्फ़ी रिकॉर्ड किए गए सत्यापित चेहरे से मेल नहीं खाती। रोशनी जांचें या पुनः प्रयास करें।",
+      "faceNotCentered": "अपना चेहरा अंडाकार फ़्रेम के बीच में रखें और पुनः प्रयास करें।",
+      "faceTooFar": "कैमरे के थोड़ा पास आएं और पुनः प्रयास करें।",
+      "faceTooClose": "कैमरे से थोड़ा दूर हटें और पुनः प्रयास करें।",
+      "faceRotation": "सिर झुकाए बिना सीधे कैमरे की ओर देखें।",
+      "faceOccluded": "धूप का चश्मा, मास्क या चेहरा ढकने वाली कोई भी वस्तु हटाएं और पुनः प्रयास करें।",
+      "poorLighting": "रोशनी बहुत कम या असमान है। अधिक उजाले वाले स्थान पर जाएं और पुनः प्रयास करें।",
+      "cameraPermissionDenied": "कैमरा अनुमति अवरुद्ध है। ब्राउज़र सेटिंग में कैमरा अनुमति दें और पुनः प्रयास करें।",
+      "faceVerifyFailed": "अभी आपका चेहरा सत्यापित नहीं हो सका। कृपया पुनः प्रयास करें।",
+      "faceCloseToBorder": "अपना पूरा चेहरा फ़्रेम के किनारों से दूर केंद्र में रखें और पुनः प्रयास करें।",
+      "imageTooLarge": "कैप्चर की गई फ़ोटो बहुत बड़ी है। कृपया फ़ोटो फिर से कैप्चर करें।",
+      "livenessUnavailable": "लाइव चेहरा सत्यापन अस्थायी रूप से अनुपलब्ध है। कृपया थोड़ी देर बाद पुनः प्रयास करें।",
+      "invalidFaceImage": "ली गई फ़ोटो संसाधित नहीं हो सकी। रोशनी ठीक करें और पुनः प्रयास करें।",
+      "faceNotAvailable": "अभी इस प्रोफ़ाइल के लिए त्वरित चेहरा सत्यापन उपलब्ध नहीं है।",
+      "faceLimitTitle": "चेहरा सत्यापन प्रयास सीमा पूरी हो गई",
+      "faceLimitBody": "इस लिंक पर बहुत अधिक चेहरा सत्यापन प्रयास किए गए हैं। प्रेषक से नया SmartLink अनुरोध करें।",
+      "rateLimited": "अभी बहुत अधिक सत्यापन प्रयास हो रहे हैं। कृपया कुछ समय प्रतीक्षा करें और पुनः प्रयास करें।",
+      "verificationTimeout": "सत्यापन से प्रतिक्रिया आने में बहुत समय लगा। कृपया पुनः प्रयास करें।",
+      "documentRequiredTitle": "दस्तावेज़ सत्यापन आवश्यक है",
+      "documentRequired": "आगे बढ़ने से पहले इस सत्यापन लिंक के लिए वैध पहचान दस्तावेज़ आवश्यक है।",
+      "completionNotFinalized": "आपका सत्यापन अभी अंतिम समीक्षा के लिए लंबित है। अभी पुष्टि रसीद जारी नहीं की जा सकती।",
+      "documentMismatch": "कृपया वही दस्तावेज़ संख्या प्रस्तुत करें जो मूल रूप से आपकी प्रोफ़ाइल पर सत्यापित की गई थी।"
+    },
+    "faceVerify": {
+      "badge": "त्वरित पहचान जांच",
+      "welcomeBackTitle": "वापसी पर स्वागत है",
+      "welcomeBackNamed": "वापसी पर स्वागत है, {{name}}",
+      "subtitle": "अपना सत्यापन पूरा करने के लिए त्वरित चेहरा जांच हेतु कैमरे में देखें।",
+      "failedTitle": "चेहरा जांच पूरी नहीं हो सकी",
+      "switchAccount": "कोई दूसरा ईमेल या फ़ोन उपयोग करें"
+    },
+    "otp": {
+      "badge": "संपर्क सत्यापन",
+      "title": "अपना 6-अंकीय कोड दर्ज करें",
+      "subtitle": "हमने {{target}} पर 6-अंकीय सत्यापन कोड भेजा है।",
+      "codeLabel": "सत्यापन कोड",
+      "hint": "अपने संदेश जांचें और नीचे सभी 6 अंक दर्ज करें।",
+      "codePlaceholder": "000000",
+      "verifyAction": "कोड सत्यापित करें",
+      "verifying": "सत्यापित किया जा रहा है...",
+      "resendAction": "कोड फिर से भेजें",
+      "resendCountdown": "{{seconds}} सेकंड में फिर से भेजें",
+      "switchWhatsapp": "इसके बजाय WhatsApp पर कोड पाएं",
+      "switchSms": "इसके बजाय SMS पर कोड पाएं",
+      "errorInvalid": "एक मान्य 6-अंकीय सत्यापन कोड दर्ज करें।",
+      "errorExpired": "यह कोड समाप्त हो गया है। नीचे नया कोड मांगें।",
+      "errorMaxAttempts": "बहुत अधिक गलत प्रयास। फिर से प्रयास करने के लिए नया कोड मांगें।",
+      "errorCooldown": "दूसरा कोड मांगने से पहले कुछ सेकंड प्रतीक्षा करें।"
+    },
+    "humanIdRecovery": {
+      "title": "क्या आपका HumanID खो गया?",
+      "recoveryBody": "नया HumanID जारी करने के लिए आप अपने मूल पहचान दस्तावेज़ और लाइव सेल्फी से पुनः सत्यापन कर सकते हैं।",
+      "recoveryCta": "अपने पहचान दस्तावेज़ से पुनः सत्यापित करें",
+      "noAnchorBody": "आपकी प्रोफ़ाइल बिना दस्तावेज़ या फ़ोटो सहेजे ज़ीरो-नॉलेज मोड में सुरक्षित की गई थी। जारी रखने के लिए अपना मूल HumanID QR या कोड प्रस्तुत करें, या नया लिंक मांगें।"
+    }
   }
 }
