@@ -98,7 +98,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 	}
 
 	get showHeader(): boolean {
-		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "submitted";
+		return this.screen !== "loading" && this.screen !== "upgrade" && this.screen !== "submitted" && this.screen !== "error";
 	}
 
 	get activeLang(): string {
@@ -131,6 +131,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 		this.changed.next();
 
 		const savedToken = this._readSavedToken(projectId);
+		const hasExplicitQueryToken = Boolean(tokenFromQuery?.trim());
 		const effectiveToken = tokenFromQuery?.trim() || savedToken;
 
 		this._passwordless
@@ -155,9 +156,9 @@ export class VerifyBusinessSessionService implements OnDestroy {
 					}
 
 					if (effectiveToken) {
-						this._resumeWithToken(effectiveToken);
+						this._resumeWithToken(effectiveToken, hasExplicitQueryToken);
 					} else {
-						this._createNewSession();
+						this._createNewSession(true);
 					}
 				},
 				error: (err) => {
@@ -168,7 +169,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			});
 	}
 
-	private _createNewSession(forceNew = false): void {
+	private _createNewSession(forceNew = true): void {
 		const payload = {
 			projectId: this.projectId,
 			projectFlowId: this.projectFlow?._id,
@@ -197,7 +198,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			});
 	}
 
-	private _resumeWithToken(token: string): void {
+	private _resumeWithToken(token: string, isExplicitQueryToken = false): void {
 		this.token = token;
 		this._http
 			.get<any>(`${this.apiUrl}/v2/business-registrations/session/${token}`)
@@ -205,17 +206,38 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			.subscribe({
 				next: (res) => {
 					if (res?.success && res?.data) {
-						this._applyDossier(res.data);
 						const regDoc = res.data.businessRegistration || res.data;
+						const status = String(regDoc?.status || "").toUpperCase();
+						if (
+							!isExplicitQueryToken &&
+							["COMPLETED", "COMPLETED_WITHOUT_REPRESENTATIVES", "FAILED", "EXPIRED"].includes(status)
+						) {
+							this._clearSavedToken(this.projectId);
+							this.token = null;
+							this.registrationId = "";
+							this._createNewSession(true);
+							return;
+						}
+						this._applyDossier(res.data);
 						this._applyResumeScreen(regDoc?.currentStep, regDoc?.status);
 					} else {
 						this.screen = "company";
 					}
 					this.changed.next();
 				},
-				error: () => {
+				error: (err) => {
 					this._clearSavedToken(this.projectId);
-					this._createNewSession();
+					this.token = null;
+					this.registrationId = "";
+					if (isExplicitQueryToken) {
+						this.error =
+							err?.error?.message ||
+							"Your verification session expired or is invalid. Please launch verification again from your account.";
+						this.screen = "error";
+						this.changed.next();
+						return;
+					}
+					this._createNewSession(true);
 				},
 			});
 	}
@@ -744,7 +766,13 @@ export class VerifyBusinessSessionService implements OnDestroy {
 	}
 
 	jumpToStep(step: BusinessStep): void {
-		if (this.screen === "loading" || this.screen === "upgrade" || this.screen === "submitted" || this.screen === step) {
+		if (
+			this.screen === "loading" ||
+			this.screen === "upgrade" ||
+			this.screen === "submitted" ||
+			this.screen === "error" ||
+			this.screen === step
+		) {
 			return;
 		}
 		const stepOrder: BusinessStep[] = ["company", "documents", "representatives", "review"];
