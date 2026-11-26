@@ -43,6 +43,10 @@ export const appRoutes: Route[] = [
                 loadChildren: () => import("app/modules/auth/sign-up/sign-up.routes"),
             },
             {
+                path: "s",
+                loadChildren: () => import("app/modules/session-entry/session-entry.routes"),
+            },
+            {
                 path: "verify",
                 loadChildren: () => import("app/modules/auth/verify/verify.routes"),
             },
@@ -85,6 +89,32 @@ export const appRoutes: Route[] = [
             {
                 path: "",
                 loadChildren: () => import("app/modules/dev-test/dev-test.routes"),
+            },
+        ],
+    },
+    {
+        path: "l",
+        component: LayoutComponent,
+        data: {
+            layout: "empty",
+        },
+        children: [
+            {
+                path: "",
+                loadChildren: () => import("app/modules/auth/smart-link/smart-link.routes"),
+            },
+        ],
+    },
+    {
+        path: "link",
+        component: LayoutComponent,
+        data: {
+            layout: "empty",
+        },
+        children: [
+            {
+                path: "",
+                loadChildren: () => import("app/modules/auth/smart-link/smart-link.routes"),
             },
         ],
     },

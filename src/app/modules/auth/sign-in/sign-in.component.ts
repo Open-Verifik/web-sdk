@@ -1,5 +1,5 @@
 import { CommonModule, NgIf, isPlatformBrowser } from "@angular/common";
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, Optional, PLATFORM_ID, ViewEncapsulation } from "@angular/core";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormGroup, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -47,6 +47,7 @@ import { OneTimePasswordInputComponent } from "../../../core/components/one-time
 
 import { PasswordlessService } from "../passwordless.service";
 import { PasskeySuccessComponent } from "../passkey-success/passkey-success.component";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 import { VerifikMediaDisplayComponent } from "app/shared/components/verifik-media-display";
 import { AuthUtils } from "app/core/auth/auth.utils";
 
@@ -531,6 +532,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
         private _passkeyZelfService: PasskeyZelfService,
         private _biometricSecurityService: BiometricSecurityService,
         private _antiBotChallengeService: AntiBotChallengeService,
+        @Optional() private _smartLinkRuntime?: SmartLinkRuntimeService,
     ) {
         this.setLanguage();
 
@@ -555,6 +557,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this._loadStyleFonts();
+        this._smartLinkRuntime?.captureFromUrl();
         this.queryStyleId = parseVerifyStyle(this._activatedRoute.snapshot.queryParamMap.get("style"));
         this._activatedRoute.queryParamMap.pipe(takeUntil(this.unsubscriber$)).subscribe((params) => {
             this.queryStyleId = parseVerifyStyle(params.get("style"));

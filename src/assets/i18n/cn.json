@@ -311,7 +311,8 @@
       "request_timeout": "位置信息请求超时",
       "user_denied_request_subtitle": "请在浏览器设置中启用位置服务以继续。",
       "user_denied_request": "创建账户需要位置访问权限"
-    }
+    },
+    "reverify_document_mismatch": "提交的证件号码与档案中已验证的证件不符。"
   },
   "login": {
     "code": "验证码",
@@ -1431,5 +1432,154 @@
     "decrypt_error": "使用此项目的验证密钥解密身份证明失败。",
     "use_qr_or_code": "改用HumanID二维码或代码",
     "back_to_signin": "返回登录"
+  },
+  "smartLink": {
+    "loadingTitle": "正在准备安全验证",
+    "loadingBody": "请稍候，正在加载您的验证流程。",
+    "routingTitle": "正在为您跳转",
+    "routingBody": "请稍候，正在引导您进入正确的验证步骤。",
+    "poweredBy": "由 Verifik SmartLink 提供支持",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "actions": {
+      "back": "返回",
+      "continue": "继续",
+      "continuing": "正在继续...",
+      "retry": "重试"
+    },
+    "modePicker": {
+      "title": "选择验证方式",
+      "subtitle": "请选择最符合您验证需求的选项。"
+    },
+    "modes": {
+      "personal": {
+        "title": "个人身份验证",
+        "desc": "使用证件与人脸识别完成实名认证。"
+      },
+      "business": {
+        "title": "企业资质验证",
+        "desc": "提交企业证照与授权代表信息。"
+      },
+      "humanId": {
+        "title": "真人验证 (HumanID)",
+        "desc": "隐私保护的唯一真人生物特征证明。"
+      },
+      "access": {
+        "title": "生物识别快捷登录",
+        "desc": "快速确认您已验证的个人档案。"
+      }
+    },
+    "lookup": {
+      "personalTitle": "查找您的档案",
+      "personalSubtitle": "输入邮箱或手机号以快速续接或开始全新验证。",
+      "personalLabel": "邮箱或手机号（可选）",
+      "personalPlaceholder": "alex@example.com 或 +86 138 0000 0000",
+      "businessTitle": "识别您的企业",
+      "businessSubtitle": "输入企业税号或工作邮箱以匹配企业验证流程。",
+      "businessLabel": "企业税号或工作邮箱（可选）",
+      "businessPlaceholder": "900123456-7 或 ops@company.com",
+      "tabEmail": "电子邮箱",
+      "tabPhone": "手机号",
+      "channelGroupLabel": "验证联系方式",
+      "emailLabel": "电子邮箱",
+      "emailPlaceholder": "alex@example.com",
+      "phoneLabel": "手机号码",
+      "phonePlaceholder": "138 0013 8000",
+      "countryCodeLabel": "国家区号"
+    },
+    "receipt": {
+      "loading": "正在加载验证回执...",
+      "title": "验证已完成",
+      "defaultSubtitle": "您的身份核验已通过，现在可以安全返回聊天窗口或助手。",
+      "confirmationCode": "确认码",
+      "completedAt": "完成时间",
+      "copyCode": "复制确认码",
+      "copied": "已复制！",
+      "downloadPdf": "下载 / 打印 PDF 回执",
+      "returnHint": "您可以关闭此标签页并继续之前的对话。",
+      "verifiedName": "已验证姓名",
+      "badgeDocAndFace": "证件 + 人脸",
+      "badgeFaceLiveness": "人脸活体检测",
+      "badgeHumanId": "HumanID 生物特征证明",
+      "badgeBusiness": "企业认证",
+      "closeWindow": "关闭窗口"
+    },
+    "error": {
+      "expiredTitle": "此 SmartLink 已过期",
+      "expiredBody": "请联系发送方获取新的验证链接。",
+      "revokedTitle": "此 SmartLink 已失效",
+      "revokedBody": "该会话已被使用或被发行方撤销。",
+      "pausedTitle": "验证已暂时暂停",
+      "pausedBody": "相关机构已暂停此验证链接，请联系支持团队。",
+      "tokenTitle": "无效的验证链接",
+      "tokenBody": "链接签名缺失或无效，请重新获取签名链接。",
+      "notFoundTitle": "未找到 SmartLink",
+      "notFoundBody": "请检查链接地址或联系发送方获取有效链接。",
+      "configTitle": "验证服务暂不可用",
+      "identifierRequired": "请输入您的电子邮箱或手机号码以继续。",
+      "invalidEmail": "请输入有效的电子邮箱地址（例如 name@company.com）。",
+      "invalidPhone": "请输入至少 6 位数字的有效手机号码。",
+      "projectNotConfigured": "此验证链接尚未配置完成，请联系发送方获取帮助。",
+      "lookupFailed": "暂时无法查询您的验证档案，请重试。",
+      "genericInline": "验证您的信息时出现问题，请重试。",
+      "faceNotInitialized": "需要重新开始人脸验证会话，请返回并重新输入您的联系方式。",
+      "noFaceDetected": "未能检测到清晰人脸。请在光线充足处将面部置于框内后重试。",
+      "multipleFaces": "检测到多张人脸，请确保画面中只有您本人后重试。",
+      "livenessFailed": "未能通过活体检测，请在均匀光线下保持静止后重试。",
+      "faceMismatch": "您的自拍与已验证的人脸记录不匹配，请调整光线后重试。",
+      "faceNotCentered": "请将面部居中置于椭圆框内后重试。",
+      "faceTooFar": "请稍微靠近摄像头后重试。",
+      "faceTooClose": "请稍微远离摄像头后重试。",
+      "faceRotation": "请正视摄像头，不要倾斜头部。",
+      "faceOccluded": "请摘下墨镜、口罩或任何遮挡面部的物品后重试。",
+      "poorLighting": "光线过暗或不均匀，请移至更明亮的地方后重试。",
+      "cameraPermissionDenied": "摄像头权限被阻止，请在浏览器设置中允许摄像头权限后重试。",
+      "faceVerifyFailed": "暂时无法完成人脸验证，请重试。",
+      "faceCloseToBorder": "请保持整张脸居中并远离画面边缘，然后重试。",
+      "imageTooLarge": "拍摄的照片过大，请重新拍摄。",
+      "livenessUnavailable": "活体人脸验证服务暂不可用，请稍后再试。",
+      "invalidFaceImage": "无法处理拍摄的照片，请调整光线后重试。",
+      "faceNotAvailable": "当前无法对此档案使用快速人脸验证。",
+      "faceLimitTitle": "已达人脸验证次数上限",
+      "faceLimitBody": "此链接上的人脸验证尝试次数过多。请向发送方申请新的 SmartLink。",
+      "rateLimited": "当前验证尝试过于频繁。请稍候再试。",
+      "verificationTimeout": "验证响应超时。请重试。",
+      "documentRequiredTitle": "需要身份证明文件验证",
+      "documentRequired": "此验证链接要求先提供有效的身份证件才能继续。",
+      "completionNotFinalized": "您的验证仍在等待最终审核，暂无法生成确认凭证。",
+      "documentMismatch": "请出示与您档案中最初验证一致的证件号码。"
+    },
+    "faceVerify": {
+      "badge": "快速身份核验",
+      "welcomeBackTitle": "欢迎回来",
+      "welcomeBackNamed": "欢迎回来，{{name}}",
+      "subtitle": "请正视摄像头进行快速人脸核验以完成验证。",
+      "failedTitle": "无法完成人脸核验",
+      "switchAccount": "改用其他邮箱或手机号"
+    },
+    "otp": {
+      "badge": "联系方式验证",
+      "title": "输入6位验证码",
+      "subtitle": "我们已向 {{target}} 发送6位验证码。",
+      "codeLabel": "验证码",
+      "hint": "请查看消息并在下方输入全部6位数字。",
+      "codePlaceholder": "000000",
+      "verifyAction": "验证",
+      "verifying": "正在验证...",
+      "resendAction": "重新发送验证码",
+      "resendCountdown": "{{seconds}}秒后可重新发送",
+      "switchWhatsapp": "改用 WhatsApp 接收验证码",
+      "switchSms": "改用短信接收验证码",
+      "errorInvalid": "请输入有效的6位数字验证码。",
+      "errorExpired": "该验证码已过期，请在下方重新获取。",
+      "errorMaxAttempts": "错误次数过多，请重新获取验证码后再试。",
+      "errorCooldown": "请稍等几秒后再请求新验证码。"
+    },
+    "humanIdRecovery": {
+      "title": "丢失了您的 HumanID？",
+      "recoveryBody": "您可以使用原始身份证件和活体自拍重新验证，以签发新的 HumanID。",
+      "recoveryCta": "使用身份证件重新验证",
+      "noAnchorBody": "您的资料处于零知识保护模式，未保存证件或照片。请出示原始 HumanID 二维码或字符串继续，或联系发送方获取新链接。"
+    }
   }
 }

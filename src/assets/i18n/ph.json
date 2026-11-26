@@ -310,7 +310,8 @@
       "request_timeout": "Nag-timeout ang kahilingan sa impormasyon ng lokasyon",
       "user_denied_request_subtitle": "Pakibuksan ang mga serbisyo ng lokasyon sa iyong mga setting ng browser upang magpatuloy.",
       "user_denied_request": "Kinakailangan ang access sa lokasyon upang lumikha ng account"
-    }
+    },
+    "reverify_document_mismatch": "Ang isinumiteng numero ng dokumento ay hindi tugma sa naka-verify na dokumento sa file."
   },
   "login": {
     "code": "Kodigo",
@@ -1431,5 +1432,154 @@
     "decrypt_error": "Nabigong i-decrypt ang patunay ng pagkakakilanlan gamit ang verifier key ng proyektong ito.",
     "use_qr_or_code": "Gamitin ang HumanID QR o code sa halip",
     "back_to_signin": "Bumalik sa Sign In"
+  },
+  "smartLink": {
+    "loadingTitle": "Inihahanda ang ligtas na beripikasyon",
+    "loadingBody": "Maghintay sandali habang nilo-load ang iyong verification.",
+    "routingTitle": "Inililipat ka na ngayon",
+    "routingBody": "Maghintay habang dinadala ka sa tamang hakbang.",
+    "poweredBy": "Pinapagana ng Verifik SmartLink",
+    "privacy": "Pagkapribado",
+    "terms": "Mga Tuntunin",
+    "actions": {
+      "back": "Bumalik",
+      "continue": "Magpatuloy",
+      "continuing": "Nagpapatuloy...",
+      "retry": "Subukan muli"
+    },
+    "modePicker": {
+      "title": "Piliin kung paano mag-verify",
+      "subtitle": "Piliin ang opsyong pinakaangkop sa iyong beripikasyon."
+    },
+    "modes": {
+      "personal": {
+        "title": "Mag-verify bilang Indibidwal",
+        "desc": "Kumpletuhin ang beripikasyon gamit ang ID at mukha."
+      },
+      "business": {
+        "title": "Mag-verify ng Kumpanya",
+        "desc": "Isumite ang mga dokumento ng kumpanya at kinatawan."
+      },
+      "humanId": {
+        "title": "Patunayang Tao Ako (HumanID)",
+        "desc": "Pribadong biometrikong patunay ng pagiging totoo."
+      },
+      "access": {
+        "title": "Mag-sign In gamit ang Biometrics",
+        "desc": "Mabilis na kumpirmahin ang umiiral mong profile."
+      }
+    },
+    "lookup": {
+      "personalTitle": "Hanapin natin ang iyong profile",
+      "personalSubtitle": "Ilagay ang email o telepono upang magpatuloy agad o magsimula ng bago.",
+      "personalLabel": "Email o telepono (opsyonal)",
+      "personalPlaceholder": "alex@example.com o +63 917 000 0000",
+      "businessTitle": "Tukuyin ang iyong organisasyon",
+      "businessSubtitle": "Ilagay ang Tax ID o work email ng kumpanya para sa business verification.",
+      "businessLabel": "Tax ID ng Kumpanya o work email (opsyonal)",
+      "businessPlaceholder": "900123456-7 o ops@company.com",
+      "tabEmail": "Email",
+      "tabPhone": "Telepono",
+      "channelGroupLabel": "Paraan ng pakikipag-ugnayan sa beripikasyon",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "alex@example.com",
+      "phoneLabel": "Numero ng telepono",
+      "phonePlaceholder": "917 123 4567",
+      "countryCodeLabel": "Country dial code"
+    },
+    "receipt": {
+      "loading": "Nilo-load ang iyong resibo ng beripikasyon...",
+      "title": "Tapos na ang Beripikasyon",
+      "defaultSubtitle": "Kumpleto na ang iyong verification. Maaari ka nang bumalik sa iyong chat o assistant.",
+      "confirmationCode": "Code ng Kumpirmasyon",
+      "completedAt": "Natapos noong",
+      "copyCode": "Kopyahin ang Confirmation Code",
+      "copied": "Nakopya!",
+      "downloadPdf": "I-download / I-print ang Resibo PDF",
+      "returnHint": "Maaari mong isara ang tab na ito at ituloy ang iyong naunang usapan.",
+      "verifiedName": "Beripikadong pangalan",
+      "badgeDocAndFace": "Dokumento + Mukha",
+      "badgeFaceLiveness": "Face Liveness",
+      "badgeHumanId": "HumanID Biometric Proof",
+      "badgeBusiness": "Beripikasyon ng Negosyo",
+      "closeWindow": "Isara ang window"
+    },
+    "error": {
+      "expiredTitle": "Nag-expire na ang SmartLink na ito",
+      "expiredBody": "Humiling ng bagong verification link mula sa nagpadala.",
+      "revokedTitle": "Hindi na aktibo ang SmartLink na ito",
+      "revokedBody": "Nagamit na o binawi na ng nag-isyu ang session na ito.",
+      "pausedTitle": "Pansamantalang naka-pause ang beripikasyon",
+      "pausedBody": "Pansamantalang pinatigil ng organisasyon ang link na ito.",
+      "tokenTitle": "Hindi wastong verification link",
+      "tokenBody": "Kulang o hindi wasto ang pirma ng link. Humiling ng bagong link.",
+      "notFoundTitle": "Hindi natagpuan ang SmartLink",
+      "notFoundBody": "Suriin ang URL o humingi ng wastong link.",
+      "configTitle": "Pansamantalang hindi magamit ang beripikasyon",
+      "identifierRequired": "Ilagay ang iyong email address o numero ng telepono upang magpatuloy.",
+      "invalidEmail": "Maglagay ng wastong email address (halimbawa, name@company.com).",
+      "invalidPhone": "Maglagay ng wastong numero ng telepono na may hindi bababa sa 6 na digit.",
+      "projectNotConfigured": "Hindi pa naka-configure ang link na ito. Makipag-ugnayan sa nagpadala para sa tulong.",
+      "lookupFailed": "Hindi namin mahanap ang iyong profile sa ngayon. Pakisubukan muli.",
+      "genericInline": "Nagkaroon ng problema sa pagberipika ng iyong mga detalye. Pakisubukan muli.",
+      "faceNotInitialized": "Kailangang simulan muli ang iyong face check session. Bumalik at ilagay muli ang iyong detalye.",
+      "noFaceDetected": "Walang malinaw na mukhang nakita sa larawan. Igitna ang mukha sa maliwanag na lugar at subukan muli.",
+      "multipleFaces": "Higit sa isang mukha ang nakita. Tiyaking ikaw lang ang nasa frame at subukan muli.",
+      "livenessFailed": "Hindi makumpirma ang live na pagsusuri ng mukha. Huwag gumalaw sa pantay na ilaw at subukan muli.",
+      "faceMismatch": "Hindi tugma ang iyong selfie sa nakarehistrong mukha. Suriin ang ilaw o subukan muli.",
+      "faceNotCentered": "Igitna ang iyong mukha sa loob ng hugis-itlog at subukan muli.",
+      "faceTooFar": "Lumapit nang kaunti sa kamera at subukan muli.",
+      "faceTooClose": "Lumayo nang bahagya sa kamera at subukan muli.",
+      "faceRotation": "Tumingin nang diretso sa kamera nang hindi ikinikiling ang ulo.",
+      "faceOccluded": "Alisin ang salamin sa araw, maskara, o anumang nakatakip sa mukha at subukan muli.",
+      "poorLighting": "Masyadong madilim o hindi pantay ang ilaw. Lumipat sa mas maliwanag na lugar at subukan muli.",
+      "cameraPermissionDenied": "Naka-block ang access sa kamera. Payagan ito sa settings ng browser at subukan muli.",
+      "faceVerifyFailed": "Hindi namin maberipika ang iyong mukha sa ngayon. Pakisubukan muli.",
+      "faceCloseToBorder": "Panatilihing nakagitna ang buong mukha at malayo sa mga gilid ng frame, pagkatapos ay subukan muli.",
+      "imageTooLarge": "Masyadong malaki ang nakuhang litrato. Mangyaring kunan muli ang litrato.",
+      "livenessUnavailable": "Pansamantalang hindi magamit ang live face verification. Pakisubukan muli maya-maya.",
+      "invalidFaceImage": "Hindi maproseso ang nakuhang larawan. Ayusin ang ilaw at subukan muli.",
+      "faceNotAvailable": "Hindi available ang mabilisang pagberipika ng mukha para sa profile na ito sa ngayon.",
+      "faceLimitTitle": "Naabot na ang limitasyon ng pag-verify ng mukha",
+      "faceLimitBody": "Masyadong maraming pagsubok ng pag-verify ng mukha sa link na ito. Humingi ng bagong SmartLink mula sa nagpadala.",
+      "rateLimited": "Masyadong maraming pagsubok sa ngayon. Maghintay sandali at subukan muli.",
+      "verificationTimeout": "Masyadong matagal bago sumagot ang pag-verify. Pakisubukan muli.",
+      "documentRequiredTitle": "Kailangan ng pag-verify ng dokumento",
+      "documentRequired": "Kinakailangan ng link na ito ang wastong dokumento ng pagkakakilanlan bago magpatuloy.",
+      "completionNotFinalized": "Naghihintay pa ng pangwakas na pagsusuri ang iyong pag-verify. Hindi pa makakapagbigay ng resibo.",
+      "documentMismatch": "Pakiprisinta ang parehong numero ng dokumento na unang na-verify sa iyong profile."
+    },
+    "faceVerify": {
+      "badge": "Mabilisang Pagsusuri",
+      "welcomeBackTitle": "Maligayang pagbabalik",
+      "welcomeBackNamed": "Maligayang pagbabalik, {{name}}",
+      "subtitle": "Tumingin sa kamera para sa mabilisang pagsusuri ng mukha upang matapos ang beripikasyon.",
+      "failedTitle": "Hindi nakumpleto ang pagsusuri ng mukha",
+      "switchAccount": "Gumamit ng ibang email o telepono"
+    },
+    "otp": {
+      "badge": "Pagpapatunay ng Contact",
+      "title": "Ilagay ang iyong 6-digit na code",
+      "subtitle": "Nagpadala kami ng 6-digit na verification code sa {{target}}.",
+      "codeLabel": "Verification code",
+      "hint": "Tingnan ang iyong mga mensahe at ilagay ang lahat ng 6 na digit sa ibaba.",
+      "codePlaceholder": "000000",
+      "verifyAction": "I-verify ang code",
+      "verifying": "Nagve-verify...",
+      "resendAction": "Ipadala ulit ang code",
+      "resendCountdown": "Ipadala ulit sa {{seconds}}s",
+      "switchWhatsapp": "Sa WhatsApp na lang tanggapin ang code",
+      "switchSms": "Sa SMS na lang tanggapin ang code",
+      "errorInvalid": "Maglagay ng wastong 6-digit na verification code.",
+      "errorExpired": "Nag-expire na ang code na ito. Humiling ng bagong code sa ibaba.",
+      "errorMaxAttempts": "Masyadong maraming maling subok. Humiling ng bagong code upang subukan ulit.",
+      "errorCooldown": "Maghintay muna ng ilang segundo bago humiling ng isa pang code."
+    },
+    "humanIdRecovery": {
+      "title": "Nawala ang iyong HumanID?",
+      "recoveryBody": "Maaari kang mag-verify gamit ang orihinal mong ID document at live selfie upang makagawa ng bagong HumanID.",
+      "recoveryCta": "Mag-verify ulit gamit ang ID document",
+      "noAnchorBody": "Pinrotektahan ang profile mo sa zero-knowledge mode nang hindi iniimbak ang ID o larawan. Ipakita ang orihinal na HumanID QR o code upang magpatuloy, o humingi ng bagong link."
+    }
   }
 }

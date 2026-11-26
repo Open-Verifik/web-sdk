@@ -552,7 +552,8 @@
       "country_block_result_title": "This country cannot enroll",
       "country_block_result_body": "{{country}} is not on the allowed list, so sign-up cannot continue.",
       "country_block_contact_label": "Questions? Contact the administrator"
-    }
+    },
+    "reverify_document_mismatch": "The submitted document number does not match the verified document on file."
   },
   "login": {
     "code": "Code",
@@ -1431,5 +1432,154 @@
     "decrypt_error": "Failed to decrypt identity proof with this project's verifier key.",
     "use_qr_or_code": "Use HumanID QR or code instead",
     "back_to_signin": "Back to Sign In"
+  },
+  "smartLink": {
+    "loadingTitle": "Preparing secure verification",
+    "loadingBody": "One moment while we load your verification experience.",
+    "routingTitle": "Redirecting you now",
+    "routingBody": "Please wait while we route you to the right step.",
+    "poweredBy": "Powered by Verifik SmartLink",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "actions": {
+      "back": "Back",
+      "continue": "Continue",
+      "continuing": "Continuing...",
+      "retry": "Try again"
+    },
+    "modePicker": {
+      "title": "Choose how to verify",
+      "subtitle": "Select the option that best describes who is verifying."
+    },
+    "modes": {
+      "personal": {
+        "title": "Verify as an Individual",
+        "desc": "Complete identity verification with your document and face."
+      },
+      "business": {
+        "title": "Verify a Company",
+        "desc": "Submit company records and authorized representatives."
+      },
+      "humanId": {
+        "title": "Prove I am Human (HumanID)",
+        "desc": "Privacy-preserving biometric proof of uniqueness."
+      },
+      "access": {
+        "title": "Sign In with Biometrics",
+        "desc": "Quickly confirm your existing verified profile."
+      }
+    },
+    "lookup": {
+      "personalTitle": "Let us find your profile",
+      "personalSubtitle": "Enter your email or phone to continue quickly or start a new verification.",
+      "personalLabel": "Email or phone (optional)",
+      "personalPlaceholder": "alex@example.com or +1 555 0100",
+      "businessTitle": "Identify your organization",
+      "businessSubtitle": "Enter your company tax ID or work email to route your business verification.",
+      "businessLabel": "Company Tax ID or work email (optional)",
+      "businessPlaceholder": "900123456-7 or ops@company.com",
+      "tabEmail": "Email",
+      "tabPhone": "Phone",
+      "channelGroupLabel": "Verification contact method",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "alex@example.com",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "555 010 2030",
+      "countryCodeLabel": "Country dial code"
+    },
+    "receipt": {
+      "loading": "Loading your verification receipt...",
+      "title": "Verification Complete",
+      "defaultSubtitle": "Your identity check is complete. You can safely return to your assistant or chat now.",
+      "confirmationCode": "Confirmation Code",
+      "completedAt": "Completed at",
+      "copyCode": "Copy Confirmation Code",
+      "copied": "Copied!",
+      "downloadPdf": "Download / Print Receipt PDF",
+      "returnHint": "You may close this tab and continue where you left off.",
+      "verifiedName": "Verified name",
+      "badgeDocAndFace": "Document + Face",
+      "badgeFaceLiveness": "Face Liveness",
+      "badgeHumanId": "HumanID Biometric Proof",
+      "badgeBusiness": "Business Verification",
+      "closeWindow": "Close window"
+    },
+    "error": {
+      "expiredTitle": "This SmartLink has expired",
+      "expiredBody": "Request a fresh verification link from the sender to continue.",
+      "revokedTitle": "This SmartLink is no longer active",
+      "revokedBody": "This session has already been used or revoked by the issuer.",
+      "pausedTitle": "Verification temporarily paused",
+      "pausedBody": "The organization paused this verification link. Please contact support.",
+      "tokenTitle": "Invalid verification link",
+      "tokenBody": "The link signature is missing or invalid. Request a newly signed link.",
+      "notFoundTitle": "SmartLink not found",
+      "notFoundBody": "Double-check the URL or ask the sender for a valid verification link.",
+      "configTitle": "Verification temporarily unavailable",
+      "identifierRequired": "Please enter your email address or phone number to continue.",
+      "invalidEmail": "Enter a valid email address (for example, name@company.com).",
+      "invalidPhone": "Enter a valid phone number with at least 6 digits.",
+      "projectNotConfigured": "This verification link is not configured yet. Please contact the sender for assistance.",
+      "lookupFailed": "We could not look up your verification profile right now. Please try again.",
+      "genericInline": "Something went wrong while validating your details. Please try again.",
+      "faceNotInitialized": "Your face verification session needs to be started again. Return and re-enter your contact details.",
+      "noFaceDetected": "We could not detect a clear face in the photo. Center your face in good lighting and try again.",
+      "multipleFaces": "More than one face was detected. Make sure only you are in the frame and try again.",
+      "livenessFailed": "We could not confirm a live face check. Please hold steady in even lighting and try again.",
+      "faceMismatch": "Your selfie did not match the verified face on file. Check lighting or try again.",
+      "faceNotCentered": "Center your face inside the oval frame and try again.",
+      "faceTooFar": "Move a little closer to the camera and try again.",
+      "faceTooClose": "Move slightly farther from the camera and try again.",
+      "faceRotation": "Look straight ahead at the camera without tilting your head.",
+      "faceOccluded": "Remove sunglasses, masks, or anything covering your face and try again.",
+      "poorLighting": "Lighting is too dim or uneven. Move to a brighter area and try again.",
+      "cameraPermissionDenied": "Camera access is blocked. Allow camera permission in your browser settings and try again.",
+      "faceVerifyFailed": "We could not verify your face right now. Please try again.",
+      "faceCloseToBorder": "Keep your whole face centered away from the frame edges and try again.",
+      "imageTooLarge": "The captured photo was too large. Please capture the photo again.",
+      "livenessUnavailable": "Live face verification is temporarily unavailable. Please try again in a moment.",
+      "invalidFaceImage": "The captured photo could not be processed. Adjust lighting and try again.",
+      "faceNotAvailable": "Quick face verification is not available for this profile right now.",
+      "faceLimitTitle": "Face check limit reached",
+      "faceLimitBody": "Too many face verification attempts were made on this link. Request a new SmartLink from the sender.",
+      "rateLimited": "Too many verification attempts right now. Wait a moment and try again.",
+      "verificationTimeout": "Verification took too long to respond. Please try again.",
+      "documentRequiredTitle": "Document verification required",
+      "documentRequired": "This verification link requires a valid identity document before continuing.",
+      "completionNotFinalized": "Your verification is still awaiting final review. No confirmation receipt can be issued yet.",
+      "documentMismatch": "Please present the same document number originally verified on your profile."
+    },
+    "faceVerify": {
+      "badge": "Quick Identity Check",
+      "welcomeBackTitle": "Welcome back",
+      "welcomeBackNamed": "Welcome back, {{name}}",
+      "subtitle": "Look into the camera for a quick face check to finish your verification.",
+      "failedTitle": "Face check could not be completed",
+      "switchAccount": "Use a different email or phone"
+    },
+    "otp": {
+      "badge": "Contact Verification",
+      "title": "Enter your 6-digit code",
+      "subtitle": "We sent a 6-digit verification code to {{target}}.",
+      "codeLabel": "Verification code",
+      "hint": "Check your messages and enter all 6 digits below.",
+      "codePlaceholder": "000000",
+      "verifyAction": "Verify code",
+      "verifying": "Verifying...",
+      "resendAction": "Resend code",
+      "resendCountdown": "Resend code in {{seconds}}s",
+      "switchWhatsapp": "Receive code via WhatsApp instead",
+      "switchSms": "Receive code via SMS instead",
+      "errorInvalid": "Enter a valid 6-digit verification code.",
+      "errorExpired": "This code has expired. Request a fresh verification code below.",
+      "errorMaxAttempts": "Too many incorrect codes. Request a fresh verification code to try again.",
+      "errorCooldown": "Please wait a few seconds before requesting another code."
+    },
+    "humanIdRecovery": {
+      "title": "Lost your HumanID?",
+      "recoveryBody": "You can verify with your original identity document and a live selfie to issue a new HumanID.",
+      "recoveryCta": "Re-verify with your ID document",
+      "noAnchorBody": "Your profile was protected under zero-knowledge mode without storing your ID document or photo. Present your original HumanID QR or code to continue, or ask the sender for a new verification link."
+    }
   }
 }

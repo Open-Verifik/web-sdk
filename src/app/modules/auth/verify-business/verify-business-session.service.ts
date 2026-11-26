@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy, Optional } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslocoService } from "@ngneat/transloco";
 import { Observable, Subject, catchError, map, of, takeUntil, timeout } from "rxjs";
@@ -26,6 +26,8 @@ import {
 	resolveResumeStep,
 } from "./verify-business-flow";
 import { VerifyStyleId } from "../verify/verify-style";
+import { VerifikEmbedBridgeService } from "app/core/embed/verifik-embed-bridge.service";
+import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
 	legalName: "",
@@ -84,6 +86,8 @@ export class VerifyBusinessSessionService implements OnDestroy {
 		private _passwordless: PasswordlessService,
 		private _router: Router,
 		private _transloco: TranslocoService,
+		@Optional() private _smartLink?: SmartLinkRuntimeService,
+		@Optional() private _embedBridge?: VerifikEmbedBridgeService,
 	) {}
 
 	ngOnDestroy(): void {
@@ -633,7 +637,16 @@ export class VerifyBusinessSessionService implements OnDestroy {
 					this.busy = false;
 					this.submissionResult = res?.data || { status: "COMPLETED" };
 					this.screen = "submitted";
-					this._startRedirectCountdown();
+					if (this._embedBridge?.isEmbedded) {
+						this._embedBridge.emit("verifik:completed", {
+							flowType: "kyb",
+							status: "In Review",
+							projectFlowId: (this.projectFlow as any)?._id || null,
+							linkedRecordId: this.registrationId || null,
+						});
+					} else {
+						this._startRedirectCountdown();
+					}
 					this.changed.next();
 					return true;
 				}),
@@ -646,17 +659,69 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			);
 	}
 
-	private _startRedirectCountdown(): void {
+	private _isFinalizedSubmission(): boolean {
+		const status = String(this.submissionResult?.status || "").trim();
+		return status === "COMPLETED" || status === "COMPLETED_WITHOUT_REPRESENTATIVES";
+	}
+
+	redirectNow(): void {
+		this._stopRedirectTimer();
+		if (this._smartLink?.hasActiveSession()) {
+			if (this._isFinalizedSubmission() && this.token) {
+				void this._smartLink.finalizeAndHandoff({
+					outcomeType: "kyb",
+					token: this.token,
+				});
+			} else {
+				const shortCode = this._smartLink.getActiveSession()?.shortCode;
+				if (shortCode) {
+					this._smartLink
+						.reportEvent(shortCode, {
+							type: "IN_PROGRESS",
+							step: String(this.submissionResult?.status || "pending_review").toLowerCase(),
+							summary: "Business verification pending review",
+							registrationToken: this.token || undefined,
+							outcomeType: "kyb",
+						})
+						.pipe(catchError(() => of(null)))
+						.subscribe();
+				}
+			}
+			return;
+		}
 		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
-		if (!redirectUrl) return;
+		if (redirectUrl) {
+			window.location.href = redirectUrl;
+		}
+	}
+
+	private _startRedirectCountdown(): void {
+		const hasSmartLink = Boolean(this._smartLink?.hasActiveSession());
+		if (hasSmartLink && (!this._isFinalizedSubmission() || !this.token)) {
+			const shortCode = this._smartLink?.getActiveSession()?.shortCode;
+			if (shortCode) {
+				this._smartLink
+					?.reportEvent(shortCode, {
+						type: "IN_PROGRESS",
+						step: String(this.submissionResult?.status || "pending_review").toLowerCase(),
+						summary: "Business verification pending review",
+						registrationToken: this.token || undefined,
+						outcomeType: "kyb",
+					})
+					.pipe(catchError(() => of(null)))
+					.subscribe();
+			}
+			return;
+		}
+		const redirectUrl = this.projectFlow?.integrations?.redirectUrl;
+		if (!hasSmartLink && !redirectUrl) return;
 
 		this.redirectCountdown = 7;
 		this._stopRedirectTimer();
 		this._redirectTimer = setInterval(() => {
 			this.redirectCountdown--;
 			if (this.redirectCountdown <= 0) {
-				this._stopRedirectTimer();
-				window.location.href = redirectUrl;
+				this.redirectNow();
 			}
 			this.changed.next();
 		}, 1000);
