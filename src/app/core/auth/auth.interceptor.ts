@@ -8,8 +8,6 @@ import { catchError, Observable, throwError } from "rxjs";
 const ANTI_BOT_PROTECTED_PATHS = [
     "/v2/app-logins/human-id",
     "/v2/app-login/human-id",
-    "/v2/app-login/zk-proof",
-    "/v2/projects/biometrics/sign-in",
     "/v2/biometric-validations",
     "/v2/app-registrations/human-id",
 ];

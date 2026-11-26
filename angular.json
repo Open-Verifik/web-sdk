@@ -24,16 +24,13 @@
 						"tsConfig": "tsconfig.app.json",
 						"inlineStyleLanguage": "scss",
 						"allowedCommonJsDependencies": [
-							"leaflet",
-							"apexcharts",
 							"highlight.js",
 							"crypto-js/enc-utf8",
 							"crypto-js/hmac-sha256",
 							"crypto-js/enc-base64",
 							"flat",
 							"quill",
-							"webrtc-adapter",
-							"@tensorflow/tfjs-core"
+							"webrtc-adapter"
 						],
 						"assets": [
 							"src/favicon.ico",
@@ -58,8 +55,7 @@
 							"src/styles/vendors.scss",
 							"src/@fuse/styles/main.scss",
 							"src/styles/styles.scss",
-							"src/styles/tailwind.scss",
-							"node_modules/leaflet/dist/leaflet.css"
+							"src/styles/tailwind.scss"
 						],
 						"scripts": []
 					},
