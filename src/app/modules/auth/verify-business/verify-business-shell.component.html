@@ -106,7 +106,7 @@
 							</div>
 							<h1>{{ t("verifyBusiness.errorTitle") || "Ha Ocurrido un Error" }}</h1>
 							<p>{{ session.error || (t("verifyBusiness.errorDesc") || "No se pudo continuar con el registro. Por favor intente nuevamente.") }}</p>
-							<button type="button" class="primary-btn" (click)="session.back()">
+							<button type="button" class="primary-btn" *ngIf="session.history.length > 0" (click)="session.back()">
 								{{ t("verifyBusiness.back") || "Regresar" }}
 							</button>
 						</div>
