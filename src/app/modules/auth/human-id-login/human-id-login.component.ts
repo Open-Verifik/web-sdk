@@ -24,6 +24,7 @@ import { Subject, takeUntil } from "rxjs";
 import { AuthService } from "app/core/auth/auth.service";
 import { ProjectFlow } from "app/core/classes/project-flow.class";
 import { Project } from "app/core/classes/project.class";
+import { VerifikEmbedBridgeService } from "app/core/embed/verifik-embed-bridge.service";
 import { AntiBotChallengeService } from "app/core/services/anti-bot-challenge.service";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { ImageScan } from "app/modules/auth/project";
@@ -62,6 +63,7 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 	private _authService = inject(AuthService);
 	private _transloco = inject(TranslocoService);
 	private _antiBotChallengeService = inject(AntiBotChallengeService);
+	private _embedBridge = inject(VerifikEmbedBridgeService, { optional: true });
 	private _smartLinkRuntime = inject(SmartLinkRuntimeService, { optional: true });
 	private _destroy$ = new Subject<void>();
 
@@ -684,6 +686,14 @@ export class HumanIdLoginComponent implements OnInit, OnDestroy {
 					} else if (window.parent && window.parent !== window) {
 						window.parent.postMessage(successEvent, "*");
 					}
+					this._embedBridge?.emit("verifik:completed", {
+						flowType: "human_authn",
+						status: "Approved",
+						projectId: this.projectId,
+						projectFlowId: (this.projectFlow as any)?._id || null,
+						token: res.data?.token,
+						appLogin: res.data?.appLogin,
+					});
 
 					if (this._smartLinkRuntime?.hasActiveSession()) {
 						void this._smartLinkRuntime.finalizeAndHandoff({

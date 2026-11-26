@@ -6,6 +6,7 @@ import { environment } from "environments/environment";
 import { catchError, Observable, of, switchMap, throwError } from "rxjs";
 import { ProjectFlow } from "../classes/project-flow.class";
 import { redirectForCurrentHost } from "./panel-url";
+import { VerifikEmbedBridgeService } from "app/core/embed/verifik-embed-bridge.service";
 import { SmartLinkRuntimeService } from "app/modules/auth/smart-link/smart-link-runtime.service";
 
 @Injectable({ providedIn: "root" })
@@ -15,7 +16,8 @@ export class AuthService {
 	constructor(
 		private _httpClient: HttpClient,
 		private _userService: UserService,
-		@Optional() private _smartLinkRuntime?: SmartLinkRuntimeService
+		@Optional() private _smartLinkRuntime?: SmartLinkRuntimeService,
+		@Optional() private _embedBridge?: VerifikEmbedBridgeService
 	) {}
 
 	set accessToken(token: string) {
@@ -49,6 +51,18 @@ export class AuthService {
 			const isHumanAuthn = (projectFlow as any)?.type === "humanAuthn" || (projectFlow as any)?.type === "humanId";
 			const outcomeType = type === "login" ? "access" : isHumanAuthn ? "human_id" : "kyc";
 			void this._smartLinkRuntime.finalizeAndHandoff({ outcomeType, token });
+			return;
+		}
+
+		if (this._embedBridge?.isEmbedded) {
+			this._embedBridge.emit("verifik:completed", {
+				projectId,
+				projectFlowId: (projectFlow as any)?._id || null,
+				flowType: type,
+				status: "Approved",
+				token,
+				demoMode,
+			});
 			return;
 		}
 
