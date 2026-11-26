@@ -27,6 +27,7 @@ import {
 	resolveResumeStep,
 } from "./verify-business-flow";
 import { VerifyStyleId } from "../verify/verify-style";
+import { VerifikEmbedBridgeService } from "app/core/embed/verifik-embed-bridge.service";
 import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
@@ -87,6 +88,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 		private _router: Router,
 		private _transloco: TranslocoService,
 		@Optional() private _smartLink?: SmartLinkRuntimeService,
+		@Optional() private _embedBridge?: VerifikEmbedBridgeService,
 	) {}
 
 	ngOnDestroy(): void {
@@ -636,7 +638,16 @@ export class VerifyBusinessSessionService implements OnDestroy {
 					this.busy = false;
 					this.submissionResult = res?.data || { status: "COMPLETED" };
 					this.screen = "submitted";
-					this._startRedirectCountdown();
+					if (this._embedBridge?.isEmbedded) {
+						this._embedBridge.emit("verifik:completed", {
+							flowType: "kyb",
+							status: "In Review",
+							projectFlowId: (this.projectFlow as any)?._id || null,
+							linkedRecordId: this.registrationId || null,
+						});
+					} else {
+						this._startRedirectCountdown();
+					}
 					this.changed.next();
 					return true;
 				}),
