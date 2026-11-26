@@ -140,10 +140,10 @@ describe("PasswordlessService - AntiBot Header Forwarding", () => {
 
 		const responsePromise = new Promise((resolve) => {
 			service
-				.zkLogin({
+				.humanIdLogin({
 					projectId,
 					faceBase64: "ZmFjZQ==",
-					record: { id: "rec_1" },
+					humanId: "hid_graceful",
 				})
 				.subscribe(resolve);
 		});
@@ -151,7 +151,7 @@ describe("PasswordlessService - AntiBot Header Forwarding", () => {
 		await Promise.resolve();
 		await Promise.resolve();
 
-		const req = httpMock.expectOne(`${environment.apiUrl}/v2/app-login/zk-proof`);
+		const req = httpMock.expectOne(`${environment.apiUrl}/v2/app-logins/human-id`);
 		expect(req.request.headers.has("X-Bot-Ticket")).toBeFalse();
 		req.flush({ data: { token: "jwt_graceful" } });
 
