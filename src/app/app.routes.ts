@@ -45,6 +45,10 @@ export const appRoutes: Route[] = [
                 loadChildren: () => import("app/modules/session-entry/session-entry.routes"),
             },
             {
+                path: "k",
+                loadChildren: () => import("app/modules/auth/verify-business/kyb-short-entry.routes"),
+            },
+            {
                 path: "verify",
                 loadChildren: () => import("app/modules/auth/verify/verify.routes"),
             },
