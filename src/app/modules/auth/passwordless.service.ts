@@ -186,16 +186,6 @@ export class PasswordlessService {
 		return of(pickedExplicit);
 	}
 
-	biometricsSignIn(data: any, antiBotHeaders?: Record<string, string>): Observable<any> {
-		const projectId = data?.projectId || data?.project || this.currentProject?._id;
-		return this._resolveAntiBotHeaders(projectId, antiBotHeaders).pipe(
-			switchMap((headers) => {
-				const options = Object.keys(headers).length ? { headers } : {};
-				return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/projects/biometrics/sign-in`, data, options);
-			})
-		);
-	}
-
 	createLivenessSession(data: any, antiBotHeaders?: Record<string, string>): Observable<any> {
 		const appLoginToken = localStorage.getItem("accessToken");
 		const location = localStorage.getItem("loginLocation");
@@ -257,15 +247,6 @@ export class PasswordlessService {
 				if (token && projectId) {
 					saveSignUpAppRegistrationToken(projectId, token);
 				}
-			})
-		);
-	}
-
-	zkLogin(data: { record: any; faceBase64: string; projectId: string }, antiBotHeaders?: Record<string, string>): Observable<any> {
-		return this._resolveAntiBotHeaders(data?.projectId, antiBotHeaders).pipe(
-			switchMap((headers) => {
-				const options = Object.keys(headers).length ? { headers } : {};
-				return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-login/zk-proof`, data, options);
 			})
 		);
 	}

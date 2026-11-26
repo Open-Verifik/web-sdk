@@ -25,7 +25,6 @@ export class KYCService {
 	baseUrl: String = environment.apiUrl;
 	currentProject: Project;
 	currentProjectFlow: ProjectFlow;
-	navigation: any;
 
 	private _backgroundCheckProgress$ = new BehaviorSubject<BackgroundCheckProgress>({
 		status: "idle",
@@ -94,106 +93,6 @@ export class KYCService {
 		}
 	}
 
-	getNavigation(): any {
-		return this.navigation;
-	}
-
-	initNavigation(): void {
-		let stepsCount = 1;
-
-		const displayableSteps = [];
-		const map = {};
-
-		const steps = this.currentProjectFlow.onboardingSettings.steps;
-
-		if (["mandatory", "optional"].includes(steps.document)) {
-			stepsCount++;
-
-			displayableSteps.push({
-				code: "document",
-				status: steps.document,
-			});
-
-			map["document"] = steps.document;
-
-			stepsCount++;
-
-			displayableSteps.push({
-				code: "documentReview",
-				status: steps.document,
-			});
-
-			map["documentReview"] = steps.document;
-		}
-
-		if (["mandatory", "optional"].includes(steps.liveness)) {
-			stepsCount++;
-
-			displayableSteps.push({
-				code: "liveness",
-				status: steps.liveness,
-			});
-
-			map["liveness"] = steps.liveness;
-
-			if (map["document"]) {
-				stepsCount++;
-
-				map["documentLivenessReview"] = steps.liveness;
-			}
-		}
-
-		displayableSteps.push({
-			code: "end",
-			status: "mandatory",
-		});
-
-		stepsCount++;
-
-		this.navigation = {
-			currentStep: 1,
-			lastStep: stepsCount,
-			steps,
-			map,
-			displayableSteps,
-		};
-
-		return this.navigation;
-	}
-
-	getProject(): Project {
-		return this.currentProject;
-	}
-
-	navigateTo(step: string): void {
-		setTimeout(() => {
-			if (step === "next") {
-				switch (this.navigation.currentStep) {
-					case "liveness":
-						this.navigation.currentStep = "documentLivenessReview";
-
-						break;
-					case "document":
-						this.navigation.currentStep = "documentReview";
-
-						break;
-					case "documentReview":
-						this.navigation.currentStep = "liveness";
-
-						break;
-					case "documentLivenessReview":
-						this.navigation.currentStep = "end";
-
-						break;
-				}
-
-				return;
-			}
-
-			this.navigation.currentStep = step;
-		}, 750);
-	}
-
 	getAppRegistration(data: any): Observable<any> {
 		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations/me`, data).pipe(
 			tap((response: any) => {
@@ -207,10 +106,6 @@ export class KYCService {
 				this.currentProjectFlow = this.appRegistration.projectFlow;
 			})
 		);
-	}
-
-	createAppRegistration(data: any): Observable<any> {
-		return this._httpWrapper.sendRequest("post", `${this.baseUrl}/v2/app-registrations`, data);
 	}
 
 	sendEmailValidation(email: string): Observable<any> {
@@ -485,10 +380,6 @@ export class KYCService {
 			`${this.baseUrl}/v2/app-registrations/${this.appRegistration._id}/submit-kyc-approval`,
 			{},
 		);
-	}
-
-	restartKYC(): Observable<any> {
-		return this._httpWrapper.sendRequest("delete", `${this.baseUrl}/v2/biometric-validations/${this.appRegistration.biometricValidation._id}`);
 	}
 
 	createZkProof(faceBase64?: string): Observable<any> {
