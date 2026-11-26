@@ -138,14 +138,6 @@ export interface Whitelist {
 	countryCode?: number;
 }
 
-export interface AppLogin {
-	_id: string;
-	data: string;
-	status: any;
-	type: any;
-	date: any;
-}
-
 export interface ProjectFlowForm {
 	_id: string;
 	project: string;
@@ -166,25 +158,6 @@ export interface ProjectFlowFormField {
 	type: string;
 	charactersLimit: number;
 	placeHolder: string;
-}
-
-export class AppLoginModel implements AppLogin {
-	_id: string;
-	data: string;
-	status: any;
-	type: any;
-	date: any;
-	constructor(data: any = {}) {
-		this._id = data._id;
-		this.data = data.phoneValidation ? data.phoneValidation.phone : data.emailValidation ? data.emailValidation.email : data.biometricValidation;
-		this.status = data.phoneValidation
-			? data.phoneValidation.status
-			: data.emailValidation
-			? data.emailValidation.status
-			: data.biometricValidation.status;
-		this.type = data.type;
-		this.date = data.updatedAt;
-	}
 }
 
 export class WhitelistModel implements Whitelist {
