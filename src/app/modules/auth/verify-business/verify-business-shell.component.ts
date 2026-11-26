@@ -95,7 +95,10 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this._applyStyle();
-				this.session.open(projectId, query.get("token") || undefined);
+				const redeemedToken =
+					typeof history !== "undefined" ? (history.state?.kybRedeemedToken as string | undefined) : undefined;
+				const incomingToken = redeemedToken || query.get("token") || undefined;
+				this.session.open(projectId, incomingToken);
 			});
 	}
 
