@@ -279,7 +279,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             image.onload = () => {
                 ctx.drawImage(image, offsetX, offsetY, width, height, 0, 0, canvas.width, canvas.height);
 
-                resolve(canvas.toDataURL());
+                resolve(canvas.toDataURL("image/jpeg", 0.92));
 
                 image.src = "";
                 image.onload = null;
@@ -587,7 +587,7 @@ export class SmartLivenessComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.faceCapture = { angle, base64: this.videoCanvas.nativeElement.toDataURL(), detection };
+        this.faceCapture = { angle, base64: this.videoCanvas.nativeElement.toDataURL("image/jpeg", 0.92), detection };
 
         this.face.successPosition = 0;
         this.face.success = false;

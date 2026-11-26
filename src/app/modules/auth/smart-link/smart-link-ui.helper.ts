@@ -201,6 +201,7 @@ export const mapSmartLinkInlineErrorKey = (code: string | null | undefined): str
 		face_not_visible: "smartLink.error.noFaceDetected",
 		multiple_faces_detected: "smartLink.error.multipleFaces",
 		face_close_to_border: "smartLink.error.faceCloseToBorder",
+		image_too_large: "smartLink.error.imageTooLarge",
 		liveness_unavailable: "smartLink.error.livenessUnavailable",
 		liveness_failed: "smartLink.error.livenessFailed",
 		liveness_score_not_acceptable: "smartLink.error.livenessFailed",
