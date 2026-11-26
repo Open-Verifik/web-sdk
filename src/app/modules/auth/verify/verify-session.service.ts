@@ -551,6 +551,7 @@ export class VerifySessionService implements OnDestroy {
 			face_too_close: "liveness.face_too_close",
 			poor_lighting: "liveness.poor_lighting",
 			face_not_visible: "liveness.face_not_visible",
+			image_too_large: "liveness.image_too_large",
 			liveness_failed: "errors.liveness_failed",
 			liveness_score_not_acceptable: "errors.Liveness_score_not_acceptable",
 		};

@@ -500,6 +500,7 @@ describe("SmartLinkUiHelper", () => {
 			"multiple_faces_detected",
 			"face_close_to_border",
 			"face_too_far",
+			"image_too_large",
 			"liveness_unavailable",
 			"liveness_failed",
 			"face_mismatch",
