@@ -62,6 +62,7 @@ declare let dataLayer: any; // Declare the dataLayer for pushing events to GTM.
 })
 export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	@ViewChild("countrySearchInput") countrySearchInput: ElementRef<HTMLInputElement>;
+	@ViewChild("signUpFormEl") signUpFormEl?: ElementRef<HTMLFormElement>;
 
 	@Input("deviceDetails") deviceDetails: any;
 	@Input("hasSavedSession") hasSavedSession: boolean = false;
@@ -90,6 +91,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	roles: Array<any>;
 	saving: boolean = false;
 	showError: boolean = false;
+	submittedAttempt: boolean = false;
+	validationAnnouncement: string = "";
 	signUpForm: UntypedFormGroup;
 	signUpFormSettings: SmartEnrollProjectFlow["signUpForm"];
 	token: string;
@@ -124,7 +127,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes.project.currentValue) {
+		if (changes.project?.currentValue) {
 			const data = changes.project.currentValue;
 
 			try {
@@ -144,11 +147,12 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		}
 	}
 
+	get isVerifikProject(): boolean {
+		return this._passwordlessService.isVerifikProject;
+	}
+
 	get isFormDisabled(): boolean {
-		return (
-			this.saving ||
-			Boolean(this.signUpForm?.invalid || (this.signUpForm?.value.agreements !== undefined && !this.signUpForm?.value.agreements))
-		);
+		return this.saving;
 	}
 
 	/** Canonical Verifik legal docs (locale-aware). */
@@ -173,6 +177,12 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		return Boolean(this.signUpFormSettings?.showTermsAndConditions || this.project?.termsAndConditionsUrl);
 	}
 
+	hasFieldError(controlName: string): boolean {
+		const ctrl = this.signUpForm?.get(controlName);
+		if (!ctrl) return false;
+		return ctrl.invalid && (ctrl.touched || this.submittedAttempt);
+	}
+
 	static _dateOfBirthValidator = (control: AbstractControl) => {
 		if (!control.value) return null;
 
@@ -195,17 +205,11 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		const demoData = this._demoService.generateSignUpDemoData(this.location, this.roles);
 
 		this.fields = {};
+		this.submittedAttempt = false;
+		this.validationAnnouncement = "";
 
 		if (this._passwordlessService.isVerifikProject) {
 			this.fields["company"] = [demoData.company, Validators.required];
-			this.fields["role"] = [demoData.role, Validators.required];
-		}
-
-		if (this.signUpFormSettings?.fullNameStyle === "together") {
-			this.fields["fullName"] = [
-				demoData.fullName,
-				[Validators.required, Validators.minLength(2), Validators.maxLength(100), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
-			];
 		}
 
 		if (this.signUpFormSettings?.fullNameStyle === "separate") {
@@ -218,13 +222,18 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 				demoData.lastName,
 				[Validators.required, Validators.minLength(2), Validators.maxLength(40), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
 			];
+		} else if (this.signUpFormSettings?.fullNameStyle === "together" || this._passwordlessService.isVerifikProject) {
+			this.fields["fullName"] = [
+				demoData.fullName,
+				[Validators.required, Validators.minLength(2), Validators.maxLength(100), Validators.pattern("^[a-zA-ZÀ-ÖØ-öø-ÿ\\s]+$")],
+			];
 		}
 
-		if (this.signUpFormSettings?.email) {
+		if (this.signUpFormSettings?.email || this._passwordlessService.isVerifikProject) {
 			this.fields["email"] = [demoData.email, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]];
 		}
 
-		if (this.signUpFormSettings?.phone) {
+		if (this.signUpFormSettings?.phone || this._passwordlessService.isVerifikProject) {
 			const resolvedCountryCode =
 				this.signUpFormSettings?.countryCode || this.location?.countryCode || demoData.countryCode || DEFAULT_PHONE_COUNTRY_CODE;
 
@@ -250,7 +259,11 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 			this.fields["agreements"] = [false, [Validators.requiredTrue]];
 		}
 
-		if (this.signUpFormSettings?.allowAdditionalFields && Array.isArray(this.signUpFormSettings?.additionalFields)) {
+		if (
+			!this._passwordlessService.isVerifikProject &&
+			this.signUpFormSettings?.allowAdditionalFields &&
+			Array.isArray(this.signUpFormSettings?.additionalFields)
+		) {
 			for (const field of this.signUpFormSettings.additionalFields) {
 				switch (field) {
 					case "gender":
@@ -315,6 +328,9 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		this.signUpForm.valueChanges.pipe(takeUntil(this.unsubscriber$)).subscribe(() => {
 			this.showError = false;
 			this.alert = null;
+			if (this.signUpForm.valid) {
+				this.validationAnnouncement = "";
+			}
 		});
 	}
 
@@ -325,7 +341,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	removeSpacesFromEmail() {
 		const emailFormControl = this.signUpForm?.get("email");
 
-		if (!emailFormControl.value) return;
+		if (!emailFormControl?.value) return;
 
 		let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
 
@@ -337,10 +353,10 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 	}
 
 	removeSpacesFromPhone() {
-		const phoneFormControl = this.signUpForm.get("phone");
-		const countryCodeFormControl = this.signUpForm.get("countryCode");
+		const phoneFormControl = this.signUpForm?.get("phone");
+		const countryCodeFormControl = this.signUpForm?.get("countryCode");
 
-		if (!phoneFormControl.value) return;
+		if (!phoneFormControl?.value) return;
 
 		const cleanedPhone = phoneFormControl.value.replace(/\s/g, "").replace(/\D/g, "");
 
@@ -441,8 +457,36 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 		}, 0);
 	}
 
+	private _focusFirstInvalidField(): void {
+		setTimeout(() => {
+			const formEl = this.signUpFormEl?.nativeElement;
+			if (!formEl) return;
+			const firstInvalid = formEl.querySelector<HTMLElement>(
+				"input.ng-invalid, select.ng-invalid, textarea.ng-invalid, mat-select.ng-invalid"
+			);
+			firstInvalid?.focus();
+		}, 0);
+	}
+
 	signUp(): void {
-		if (!this.project || this.signUpForm.invalid) return null;
+		if (!this.project || !this.signUpForm || this.saving) return;
+
+		const agreementsCtrl = this.signUpForm.get("agreements");
+		const missingAgreements = Boolean(agreementsCtrl && !agreementsCtrl.value);
+
+		if (this.signUpForm.invalid || missingAgreements) {
+			this.signUpForm.markAllAsTouched();
+			this.submittedAttempt = true;
+			const baseMsg = this._translocoService.translate("signup.validationSummary");
+			this.validationAnnouncement = "";
+			this._changeDetectorRef.detectChanges();
+			this.validationAnnouncement =
+				baseMsg && baseMsg !== "signup.validationSummary"
+					? baseMsg
+					: "Please check the highlighted required fields before continuing.";
+			this._focusFirstInvalidField();
+			return;
+		}
 
 		this.saving = true;
 
@@ -462,11 +506,8 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 		this.signUpForm.disable();
 
-		// Use getRawValue() to get all values including disabled controls
-		// Or use the value we captured before disabling
 		const formValue = formValueBeforeDisable;
 
-		// Fix: Correct the typeof check and trim string values
 		Object.keys(formValue).forEach((key) => {
 			if (typeof formValue[key] !== "string") return;
 
@@ -478,11 +519,6 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 			formValue.phone = formValue.phone.replace(/\D/g, "");
 		}
 
-		// Handle fullName -> firstName/lastName conversion if needed
-		// The backend can handle both, but if fullName exists and backend expects separate fields,
-		// we should split it. However, the backend also converts 'name' to 'fullName' if needed.
-		// For now, we'll ensure both firstName and lastName are sent if they exist in the form
-		// Remove empty string values to avoid validation issues
 		const signUpData: any = {
 			project: this.project._id,
 			projectFlow: this.projectFlow._id,
@@ -498,27 +534,26 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 			}
 		});
 
+		if (this._passwordlessService.isVerifikProject) {
+			signUpData.role = "legal_representative";
+		}
+
 		// Add device information if available
 		if (this.deviceDetails) {
 			signUpData.deviceInformation = {
-				// Device capabilities
 				touchSupported: this.deviceDetails.touchSupported,
 				maxTouchPoints: this.deviceDetails.maxTouchPoints,
 				hardwareConcurrency: this.deviceDetails.hardwareConcurrency,
 				deviceMemory: this.deviceDetails.deviceMemory,
-				// Device type
 				isMobile: this.deviceDetails.isMobile,
 				isTablet: this.deviceDetails.isTablet,
 				isDesktop: this.deviceDetails.isDesktop,
-				// Operating system
 				operatingSystem: this.deviceDetails.operatingSystem,
-				// Screen information
 				screenResolution: this.deviceDetails.screenResolution,
 				screenAvailableResolution: this.deviceDetails.screenAvailableResolution,
 				colorDepth: this.deviceDetails.colorDepth,
 				pixelDepth: this.deviceDetails.pixelDepth,
 				devicePixelRatio: this.deviceDetails.devicePixelRatio,
-				// Window dimensions
 				innerWidth: this.deviceDetails.innerWidth,
 				innerHeight: this.deviceDetails.innerHeight,
 				outerWidth: this.deviceDetails.outerWidth,
@@ -526,28 +561,22 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 			};
 
 			signUpData.browserInformation = {
-				// Browser details
 				userAgent: this.deviceDetails.userAgent,
 				browserName: this.deviceDetails.browserName,
 				browserVersion: this.deviceDetails.browserVersion,
-				// Language settings
 				language: this.deviceDetails.language,
 				languages: this.deviceDetails.languages,
-				// Browser capabilities
 				cookiesEnabled: this.deviceDetails.cookiesEnabled,
 				javaEnabled: this.deviceDetails.javaEnabled,
 				onLine: this.deviceDetails.onLine,
 				onlineStatus: this.deviceDetails.onlineStatus,
 				geolocationSupported: this.deviceDetails.geolocationSupported,
-				// Network information
 				connectionEffectiveType: this.deviceDetails.connectionEffectiveType,
 				connectionDownlink: this.deviceDetails.connectionDownlink,
 				connectionRtt: this.deviceDetails.connectionRtt,
-				// User preferences
 				timezoneOffset: this.deviceDetails.timezoneOffset,
 				prefersDarkMode: this.deviceDetails.prefersDarkMode,
 				prefersReducedMotion: this.deviceDetails.prefersReducedMotion,
-				// User-Agent Client Hints (if available)
 				userAgentData: this.deviceDetails.userAgentData,
 			};
 		}
@@ -573,13 +602,6 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 				}
 
 				this.signUpForm.enable();
-				this.signUpForm.reset({
-					countryCode:
-						this.signUpFormSettings?.countryCode ||
-						this.location?.countryCode ||
-						DEFAULT_PHONE_COUNTRY_CODE,
-				});
-
 				this._handleSignUpError(exception);
 			},
 		});

@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+	AfterViewChecked,
+	AfterViewInit,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	OnDestroy,
+	OnInit,
+	ViewChild,
+} from "@angular/core";
 import { TranslocoModule } from "@ngneat/transloco";
 import QRCode from "qrcode";
 
@@ -13,25 +22,33 @@ import { CompanyRepresentative } from "../verify-business.types";
 	templateUrl: "./business-rep-kyc-modal.component.html",
 	styleUrls: ["./business-rep-kyc-modal.component.scss"],
 })
-export class BusinessRepKycModalComponent implements OnInit, AfterViewChecked, OnDestroy {
+export class BusinessRepKycModalComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
+	@ViewChild("kycDialog") kycDialog?: ElementRef<HTMLDialogElement>;
 	@ViewChild("qrCanvas") qrCanvas?: ElementRef<HTMLCanvasElement>;
 
 	activeTab: "inline" | "qr" | "sms" = "qr";
 	linkCopied = false;
 	inviteSent = false;
-	sendingChannel: "email" | "phone" | null = null;
-	lastSentChannel: "email" | "phone" | null = null;
+	sendingChannel: "email" | "sms" | null = null;
+	lastSentChannel: "email" | "sms" | null = null;
 	private _renderedQrUrl = "";
 	private _renderedQrCanvas: HTMLCanvasElement | null = null;
 
 	constructor(
 		public session: VerifyBusinessSessionService,
-		private _cdr: ChangeDetectorRef
+		private _cdr: ChangeDetectorRef,
 	) {}
 
 	ngOnInit(): void {
 		if (this.session.activeRepForKyc) {
 			this.session.startPollingRepKyc();
+		}
+	}
+
+	ngAfterViewInit(): void {
+		const dialog = this.kycDialog?.nativeElement;
+		if (dialog && !dialog.open && typeof dialog.showModal === "function") {
+			dialog.showModal();
 		}
 	}
 
@@ -55,6 +72,10 @@ export class BusinessRepKycModalComponent implements OnInit, AfterViewChecked, O
 	}
 
 	ngOnDestroy(): void {
+		const dialog = this.kycDialog?.nativeElement;
+		if (dialog?.open) {
+			dialog.close();
+		}
 		this.session.stopPolling();
 	}
 
@@ -79,7 +100,7 @@ export class BusinessRepKycModalComponent implements OnInit, AfterViewChecked, O
 		});
 	}
 
-	sendInvite(channel: "email" | "phone"): void {
+	sendInvite(channel: "email" | "sms"): void {
 		if (!this.rep || this.sendingChannel) return;
 		this.sendingChannel = channel;
 		this.inviteSent = false;
@@ -111,7 +132,23 @@ export class BusinessRepKycModalComponent implements OnInit, AfterViewChecked, O
 		window.open(this.repKycUrl, "_blank", "width=480,height=720");
 	}
 
+	onDialogCancel(_event: Event): void {
+		// Native Esc closes the dialog and fires 'close'; state syncs in onDialogClose
+	}
+
+	onDialogClose(): void {
+		if (this.session.kycModalOpen) {
+			this.session.closeKycModal();
+		}
+	}
+
 	close(): void {
-		this.session.closeKycModal();
+		const dialog = this.kycDialog?.nativeElement;
+		if (dialog?.open) {
+			dialog.close();
+		}
+		if (this.session.kycModalOpen) {
+			this.session.closeKycModal();
+		}
 	}
 }

@@ -1,4 +1,4 @@
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 import { VerifyBusinessSessionService } from "./verify-business-session.service";
 import { CompanyProfile, CompanyRepresentative, CorporateDocument } from "./verify-business.types";
 import { resolveVerifyStyle } from "../verify/verify-style";
@@ -11,6 +11,8 @@ describe("VerifyBusinessSessionService", () => {
 	let mockTransloco: any;
 
 	beforeEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
 		mockHttp = {
 			get: () => of({ success: true, data: {} }),
 			post: () => of({ success: true, data: {} }),
@@ -38,6 +40,8 @@ describe("VerifyBusinessSessionService", () => {
 
 	afterEach(() => {
 		service.ngOnDestroy();
+		localStorage.clear();
+		sessionStorage.clear();
 	});
 
 	describe("1. Initial State & Defaults", () => {
@@ -226,6 +230,247 @@ describe("VerifyBusinessSessionService", () => {
 		it("prioritizes preview style override over saved project verifyStyle", () => {
 			expect(resolveVerifyStyle("f", "a", "v2")).toBe("f");
 			expect(resolveVerifyStyle("d", "b", "v2")).toBe("d");
+		});
+	});
+
+	describe("8. P0-1 Session Hygiene & Fail-Closed Resumption", () => {
+		const projectId = "proj-123";
+		const storageKey = `verifik_business_token_${projectId}`;
+
+		it("fails closed to error screen on explicit query token 401/404 without creating an anonymous session", () => {
+			localStorage.setItem(storageKey, "stale-stored-token");
+			sessionStorage.setItem(storageKey, "stale-stored-token");
+
+			const postSpy = jasmine.createSpy("post").and.returnValue(of({ success: true, data: {} }));
+			mockHttp.post = postSpy;
+			mockHttp.get = jasmine
+				.createSpy("get")
+				.and.returnValue(throwError(() => ({ status: 401, error: { message: "Expired KYB link" } })));
+
+			service.open(projectId, "explicit-expired-token");
+
+			expect(mockHttp.get).toHaveBeenCalledWith(`${service.apiUrl}/v2/business-registrations/session/explicit-expired-token`);
+			expect(postSpy).not.toHaveBeenCalled();
+			expect(service.screen).toBe("error");
+			expect(service.error).toBe("Expired KYB link");
+			expect(service.token).toBeNull();
+			expect(service.registrationId).toBe("");
+			expect(service.showHeader).toBe(false);
+			expect(localStorage.getItem(storageKey)).toBeNull();
+			expect(sessionStorage.getItem(storageKey)).toBeNull();
+		});
+
+		it("uses default fallback error message on explicit query token 404 without backend message", () => {
+			mockHttp.post = jasmine.createSpy("post");
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(throwError(() => ({ status: 404 })));
+
+			service.open(projectId, "missing-token");
+
+			expect(mockHttp.post).not.toHaveBeenCalled();
+			expect(service.screen).toBe("error");
+			expect(service.error).toBe(
+				"Your verification session expired or is invalid. Please launch verification again from your account."
+			);
+			expect(service.token).toBeNull();
+		});
+
+		it("clears stale localStorage token on resume error and creates a new isolated session with forceNew: true", () => {
+			localStorage.setItem(storageKey, "stale-local-token");
+			sessionStorage.setItem(storageKey, "stale-local-token");
+
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(throwError(() => ({ status: 404 })));
+			mockHttp.post = jasmine.createSpy("post").and.returnValue(
+				of({
+					success: true,
+					data: {
+						_id: "new-reg-1",
+						token: "new-session-token",
+						currentStep: "company",
+						status: "IN_PROGRESS",
+					},
+				})
+			);
+
+			service.open(projectId);
+
+			expect(mockHttp.get).toHaveBeenCalledWith(`${service.apiUrl}/v2/business-registrations/session/stale-local-token`);
+			expect(mockHttp.post).toHaveBeenCalledWith(`${service.apiUrl}/v2/business-registrations`, {
+				projectId,
+				projectFlowId: service.projectFlow?._id,
+				forceNew: true,
+			});
+			expect(service.screen).toBe("company");
+			expect(service.token).toBe("new-session-token");
+			expect(service.registrationId).toBe("new-reg-1");
+			expect(localStorage.getItem(storageKey)).toBe("new-session-token");
+		});
+
+		it("starts a fresh isolated session with forceNew: true when no query or stored token exists", () => {
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(of({ success: true, data: {} }));
+			mockHttp.post = jasmine.createSpy("post").and.returnValue(
+				of({
+					success: true,
+					data: {
+						_id: "fresh-reg-1",
+						token: "fresh-token-1",
+						currentStep: "company",
+						status: "PENDING",
+					},
+				})
+			);
+
+			service.open(projectId);
+
+			expect(mockHttp.get).not.toHaveBeenCalledWith(jasmine.stringMatching(/\/session\//));
+			expect(mockHttp.post).toHaveBeenCalledWith(`${service.apiUrl}/v2/business-registrations`, {
+				projectId,
+				projectFlowId: service.projectFlow?._id,
+				forceNew: true,
+			});
+			expect(service.screen).toBe("company");
+			expect(service.token).toBe("fresh-token-1");
+		});
+
+		it("discards stale localStorage token pointing to a finished session and starts a fresh session with forceNew: true", () => {
+			localStorage.setItem(storageKey, "completed-local-token");
+			sessionStorage.setItem(storageKey, "completed-local-token");
+
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(
+				of({
+					success: true,
+					data: {
+						_id: "old-completed-reg",
+						token: "completed-local-token",
+						status: "COMPLETED",
+						currentStep: "submitted",
+						companyInfo: { legalName: "Old Corp", taxId: "900111222", email: "old@corp.co" },
+					},
+				})
+			);
+			mockHttp.post = jasmine.createSpy("post").and.returnValue(
+				of({
+					success: true,
+					data: {
+						_id: "fresh-reg-2",
+						token: "fresh-token-2",
+						currentStep: "company",
+						status: "PENDING",
+					},
+				})
+			);
+
+			service.open(projectId);
+
+			expect(mockHttp.post).toHaveBeenCalledWith(`${service.apiUrl}/v2/business-registrations`, {
+				projectId,
+				projectFlowId: service.projectFlow?._id,
+				forceNew: true,
+			});
+			expect(service.screen).toBe("company");
+			expect(service.token).toBe("fresh-token-2");
+			expect(service.registrationId).toBe("fresh-reg-2");
+			expect(service.company.legalName).toBe("");
+			expect(localStorage.getItem(storageKey)).toBe("fresh-token-2");
+		});
+
+		it("applies dossier and transitions to submitted when explicit query token points to a COMPLETED session", () => {
+			mockHttp.post = jasmine.createSpy("post");
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(
+				of({
+					success: true,
+					data: {
+						_id: "completed-reg-1",
+						token: "explicit-completed-token",
+						status: "COMPLETED",
+						currentStep: "submitted",
+						companyInfo: { legalName: "Completed Corp", taxId: "900999888", email: "done@corp.co" },
+					},
+				})
+			);
+
+			service.open(projectId, "explicit-completed-token");
+
+			expect(mockHttp.post).not.toHaveBeenCalled();
+			expect(service.screen).toBe("submitted");
+			expect(service.registrationId).toBe("completed-reg-1");
+			expect(service.company.legalName).toBe("Completed Corp");
+			expect(service.token).toBe("explicit-completed-token");
+		});
+	});
+
+	describe("9. Phase 2 Flow Policy, Document Notes & Progressive Tiers", () => {
+		it("loads flowConfig and updates flowPolicy and apiDocumentSlots", () => {
+			service.projectId = "proj-kyb-1";
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(
+				of({
+					success: true,
+					data: {
+						flowPolicy: {
+							collectOwnershipPercentage: false,
+							collectUboDeclaration: false,
+							collectUseCase: true,
+							allowPartialSubmissionWithNotes: true,
+						},
+						documentSlots: [
+							{ category: "business_document", documentType: "CERT_INC_WORLD", required: true },
+						],
+					},
+				}),
+			);
+
+			service.loadFlowConfig("WORLD");
+
+			expect(mockHttp.get).toHaveBeenCalledWith(
+				`${service.apiUrl}/v2/business-registrations/flow-config/proj-kyb-1?country=WORLD`,
+			);
+			expect(service.flowPolicy.collectOwnershipPercentage).toBe(false);
+			expect(service.flowPolicy.collectUboDeclaration).toBe(false);
+			expect(service.flowPolicy.collectUseCase).toBe(true);
+			expect(service.flowPolicy.allowPartialSubmissionWithNotes).toBe(true);
+			expect(service.apiDocumentSlots.length).toBe(1);
+		});
+
+		it("saves document notes via PATCH /document-notes", () => {
+			service.registrationId = "reg-notes-1";
+			service.token = "tok-notes-1";
+			mockHttp.patch = jasmine.createSpy("patch").and.returnValue(of({ success: true, data: {} }));
+
+			const notes = [
+				{
+					category: "tax_document",
+					documentType: "TAX_CERT_WORLD",
+					reason: "held_by_legal_finance",
+					note: "Pending CFO signature",
+				},
+			];
+
+			service.saveDocumentNotes(notes, "Will upload Friday").subscribe((ok) => {
+				expect(ok).toBe(true);
+			});
+
+			expect(mockHttp.patch).toHaveBeenCalledWith(
+				`${service.apiUrl}/v2/business-registrations/reg-notes-1/document-notes`,
+				{ missingDocumentNotes: notes, submissionNotes: "Will upload Friday" },
+				jasmine.any(Object),
+			);
+			expect(service.missingDocumentNotes.length).toBe(1);
+			expect(service.submissionNotes).toBe("Will upload Friday");
+		});
+
+		it("handles 400 representative_kyc_required error on submitRegistration", () => {
+			service.registrationId = "reg-sub-1";
+			service.token = "tok-sub-1";
+			mockHttp.post = jasmine.createSpy("post").and.returnValue(
+				throwError(() => ({
+					status: 400,
+					error: { code: "representative_kyc_required", message: "representative_kyc_required" },
+				})),
+			);
+
+			service.submitRegistration().subscribe((ok) => {
+				expect(ok).toBe(false);
+				expect(service.error).toContain("KYC");
+			});
 		});
 	});
 });
