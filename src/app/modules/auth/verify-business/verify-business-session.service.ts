@@ -9,13 +9,16 @@ import { Project } from "app/core/classes/project.class";
 import { PasswordlessService } from "app/modules/auth/passwordless.service";
 import { environment } from "environments/environment";
 import {
-	BusinessRegistrationDossier,
+	BusinessFlowPolicy,
 	BusinessScreen,
 	BusinessStep,
 	CompanyProfile,
 	CompanyRepresentative,
 	CorporateDocument,
 	CorporateDocumentCategory,
+	DocumentSlotFromApi,
+	MissingDocumentNote,
+	RequestedDocument,
 } from "./verify-business.types";
 import {
 	calculateCheckDigit,
@@ -28,6 +31,19 @@ import {
 import { VerifyStyleId } from "../verify/verify-style";
 import { VerifikEmbedBridgeService } from "app/core/embed/verifik-embed-bridge.service";
 import { SmartLinkRuntimeService } from "../smart-link/smart-link-runtime.service";
+
+export const DEFAULT_BUSINESS_FLOW_POLICY: BusinessFlowPolicy = {
+	collectOwnershipPercentage: true,
+	collectUboDeclaration: true,
+	allowSelfAsRepresentative: true,
+	requireRepresentativeKyc: true,
+	minVerifiedRepresentatives: 1,
+	collectUseCase: false,
+	allowPartialSubmissionWithNotes: false,
+	enableProgressiveTiers: false,
+	tier1RequiresRepresentativeKyc: true,
+	tier2RequiresAllMandatoryDocs: true,
+};
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
 	legalName: "",
@@ -47,6 +63,9 @@ const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
 	phone: "",
 	industry: "",
 	website: "",
+	intendedUseCase: "",
+	expectedMonthlyVolume: "",
+	privacyPolicyUrl: "",
 };
 
 @Injectable()
@@ -65,6 +84,14 @@ export class VerifyBusinessSessionService implements OnDestroy {
 	token: string | null = null;
 	screen: BusinessScreen = "loading";
 	styleId: VerifyStyleId = "a";
+
+	flowPolicy: BusinessFlowPolicy = { ...DEFAULT_BUSINESS_FLOW_POLICY };
+	apiDocumentSlots: DocumentSlotFromApi[] = [];
+	missingDocumentNotes: MissingDocumentNote[] = [];
+	submissionNotes = "";
+	requestedDocuments: RequestedDocument[] = [];
+	dossierStatus = "ONGOING";
+	kybTier = "none";
 
 	company: CompanyProfile = { ...DEFAULT_COMPANY_PROFILE, address: { ...DEFAULT_COMPANY_PROFILE.address } };
 	documents: CorporateDocument[] = [];
@@ -155,6 +182,8 @@ export class VerifyBusinessSessionService implements OnDestroy {
 						return;
 					}
 
+					this.loadFlowConfig();
+
 					if (effectiveToken) {
 						this._resumeWithToken(effectiveToken, hasExplicitQueryToken);
 					} else {
@@ -166,6 +195,28 @@ export class VerifyBusinessSessionService implements OnDestroy {
 					this.screen = "error";
 					this.changed.next();
 				},
+			});
+	}
+
+	loadFlowConfig(country?: string): void {
+		if (!this.projectId) return;
+		const countryParam = encodeURIComponent(country || this.company.country || "Colombia");
+		this._http
+			.get<any>(`${this.apiUrl}/v2/business-registrations/flow-config/${this.projectId}?country=${countryParam}`)
+			.pipe(
+				takeUntil(this._destroy$),
+				catchError(() => of(null)),
+			)
+			.subscribe((res) => {
+				if (res?.success && res?.data) {
+					if (res.data.flowPolicy) {
+						this.flowPolicy = { ...DEFAULT_BUSINESS_FLOW_POLICY, ...res.data.flowPolicy };
+					}
+					if (Array.isArray(res.data.documentSlots)) {
+						this.apiDocumentSlots = res.data.documentSlots;
+					}
+					this.changed.next();
+				}
 			});
 	}
 
@@ -190,7 +241,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 					}
 					this.changed.next();
 				},
-				error: (err) => {
+				error: () => {
 					// Fallback to local new session if backend sandbox is offline
 					this.screen = "company";
 					this.changed.next();
@@ -265,6 +316,35 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			this.registrationId = dossier.registrationId || dossier._id || regDoc._id;
 		}
 
+		const incomingPolicy = regDoc?.flowPolicy || dossier.flowPolicy;
+		if (incomingPolicy && typeof incomingPolicy === "object") {
+			this.flowPolicy = { ...DEFAULT_BUSINESS_FLOW_POLICY, ...incomingPolicy };
+		}
+
+		const incomingSlots = dossier.documentSlots || regDoc?.documentSlots;
+		if (Array.isArray(incomingSlots)) {
+			this.apiDocumentSlots = incomingSlots;
+		}
+
+		if (regDoc?.status || dossier.status) {
+			this.dossierStatus = regDoc?.status || dossier.status;
+		}
+		if (regDoc?.kybTier || dossier.kybTier) {
+			this.kybTier = regDoc?.kybTier || dossier.kybTier;
+		}
+		const rawNotes = regDoc?.missingDocumentNotes ?? dossier.missingDocumentNotes;
+		if (Array.isArray(rawNotes)) {
+			this.missingDocumentNotes = rawNotes;
+		}
+		const rawSubmissionNotes = regDoc?.submissionNotes ?? dossier.submissionNotes;
+		if (typeof rawSubmissionNotes === "string") {
+			this.submissionNotes = rawSubmissionNotes;
+		}
+		const rawRequestedDocs = regDoc?.requestedDocuments ?? dossier.requestedDocuments;
+		if (Array.isArray(rawRequestedDocs)) {
+			this.requestedDocuments = rawRequestedDocs;
+		}
+
 		const info = regDoc?.businessDetails || regDoc?.companyInfo;
 		if (info && (info.legalName || info.taxId || info.email)) {
 			const addrObj = typeof info.address === "object" && info.address !== null ? info.address : null;
@@ -280,6 +360,9 @@ export class VerifyBusinessSessionService implements OnDestroy {
 				phone: info.phone || "",
 				industry: info.industry || info.economicActivityCode || "",
 				website: info.website || "",
+				intendedUseCase: info.intendedUseCase || "",
+				expectedMonthlyVolume: info.expectedMonthlyVolume || "",
+				privacyPolicyUrl: info.privacyPolicyUrl || "",
 				address: {
 					...DEFAULT_COMPANY_PROFILE.address,
 					street: addrObj?.street || info.addressLine1 || (typeof info.address === "string" ? info.address : "") || "",
@@ -306,7 +389,10 @@ export class VerifyBusinessSessionService implements OnDestroy {
 				filename: d.filename || d.fileName || "documento",
 				fileUrl: d.fileUrl || d.url,
 				mimeType: d.mimeType || "application/pdf",
-				status: d.status === "APPROVED" ? "verified" : d.status || "uploaded",
+				status: d.status || "uploaded",
+				rejectionReason: d.rejectionReason,
+				version: d.version,
+				supersededAt: d.supersededAt,
 				ocrData: d.ocrData,
 				uploadedAt: d.uploadedAt,
 			}));
@@ -352,6 +438,7 @@ export class VerifyBusinessSessionService implements OnDestroy {
 
 		if (!this.registrationId) {
 			this.busy = false;
+			this.loadFlowConfig(this.company.country);
 			this.goTo("documents");
 			return of(true);
 		}
@@ -373,6 +460,9 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			phone: this.company.phone || "",
 			website: this.company.website || "",
 			economicActivityCode: this.company.industry || "",
+			intendedUseCase: this.company.intendedUseCase || "",
+			expectedMonthlyVolume: this.company.expectedMonthlyVolume || "",
+			privacyPolicyUrl: this.company.privacyPolicyUrl || "",
 		};
 
 		return this._http
@@ -383,12 +473,52 @@ export class VerifyBusinessSessionService implements OnDestroy {
 					if (res?.success && res?.data) {
 						this._applyDossier(res.data);
 					}
+					this.loadFlowConfig(this.company.country);
 					this.goTo("documents");
 					return true;
 				}),
 				catchError((err) => {
 					this.busy = false;
 					this.error = err?.error?.message || "Error al guardar el perfil de la compañía";
+					this.changed.next();
+					return of(false);
+				}),
+			);
+	}
+
+	saveDocumentNotes(missingDocumentNotes: MissingDocumentNote[], submissionNotes: string): Observable<boolean> {
+		this.missingDocumentNotes = [...missingDocumentNotes];
+		this.submissionNotes = submissionNotes || "";
+
+		if (!this.registrationId) {
+			this.changed.next();
+			return of(true);
+		}
+
+		this.busy = true;
+		this.error = null;
+
+		return this._http
+			.patch<any>(
+				`${this.apiUrl}/v2/business-registrations/${this.registrationId}/document-notes`,
+				{
+					missingDocumentNotes: this.missingDocumentNotes,
+					submissionNotes: this.submissionNotes,
+				},
+				{ headers: this._getAuthHeaders() },
+			)
+			.pipe(
+				map((res) => {
+					this.busy = false;
+					if (res?.success && res?.data) {
+						this._applyDossier(res.data);
+					}
+					this.changed.next();
+					return true;
+				}),
+				catchError((err) => {
+					this.busy = false;
+					this.error = err?.error?.message || "Error al guardar las notas de documentos";
 					this.changed.next();
 					return of(false);
 				}),
@@ -438,6 +568,31 @@ export class VerifyBusinessSessionService implements OnDestroy {
 				map((res) => {
 					this.busy = false;
 					if (res?.success && res?.data) {
+						if (res.data.businessRegistration) {
+							this._applyDossier(res.data.businessRegistration);
+							const docPayload = res.data.document;
+							const matched = docPayload?._id
+								? this.documents.find((d) => d._id === docPayload._id)
+								: this.documents[this.documents.length - 1];
+							this.changed.next();
+							return (
+								matched || {
+									_id: docPayload?._id || "doc_" + Date.now(),
+									category: docPayload?.category || category,
+									documentType: docPayload?.documentType || meta?.documentType,
+									documentTypeName: docPayload?.documentTypeName || meta?.documentTypeName,
+									promptTemplateId: docPayload?.promptTemplate || meta?.promptTemplateId,
+									filename: docPayload?.filename || docPayload?.fileName || file.name,
+									fileUrl: docPayload?.fileUrl || docPayload?.url,
+									mimeType: docPayload?.mimeType || file.type,
+									size: file.size,
+									status: docPayload?.status || "uploaded",
+									ocrData: docPayload?.ocrData,
+									uploadedAt: new Date().toISOString(),
+								}
+							);
+						}
+
 						const docPayload = res.data.document || res.data;
 						const newDoc: CorporateDocument = {
 							_id: docPayload._id || "doc_" + Date.now(),
@@ -449,7 +604,10 @@ export class VerifyBusinessSessionService implements OnDestroy {
 							fileUrl: docPayload.fileUrl || docPayload.url,
 							mimeType: docPayload.mimeType || file.type,
 							size: file.size,
-							status: "uploaded",
+							status: docPayload.status || "uploaded",
+							rejectionReason: docPayload.rejectionReason,
+							version: docPayload.version,
+							supersededAt: docPayload.supersededAt,
 							ocrData: docPayload.ocrData,
 							uploadedAt: new Date().toISOString(),
 						};
@@ -547,7 +705,10 @@ export class VerifyBusinessSessionService implements OnDestroy {
 		this.changed.next();
 	}
 
-	dispatchRepInvite(rep: CompanyRepresentative, channel: "email" | "phone" = "email"): Observable<boolean> {
+	dispatchRepInvite(
+		rep: CompanyRepresentative,
+		channel: "email" | "sms" | "whatsapp" | "both" = "email",
+	): Observable<boolean> {
 		if (!this.registrationId || !rep._id) {
 			rep.inviteSentAt = new Date().toISOString();
 			this.changed.next();
@@ -638,6 +799,8 @@ export class VerifyBusinessSessionService implements OnDestroy {
 		const payload = {
 			legalAttestation: true,
 			signatureDate: new Date().toISOString(),
+			missingDocumentNotes: this.missingDocumentNotes,
+			submissionNotes: this.submissionNotes,
 		};
 
 		if (!this.registrationId) {
@@ -674,7 +837,15 @@ export class VerifyBusinessSessionService implements OnDestroy {
 				}),
 				catchError((err) => {
 					this.busy = false;
-					this.error = err?.error?.message || "Error al completar la verificación empresarial";
+					const errCode = String(err?.error?.code || err?.error?.error || "");
+					const errMsg = String(err?.error?.message || "");
+					if (err?.status === 400 && (errCode === "representative_kyc_required" || errMsg.includes("representative_kyc_required"))) {
+						this.error =
+							this._transloco.translate("verifyBusiness.errRepresentativeKycRequired") ||
+							"At least one legal representative must complete identity verification (KYC) before submitting.";
+					} else {
+						this.error = errMsg || "Error al completar la verificación empresarial";
+					}
 					this.changed.next();
 					return of(false);
 				}),
@@ -800,9 +971,13 @@ export class VerifyBusinessSessionService implements OnDestroy {
 			case "company":
 				return canProceedFromCompany(this.company);
 			case "documents":
-				return canProceedFromDocuments(this.documents);
+				return canProceedFromDocuments(this.documents, undefined, {
+					allowPartialSubmissionWithNotes: this.flowPolicy.allowPartialSubmissionWithNotes,
+				});
 			case "representatives":
-				return canProceedFromRepresentatives(this.representatives);
+				return canProceedFromRepresentatives(this.representatives, {
+					collectOwnershipPercentage: this.flowPolicy.collectOwnershipPercentage,
+				});
 			case "review":
 				return canSubmitReview(this.legalAttestation);
 			default:

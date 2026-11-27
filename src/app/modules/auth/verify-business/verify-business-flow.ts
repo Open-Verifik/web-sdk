@@ -1,4 +1,12 @@
-import { BusinessScreen, BusinessStep, CompanyProfile, CorporateDocument, CompanyRepresentative, CountryJurisdiction } from "./verify-business.types";
+import {
+	BusinessFlowPolicy,
+	BusinessScreen,
+	BusinessStep,
+	CompanyProfile,
+	CompanyRepresentative,
+	CorporateDocument,
+	CountryJurisdiction,
+} from "./verify-business.types";
 
 /**
  * Colombian official tax ID Modulus 11 check digit weights.
@@ -195,6 +203,20 @@ export const COUNTRY_JURISDICTIONS: CountryJurisdiction[] = [
 			{ value: "OTHER", label: "Other Entity Type" },
 		],
 	},
+	{
+		code: "WORLD",
+		name: "International / Other Country",
+		countryKey: "World",
+		taxIdLabel: "Tax Identification Number (TIN / VAT)",
+		taxIdMask: "TIN / VAT / Reg. No.",
+		hasCheckDigit: false,
+		entityTypes: [
+			{ value: "CORP", label: "Corporation (Corp. / Inc.)" },
+			{ value: "LLC", label: "Limited Liability Company (LLC)" },
+			{ value: "LTD", label: "Private Limited Company (Ltd.)" },
+			{ value: "OTHER", label: "Other Legal Entity" },
+		],
+	},
 ];
 
 export const STEP_ORDER: BusinessStep[] = ["company", "documents", "representatives", "review", "submitted"];
@@ -262,40 +284,81 @@ export function canProceedFromCompany(profile: Partial<CompanyProfile>): boolean
 	return legalNameOk && taxIdOk && countryOk && entityTypeOk && emailOk && phoneOk && streetOk && cityOk;
 }
 
+function isActiveValidDoc(doc: CorporateDocument): boolean {
+	const status = String(doc.status || "").toUpperCase();
+	return status !== "REJECTED" && !doc.supersededAt;
+}
+
 /**
  * Validates Step 2: Corporate Document Collection.
- * Requires at least a business existence certificate and a tax document.
+ * Requires at least a business existence certificate and a tax document unless partial submission with notes is enabled.
  */
 export function canProceedFromDocuments(
 	docs: CorporateDocument[],
 	requiredSlots?: Array<{ category: string; documentType?: string; required: boolean }>,
+	options?: { allowPartialSubmissionWithNotes?: boolean },
 ): boolean {
+	if (options?.allowPartialSubmissionWithNotes) {
+		return true;
+	}
 	if (!Array.isArray(docs) || docs.length === 0) return false;
+	const activeDocs = docs.filter(isActiveValidDoc);
+	if (activeDocs.length === 0) return false;
+
 	if (Array.isArray(requiredSlots) && requiredSlots.length > 0) {
 		const mandatory = requiredSlots.filter((s) => s.required);
-		if (mandatory.length === 0) return docs.some((d) => d.status !== "rejected");
+		if (mandatory.length === 0) return activeDocs.length > 0;
 		return mandatory.every((slot) =>
-			docs.some(
-				(d) =>
-					d.status !== "rejected" &&
-					(slot.documentType ? d.documentType === slot.documentType || d.category === slot.category : d.category === slot.category),
+			activeDocs.some((d) =>
+				slot.documentType
+					? d.documentType === slot.documentType || d.category === slot.category
+					: d.category === slot.category,
 			),
 		);
 	}
-	const hasBusinessDoc = docs.some((d) => d.category === "business_document" && d.status !== "rejected");
-	const hasTaxDoc = docs.some((d) => d.category === "tax_document" && d.status !== "rejected");
+	const hasBusinessDoc = activeDocs.some((d) => d.category === "business_document");
+	const hasTaxDoc = activeDocs.some((d) => d.category === "tax_document");
 	return hasBusinessDoc && hasTaxDoc;
 }
 
 /**
  * Validates Step 3: Beneficial Ownership & Legal Representatives.
- * Requires at least 1 legal representative or beneficial owner, and total ownership <= 100%.
+ * Requires at least 1 valid representative, and total ownership <= 100% when ownership collection is enabled.
  */
-export function canProceedFromRepresentatives(reps: CompanyRepresentative[]): boolean {
+export function canProceedFromRepresentatives(
+	reps: CompanyRepresentative[],
+	options?: { collectOwnershipPercentage?: boolean },
+): boolean {
 	if (!Array.isArray(reps) || reps.length === 0) return false;
 	const hasRep = reps.some((r) => r.firstName?.trim() && r.lastName?.trim() && r.documentNumber?.trim() && r.role);
-	const totalOwnership = reps.reduce((sum, r) => sum + (Number(r.ownershipPercentage) || 0), 0);
-	return hasRep && totalOwnership <= 100;
+	if (!hasRep) return false;
+	if (options?.collectOwnershipPercentage !== false) {
+		const totalOwnership = reps.reduce((sum, r) => sum + (Number(r.ownershipPercentage) || 0), 0);
+		return totalOwnership <= 100;
+	}
+	return true;
+}
+
+/**
+ * Counts how many representatives have completed biometric KYC.
+ */
+export function countVerifiedRepresentatives(reps: CompanyRepresentative[]): number {
+	if (!Array.isArray(reps)) return 0;
+	return reps.filter((r) => r.kycStatus === "COMPLETED").length;
+}
+
+/**
+ * Checks whether the minimum number of representatives required by the flow policy have completed KYC.
+ */
+export function hasRequiredVerifiedRepresentative(
+	reps: CompanyRepresentative[],
+	policy?: Partial<BusinessFlowPolicy>,
+): boolean {
+	if (policy && policy.requireRepresentativeKyc === false && !(policy.enableProgressiveTiers && policy.tier1RequiresRepresentativeKyc)) {
+		return true;
+	}
+	const minRequired = policy?.minVerifiedRepresentatives ?? 1;
+	return countVerifiedRepresentatives(reps) >= minRequired;
 }
 
 /**
@@ -309,6 +372,7 @@ export function canSubmitReview(legalAttestation: boolean): boolean {
  * Resolves which screen to resume when a session is loaded from backend.
  */
 export function resolveResumeStep(currentStep?: string, status?: string): BusinessScreen {
+	if (String(status || "").toUpperCase() === "CHANGES_REQUESTED") return "documents";
 	if (isTerminalBusinessStatus(status)) return "submitted";
 	switch (currentStep) {
 		case "documents":

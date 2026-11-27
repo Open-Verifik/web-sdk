@@ -20,8 +20,9 @@ export type CorporateDocumentCategory =
 export type RepresentativeRole =
 	| "legal_representative"
 	| "beneficial_owner"
-	| "shareholder"
-	| "director";
+	| "director"
+	| "executive"
+	| "signatory";
 
 export type KycMemberStatus =
 	| "PENDING"
@@ -29,6 +30,52 @@ export type KycMemberStatus =
 	| "COMPLETED"
 	| "FAILED"
 	| "NEEDS_MANUAL_VERIFICATION";
+
+export interface BusinessFlowPolicy {
+	collectOwnershipPercentage: boolean;
+	collectUboDeclaration: boolean;
+	allowSelfAsRepresentative: boolean;
+	requireRepresentativeKyc: boolean;
+	minVerifiedRepresentatives: number;
+	collectUseCase: boolean;
+	allowPartialSubmissionWithNotes: boolean;
+	enableProgressiveTiers: boolean;
+	tier1RequiresRepresentativeKyc: boolean;
+	tier2RequiresAllMandatoryDocs: boolean;
+}
+
+export interface DocumentSlotFromApi {
+	slotKey?: string;
+	category: CorporateDocumentCategory;
+	documentType?: string;
+	promptTemplateId?: string;
+	title?: string;
+	titleKey?: string;
+	description?: string;
+	descriptionKey?: string;
+	required: boolean;
+	ocrFields?: string[];
+	icon?: "incorporation" | "tax" | "bank" | "file";
+	conditional?: boolean;
+	conditionKey?: string;
+}
+
+export interface MissingDocumentNote {
+	category: string;
+	documentType?: string;
+	reason: string;
+	note: string;
+	addedAt?: string;
+}
+
+export interface RequestedDocument {
+	_id?: string;
+	documentType: string;
+	category?: string;
+	reason?: string;
+	requestedAt?: string;
+	fulfilledAt?: string;
+}
 
 export interface CompanyAddress {
 	street: string;
@@ -50,6 +97,9 @@ export interface CompanyProfile {
 	phone: string;
 	industry?: string;
 	website?: string;
+	intendedUseCase?: string;
+	expectedMonthlyVolume?: string;
+	privacyPolicyUrl?: string;
 }
 
 export interface CorporateDocument {
@@ -62,7 +112,20 @@ export interface CorporateDocument {
 	fileUrl?: string;
 	mimeType: string;
 	size?: number;
-	status?: "pending" | "uploaded" | "validating" | "validated" | "rejected";
+	status?:
+		| "pending"
+		| "uploaded"
+		| "validating"
+		| "validated"
+		| "rejected"
+		| "verified"
+		| "PENDING"
+		| "APPROVED"
+		| "REJECTED"
+		| "NEEDS_MANUAL_REVIEW";
+	rejectionReason?: string;
+	version?: number;
+	supersededAt?: string;
 	ocrData?: Record<string, any>;
 	uploadedAt?: string;
 }
@@ -90,9 +153,15 @@ export interface BusinessRegistrationDossier {
 	projectFlowId: string;
 	status: string;
 	currentStep: string;
+	kybTier?: string;
 	businessDetails: CompanyProfile;
 	documents: CorporateDocument[];
 	representatives: CompanyRepresentative[];
+	missingDocumentNotes?: MissingDocumentNote[];
+	submissionNotes?: string;
+	requestedDocuments?: RequestedDocument[];
+	flowPolicy?: Partial<BusinessFlowPolicy>;
+	documentSlots?: DocumentSlotFromApi[];
 	legalAttestation?: boolean;
 	signatureDate?: string;
 	token?: string;

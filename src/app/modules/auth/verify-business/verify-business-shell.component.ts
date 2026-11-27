@@ -2,13 +2,14 @@ import { CommonModule } from "@angular/common";
 import {
 	ChangeDetectorRef,
 	Component,
+	ElementRef,
 	OnDestroy,
 	OnInit,
 	Optional,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { TranslocoModule } from "@ngneat/transloco";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
 import { Subject, combineLatest, takeUntil } from "rxjs";
 
 import { VerifyBusinessSessionService } from "./verify-business-session.service";
@@ -19,6 +20,7 @@ import { BusinessRepresentativesComponent } from "./components/business-represen
 import { BusinessRepKycModalComponent } from "./components/business-rep-kyc-modal.component";
 import { BusinessReviewSubmitComponent } from "./components/business-review-submit.component";
 import { STEP_SEGMENTS, StepSegment, stepIndex } from "./verify-business-flow";
+import { BusinessScreen } from "./verify-business.types";
 import {
 	DEFAULT_VERIFY_LOGO_METRICS,
 	parseVerifyStyle,
@@ -30,6 +32,8 @@ import {
 	VerifyStyleColorDefaults,
 	VerifyStyleId,
 } from "../verify/verify-style";
+
+const STEP_SCREEN_SET = new Set<BusinessScreen>(["company", "documents", "representatives", "review"]);
 
 @Component({
 	selector: "verify-business-shell",
@@ -52,9 +56,11 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 	styleId: VerifyStyleId = "a";
 	logoMetrics: VerifyLogoMetrics = { ...DEFAULT_VERIFY_LOGO_METRICS };
 	segments: StepSegment[] = STEP_SEGMENTS;
+	liveAnnouncement = "";
 
 	private _destroy$ = new Subject<void>();
 	private _preview: string | null = null;
+	private _lastScreen: BusinessScreen | null = null;
 	private _compactMql?: MediaQueryList;
 	private _onCompactChange = (event: MediaQueryListEvent): void => {
 		this.session.compact = event.matches;
@@ -64,8 +70,10 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 	constructor(
 		public session: VerifyBusinessSessionService,
 		private _cdr: ChangeDetectorRef,
+		private _el: ElementRef<HTMLElement>,
 		private _route: ActivatedRoute,
 		private _router: Router,
+		private _transloco: TranslocoService,
 		@Optional() private _smartLink?: SmartLinkRuntimeService
 	) {}
 
@@ -77,7 +85,14 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 
 		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => {
 			this._applyStyle();
+			const currentScreen = this.session.screen;
+			const screenChanged = this._lastScreen !== currentScreen;
+			this._lastScreen = currentScreen;
 			this._cdr.detectChanges();
+
+			if (screenChanged && STEP_SCREEN_SET.has(currentScreen)) {
+				this._focusActiveStepHeading();
+			}
 		});
 
 		combineLatest([this._route.paramMap, this._route.queryParamMap])
@@ -112,6 +127,35 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 		return stepIndex(this.session.screen);
 	}
 
+	getSegmentLabel(seg: StepSegment, t: (key: string) => string): string {
+		if (seg.id === "representatives" && !this.session.flowPolicy.collectUboDeclaration) {
+			return t("verifyBusiness.stepMembersRepOnly") || "Legal Representative";
+		}
+		return t(seg.labelKey) || seg.fallbackLabel;
+	}
+
+	private _focusActiveStepHeading(): void {
+		queueMicrotask(() => {
+			const heading = this._el.nativeElement.querySelector<HTMLElement>(".body h1[tabindex='-1']");
+			if (heading) {
+				heading.focus();
+				const titleText = heading.textContent?.trim();
+				if (titleText) {
+					const stepNum = this.progressAt + 1;
+					const stepPrefix = this._transloco.translate("verifyBusiness.stepProgressAnnouncement", {
+						current: stepNum,
+						total: this.segments.length,
+					});
+					this.liveAnnouncement =
+						stepPrefix && stepPrefix !== "verifyBusiness.stepProgressAnnouncement"
+							? `${stepPrefix}: ${titleText}`
+							: `${titleText}`;
+					this._cdr.detectChanges();
+				}
+			}
+		});
+	}
+
 	get bannerImage(): string {
 		const raw = this.session.rawBranding || {};
 		const img = typeof raw.image === "string" ? raw.image.trim() : "";
@@ -130,7 +174,6 @@ export class VerifyBusinessShellComponent implements OnInit, OnDestroy {
 	private _resolveCustomColor(field: keyof VerifyStyleColorDefaults): string | null {
 		if (this.session.previewStyle) return null;
 		const raw = this.session.rawBranding || {};
-		// Ignore legacy v2 projects that haven't saved v3 branding yet (empty backgroundColor)
 		if (!raw.backgroundColor || !String(raw.backgroundColor).trim()) return null;
 		const val = typeof raw[field] === "string" ? raw[field].trim() : "";
 		if (!val) return null;
