@@ -135,6 +135,46 @@
 	box-shadow: 0 0 0 2px rgba(28, 108, 255, 0.15);
 }
 
+.input:is(:user-invalid, .user-invalid-fallback) {
+	border-color: #dc2626;
+	background-color: rgba(239, 68, 68, 0.04);
+}
+
+.input:is(:user-invalid, .user-invalid-fallback):focus {
+	border-color: #dc2626;
+	box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.18);
+}
+
+.textarea-input {
+	height: auto;
+	min-height: 68px;
+	padding: 10px 14px;
+	resize: vertical;
+}
+
+.field-error {
+	font-size: 12px;
+	font-weight: 500;
+	color: #dc2626;
+	line-height: 1.35;
+}
+
+.title:focus {
+	outline: none;
+}
+
+.visually-hidden:where(:not(:focus-within, :active)) {
+	position: absolute !important;
+	clip-path: inset(50%) !important;
+	overflow: hidden !important;
+	width: 1px !important;
+	height: 1px !important;
+	margin: -1px !important;
+	padding: 0 !important;
+	border: 0 !important;
+	white-space: nowrap !important;
+}
+
 .select-wrap {
 	position: relative;
 	width: 100%;

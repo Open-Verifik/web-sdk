@@ -1,9 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { TranslocoModule } from "@ngneat/transloco";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { TranslocoModule, TranslocoService } from "@ngneat/transloco";
+import { Subject, takeUntil } from "rxjs";
 
 import { VerifyBusinessSessionService } from "../verify-business-session.service";
-import { CorporateDocument, CorporateDocumentCategory } from "../verify-business.types";
+import {
+	CorporateDocument,
+	CorporateDocumentCategory,
+	MissingDocumentNote,
+	RequestedDocument,
+} from "../verify-business.types";
 import { COUNTRY_JURISDICTIONS, canProceedFromDocuments } from "../verify-business-flow";
 
 export interface DocumentSlotConfig {
@@ -19,6 +26,19 @@ export interface DocumentSlotConfig {
 	ocrFields?: string[];
 	icon: "incorporation" | "tax" | "bank" | "file";
 }
+
+export const SIGNATORY_POA_SLOT: DocumentSlotConfig = {
+	slotKey: "SIGNATORY_POA",
+	category: "other",
+	documentType: "SIGNATORY_POA",
+	titleKey: "verifyBusiness.slotPoaTitle",
+	fallbackTitle: "Power of Attorney / Signatory Authorization",
+	descriptionKey: "verifyBusiness.slotPoaDesc",
+	fallbackDescription:
+		"Signed Power of Attorney or board resolution authorizing the signatory to act on behalf of the company.",
+	required: true,
+	icon: "file",
+};
 
 const COUNTRY_DEFAULT_SLOTS: Record<string, DocumentSlotConfig[]> = {
 	CO: [
@@ -136,16 +156,51 @@ const COUNTRY_DEFAULT_SLOTS: Record<string, DocumentSlotConfig[]> = {
 			icon: "bank",
 		},
 	],
+	WORLD: [
+		{
+			slotKey: "CERT_INC_WORLD",
+			category: "business_document",
+			documentType: "CERT_INC_WORLD",
+			titleKey: "verifyBusiness.slotBusinessWorldTitle",
+			fallbackTitle: "Certificate of Incorporation / Commercial Registry Extract",
+			descriptionKey: "verifyBusiness.slotBusinessWorldDesc",
+			fallbackDescription: "Official certificate of incorporation or good standing issued by the local corporate registry.",
+			required: true,
+			icon: "incorporation",
+		},
+		{
+			slotKey: "TAX_CERT_WORLD",
+			category: "tax_document",
+			documentType: "TAX_CERT_WORLD",
+			titleKey: "verifyBusiness.slotTaxWorldTitle",
+			fallbackTitle: "Tax Registration Certificate (TIN / VAT)",
+			descriptionKey: "verifyBusiness.slotTaxWorldDesc",
+			fallbackDescription: "Official tax authority registration certificate showing legal name and tax identification number.",
+			required: true,
+			icon: "tax",
+		},
+		{
+			slotKey: "BANK_LETTER_WORLD",
+			category: "bank_document",
+			documentType: "BANK_LETTER_WORLD",
+			titleKey: "verifyBusiness.slotBankTitle",
+			fallbackTitle: "Official Bank Account Certification",
+			descriptionKey: "verifyBusiness.slotBankDesc",
+			fallbackDescription: "Official bank letter or account certification issued in the company's name within the last 90 days.",
+			required: false,
+			icon: "bank",
+		},
+	],
 };
 
 @Component({
 	selector: "business-documents-upload",
 	standalone: true,
-	imports: [CommonModule, TranslocoModule],
+	imports: [CommonModule, FormsModule, TranslocoModule],
 	templateUrl: "./business-documents-upload.component.html",
 	styleUrls: ["./business-documents-upload.component.scss"],
 })
-export class BusinessDocumentsUploadComponent implements OnInit {
+export class BusinessDocumentsUploadComponent implements OnInit, OnDestroy {
 	@ViewChild("fileInput") fileInput?: ElementRef<HTMLInputElement>;
 
 	activeSlotForUpload: DocumentSlotConfig | null = null;
@@ -154,11 +209,50 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 	uploadProgress: Record<string, boolean> = {};
 
 	slots: DocumentSlotConfig[] = [...COUNTRY_DEFAULT_SLOTS["CO"]];
+	notListedOnRegistry = false;
+	expandedNoteSlots: Record<string, boolean> = {};
+	slotDraftReasons: Record<string, string> = {};
+	slotDraftNotes: Record<string, string> = {};
+	validationAnnouncement = "";
 
-	constructor(public session: VerifyBusinessSessionService) {}
+	readonly missingDocReasons = [
+		{ value: "held_by_legal_finance", labelKey: "verifyBusiness.reasonHeldByLegalFinance", fallback: "Held by Legal / Finance team" },
+		{ value: "pending_government_issuance", labelKey: "verifyBusiness.reasonPendingGov", fallback: "Pending government / registry issuance" },
+		{ value: "engineer_onboarding_first", labelKey: "verifyBusiness.reasonEngineerFirst", fallback: "Technical integration in progress first" },
+		{ value: "other", labelKey: "verifyBusiness.reasonOther", fallback: "Other reason" },
+	];
+
+	readonly signatoryPoaSlot: DocumentSlotConfig = SIGNATORY_POA_SLOT;
+	private _destroy$ = new Subject<void>();
+
+	constructor(
+		public session: VerifyBusinessSessionService,
+		private _el: ElementRef<HTMLElement>,
+		private _transloco: TranslocoService,
+	) {}
 
 	ngOnInit(): void {
+		this._syncDraftNotesFromSession();
 		this.rebuildSlotsForCountry();
+		this.session.changed.pipe(takeUntil(this._destroy$)).subscribe(() => {
+			this._syncDraftNotesFromSession();
+			this.rebuildSlotsForCountry();
+		});
+	}
+
+	ngOnDestroy(): void {
+		this._destroy$.next();
+		this._destroy$.complete();
+	}
+
+	private _syncDraftNotesFromSession(): void {
+		for (const note of this.session.missingDocumentNotes || []) {
+			const key = note.documentType || note.category;
+			if (!key) continue;
+			this.slotDraftReasons[key] = note.reason || "held_by_legal_finance";
+			this.slotDraftNotes[key] = note.note || "";
+			this.expandedNoteSlots[key] = true;
+		}
 	}
 
 	get currentCountryName(): string {
@@ -169,7 +263,65 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 		return found?.countryKey || found?.name || "Colombia";
 	}
 
+	get unfulfilledRequestedDocs(): RequestedDocument[] {
+		return (this.session.requestedDocuments || []).filter((d) => !d.fulfilledAt);
+	}
+
+	get rejectedActiveDocs(): CorporateDocument[] {
+		return (this.session.documents || []).filter(
+			(d) => !d.supersededAt && String(d.status || "").toUpperCase() === "REJECTED",
+		);
+	}
+
+	get showChangesRequestedBanner(): boolean {
+		return (
+			String(this.session.dossierStatus || "").toUpperCase() === "CHANGES_REQUESTED" ||
+			this.unfulfilledRequestedDocs.length > 0 ||
+			this.rejectedActiveDocs.length > 0
+		);
+	}
+
+	get showSignatoryPoaSlot(): boolean {
+		const alreadyInMainSlots = this.slots.some((s) => s.documentType === "SIGNATORY_POA");
+		if (alreadyInMainSlots) return false;
+		const hasPoaDoc = this.getDocumentsForSlot(this.signatoryPoaSlot).length > 0;
+		const requestedPoa = this.unfulfilledRequestedDocs.some((d) => d.documentType === "SIGNATORY_POA");
+		return this.notListedOnRegistry || hasPoaDoc || requestedPoa;
+	}
+
+	get effectiveRequiredSlots(): DocumentSlotConfig[] {
+		return this.showSignatoryPoaSlot ? [...this.slots, this.signatoryPoaSlot] : this.slots;
+	}
+
 	rebuildSlotsForCountry(): void {
+		const hideBankForTier = Boolean(this.session.flowPolicy?.enableProgressiveTiers);
+
+		if (Array.isArray(this.session.apiDocumentSlots) && this.session.apiDocumentSlots.length > 0) {
+			const mapped: DocumentSlotConfig[] = [];
+			for (const apiSlot of this.session.apiDocumentSlots) {
+				if (hideBankForTier && apiSlot.category === "bank_document") continue;
+				if (apiSlot.documentType === "SIGNATORY_POA" && apiSlot.conditional) continue;
+				mapped.push({
+					slotKey: apiSlot.slotKey || apiSlot.documentType || apiSlot.category,
+					category: apiSlot.category || "business_document",
+					documentType: apiSlot.documentType,
+					promptTemplateId: apiSlot.promptTemplateId,
+					titleKey: apiSlot.titleKey || "",
+					fallbackTitle: apiSlot.title || apiSlot.documentType || apiSlot.category,
+					descriptionKey: apiSlot.descriptionKey || "",
+					fallbackDescription: apiSlot.description || "",
+					required: Boolean(apiSlot.required),
+					ocrFields: apiSlot.ocrFields,
+					icon: apiSlot.icon || (apiSlot.category === "tax_document" ? "tax" : apiSlot.category === "bank_document" ? "bank" : "incorporation"),
+				});
+			}
+			if (mapped.length > 0) {
+				this.slots = mapped;
+				this._autoEnablePoaIfPresent();
+				return;
+			}
+		}
+
 		const rawCode = (this.session.company?.country || "CO").toUpperCase();
 		const foundJurisdiction = COUNTRY_JURISDICTIONS.find(
 			(j) => j.code.toUpperCase() === rawCode || j.countryKey?.toUpperCase() === rawCode || j.name.toUpperCase() === rawCode,
@@ -194,6 +346,7 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 			for (const cfg of countryBlock.configurations) {
 				if (!cfg?.active) continue;
 				const cat = (cfg.documentCategory || "business_document") as CorporateDocumentCategory;
+				if (hideBankForTier && cat === "bank_document") continue;
 				const templates = Array.isArray(cfg.documentTemplates) ? cfg.documentTemplates : [];
 
 				for (const entry of templates) {
@@ -230,39 +383,104 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 
 			if (dynamicSlots.length > 0) {
 				this.slots = dynamicSlots;
+				this._autoEnablePoaIfPresent();
 				return;
 			}
 		}
 
-		this.slots = [...(COUNTRY_DEFAULT_SLOTS[countryCode] || COUNTRY_DEFAULT_SLOTS["CO"])];
+		const fallback = COUNTRY_DEFAULT_SLOTS[countryCode] || COUNTRY_DEFAULT_SLOTS["WORLD"] || COUNTRY_DEFAULT_SLOTS["CO"];
+		this.slots = fallback.filter((s) => !(hideBankForTier && s.category === "bank_document"));
+		this._autoEnablePoaIfPresent();
+	}
+
+	private _autoEnablePoaIfPresent(): void {
+		const hasPoa = this.getDocumentsForSlot(this.signatoryPoaSlot).length > 0;
+		const requestedPoa = this.unfulfilledRequestedDocs.some((d) => d.documentType === "SIGNATORY_POA");
+		if (hasPoa || requestedPoa) {
+			this.notListedOnRegistry = true;
+		}
 	}
 
 	getDocumentsForSlot(slot: DocumentSlotConfig): CorporateDocument[] {
-		return this.session.documents.filter((d) =>
-			slot.documentType && d.documentType ? d.documentType === slot.documentType : d.category === slot.category,
-		);
+		return this.session.documents.filter((d) => {
+			if (d.supersededAt) return false;
+			return slot.documentType && d.documentType ? d.documentType === slot.documentType : d.category === slot.category;
+		});
 	}
 
 	getDocumentsForCategory(category: CorporateDocumentCategory): CorporateDocument[] {
-		return this.session.documents.filter((d) => d.category === category);
+		return this.session.documents.filter((d) => !d.supersededAt && d.category === category);
 	}
 
 	hasDocumentForSlot(slot: DocumentSlotConfig): boolean {
-		return this.getDocumentsForSlot(slot).length > 0;
+		return this.getDocumentsForSlot(slot).some((d) => String(d.status || "").toUpperCase() !== "REJECTED");
+	}
+
+	isDocRejected(doc: CorporateDocument): boolean {
+		return String(doc.status || "").toUpperCase() === "REJECTED";
+	}
+
+	isDocApproved(doc: CorporateDocument): boolean {
+		const st = String(doc.status || "").toUpperCase();
+		return st === "APPROVED" || st === "VALIDATED" || st === "VERIFIED";
 	}
 
 	hasDocumentForCategory(category: CorporateDocumentCategory): boolean {
-		return this.getDocumentsForCategory(category).length > 0;
+		return this.getDocumentsForCategory(category).some((d) => !this.isDocRejected(d));
+	}
+
+	slotNoteKey(slot: DocumentSlotConfig): string {
+		return slot.documentType || slot.category;
+	}
+
+	isNoteExpanded(slot: DocumentSlotConfig): boolean {
+		return Boolean(this.expandedNoteSlots[this.slotNoteKey(slot)]);
+	}
+
+	toggleSlotNote(slot: DocumentSlotConfig): void {
+		const key = this.slotNoteKey(slot);
+		const next = !this.expandedNoteSlots[key];
+		this.expandedNoteSlots[key] = next;
+		if (next) {
+			if (!this.slotDraftReasons[key]) {
+				this.slotDraftReasons[key] = "held_by_legal_finance";
+			}
+			this.syncSlotNoteToSession(slot);
+		} else {
+			this.session.missingDocumentNotes = this.session.missingDocumentNotes.filter(
+				(n) => (n.documentType || n.category) !== key,
+			);
+			delete this.slotDraftNotes[key];
+		}
+	}
+
+	syncSlotNoteToSession(slot: DocumentSlotConfig): void {
+		const key = this.slotNoteKey(slot);
+		const reason = this.slotDraftReasons[key] || "held_by_legal_finance";
+		const note = (this.slotDraftNotes[key] || "").trim();
+		const nextNotes: MissingDocumentNote[] = this.session.missingDocumentNotes.filter(
+			(n) => (n.documentType || n.category) !== key,
+		);
+		nextNotes.push({
+			category: slot.category,
+			documentType: slot.documentType,
+			reason,
+			note,
+			addedAt: new Date().toISOString(),
+		});
+		this.session.missingDocumentNotes = nextNotes;
 	}
 
 	canProceed(): boolean {
-		return canProceedFromDocuments(this.session.documents, this.slots);
+		return canProceedFromDocuments(this.session.documents, this.effectiveRequiredSlots, {
+			allowPartialSubmissionWithNotes: this.session.flowPolicy?.allowPartialSubmissionWithNotes,
+		});
 	}
 
 	triggerUpload(categoryOrSlot: CorporateDocumentCategory | DocumentSlotConfig): void {
 		if (typeof categoryOrSlot === "string") {
 			this.activeCategoryForUpload = categoryOrSlot;
-			this.activeSlotForUpload = this.slots.find((s) => s.category === categoryOrSlot) || null;
+			this.activeSlotForUpload = this.effectiveRequiredSlots.find((s) => s.category === categoryOrSlot) || null;
 		} else {
 			this.activeSlotForUpload = categoryOrSlot;
 			this.activeCategoryForUpload = categoryOrSlot.category;
@@ -300,7 +518,7 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 		const file = event.dataTransfer?.files?.[0];
 		if (file) {
 			if (typeof categoryOrSlot === "string") {
-				const slot = this.slots.find((s) => s.category === categoryOrSlot);
+				const slot = this.effectiveRequiredSlots.find((s) => s.category === categoryOrSlot);
 				this._processFile(file, categoryOrSlot, slot);
 			} else {
 				this._processFile(file, categoryOrSlot.category, categoryOrSlot);
@@ -310,7 +528,9 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 
 	private _processFile(file: File, category: CorporateDocumentCategory, slot?: DocumentSlotConfig): void {
 		if (file.size > 25 * 1024 * 1024) {
-			this.session.error = "El archivo seleccionado supera el límite máximo permitido de 25 MB.";
+			this.session.error =
+				this._transloco.translate("verifyBusiness.fileTooLargeError") ||
+				"El archivo seleccionado supera el límite máximo permitido de 25 MB.";
 			return;
 		}
 
@@ -357,7 +577,43 @@ export class BusinessDocumentsUploadComponent implements OnInit {
 	}
 
 	next(): void {
-		if (this.canProceed()) {
+		if (this.session.busy) return;
+		this.session.error = null;
+
+		if (!this.canProceed()) {
+			const msg =
+				this._transloco.translate("verifyBusiness.errMissingRequiredDocs") ||
+				"Please upload all required corporate documents before continuing.";
+			this.session.error = msg;
+			this.validationAnnouncement = "";
+			setTimeout(() => {
+				this.validationAnnouncement = msg;
+				const firstMissingSlot = this.effectiveRequiredSlots.find((s) => s.required && !this.hasDocumentForSlot(s));
+				if (firstMissingSlot) {
+					const trigger = this._el.nativeElement.querySelector<HTMLElement>(
+						`[data-slot-key="${firstMissingSlot.slotKey}"] .dropzone-trigger`,
+					);
+					trigger?.focus();
+				}
+			}, 0);
+			return;
+		}
+
+		this.validationAnnouncement = "";
+		const hasNotesToSave =
+			this.session.flowPolicy?.allowPartialSubmissionWithNotes ||
+			this.session.missingDocumentNotes.length > 0 ||
+			Boolean(this.session.submissionNotes?.trim());
+
+		if (hasNotesToSave) {
+			this.session
+				.saveDocumentNotes(this.session.missingDocumentNotes, this.session.submissionNotes)
+				.subscribe((ok) => {
+					if (ok) {
+						this.session.goTo("representatives");
+					}
+				});
+		} else {
 			this.session.goTo("representatives");
 		}
 	}
