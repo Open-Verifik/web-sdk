@@ -98,7 +98,10 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 				this._preview = query.get("style");
 				this.session.previewStyle = parseVerifyStyle(this._preview);
 				this.session.orderOverride = flowOrderFromQuery(query.get("order")) || null;
-				const rawToken = query.get("token") || undefined;
+				const redeemedToken =
+					typeof history !== "undefined" ? (history.state?.kybRedeemedToken as string | undefined) : undefined;
+				const queryToken = query.get("token");
+				const rawToken = redeemedToken || queryToken || undefined;
 				const reverifyParam = query.get("reverify");
 				const reverifyMode = reverifyParam === "1" || reverifyParam === "true";
 				const smartLinkCode = query.get("smartLink") || query.get("smartLinkSession");
@@ -140,14 +143,14 @@ export class VerifyShellComponent implements OnInit, AfterViewChecked, OnDestroy
 						fullName: prefillFullName,
 					},
 				});
-				if (typeof window !== "undefined" && window.history?.replaceState && (smartLinkToken || (reverifyMode && rawToken))) {
+				if (typeof window !== "undefined" && window.history?.replaceState && (smartLinkToken || (reverifyMode && queryToken))) {
 					const cleanParams = new URLSearchParams(window.location.search);
 					cleanParams.delete("smartLinkToken");
 					cleanParams.delete("t");
-					if (reverifyMode && rawToken) cleanParams.delete("token");
+					if (reverifyMode && queryToken) cleanParams.delete("token");
 					const qs = cleanParams.toString();
 					window.history.replaceState(
-						null,
+						window.history.state,
 						"",
 						`${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash || ""}`
 					);

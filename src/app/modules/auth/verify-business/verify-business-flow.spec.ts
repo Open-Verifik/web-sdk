@@ -7,6 +7,8 @@ import {
 	canProceedFromDocuments,
 	canProceedFromRepresentatives,
 	canSubmitReview,
+	countVerifiedRepresentatives,
+	hasRequiredVerifiedRepresentative,
 	isTerminalBusinessStatus,
 	isUBOByOwnership,
 	resolveResumeStep,
@@ -198,6 +200,19 @@ describe("verify-business-flow", () => {
 			];
 			expect(canProceedFromDocuments(docs)).toBe(false);
 		});
+
+		it("ignores REJECTED and superseded documents", () => {
+			const docs: CorporateDocument[] = [
+				{ ...mockDoc("business_document", "REJECTED", "camara_bad.pdf") },
+				{ ...mockDoc("business_document", "uploaded", "camara_old.pdf"), supersededAt: "2026-01-01T00:00:00Z" },
+				mockDoc("tax_document", "uploaded", "rut.pdf"),
+			];
+			expect(canProceedFromDocuments(docs)).toBe(false);
+		});
+
+		it("allows proceeding with empty or partial docs when allowPartialSubmissionWithNotes is true", () => {
+			expect(canProceedFromDocuments([], undefined, { allowPartialSubmissionWithNotes: true })).toBe(true);
+		});
 	});
 
 	describe("6. Step 3: Representatives and UBOs Validation", () => {
@@ -219,6 +234,24 @@ describe("verify-business-flow", () => {
 				mockRep({ firstName: "Lucia", lastName: "Torres", ownershipPercentage: 45 }),
 			];
 			expect(canProceedFromRepresentatives(reps)).toBe(false);
+		});
+
+		it("ignores total ownership when collectOwnershipPercentage is false", () => {
+			const reps = [
+				mockRep({ ownershipPercentage: 70 }),
+				mockRep({ firstName: "Lucia", lastName: "Torres", ownershipPercentage: 45 }),
+			];
+			expect(canProceedFromRepresentatives(reps, { collectOwnershipPercentage: false })).toBe(true);
+		});
+
+		it("counts verified representatives and checks policy requirements", () => {
+			const reps = [
+				mockRep({ kycStatus: "PENDING" }),
+				mockRep({ firstName: "Ana", kycStatus: "COMPLETED" }),
+			];
+			expect(countVerifiedRepresentatives(reps)).toBe(1);
+			expect(hasRequiredVerifiedRepresentative(reps, { requireRepresentativeKyc: true, minVerifiedRepresentatives: 1 })).toBe(true);
+			expect(hasRequiredVerifiedRepresentative(reps, { requireRepresentativeKyc: true, minVerifiedRepresentatives: 2 })).toBe(false);
 		});
 
 		it("rejects representatives with missing required personal info", () => {
@@ -245,6 +278,11 @@ describe("verify-business-flow", () => {
 			expect(resolveResumeStep("submitted")).toBe("submitted");
 		});
 
+		it("routes to documents when status is CHANGES_REQUESTED", () => {
+			expect(resolveResumeStep("review", "CHANGES_REQUESTED")).toBe("documents");
+			expect(resolveResumeStep("submitted", "changes_requested")).toBe("documents");
+		});
+
 		it("routes to submitted screen if dossier has reached a terminal status", () => {
 			expect(resolveResumeStep("company", "COMPLETED")).toBe("submitted");
 			expect(resolveResumeStep("documents", "NEEDS_MANUAL_VERIFICATION")).toBe("submitted");
@@ -263,7 +301,7 @@ describe("verify-business-flow", () => {
 	});
 
 	describe("9. Country Jurisdictions Configuration", () => {
-		it("contains Colombia, US, Mexico, Chile, Peru, and Brazil", () => {
+		it("contains Colombia, US, Mexico, Chile, Peru, Brazil, and WORLD", () => {
 			const codes = COUNTRY_JURISDICTIONS.map((j) => j.code);
 			expect(codes).toContain("CO");
 			expect(codes).toContain("US");
@@ -271,6 +309,7 @@ describe("verify-business-flow", () => {
 			expect(codes).toContain("CL");
 			expect(codes).toContain("PE");
 			expect(codes).toContain("BR");
+			expect(codes).toContain("WORLD");
 		});
 
 		it("configures SAS and SA for Colombia", () => {
