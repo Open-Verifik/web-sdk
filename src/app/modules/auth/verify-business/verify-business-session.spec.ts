@@ -306,7 +306,7 @@ describe("VerifyBusinessSessionService", () => {
 		});
 
 		it("starts a fresh isolated session with forceNew: true when no query or stored token exists", () => {
-			mockHttp.get = jasmine.createSpy("get");
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(of({ success: true, data: {} }));
 			mockHttp.post = jasmine.createSpy("post").and.returnValue(
 				of({
 					success: true,
@@ -321,7 +321,7 @@ describe("VerifyBusinessSessionService", () => {
 
 			service.open(projectId);
 
-			expect(mockHttp.get).not.toHaveBeenCalled();
+			expect(mockHttp.get).not.toHaveBeenCalledWith(jasmine.stringMatching(/\/session\//));
 			expect(mockHttp.post).toHaveBeenCalledWith(`${service.apiUrl}/v2/business-registrations`, {
 				projectId,
 				projectFlowId: service.projectFlow?._id,
@@ -395,6 +395,82 @@ describe("VerifyBusinessSessionService", () => {
 			expect(service.registrationId).toBe("completed-reg-1");
 			expect(service.company.legalName).toBe("Completed Corp");
 			expect(service.token).toBe("explicit-completed-token");
+		});
+	});
+
+	describe("9. Phase 2 Flow Policy, Document Notes & Progressive Tiers", () => {
+		it("loads flowConfig and updates flowPolicy and apiDocumentSlots", () => {
+			service.projectId = "proj-kyb-1";
+			mockHttp.get = jasmine.createSpy("get").and.returnValue(
+				of({
+					success: true,
+					data: {
+						flowPolicy: {
+							collectOwnershipPercentage: false,
+							collectUboDeclaration: false,
+							collectUseCase: true,
+							allowPartialSubmissionWithNotes: true,
+						},
+						documentSlots: [
+							{ category: "business_document", documentType: "CERT_INC_WORLD", required: true },
+						],
+					},
+				}),
+			);
+
+			service.loadFlowConfig("WORLD");
+
+			expect(mockHttp.get).toHaveBeenCalledWith(
+				`${service.apiUrl}/v2/business-registrations/flow-config/proj-kyb-1?country=WORLD`,
+			);
+			expect(service.flowPolicy.collectOwnershipPercentage).toBe(false);
+			expect(service.flowPolicy.collectUboDeclaration).toBe(false);
+			expect(service.flowPolicy.collectUseCase).toBe(true);
+			expect(service.flowPolicy.allowPartialSubmissionWithNotes).toBe(true);
+			expect(service.apiDocumentSlots.length).toBe(1);
+		});
+
+		it("saves document notes via PATCH /document-notes", () => {
+			service.registrationId = "reg-notes-1";
+			service.token = "tok-notes-1";
+			mockHttp.patch = jasmine.createSpy("patch").and.returnValue(of({ success: true, data: {} }));
+
+			const notes = [
+				{
+					category: "tax_document",
+					documentType: "TAX_CERT_WORLD",
+					reason: "held_by_legal_finance",
+					note: "Pending CFO signature",
+				},
+			];
+
+			service.saveDocumentNotes(notes, "Will upload Friday").subscribe((ok) => {
+				expect(ok).toBe(true);
+			});
+
+			expect(mockHttp.patch).toHaveBeenCalledWith(
+				`${service.apiUrl}/v2/business-registrations/reg-notes-1/document-notes`,
+				{ missingDocumentNotes: notes, submissionNotes: "Will upload Friday" },
+				jasmine.any(Object),
+			);
+			expect(service.missingDocumentNotes.length).toBe(1);
+			expect(service.submissionNotes).toBe("Will upload Friday");
+		});
+
+		it("handles 400 representative_kyc_required error on submitRegistration", () => {
+			service.registrationId = "reg-sub-1";
+			service.token = "tok-sub-1";
+			mockHttp.post = jasmine.createSpy("post").and.returnValue(
+				throwError(() => ({
+					status: 400,
+					error: { code: "representative_kyc_required", message: "representative_kyc_required" },
+				})),
+			);
+
+			service.submitRegistration().subscribe((ok) => {
+				expect(ok).toBe(false);
+				expect(service.error).toContain("KYC");
+			});
 		});
 	});
 });

@@ -1,31 +1,35 @@
 <ng-container *transloco="let t">
 	<div class="company-form-wrap">
+		<div class="visually-hidden" aria-live="polite" role="status">{{ validationAnnouncement }}</div>
+
 		<header class="section-head">
 			<span class="step-badge">{{ t("verifyBusiness.step1Badge") || "Paso 1 de 4" }}</span>
-			<h1 class="title">{{ t("verifyBusiness.companyTitle") || "Perfil de la Compañía" }}</h1>
+			<h1 class="title" tabindex="-1">{{ t("verifyBusiness.companyTitle") || "Perfil de la Compañía" }}</h1>
 			<p class="subtitle">
 				{{ t("verifyBusiness.companySubtitle") || "Ingrese los datos legales y fiscales de la entidad corporativa para iniciar la verificación oficial." }}
 			</p>
 		</header>
 
-		<div *ngIf="session.error" class="error-banner">
+		<div *ngIf="session.error" class="error-banner" role="alert">
 			<svg viewBox="0 0 24 24" aria-hidden="true" class="error-icon">
 				<path d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" fill="none" stroke="currentColor" stroke-width="2" />
 			</svg>
 			<span>{{ session.error }}</span>
 		</div>
 
-		<form class="form" (ngSubmit)="submit()">
+		<form #companyForm="ngForm" #companyFormEl class="form" (ngSubmit)="submit(companyForm)" novalidate>
 			<div class="field-group">
-				<label class="label">
+				<label class="label" for="company-jurisdiction">
 					<span class="label-text">{{ t("verifyBusiness.jurisdiction") || "País / Jurisdicción" }}</span>
 					<div class="select-wrap">
 						<select
+							id="company-jurisdiction"
 							class="input"
 							[ngModel]="currentJurisdiction.code"
-							(ngModelChange)="selectJurisdiction($event)"
+							(ngModelChange)="onJurisdictionChange($event)"
 							name="jurisdiction"
 							autocomplete="country"
+							[attr.aria-invalid]="isFieldInvalid(companyForm, 'jurisdiction') ? 'true' : 'false'"
 						>
 							<option *ngFor="let j of jurisdictions" [value]="j.code">
 								{{ j.name }} ({{ j.code }})
@@ -34,80 +38,107 @@
 					</div>
 				</label>
 
-				<label class="label">
+				<label class="label" for="company-entity-type">
 					<span class="label-text">{{ t("verifyBusiness.entityType") || "Tipo de Sociedad" }}</span>
 					<div class="select-wrap">
 						<select
+							id="company-entity-type"
 							class="input"
 							[(ngModel)]="session.company.entityType"
 							name="entityType"
 							required
+							[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'entityType')"
+							[attr.aria-invalid]="isFieldInvalid(companyForm, 'entityType') ? 'true' : 'false'"
+							[attr.aria-describedby]="isFieldInvalid(companyForm, 'entityType') ? 'entityType-error' : null"
 						>
 							<option *ngFor="let et of availableEntityTypes" [value]="et.value">
 								{{ et.label }}
 							</option>
 						</select>
 					</div>
+					<span id="entityType-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'entityType')">
+						{{ t("verifyBusiness.fieldRequired") || "This field is required." }}
+					</span>
 				</label>
 			</div>
 
 			<div class="field-row">
-				<label class="label">
+				<label class="label" for="company-legal-name">
 					<span class="label-text">{{ t("verifyBusiness.legalName") || "Razón Social" }}</span>
 					<input
+						id="company-legal-name"
 						type="text"
 						class="input"
 						[(ngModel)]="session.company.legalName"
 						name="legalName"
 						autocomplete="organization"
 						[placeholder]="t('verifyBusiness.legalNamePlaceholder')"
+						minlength="2"
 						required
+						[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'legalName')"
+						[attr.aria-invalid]="isFieldInvalid(companyForm, 'legalName') ? 'true' : 'false'"
+						[attr.aria-describedby]="isFieldInvalid(companyForm, 'legalName') ? 'legalName-error' : null"
 					/>
+					<span id="legalName-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'legalName')">
+						{{ t("verifyBusiness.errLegalName") || "Please enter the legal corporate name (min 2 characters)." }}
+					</span>
 				</label>
 
-				<label class="label">
+				<label class="label" for="company-commercial-name">
 					<span class="label-text">{{ t("verifyBusiness.commercialName") || "Nombre Comercial (DBA)" }}</span>
 					<input
+						id="company-commercial-name"
 						type="text"
 						class="input"
 						[(ngModel)]="session.company.commercialName"
 						name="commercialName"
 						[placeholder]="t('verifyBusiness.commercialNamePlaceholder')"
+						aria-invalid="false"
 					/>
 				</label>
 			</div>
 
 			<div class="field-row row-tax" [class.has-dv]="currentJurisdiction.hasCheckDigit">
-				<label class="label">
+				<label class="label" for="company-tax-id">
 					<span class="label-text">{{ currentJurisdiction.taxIdLabel }}</span>
 					<input
+						id="company-tax-id"
 						type="text"
 						class="input"
 						[(ngModel)]="session.company.taxId"
 						(ngModelChange)="onTaxIdChange()"
 						name="taxId"
 						autocorrect="off"
-						autocapitalize="off"
+						autocapitalize="none"
 						spellcheck="false"
+						minlength="4"
 						[placeholder]="currentJurisdiction.taxIdMask || t('verifyBusiness.taxIdPlaceholder')"
 						required
+						[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'taxId')"
+						[attr.aria-invalid]="isFieldInvalid(companyForm, 'taxId') ? 'true' : 'false'"
+						[attr.aria-describedby]="isFieldInvalid(companyForm, 'taxId') ? 'taxId-error' : null"
 					/>
+					<span id="taxId-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'taxId')">
+						{{ t("verifyBusiness.errTaxId") || "Please enter a valid tax identification number." }}
+					</span>
 				</label>
 
-				<label class="label" *ngIf="currentJurisdiction.hasCheckDigit">
+				<label class="label" *ngIf="currentJurisdiction.hasCheckDigit" for="company-check-digit">
 					<span class="label-text">{{ t("verifyBusiness.checkDigit") || "Dígito (DV)" }}</span>
 					<div class="dv-wrap">
 						<input
+							id="company-check-digit"
 							type="text"
 							class="input dv-input"
 							[(ngModel)]="session.company.checkDigit"
 							name="checkDigit"
 							inputmode="numeric"
 							autocorrect="off"
-							autocapitalize="off"
+							autocapitalize="none"
 							spellcheck="false"
 							maxlength="1"
 							placeholder="0"
+							aria-invalid="false"
 						/>
 						<span class="dv-badge" *ngIf="session.company.checkDigit" [title]="t('verifyBusiness.calcBadgeTooltip')">
 							Calc: {{ session.company.checkDigit }}
@@ -120,129 +151,247 @@
 				<legend class="legend">{{ t("verifyBusiness.registeredAddress") || "Domicilio Fiscal Principal" }}</legend>
 
 				<div class="field-row row-single">
-					<label class="label">
+					<label class="label" for="company-address-street">
 						<span class="label-text">{{ t("verifyBusiness.streetAddress") || "Dirección" }}</span>
 						<input
+							id="company-address-street"
 							type="text"
 							class="input"
 							[(ngModel)]="session.company.address.street"
 							name="addressStreet"
 							autocomplete="address-line1"
 							[placeholder]="t('verifyBusiness.streetAddressPlaceholder')"
+							minlength="3"
 							required
+							[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'addressStreet')"
+							[attr.aria-invalid]="isFieldInvalid(companyForm, 'addressStreet') ? 'true' : 'false'"
+							[attr.aria-describedby]="isFieldInvalid(companyForm, 'addressStreet') ? 'addressStreet-error' : null"
 						/>
+						<span id="addressStreet-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'addressStreet')">
+							{{ t("verifyBusiness.errStreet") || "Please enter the registered street address." }}
+						</span>
 					</label>
 				</div>
 
 				<div class="field-row row-three">
-					<label class="label">
+					<label class="label" for="company-address-city">
 						<span class="label-text">{{ t("verifyBusiness.city") || "Ciudad" }}</span>
 						<input
+							id="company-address-city"
 							type="text"
 							class="input"
 							[(ngModel)]="session.company.address.city"
 							name="addressCity"
 							autocomplete="address-level2"
 							[placeholder]="t('verifyBusiness.cityPlaceholder')"
+							minlength="2"
 							required
+							[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'addressCity')"
+							[attr.aria-invalid]="isFieldInvalid(companyForm, 'addressCity') ? 'true' : 'false'"
+							[attr.aria-describedby]="isFieldInvalid(companyForm, 'addressCity') ? 'addressCity-error' : null"
 						/>
+						<span id="addressCity-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'addressCity')">
+							{{ t("verifyBusiness.errCity") || "City is required." }}
+						</span>
 					</label>
 
-					<label class="label">
+					<label class="label" for="company-address-state">
 						<span class="label-text">{{ t("verifyBusiness.state") || "Estado / Provincia" }}</span>
 						<input
+							id="company-address-state"
 							type="text"
 							class="input"
 							[(ngModel)]="session.company.address.state"
 							name="addressState"
 							autocomplete="address-level1"
 							[placeholder]="t('verifyBusiness.statePlaceholder')"
+							aria-invalid="false"
 						/>
 					</label>
 
-					<label class="label">
+					<label class="label" for="company-address-postal">
 						<span class="label-text">{{ t("verifyBusiness.postalCode") || "Código Postal" }}</span>
 						<input
+							id="company-address-postal"
 							type="text"
 							class="input"
 							[(ngModel)]="session.company.address.postalCode"
 							name="addressPostal"
 							autocomplete="postal-code"
 							autocorrect="off"
-							autocapitalize="off"
+							autocapitalize="none"
 							spellcheck="false"
 							[placeholder]="t('verifyBusiness.postalCodePlaceholder')"
+							aria-invalid="false"
 						/>
 					</label>
 				</div>
 			</fieldset>
 
 			<div class="field-row">
-				<label class="label">
+				<label class="label" for="company-email">
 					<span class="label-text">{{ t("verifyBusiness.corporateEmail") || "Correo Corporativo" }}</span>
 					<input
+						id="company-email"
 						type="email"
 						class="input"
 						[(ngModel)]="session.company.email"
 						name="corporateEmail"
 						autocomplete="email"
 						autocorrect="off"
-						autocapitalize="off"
+						autocapitalize="none"
 						spellcheck="false"
 						[placeholder]="t('verifyBusiness.corporateEmailPlaceholder')"
 						required
+						[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'corporateEmail')"
+						[attr.aria-invalid]="isFieldInvalid(companyForm, 'corporateEmail') ? 'true' : 'false'"
+						[attr.aria-describedby]="isFieldInvalid(companyForm, 'corporateEmail') ? 'corporateEmail-error' : null"
 					/>
+					<span id="corporateEmail-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'corporateEmail')">
+						{{ t("verifyBusiness.errEmail") || "Please enter a valid corporate email address." }}
+					</span>
 				</label>
 
-				<label class="label">
+				<label class="label" for="company-phone">
 					<span class="label-text">{{ t("verifyBusiness.corporatePhone") || "Teléfono Empresarial" }}</span>
 					<input
+						id="company-phone"
 						type="tel"
 						class="input"
 						[(ngModel)]="session.company.phone"
 						name="corporatePhone"
 						autocomplete="tel"
+						autocorrect="off"
+						autocapitalize="none"
+						spellcheck="false"
 						[placeholder]="t('verifyBusiness.corporatePhonePlaceholder')"
+						minlength="7"
 						required
+						[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'corporatePhone')"
+						[attr.aria-invalid]="isFieldInvalid(companyForm, 'corporatePhone') ? 'true' : 'false'"
+						[attr.aria-describedby]="isFieldInvalid(companyForm, 'corporatePhone') ? 'corporatePhone-error' : null"
 					/>
+					<span id="corporatePhone-error" class="field-error" *ngIf="isFieldInvalid(companyForm, 'corporatePhone')">
+						{{ t("verifyBusiness.errPhone") || "Please enter a valid business phone number." }}
+					</span>
 				</label>
 			</div>
 
-			<div class="field-row">
-				<label class="label">
+			<div class="field-row" [class.row-single]="session.flowPolicy.collectUseCase">
+				<label class="label" for="company-website">
 					<span class="label-text">{{ t("verifyBusiness.website") || "Sitio Web (Opcional)" }}</span>
 					<input
+						id="company-website"
 						type="url"
 						class="input"
 						[(ngModel)]="session.company.website"
 						name="website"
 						autocomplete="url"
 						autocorrect="off"
-						autocapitalize="off"
+						autocapitalize="none"
 						spellcheck="false"
 						[placeholder]="t('verifyBusiness.websitePlaceholder')"
+						[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'website')"
+						[attr.aria-invalid]="isFieldInvalid(companyForm, 'website') ? 'true' : 'false'"
 					/>
 				</label>
-				<label class="label">
+				<label class="label" *ngIf="!session.flowPolicy.collectUseCase" for="company-industry">
 					<span class="label-text">{{ t("verifyBusiness.industry") || "Sector Económico" }}</span>
 					<input
+						id="company-industry"
 						type="text"
 						class="input"
 						[(ngModel)]="session.company.industry"
 						name="industry"
 						[placeholder]="t('verifyBusiness.industryPlaceholder')"
+						aria-invalid="false"
 					/>
 				</label>
 			</div>
+
+			<!-- Conditional Use Case Section -->
+			<fieldset class="address-fieldset" *ngIf="session.flowPolicy.collectUseCase">
+				<legend class="legend">{{ t("verifyBusiness.useCaseLegend") || "Intended Use Case & Compliance Profile" }}</legend>
+
+				<div class="field-row">
+					<label class="label" for="company-industry-uc">
+						<span class="label-text">{{ t("verifyBusiness.industry") || "Sector Económico" }}</span>
+						<input
+							id="company-industry-uc"
+							type="text"
+							class="input"
+							[(ngModel)]="session.company.industry"
+							name="industry"
+							[placeholder]="t('verifyBusiness.industryPlaceholder')"
+							aria-invalid="false"
+						/>
+					</label>
+
+					<label class="label" for="company-monthly-volume">
+						<span class="label-text">{{ t("verifyBusiness.expectedMonthlyVolume") || "Expected Monthly Volume" }}</span>
+						<div class="select-wrap">
+							<select
+								id="company-monthly-volume"
+								class="input"
+								[(ngModel)]="session.company.expectedMonthlyVolume"
+								name="expectedMonthlyVolume"
+								aria-invalid="false"
+							>
+								<option value="">{{ t("verifyBusiness.selectVolumePlaceholder") || "Select range..." }}</option>
+								<option *ngFor="let vol of monthlyVolumeOptions" [value]="vol.value">
+									{{ t(vol.labelKey) || vol.fallback }}
+								</option>
+							</select>
+						</div>
+					</label>
+				</div>
+
+				<div class="field-row row-single">
+					<label class="label" for="company-intended-use-case">
+						<span class="label-text">{{ t("verifyBusiness.intendedUseCase") || "Intended Use Case" }}</span>
+						<textarea
+							id="company-intended-use-case"
+							class="input textarea-input"
+							[(ngModel)]="session.company.intendedUseCase"
+							name="intendedUseCase"
+							rows="2"
+							[placeholder]="t('verifyBusiness.intendedUseCasePlaceholder') || 'Describe how your company will use the service'"
+							aria-invalid="false"
+						></textarea>
+					</label>
+				</div>
+
+				<div class="field-row row-single">
+					<label class="label" for="company-privacy-url">
+						<span class="label-text">{{ t("verifyBusiness.privacyPolicyUrl") || "Company Privacy Policy URL" }}</span>
+						<input
+							id="company-privacy-url"
+							type="url"
+							class="input"
+							[(ngModel)]="session.company.privacyPolicyUrl"
+							name="privacyPolicyUrl"
+							autocomplete="url"
+							autocorrect="off"
+							autocapitalize="none"
+							spellcheck="false"
+							[placeholder]="t('verifyBusiness.privacyPolicyUrlPlaceholder') || 'https://company.com/privacy'"
+							[class.user-invalid-fallback]="isFieldInvalid(companyForm, 'privacyPolicyUrl')"
+							[attr.aria-invalid]="isFieldInvalid(companyForm, 'privacyPolicyUrl') ? 'true' : 'false'"
+						/>
+					</label>
+				</div>
+			</fieldset>
 
 			<div class="actions">
 				<button
 					type="submit"
 					class="primary-btn"
-					[disabled]="!canProceed() || session.busy"
+					[disabled]="session.busy"
+					[attr.aria-busy]="session.busy ? 'true' : null"
+					enterkeyhint="next"
 				>
 					<span *ngIf="!session.busy" class="btn-content">{{ t("verifyBusiness.continueToDocs") || "Continuar" }} &rarr;</span>
-					<span *ngIf="session.busy" class="spinner-small"></span>
+					<span *ngIf="session.busy" class="spinner-small" aria-hidden="true"></span>
 				</button>
 			</div>
 		</form>

@@ -1,8 +1,10 @@
 <ng-container *transloco="let t">
 	<div class="docs-upload-wrap">
+		<div class="visually-hidden" aria-live="polite" role="status">{{ validationAnnouncement }}</div>
+
 		<header class="section-head">
 			<span class="step-badge">{{ t("verifyBusiness.step2Badge") || "Paso 2 de 4" }}</span>
-			<h1 class="title">{{ t("verifyBusiness.documentsTitle") || "Documentos Corporativos" }}</h1>
+			<h1 class="title" tabindex="-1">{{ t("verifyBusiness.documentsTitle") || "Documentos Corporativos" }}</h1>
 			<p class="subtitle">
 				{{
 					t("verifyBusiness.documentsSubtitle") ||
@@ -14,7 +16,28 @@
 		<!-- Hidden file input for native picker -->
 		<input #fileInput type="file" class="hidden-file-input" accept=".pdf,image/png,image/jpeg,image/jpg" (change)="onFileSelected($event)" />
 
-		<div *ngIf="session.error" class="error-banner">
+		<!-- Compliance Requested Changes Alert Banner -->
+		<div *ngIf="showChangesRequestedBanner" class="changes-requested-banner" role="status">
+			<div class="changes-head">
+				<svg viewBox="0 0 24 24" aria-hidden="true" class="error-icon">
+					<path d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" fill="none" stroke="currentColor" stroke-width="2" />
+				</svg>
+				<strong>{{ t("verifyBusiness.changesRequestedTitle") || "Compliance Requested Updates" }}</strong>
+			</div>
+			<p class="changes-desc">
+				{{ t("verifyBusiness.changesRequestedDesc") || "Please upload updated replacements for the requested or rejected documents below." }}
+			</p>
+			<ul class="changes-list" *ngIf="unfulfilledRequestedDocs.length > 0 || rejectedActiveDocs.length > 0">
+				<li *ngFor="let req of unfulfilledRequestedDocs">
+					<strong>{{ req.documentType }}</strong><span *ngIf="req.reason">: {{ req.reason }}</span>
+				</li>
+				<li *ngFor="let rej of rejectedActiveDocs">
+					<strong>{{ rej.documentType || rej.filename }}</strong> ({{ t("verifyBusiness.rejectedBadge") || "Rejected" }})<span *ngIf="rej.rejectionReason">: {{ rej.rejectionReason }}</span>
+				</li>
+			</ul>
+		</div>
+
+		<div *ngIf="session.error" class="error-banner" role="alert">
 			<svg viewBox="0 0 24 24" aria-hidden="true" class="error-icon">
 				<path d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" fill="none" stroke="currentColor" stroke-width="2" />
 			</svg>
@@ -25,6 +48,7 @@
 			<div
 				*ngFor="let slot of slots"
 				class="slot-card"
+				[attr.data-slot-key]="slot.slotKey"
 				[class.is-completed]="hasDocumentForSlot(slot)"
 				[class.drag-over]="dragCategory === slot.slotKey || dragCategory === slot.category"
 			>
@@ -41,7 +65,7 @@
 
 					<div class="slot-status-indicator">
 						<span class="status-pill ok" *ngIf="hasDocumentForSlot(slot)">
-							<svg viewBox="0 0 20 20" fill="currentColor" class="check-icon">
+							<svg viewBox="0 0 20 20" fill="currentColor" class="check-icon" aria-hidden="true">
 								<path
 									fill-rule="evenodd"
 									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -56,40 +80,48 @@
 					</div>
 				</div>
 
-				<!-- Uploaded files in this slot -->
-				<div class="uploaded-files-list" *ngIf="hasDocumentForSlot(slot)">
-					<div *ngFor="let doc of getDocumentsForSlot(slot)" class="file-chip">
-						<div class="file-chip-icon">
+				<!-- Uploaded files in this slot (superseded filtered out) -->
+				<div class="uploaded-files-list" *ngIf="getDocumentsForSlot(slot).length > 0">
+					<div *ngFor="let doc of getDocumentsForSlot(slot)" class="file-chip" [class.is-rejected]="isDocRejected(doc)">
+						<div class="file-chip-icon" aria-hidden="true">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 								<polyline points="14 2 14 8 20 8" />
 							</svg>
 						</div>
 						<div class="file-chip-info">
-							<span class="file-name" [title]="doc.filename">{{ doc.filename }}</span>
+							<div class="file-name-row">
+								<span class="file-name" [title]="doc.filename">{{ doc.filename }}</span>
+								<span class="doc-status-badge rejected" *ngIf="isDocRejected(doc)">{{ t("verifyBusiness.rejectedBadge") || "Rejected" }}</span>
+								<span class="doc-status-badge approved" *ngIf="isDocApproved(doc)">{{ t("verifyBusiness.approvedBadge") || "Approved" }}</span>
+							</div>
 							<span class="file-size" *ngIf="doc.size">{{ formatFileSize(doc.size) }}</span>
+							<span class="doc-rejection-reason" *ngIf="isDocRejected(doc) && doc.rejectionReason">
+								{{ doc.rejectionReason }}
+							</span>
 						</div>
-						<button type="button" class="file-remove-btn" (click)="removeDoc(doc)" [title]="t('verifyBusiness.removeFileTitle')">
+						<button type="button" class="file-remove-btn" (click)="removeDoc(doc)" [attr.aria-label]="t('verifyBusiness.removeFileTitle') || 'Remove file'" [title]="t('verifyBusiness.removeFileTitle')">
 							&times;
 						</button>
 					</div>
 				</div>
 
 				<!-- Drag and drop zone -->
-				<div
-					class="dropzone"
+				<button
+					type="button"
+					class="dropzone dropzone-trigger"
 					(dragover)="onDragOver($event, slot.slotKey)"
 					(dragleave)="onDragLeave($event)"
 					(drop)="onFileDrop($event, slot)"
 					(click)="triggerUpload(slot)"
 				>
 					<div *ngIf="uploadProgress[slot.slotKey] || uploadProgress[slot.category]" class="upload-loader">
-						<span class="spinner-small"></span>
+						<span class="spinner-small" aria-hidden="true"></span>
 						<span>{{ t("verifyBusiness.uploading") || "Cargando archivo..." }}</span>
 					</div>
 
 					<div *ngIf="!uploadProgress[slot.slotKey] && !uploadProgress[slot.category]" class="dropzone-content">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="upload-icon">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="upload-icon" aria-hidden="true">
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 							<polyline points="17 8 12 3 7 8" />
 							<line x1="12" y1="3" x2="12" y2="15" />
@@ -100,13 +132,161 @@
 						</p>
 						<span class="dropzone-hint">{{ t("verifyBusiness.maxSizeHint") || "PDF, PNG, JPG (máx. 25 MB)" }}</span>
 					</div>
+				</button>
+
+				<!-- Per-slot missing-document note (when partial submission with notes is allowed) -->
+				<div class="slot-note-wrap" *ngIf="session.flowPolicy.allowPartialSubmissionWithNotes && !hasDocumentForSlot(slot)">
+					<button
+						type="button"
+						class="note-toggle-btn"
+						[attr.aria-expanded]="isNoteExpanded(slot)"
+						[attr.aria-controls]="'slot-note-' + slot.slotKey"
+						(click)="toggleSlotNote(slot)"
+					>
+						{{
+							isNoteExpanded(slot)
+								? (t("verifyBusiness.hideMissingDocNote") || "Hide missing-document note")
+								: (t("verifyBusiness.addMissingDocNote") || "Don't have this right now — add note")
+						}}
+					</button>
+
+					<div *ngIf="isNoteExpanded(slot)" [id]="'slot-note-' + slot.slotKey" class="slot-note-panel">
+						<label class="note-field-label" [for]="'reason-' + slot.slotKey">
+							<span>{{ t("verifyBusiness.missingDocReasonLabel") || "Reason" }}</span>
+							<select
+								[id]="'reason-' + slot.slotKey"
+								class="note-select"
+								[(ngModel)]="slotDraftReasons[slotNoteKey(slot)]"
+								(ngModelChange)="syncSlotNoteToSession(slot)"
+								[name]="'reason_' + slot.slotKey"
+							>
+								<option *ngFor="let r of missingDocReasons" [value]="r.value">
+									{{ t(r.labelKey) || r.fallback }}
+								</option>
+							</select>
+						</label>
+
+						<label class="note-field-label" [for]="'note-' + slot.slotKey">
+							<span>{{ t("verifyBusiness.missingDocDetailLabel") || "Additional details for compliance" }}</span>
+							<textarea
+								[id]="'note-' + slot.slotKey"
+								class="note-textarea"
+								rows="2"
+								[(ngModel)]="slotDraftNotes[slotNoteKey(slot)]"
+								(ngModelChange)="syncSlotNoteToSession(slot)"
+								[name]="'note_' + slot.slotKey"
+								[placeholder]="t('verifyBusiness.missingDocNotePlaceholder') || 'e.g. Will provide once issued next week'"
+							></textarea>
+						</label>
+					</div>
 				</div>
 			</div>
 		</div>
 
+		<!-- Conditional Signatory Power of Attorney Toggle -->
+		<div class="poa-toggle-card">
+			<label class="poa-toggle-label" for="signatory-poa-toggle">
+				<input
+					id="signatory-poa-toggle"
+					type="checkbox"
+					[(ngModel)]="notListedOnRegistry"
+					name="notListedOnRegistry"
+					[attr.aria-expanded]="showSignatoryPoaSlot"
+					aria-controls="signatory-poa-slot"
+				/>
+				<span>
+					{{
+						t("verifyBusiness.notListedOnRegistryToggle") ||
+							"I am not listed on the commercial registry (Power of Attorney required)"
+					}}
+				</span>
+			</label>
+		</div>
+
+		<!-- Conditional SIGNATORY_POA Upload Slot -->
+		<div
+			*ngIf="showSignatoryPoaSlot"
+			id="signatory-poa-slot"
+			class="slot-card"
+			[attr.data-slot-key]="signatoryPoaSlot.slotKey"
+			[class.is-completed]="hasDocumentForSlot(signatoryPoaSlot)"
+			[class.drag-over]="dragCategory === signatoryPoaSlot.slotKey"
+		>
+			<div class="slot-header">
+				<div class="slot-meta">
+					<div class="slot-title-row">
+						<span class="slot-title">{{ t(signatoryPoaSlot.titleKey) || signatoryPoaSlot.fallbackTitle }}</span>
+						<span class="optional-badge" style="font-family: monospace">{{ signatoryPoaSlot.documentType }}</span>
+						<span class="required-badge">{{ t("verifyBusiness.required") || "Obligatorio" }}</span>
+					</div>
+					<p class="slot-desc">{{ t(signatoryPoaSlot.descriptionKey) || signatoryPoaSlot.fallbackDescription }}</p>
+				</div>
+
+				<div class="slot-status-indicator">
+					<span class="status-pill ok" *ngIf="hasDocumentForSlot(signatoryPoaSlot)">
+						{{ t("verifyBusiness.attached") || "Adjuntado" }}
+					</span>
+					<span class="status-pill pending" *ngIf="!hasDocumentForSlot(signatoryPoaSlot)">
+						{{ t("verifyBusiness.pendingUpload") || "Pendiente" }}
+					</span>
+				</div>
+			</div>
+
+			<div class="uploaded-files-list" *ngIf="getDocumentsForSlot(signatoryPoaSlot).length > 0">
+				<div *ngFor="let doc of getDocumentsForSlot(signatoryPoaSlot)" class="file-chip" [class.is-rejected]="isDocRejected(doc)">
+					<div class="file-chip-info">
+						<div class="file-name-row">
+							<span class="file-name" [title]="doc.filename">{{ doc.filename }}</span>
+							<span class="doc-status-badge rejected" *ngIf="isDocRejected(doc)">{{ t("verifyBusiness.rejectedBadge") || "Rejected" }}</span>
+						</div>
+						<span class="doc-rejection-reason" *ngIf="isDocRejected(doc) && doc.rejectionReason">{{ doc.rejectionReason }}</span>
+					</div>
+					<button type="button" class="file-remove-btn" (click)="removeDoc(doc)" [attr.aria-label]="t('verifyBusiness.removeFileTitle') || 'Remove file'">
+						&times;
+					</button>
+				</div>
+			</div>
+
+			<button
+				type="button"
+				class="dropzone dropzone-trigger"
+				(dragover)="onDragOver($event, signatoryPoaSlot.slotKey)"
+				(dragleave)="onDragLeave($event)"
+				(drop)="onFileDrop($event, signatoryPoaSlot)"
+				(click)="triggerUpload(signatoryPoaSlot)"
+			>
+				<div *ngIf="uploadProgress[signatoryPoaSlot.slotKey]" class="upload-loader">
+					<span class="spinner-small" aria-hidden="true"></span>
+					<span>{{ t("verifyBusiness.uploading") || "Cargando archivo..." }}</span>
+				</div>
+				<div *ngIf="!uploadProgress[signatoryPoaSlot.slotKey]" class="dropzone-content">
+					<p class="dropzone-text">
+						<strong>{{ t("verifyBusiness.clickToUpload") || "Haga clic para subir" }}</strong>
+						{{ t("verifyBusiness.orDragAndDrop") || "o arrastre el archivo aquí" }}
+					</p>
+					<span class="dropzone-hint">{{ t("verifyBusiness.maxSizeHint") || "PDF, PNG, JPG (máx. 25 MB)" }}</span>
+				</div>
+			</button>
+		</div>
+
+		<!-- Global Compliance Notes -->
+		<div class="global-notes-card" *ngIf="session.flowPolicy.allowPartialSubmissionWithNotes">
+			<label class="note-field-label" for="global-submission-notes">
+				<span>{{ t("verifyBusiness.globalComplianceNotesLabel") || "General notes for compliance team (optional)" }}</span>
+				<textarea
+					id="global-submission-notes"
+					class="note-textarea"
+					rows="3"
+					[(ngModel)]="session.submissionNotes"
+					name="submissionNotes"
+					[placeholder]="t('verifyBusiness.globalComplianceNotesPlaceholder') || 'Add any context about missing documents or expected delivery dates...'"
+				></textarea>
+			</label>
+		</div>
+
 		<div class="actions">
-			<button type="button" class="secondary-btn" (click)="back()">&larr; {{ t("verifyBusiness.back") || "Atrás" }}</button>
-			<button type="button" class="primary-btn" [disabled]="!canProceed() || session.busy" (click)="next()">
+			<button type="button" class="secondary-btn" (click)="back()" enterkeyhint="previous">&larr; {{ t("verifyBusiness.back") || "Atrás" }}</button>
+			<button type="button" class="primary-btn" [disabled]="session.busy" [attr.aria-busy]="session.busy ? 'true' : null" (click)="next()" enterkeyhint="next">
 				<span>{{ t("verifyBusiness.continueToMembers") || "Continuar a Miembros y Beneficiarios" }} &rarr;</span>
 			</button>
 		</div>
