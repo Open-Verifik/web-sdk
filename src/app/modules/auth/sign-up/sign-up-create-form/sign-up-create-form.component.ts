@@ -345,7 +345,7 @@ export class SignUpCreateFormComponent implements OnDestroy, OnChanges {
 
 		let cleanedEmail = emailFormControl.value.replace(/\s/g, "");
 
-		if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== emailFormControl.value.lastIndexOf("@")) {
+		if (cleanedEmail.includes("@") && cleanedEmail.indexOf("@") !== cleanedEmail.lastIndexOf("@")) {
 			cleanedEmail = cleanedEmail.replace(/@/g, "");
 		}
 
