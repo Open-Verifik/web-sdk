@@ -62,22 +62,51 @@
 
 		<!-- Form Card -->
 		<div class="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
+			<div class="visually-hidden" aria-live="polite" role="status">{{ validationAnnouncement }}</div>
+
 			<form
+				#signUpFormEl
 				[formGroup]="signUpForm"
-				*ngIf="project"
+				(ngSubmit)="signUp()"
+				novalidate
+				*ngIf="project && signUpForm"
 				autocomplete="on"
 				class="w-full flex flex-col gap-6"
 				id="access-verifik-form"
 				name="signup-form"
 			>
-				<ng-container *ngIf="signUpFormSettings?.fullName">
+				<!-- Verifik Stage 1: Company Name First -->
+				<mat-form-field appearance="outline" class="w-full" *ngIf="fields.company && isVerifikProject">
+					<mat-label>{{ t("signup.company") }}</mat-label>
+
+					<input
+						[placeholder]="t('signup.company')"
+						autocomplete="organization"
+						formControlName="company"
+						id="company-name"
+						matInput
+						name="company"
+						required
+						[class.user-invalid-fallback]="hasFieldError('company')"
+						[attr.aria-invalid]="hasFieldError('company') ? 'true' : 'false'"
+						[attr.aria-describedby]="hasFieldError('company') ? 'company-error' : null"
+					/>
+
+					<mat-error id="company-error" *ngIf="hasFieldError('company')">
+						{{ t("signup.company") }} {{ t("signup.is_required") }}
+					</mat-error>
+				</mat-form-field>
+
+				<ng-container *ngIf="signUpFormSettings?.fullName || isVerifikProject">
 					<div class="w-full flex flex-col">
-						<!-- Full Name Field -->
+						<!-- Full Name / Legal Representative Name Field -->
 						<mat-form-field appearance="outline" class="w-full" *ngIf="fields.fullName">
-							<mat-label>{{ t("signup.fullName") }}</mat-label>
+							<mat-label>
+								{{ isVerifikProject ? (t("signup.legalRepresentativeName") || "Legal Representative Name") : t("signup.fullName") }}
+							</mat-label>
 
 							<input
-								[placeholder]="t('signup.fullName')"
+								[placeholder]="isVerifikProject ? (t('signup.legalRepresentativeName') || 'Legal Representative Name') : t('signup.fullName')"
 								autocomplete="name"
 								formControlName="fullName"
 								id="fullName"
@@ -85,15 +114,18 @@
 								name="fullName"
 								required
 								type="text"
+								[class.user-invalid-fallback]="hasFieldError('fullName')"
+								[attr.aria-invalid]="hasFieldError('fullName') ? 'true' : 'false'"
+								[attr.aria-describedby]="hasFieldError('fullName') ? 'fullName-error' : null"
 							/>
 
-							<mat-error *ngIf="signUpForm.get('fullName')?.hasError('required') && signUpForm.get('fullName')?.touched">
-								{{ t("signup.fullName") }} {{ t("signup.is_required") }}
+							<mat-error id="fullName-error" *ngIf="hasFieldError('fullName')">
+								{{ isVerifikProject ? (t("signup.legalRepresentativeName") || "Legal Representative Name") : t("signup.fullName") }} {{ t("signup.is_required") }}
 							</mat-error>
 						</mat-form-field>
 
 						<!-- First Name and Last Name Fields -->
-						<div class="w-full flex flex-col sm:flex-row gap-2" *ngIf="!fields.fullName">
+						<div class="w-full flex flex-col sm:flex-row gap-2" *ngIf="!fields.fullName && (fields.firstName || fields.lastName)">
 							<mat-form-field appearance="outline" class="flex-1">
 								<mat-label>{{ t("signup.firstName") }}</mat-label>
 
@@ -106,9 +138,12 @@
 									name="firstName"
 									required
 									type="text"
+									[class.user-invalid-fallback]="hasFieldError('firstName')"
+									[attr.aria-invalid]="hasFieldError('firstName') ? 'true' : 'false'"
+									[attr.aria-describedby]="hasFieldError('firstName') ? 'firstName-error' : null"
 								/>
 
-								<mat-error *ngIf="signUpForm.get('firstName')?.hasError('required') && signUpForm.get('firstName')?.touched">
+								<mat-error id="firstName-error" *ngIf="hasFieldError('firstName')">
 									{{ t("signup.firstName") }} {{ t("signup.is_required") }}
 								</mat-error>
 							</mat-form-field>
@@ -125,9 +160,12 @@
 									name="lastName"
 									required
 									type="text"
+									[class.user-invalid-fallback]="hasFieldError('lastName')"
+									[attr.aria-invalid]="hasFieldError('lastName') ? 'true' : 'false'"
+									[attr.aria-describedby]="hasFieldError('lastName') ? 'lastName-error' : null"
 								/>
 
-								<mat-error *ngIf="signUpForm.get('lastName')?.hasError('required') && signUpForm.get('lastName')?.touched">
+								<mat-error id="lastName-error" *ngIf="hasFieldError('lastName')">
 									{{ t("signup.lastName") }} {{ t("signup.is_required") }}
 								</mat-error>
 							</mat-form-field>
@@ -142,6 +180,7 @@
 								viewBox="0 0 24 24"
 								fill="none"
 								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
 							>
 								<path
 									d="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.48 2 2 6.98 2 12C2 17.02 6.48 22 12 22C17.52 22 22 17.02 22 12C22 6.98 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z"
@@ -163,20 +202,27 @@
 						(input)="removeSpacesFromEmail()"
 						[placeholder]="t('login.email')"
 						autocomplete="email"
+						autocorrect="off"
+						autocapitalize="none"
+						spellcheck="false"
 						formControlName="email"
 						id="email"
 						matInput
 						name="email"
 						required
 						type="email"
+						[class.user-invalid-fallback]="hasFieldError('email')"
+						[attr.aria-invalid]="hasFieldError('email') ? 'true' : 'false'"
+						[attr.aria-describedby]="hasFieldError('email') ? 'email-error' : null"
 					/>
 
-					<mat-error *ngIf="signUpForm.get('email')?.hasError('required') && signUpForm.get('email')?.touched">
-						{{ t("login.email") }} {{ t("signup.is_required") }}
-					</mat-error>
-
-					<mat-error *ngIf="signUpForm.get('email')?.hasError('email') && signUpForm.get('email')?.touched">
-						{{ t("signup.please_enter_a_valid") }} {{ t("login.email") }}
+					<mat-error id="email-error" *ngIf="hasFieldError('email')">
+						<ng-container *ngIf="signUpForm.get('email')?.hasError('required'); else invalidEmailMsg">
+							{{ t("login.email") }} {{ t("signup.is_required") }}
+						</ng-container>
+						<ng-template #invalidEmailMsg>
+							{{ t("signup.please_enter_a_valid") }} {{ t("login.email") }}
+						</ng-template>
 					</mat-error>
 				</mat-form-field>
 
@@ -199,6 +245,9 @@
 							(input)="removeSpacesFromPhone()"
 							[placeholder]="t('login.phone')"
 							autocomplete="tel"
+							autocorrect="off"
+							autocapitalize="none"
+							spellcheck="false"
 							formControlName="phone"
 							id="phone"
 							inputmode="numeric"
@@ -209,25 +258,24 @@
 							pattern="[0-9]*"
 							required
 							type="tel"
+							[class.user-invalid-fallback]="hasFieldError('phone')"
+							[attr.aria-invalid]="hasFieldError('phone') ? 'true' : 'false'"
+							[attr.aria-describedby]="hasFieldError('phone') ? 'phone-error' : null"
 						/>
 
-						<mat-error *ngIf="signUpForm.get('phone')?.hasError('required') && signUpForm.get('phone')?.touched">
-							{{ t("login.phone") }} {{ t("signup.is_required") }}
-						</mat-error>
-
-						<mat-error
-							*ngIf="
-								(signUpForm.get('phone')?.hasError('minlength') || signUpForm.get('phone')?.hasError('maxlength')) &&
-								signUpForm.get('phone')?.touched
-							"
-						>
-							{{ t("signup.please_enter_a_valid") }} {{ t("login.phone") }}
+						<mat-error id="phone-error" *ngIf="hasFieldError('phone')">
+							<ng-container *ngIf="signUpForm.get('phone')?.hasError('required'); else invalidPhoneMsg">
+								{{ t("login.phone") }} {{ t("signup.is_required") }}
+							</ng-container>
+							<ng-template #invalidPhoneMsg>
+								{{ t("signup.please_enter_a_valid") }} {{ t("login.phone") }}
+							</ng-template>
 						</mat-error>
 					</mat-form-field>
 				</div>
 
-				<!-- Company Field -->
-				<mat-form-field appearance="outline" class="w-full" *ngIf="fields.company">
+				<!-- Company Field (non-Verifik projects only) -->
+				<mat-form-field appearance="outline" class="w-full" *ngIf="fields.company && !isVerifikProject">
 					<mat-label>{{ t("signup.company") }}</mat-label>
 
 					<input
@@ -238,11 +286,13 @@
 						matInput
 						name="company"
 						required
+						[class.user-invalid-fallback]="hasFieldError('company')"
+						[attr.aria-invalid]="hasFieldError('company') ? 'true' : 'false'"
 					/>
 				</mat-form-field>
 
-				<!-- Role Field -->
-				<mat-form-field appearance="outline" class="w-full" *ngIf="fields.role && roles">
+				<!-- Role Field (non-Verifik projects only) -->
+				<mat-form-field appearance="outline" class="w-full" *ngIf="fields.role && roles && !isVerifikProject">
 					<mat-label>{{ t("signup.role") }}</mat-label>
 
 					<mat-select [formControl]="signUpForm.get('role') || null" name="role" autocomplete="organization-title" required>
@@ -252,8 +302,8 @@
 					</mat-select>
 				</mat-form-field>
 
-				<!-- Additional Fields -->
-				<ng-container *ngIf="signUpFormSettings?.allowAdditionalFields">
+				<!-- Additional Fields (non-Verifik projects only) -->
+				<ng-container *ngIf="!isVerifikProject && signUpFormSettings?.allowAdditionalFields">
 					<!-- Gender Field -->
 					<mat-form-field appearance="outline" class="w-full" *ngIf="signUpFormSettings.additionalFields.includes('gender')">
 						<mat-label>{{ t("signup.gender") }}</mat-label>
@@ -443,8 +493,8 @@
 				</ng-container>
 
 				<!-- Error Message -->
-				<div class="w-full p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3" *ngIf="showError">
-					<svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<div class="w-full p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3" *ngIf="showError" role="alert">
+					<svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 						<path
 							d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
 							fill="#dc2626"
@@ -454,72 +504,83 @@
 				</div>
 
 				<!-- Terms and Conditions -->
-				<div class="w-full flex items-start gap-3 pt-2" *ngIf="signUpForm && signUpForm.get('agreements')">
-					<div class="relative flex-shrink-0 mt-0.5">
-						<input
-							[style.background-color]="signUpForm.get('agreements')?.value ? project.branding.buttonColor || '#6366f1' : 'white'"
-							[style.border-color]="signUpForm.get('agreements')?.value ? project.branding.buttonColor || '#6366f1' : '#d1d5db'"
-							class="w-4 h-4 cursor-pointer transition-all duration-200 rounded border-2 appearance-none checked:appearance-none"
-							formControlName="agreements"
-							id="agreements"
-							name="agreements"
-							type="checkbox"
-						/>
+				<div class="w-full flex flex-col gap-1 pt-2" *ngIf="signUpForm && signUpForm.get('agreements')">
+					<div class="w-full flex items-start gap-3">
+						<div class="relative flex-shrink-0 mt-0.5">
+							<input
+								[style.background-color]="signUpForm.get('agreements')?.value ? project.branding.buttonColor || '#6366f1' : 'white'"
+								[style.border-color]="hasFieldError('agreements') ? '#dc2626' : (signUpForm.get('agreements')?.value ? project.branding.buttonColor || '#6366f1' : '#d1d5db')"
+								class="w-4 h-4 cursor-pointer transition-all duration-200 rounded border-2 appearance-none checked:appearance-none"
+								[class.user-invalid-fallback]="hasFieldError('agreements')"
+								formControlName="agreements"
+								id="agreements"
+								name="agreements"
+								type="checkbox"
+								required
+								[attr.aria-invalid]="hasFieldError('agreements') ? 'true' : 'false'"
+								[attr.aria-describedby]="hasFieldError('agreements') ? 'agreements-error' : null"
+							/>
 
-						<div
-							*ngIf="signUpForm.get('agreements')?.value"
-							class="absolute inset-0 flex items-center justify-center pointer-events-none"
-						>
-							<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
+							<div
+								*ngIf="signUpForm.get('agreements')?.value"
+								class="absolute inset-0 flex items-center justify-center pointer-events-none"
+							>
+								<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+									<path
+										fill-rule="evenodd"
+										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+										clip-rule="evenodd"
+									></path>
+								</svg>
+							</div>
 						</div>
+
+						<label for="agreements" class="text-sm text-gray-600 leading-relaxed cursor-pointer flex-1">
+							<span>{{ t("signup.agreement1") }} </span>
+							<a
+								[href]="legalTermsAndConditionsUrl"
+								[style.color]="project.branding.buttonColor || '#6366f1'"
+								*ngIf="shouldShowTermsLink"
+								class="font-medium hover:underline"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{{ t("signup.terms") }}
+							</a>
+							<span *ngIf="shouldShowTermsLink && shouldShowPrivacyLink">
+								{{ t("signup.and") }}
+							</span>
+							<a
+								[href]="legalPrivacyUrl"
+								[style.color]="project.branding.buttonColor || '#6366f1'"
+								*ngIf="shouldShowPrivacyLink"
+								class="font-medium hover:underline"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{{ t("signup.privacyPolicy") }}
+							</a>
+						</label>
 					</div>
 
-					<label for="agreements" class="text-sm text-gray-600 leading-relaxed cursor-pointer flex-1">
-						<span>{{ t("signup.agreement1") }} </span>
-						<a
-							[href]="legalTermsAndConditionsUrl"
-							[style.color]="project.branding.buttonColor || '#6366f1'"
-							*ngIf="shouldShowTermsLink"
-							class="font-medium hover:underline"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{{ t("signup.terms") }}
-						</a>
-						<span *ngIf="shouldShowTermsLink && shouldShowPrivacyLink">
-							{{ t("signup.and") }}
-						</span>
-						<a
-							[href]="legalPrivacyUrl"
-							[style.color]="project.branding.buttonColor || '#6366f1'"
-							*ngIf="shouldShowPrivacyLink"
-							class="font-medium hover:underline"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{{ t("signup.privacyPolicy") }}
-						</a>
-					</label>
+					<p id="agreements-error" class="text-xs text-red-600 m-0" *ngIf="hasFieldError('agreements')">
+						{{ t("signup.agreementRequired") || "You must accept the terms and privacy policy to continue." }}
+					</p>
 				</div>
 
 				<!-- Submit Button -->
 				<button
-					(click)="signUp()"
-					[disabled]="isFormDisabled"
+					[disabled]="saving"
+					[attr.aria-busy]="saving ? 'true' : null"
 					[id]="'signUp-' + project._id"
 					[style.background-color]="project.branding.buttonColor || '#6366f1'"
 					[style.color]="project.branding.buttonTextColor || '#ffffff'"
 					class="w-full h-11 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 flex items-center justify-center gap-2"
-					type="button"
+					enterkeyhint="done"
+					type="submit"
 				>
 					<span *ngIf="!saving">{{ t("step_two.continue_button") }}</span>
-					<div *ngIf="saving" class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+					<div *ngIf="saving" class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
 				</button>
 			</form>
 		</div>
