@@ -14,6 +14,7 @@ import { redirectForCurrentHost } from "app/core/auth/panel-url";
 import { PromptTemplate } from "app/core/models/prompt-template.model";
 import { CountryOption, CountryService } from "app/core/services/country.service";
 import {
+	clearSignUpAppRegistrationToken,
 	isUsableAppRegistrationSessionToken,
 	readSignUpAppRegistrationToken,
 	saveSignUpAppRegistrationToken,
@@ -202,6 +203,7 @@ export class VerifySessionService implements OnDestroy {
 	private _skippedLiveness = false;
 	private _token = "";
 	private _rawToken = "";
+	private _userSelectedLang = false;
 	private _onVisibilityChange = (): void => {
 		if (typeof document !== "undefined" && document.visibilityState === "visible" && this.screen === "handoff") {
 			this._pollHandoffStatus();
@@ -1218,6 +1220,7 @@ export class VerifySessionService implements OnDestroy {
 	}
 
 	selectLanguage(id: string): void {
+		this._userSelectedLang = true;
 		this._transloco.setActiveLang(id);
 		this.sheet = null;
 		this._touch();
@@ -1282,6 +1285,7 @@ export class VerifySessionService implements OnDestroy {
 		this.project = new Project({ ...response.data, type: "onboarding" });
 		this.projectFlow = this.project.getOnboardingProjectFlow() || null;
 		this._kyc.setProjectData(this.project, this.projectFlow);
+		this._applyDefaultLanguage(response.data?.defaultLanguage);
 		if (this.projectFlow?.target === "business" && (this._rawToken || this._token)) {
 			this.isRepresentativeKyc = true;
 		}
@@ -1455,7 +1459,22 @@ export class VerifySessionService implements OnDestroy {
 					this._livenessFailures = this.registration?.failedBiometricValidations?.length || 0;
 					this._applyResume();
 				},
-				error: () => this._startFresh(),
+				error: (error) => {
+					const status = Number(error?.status ?? 0);
+					const isExplicitToken = Boolean(this._rawToken);
+					const isStaleCachedToken = !isExplicitToken && (status === 401 || status === 404);
+
+					if (isStaleCachedToken) {
+						clearSignUpAppRegistrationToken(this.projectId);
+						this._token = "";
+						localStorage.removeItem("accessToken");
+						this._startFresh();
+						return;
+					}
+
+					this.busy = false;
+					this._fail(error?.error?.message || "verify.errorBody");
+				},
 			});
 	}
 
@@ -1481,6 +1500,8 @@ export class VerifySessionService implements OnDestroy {
 		const settings = this.settings;
 
 		if (!settings) return this._fail("verify.errorBody");
+
+		this._applyDefaultLanguage(this.registration?.language);
 
 		if (this.registration?.reverifyMode) {
 			this.reverifyMode = true;
@@ -3007,6 +3028,23 @@ export class VerifySessionService implements OnDestroy {
 			postalCode: "",
 			state: "",
 		};
+	}
+
+	private _applyDefaultLanguage(rawLang?: string | null): void {
+		if (this._userSelectedLang || !rawLang) return;
+
+		const normalized = String(rawLang).trim().toLowerCase();
+		if (!normalized) return;
+
+		const available = this.languages.map((lang) => lang.id);
+		const base = normalized.split(/[-_]/)[0];
+		const match =
+			available.find((id) => id.toLowerCase() === normalized) ||
+			available.find((id) => id.toLowerCase() === base);
+
+		if (match && this._transloco.getActiveLang() !== match) {
+			this._transloco.setActiveLang(match);
+		}
 	}
 
 	private _touch(): void {
